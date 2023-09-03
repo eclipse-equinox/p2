@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -105,6 +105,11 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 	@Override
 	public synchronized IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		return IndexProvider.query(this, query, monitor);
+	}
+
+	@Override
+	public boolean contains(IInstallableUnit element) {
+		return units.contains(element);
 	}
 
 	@Override

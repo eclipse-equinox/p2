@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009, 2018 EclipseSource and others.
+* Copyright (c) 2009, 2023 EclipseSource and others.
 *
 * This
 * program and the accompanying materials are made available under the terms of
@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
@@ -31,8 +32,9 @@ import org.eclipse.equinox.p2.metadata.index.IIndex;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 
 /**
- * A queryable that holds a number of other IQueryables and provides
- * a mechanism for querying the entire set.
+ * A queryable that holds a number of other IQueryables and provides a mechanism
+ * for querying the entire set.
+ * 
  * @since 2.0
  */
 public final class CompoundQueryable<T> extends IndexProvider<T> {
@@ -75,7 +77,7 @@ public final class CompoundQueryable<T> extends IndexProvider<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	CompoundQueryable(IQueryable<T> query1, IQueryable<T> query2) {
-		this(new IQueryable[] {query1, query2});
+		this(new IQueryable[] { query1, query2 });
 	}
 
 	@Override
@@ -98,7 +100,7 @@ public final class CompoundQueryable<T> extends IndexProvider<T> {
 			// Nobody had an index for this member
 			return null;
 
-		ArrayList<IIndex<T>> indexes = new ArrayList<>(queryables.length);
+		List<IIndex<T>> indexes = new ArrayList<>(queryables.length);
 		for (IQueryable<T> queryable : queryables) {
 			if (queryable instanceof IIndexProvider<?>) {
 				@SuppressWarnings("unchecked")
@@ -118,15 +120,25 @@ public final class CompoundQueryable<T> extends IndexProvider<T> {
 	@Override
 	public Iterator<T> everything() {
 		if (queryables.length == 0)
-			return Collections.<T> emptySet().iterator();
+			return Collections.emptyIterator();
 
 		if (queryables.length == 1)
 			return getIteratorFromQueryable(queryables[0]);
 
-		ArrayList<Iterator<T>> iterators = new ArrayList<>(queryables.length);
+		List<Iterator<T>> iterators = new ArrayList<>(queryables.length);
 		for (IQueryable<T> queryable : queryables)
 			iterators.add(getIteratorFromQueryable(queryable));
 		return new CompoundIterator<>(iterators.iterator());
+	}
+
+	@Override
+	public boolean contains(T element) {
+		for (IQueryable<T> queryable : queryables) {
+			if (queryable.contains(element)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -164,7 +176,7 @@ public final class CompoundQueryable<T> extends IndexProvider<T> {
 		}
 
 		Iterator<T> getCapturedIterator() {
-			return capturedIterator == null ? Collections.<T> emptySet().iterator() : capturedIterator;
+			return capturedIterator == null ? Collections.emptyIterator() : capturedIterator;
 		}
 	}
 

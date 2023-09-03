@@ -16,4 +16,12 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/org/eclipse/equinox/p2/query/IQueryable.java" type="org.eclipse.equinox.p2.query.IQueryable">
+        <filter id="404000815">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.query.IQueryable"/>
+                <message_argument value="contains(T)"/>
+            </message_arguments>
+        </filter>
+    </resource>
 </component>

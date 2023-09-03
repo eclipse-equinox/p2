@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Code 9 and others.
+ * Copyright (c) 2008, 2023 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   Cloudsmith Inc. - query indexes
@@ -139,6 +139,11 @@ public class PublisherResult extends IndexProvider<IInstallableUnit> implements 
 		iterators.add(nonRootIUs.iterator());
 		iterators.add(rootIUs.iterator());
 		return new CompoundIterator<>(iterators.iterator());
+	}
+
+	@Override
+	public boolean contains(IInstallableUnit element) {
+		return rootIUs.contains(element) || nonRootIUs.contains(element);
 	}
 
 	@Override

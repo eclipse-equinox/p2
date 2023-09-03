@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -37,6 +37,11 @@ public class QueryableArray extends IndexProvider<IInstallableUnit> {
 	@Override
 	public Iterator<IInstallableUnit> everything() {
 		return dataSet.iterator();
+	}
+
+	@Override
+	public boolean contains(IInstallableUnit element) {
+		return dataSet.contains(element);
 	}
 
 	@Override

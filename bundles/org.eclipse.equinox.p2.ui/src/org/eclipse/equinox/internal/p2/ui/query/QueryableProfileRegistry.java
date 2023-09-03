@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,8 +15,8 @@
 package org.eclipse.equinox.internal.p2.ui.query;
 
 import java.util.Arrays;
+import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -34,14 +34,23 @@ public class QueryableProfileRegistry implements IQueryable<IProfile> {
 		this.ui = ui;
 	}
 
+	private List<IProfile> getProfiles() {
+		return Arrays.asList(ProvUI.getProfileRegistry(ui.getSession()).getProfiles());
+	}
+
 	@Override
 	public IQueryResult<IProfile> query(IQuery<IProfile> query, IProgressMonitor monitor) {
-		IProfile[] profiles = ProvUI.getProfileRegistry(ui.getSession()).getProfiles();
-		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableProfileRegistry_QueryProfileProgress, profiles.length);
+		List<IProfile> profiles = getProfiles();
+		monitor.beginTask(ProvUIMessages.QueryableProfileRegistry_QueryProfileProgress, profiles.size());
 		try {
-			return query.perform(Arrays.asList(profiles).iterator());
+			return query.perform(profiles.iterator());
 		} finally {
-			sub.done();
+			monitor.done();
 		}
+	}
+
+	@Override
+	public boolean contains(IProfile profile) {
+		return getProfiles().contains(profile);
 	}
 }

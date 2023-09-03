@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2023 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -196,6 +196,11 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 	@Override
 	public Iterator<IInstallableUnit> everything() {
 		return ius.iterator();
+	}
+
+	@Override
+	public boolean contains(IInstallableUnit element) {
+		return ius.contains(element);
 	}
 
 	@Override

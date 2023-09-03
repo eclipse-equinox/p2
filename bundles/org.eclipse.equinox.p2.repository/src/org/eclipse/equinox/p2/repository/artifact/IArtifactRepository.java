@@ -116,6 +116,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	 * @param key the key to query
 	 * @return true if the given key is already in this repository
 	 */
+	@Override
 	boolean contains(IArtifactKey key);
 
 	/**
