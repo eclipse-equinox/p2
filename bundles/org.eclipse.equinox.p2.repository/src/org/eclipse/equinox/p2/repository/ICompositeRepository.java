@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2023 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  * from the children and acts as a single repository containing the union of all
  * child contents. When a composite repository is queried programmatically,
  * it will appear to contain all elements that currently exist in one or more
- * of its children. 
+ * of its children.
  * @param <T> The type of repository content. Typically this is either {@link IInstallableUnit}
  * or {@link IArtifactKey}.
  * @noextend This interface is not intended to be extended by clients.
@@ -37,24 +37,24 @@ public interface ICompositeRepository<T> extends IRepository<T> {
 	 * Does nothing if URI is a duplicate of an existing child repository.
 	 * @param child The child to add.
 	 */
-	public void addChild(URI child);
+	void addChild(URI child);
 
 	/**
 	 * Returns a list of URIs containing the locations of the children repositories
-	 * 
+	 *
 	 * @return a list of URIs containing the locations of the children repositories
 	 */
-	public List<URI> getChildren();
+	List<URI> getChildren();
 
 	/**
 	 * Removes all child repositories
 	 */
-	public void removeAllChildren();
+	void removeAllChildren();
 
 	/**
 	 * Removes the specified URI from the list of child repositories.
 	 * This method has no effect if the specified URI is not a child repository
 	 * @param child The child to remove
 	 */
-	public void removeChild(URI child);
+	void removeChild(URI child);
 }
