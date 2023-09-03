@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2023 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -63,6 +63,11 @@ public class ProvisioningContext {
 		@Override
 		public IQueryResult<IArtifactRepository> query(IQuery<IArtifactRepository> query, IProgressMonitor mon) {
 			return query.perform(repositories.listIterator());
+		}
+
+		@Override
+		public boolean contains(IArtifactRepository element) {
+			return repositories.contains(element);
 		}
 	}
 

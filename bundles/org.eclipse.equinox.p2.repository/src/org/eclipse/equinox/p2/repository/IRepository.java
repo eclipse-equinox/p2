@@ -10,6 +10,7 @@
  *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Hannes Wellmann - Add IQueryable.contains(T) method and implement overrides where suitable
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository;
 
@@ -222,4 +223,16 @@ public interface IRepository<T> extends IAdaptable, IQueryable<T> {
 	 * @since 2.1
 	 */
 	String setProperty(String key, String value, IProgressMonitor monitor);
+
+	/**
+	 * Returns true if this repository contains the given element.
+	 *
+	 * @param element the element to query
+	 * @return true if the given element is already in this repository
+	 * @since 2.8
+	 */
+	@Override
+	default boolean contains(T element) {
+		return IQueryable.super.contains(element);
+	}
 }

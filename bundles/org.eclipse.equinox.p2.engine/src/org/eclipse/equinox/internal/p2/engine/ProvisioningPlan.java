@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2023 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -7,13 +7,14 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
+import java.util.stream.Stream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -90,20 +91,28 @@ public class ProvisioningPlan implements IProvisioningPlan {
 			this.addition = add;
 		}
 
+		private Stream<IInstallableUnit> installableUnits() {
+			if (operands.isEmpty() || status.getSeverity() == IStatus.ERROR) {
+				return Stream.empty();
+			}
+			return operands.stream() //
+					.filter(InstallableUnitOperand.class::isInstance).map(InstallableUnitOperand.class::cast)
+					.map(addition ? InstallableUnitOperand::second : InstallableUnitOperand::first)
+					.filter(Objects::nonNull);
+		}
+
 		@Override
 		public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-			if (operands == null || status.getSeverity() == IStatus.ERROR)
+			Iterator<IInstallableUnit> units = installableUnits().iterator();
+			if (!units.hasNext()) {
 				return Collector.emptyCollector();
-			Collection<IInstallableUnit> list = new ArrayList<>();
-			for (Operand operand : operands) {
-				if (!(operand instanceof InstallableUnitOperand))
-					continue;
-				InstallableUnitOperand op = ((InstallableUnitOperand) operand);
-				IInstallableUnit iu = addition ? op.second() : op.first();
-				if (iu != null)
-					list.add(iu);
 			}
-			return query.perform(list.iterator());
+			return query.perform(units);
+		}
+
+		@Override
+		public boolean contains(IInstallableUnit element) {
+			return installableUnits().anyMatch(iu -> Objects.equals(iu, element));
 		}
 	}
 

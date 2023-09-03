@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2017 IBM Corporation and others.
+ *  Copyright (c) 2009, 2023 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -170,6 +170,11 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	@Override
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		return profile.query(query, monitor);
+	}
+
+	@Override
+	public boolean contains(IInstallableUnit element) {
+		return profile.contains(element);
 	}
 
 	private static IProfile getProfile(IProvisioningAgent agent, URI location) throws ProvisionException {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -151,6 +151,16 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 			if (monitor != null)
 				monitor.done();
 		}
+	}
+
+	@Override
+	public boolean contains(IInstallableUnit element) {
+		for (IMetadataRepository repository : loadedRepos) {
+			if (repository.contains(element)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	//successfully loaded repo will be added to the list repositoriesToBeRemovedOnFailure if the list is not null and the repo wasn't previously loaded

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2023 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - ongoing development
@@ -51,7 +51,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	}
 
 	/*
-	 * Constructor for the class. Return a new extension location repository based on the 
+	 * Constructor for the class. Return a new extension location repository based on the
 	 * given location and specified nested repo.
 	 */
 	public ExtensionLocationMetadataRepository(IProvisioningAgent agent, URI location, IMetadataRepository repository, IProgressMonitor monitor) throws ProvisionException {
@@ -110,6 +110,11 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		ensureInitialized();
 		return metadataRepository.query(query, monitor);
+	}
+
+	@Override
+	public boolean contains(IInstallableUnit element) {
+		return metadataRepository.contains(element);
 	}
 
 	public static void validate(URI location, IProgressMonitor monitor) throws ProvisionException {
