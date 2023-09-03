@@ -764,7 +764,7 @@ public final class MetadataFactory {
 			return unit;
 		Assert.isNotNull(unit);
 		Assert.isNotNull(fragments);
-		return new ResolvedInstallableUnit(unit, fragments);
+		return new ResolvedInstallableUnit(unit, Arrays.asList(fragments));
 
 	}
 

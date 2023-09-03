@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2023 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -16,9 +16,11 @@ package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -108,9 +110,9 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 
 	public void addTouchpointData(ITouchpointData newData) {
 		int tl = touchpointData.length;
-		if (tl == 0)
+		if (tl == 0) {
 			touchpointData = new ITouchpointData[] { newData };
-		else {
+		} else {
 			ITouchpointData[] newDatas = new ITouchpointData[tl + 1];
 			System.arraycopy(touchpointData, 0, newDatas, 0, tl);
 			newDatas[tl] = newData;
@@ -118,34 +120,23 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		}
 	}
 
+	static final Comparator<IInstallableUnit> ID_FIRST_THEN_VERSION = Comparator //
+			.comparing(IInstallableUnit::getId) //
+			.thenComparing(IInstallableUnit::getVersion);
+
 	@Override
 	public int compareTo(IInstallableUnit other) {
-		int cmp = getId().compareTo(other.getId());
-		if (cmp == 0)
-			cmp = getVersion().compareTo(other.getVersion());
-		return cmp;
+		return ID_FIRST_THEN_VERSION.compare(this, other);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof IInstallableUnit))
-			return false;
-		final IInstallableUnit other = (IInstallableUnit) obj;
-		if (id == null) {
-			if (other.getId() != null)
-				return false;
-		} else if (!id.equals(other.getId()))
-			return false;
-		if (getVersion() == null) {
-			if (other.getVersion() != null)
-				return false;
-		} else if (!getVersion().equals(other.getVersion()))
-			return false;
-		return true;
+		}
+		return obj instanceof IInstallableUnit unit //
+				&& Objects.equals(getId(), unit.getId()) //
+				&& Objects.equals(getVersion(), unit.getVersion());
 	}
 
 	@Override
@@ -183,10 +174,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	 * Helper method to cache localized properties
 	 */
 	public String getLocalizedProperty(String key) {
-		String result = null;
-		if (localizedProperties != null)
-			result = localizedProperties.getProperty(key);
-		return result;
+		return localizedProperties != null ? localizedProperties.getProperty(key) : null;
 	}
 
 	@Override
@@ -227,11 +215,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((getVersion() == null) ? 0 : getVersion().hashCode());
-		return result;
+		return Objects.hash(id, getVersion());
 	}
 
 	@Override
@@ -245,21 +229,15 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	}
 
 	private OrderedProperties properties() {
-		return (properties != null ? properties : NO_PROPERTIES);
+		return properties != null ? properties : NO_PROPERTIES;
 	}
 
 	public void setArtifacts(IArtifactKey[] value) {
-		if (value == null || value.length == 0)
-			artifacts = NO_ARTIFACTS;
-		else
-			artifacts = value;
+		artifacts = value == null || value.length == 0 ? NO_ARTIFACTS : value;
 	}
 
 	public void setCapabilities(IProvidedCapability[] newCapabilities) {
-		if (newCapabilities == null || newCapabilities.length == 0)
-			providedCapabilities = NO_PROVIDES;
-		else
-			providedCapabilities = newCapabilities;
+		providedCapabilities = newCapabilities == null || newCapabilities.length == 0 ? NO_PROVIDES : newCapabilities;
 	}
 
 	public void setFilter(IMatchExpression<IInstallableUnit> filter) {
@@ -276,14 +254,14 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 
 	public static IMatchExpression<IInstallableUnit> parseFilter(String filterStr) {
 		IFilterExpression filter = ExpressionUtil.parseLDAP(filterStr);
-		if (filter == null)
+		if (filter == null) {
 			return null;
-
+		}
 		synchronized (filterCache) {
 			IMatchExpression<IInstallableUnit> matchExpr = filterCache.get(filter);
-			if (matchExpr != null)
+			if (matchExpr != null) {
 				return matchExpr;
-
+			}
 			matchExpr = ExpressionUtil.getFactory().matchExpression(filterWrap, filter);
 			filterCache.put(filter, matchExpr);
 			return matchExpr;
@@ -294,16 +272,19 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	 * Helper method to cache localized properties
 	 */
 	public String setLocalizedProperty(String key, String value) {
-		if (localizedProperties == null)
+		if (localizedProperties == null) {
 			localizedProperties = new OrderedProperties();
+		}
 		return localizedProperties.put(key, value);
 	}
 
 	public String setProperty(String key, String value) {
-		if (value == null)
+		if (value == null) {
 			return (properties != null ? (String) properties.remove(key) : null);
-		if (properties == null)
+		}
+		if (properties == null) {
 			properties = new OrderedProperties();
+		}
 		return (String) properties.setProperty(key, value);
 	}
 
@@ -396,37 +377,22 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 
 	@Override
 	public Object getMember(String memberName) {
-		// It is OK to use identity comparisons here since
-		// a) All constant valued strings are always interned
-		// b) The Member constructor always interns the name
-		//
-		if (MEMBER_PROVIDED_CAPABILITIES == memberName)
-			return providedCapabilities;
-		if (MEMBER_ID == memberName)
-			return id;
-		if (MEMBER_VERSION == memberName)
-			return version;
-		if (MEMBER_PROPERTIES == memberName)
-			return properties;
-		if (MEMBER_FILTER == memberName)
-			return filter;
-		if (MEMBER_ARTIFACTS == memberName)
-			return artifacts;
-		if (MEMBER_REQUIREMENTS == memberName)
-			return requires;
-		if (MEMBER_LICENSES == memberName)
-			return licenses;
-		if (MEMBER_COPYRIGHT == memberName)
-			return copyright;
-		if (MEMBER_TOUCHPOINT_DATA == memberName)
-			return touchpointData;
-		if (MEMBER_TOUCHPOINT_TYPE == memberName)
-			return touchpointType;
-		if (MEMBER_UPDATE_DESCRIPTOR == memberName)
-			return updateInfo;
-		if (MEMBER_SINGLETON == memberName)
-			return Boolean.valueOf(singleton);
-		throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
+		return switch (memberName) {
+		case MEMBER_PROVIDED_CAPABILITIES -> providedCapabilities;
+		case MEMBER_ID -> id;
+		case MEMBER_VERSION -> version;
+		case MEMBER_PROPERTIES -> properties;
+		case MEMBER_FILTER -> filter;
+		case MEMBER_ARTIFACTS -> artifacts;
+		case MEMBER_REQUIREMENTS -> requires;
+		case MEMBER_LICENSES -> licenses;
+		case MEMBER_COPYRIGHT -> copyright;
+		case MEMBER_TOUCHPOINT_DATA -> touchpointData;
+		case MEMBER_TOUCHPOINT_TYPE -> touchpointType;
+		case MEMBER_UPDATE_DESCRIPTOR -> updateInfo;
+		case MEMBER_SINGLETON -> singleton;
+		default -> throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
+		};
 	}
 
 	public static IInstallableUnit contextIU(String ws, String os, String arch) {
@@ -441,8 +407,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	public static IInstallableUnit contextIU(Map<String, String> environment) {
 		InstallableUnit ctxIU = new InstallableUnit();
 		ctxIU.setId("org.eclipse.equinox.p2.context.iu"); //$NON-NLS-1$
-		for (Map.Entry<String, String> entry : environment.entrySet())
-			ctxIU.setProperty(entry.getKey(), entry.getValue());
+		environment.forEach(ctxIU::setProperty);
 		return ctxIU;
 	}
 }
