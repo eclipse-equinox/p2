@@ -27,7 +27,6 @@ import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
@@ -62,7 +61,7 @@ public class ProfileSynchronizerTest2 extends AbstractProvisioningTest {
 		Set<IInstallableUnit> oldRoots = sdkProfile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.type.root", Boolean.TRUE.toString()), null).toUnmodifiableSet();
 
 		assertFalse("could not find gmf", sdkProfile.query(QueryUtil.createIUQuery("org.eclipse.gmf.sdk.feature.group"), null).isEmpty());
-		ProfileSynchronizer sync = new ProfileSynchronizer(agent, sdkProfile, new ArrayList<IMetadataRepository>());
+		ProfileSynchronizer sync = new ProfileSynchronizer(agent, sdkProfile, new ArrayList<>());
 		sync.synchronize(null);
 		Set<IInstallableUnit> newRoots = registry.getProfile("SDKProfile").query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.type.root", Boolean.TRUE.toString()), null).toSet();
 		newRoots.removeAll(oldRoots);

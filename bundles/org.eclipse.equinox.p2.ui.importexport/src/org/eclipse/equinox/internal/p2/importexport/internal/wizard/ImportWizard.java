@@ -105,7 +105,7 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 						initializeResolutionModelElements(getOperationSelections());
 						if (planSelections.length == 0) {
 							operation = new InstallOperation(new ProvisioningSession(AbstractPage.agent),
-									new ArrayList<IInstallableUnit>()) {
+									new ArrayList<>()) {
 								@Override
 								protected void computeProfileChangeRequest(MultiStatus status,
 										IProgressMonitor progressMonitor) {
@@ -138,8 +138,7 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 					Display.getDefault().asyncExec(this::planChanged);
 				});
 			} catch (InterruptedException e) {
-				operation = new InstallOperation(new ProvisioningSession(AbstractPage.agent),
-						new ArrayList<IInstallableUnit>()) {
+				operation = new InstallOperation(new ProvisioningSession(AbstractPage.agent), new ArrayList<>()) {
 
 					@Override
 					public IStatus getResolutionResult() {

@@ -27,7 +27,6 @@ import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
@@ -63,7 +62,7 @@ public class ProfileSynchronizerTest extends AbstractProvisioningTest {
 
 		assertFalse(sdkProfile.query(QueryUtil.createIUQuery("aniefer.junit.headless"), null).isEmpty());
 		int originalSize = sdkProfile.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size();
-		ProfileSynchronizer sync = new ProfileSynchronizer(agent, sdkProfile, new ArrayList<IMetadataRepository>());
+		ProfileSynchronizer sync = new ProfileSynchronizer(agent, sdkProfile, new ArrayList<>());
 		sync.synchronize(null);
 		Set<IInstallableUnit> newRoots = registry.getProfile("SDKProfile").query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.type.root", Boolean.TRUE.toString()), null).toSet();
 		newRoots.removeAll(oldRoots);

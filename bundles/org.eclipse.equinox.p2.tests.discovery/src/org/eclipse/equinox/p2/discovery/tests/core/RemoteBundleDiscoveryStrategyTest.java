@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.RemoteBundleDiscoveryStrategy;
-import org.eclipse.equinox.internal.p2.discovery.model.*;
+import org.eclipse.equinox.internal.p2.discovery.model.CatalogCategory;
+import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
 import org.eclipse.equinox.p2.discovery.tests.DiscoveryTestConstants;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,10 +40,10 @@ public class RemoteBundleDiscoveryStrategyTest {
 	public void setUp() throws Exception {
 		discoveryStrategy = new RemoteBundleDiscoveryStrategy();
 		discoveryStrategy.setDirectoryUrl(DiscoveryTestConstants.DISCOVERY_URL);
-		discoveryStrategy.setCategories(new ArrayList<CatalogCategory>());
-		discoveryStrategy.setItems(new ArrayList<CatalogItem>());
-		discoveryStrategy.setCertifications(new ArrayList<Certification>());
-		discoveryStrategy.setTags(new ArrayList<Tag>());
+		discoveryStrategy.setCategories(new ArrayList<>());
+		discoveryStrategy.setItems(new ArrayList<>());
+		discoveryStrategy.setCertifications(new ArrayList<>());
+		discoveryStrategy.setTags(new ArrayList<>());
 	}
 
 	@Test

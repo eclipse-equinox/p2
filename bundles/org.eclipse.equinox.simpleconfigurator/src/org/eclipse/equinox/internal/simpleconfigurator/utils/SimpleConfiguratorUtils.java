@@ -38,7 +38,7 @@ public class SimpleConfiguratorUtils {
 	private static final String COMMA = ",";
 	private static final String ENCODED_COMMA = "%2C";
 
-	private static final Set<File> reportedExtensions = Collections.synchronizedSet(new HashSet<File>(0));
+	private static final Set<File> reportedExtensions = Collections.synchronizedSet(new HashSet<>(0));
 
 	public static List<BundleInfo> readConfiguration(URL url, URI base) throws IOException {
 		List<BundleInfo> result = new ArrayList<>();

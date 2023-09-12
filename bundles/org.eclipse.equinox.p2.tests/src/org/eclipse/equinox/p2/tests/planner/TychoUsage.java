@@ -74,8 +74,8 @@ public class TychoUsage extends AbstractProvisioningTest {
 		Slicer slicer = new Slicer(repo, context, false);
 		IQueryable<IInstallableUnit> slice = slicer.slice(new IInstallableUnit[] {topLevelIU}, new NullProgressMonitor());
 
-		Projector p = new Projector(slice, context, new HashSet<IInstallableUnit>(), false);
-		p.encode(topLevelIU, new IInstallableUnit[0], new Collector<IInstallableUnit>(), newRoots, new NullProgressMonitor());
+		Projector p = new Projector(slice, context, new HashSet<>(), false);
+		p.encode(topLevelIU, new IInstallableUnit[0], new Collector<>(), newRoots, new NullProgressMonitor());
 		IStatus result = p.invokeSolver(new NullProgressMonitor());
 		assertTrue(result.isOK() || result.getSeverity() == IStatus.WARNING);
 		assertFalse(p.extractSolution().isEmpty());

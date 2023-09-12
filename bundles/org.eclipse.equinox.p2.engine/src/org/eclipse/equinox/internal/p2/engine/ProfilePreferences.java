@@ -70,7 +70,7 @@ public class ProfilePreferences extends EclipsePreferences {
 	}
 
 	// cache which nodes have been loaded from disk
-	private static Set<String> loadedNodes = Collections.synchronizedSet(new HashSet<String>());
+	private static Set<String> loadedNodes = Collections.synchronizedSet(new HashSet<>());
 
 	public static final Object PROFILE_SAVE_JOB_FAMILY = new Object();
 

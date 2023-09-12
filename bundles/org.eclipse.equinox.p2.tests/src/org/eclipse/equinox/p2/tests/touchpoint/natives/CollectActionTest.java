@@ -14,13 +14,19 @@
 package org.eclipse.equinox.p2.tests.touchpoint.natives;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.CollectAction;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -57,7 +63,7 @@ public class CollectActionTest extends AbstractProvisioningTest {
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
-		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList<IArtifactRequest[]>());
+		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList<>());
 		NativeTouchpoint touchpoint = new NativeTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		parameters.put("iu", iu);

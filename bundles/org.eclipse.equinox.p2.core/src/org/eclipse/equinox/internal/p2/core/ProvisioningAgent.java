@@ -32,7 +32,8 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 	private BundleContext context;
 	private volatile boolean stopped = false;
 	private ServiceRegistration<IProvisioningAgent> reg;
-	private final Map<ServiceReference<IAgentServiceFactory>, ServiceTracker<IAgentServiceFactory, Object>> trackers = Collections.synchronizedMap(new HashMap<ServiceReference<IAgentServiceFactory>, ServiceTracker<IAgentServiceFactory, Object>>());
+	private final Map<ServiceReference<IAgentServiceFactory>, ServiceTracker<IAgentServiceFactory, Object>> trackers = Collections
+			.synchronizedMap(new HashMap<>());
 
 	/**
 	 * Instantiates a provisioning agent.
