@@ -135,8 +135,8 @@ public class Collect extends InstallableUnitPhase {
 
 	@Override
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
-		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList<IArtifactRequest[]>());
-		parameters.put(PARM_IUS, new HashSet<IInstallableUnit>());
+		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList<>());
+		parameters.put(PARM_IUS, new HashSet<>());
 		return null;
 	}
 

@@ -93,7 +93,7 @@ public class CheckTrust extends InstallableUnitPhase {
 
 	@Override
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
-		parameters.put(PARM_ARTIFACTS, new HashMap<IArtifactDescriptor, File>());
+		parameters.put(PARM_ARTIFACTS, new HashMap<>());
 		return super.initializePhase(monitor, profile, parameters);
 	}
 

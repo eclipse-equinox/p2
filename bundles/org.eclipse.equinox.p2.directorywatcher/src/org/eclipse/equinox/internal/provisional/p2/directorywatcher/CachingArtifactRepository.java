@@ -394,7 +394,8 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 	@Override
 	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
 		final Collection<List<IArtifactDescriptor>> descs = artifactMap.values();
-		IQueryable<IArtifactDescriptor> cached = (query, monitor) -> query.perform(new CompoundIterator<IArtifactDescriptor>(descs.iterator()));
+		IQueryable<IArtifactDescriptor> cached = (query, monitor) -> query
+				.perform(new CompoundIterator<>(descs.iterator()));
 
 		return QueryUtil.compoundQueryable(cached, innerRepo.descriptorQueryable());
 	}

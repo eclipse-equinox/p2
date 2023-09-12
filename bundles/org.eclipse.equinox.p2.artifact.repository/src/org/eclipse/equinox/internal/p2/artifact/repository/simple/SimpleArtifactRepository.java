@@ -1383,7 +1383,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			synchronized (SimpleArtifactRepository.this) {
 				snapshotNeeded = true;
 				Collection<List<IArtifactDescriptor>> descs = SimpleArtifactRepository.this.artifactMap.values();
-				return query.perform(new CompoundIterator<IArtifactDescriptor>(descs.iterator()));
+				return query.perform(new CompoundIterator<>(descs.iterator()));
 			}
 		};
 	}

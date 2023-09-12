@@ -47,7 +47,7 @@ import org.osgi.framework.FrameworkUtil;
 public class ProvisioningSession {
 	private IProvisioningAgent agent;
 
-	Set<Job> scheduledJobs = Collections.synchronizedSet(new HashSet<Job>());
+	Set<Job> scheduledJobs = Collections.synchronizedSet(new HashSet<>());
 
 	/**
 	 * Create a provisioning session using the services of the supplied agent.
@@ -149,9 +149,8 @@ public class ProvisioningSession {
 				// at the same time as the actual install artifacts.  This way, we will only install the install handler
 				// after already knowing we have successfully obtained the artifacts that will be installed afterward.
 				IProvisioningPlan downloadPlan = getEngine().createPlan(profile, context);
-				Iterator<IInstallableUnit> it = QueryUtil.compoundQueryable(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(QueryUtil.createIUAnyQuery(), null).iterator();
-				while (it.hasNext()) {
-					downloadPlan.addInstallableUnit(it.next());
+				for (IInstallableUnit element : QueryUtil.compoundQueryable(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(QueryUtil.createIUAnyQuery(), null)) {
+					downloadPlan.addInstallableUnit(element);
 				}
 				IPhaseSet download = PhaseSetFactory.createPhaseSetIncluding(new String[] {PhaseSetFactory.PHASE_COLLECT});
 				IStatus downloadStatus = getEngine().perform(downloadPlan, download, mon.newChild(300));

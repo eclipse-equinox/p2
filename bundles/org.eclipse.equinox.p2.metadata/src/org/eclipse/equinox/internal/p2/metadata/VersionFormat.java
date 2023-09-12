@@ -14,16 +14,26 @@
 package org.eclipse.equinox.internal.p2.metadata;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.eclipse.equinox.internal.p2.metadata.VersionFormatParser.Fragment;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IVersionFormat;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionFormatException;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * <p>The VersionFormat represents the Omni Version Format in compiled form. It
- * is also a parser for versions of that format.</p>
- * <p>An instance of VersionFormat is immutable and thus thread safe. The parser
- * does not maintain any state.</p>
+ * <p>
+ * The VersionFormat represents the Omni Version Format in compiled form. It is
+ * also a parser for versions of that format.
+ * </p>
+ * <p>
+ * An instance of VersionFormat is immutable and thus thread safe. The parser
+ * does not maintain any state.
+ * </p>
  * 
  * @Immutable
  * @noextend This class is not intended to be subclassed by clients.
@@ -31,12 +41,14 @@ import org.eclipse.osgi.util.NLS;
 public class VersionFormat implements IVersionFormat, Serializable {
 
 	/**
-	 * The string representation of the Omni Version format used for parsing OSGi versions.
+	 * The string representation of the Omni Version format used for parsing OSGi
+	 * versions.
 	 */
 	public static final String OSGI_FORMAT_STRING = "n[.n=0;[.n=0;[.S='';=[A-Za-z0-9_-];]]]"; //$NON-NLS-1$
 
 	/**
-	 * The string representation of the Omni Version format used for parsing raw versions.
+	 * The string representation of the Omni Version format used for parsing raw
+	 * versions.
 	 */
 	public static final String RAW_FORMAT_STRING = "r(.r)*p?"; //$NON-NLS-1$
 
@@ -109,17 +121,15 @@ public class VersionFormat implements IVersionFormat, Serializable {
 		}
 	}
 
-	private static final Map<String, VersionFormat> formatCache = Collections.synchronizedMap(new HashMap<String, VersionFormat>());
+	private static final Map<String, VersionFormat> formatCache = Collections.synchronizedMap(new HashMap<>());
 
 	/**
-	 * The predefined OSGi format that is used when parsing OSGi
-	 * versions.
+	 * The predefined OSGi format that is used when parsing OSGi versions.
 	 */
 	public static final VersionFormat OSGI_FORMAT;
 
 	/**
-	 * The predefined OSGi format that is used when parsing raw
-	 * versions.
+	 * The predefined OSGi format that is used when parsing raw versions.
 	 */
 	public static final VersionFormat RAW_FORMAT;
 
@@ -140,7 +150,13 @@ public class VersionFormat implements IVersionFormat, Serializable {
 
 	/**
 	 * Compile a version format string into a compiled format. This method is
-	 * shorthand for:<pre>CompiledFormat.compile(format, 0, format.length())</pre>.
+	 * shorthand for:
+	 * 
+	 * <pre>
+	 * CompiledFormat.compile(format, 0, format.length())
+	 * </pre>
+	 * 
+	 * .
 	 *
 	 * @param format The format to compile.
 	 * @return The compiled format
@@ -151,14 +167,14 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	}
 
 	/**
-	 * Compile a version format string into a compiled format. The parsing starts
-	 * at position start and ends at position end. The returned format is cached so
+	 * Compile a version format string into a compiled format. The parsing starts at
+	 * position start and ends at position end. The returned format is cached so
 	 * subsequent calls to this method using the same format string will yield the
 	 * same compiled format instance.
 	 *
 	 * @param format The format string to compile.
-	 * @param start Start position in the format string
-	 * @param end End position in the format string
+	 * @param start  Start position in the format string
+	 * @param end    End position in the format string
 	 * @return The compiled format
 	 * @throws VersionFormatException If the format could not be compiled
 	 */
@@ -178,15 +194,18 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	/**
 	 * Parse a version string using the {@link #RAW_FORMAT} parser.
 	 *
-	 * @param version The version to parse.
-	 * @param originalFormat The original format to assign to the created version. Can be <code>null</code>.
-	 * @param original The original version string to assign to the created version. Can be <code>null</code>.
+	 * @param version        The version to parse.
+	 * @param originalFormat The original format to assign to the created version.
+	 *                       Can be <code>null</code>.
+	 * @param original       The original version string to assign to the created
+	 *                       version. Can be <code>null</code>.
 	 * @return A created version
 	 * @throws IllegalArgumentException If the version string could not be parsed.
 	 */
 	public static BasicVersion parseRaw(String version, IVersionFormat originalFormat, String original) {
 		List<Comparable<?>> vector = RAW_FORMAT.parse(version, 0, version.length());
-		return (originalFormat == OSGI_FORMAT) ? OSGiVersion.fromVector(vector) : OmniVersion.fromVector(vector, originalFormat, original);
+		return (originalFormat == OSGI_FORMAT) ? OSGiVersion.fromVector(vector)
+				: OmniVersion.fromVector(vector, originalFormat, original);
 	}
 
 	static void rawToString(StringBuffer sb, boolean forRange, Comparable<?> e) {
@@ -203,19 +222,25 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	}
 
 	/**
-	 * Write a string within quotes. If the string is found to contain the quote, an attempt is made
-	 * to flip quote character (single quote becomes double quote and vice versa). A string that contains
-	 * both will be written as several adjacent quoted strings so that each string is quoted with a
-	 * quote character that it does not contain.
-	 * @param sb The buffer that will receive the string
-	 * @param rangeSafe Set to <code>true</code> if the resulting string will be used in a range string
-	 *        and hence need to escape the range delimiter characters
-	 * @param s The string to be written
-	 * @param quote The quote character to start with. Must be the single or double quote character.
-	 * @param startPos The start position
-	 * @param didFlip True if the call is recursive and thus, cannot switch quotes in the first string.
+	 * Write a string within quotes. If the string is found to contain the quote, an
+	 * attempt is made to flip quote character (single quote becomes double quote
+	 * and vice versa). A string that contains both will be written as several
+	 * adjacent quoted strings so that each string is quoted with a quote character
+	 * that it does not contain.
+	 * 
+	 * @param sb        The buffer that will receive the string
+	 * @param rangeSafe Set to <code>true</code> if the resulting string will be
+	 *                  used in a range string and hence need to escape the range
+	 *                  delimiter characters
+	 * @param s         The string to be written
+	 * @param quote     The quote character to start with. Must be the single or
+	 *                  double quote character.
+	 * @param startPos  The start position
+	 * @param didFlip   True if the call is recursive and thus, cannot switch quotes
+	 *                  in the first string.
 	 */
-	private static void writeQuotedString(StringBuffer sb, boolean rangeSafe, String s, char quote, int startPos, boolean didFlip) {
+	private static void writeQuotedString(StringBuffer sb, boolean rangeSafe, String s, char quote, int startPos,
+			boolean didFlip) {
 		int quotePos = sb.length();
 		sb.append(quote);
 		boolean otherSeen = false;
@@ -274,11 +299,13 @@ public class VersionFormat implements IVersionFormat, Serializable {
 
 	List<Comparable<?>> parse(String version, int start, int maxPos) {
 		if (start == maxPos)
-			throw new IllegalArgumentException(NLS.bind(Messages.format_0_unable_to_parse_empty_version, this, version.substring(start, maxPos)));
+			throw new IllegalArgumentException(
+					NLS.bind(Messages.format_0_unable_to_parse_empty_version, this, version.substring(start, maxPos)));
 		TreeInfo info = new TreeInfo(topFragment, start);
 		ArrayList<Comparable<?>> entries = new ArrayList<>(5);
 		if (!(topFragment.parse(entries, version, maxPos, info) && info.getPosition() == maxPos))
-			throw new IllegalArgumentException(NLS.bind(Messages.format_0_unable_to_parse_1, this, version.substring(start, maxPos)));
+			throw new IllegalArgumentException(
+					NLS.bind(Messages.format_0_unable_to_parse_1, this, version.substring(start, maxPos)));
 		entries.add(VersionParser.removeRedundantTrail(entries, info.getPadValue()));
 		return entries;
 	}

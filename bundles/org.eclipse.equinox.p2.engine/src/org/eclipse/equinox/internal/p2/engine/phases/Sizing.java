@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -131,7 +131,7 @@ public class Sizing extends InstallableUnitPhase {
 
 	@Override
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
-		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList<IArtifactRequest[]>());
+		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList<>());
 		return null;
 	}
 

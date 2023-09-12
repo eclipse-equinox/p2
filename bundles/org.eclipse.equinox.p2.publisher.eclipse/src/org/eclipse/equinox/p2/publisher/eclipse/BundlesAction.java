@@ -866,7 +866,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	private static Headers<String, String> parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(
 			InputStream manifestStream) throws IOException, BundleException {
 		return (Headers<String, String>) ManifestElement.parseBundleManifest(manifestStream,
-				new Headers<String, String>(10));
+				new Headers<>(10));
 	}
 
 	private static ManifestElement[] parseManifestHeader(String header, Map<String, String> manifest,

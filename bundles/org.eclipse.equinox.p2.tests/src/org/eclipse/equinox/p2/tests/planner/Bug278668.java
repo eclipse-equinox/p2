@@ -17,8 +17,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -60,7 +67,12 @@ public class Bug278668 extends AbstractProvisioningTest {
 		requirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "com.tssap.selena.model.providers.resources", new VersionRange("[1.0.0, 1.0.0]"), null, false, false));
 		requirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "com.tssap.selena.model", new VersionRange("[1.0.0, 1.0.0]"), null, false, false));
 
-		IInstallableUnit group = createIU("com.borland.tg.modeling.feature.group", Version.create("8.2.0.v20081113-0500-_87S7nELRXmpf6G0dO3emm"), null, requirements.toArray(new IRequirement[requirements.size()]), new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "com.borland.tg.modeling", Version.create("8.2.0.v20081113-0500-_87S7nELRXmpf6G0dO3emm"))}, new HashMap<String, String>(), null, null, true);
+		IInstallableUnit group = createIU("com.borland.tg.modeling.feature.group",
+				Version.create("8.2.0.v20081113-0500-_87S7nELRXmpf6G0dO3emm"), null,
+				requirements.toArray(new IRequirement[requirements.size()]),
+				new IProvidedCapability[] { MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID,
+						"com.borland.tg.modeling", Version.create("8.2.0.v20081113-0500-_87S7nELRXmpf6G0dO3emm")) },
+				new HashMap<>(), null, null, true);
 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {group});

@@ -15,8 +15,17 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import java.util.HashMap;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.IRequirementChange;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -51,7 +60,13 @@ public class FindingPatchesThroughUpdates extends AbstractProvisioningTest {
 
 		IRequirementChange change4 = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
 		IRequirement lifeCycle4 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 3.2.0]"), null, false, false);
-		anotherPatch3 = createIUPatch("ANOTHERPATCH", Version.create("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, new HashMap<String, String>(), null, null, true, MetadataFactory.createUpdateDescriptor("ANOTHERPATCH", new VersionRange("[1.0.0, 1.0.0]"), 0, ""), new IRequirementChange[] {change4}, new IRequirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, lifeCycle4, NO_REQUIRES);
+		anotherPatch3 = createIUPatch("ANOTHERPATCH", Version.create("2.0.0"), null, NO_REQUIRES, NO_PROVIDES,
+				new HashMap<>(), null, null, true,
+				MetadataFactory.createUpdateDescriptor("ANOTHERPATCH", new VersionRange("[1.0.0, 1.0.0]"), 0, ""),
+				new IRequirementChange[] { change4 },
+				new IRequirement[][] { { MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A",
+						VersionRange.emptyRange, null, false, false) } },
+				lifeCycle4, NO_REQUIRES);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120, patchA1, patchA2, anotherPatch2, anotherPatch3});
 
