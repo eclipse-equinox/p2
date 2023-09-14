@@ -57,6 +57,11 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 	}
 
 	@Override
+	public boolean removeReferences(Collection<? extends IRepositoryReference> references) {
+		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
+	}
+
+	@Override
 	public Collection<IRepositoryReference> getReferences() {
 		return delegate.getReferences();
 	}
