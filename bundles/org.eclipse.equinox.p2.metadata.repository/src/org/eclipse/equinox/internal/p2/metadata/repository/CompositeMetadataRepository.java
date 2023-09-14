@@ -246,11 +246,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 			//			return new File(spec + extension);
 			return spec;
 		}
-		if (path.endsWith("/")) //$NON-NLS-1$
-			path += CompositeMetadataRepositoryFactory.CONTENT_FILENAME;
-		else
-			path += "/" + CompositeMetadataRepositoryFactory.CONTENT_FILENAME; //$NON-NLS-1$
-		return new File(path + extension);
+		return new File(path, CompositeMetadataRepositoryFactory.CONTENT_FILENAME + extension);
 	}
 
 	public static File getActualLocation(URI location) {
@@ -263,10 +259,16 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	}
 
 	@Override
+	public synchronized boolean removeReferences(Collection<? extends IRepositoryReference> references) {
+		throw new UnsupportedOperationException("Cannot remove References to a composite repository"); //$NON-NLS-1$
+	}
+
+	@Override
 	public Collection<IRepositoryReference> getReferences() {
-		HashSet<IRepositoryReference> allRefs = new HashSet<>();
-		for (IMetadataRepository child : loadedRepos)
+		Set<IRepositoryReference> allRefs = new HashSet<>();
+		for (IMetadataRepository child : loadedRepos) {
 			allRefs.addAll(child.getReferences());
+		}
 		return allRefs;
 	}
 

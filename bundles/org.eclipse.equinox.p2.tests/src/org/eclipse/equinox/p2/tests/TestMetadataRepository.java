@@ -123,6 +123,12 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		repositories.addAll(references);
 	}
 
+	@Override
+	public synchronized boolean removeReferences(Collection<? extends IRepositoryReference> references) {
+		assertModifiable();
+		return repositories.removeAll(references);
+	}
+
 	/**
 	 * Returns a collection of {@link RepositoryReference}.
 	 */

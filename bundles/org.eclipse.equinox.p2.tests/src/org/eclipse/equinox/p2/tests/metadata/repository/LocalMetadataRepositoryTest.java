@@ -14,14 +14,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
@@ -35,6 +36,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
@@ -64,11 +66,19 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		super.tearDown();
 	}
 
-	public void testCompressedRepository() throws ProvisionException {
+	private IMetadataRepository createTestRepository(IMetadataRepositoryManager manager, Map<String, String> properties)
+			throws ProvisionException {
+		return manager.createRepository(repoLocation.toURI(), "TestRepo",
+				IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+	}
+
+	private IMetadataRepository createTestRepository(Map<String, String> properties) throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		Map<String, String> properties = new HashMap<>();
-		properties.put(IRepository.PROP_COMPRESSED, "true");
-		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+		return createTestRepository(manager, properties);
+	}
+
+	public void testCompressedRepository() throws ProvisionException {
+		IMetadataRepository repo = createTestRepository(Map.of(IRepository.PROP_COMPRESSED, "true"));
 
 		InstallableUnitDescription descriptor = new MetadataFactory.InstallableUnitDescription();
 		descriptor.setId("testIuId");
@@ -88,30 +98,20 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 				xmlFilePresent = true;
 			}
 		}
-		if (!jarFilePresent) {
-			fail("Repository did not create JAR for content.xml");
-		}
-		if (xmlFilePresent) {
-			fail("Repository should not create content.xml");
-		}
+		assertTrue("Repository did not create JAR for content.xml", jarFilePresent);
+		assertFalse("Repository should not create content.xml", xmlFilePresent);
 	}
 
 	public void testGetProperties() throws ProvisionException {
-		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		IMetadataRepository repo = createTestRepository(null);
 		Map<String, String> properties = repo.getProperties();
 		//attempting to modify the properties should fail
-		try {
-			properties.put(TEST_KEY, TEST_VALUE);
-			fail("Should not allow setting property");
-		} catch (RuntimeException e) {
-			//expected
-		}
+		assertThrows(RuntimeException.class, () -> properties.put(TEST_KEY, TEST_VALUE));
 	}
 
 	public void testSetProperty() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		IMetadataRepository repo = createTestRepository(manager, null);
 		Map<String, String> properties = repo.getProperties();
 		assertTrue("1.0", !properties.containsKey(TEST_KEY));
 		repo.setProperty(TEST_KEY, TEST_VALUE);
@@ -133,8 +133,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testAddRemoveIUs() throws ProvisionException {
-		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		IMetadataRepository repo = createTestRepository(null);
 		IInstallableUnit iu = createIU("foo");
 		repo.addInstallableUnits(Arrays.asList(iu));
 		IQueryResult<IInstallableUnit> result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
@@ -145,8 +144,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testRemoveByQuery() throws ProvisionException {
-		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		IMetadataRepository repo = createTestRepository(null);
 		IInstallableUnit iu = createIU("foo");
 		IInstallableUnit iu2 = createIU("bar");
 		repo.addInstallableUnits(Arrays.asList(iu, iu2));
@@ -162,10 +160,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testUncompressedRepository() throws ProvisionException {
-		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		Map<String, String> properties = new HashMap<>();
-		properties.put(IRepository.PROP_COMPRESSED, "false");
-		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+		IMetadataRepository repo = createTestRepository(Map.of(IRepository.PROP_COMPRESSED, "false"));
 
 		InstallableUnitDescription descriptor = new MetadataFactory.InstallableUnitDescription();
 		descriptor.setId("testIuId");
@@ -174,15 +169,11 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		repo.addInstallableUnits(Arrays.asList(iu));
 
 		File[] files = repoLocation.listFiles();
-		boolean jarFilePresent = false;
 		// none of the files in the repository should be the content.xml.jar
 		for (File file : files) {
 			if ("content.jar".equalsIgnoreCase(file.getName())) {
-				jarFilePresent = true;
+				fail("Repository should not create JAR for content.xml");
 			}
-		}
-		if (jarFilePresent) {
-			fail("Repository should not create JAR for content.xml");
 		}
 	}
 
@@ -194,11 +185,10 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testLoadSelfReference() throws ProvisionException {
 		//setup a repository that has a reference to itself in disabled state
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		Map<String, String> properties = new HashMap<>();
-		properties.put(IRepository.PROP_COMPRESSED, "false");
 		final URI repoURI = repoLocation.toURI();
-		IMetadataRepository repo = manager.createRepository(repoURI, "testLoadSelfReference", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		repo.addReferences(Collections.singletonList(new RepositoryReference(repoURI, "testNick", IRepository.TYPE_METADATA, IRepository.NONE)));
+		IMetadataRepository repo = createTestRepository(manager, Map.of(IRepository.PROP_COMPRESSED, "false"));
+		repo.addReferences(
+				List.of(new RepositoryReference(repoURI, "testNick", IRepository.TYPE_METADATA, IRepository.NONE)));
 
 		final int[] callCount = new int[] {0};
 		final boolean[] wasEnabled = new boolean[] {false};
@@ -231,11 +221,10 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testRefreshSelfReference() throws ProvisionException {
 		//setup a repository that has a reference to itself in disabled state
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		Map<String, String> properties = new HashMap<>();
-		properties.put(IRepository.PROP_COMPRESSED, "false");
 		final URI repoURL = repoLocation.toURI();
-		IMetadataRepository repo = manager.createRepository(repoURL, "testRefreshSelfReference", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		repo.addReferences(Collections.singletonList(new RepositoryReference(repoURL, "testNick", IRepository.TYPE_METADATA, IRepository.NONE)));
+		IMetadataRepository repo = createTestRepository(manager, Map.of(IRepository.PROP_COMPRESSED, "false"));
+		repo.addReferences(
+				List.of(new RepositoryReference(repoURL, "testNick", IRepository.TYPE_METADATA, IRepository.NONE)));
 
 		if (!manager.isEnabled(repoURL)) {
 			// Enable the repo if it's not enabled.
@@ -267,14 +256,32 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
+	public void testAddReference() throws ProvisionException {
+		IMetadataRepository repo = createTestRepository(null);
+		IRepositoryReference reference = new RepositoryReference(URI.create("https://foo.bar.org"), "aName",
+				IRepository.TYPE_METADATA, IRepository.NONE);
+		repo.addReferences(List.of(reference));
+		assertEquals(Set.of(reference), repo.getReferences());
+	}
+
+	public void testRemoveReference() throws ProvisionException {
+		IMetadataRepository repo = createTestRepository(null);
+		IRepositoryReference ref1 = new RepositoryReference(URI.create("https://foo.bar1.org"), "aName1",
+				IRepository.TYPE_METADATA, IRepository.NONE);
+		IRepositoryReference ref2 = new RepositoryReference(URI.create("https://foo.bar2.org"), "aName2",
+				IRepository.TYPE_METADATA, IRepository.NONE);
+
+		repo.addReferences(List.of(ref1, ref2));
+		assertEquals(Set.of(ref1, ref2), repo.getReferences());
+		repo.removeReferences(List.of(ref1));
+		assertEquals(Set.of(ref2), repo.getReferences());
+	}
+
 	public void testUniqueURIs() throws ProvisionException, OperationCanceledException {
 		// The test data bug 278668 has multiple installable units with the same license uri
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("test data bug 278668", "testData/bug278668").toURI(), null);
-		IQueryResult<IInstallableUnit> units = repo.query(QueryUtil.ALL_UNITS, null);
 		URI last = null;
-		Iterator<IInstallableUnit> it = units.iterator();
-		while (it.hasNext()) {
-			IInstallableUnit iu = it.next();
+		for (IInstallableUnit iu : repo.query(QueryUtil.ALL_UNITS, null)) {
 			Collection<ILicense> licenses = iu.getLicenses();
 			for (ILicense license : licenses) {
 				URI uri = license.getLocation();

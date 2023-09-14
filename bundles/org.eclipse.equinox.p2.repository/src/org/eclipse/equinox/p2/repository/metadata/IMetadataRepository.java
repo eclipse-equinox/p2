@@ -59,6 +59,13 @@ public interface IMetadataRepository extends IRepository<IInstallableUnit> {
 	Collection<IRepositoryReference> getReferences();
 
 	/**
+	 * Removes from this repository the given references to other repositories.
+	 *
+	 * @since 2.8
+	 */
+	boolean removeReferences(Collection<? extends IRepositoryReference> references);
+
+	/**
 	 * Removes all installable units in the given collection from this repository.
 	 *
 	 * @param installableUnits the installable units to remove

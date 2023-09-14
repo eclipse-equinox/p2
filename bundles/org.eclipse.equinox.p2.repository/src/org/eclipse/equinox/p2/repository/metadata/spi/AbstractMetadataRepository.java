@@ -124,6 +124,13 @@ public abstract class AbstractMetadataRepository extends AbstractRepository<IIns
 	}
 
 	@Override
+	public boolean removeReferences(Collection<? extends IRepositoryReference> references) {
+		assertModifiable();
+		return false;
+	}
+
+
+	@Override
 	public void removeAll() {
 		assertModifiable();
 	}
