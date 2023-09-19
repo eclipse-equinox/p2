@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.equinox.simpleconfigurator;singleton:=true
-Bundle-Version: 1.4.400.qualifier
+Bundle-Version: 1.5.0.qualifier
 Bundle-Name: %bundleName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -26,5 +26,5 @@ Export-Package: org.eclipse.equinox.internal.provisional.configurator;
  org.eclipse.equinox.internal.simpleconfigurator;x-friends:="org.eclipse.equinox.simpleconfigurator.manipulator",
  org.eclipse.equinox.internal.simpleconfigurator.console;x-internal:=true,
  org.eclipse.equinox.internal.simpleconfigurator.utils;x-friends:="org.eclipse.equinox.simpleconfigurator.manipulator"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.eclipse.equinox.simpleconfigurator
