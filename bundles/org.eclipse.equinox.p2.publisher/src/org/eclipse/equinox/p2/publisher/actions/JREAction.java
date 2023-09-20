@@ -16,33 +16,57 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.module.ModuleDescriptor;
 import java.lang.module.ModuleDescriptor.Exports;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.*;
-import org.eclipse.core.runtime.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
+import org.eclipse.equinox.p2.publisher.IPublisherInfo;
+import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.*;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 
 public class JREAction extends AbstractPublisherAction {
 	private static final String DEFAULT_JRE_NAME = "a.jre"; //$NON-NLS-1$
-	private static final Version DEFAULT_JRE_VERSION = Version.parseVersion("11.0"); //$NON-NLS-1$
-	private static final String DEFAULT_PROFILE = "JavaSE-11"; //$NON-NLS-1$
+	private static final Version DEFAULT_JRE_VERSION = Version.parseVersion("17.0"); //$NON-NLS-1$
+	private static final String DEFAULT_PROFILE = "JavaSE-17"; //$NON-NLS-1$
 	private static final String PROFILE_LOCATION = "jre.action.profile.location"; //$NON-NLS-1$
 	private static final String PROFILE_NAME = "osgi.java.profile.name"; //$NON-NLS-1$
 	private static final String PROFILE_TARGET_VERSION = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
