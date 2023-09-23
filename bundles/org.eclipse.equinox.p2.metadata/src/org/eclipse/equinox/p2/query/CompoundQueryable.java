@@ -15,6 +15,7 @@
 package org.eclipse.equinox.p2.query;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -52,21 +53,20 @@ public final class CompoundQueryable<T> extends IndexProvider<T> {
 		}
 	}
 
-	private IQueryable<T>[] queryables;
+	private Collection<? extends IQueryable<T>> queryables;
 
 	public CompoundQueryable(IQueryable<T>[] queryables) {
-		this.queryables = queryables;
+		this.queryables = Arrays.asList(queryables);
 	}
 
 	/**
 	 * Creates a queryable that combines the given collection of input queryables
 	 * 
 	 * @param queryables The collection of queryables to be combined
+	 * @since 2.8
 	 */
-	CompoundQueryable(Collection<? extends IQueryable<T>> queryables) {
-		// don't suppress the warning as it will cause warnings in the official build
-		// see bug 423628. Write this without unchecked conversion.
-		this(queryables.toArray(new IQueryable[queryables.size()]));
+	public CompoundQueryable(Collection<? extends IQueryable<T>> queryables) {
+		this.queryables = List.copyOf(queryables);
 	}
 
 	/**
@@ -75,41 +75,31 @@ public final class CompoundQueryable<T> extends IndexProvider<T> {
 	 * @param query1 The first queryable
 	 * @param query2 The second queryable
 	 */
-	@SuppressWarnings("unchecked")
 	CompoundQueryable(IQueryable<T> query1, IQueryable<T> query2) {
-		this(new IQueryable[] { query1, query2 });
+		this(List.of(query1, query2));
 	}
 
 	@Override
 	public IIndex<T> getIndex(String memberName) {
 		// Check that at least one of the queryable can present an index
 		// for the given member.
-		boolean found = false;
-		for (IQueryable<T> queryable : queryables) {
-			if (queryable instanceof IIndexProvider<?>) {
-				@SuppressWarnings("unchecked")
-				IIndexProvider<T> ip = (IIndexProvider<T>) queryable;
-				if (ip.getIndex(memberName) != null) {
-					found = true;
-					break;
-				}
-			}
-		}
-
-		if (!found)
+		boolean found = queryables.stream().filter(IIndexProvider.class::isInstance).map(IIndexProvider.class::cast)
+				.anyMatch(ip -> ip.getIndex(memberName) != null);
+		if (!found) {
 			// Nobody had an index for this member
 			return null;
-
-		List<IIndex<T>> indexes = new ArrayList<>(queryables.length);
+		}
+		List<IIndex<T>> indexes = new ArrayList<>(queryables.size());
 		for (IQueryable<T> queryable : queryables) {
 			if (queryable instanceof IIndexProvider<?>) {
 				@SuppressWarnings("unchecked")
 				IIndexProvider<T> ip = (IIndexProvider<T>) queryable;
 				IIndex<T> index = ip.getIndex(memberName);
-				if (index != null)
+				if (index != null) {
 					indexes.add(index);
-				else
+				} else {
 					indexes.add(new PassThroughIndex<>(ip.everything()));
+				}
 			} else {
 				indexes.add(new PassThroughIndex<>(getIteratorFromQueryable(queryable)));
 			}
@@ -119,15 +109,16 @@ public final class CompoundQueryable<T> extends IndexProvider<T> {
 
 	@Override
 	public Iterator<T> everything() {
-		if (queryables.length == 0)
+		if (queryables.isEmpty()) {
 			return Collections.emptyIterator();
-
-		if (queryables.length == 1)
-			return getIteratorFromQueryable(queryables[0]);
-
-		List<Iterator<T>> iterators = new ArrayList<>(queryables.length);
-		for (IQueryable<T> queryable : queryables)
+		}
+		if (queryables.size() == 1) {
+			return getIteratorFromQueryable(queryables.iterator().next());
+		}
+		List<Iterator<T>> iterators = new ArrayList<>(queryables.size());
+		for (IQueryable<T> queryable : queryables) {
 			iterators.add(getIteratorFromQueryable(queryable));
+		}
 		return new CompoundIterator<>(iterators.iterator());
 	}
 
@@ -148,15 +139,16 @@ public final class CompoundQueryable<T> extends IndexProvider<T> {
 				@SuppressWarnings("unchecked")
 				IIndexProvider<T> ip = (IIndexProvider<T>) queryable;
 				Object value = ip.getManagedProperty(client, memberName, key);
-				if (value != null)
+				if (value != null) {
 					return value;
+				}
 			}
 		}
-
-		// When asked for translatedProperties we should return from the IU when the property is not found.
-		if (client instanceof IInstallableUnit && memberName.equals(InstallableUnit.MEMBER_TRANSLATED_PROPERTIES)) {
-			IInstallableUnit iu = (IInstallableUnit) client;
-			return key instanceof KeyWithLocale ? iu.getProperty(((KeyWithLocale) key).getKey()) : iu.getProperty(key.toString());
+		// When asked for translatedProperties we should return from the IU when the
+		// property is not found.
+		if (client instanceof IInstallableUnit iu && memberName.equals(InstallableUnit.MEMBER_TRANSLATED_PROPERTIES)) {
+			return key instanceof KeyWithLocale keyWithLocal ? iu.getProperty(keyWithLocal.getKey())
+					: iu.getProperty(key.toString());
 		}
 		return null;
 	}

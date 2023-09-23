@@ -128,13 +128,11 @@ public class SimplePlanner implements IPlanner {
 			int status = !toState.contains(removed) ? OK : ERROR;
 			requestStatus.put(removed, new RequestStatus(removed, REMOVED, status, null));
 		}
-
 		// Compute the side effect changes (e.g. things installed optionally going away)
-		Iterator<IInstallableUnit> includedIUs = changeRequest.getProfile()
-				.query(new IUProfilePropertyQuery(INCLUSION_RULES, IUProfilePropertyQuery.ANY), null).iterator();
+		IQueryResult<IInstallableUnit> includedIUs = changeRequest.getProfile()
+				.query(new IUProfilePropertyQuery(INCLUSION_RULES, IUProfilePropertyQuery.ANY), null);
 		Map<IInstallableUnit, RequestStatus> sideEffectStatus = new HashMap<>();
-		while (includedIUs.hasNext()) {
-			IInstallableUnit removal = includedIUs.next();
+		for (IInstallableUnit removal : includedIUs) {
 			if (!toState.contains(removal) && !requestStatus.containsKey(removal)) {
 				sideEffectStatus.put(removal, new RequestStatus(removal, REMOVED, INFO, null));
 			}
@@ -173,8 +171,8 @@ public class SimplePlanner implements IPlanner {
 			// The following line could be removed if Bug 309863 is fixed
 			forTargets.add(new Status(ERROR, PI_DIRECTOR, Messages.Director_For_Target_Unselect_Required));
 			// Return a multi status with all the IUs that require A.PDE.Target.Platform
-			return new MultiStatus(PI_DIRECTOR, 1, forTargets.stream().toArray(IStatus[]::new),
-					Messages.Director_For_Target, null);
+			return new MultiStatus(PI_DIRECTOR, 1, forTargets.toArray(IStatus[]::new), Messages.Director_For_Target,
+					null);
 		}
 
 		// Use the most specific message for the root of the MultiStatus
@@ -336,7 +334,7 @@ public class SimplePlanner implements IPlanner {
 		return result;
 	}
 
-	private IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource,
+	private IInstallableUnit[] gatherAvailableInstallableUnits(List<IInstallableUnit> additionalSource,
 			ProvisioningContext context, IProgressMonitor monitor) {
 		Map<String, IInstallableUnit> resultsMap = new HashMap<>();
 		if (additionalSource != null) {
@@ -425,14 +423,11 @@ public class SimplePlanner implements IPlanner {
 			extraIUs.addAll(profileChangeRequest.getRemovals());
 			if (context == null || context.getProperty(INCLUDE_PROFILE_IUS) == null
 					|| context.getProperty(INCLUDE_PROFILE_IUS).equalsIgnoreCase(Boolean.TRUE.toString())) {
-				Iterator<IInstallableUnit> itor = profile.available(QueryUtil.createIUAnyQuery(), null).iterator();
-				while (itor.hasNext()) {
-					extraIUs.add(itor.next());
-				}
+				profile.available(QueryUtil.createIUAnyQuery(), null).forEach(extraIUs::add);
 			}
 
-			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits(
-					extraIUs.stream().toArray(IInstallableUnit[]::new), context, sub.newChild(ExpandWork / 4));
+			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits(extraIUs, context,
+					sub.newChild(ExpandWork / 4));
 			Slicer slicer = new Slicer(new QueryableArray(availableIUs), newSelectionContext,
 					satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
 			IQueryable<IInstallableUnit> slice = slicer
@@ -443,10 +438,8 @@ public class SimplePlanner implements IPlanner {
 				return plan;
 			}
 
-			@SuppressWarnings("unchecked")
-			IQueryable<IInstallableUnit>[] queryables = new IQueryable[] { slice,
-					new QueryableArray(profileChangeRequest.getAdditions().stream().toArray(IInstallableUnit[]::new)) };
-			slice = new CompoundQueryable<>(queryables);
+			IInstallableUnit[] additions = profileChangeRequest.getAdditions().toArray(IInstallableUnit[]::new);
+			slice = new CompoundQueryable<>(List.of(slice, new QueryableArray(additions)));
 
 			Projector projector = new Projector(slice, newSelectionContext, slicer.getNonGreedyIUs(),
 					satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
