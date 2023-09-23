@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2023 WindRiver Corporation and others.
  *
  * This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License 2.0
@@ -32,8 +32,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.query.CompoundQueryable;
-import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -197,7 +196,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 
 	private List<IUDetail> features;
 	private final List<URI> loadRepos = new ArrayList<>();
-	private final Map<IUDetail, IUDetail[]> newProposedFeature = new HashMap<>();
+	private final Map<IUDetail, List<IUDetail>> newProposedFeature = new HashMap<>();
 	private Button contactAll;
 	private Button installLatest;
 	private String oldDestination;
@@ -331,7 +330,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		boolean useLatest = installLatest.getSelection();
 		for (Object checked1 : checked) {
 			IUDetail feature = (IUDetail) checked1;
-			IUDetail[] existingFeatures = newProposedFeature.get(feature);
+			List<IUDetail> existingFeatures = newProposedFeature.get(feature);
 			if (existingFeatures == null) {
 				checkedFeatures.add(feature);
 			} else {
@@ -440,7 +439,6 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 						try {
 							repos.add(metaManager.loadRepository(uri, sub2.newChild(500)));
 						} catch (ProvisionException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						} catch (OperationCanceledException e) {
 							throw new InterruptedException(e.getLocalizedMessage());
@@ -450,22 +448,14 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 						}
 						artifactManager.setEnabled(uri, true);
 					}
-					if (sub2.isCanceled())
+					if (sub2.isCanceled()) {
 						throw new InterruptedException();
-					// don't suppress this warning as it will cause build-time warning
-					// see bug 423628. Find a way to change the code to not produce
-					// the warning.
-					Set<IInstallableUnit> result = new CompoundQueryable<IInstallableUnit>(
-							repos.toArray(new IRepository[repos.size()]))
-									.query(QueryUtil.createIUQuery(feature.getIU().getId(),
-											new VersionRange(feature.getIU().getVersion(), true, null, false)),
-											sub2.newChild(100))
-									.toSet();
-					List<IUDetail> existingFeatures = new ArrayList<>(result.size());
-					for (IInstallableUnit iu : result) {
-						existingFeatures.add(new IUDetail(iu, feature.getReferencedRepositories()));
 					}
-					newProposedFeature.put(feature, existingFeatures.toArray(new IUDetail[existingFeatures.size()]));
+					VersionRange allNeverVersions = new VersionRange(feature.getIU().getVersion(), true, null, false);
+					IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(feature.getIU().getId(), allNeverVersions);
+					List<IUDetail> existingFeatures = new CompoundQueryable<>(repos).query(query, sub2.newChild(100))
+							.stream().map(iu -> new IUDetail(iu, feature.getReferencedRepositories())).toList();
+					newProposedFeature.put(feature, existingFeatures);
 				} else {
 					if (sub.isCanceled())
 						throw new InterruptedException();

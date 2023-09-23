@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2018 Cloudsmith Inc. and others.
+ * Copyright (c) 2010, 2023 Cloudsmith Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,6 +16,7 @@ package org.eclipse.equinox.p2.query;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.expression.ContextExpression;
 import org.eclipse.equinox.internal.p2.metadata.expression.Expression.VariableFinder;
@@ -33,6 +34,7 @@ import org.eclipse.equinox.p2.metadata.expression.IExpressionFactory;
 
 /**
  * Helper class for query related tasks.
+ * 
  * @since 2.0
  */
 public class QueryUtil {
@@ -69,7 +71,7 @@ public class QueryUtil {
 	public static <T> IQueryable<T> compoundQueryable(Collection<? extends IQueryable<T>> queryables) {
 		// don't suppress the warning as it will cause warnings in the official build
 		// see bug 423628. Write this without unchecked conversion.
-		return new CompoundQueryable<>(queryables.toArray(new IQueryable[queryables.size()]));
+		return new CompoundQueryable<>(queryables);
 	}
 
 	/**
@@ -78,9 +80,8 @@ public class QueryUtil {
 	 * @param query1 The first queryable
 	 * @param query2 The second queryable
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T> IQueryable<T> compoundQueryable(IQueryable<T> query1, IQueryable<T> query2) {
-		return new CompoundQueryable<>(new IQueryable[] {query1, query2});
+		return new CompoundQueryable<>(List.of(query1, query2));
 	}
 
 	/**
