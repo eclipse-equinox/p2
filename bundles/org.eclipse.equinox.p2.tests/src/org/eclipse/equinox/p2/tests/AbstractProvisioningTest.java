@@ -55,9 +55,9 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.core.tests.harness.FussyProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
@@ -842,7 +842,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected IProgressMonitor getMonitor() {
-		return new NullProgressMonitor();
+		return new FussyProgressMonitor();
 	}
 
 	protected IProfile getProfile(String profileId) {

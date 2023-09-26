@@ -18,6 +18,7 @@ import java.net.URI;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.tests.harness.FussyProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.p2.ui.sdk.SimpleLicenseManager;
@@ -146,12 +147,19 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		// Use an empty provisioning context to prevent repo access
 		ProvisioningContext context = new ProvisioningContext(getAgent());
 		context.setMetadataRepositories(new URI[] {});
+		FussyProgressMonitor monitor = new FussyProgressMonitor();
 		IProvisioningPlan plan = getPlanner(getSession().getProvisioningAgent()).getProvisioningPlan(req, context,
-				getMonitor());
+				monitor);
+		monitor.assertUsedUp();
 		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
-		return getSession().performProvisioningPlan(plan, PhaseSetFactory.createDefaultPhaseSet(),
-				new ProvisioningContext(getAgent()), getMonitor());
+		FussyProgressMonitor monitor2 = new FussyProgressMonitor();
+		try {
+			return getSession().performProvisioningPlan(plan, PhaseSetFactory.createDefaultPhaseSet(),
+					new ProvisioningContext(getAgent()), monitor2);
+		} finally {
+			monitor2.assertUsedUp();
+		}
 	}
 
 	protected IInstallableUnit createNamedIU(String id, String name, Version version, boolean isCategory) {

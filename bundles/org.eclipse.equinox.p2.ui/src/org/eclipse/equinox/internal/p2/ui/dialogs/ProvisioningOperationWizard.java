@@ -27,7 +27,8 @@ import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
+import org.eclipse.equinox.p2.operations.RemediationOperation;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.wizard.*;
@@ -311,12 +312,10 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	public void computeRemediationOperation(ProfileChangeOperation op, ProvisioningUI ui, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.ProvisioningOperationWizard_Remediation_Operation,
-				RemedyConfig.getAllRemedyConfigs().length);
 		monitor.setTaskName(ProvUIMessages.ProvisioningOperationWizard_Remediation_Operation);
 		remediationOperation = new RemediationOperation(ui.getSession(), op.getProfileChangeRequest());
 		remediationOperation.resolveModal(monitor);
-		sub.done();
+		monitor.done();
 	}
 
 	/**

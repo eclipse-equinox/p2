@@ -46,11 +46,11 @@ public class RawMirrorRequest extends MirrorRequest {
 
 	@Override
 	public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
-		monitor.subTask(NLS.bind(Messages.downloading, getArtifactKey().getId()));
+		SubMonitor subMon = SubMonitor.convert(monitor, NLS.bind(Messages.downloading, getArtifactKey().getId()), 1);
 		setSourceRepository(sourceRepository);
 		// Do we already have the descriptor in the target?
 		if (target.contains(targetDescriptor)) {
-			setResult(new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.mirror_alreadyExists, targetDescriptor, target)));
+			setResult(Status.info(NLS.bind(Messages.mirror_alreadyExists, targetDescriptor, target)));
 			return;
 		}
 		// Does the source actually have the descriptor?
@@ -58,7 +58,7 @@ public class RawMirrorRequest extends MirrorRequest {
 			setResult(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.artifact_not_found, getArtifactKey())));
 			return;
 		}
-		IStatus status = transfer(targetDescriptor, sourceDescriptor, monitor);
+		IStatus status = transfer(targetDescriptor, sourceDescriptor, subMon.newChild(1));
 
 		// if ok, cancelled or transfer has already been done with the canonical form return with status set
 		if (status.getSeverity() == IStatus.CANCEL) {
@@ -88,6 +88,7 @@ public class RawMirrorRequest extends MirrorRequest {
 	// Perform the mirror operation without any processing steps
 	@Override
 	protected IStatus getArtifact(IArtifactDescriptor artifactDescriptor, OutputStream destination, IProgressMonitor monitor) {
+		SubMonitor subMon = SubMonitor.convert(monitor, 2);
 		if (SimpleArtifactRepository.CHECKSUMS_ENABLED) {
 			Collection<ChecksumVerifier> steps = ChecksumUtilities.getChecksumVerifiers(artifactDescriptor,
 					IArtifactDescriptor.DOWNLOAD_CHECKSUM, Collections.emptySet());
@@ -98,9 +99,9 @@ public class RawMirrorRequest extends MirrorRequest {
 			ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
 			// TODO should probably be using createAndLink here
 			ProcessingStepHandler handler = new ProcessingStepHandler();
-			destination = handler.link(stepArray, destination, monitor);
+			destination = handler.link(stepArray, destination, subMon.split(1));
 		}
-
-		return getSourceRepository().getRawArtifact(artifactDescriptor, destination, monitor);
+		subMon.setWorkRemaining(1);
+		return getSourceRepository().getRawArtifact(artifactDescriptor, destination, subMon.split(1));
 	}
 }

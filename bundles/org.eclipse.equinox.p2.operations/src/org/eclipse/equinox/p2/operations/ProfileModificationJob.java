@@ -71,9 +71,9 @@ public class ProfileModificationJob extends ProvisioningJob implements IProfileC
 		IStatus status = Status.OK_STATUS;
 		if (task == null)
 			task = getName();
-		monitor.beginTask(task, 1000);
 		try {
-			status = getSession().performProvisioningPlan(plan, phaseSet, provisioningContext, SubMonitor.convert(monitor, 1000));
+			SubMonitor subMonitor = SubMonitor.convert(monitor, task, 1000);
+			status = getSession().performProvisioningPlan(plan, phaseSet, provisioningContext, subMonitor);
 		} finally {
 			monitor.done();
 		}

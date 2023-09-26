@@ -47,9 +47,8 @@ public class P2Util {
 		// which installable units are being updated, use the more detailed
 		// constructors.
 		UpdateOperation operation = new UpdateOperation(session);
-		SubMonitor sub = SubMonitor.convert(monitor,
-				"Checking for application updates...", 200);
-		IStatus status = operation.resolveModal(sub.newChild(100));
+		SubMonitor sub = SubMonitor.convert(monitor, "Checking for application updates...", 2);
+		IStatus status = operation.resolveModal(sub.split(1));
 		if (status.getCode() == UpdateOperation.STATUS_NOTHING_TO_UPDATE) {
 			return status;
 		}
@@ -61,9 +60,8 @@ public class P2Util {
 			// are available if there are multiples, differentiating patches vs. updates, etc.
 			// In this example, we simply update as suggested by the operation.
 			ProvisioningJob job = operation.getProvisioningJob(null);
-			status = job.runModal(sub.newChild(100));
-			if (status.getSeverity() == IStatus.CANCEL)
-				throw new OperationCanceledException();
+			status = job.runModal(sub.split(1));
+			sub.checkCanceled();
 		}
 		return status;
 	}
