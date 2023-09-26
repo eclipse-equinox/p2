@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
  * resolution status to be reported to a client to determine whether the operation
  * should proceed.  Each phase of the operation can be performed synchronously or in
  * the background as a job.  To perform the operation synchronously:
- * 
+ *
  *  <pre>
  *     IStatus result = op.resolveModal(monitor);
  *     if (result.isOK())
@@ -37,10 +37,10 @@ import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
  *       // interpret the result
  *     }
  *  </pre>
- *  
+ *
  *  To perform the resolution synchronously and the provisioning job in the
  *  background:
- *  
+ *
  *  <pre>
  *     IStatus status = op.resolveModal(monitor);
  *     if (status.isOK()) {
@@ -50,9 +50,9 @@ import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
  *       // interpret the result
  *     }
  *  </pre>
- *  
+ *
  *  To resolve in the background and perform the job when it is complete:
- * 
+ *
  *  <pre>
  *     ProvisioningJob job = op.getResolveJob(monitor);
  *     job.addJobChangeListener(new JobChangeAdapter() {
@@ -65,18 +65,18 @@ import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
  *       }
  *     });
  *     job.schedule();
- *     
+ *
  *  </pre>
- *  
- * In general, it is expected that clients create a new ProfileChangeOperation if 
+ *
+ * In general, it is expected that clients create a new ProfileChangeOperation if
  * the resolution result of the current operation is not satisfactory.  However,
  * subclasses may prescribe a different life cycle where appropriate.
- * 
- * When retrieving the resolution and provisioning jobs managed by this operation, 
+ *
+ * When retrieving the resolution and provisioning jobs managed by this operation,
  * a client may supply a progress monitor to be used by the job.  When the job is
- * run by the platform job manager, both the platform job manager progress indicator 
+ * run by the platform job manager, both the platform job manager progress indicator
  * and the monitor supplied by the client will be updated.
- * 
+ *
  * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */
@@ -93,7 +93,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 * Create an operation using the provided provisioning session.
 	 * Unless otherwise specified by the client, the operation is
 	 * performed on the currently running profile.
-	 * 
+	 *
 	 * @param session the provisioning session providing the services
 	 */
 	protected ProfileChangeOperation(ProvisioningSession session) {
@@ -105,20 +105,20 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	/**
 	 * Resolve the operation in the current thread using the specified progress
 	 * monitor.  Return a status describing the result of the resolution.
-	 * 
+	 *
 	 * @param monitor the progress monitor to use
 	 * @return a status describing the resolution results
 	 */
 	public final IStatus resolveModal(IProgressMonitor monitor) {
-		if (monitor == null)
-			monitor = new NullProgressMonitor();
+		SubMonitor subMon = SubMonitor.convert(monitor, 2);
 		prepareToResolve();
-		makeResolveJob(monitor);
+		makeResolveJob(subMon.split(1));
 		if (job != null) {
-			IStatus status = job.runModal(monitor);
+			IStatus status = job.runModal(subMon.split(1));
 			if (status.getSeverity() == IStatus.CANCEL)
 				return Status.CANCEL_STATUS;
 		}
+		monitor.done();
 		// For anything other than cancellation, we examine the artifacts of the resolution and come
 		// up with an overall summary.
 		return getResolutionResult();
@@ -135,11 +135,11 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 
 	/**
 	 * Return a job that can be used to resolve this operation in the background.
-	 * 
+	 *
 	 * @param monitor a progress monitor that should be used to report the job's progress in addition
-	 * to the standard job progress reporting.  Can be <code>null</code>.  If provided, this monitor 
+	 * to the standard job progress reporting.  Can be <code>null</code>.  If provided, this monitor
 	 * will be called from a background thread.
-	 * 
+	 *
 	 * @return a job that can be scheduled to perform the provisioning operation.
 	 */
 	public final ProvisioningJob getResolveJob(IProgressMonitor monitor) {
@@ -178,11 +178,11 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 
 	/**
 	 * Compute the profile change request for this operation, adding any relevant intermediate status
-	 * to the supplied status.  
-	 * 
+	 * to the supplied status.
+	 *
 	 * @param status a multi-status to be used to add relevant status.  If a profile change request cannot
 	 * be computed for any reason, a status should be added to explain the problem.
-	 * 
+	 *
 	 * @param monitor the progress monitor to use for computing the profile change request
 	 */
 	protected abstract void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor);
@@ -193,14 +193,14 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 
 	/**
 	 * Return an appropriate name for the resolution job.
-	 * 
+	 *
 	 * @return the resolution job name.
 	 */
 	protected abstract String getResolveJobName();
 
 	/**
 	 * Return an appropriate name for the provisioning job.
-	 * 
+	 *
 	 * @return the provisioning job name.
 	 */
 	protected abstract String getProvisioningJobName();
@@ -209,7 +209,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 * Return a status indicating the result of resolving this
 	 * operation.  A <code>null</code> return indicates that
 	 * resolving has not occurred yet.
-	 * 
+	 *
 	 * @return the status of the resolution, or <code>null</code>
 	 * if resolution has not yet occurred.
 	 */
@@ -231,7 +231,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	/**
 	 * Return a string that can be used to describe the results of the resolution
 	 * to a client.
-	 * 
+	 *
 	 * @return a string describing the resolution details, or <code>null</code> if the
 	 * operation has not been resolved.
 	 */
@@ -250,9 +250,9 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	/**
 	 * Return a string that describes the specific resolution results
 	 * related to the supplied {@link IInstallableUnit}.
-	 * 
+	 *
 	 * @param iu the IInstallableUnit for which resolution details are requested
-	 * 
+	 *
 	 * @return a string describing the results for the installable unit, or <code>null</code> if
 	 * there are no specific results available for the installable unit.
 	 */
@@ -265,12 +265,12 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 
 	/**
 	 * Return the provisioning plan obtained by resolving the receiver.
-	 * 
+	 *
 	 * @return the provisioning plan.  This may be <code>null</code> if the operation
 	 * has not been resolved, or if a plan could not be obtained when attempting to
 	 * resolve.  If the plan is null and the operation has been resolved, then the
 	 * resolution result will explain the problem.
-	 * 
+	 *
 	 * @see #hasResolved()
 	 * @see #getResolutionResult()
 	 */
@@ -282,12 +282,12 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 
 	/**
 	 * Return the profile change request that describes the receiver.
-	 * 
+	 *
 	 * @return the profile change request.  This may be <code>null</code> if the operation
 	 * has not been resolved, or if a profile change request could not be assembled given
 	 * the operation's state.  If the profile change request is null and the operation has
 	 * been resolved, the the resolution result will explain the problem.
-	 * 
+	 *
 	 * @see #hasResolved()
 	 * @see #getResolutionResult()
 	 * @since 2.1
@@ -299,22 +299,22 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	}
 
 	/**
-	 * Return a provisioning job that can be used to perform the resolved operation.  The job is 
+	 * Return a provisioning job that can be used to perform the resolved operation.  The job is
 	 * created using the default values associated with a new job.  It is up to clients to configure
 	 * the priority of the job and set any appropriate properties, such as
-	 * {@link Job#setUser(boolean)}, 
+	 * {@link Job#setUser(boolean)},
 	 * {@link Job#setSystem(boolean)}, or {@link Job#setProperty(QualifiedName, Object)},
 	 * before scheduling it.
-	 * 
+	 *
 	 * @param monitor a progress monitor that should be used to report the job's progress in addition
-	 * to the standard job progress reporting.  Can be <code>null</code>.  If provided, this monitor 
+	 * to the standard job progress reporting.  Can be <code>null</code>.  If provided, this monitor
 	 * will be called from a background thread.
-	 * 
-	 * @return a job that can be used to perform the provisioning operation.  This may be <code>null</code> 
+	 *
+	 * @return a job that can be used to perform the provisioning operation.  This may be <code>null</code>
 	 * if the operation has not been resolved, or if a plan could not be obtained when attempting to
-	 * resolve.  If the job is null and the operation has been resolved, then the resolution result 
+	 * resolve.  If the job is null and the operation has been resolved, then the resolution result
 	 * will explain the problem.
-	 * 
+	 *
 	 * @see #hasResolved()
 	 * @see #getResolutionResult()
 	 */
@@ -337,7 +337,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 * Set the provisioning context that should be used to resolve and perform the provisioning for
 	 * the operation.  This must be set before an attempt is made to resolve the operation
 	 * for it to have any effect.
-	 * 
+	 *
 	 * @param context the provisioning context.
 	 */
 	public void setProvisioningContext(ProvisioningContext context) {
@@ -349,7 +349,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	/**
 	 * Get the provisioning context that will be used to resolve and perform the provisioning for
 	 * the operation.
-	 * 
+	 *
 	 * @return the provisioning context
 	 */
 	public ProvisioningContext getProvisioningContext() {
@@ -367,7 +367,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 * change request, provisioning plan, or resolution result.  It is possible that this
 	 * method return <code>false</code> while resolution is taking place if it is performed
 	 * in the background.
-	 * 
+	 *
 	 * @return <code>true</code> if the operation has been resolved, <code>false</code>
 	 * if it has not resolved.
 	 */

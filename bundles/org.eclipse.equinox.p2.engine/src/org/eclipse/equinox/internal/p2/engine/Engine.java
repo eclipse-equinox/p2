@@ -71,6 +71,7 @@ public class Engine implements IEngine {
 		Profile profile = profileRegistry.validate(iprofile);
 
 		profileRegistry.lockProfile(profile);
+		SubMonitor subMon = SubMonitor.convert(monitor, 3);
 		try {
 			eventBus.publishEvent(new BeginOperationEvent(profile, phaseSet, operands, this));
 			if (DebugHelper.DEBUG_ENGINE)
@@ -91,17 +92,17 @@ public class Engine implements IEngine {
 				}
 				context.setProperty(ProvisioningContext.CHECK_AUTHORITIES, property);
 			}
-
-			MultiStatus result = phaseSet.perform(session, operands, monitor);
+			MultiStatus result = phaseSet.perform(session, operands, subMon.split(1));
 			if (result.isOK() || result.matches(IStatus.INFO | IStatus.WARNING)) {
 				if (DebugHelper.DEBUG_ENGINE)
 					DebugHelper.debug(ENGINE, "Preparing to commit engine operation for profile=" + profile.getProfileId()); //$NON-NLS-1$
-				result.merge(session.prepare(monitor));
+				result.merge(session.prepare(subMon.split(1)));
 			}
+			subMon.setWorkRemaining(1);
 			if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
 				if (DebugHelper.DEBUG_ENGINE)
 					DebugHelper.debug(ENGINE, "Rolling back engine operation for profile=" + profile.getProfileId() + ". Reason was: " + result.toString()); //$NON-NLS-1$ //$NON-NLS-2$
-				IStatus status = session.rollback(monitor, result.getSeverity());
+				IStatus status = session.rollback(subMon.split(1), result.getSeverity());
 				if (status.matches(IStatus.ERROR))
 					LogHelper.log(status);
 				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
@@ -110,7 +111,7 @@ public class Engine implements IEngine {
 					DebugHelper.debug(ENGINE, "Committing engine operation for profile=" + profile.getProfileId()); //$NON-NLS-1$
 				if (profile.isChanged())
 					profileRegistry.updateProfile(profile);
-				IStatus status = session.commit(monitor);
+				IStatus status = session.commit(subMon.split(1));
 				if (status.matches(IStatus.ERROR))
 					LogHelper.log(status);
 				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, operands, this));
@@ -121,6 +122,7 @@ public class Engine implements IEngine {
 		} finally {
 			profileRegistry.unlockProfile(profile);
 			profile.setChanged(false);
+			monitor.done();
 		}
 	}
 

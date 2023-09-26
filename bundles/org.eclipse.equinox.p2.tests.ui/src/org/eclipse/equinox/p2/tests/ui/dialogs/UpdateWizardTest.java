@@ -14,6 +14,7 @@
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
 import java.util.ArrayList;
+import org.eclipse.core.tests.harness.FussyProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.License;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
@@ -183,7 +184,9 @@ public class UpdateWizardTest extends WizardTest {
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(main);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
-		op.resolveModal(getMonitor());
+		FussyProgressMonitor monitor = new FussyProgressMonitor();
+		op.resolveModal(monitor);
+		monitor.assertUsedUp();
 		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);

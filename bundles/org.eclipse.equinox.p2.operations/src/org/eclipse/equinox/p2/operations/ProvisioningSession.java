@@ -21,7 +21,6 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.operations.Constants;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -128,11 +127,7 @@ public class ProvisioningSession {
 	 * @return a status describing the result of performing the plan
 	 */
 	public IStatus performProvisioningPlan(IProvisioningPlan plan, IPhaseSet phaseSet, ProvisioningContext context, IProgressMonitor monitor) {
-		IPhaseSet set;
-		if (phaseSet == null)
-			set = PhaseSetFactory.createDefaultPhaseSet();
-		else
-			set = phaseSet;
+		IPhaseSet set = phaseSet == null ? PhaseSetFactory.createDefaultPhaseSet() : phaseSet;
 
 		// 300 ticks for download, 100 to install handlers, 100 to compute the plan, 100 to install the rest
 		SubMonitor mon = SubMonitor.convert(monitor, 600);
@@ -174,10 +169,12 @@ public class ProvisioningSession {
 				configChanger.applyConfiguration();
 			} catch (IOException e) {
 				mon.done();
-				return new Status(IStatus.ERROR, Constants.BUNDLE_ID, Messages.ProvisioningSession_InstallPlanConfigurationError, e);
+				return Status.error(Messages.ProvisioningSession_InstallPlanConfigurationError, e);
 			}
 		}
-		return getEngine().perform(plan, set, mon.newChild(500 - ticksUsed));
+		IStatus status = getEngine().perform(plan, set, mon.newChild(500 - ticksUsed));
+		mon.done();
+		return status;
 	}
 
 	private boolean doesPhaseSetIncludeDownload(IPhaseSet set) {
