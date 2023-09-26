@@ -885,7 +885,7 @@ public class Projector {
 	//Return IUPatches that are applicable for the given iu
 	private IQueryResult<IInstallableUnit> getApplicablePatches(IInstallableUnit iu) {
 		if (patches == null)
-			patches = new QueryableArray(picker.query(QueryUtil.createIUPatchQuery(), null).toArray(IInstallableUnit.class));
+			patches = new QueryableArray(picker.query(QueryUtil.createIUPatchQuery(), null).toUnmodifiableSet());
 
 		return patches.query(new ApplicablePatchQuery(iu), null);
 	}

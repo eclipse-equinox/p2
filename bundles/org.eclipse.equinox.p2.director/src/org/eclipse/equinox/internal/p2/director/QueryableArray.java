@@ -14,8 +14,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
@@ -32,6 +31,10 @@ public class QueryableArray extends IndexProvider<IInstallableUnit> {
 
 	public QueryableArray(IInstallableUnit[] ius) {
 		dataSet = CollectionUtils.unmodifiableList(ius);
+	}
+
+	public QueryableArray(Collection<IInstallableUnit> ius) {
+		dataSet = List.copyOf(ius);
 	}
 
 	@Override
