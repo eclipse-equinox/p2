@@ -259,9 +259,9 @@ public class Projector {
 				System.out.println(solver.toString());
 			}
 		} catch (IllegalStateException e) {
-			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, e.getMessage(), e));
+			result.add(Status.error(e.getMessage(), e));
 		} catch (ContradictionException e) {
-			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Unsatisfiable_problem));
+			result.add(Status.error(Messages.Planner_Unsatisfiable_problem));
 		}
 	}
 
@@ -798,7 +798,7 @@ public class Projector {
 	}
 
 	private void missingRequirement(IInstallableUnit iu, IRequirement req) throws ContradictionException {
-		result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
+		result.add(Status.warning(NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
 		createNegation(iu, req);
 	}
 
@@ -986,9 +986,9 @@ public class Projector {
 				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, SimplePlanner.UNSATISFIABLE, Messages.Planner_Unsatisfiable_problem, null));
 			}
 		} catch (TimeoutException e) {
-			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Timeout));
+			result.merge(Status.error(Messages.Planner_Timeout));
 		} catch (Exception e) {
-			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Unexpected_problem, e));
+			result.merge(Status.error(Messages.Planner_Unexpected_problem, e));
 		}
 		if (DEBUG)
 			System.out.println();

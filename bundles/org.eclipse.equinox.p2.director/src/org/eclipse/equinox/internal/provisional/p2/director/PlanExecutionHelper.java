@@ -42,7 +42,7 @@ public class PlanExecutionHelper {
 			try {
 				configChanger.applyConfiguration();
 			} catch (IOException e) {
-				return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Director_error_applying_configuration, e);
+				return Status.error(Messages.Director_error_applying_configuration, e);
 			}
 		}
 		return engine.perform(result, phaseSet, progress);

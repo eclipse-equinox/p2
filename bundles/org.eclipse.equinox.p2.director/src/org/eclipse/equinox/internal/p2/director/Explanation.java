@@ -48,8 +48,8 @@ public abstract class Explanation implements Comparable<Explanation> {
 		public IStatus toStatus() {
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Explanation_unsatisfied, null);
 			final String fromString = patch.toString() + ' ' + getUserReadableName(iu);
-			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_fromPatch, fromString)));
-			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_to, req)));
+			result.add(Status.error(NLS.bind(Messages.Explanation_fromPatch, fromString)));
+			result.add(Status.error(NLS.bind(Messages.Explanation_to, req)));
 			return result;
 		}
 
@@ -82,8 +82,8 @@ public abstract class Explanation implements Comparable<Explanation> {
 		@Override
 		public IStatus toStatus() {
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Explanation_unsatisfied, null);
-			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_from, getUserReadableName(iu))));
-			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_to, req)));
+			result.add(Status.error(NLS.bind(Messages.Explanation_from, getUserReadableName(iu))));
+			result.add(Status.error(NLS.bind(Messages.Explanation_to, req)));
 			return result;
 		}
 
@@ -118,7 +118,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 		@Override
 		public IStatus toStatus() {
-			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_alreadyInstalled, getUserReadableName(iu)));
+			return Status.error(NLS.bind(Messages.Explanation_alreadyInstalled, getUserReadableName(iu)));
 		}
 
 		@Override
@@ -146,7 +146,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 		@Override
 		public IStatus toStatus() {
-			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_toInstall, getUserReadableName(iu)));
+			return Status.error(NLS.bind(Messages.Explanation_toInstall, getUserReadableName(iu)));
 		}
 
 		@Override
@@ -169,7 +169,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 		@Override
 		public IStatus toStatus() {
-			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingRootFilter, req));
+			return Status.error(NLS.bind(Messages.Explanation_missingRootFilter, req));
 		}
 
 		@Override
@@ -218,12 +218,13 @@ public abstract class Explanation implements Comparable<Explanation> {
 		@Override
 		public IStatus toStatus() {
 			if (isEntryPoint) {
-				return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingRootRequired, req));
+				return Status.error(NLS.bind(Messages.Explanation_missingRootRequired, req));
 			}
 			if (req.getFilter() == null) {
-				return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingRequired, getUserReadableName(iu), req));
+				return Status.error(NLS.bind(Messages.Explanation_missingRequired, getUserReadableName(iu), req));
 			}
-			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingRequiredFilter, new Object[] {req.getFilter(), getUserReadableName(iu), req}));
+			return Status.error(NLS.bind(Messages.Explanation_missingRequiredFilter,
+					new Object[] { req.getFilter(), getUserReadableName(iu), req }));
 		}
 	}
 
@@ -251,7 +252,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 		@Override
 		public IStatus toStatus() {
-			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingNonGreedyRequired, getUserReadableName(iu)));
+			return Status.error(NLS.bind(Messages.Explanation_missingNonGreedyRequired, getUserReadableName(iu)));
 		}
 	}
 
@@ -276,7 +277,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 		public IStatus toStatus() {
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, NLS.bind(Messages.Explanation_singleton, ""), null); //$NON-NLS-1$
 			for (IInstallableUnit iu : ius)
-				result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, getUserReadableName(iu)));
+				result.add(Status.error(getUserReadableName(iu)));
 			return result;
 		}
 
@@ -334,7 +335,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 	 * Returns a representation of this explanation as a status object.
 	 */
 	public IStatus toStatus() {
-		return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, toString());
+		return Status.error(toString());
 	}
 
 	protected static String getUserReadableName(IInstallableUnit iu) {
