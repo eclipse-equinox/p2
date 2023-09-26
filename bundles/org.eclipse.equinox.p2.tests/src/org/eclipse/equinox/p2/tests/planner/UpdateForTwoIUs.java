@@ -16,11 +16,17 @@ package org.eclipse.equinox.p2.tests.planner;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.metadata.query.UpdateQuery;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -59,15 +65,15 @@ public class UpdateForTwoIUs extends AbstractProvisioningTest {
 	public void testUpdateQueryForTwoIUs() {
 		//This test that A can be an update of B or C. In other words looking for an update of B or an update of C should return A.
 
-		IQueryResult<IInstallableUnit> updates = new QueryableArray(new IInstallableUnit[] {iua}).query(new UpdateQuery(createIU("B")), null);
+		IQueryResult<IInstallableUnit> updates = new QueryableArray(List.of(iua)).query(new UpdateQuery(createIU("B")), null);
 		assertFalse(updates.isEmpty());
 		assertEquals(iua, updates.iterator().next());
 
-		IQueryResult<IInstallableUnit> updates2 = new QueryableArray(new IInstallableUnit[] {iua}).query(new UpdateQuery(createIU("C")), null);
+		IQueryResult<IInstallableUnit> updates2 = new QueryableArray(List.of(iua)).query(new UpdateQuery(createIU("C")), null);
 		assertFalse(updates2.isEmpty());
 		assertEquals(iua, updates2.iterator().next());
 
-		IQueryResult<IInstallableUnit> update3 = new QueryableArray(new IInstallableUnit[] {iua}).query(new UpdateQuery(createIU("X")), null);
+		IQueryResult<IInstallableUnit> update3 = new QueryableArray(List.of(iua)).query(new UpdateQuery(createIU("X")), null);
 		assertTrue(update3.isEmpty());
 	}
 

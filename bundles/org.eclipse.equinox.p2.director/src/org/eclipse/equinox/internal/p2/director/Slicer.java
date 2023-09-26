@@ -80,11 +80,11 @@ public class Slicer {
 			LogHelper.log(result);
 		if (result.getSeverity() == IStatus.ERROR)
 			return null;
-		return new QueryableArray(considered.toArray(new IInstallableUnit[considered.size()]));
+		return new QueryableArray(considered);
 	}
 
 	private void computeNonGreedyIUs() {
-		IQueryable<IInstallableUnit> queryable = new QueryableArray(considered.toArray(new IInstallableUnit[considered.size()]));
+		IQueryable<IInstallableUnit> queryable = new QueryableArray(considered);
 		Iterator<IInstallableUnit> it = queryable.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).iterator();
 		while (it.hasNext()) {
 			IInstallableUnit iu = it.next().unresolved();

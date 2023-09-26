@@ -110,7 +110,7 @@ public class OperationGenerator {
 		Set<IInstallableUnit> processed = new HashSet<>();
 		Set<IInstallableUnit> removedFromTo = new HashSet<>();
 
-		QueryableArray indexedFromElements = new QueryableArray(from.toArray(new IInstallableUnit[from.size()]));
+		QueryableArray indexedFromElements = new QueryableArray(from);
 		for (int toIdx = 0; toIdx < to.size(); toIdx++) {
 			IInstallableUnit iuTo = to.get(toIdx);
 			if (iuTo.getId().equals(next(to, toIdx).getId())) { //This handle the case where there are multiple versions of the same IU in the target. Eg we are trying to update from A 1.0.0 to A 1.1.1 and A 1.2.2

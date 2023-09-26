@@ -84,10 +84,10 @@ public class SimplePlanner implements IPlanner {
 		}
 
 		Map<IInstallableUnit, RequestStatus>[] changes = buildDetailedSuccess(toState, changeRequest);
-		Map<IInstallableUnit, RequestStatus> requestChanges = (changes == null) ? null : changes[0];
-		Map<IInstallableUnit, RequestStatus> requestSideEffects = (changes == null) ? null : changes[1];
+		Map<IInstallableUnit, RequestStatus> requestChanges = changes[0];
+		Map<IInstallableUnit, RequestStatus> requestSideEffects = changes[1];
 		IStatus status = convertChangesToStatus(requestChanges, requestSideEffects);
-		QueryableArray plannedState = new QueryableArray(toState.toArray(new IInstallableUnit[toState.size()]));
+		QueryableArray plannedState = new QueryableArray(toState);
 		PlannerStatus plannerStatus = new PlannerStatus(status, null, requestChanges, requestSideEffects, plannedState);
 		plan.setStatus(plannerStatus);
 		plan.setInstallerPlan(installerPlan);
@@ -334,7 +334,7 @@ public class SimplePlanner implements IPlanner {
 		return result;
 	}
 
-	private IInstallableUnit[] gatherAvailableInstallableUnits(List<IInstallableUnit> additionalSource,
+	private Collection<IInstallableUnit> gatherAvailableInstallableUnits(List<IInstallableUnit> additionalSource,
 			ProvisioningContext context, IProgressMonitor monitor) {
 		Map<String, IInstallableUnit> resultsMap = new HashMap<>();
 		if (additionalSource != null) {
@@ -362,8 +362,7 @@ public class SimplePlanner implements IPlanner {
 				resultsMap.put(key, iu);
 		}
 		sub.done();
-		Collection<IInstallableUnit> results = resultsMap.values();
-		return results.toArray(new IInstallableUnit[results.size()]);
+		return resultsMap.values();
 	}
 
 	private static boolean hasHigherFidelity(IInstallableUnit iu, IInstallableUnit currentIU) {
@@ -426,7 +425,7 @@ public class SimplePlanner implements IPlanner {
 				profile.available(QueryUtil.createIUAnyQuery(), null).forEach(extraIUs::add);
 			}
 
-			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits(extraIUs, context,
+			Collection<IInstallableUnit> availableIUs = gatherAvailableInstallableUnits(extraIUs, context,
 					sub.newChild(ExpandWork / 4));
 			Slicer slicer = new Slicer(new QueryableArray(availableIUs), newSelectionContext,
 					satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
@@ -437,10 +436,7 @@ public class SimplePlanner implements IPlanner {
 				plan.setStatus(slicer.getStatus());
 				return plan;
 			}
-
-			IInstallableUnit[] additions = profileChangeRequest.getAdditions().toArray(IInstallableUnit[]::new);
-			slice = new CompoundQueryable<>(List.of(slice, new QueryableArray(additions)));
-
+			slice = new CompoundQueryable<>(List.of(slice, new QueryableArray(profileChangeRequest.getAdditions())));
 			Projector projector = new Projector(slice, newSelectionContext, slicer.getNonGreedyIUs(),
 					satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
 			projector.setUserDefined(profileChangeRequest.getPropertiesToAdd().containsKey("_internal_user_defined_")); //$NON-NLS-1$

@@ -390,7 +390,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		bundlesAction.perform(info, results, new NullProgressMonitor());
 		ius = results.getIUs(null, null);
 		assertEquals("2.0", 3, ius.size());
-		QueryableArray queryableArray = new QueryableArray(ius.toArray(new IInstallableUnit[ius.size()]));
+		QueryableArray queryableArray = new QueryableArray(ius);
 		IQueryResult<IInstallableUnit> result = queryableArray.query(QueryUtil.createIUQuery("foo"), null);
 		assertEquals("2.1", 1, queryResultSize(result));
 		IQuery<IInstallableUnit> lq = QueryUtil.createMatchQuery("translatedProperties[$0] ~= /German*/", new KeyWithLocale("org.eclipse.equinox.p2.name", Locale.GERMAN));
