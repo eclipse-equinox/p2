@@ -74,7 +74,7 @@ public class Slicer {
 				System.out.println("Slicing complete: " + (stop - start)); //$NON-NLS-1$
 			}
 		} catch (IllegalStateException e) {
-			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, e.getMessage(), e));
+			result.add(Status.error(e.getMessage(), e));
 		}
 		if (Tracing.DEBUG && result.getSeverity() != IStatus.OK)
 			LogHelper.log(result);
@@ -211,7 +211,7 @@ public class Slicer {
 				if (DEBUG)
 					System.out.println("No IU found to satisfy optional dependency of " + iu + " on req " + req); //$NON-NLS-1$//$NON-NLS-2$
 			} else {
-				result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
+				result.add(Status.warning(NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
 			}
 		}
 	}

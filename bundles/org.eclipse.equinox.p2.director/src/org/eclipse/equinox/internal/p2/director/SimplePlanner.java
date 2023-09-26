@@ -165,13 +165,13 @@ public class SimplePlanner implements IPlanner {
 						&& "A.PDE.Target.Platform".equals(((IRequiredCapability) missingIU.req).getNamespace())) {//$NON-NLS-1$
 					// This IU requires the PDE target platform IU and it is missing.
 					// I.e. this IU is intended only for the PDE target platform.
-					forTargets.add(new Status(ERROR, PI_DIRECTOR, Explanation.getUserReadableName(missingIU.iu)));
+					forTargets.add(Status.error(Explanation.getUserReadableName(missingIU.iu)));
 				}
 			}
 		}
 		if (!forTargets.isEmpty()) {
 			// The following line could be removed if Bug 309863 is fixed
-			forTargets.add(new Status(ERROR, PI_DIRECTOR, Messages.Director_For_Target_Unselect_Required));
+			forTargets.add(Status.error(Messages.Director_For_Target_Unselect_Required));
 			// Return a multi status with all the IUs that require A.PDE.Target.Platform
 			return new MultiStatus(PI_DIRECTOR, 1, forTargets.stream().toArray(IStatus[]::new),
 					Messages.Director_For_Target, null);
@@ -625,7 +625,7 @@ public class SimplePlanner implements IPlanner {
 			sub.setTaskName(Messages.Director_Task_installer_plan);
 			if (profileRegistry == null) {
 				IProvisioningPlan plan = engine.createPlan(initialRequest.getProfile(), initialContext);
-				plan.setStatus(new Status(ERROR, PI_DIRECTOR, Messages.Planner_no_profile_registry));
+				plan.setStatus(Status.error(Messages.Planner_no_profile_registry));
 				return plan;
 			}
 
@@ -646,8 +646,8 @@ public class SimplePlanner implements IPlanner {
 				if (profile.getProfileId().equals(installerProfile.getProfileId())) {
 					if (profile.getTimestamp() != installerProfile.getTimestamp()) {
 						IProvisioningPlan plan = engine.createPlan(initialRequest.getProfile(), initialContext);
-						plan.setStatus(new Status(ERROR, PI_DIRECTOR,
-								NLS.bind(Messages.Planner_profile_out_of_sync, profile.getProfileId())));
+						plan.setStatus(
+								Status.error(NLS.bind(Messages.Planner_profile_out_of_sync, profile.getProfileId())));
 						return plan;
 					}
 					return createInstallerPlanForCohostedCase(profile, initialRequest, initialPlan, unattachedState,
@@ -803,7 +803,7 @@ public class SimplePlanner implements IPlanner {
 				new ProfileChangeRequest(new EverythingOptionalProfile(initialRequest.getProfile())), noRepoContext,
 				new NullProgressMonitor());
 		if (initialSolution instanceof IProvisioningPlan) {
-			LogHelper.log(new Status(ERROR, PI_DIRECTOR, "The resolution of the previous state contained in profile " //$NON-NLS-1$
+			LogHelper.log(Status.error("The resolution of the previous state contained in profile " //$NON-NLS-1$
 					+ initialRequest.getProfile().getProfileId() + " version " //$NON-NLS-1$
 					+ initialRequest.getProfile().getTimestamp() + " failed.")); //$NON-NLS-1$
 			return (IProvisioningPlan) initialSolution;
@@ -836,7 +836,7 @@ public class SimplePlanner implements IPlanner {
 				new ProfileChangeRequest(new EverythingOptionalProfile(request.getProfile())), noRepoContext,
 				new NullProgressMonitor());
 		if (initialSolution instanceof IProvisioningPlan) {
-			LogHelper.log(new Status(ERROR, PI_DIRECTOR,
+			LogHelper.log(Status.error(
 					"The resolution of the previous state contained in profile " + request.getProfile().getProfileId() //$NON-NLS-1$
 							+ " version " + request.getProfile().getTimestamp() + " failed.")); //$NON-NLS-1$//$NON-NLS-2$
 			return (IProvisioningPlan) initialSolution;
