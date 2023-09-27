@@ -31,42 +31,42 @@ public class Slicer {
 	private final IQueryable<IInstallableUnit> possibilites;
 	private final boolean considerMetaRequirements;
 	protected final IInstallableUnit selectionContext;
-	private final Map<String, Map<Version, IInstallableUnit>> slice; //The IUs that have been considered to be part of the problem
-	private final MultiStatus result;
+	/** The IUs that have been considered to be part of the problem */
+	private final Map<String, Map<Version, IInstallableUnit>> slice = new HashMap<>();
+	private final MultiStatus result = new MultiStatus(Slicer.class, 0, Messages.Planner_Problems_resolving_plan);
 
-	private LinkedList<IInstallableUnit> toProcess;
-	private Set<IInstallableUnit> considered; //IUs to add to the slice
-	private Set<IInstallableUnit> nonGreedyIUs = new HashSet<>(); //IUs that are brought in by non greedy dependencies
+	private Queue<IInstallableUnit> toProcess;
+	private Set<IInstallableUnit> considered; // IUs to add to the slice
+	private final Set<IInstallableUnit> nonGreedyIUs = new HashSet<>(); // IUs that are brought in by non greedy dependencies
 
 	public Slicer(IQueryable<IInstallableUnit> input, Map<String, String> context, boolean considerMetaRequirements) {
 		this(input, InstallableUnit.contextIU(context), considerMetaRequirements);
 	}
 
-	public Slicer(IQueryable<IInstallableUnit> possibilites, IInstallableUnit selectionContext, boolean considerMetaRequirements) {
+	public Slicer(IQueryable<IInstallableUnit> possibilites, IInstallableUnit selectionContext,
+			boolean considerMetaRequirements) {
 		this.possibilites = possibilites;
 		this.selectionContext = selectionContext;
 		this.considerMetaRequirements = considerMetaRequirements;
-		slice = new HashMap<>();
-		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 	}
 
-	public IQueryable<IInstallableUnit> slice(IInstallableUnit[] ius, IProgressMonitor monitor) {
+	public IQueryable<IInstallableUnit> slice(Collection<IInstallableUnit> ius, IProgressMonitor monitor) {
+		monitor = IProgressMonitor.nullSafe(monitor);
 		try {
 			long start = 0;
 			if (DEBUG) {
 				start = System.currentTimeMillis();
 				System.out.println("Start slicing: " + start); //$NON-NLS-1$
 			}
-
 			validateInput(ius);
-			considered = new HashSet<>(Arrays.asList(ius));
+			considered = new HashSet<>(ius);
 			toProcess = new LinkedList<>(considered);
 			while (!toProcess.isEmpty()) {
 				if (monitor.isCanceled()) {
 					result.merge(Status.CANCEL_STATUS);
 					throw new OperationCanceledException();
 				}
-				processIU(toProcess.removeFirst());
+				processIU(toProcess.remove());
 			}
 			computeNonGreedyIUs();
 			if (DEBUG) {
@@ -76,25 +76,27 @@ public class Slicer {
 		} catch (IllegalStateException e) {
 			result.add(Status.error(e.getMessage(), e));
 		}
-		if (Tracing.DEBUG && result.getSeverity() != IStatus.OK)
+		if (Tracing.DEBUG && result.getSeverity() != IStatus.OK) {
 			LogHelper.log(result);
-		if (result.getSeverity() == IStatus.ERROR)
+		}
+		if (result.getSeverity() == IStatus.ERROR) {
 			return null;
+		}
 		return new QueryableArray(considered);
 	}
 
 	private void computeNonGreedyIUs() {
 		IQueryable<IInstallableUnit> queryable = new QueryableArray(considered);
-		Iterator<IInstallableUnit> it = queryable.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).iterator();
-		while (it.hasNext()) {
-			IInstallableUnit iu = it.next().unresolved();
+		for (IInstallableUnit iu : queryable.query(QueryUtil.ALL_UNITS, new NullProgressMonitor())) {
+			iu = iu.unresolved();
 			Collection<IRequirement> reqs = getRequirements(iu);
 			for (IRequirement req : reqs) {
-				if (!isApplicable(iu, req))
+				if (!isApplicable(iu, req)) {
 					continue;
-
+				}
 				if (!isGreedy(iu, req)) {
-					nonGreedyIUs.addAll(queryable.query(QueryUtil.createMatchQuery(req.getMatches()), null).toUnmodifiableSet());
+					nonGreedyIUs.addAll(
+							queryable.query(QueryUtil.createMatchQuery(req.getMatches()), null).toUnmodifiableSet());
 				}
 			}
 		}
@@ -104,8 +106,9 @@ public class Slicer {
 		return result;
 	}
 
-	//This is a shortcut to simplify the error reporting when the filter of the ius we are being asked to install does not pass
-	private void validateInput(IInstallableUnit[] ius) {
+	// This is a shortcut to simplify the error reporting when the filter of the ius
+	// we are being asked to install does not pass
+	private void validateInput(Collection<IInstallableUnit> ius) {
 		for (IInstallableUnit iu : ius) {
 			if (!isApplicable(iu)) {
 				throw new IllegalStateException(NLS.bind(Messages.Explanation_missingRootFilter, iu));
@@ -131,30 +134,16 @@ public class Slicer {
 
 	protected void processIU(IInstallableUnit iu) {
 		iu = iu.unresolved();
-
-		Map<Version, IInstallableUnit> iuSlice = slice.get(iu.getId());
-		if (iuSlice == null) {
-
-			iuSlice = new HashMap<>();
-			slice.put(iu.getId(), iuSlice);
-		}
+		Map<Version, IInstallableUnit> iuSlice = slice.computeIfAbsent(iu.getId(), i -> new HashMap<>());
 		iuSlice.put(iu.getVersion(), iu);
 		if (!isApplicable(iu)) {
 			return;
 		}
-
 		Collection<IRequirement> reqs = getRequirements(iu);
-		if (reqs.isEmpty())
-			return;
 		for (IRequirement req : reqs) {
-			if (!isApplicable(iu, req))
-				continue;
-
-			if (!isGreedy(iu, req)) {
-				continue;
+			if (isApplicable(iu, req) && isGreedy(iu, req)) {
+				expandRequirement(iu, req);
 			}
-
-			expandRequirement(iu, req);
 		}
 	}
 
@@ -169,56 +158,56 @@ public class Slicer {
 	private Collection<IRequirement> getRequirements(IInstallableUnit iu) {
 		boolean isPatch = iu instanceof IInstallableUnitPatch;
 		boolean isFragment = iu instanceof IInstallableUnitFragment;
-		//Short-circuit for the case of an IInstallableUnit
-		if ((!isFragment) && (!isPatch) && iu.getMetaRequirements().size() == 0)
+		// Short-circuit for the case of an IInstallableUnit
+		if (!isFragment && !isPatch && iu.getMetaRequirements().isEmpty()) {
 			return iu.getRequirements();
+		}
 
-		ArrayList<IRequirement> aggregatedRequirements = new ArrayList<>(iu.getRequirements().size() + iu.getMetaRequirements().size() + (isFragment ? ((IInstallableUnitFragment) iu).getHost().size() : 0) + (isPatch ? ((IInstallableUnitPatch) iu).getRequirementsChange().size() : 0));
+		List<IRequirement> aggregatedRequirements = new ArrayList<>(iu.getRequirements().size()
+				+ iu.getMetaRequirements().size() + (isFragment ? ((IInstallableUnitFragment) iu).getHost().size() : 0)
+				+ (isPatch ? ((IInstallableUnitPatch) iu).getRequirementsChange().size() : 0));
 		aggregatedRequirements.addAll(iu.getRequirements());
 
-		if (iu instanceof IInstallableUnitFragment) {
-			aggregatedRequirements.addAll(((IInstallableUnitFragment) iu).getHost());
+		if (iu instanceof IInstallableUnitFragment iuFragment) {
+			aggregatedRequirements.addAll(iuFragment.getHost());
 		}
-
-		if (iu instanceof InstallableUnitPatch) {
-			IInstallableUnitPatch patchIU = (IInstallableUnitPatch) iu;
+		if (iu instanceof InstallableUnitPatch patchIU) {
 			List<IRequirementChange> changes = patchIU.getRequirementsChange();
-			for (IRequirementChange change : changes)
+			for (IRequirementChange change : changes) {
 				aggregatedRequirements.add(change.newValue());
+			}
 		}
-
-		if (considerMetaRequirements)
+		if (considerMetaRequirements) {
 			aggregatedRequirements.addAll(iu.getMetaRequirements());
+		}
 		return aggregatedRequirements;
 	}
 
 	private void expandRequirement(IInstallableUnit iu, IRequirement req) {
-		if (req.getMax() == 0)
+		if (req.getMax() == 0) {
 			return;
+		}
 		IQueryResult<IInstallableUnit> matches = possibilites.query(QueryUtil.createMatchQuery(req.getMatches()), null);
 		int validMatches = 0;
 		for (IInstallableUnit match : matches) {
-			if (!isApplicable(match))
+			if (!isApplicable(match)) {
 				continue;
+			}
 			validMatches++;
 			Map<Version, IInstallableUnit> iuSlice = slice.get(match.getId());
-			if (iuSlice == null || !iuSlice.containsKey(match.getVersion()))
-				consider(match);
+			if ((iuSlice == null || !iuSlice.containsKey(match.getVersion())) && considered.add(match)) {
+				toProcess.add(match);
+			}
 		}
-
 		if (validMatches == 0) {
 			if (req.getMin() == 0) {
-				if (DEBUG)
+				if (DEBUG) {
 					System.out.println("No IU found to satisfy optional dependency of " + iu + " on req " + req); //$NON-NLS-1$//$NON-NLS-2$
+				}
 			} else {
 				result.add(Status.warning(NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
 			}
 		}
-	}
-
-	private void consider(IInstallableUnit match) {
-		if (considered.add(match))
-			toProcess.addLast(match);
 	}
 
 	Set<IInstallableUnit> getNonGreedyIUs() {

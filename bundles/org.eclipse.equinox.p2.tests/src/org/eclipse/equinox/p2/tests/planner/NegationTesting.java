@@ -18,6 +18,7 @@ import static org.eclipse.equinox.p2.metadata.IInstallableUnit.NAMESPACE_IU_ID;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.director.Slicer;
@@ -98,7 +99,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 
 		// Verify that the slice includes iu3 because the requirement from iu1 is a range including the provided capability of iu3.
 		Slicer slicer = new Slicer(repo, Collections.emptyMap(), false);
-		IQueryable<IInstallableUnit> slice = slicer.slice(new IInstallableUnit[] {iu1}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> slice = slicer.slice(List.of(iu1), new NullProgressMonitor());
 		assertEquals(3, queryResultSize(slice.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 
 		//Verify that the resolution succeeds and does not return iu3 since it is excluded by the requirement of iu1
@@ -156,7 +157,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 
 		//Test the slicer. The slice will not contain iu3 because none of the range of iu1 cause it to be brought in.
 		Slicer slicer = new Slicer(repo, Collections.emptyMap(), false);
-		IQueryable<IInstallableUnit> slice = slicer.slice(new IInstallableUnit[] {iu1}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> slice = slicer.slice(List.of(iu1), new NullProgressMonitor());
 		assertEquals(0, queryResultSize(slice.query(QueryUtil.createIUQuery("ProviderOf1_1_1"), new NullProgressMonitor())));
 		assertEquals(2, queryResultSize(slice.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 	}
@@ -188,7 +189,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 
 		//Test the slicer. The slice will not contain iu3 because none of the range of iu1 cause it to be brought in.
 		Slicer slicer = new Slicer(repo, Collections.emptyMap(), false);
-		IQueryable<IInstallableUnit> slice = slicer.slice(new IInstallableUnit[] {iu1}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> slice = slicer.slice(List.of(iu1), new NullProgressMonitor());
 		assertEquals(0, queryResultSize(slice.query(QueryUtil.createIUQuery("ProviderOf1_1_1"), new NullProgressMonitor())));
 		assertEquals(2, queryResultSize(slice.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 
@@ -242,7 +243,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 
 		// Verify that the slice includes iu3 because the requirement from iu1 is a range including the provided capability of iu3.
 		Slicer slicer = new Slicer(repo, Collections.emptyMap(), false);
-		IQueryable<IInstallableUnit> slice = slicer.slice(new IInstallableUnit[] {iu1}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> slice = slicer.slice(List.of(iu1), new NullProgressMonitor());
 		assertEquals(3, queryResultSize(slice.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 
 		//Verify that the resolution succeeds and does not return iu3 since it is excluded by the requirement of iu1
@@ -311,12 +312,12 @@ public class NegationTesting extends AbstractProvisioningTest {
 
 		// Verify that the slice includes iu3
 		Slicer slicer = new Slicer(repo, Collections.emptyMap(), false);
-		IQueryable<IInstallableUnit> slice = slicer.slice(new IInstallableUnit[] {iu1, iu4}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> slice = slicer.slice(List.of(iu1, iu4), new NullProgressMonitor());
 		assertEquals(4, queryResultSize(slice.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 
 		// Verify that the slice includes iu3
 		Slicer slicer2 = new Slicer(repo, Collections.emptyMap(), false);
-		IQueryable<IInstallableUnit> slice2 = slicer2.slice(new IInstallableUnit[] {iu4}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> slice2 = slicer2.slice(List.of(iu4), new NullProgressMonitor());
 		assertEquals(2, queryResultSize(slice2.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 
 		//Verify that the resolution succeeds and does not return iu3 since it is excluded by the requirement of iu1

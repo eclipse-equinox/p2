@@ -48,7 +48,7 @@ public class OptimizationFunction {
 		if (newRoots.isEmpty()) {
 			transitiveClosure = Collections.emptySet();
 		} else {
-			IQueryable<IInstallableUnit> queryable = new Slicer(picker, selectionContext, false).slice(newRoots.toArray(new IInstallableUnit[newRoots.size()]), new NullProgressMonitor());
+			IQueryable<IInstallableUnit> queryable = new Slicer(picker, selectionContext, false).slice(newRoots, null);
 			if (queryable == null) {
 				transitiveClosure = Collections.emptySet();
 			} else {

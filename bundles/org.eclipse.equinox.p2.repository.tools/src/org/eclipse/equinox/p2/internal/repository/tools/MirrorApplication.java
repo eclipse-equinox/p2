@@ -101,9 +101,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	}
 
 	@Override
-	public void stop() {
-		// TODO Auto-generated method stub
-
+	public void stop() { // nothing to do
 	}
 
 	/*
@@ -119,7 +117,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		}
 	}
 
-	public void initializeFromArguments(String[] args) throws Exception {
+	public void initializeFromArguments(String[] args) {
 		if (args == null)
 			return;
 
@@ -323,7 +321,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 			while (queryResult.hasNext())
 				sourceIUs.add(queryResult.next());
 			/* old metadata mirroring app did not throw an exception here */
-			if (sourceIUs.size() == 0 && destinationMetadataRepository != null && metadataOrArtifacts == null)
+			if (sourceIUs.isEmpty() && destinationMetadataRepository != null && metadataOrArtifacts == null)
 				throw new ProvisionException(Messages.MirrorApplication_no_IUs);
 		}
 	}
@@ -363,18 +361,19 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		String profileId = "MirrorApplication-" + System.currentTimeMillis(); //$NON-NLS-1$
 		IProfile profile = registry.addProfile(profileId, slicingOptions.getFilter());
 		IPlanner planner = Activator.getAgent().getService(IPlanner.class);
-		if (planner == null)
+		if (planner == null) {
 			throw new IllegalStateException();
+		}
 		IProfileChangeRequest pcr = planner.createChangeRequest(profile);
 		pcr.addAll(sourceIUs);
 		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, monitor);
 		registry.removeProfile(profileId);
-		@SuppressWarnings("unchecked")
-		IQueryable<IInstallableUnit>[] arr = new IQueryable[plan.getInstallerPlan() == null ? 1 : 2];
-		arr[0] = plan.getAdditions();
-		if (plan.getInstallerPlan() != null)
-			arr[1] = plan.getInstallerPlan().getAdditions();
-		return new CompoundQueryable<>(arr);
+		List<IQueryable<IInstallableUnit>> queriables = new ArrayList<>();
+		queriables.add(plan.getAdditions());
+		if (plan.getInstallerPlan() != null) {
+			queriables.add(plan.getInstallerPlan().getAdditions());
+		}
+		return new CompoundQueryable<>(queriables);
 	}
 
 	private IQueryable<IInstallableUnit> slice(IProgressMonitor monitor) throws ProvisionException {
@@ -384,8 +383,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 			return performResolution(monitor);
 
 		Slicer slicer = createSlicer(slicingOptions);
-		IQueryable<IInstallableUnit> slice = slicer.slice(sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]),
-				monitor);
+		IQueryable<IInstallableUnit> slice = slicer.slice(sourceIUs, monitor);
 
 		if (slice != null && slicingOptions.latestVersionOnly()) {
 			IQueryResult<IInstallableUnit> queryResult = slice.query(QueryUtil.createLatestIUQuery(), monitor);
@@ -401,10 +399,9 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	}
 
 	protected Slicer createSlicer(SlicingOptions options) {
-		PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), options.getFilter(),
+		return new PermissiveSlicer(getCompositeMetadataRepository(), options.getFilter(),
 				options.includeOptionalDependencies(), options.isEverythingGreedy(), options.forceFilterTo(),
 				options.considerStrictDependencyOnly(), options.followOnlyFilteredRequirements());
-		return slicer;
 	}
 
 	public void setSlicingOptions(SlicingOptions options) {
