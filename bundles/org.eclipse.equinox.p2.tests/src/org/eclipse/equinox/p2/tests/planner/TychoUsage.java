@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -72,7 +73,7 @@ public class TychoUsage extends AbstractProvisioningTest {
 		context.put("org.eclipse.update.install.features", "true");
 
 		Slicer slicer = new Slicer(repo, context, false);
-		IQueryable<IInstallableUnit> slice = slicer.slice(new IInstallableUnit[] {topLevelIU}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> slice = slicer.slice(List.of(topLevelIU), new NullProgressMonitor());
 
 		Projector p = new Projector(slice, context, new HashSet<>(), false);
 		p.encode(topLevelIU, new IInstallableUnit[0], new Collector<>(), newRoots, new NullProgressMonitor());

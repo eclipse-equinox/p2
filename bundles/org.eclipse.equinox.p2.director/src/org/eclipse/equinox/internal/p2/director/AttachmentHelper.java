@@ -14,64 +14,44 @@
 package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.QueryUtil;
 
 public class AttachmentHelper {
 	private static final IInstallableUnitFragment[] NO_FRAGMENTS = new IInstallableUnitFragment[0];
 
-	public static Collection<IInstallableUnit> attachFragments(Iterator<IInstallableUnit> toAttach, Map<IInstallableUnitFragment, List<IInstallableUnit>> fragmentsToIUs) {
+	public static Collection<IInstallableUnit> attachFragments(Stream<IInstallableUnit> toAttach,
+			Map<IInstallableUnitFragment, List<IInstallableUnit>> fragmentsToIUs) {
 		Map<IInstallableUnit, IInstallableUnitFragment[]> fragmentBindings = new HashMap<>();
 		//Build a map inverse of the one provided in input (host --> List of fragments)
 		Map<IInstallableUnit, List<IInstallableUnitFragment>> iusToFragment = new HashMap<>(fragmentsToIUs.size());
-		for (Map.Entry<IInstallableUnitFragment, List<IInstallableUnit>> mapping : fragmentsToIUs.entrySet()) {
-			IInstallableUnitFragment fragment = mapping.getKey();
-			List<IInstallableUnit> existingMatches = mapping.getValue();
-
+		fragmentsToIUs.forEach((fragment, existingMatches) -> {
 			for (IInstallableUnit host : existingMatches) {
-				List<IInstallableUnitFragment> potentialFragments = iusToFragment.get(host);
-				if (potentialFragments == null) {
-					potentialFragments = new ArrayList<>();
-					iusToFragment.put(host, potentialFragments);
-				}
-				potentialFragments.add(fragment);
+				iusToFragment.computeIfAbsent(host, h -> new ArrayList<>()).add(fragment);
 			}
-		}
+		});
 
-		for (Map.Entry<IInstallableUnit, List<IInstallableUnitFragment>> entry : iusToFragment.entrySet()) {
-			IInstallableUnit hostIU = entry.getKey();
-			List<IInstallableUnitFragment> potentialIUFragments = entry.getValue();
-			ArrayList<IInstallableUnitFragment> applicableFragments = new ArrayList<>();
+		iusToFragment.forEach((hostIU, potentialIUFragments) -> {
+			List<IInstallableUnitFragment> applicableFragments = new ArrayList<>();
 			for (IInstallableUnitFragment potentialFragment : potentialIUFragments) {
-				if (hostIU.equals(potentialFragment))
+				if (hostIU.equals(potentialFragment)) {
 					continue;
-
+				}
 				// Check to make sure the host meets the requirements of the fragment
 				Collection<IRequirement> reqsFromFragment = potentialFragment.getHost();
-				boolean match = true;
-				boolean requirementMatched = false;
-				for (Iterator<IRequirement> iterator = reqsFromFragment.iterator(); iterator.hasNext() && match == true;) {
-					IRequirement reqs = iterator.next();
-					requirementMatched = false;
-					if (hostIU.satisfies(reqs))
-						requirementMatched = true;
-					if (requirementMatched == false) {
-						match = false;
-						break;
-					}
-
-				}
-				if (match) {
+				if (reqsFromFragment.stream().allMatch(hostIU::satisfies)) {
 					applicableFragments.add(potentialFragment);
 				}
 			}
 
 			IInstallableUnitFragment theFragment = null;
 			int specificityLevel = 0;
-			LinkedList<IInstallableUnitFragment> fragments = new LinkedList<>();
+			Deque<IInstallableUnitFragment> fragments = new LinkedList<>();
 			for (IInstallableUnitFragment fragment : applicableFragments) {
 				if (isTranslation(fragment)) {
-					fragments.add(fragment);
+					fragments.addLast(fragment);
 					continue;
 				}
 				if (fragment.getHost().size() > specificityLevel) {
@@ -79,29 +59,23 @@ public class AttachmentHelper {
 					specificityLevel = fragment.getHost().size();
 				}
 			}
-			if (theFragment != null)
+			if (theFragment != null) {
 				fragments.addFirst(theFragment);
-			if (!fragments.isEmpty())
-				fragmentBindings.put(hostIU, fragments.toArray(new IInstallableUnitFragment[fragments.size()]));
-		}
+			}
+			if (!fragments.isEmpty()) {
+				fragmentBindings.put(hostIU, fragments.toArray(IInstallableUnitFragment[]::new));
+			}
+		});
 		//build the collection of resolved IUs
-		Collection<IInstallableUnit> result = new HashSet<>();
-		while (toAttach.hasNext()) {
-			IInstallableUnit iu = toAttach.next();
-			if (iu == null)
-				continue;
+		return toAttach.filter(Objects::nonNull).map(iu -> {
 			//just return fragments as they are
 			if (QueryUtil.isFragment(iu)) {
-				result.add(iu);
-				continue;
+				return iu;
 			}
 			//return a new IU that combines the IU with its bound fragments
-			IInstallableUnitFragment[] fragments = fragmentBindings.get(iu);
-			if (fragments == null)
-				fragments = NO_FRAGMENTS;
-			result.add(MetadataFactory.createResolvedInstallableUnit(iu, fragments));
-		}
-		return result;
+			IInstallableUnitFragment[] fragments = fragmentBindings.getOrDefault(iu, NO_FRAGMENTS);
+			return MetadataFactory.createResolvedInstallableUnit(iu, fragments);
+		}).collect(Collectors.toCollection(HashSet::new));
 	}
 
 	private static boolean isTranslation(IInstallableUnitFragment fragment) {

@@ -367,7 +367,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 
 			startTime = System.currentTimeMillis();
 			Slicer slicer = new Slicer(new QueryableArray(gatherAvailableInstallableUnits(repo)), env, false);
-			slice = slicer.slice(roots, new NullProgressMonitor());
+			slice = slicer.slice(r.toUnmodifiableSet(), new NullProgressMonitor());
 			sliceTime += (System.currentTimeMillis() - startTime);
 		}
 		// Check the size of the last slice to verify that it's the same as the traverse size
@@ -413,7 +413,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 
 			startTime = System.currentTimeMillis();
 			Slicer slicer = new PermissiveSlicer(repo, env, true, true, true, false, false);
-			slice = slicer.slice(roots, new NullProgressMonitor());
+			slice = slicer.slice(r.toUnmodifiableSet(), new NullProgressMonitor());
 			sliceTime += (System.currentTimeMillis() - startTime);
 		}
 		// Check the size of the last slice to verify that it's the same as the traverse size

@@ -24,11 +24,11 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
@@ -360,7 +360,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		Map<String, String> p = getSliceProperties();
 		p.put("org.eclipse.update.install.features", String.valueOf(true));
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, true, false);
-		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> result = slicer.slice(List.of(iu), new NullProgressMonitor());
 		assertEquals("Different number of IUs", queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())), getIUCount(destinationRepo));
 
 		try {
@@ -388,7 +388,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		runAntTask();
 
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, Collections.emptyMap(), true, false, true, false, false);
-		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> result = slicer.slice(List.of(iu), new NullProgressMonitor());
 
 		assertEquals("Different number of IUs", queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())), getIUCount(destinationRepo));
 		try {
@@ -418,7 +418,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		Map<String, String> p = getSliceProperties();
 		p.put("org.eclipse.update.install.features", String.valueOf(true));
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, false, true, true, false, false);
-		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> result = slicer.slice(List.of(iu), new NullProgressMonitor());
 		assertEquals("Different number of IUs", queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())), getIUCount(destinationRepo));
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
@@ -446,7 +446,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		Map<String, String> p = getSliceProperties();
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
-		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> result = slicer.slice(List.of(iu), new NullProgressMonitor());
 		assertEquals("Different number of IUs", queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())), getIUCount(destinationRepo));
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
@@ -478,7 +478,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		Map<String, String> p = getSliceProperties();
 		p.put("org.eclipse.update.install.features", String.valueOf(true));
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
-		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> result = slicer.slice(List.of(iu), new NullProgressMonitor());
 		assertEquals("Different number of IUs", queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())), getIUCount(destinationRepo));
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
@@ -510,7 +510,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		Map<String, String> p = getSliceProperties();
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
-		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> result = slicer.slice(List.of(iu), new NullProgressMonitor());
 		assertEquals("Different number of IUs", queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())), getIUCount(destinationRepo));
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
@@ -542,7 +542,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		Map<String, String> p = getSliceProperties();
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
-		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> result = slicer.slice(List.of(iu), new NullProgressMonitor());
 
 		assertEquals("Different number of IUs", queryResultSize(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())), getIUCount(destinationRepo));
 		assertEquals("Different number of ArtifactKeys", getArtifactKeyCount(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())), getArtifactKeyCount(destinationRepo));
@@ -578,7 +578,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		Map<String, String> p = getSliceProperties();
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
-		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> result = slicer.slice(List.of(iu), new NullProgressMonitor());
 
 		assertEquals("Different number of ArtifactKeys", getArtifactKeyCount(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())), getArtifactKeyCount(destinationRepo));
 		assertArtifactKeyContentEquals("Different ArtifactKeys", result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()), destinationRepo);
@@ -611,7 +611,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		Map<String, String> p = getSliceProperties();
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
-		IQueryable<IInstallableUnit> result = slicer.slice(new IInstallableUnit[] {iu, iu2}, new NullProgressMonitor());
+		IQueryable<IInstallableUnit> result = slicer.slice(List.of(iu, iu2), new NullProgressMonitor());
 
 		assertEquals("Different number of ArtifactKeys", getArtifactKeyCount(result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())), getArtifactKeyCount(destinationRepo));
 		assertArtifactKeyContentEquals("Different ArtifactKeys", result.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()), destinationRepo);
