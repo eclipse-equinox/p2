@@ -236,8 +236,8 @@ public abstract class RepositoryTracker {
 	 */
 	public void reportLoadFailure(final URI location, ProvisionException exception) {
 		// special handling when the repo location is bad.  We don't want to continually report it
-		int code = exception.getStatus().getCode();
-		if (code == IStatusCodes.INVALID_REPOSITORY_LOCATION || code == ProvisionException.REPOSITORY_INVALID_LOCATION || code == ProvisionException.REPOSITORY_NOT_FOUND) {
+		boolean repoLocationIsBad = LoadFailure.failureRepresentsBadRepositoryLocation(exception);
+		if (repoLocationIsBad) {
 			if (hasNotFoundStatusBeenReported(location))
 				return;
 			addNotFound(location);
