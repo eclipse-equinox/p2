@@ -14,8 +14,8 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.net.URI;
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.ui.dialogs.RepositoryNameAndLocationDialog;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
@@ -25,13 +25,6 @@ import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.window.Window;
-import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -127,46 +120,8 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 		if (code == ProvisionException.REPOSITORY_NOT_FOUND || code == ProvisionException.REPOSITORY_INVALID_LOCATION) {
 			if (!hasNotFoundStatusBeenReported(location)) {
 				addNotFound(location);
-				PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-					IWorkbench workbench = PlatformUI.getWorkbench();
-					if (workbench.isClosing())
-						return;
-					Shell shell = ProvUI.getDefaultParentShell();
-					int result = MessageDialog.open(MessageDialog.QUESTION, shell,
-							ProvUIMessages.ColocatedRepositoryTracker_SiteNotFoundTitle,
-							NLS.bind(ProvUIMessages.ColocatedRepositoryTracker_PromptForSiteLocationEdit,
-									URIUtil.toUnencodedString(location)),
-							SWT.NONE, ProvUIMessages.ColocatedRepositoryTracker_SiteNotFound_EditButtonLabel,
-							IDialogConstants.NO_LABEL);
-					if (result == 0) {
-						RepositoryNameAndLocationDialog dialog = new RepositoryNameAndLocationDialog(shell, ui) {
-							@Override
-							protected String getInitialLocationText() {
-								return URIUtil.toUnencodedString(location);
-							}
-
-							@Override
-							protected String getInitialNameText() {
-								String nickname = getMetadataRepositoryManager().getRepositoryProperty(location,
-										IRepository.PROP_NICKNAME);
-								return nickname == null ? "" : nickname; //$NON-NLS-1$
-							}
-						};
-						int ret = dialog.open();
-						if (ret == Window.OK) {
-							URI correctedLocation = dialog.getLocation();
-							if (correctedLocation != null) {
-								ui.signalRepositoryOperationStart();
-								try {
-									removeRepositories(new URI[] { location }, ui.getSession());
-									addRepository(correctedLocation, dialog.getName(), ui.getSession());
-								} finally {
-									ui.signalRepositoryOperationComplete(null, true);
-								}
-							}
-						}
-					}
-				});
+				LocationNotFoundDialog locationNotFoundDialog = new LocationNotFoundDialog(this, ui, location);
+				PlatformUI.getWorkbench().getDisplay().asyncExec(locationNotFoundDialog);
 			}
 		} else {
 			ProvUI.handleException(e, null, StatusManager.SHOW | StatusManager.LOG);
