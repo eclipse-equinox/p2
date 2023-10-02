@@ -22,6 +22,8 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.29.0",
  org.eclipse.equinox.p2.ui.importexport;bundle-version="1.0.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: org.eclipse.equinox.internal.p2.operations,
- org.eclipse.equinox.p2.operations;version="[2.0.0,3.0.0)"
+ org.eclipse.equinox.p2.operations;version="[2.0.0,3.0.0)",
+ org.mockito,
+ org.mockito.stubbing
 Eclipse-BundleShape: dir
 Automatic-Module-Name: org.eclipse.equinox.p2.tests.ui

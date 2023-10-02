@@ -19,11 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.operations.LoadFailure;
+import org.eclipse.equinox.internal.p2.operations.LoadFailureAccumulator;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -80,6 +83,7 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	private List<IMetadataRepository> repoCache = new ArrayList<>();
 	private RepositoryTracker tracker;
 	private MultiStatus accumulatedStatus;
+	private LoadFailureAccumulator loadFailureAccumulator;
 	private URI[] locations;
 	private ProvisioningUI ui;
 
@@ -141,26 +145,34 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 				// no need to report the same failure multiple times...
 				return;
 			}
-			// Some ProvisionExceptions include an empty multi status with a message.
-			// Since empty multi statuses have a severity OK, The platform status handler
-			// doesn't handle
-			// this well. We correct this by recreating a status with error severity
-			// so that the platform status handler does the right thing.
-			IStatus status = e.getStatus();
-			if (status instanceof MultiStatus && ((MultiStatus) status).getChildren().length == 0)
-				status = new Status(IStatus.ERROR, status.getPlugin(), status.getCode(), status.getMessage(),
-						status.getException());
-			if (accumulatedStatus == null) {
-				accumulatedStatus = new MultiStatus(ProvUIActivator.PLUGIN_ID, ProvisionException.REPOSITORY_NOT_FOUND,
-						new IStatus[] { status }, ProvUIMessages.LoadMetadataRepositoryJob_SitesMissingError, null);
-			} else {
-				accumulatedStatus.add(status);
+			accumulateInformationForMultiStatus(e);
+			if (loadFailureAccumulator == null) {
+				loadFailureAccumulator = new LoadFailureAccumulator(repositoryTracker);
 			}
-			repositoryTracker.addNotFound(location);
+			loadFailureAccumulator.recordLoadFailure(e, location);
+			//
 			// Always log the complete exception so the detailed stack trace is in the log.
 			LogHelper.log(e);
 		} else {
 			tracker.reportLoadFailure(location, e);
+		}
+	}
+
+	private void accumulateInformationForMultiStatus(ProvisionException e) {
+		// Some ProvisionExceptions include an empty multi status with a message.
+		// Since empty multi statuses have a severity OK, The platform status handler
+		// doesn't handle
+		// this well. We correct this by recreating a status with error severity
+		// so that the platform status handler does the right thing.
+		IStatus status = e.getStatus();
+		if (status instanceof MultiStatus && ((MultiStatus) status).getChildren().length == 0)
+			status = new Status(IStatus.ERROR, status.getPlugin(), status.getCode(), status.getMessage(),
+					status.getException());
+		if (accumulatedStatus == null) {
+			accumulatedStatus = new MultiStatus(ProvUIActivator.PLUGIN_ID, ProvisionException.REPOSITORY_NOT_FOUND,
+					new IStatus[] { status }, ProvUIMessages.LoadMetadataRepositoryJob_SitesMissingError, null);
+		} else {
+			accumulatedStatus.add(status);
 		}
 	}
 
@@ -181,10 +193,29 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 		// If user is unaware of individual sites, nothing to report here.
 		if (!ui.getPolicy().getRepositoriesVisible())
 			return;
-		StatusManager.getManager().handle(status, StatusManager.SHOW);
+		if (loadFailureAccumulator.hasSingleFailureCausedByBadLocation()) {
+			URI failingLocation = loadFailureAccumulator.getLoadFailuresCausedByBadRepoLocation().get(0).getLocation();
+			LocationNotFoundDialog locationNotFoundDialog = new LocationNotFoundDialog(tracker, ui, failingLocation);
+			PlatformUI.getWorkbench().getDisplay().asyncExec(locationNotFoundDialog);
+		} else if (loadFailureAccumulator.allFailuresCausedByBadLocation()) {
+			URI[] failingLocations = loadFailureAccumulator.getLoadFailuresCausedByBadRepoLocation().stream()
+					.map(LoadFailure::getLocation).toArray(URI[]::new);
+			MultipleLocationsNotFoundDialog multipleLocationsNotFoundDialog = new MultipleLocationsNotFoundDialog(
+					tracker, ui, failingLocations);
+			PlatformUI.getWorkbench().getDisplay().asyncExec(multipleLocationsNotFoundDialog);
+		} else {
+			// There are some failures which were not caused by bad locations. There is
+			// currently no separate UI for this so fall back to using the StatusManager.
+			StatusManager.getManager().handle(status, StatusManager.SHOW);
+		}
 		// Reset the accumulated status so that next time we only report the newly not
 		// found repos.
 		accumulatedStatus = null;
+		resetInformationAboutLoadFailures();
+	}
+
+	private void resetInformationAboutLoadFailures() {
+		loadFailureAccumulator = null;
 	}
 
 	private IStatus getCurrentStatus() {

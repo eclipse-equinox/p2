@@ -48,6 +48,12 @@ public class ProvUIMessages extends NLS {
 	public static String ColocatedRepositoryTracker_PromptForSiteLocationEdit;
 	public static String ColocatedRepositoryTracker_SiteNotFoundTitle;
 	public static String ColocatedRepositoryTracker_SiteNotFound_EditButtonLabel;
+	public static String ColocatedRepositoryTracker_SiteNotFound_RemoveButtonLabel;
+	public static String ColocatedRepositoryTracker_SiteNotFound_DisableButtonLabel;
+	public static String ColocatedRepositoryTracker_MultipleSitesNotFoundTitle;
+	public static String ColocatedRepositoryTracker_PromptForMultipleSites;
+	public static String ColocatedRepositoryTracker_MultipleSitesNotFound_RemoveButtonLabel;
+	public static String ColocatedRepositoryTracker_MultipleSitesNotFound_DisableButtonLabel;
 	public static String RevertProfilePage_ConfirmDeleteMultipleConfigs;
 	public static String RevertProfilePage_ConfirmDeleteSingleConfig;
 	public static String RevertProfilePage_Delete;
