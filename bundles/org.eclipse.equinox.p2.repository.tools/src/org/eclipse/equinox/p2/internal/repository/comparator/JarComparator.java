@@ -162,9 +162,6 @@ public class JarComparator implements IArtifactComparator {
 				if (firstEntry.isOptional() != entries21.isOptional()) {
 					parent.add(newErrorStatus(NLS.bind(Messages.featureEntryOptional, entries21)));
 				}
-				if (firstEntry.isUnpack() != entries21.isUnpack()) {
-					parent.add(newErrorStatus(NLS.bind(Messages.featureEntryUnpack, entries21)));
-				}
 				if (firstEntry.isRequires() && firstEntry.getMatch() != null && !firstEntry.getMatch().equals(entries21.getMatch())) {
 					parent.add(newErrorStatus(NLS.bind(Messages.featureEntryMatch, entries21)));
 				}

@@ -36,7 +36,6 @@ public class Messages extends NLS {
 	public static String featureVersionsDontMatch;
 	public static String featureEntry;
 	public static String featureEntryOptional;
-	public static String featureEntryUnpack;
 	public static String featureEntryMatch;
 	public static String featureEntryFilter;
 

@@ -59,7 +59,6 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 
 	// Constants for attributes of an installable unit element
 	public static final String SINGLETON_ATTRIBUTE = "singleton"; //$NON-NLS-1$
-	public static final String FRAGMENT_ATTRIBUTE = "fragment"; //$NON-NLS-1$
 	public static final String[] REQUIRED_IU_ATTRIBUTES = new String[] {ID_ATTRIBUTE, VERSION_ATTRIBUTE};
 	public static final String[] OPTIONAL_IU_ATTRIBUTES = new String[] {SINGLETON_ATTRIBUTE};
 	public static final String GENERATION_ATTRIBUTE = "generation"; //$NON-NLS-1$

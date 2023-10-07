@@ -1235,12 +1235,10 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	protected void processPlugin(Attributes attributes) {
-		String fragment = attributes.getValue(ATTRIBUTE_FRAGMENT);
 		String pluginId = attributes.getValue(ATTRIBUTE_ID);
 		String pluginVersion = attributes.getValue(ATTRIBUTE_VERSION);
 
 		FeatureEntry entry = new FeatureEntry(pluginId, pluginVersion != null ? pluginVersion : GENERIC_VERSION_NUMBER, true);
-		entry.setFragment(Boolean.parseBoolean(fragment));
 		plugins.add(entry);
 	}
 

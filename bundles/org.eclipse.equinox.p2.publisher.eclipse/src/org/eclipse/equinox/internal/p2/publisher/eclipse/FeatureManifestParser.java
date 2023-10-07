@@ -220,9 +220,6 @@ public class FeatureManifestParser extends DefaultHandler {
 
 	private void processIncludes(Attributes attributes) {
 		FeatureEntry entry = new FeatureEntry(attributes.getValue("id"), attributes.getValue("version"), false); //$NON-NLS-1$ //$NON-NLS-2$
-		String unpack = attributes.getValue("unpack"); //$NON-NLS-1$
-		if (unpack != null)
-			entry.setUnpack(Boolean.parseBoolean(unpack));
 		String optional = attributes.getValue("optional"); //$NON-NLS-1$
 		if (optional != null)
 			entry.setOptional(Boolean.parseBoolean(optional));
@@ -253,12 +250,6 @@ public class FeatureManifestParser extends DefaultHandler {
 		} else {
 			FeatureEntry plugin = new FeatureEntry(id, version, true);
 			setEnvironment(attributes, plugin);
-			String unpack = attributes.getValue("unpack"); //$NON-NLS-1$
-			if (unpack != null)
-				plugin.setUnpack(Boolean.parseBoolean(unpack));
-			String fragment = attributes.getValue("fragment"); //$NON-NLS-1$
-			if (fragment != null)
-				plugin.setFragment(Boolean.parseBoolean(fragment));
 			String filter = attributes.getValue("filter"); //$NON-NLS-1$
 			if (filter != null)
 				plugin.setFilter(filter);

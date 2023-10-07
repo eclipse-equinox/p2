@@ -175,21 +175,6 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	/**
-	 * Gather any advice we can from the given feature.  In particular, it may have
-	 * information about the shape of the bundles it includes.  The discovered advice is
-	 * added to the given result.
-	 * @param feature the feature to process
-	 * @param publisherInfo the publishing info to update
-	 */
-	private void createBundleShapeAdvice(Feature feature, IPublisherInfo publisherInfo) {
-		FeatureEntry entries[] = feature.getEntries();
-		for (FeatureEntry entry : entries) {
-			if (entry.isUnpack() && entry.isPlugin() && !entry.isRequires())
-				publisherInfo.addAdvice(new BundleShapeAdvice(entry.getId(), Version.parseVersion(entry.getVersion()), IBundleShapeAdvice.DIR));
-		}
-	}
-
 	protected IInstallableUnit createFeatureRootFileIU(String featureId, String featureVersion, File location, FileSetDescriptor descriptor) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(true);
@@ -404,7 +389,6 @@ public class FeaturesAction extends AbstractPublisherAction {
 		// Build Feature IUs, and add them to any corresponding categories
 		for (Feature feature : featureList) {
 			//first gather any advice that might help us
-			createBundleShapeAdvice(feature, info);
 			createAdviceFileAdvice(feature, info);
 
 			ArrayList<IInstallableUnit> childIUs = new ArrayList<>();
