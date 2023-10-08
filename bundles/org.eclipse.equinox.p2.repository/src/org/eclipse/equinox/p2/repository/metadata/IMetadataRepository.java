@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.IPool;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitQueryable;
 import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 
@@ -31,7 +32,7 @@ import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository
  * @noimplement This interface is not intended to be implemented by clients. Instead subclass {@link AbstractMetadataRepository}
  * @since 2.0
  */
-public interface IMetadataRepository extends IRepository<IInstallableUnit> {
+public interface IMetadataRepository extends IRepository<IInstallableUnit>, IInstallableUnitQueryable {
 
 	/**
 	 * Add the given installable units to this repository.
