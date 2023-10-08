@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2023 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc - public API
@@ -15,6 +15,7 @@
 package org.eclipse.equinox.p2.repository.spi;
 
 import java.net.URI;
+import java.util.Objects;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -36,17 +37,17 @@ public class RepositoryReference implements IRepositoryReference {
 	/**
 	 * Creates a reference to another repository.
 	 *
-	 * The {@link IRepository#ENABLED} option flag controls whether the 
+	 * The {@link IRepository#ENABLED} option flag controls whether the
 	 * referenced repository should be marked as enabled when added to the repository
 	 * manager. If this flag is set, the repository will be marked as enabled when
 	 * added to the repository manager. If this flag is missing, the repository will
 	 * be marked as disabled.
-	 * 
+	 *
 	 * @param location the location of the repository to add
 	 * @param nickname The nickname of the repository, or <code>null</code>
 	 * @param type the repository type (currently either {@link IRepository#TYPE_METADATA}
 	 * or {@link IRepository#TYPE_ARTIFACT}).
-	 * @param options bit-wise or of option constants (currently either 
+	 * @param options bit-wise or of option constants (currently either
 	 * {@link IRepository#ENABLED} or {@link IRepository#NONE}).
 	 * @see IMetadataRepositoryManager#setEnabled(URI, boolean)
 	 */
@@ -58,20 +59,18 @@ public class RepositoryReference implements IRepositoryReference {
 	}
 
 	@Override
+	public int hashCode() {
+		return Objects.hash(location, type);
+	}
+
+	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!(obj instanceof IRepositoryReference))
-			return false;
-		IRepositoryReference other = (IRepositoryReference) obj;
-		if (location == null) {
-			if (other.getLocation() != null)
-				return false;
-		} else if (!location.equals(other.getLocation()))
-			return false;
-		if (type != other.getType())
-			return false;
-		return true;
+		}
+		return obj instanceof IRepositoryReference other //
+				&& Objects.equals(location, other.getLocation()) //
+				&& type == other.getType();
 	}
 
 	@Override
@@ -95,12 +94,10 @@ public class RepositoryReference implements IRepositoryReference {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((location == null) ? 0 : location.hashCode());
-		result = prime * result + type;
-		return result;
+	public String toString() {
+		String status = ((options & IRepository.NONE) != 0) ? "enabled" : " disabled"; //$NON-NLS-1$//$NON-NLS-2$
+		return "location=" + location + (nickname != null && !nickname.isBlank() ? " name=" + nickname : "") + " " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$//$NON-NLS-4$
+				+ status;
 	}
 
 }
