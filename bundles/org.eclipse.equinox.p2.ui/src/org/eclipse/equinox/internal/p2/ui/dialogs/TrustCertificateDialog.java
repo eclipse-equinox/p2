@@ -82,7 +82,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 	public TrustCertificateDialog(Shell parentShell, Object input) {
 		super(parentShell);
 
-		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE | SWT.MAX | getDefaultOrientation());
+		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE | SWT.MAX | SWT.ON_TOP | getDefaultOrientation());
 
 		if (input instanceof TreeNode[]) {
 			init(null, (TreeNode[]) input);
