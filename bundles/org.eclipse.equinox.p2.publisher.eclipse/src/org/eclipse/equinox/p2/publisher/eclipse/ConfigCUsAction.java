@@ -272,6 +272,9 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 					Map<String, String> parameters = new LinkedHashMap<>();
 					parameters.put("type", Integer.toString(repo.getType())); //$NON-NLS-1$
 					parameters.put("location", repo.getLocation().toString()); //$NON-NLS-1$
+					if (repo.getNickname() != null) {
+						parameters.put("name", repo.getNickname()); //$NON-NLS-1$
+					}
 					parameters.put("enabled", Boolean.toString((repo.getOptions() & IRepository.ENABLED) == IRepository.ENABLED)); //$NON-NLS-1$
 					configurationData += TouchpointInstruction.encodeAction("addRepository", parameters); //$NON-NLS-1$
 					parameters.remove("enabled"); //$NON-NLS-1$

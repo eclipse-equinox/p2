@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2018 IBM Corporation and others.
+ * Copyright (c) 2005, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1075,11 +1075,13 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private void processRepositoryInformation(Attributes attributes) {
 		try {
 			URI uri = URIUtil.fromString(attributes.getValue(ATTRIBUTE_LOCATION));
+			String name = attributes.getValue(ATTRIBUTE_NAME);
 			boolean enabled = Boolean.parseBoolean(attributes.getValue(ATTRIBUTE_ENABLED));
+			int options = enabled ? IRepository.ENABLED : IRepository.NONE;
 			// First add a metadata repository
-			repositories.add(new RepositoryReference(uri, null, IRepository.TYPE_METADATA, enabled ? IRepository.ENABLED : IRepository.NONE));
+			repositories.add(new RepositoryReference(uri, name, IRepository.TYPE_METADATA, options));
 			// Now a colocated artifact repository
-			repositories.add(new RepositoryReference(uri, null, IRepository.TYPE_ARTIFACT, enabled ? IRepository.ENABLED : IRepository.NONE));
+			repositories.add(new RepositoryReference(uri, name, IRepository.TYPE_ARTIFACT, options));
 		} catch (URISyntaxException e) {
 			// ignore malformed URI's. These should have already been caught by the UI
 		}
