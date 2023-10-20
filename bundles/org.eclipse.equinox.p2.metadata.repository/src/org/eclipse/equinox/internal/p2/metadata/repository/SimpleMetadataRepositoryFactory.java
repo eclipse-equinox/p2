@@ -91,7 +91,7 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 			JarInputStream jarStream = null;
 			try {
 				//if reading from a jar, obtain a stream on the entry with the actual contents
-				if (localFile.getAbsolutePath().endsWith(JAR_EXTENSION)) {
+				if (localFile.getAbsolutePath().endsWith(JAR_EXTENSION) || hasZipMagicHeader(inStream)) {
 					jarStream = new JarInputStream(inStream);
 					JarEntry jarEntry = jarStream.getNextJarEntry();
 					String entryName = URLMetadataRepository.CONTENT_FILENAME + URLMetadataRepository.XML_EXTENSION;
@@ -134,9 +134,29 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 	}
 
 	/**
+	 * Check if given stream is a jar ...
+	 *
+	 * @param stream the stream
+	 * @return <code>true</code> if the stream supports mark/reset and has the two
+	 *         magic bytes PK at its current position
+	 * @throws IOException
+	 */
+	private static boolean hasZipMagicHeader(InputStream stream) throws IOException {
+		if (stream.markSupported()) {
+			stream.mark(2);
+			// 50 4B
+			int one = stream.read();
+			int two = stream.read();
+			stream.reset();
+			return ((one & 0xFF) == 0x50 && (two & 0xFF) == 0x4B);
+		}
+		return false;
+	}
+
+	/**
 	 * Closes a stream, ignoring any secondary exceptions
 	 */
-	private void safeClose(InputStream stream) {
+	private static void safeClose(InputStream stream) {
 		if (stream == null)
 			return;
 		try {
