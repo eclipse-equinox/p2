@@ -17,7 +17,8 @@ package org.eclipse.equinox.internal.frameworkadmin.equinox.utils;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxConstants;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
@@ -33,10 +34,14 @@ public class FileUtils {
 
 	// based on org.eclipse.core.runtime.adaptor.EclipseStarter#searchForBundle
 	public static URI getEclipseRealLocation(Manipulator manipulator, String location) {
-		//if this is some form of URL just return it
+		// if this is some form of URL just return it
 		try {
 			new URL(location);
-			return URIUtil.makeAbsolute(new URI(location), ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getConfigData().getProperties(), manipulator.getLauncherData()).toURI());
+			return URIUtil.makeAbsolute(new URI(location),
+					ParserUtils
+							.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()),
+									manipulator.getConfigData().getProperties(), manipulator.getLauncherData())
+							.toURI());
 		} catch (URISyntaxException e) {
 			// expected
 		} catch (MalformedURLException e) {
@@ -54,7 +59,7 @@ public class FileUtils {
 		return getEclipsePluginFullLocation(base.getName(), base.getParentFile());
 	}
 
-	//This mimics the logic of EclipseStarter#getSysPath();
+	// This mimics the logic of EclipseStarter#getSysPath();
 	private static String getSysPath(final Manipulator manipulator) {
 		Properties properties = manipulator.getConfigData().getProperties();
 		String path = (String) properties.get(EquinoxConstants.PROP_OSGI_SYSPATH);
@@ -80,7 +85,7 @@ public class FileUtils {
 			if (Constants.OS_MACOSX.equals(launcherData.getOS())) {
 				IPath launcherPath = IPath.fromOSString(launcherData.getLauncher().getAbsolutePath());
 				if (launcherPath.segmentCount() > 2) {
-					launcherPath = launcherPath.removeLastSegments(2).append("Eclipse");
+					launcherPath = launcherPath.removeLastSegments(2).append("Eclipse"); //$NON-NLS-1$
 					launcherDir = launcherPath.toFile();
 				}
 			} else
@@ -108,8 +113,9 @@ public class FileUtils {
 	}
 
 	/**
-	 * If a bundle of the specified location is in the Eclipse plugin format (either plugin-name_version.jar
-	 * or as a folder named plugin-name_version ), return version string.Otherwise, return null;
+	 * If a bundle of the specified location is in the Eclipse plugin format (either
+	 * plugin-name_version.jar or as a folder named plugin-name_version ), return
+	 * version string.Otherwise, return null;
 	 *
 	 * @return version string. If invalid format, return null.
 	 */
@@ -130,6 +136,7 @@ public class FileUtils {
 
 	/**
 	 * Find the named plugin in the given bundlesDir
+	 * 
 	 * @param pluginName
 	 * @param bundlesDir
 	 * @return a URL string for the found plugin, or null
@@ -151,7 +158,8 @@ public class FileUtils {
 				continue;
 			if (candidateName.length() > pluginName.length() && candidateName.charAt(pluginName.length()) != '_') {
 				// allow jar file with no _version tacked on the end
-				if (!candidate.isFile() || (candidateName.length() != 4 + pluginName.length()) || !candidateName.endsWith(".jar")) {
+				if (!candidate.isFile() || (candidateName.length() != 4 + pluginName.length())
+						|| !candidateName.endsWith(".jar")) { //$NON-NLS-1$
 					continue;
 				}
 			}
@@ -198,22 +206,27 @@ public class FileUtils {
 
 	public static URI fromFileURL(String url) throws URISyntaxException {
 		if (url.startsWith(FILE_PROTOCOL)) {
-			return URIUtil.fromString(new File(url.substring(FILE_PROTOCOL.length())).isAbsolute() ? url : url.substring(FILE_PROTOCOL.length()));
+			return URIUtil.fromString(new File(url.substring(FILE_PROTOCOL.length())).isAbsolute() ? url
+					: url.substring(FILE_PROTOCOL.length()));
 		}
 		throw new URISyntaxException(url, "Not a file url"); //$NON-NLS-1$
 	}
 
 	/**
-	 * Loads an ini file, returning a list of all non-blank lines in the file.
+	 * Loads an ini file, returning a list of all non-blank lines in the file. Like
+	 * eclipseConfig.c/readConfigFile() comment lines ('#' its first character) are
+	 * skipped too.
 	 */
 	public static List<String> loadFile(File file) throws IOException {
 		try (BufferedReader br = new BufferedReader(new FileReader(file));) {
 			String line;
 			List<String> list = new ArrayList<>();
 			while ((line = br.readLine()) != null) {
-				//skip whitespace
-				if (line.trim().length() > 0)
+				// skip whitespace and comments
+				String stripped = line.strip();
+				if (!stripped.isEmpty() && !line.startsWith("#")) {//$NON-NLS-1$
 					list.add(line);
+				}
 			}
 			return list;
 		}

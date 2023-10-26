@@ -13,11 +13,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
@@ -109,7 +109,24 @@ public class TestVMArg extends FwkAdminAndSimpleConfiguratorTest {
 		m.load();
 		assertEquals(jreLocation, m.getLauncherData().getJvm());
 	}
-
+	@Test
+	public void testGH361() throws FrameworkAdminRuntimeException, IOException {
+		String arg1 = "#mycommentline1";
+		String arg2 = "!noncommentline2";
+		String arg3 = " #noncommentline3";
+		String arg4 = "#mycommentline4";
+		m.getLauncherData().addProgramArg(arg1);
+		m.getLauncherData().addProgramArg(arg2);
+		m.getLauncherData().addProgramArg(arg3);
+		m.getLauncherData().addProgramArg(arg4);
+		m.save(false);
+		m.load();
+		String[] programArgs = m.getLauncherData().getProgramArgs();
+		assertFalse(Arrays.asList(programArgs).contains(arg1));
+		assertTrue(Arrays.asList(programArgs).contains(arg2));
+		assertTrue(Arrays.asList(programArgs).contains(arg3));
+		assertFalse(Arrays.asList(programArgs).contains(arg4));
+	}
 //	public void test269502_MacOS() throws Exception {
 //		m = createMinimalConfiguration(TestEclipseDataArea.class.getName(), Constants.OS_MACOSX);
 //
