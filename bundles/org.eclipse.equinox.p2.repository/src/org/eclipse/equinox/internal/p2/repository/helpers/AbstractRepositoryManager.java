@@ -234,24 +234,28 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 * found, and <code>false</code> otherwise.
 	 */
 	private boolean checkNotFound(URI location) {
-		if (unavailableRepositories == null)
-			return false;
-		List<URI> badRepos = unavailableRepositories.get();
-		if (badRepos == null)
-			return false;
-		return badRepos.contains(location);
+		synchronized (repositoryLock) {
+			if (unavailableRepositories == null)
+				return false;
+			List<URI> badRepos = unavailableRepositories.get();
+			if (badRepos == null)
+				return false;
+			return badRepos.contains(location);
+		}
 	}
 
 	/**
 	 * Clear the fact that we tried to load a repository at this location and did not find anything.
 	 */
 	private void clearNotFound(URI location) {
-		List<URI> badRepos;
-		if (unavailableRepositories != null) {
-			badRepos = unavailableRepositories.get();
-			if (badRepos != null) {
-				badRepos.remove(location);
-				return;
+		synchronized (repositoryLock) {
+			List<URI> badRepos;
+			if (unavailableRepositories != null) {
+				badRepos = unavailableRepositories.get();
+				if (badRepos != null) {
+					badRepos.remove(location);
+					return;
+				}
 			}
 		}
 	}
