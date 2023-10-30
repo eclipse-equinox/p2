@@ -152,35 +152,93 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		}
 	}
 
-	private static final CommandLineOption OPTION_HELP = new CommandLineOption(new String[] {"-help", "-h", "-?"}, null, Messages.Help_Prints_this_command_line_help); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	private static final CommandLineOption OPTION_LIST = new CommandLineOption(new String[] {"-list", "-l"}, Messages.Help_lb_lt_comma_separated_list_gt_rb, Messages.Help_List_all_IUs_found_in_repos); //$NON-NLS-1$ //$NON-NLS-2$
-	private static final CommandLineOption OPTION_LIST_FORMAT = new CommandLineOption(new String[] {"-listFormat", "-lf"}, Messages.Help_lt_list_format_gt, Messages.Help_formats_the_IU_list); //$NON-NLS-1$ //$NON-NLS-2$
-	private static final CommandLineOption OPTION_LIST_INSTALLED = new CommandLineOption(new String[] {"-listInstalledRoots", "-lir"}, null, Messages.Help_List_installed_roots); //$NON-NLS-1$ //$NON-NLS-2$
-	private static final CommandLineOption OPTION_INSTALL_IU = new CommandLineOption(new String[] {"-installIU", "-installIUs", "-i"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Installs_the_listed_IUs); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	private static final CommandLineOption OPTION_UNINSTALL_IU = new CommandLineOption(new String[] {"-uninstallIU", "-uninstallIUs", "-u"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Uninstalls_the_listed_IUs); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	private static final CommandLineOption OPTION_REVERT = new CommandLineOption(new String[] {"-revert"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_Revert_to_previous_state); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_DESTINATION = new CommandLineOption(new String[] {"-destination", "-d"}, Messages.Help_lt_path_gt, Messages.Help_The_folder_in_which_the_targetd_product_is_located); //$NON-NLS-1$ //$NON-NLS-2$
-	private static final CommandLineOption OPTION_METADATAREPOS = new CommandLineOption(new String[] {"-metadatarepository", "metadatarepositories", "-m"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_URLs_denoting_metadata_repositories); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	private static final CommandLineOption OPTION_ARTIFACTREPOS = new CommandLineOption(new String[] {"-artifactrepository", "artifactrepositories", "-a"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_URLs_denoting_artifact_repositories); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	private static final CommandLineOption OPTION_REPOSITORIES = new CommandLineOption(new String[] {"-repository", "repositories", "-r"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_URLs_denoting_colocated_repositories); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	private static final CommandLineOption OPTION_VERIFY_ONLY = new CommandLineOption(new String[] {"-verifyOnly"}, null, Messages.Help_Only_verify_dont_install); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_PROFILE = new CommandLineOption(new String[] {"-profile", "-p"}, Messages.Help_lt_name_gt, Messages.Help_Defines_what_profile_to_use_for_the_actions); //$NON-NLS-1$ //$NON-NLS-2$
-	private static final CommandLineOption OPTION_FLAVOR = new CommandLineOption(new String[] {"-flavor", "-f"}, Messages.Help_lt_name_gt, Messages.Help_Defines_flavor_to_use_for_created_profile); //$NON-NLS-1$ //$NON-NLS-2$
-	private static final CommandLineOption OPTION_SHARED = new CommandLineOption(new String[] {"-shared", "-s"}, Messages.Help_lb_lt_path_gt_rb, Messages.Help_Use_a_shared_location_for_the_install); //$NON-NLS-1$ //$NON-NLS-2$
-	private static final CommandLineOption OPTION_BUNDLEPOOL = new CommandLineOption(new String[] {"-bundlepool", "-b"}, Messages.Help_lt_path_gt, Messages.Help_The_location_where_the_plugins_and_features_will_be_stored); //$NON-NLS-1$ //$NON-NLS-2$
-	private static final CommandLineOption OPTION_IU_PROFILE_PROPS = new CommandLineOption(new String[] {"-iuProfileproperties"}, Messages.Help_lt_path_gt, Messages.Help_path_to_IU_profile_properties_file); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_PROFILE_PROPS = new CommandLineOption(new String[] {"-profileproperties"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_properties_in_the_form_key_value_pairs); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_ROAMING = new CommandLineOption(new String[] {"-roaming"}, null, Messages.Help_Indicates_that_the_product_can_be_moved); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_P2_OS = new CommandLineOption(new String[] {"-p2.os"}, null, Messages.Help_The_OS_when_profile_is_created); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_P2_WS = new CommandLineOption(new String[] {"-p2.ws"}, null, Messages.Help_The_WS_when_profile_is_created); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_P2_ARCH = new CommandLineOption(new String[] {"-p2.arch"}, null, Messages.Help_The_ARCH_when_profile_is_created); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_P2_NL = new CommandLineOption(new String[] {"-p2.nl"}, null, Messages.Help_The_NL_when_profile_is_created); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_PURGEHISTORY = new CommandLineOption(new String[] {"-purgeHistory"}, null, Messages.Help_Purge_the_install_registry); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_FOLLOW_REFERENCES = new CommandLineOption(new String[] {"-followReferences"}, null, Messages.Help_Follow_references); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_TAG = new CommandLineOption(new String[] {"-tag"}, Messages.Help_lt_name_gt, Messages.Help_Defines_a_tag_for_provisioning_session); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_LIST_TAGS = new CommandLineOption(new String[] {"-listTags"}, null, Messages.Help_List_Tags); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_DOWNLOAD_ONLY = new CommandLineOption(new String[] {"-downloadOnly"}, null, Messages.Help_Download_Only); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_IGNORED = new CommandLineOption(new String[] {"-showLocation", "-eclipse.password", "-eclipse.keyring"}, null, ""); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
+	private static final CommandLineOption OPTION_HELP = new CommandLineOption(new String[] { //
+			"-help", "-h", "-?" }, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			null, Messages.Help_Prints_this_command_line_help);
+	private static final CommandLineOption OPTION_LIST = new CommandLineOption(new String[] { //
+			"-list", "-l" }, //$NON-NLS-1$ //$NON-NLS-2$
+			Messages.Help_lb_lt_comma_separated_list_gt_rb, Messages.Help_List_all_IUs_found_in_repos);
+	private static final CommandLineOption OPTION_LIST_FORMAT = new CommandLineOption(new String[] { //
+			"-listFormat", "-lf" }, //$NON-NLS-1$ //$NON-NLS-2$
+			Messages.Help_lt_list_format_gt, Messages.Help_formats_the_IU_list);
+	private static final CommandLineOption OPTION_LIST_INSTALLED = new CommandLineOption(new String[] { //
+			"-listInstalledRoots", "-lir" }, //$NON-NLS-1$ //$NON-NLS-2$
+			null, Messages.Help_List_installed_roots);
+	private static final CommandLineOption OPTION_INSTALL_IU = new CommandLineOption(new String[] { //
+			"-installIU", "-installIUs", "-i" }, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Messages.Help_lt_comma_separated_list_gt, Messages.Help_Installs_the_listed_IUs);
+	private static final CommandLineOption OPTION_UNINSTALL_IU = new CommandLineOption(new String[] { //
+			"-uninstallIU", "-uninstallIUs", "-u" }, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Messages.Help_lt_comma_separated_list_gt, Messages.Help_Uninstalls_the_listed_IUs);
+	private static final CommandLineOption OPTION_REVERT = new CommandLineOption(new String[] { //
+			"-revert" }, //$NON-NLS-1$
+			Messages.Help_lt_comma_separated_list_gt, Messages.Help_Revert_to_previous_state);
+	private static final CommandLineOption OPTION_DESTINATION = new CommandLineOption(new String[] { //
+			"-destination", "-d" }, //$NON-NLS-1$ //$NON-NLS-2$
+			Messages.Help_lt_path_gt, Messages.Help_The_folder_in_which_the_targetd_product_is_located);
+	private static final CommandLineOption OPTION_METADATAREPOS = new CommandLineOption(new String[] { //
+			"-metadatarepository", "metadatarepositories", "-m" }, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_URLs_denoting_metadata_repositories);
+	private static final CommandLineOption OPTION_ARTIFACTREPOS = new CommandLineOption(new String[] { //
+			"-artifactrepository", "artifactrepositories", "-a" }, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_URLs_denoting_artifact_repositories);
+	private static final CommandLineOption OPTION_REPOSITORIES = new CommandLineOption(new String[] { //
+			"-repository", "repositories", "-r" }, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_URLs_denoting_colocated_repositories);
+	private static final CommandLineOption OPTION_VERIFY_ONLY = new CommandLineOption(new String[] { //
+			"-verifyOnly" }, //$NON-NLS-1$
+			null, Messages.Help_Only_verify_dont_install);
+	private static final CommandLineOption OPTION_PROFILE = new CommandLineOption(new String[] { //
+			"-profile", "-p" }, //$NON-NLS-1$ //$NON-NLS-2$
+			Messages.Help_lt_name_gt, Messages.Help_Defines_what_profile_to_use_for_the_actions);
+	private static final CommandLineOption OPTION_FLAVOR = new CommandLineOption(new String[] { //
+			"-flavor", "-f" }, //$NON-NLS-1$ //$NON-NLS-2$
+			Messages.Help_lt_name_gt, Messages.Help_Defines_flavor_to_use_for_created_profile);
+	private static final CommandLineOption OPTION_SHARED = new CommandLineOption(new String[] { //
+			"-shared", "-s" }, //$NON-NLS-1$ //$NON-NLS-2$
+			Messages.Help_lb_lt_path_gt_rb, Messages.Help_Use_a_shared_location_for_the_install);
+	private static final CommandLineOption OPTION_BUNDLEPOOL = new CommandLineOption(new String[] { //
+			"-bundlepool", "-b" }, //$NON-NLS-1$ //$NON-NLS-2$
+			Messages.Help_lt_path_gt, Messages.Help_The_location_where_the_plugins_and_features_will_be_stored);
+	private static final CommandLineOption OPTION_IU_PROFILE_PROPS = new CommandLineOption(new String[] { //
+			"-iuProfileproperties" }, //$NON-NLS-1$
+			Messages.Help_lt_path_gt, Messages.Help_path_to_IU_profile_properties_file);
+	private static final CommandLineOption OPTION_PROFILE_PROPS = new CommandLineOption(new String[] { //
+			"-profileproperties" }, //$NON-NLS-1$
+			Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_properties_in_the_form_key_value_pairs);
+	private static final CommandLineOption OPTION_ROAMING = new CommandLineOption(new String[] { //
+			"-roaming" }, //$NON-NLS-1$
+			null, Messages.Help_Indicates_that_the_product_can_be_moved);
+	private static final CommandLineOption OPTION_P2_OS = new CommandLineOption(new String[] { //
+			"-p2.os" }, //$NON-NLS-1$
+			null, Messages.Help_The_OS_when_profile_is_created);
+	private static final CommandLineOption OPTION_P2_WS = new CommandLineOption(new String[] { //
+			"-p2.ws" }, //$NON-NLS-1$
+			null, Messages.Help_The_WS_when_profile_is_created);
+	private static final CommandLineOption OPTION_P2_ARCH = new CommandLineOption(new String[] { //
+			"-p2.arch" }, //$NON-NLS-1$
+			null, Messages.Help_The_ARCH_when_profile_is_created);
+	private static final CommandLineOption OPTION_P2_NL = new CommandLineOption(new String[] { //
+			"-p2.nl" }, //$NON-NLS-1$
+			null, Messages.Help_The_NL_when_profile_is_created);
+	private static final CommandLineOption OPTION_PURGEHISTORY = new CommandLineOption(new String[] { //
+			"-purgeHistory" }, //$NON-NLS-1$
+			null, Messages.Help_Purge_the_install_registry);
+	private static final CommandLineOption OPTION_FOLLOW_REFERENCES = new CommandLineOption(new String[] { //
+			"-followReferences" }, //$NON-NLS-1$
+			null, Messages.Help_Follow_references);
+	private static final CommandLineOption OPTION_TAG = new CommandLineOption(new String[] { //
+			"-tag" }, //$NON-NLS-1$
+			Messages.Help_lt_name_gt, Messages.Help_Defines_a_tag_for_provisioning_session);
+	private static final CommandLineOption OPTION_LIST_TAGS = new CommandLineOption(new String[] { //
+			"-listTags" }, //$NON-NLS-1$
+			null, Messages.Help_List_Tags);
+	private static final CommandLineOption OPTION_DOWNLOAD_ONLY = new CommandLineOption(new String[] { //
+			"-downloadOnly" }, //$NON-NLS-1$
+			null, Messages.Help_Download_Only);
+	private static final CommandLineOption OPTION_IGNORED = new CommandLineOption(new String[] { //
+			"-showLocation", "-eclipse.password", "-eclipse.keyring" }, //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+			null, ""); //$NON-NLS-1$
 
 	private static final Integer EXIT_ERROR = 13;
 	static private final String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
@@ -205,7 +263,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				try {
 					uris.add(URIUtil.fromString(urlSpec));
 				} catch (URISyntaxException e) {
-					throw new ProvisionException(NLS.bind(Messages.unable_to_parse_0_to_uri_1, urlSpec, e.getMessage()), e);
+					throw new ProvisionException(NLS.bind(Messages.unable_to_parse_0_to_uri_1, urlSpec, e.getMessage()),
+							e);
 				}
 			}
 
@@ -222,7 +281,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private static String getOptionalArgument(String[] args, int argIdx) {
-		//Look ahead to the next argument
+		// Look ahead to the next argument
 		++argIdx;
 		if (argIdx < args.length) {
 			String arg = args[argIdx];
@@ -246,7 +305,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			}
 			IVersionedId vId = VersionedId.parse(root);
 			Version v = vId.getVersion();
-			IQuery<IInstallableUnit> query = new PrettyQuery<>(QueryUtil.createIUQuery(vId.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true)), root);
+			IQuery<IInstallableUnit> query = new PrettyQuery<>(QueryUtil.createIUQuery(vId.getId(),
+					Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true)),
+					root);
 			vnames.add(query);
 		}
 	}
@@ -307,7 +368,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private boolean targetAgentIsSelfAndUp = false;
 	private boolean noArtifactRepositorySpecified = false;
 
-	protected ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collection<IInstallableUnit> installs, Collection<IInstallableUnit> uninstalls) {
+	protected ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collection<IInstallableUnit> installs,
+			Collection<IInstallableUnit> uninstalls) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		markRoots(request, installs);
 		markRoots(request, uninstalls);
@@ -347,7 +409,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (properties == null)
 			return;
 
-		// format for a line in the properties input file is <id>.<keyword>.<uniqueNumber>=value
+		// format for a line in the properties input file is
+		// <id>.<keyword>.<uniqueNumber>=value
 		// id is the IU id
 		// keyword is either "key" or "value"
 		// uniqueNumber is used to group keys and values together
@@ -379,7 +442,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			String keyLine = id + '.' + KEYWORD_KEY + '.' + num;
 			String valueLine = id + '.' + KEYWORD_VALUE + '.' + num;
 
-			if (alreadyProcessed.contains(versionLine) || alreadyProcessed.contains(keyLine) || alreadyProcessed.contains(valueLine))
+			if (alreadyProcessed.contains(versionLine) || alreadyProcessed.contains(keyLine)
+					|| alreadyProcessed.contains(valueLine))
 				continue;
 
 			// skip over this key/value pair next time we see it
@@ -440,7 +504,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		return QueryUtil.compoundQueryable(locationQueryables).query(query, nullMonitor);
 	}
 
-	private Collection<IInstallableUnit> collectRoots(IProfile profile, List<IQuery<IInstallableUnit>> rootNames, boolean forInstall) throws CoreException {
+	private Collection<IInstallableUnit> collectRoots(IProfile profile, List<IQuery<IInstallableUnit>> rootNames,
+			boolean forInstall) throws CoreException {
 		ArrayList<IInstallableUnit> allRoots = new ArrayList<>();
 		for (IQuery<IInstallableUnit> rootQuery : rootNames) {
 			IQueryResult<IInstallableUnit> roots = null;
@@ -493,7 +558,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			Map<String, String> props = new HashMap<>();
 			props.put(IProfile.PROP_INSTALL_FOLDER, destination.toString());
 			if (bundlePool == null)
-				props.put(IProfile.PROP_CACHE, sharedLocation == null ? destination.getAbsolutePath() : sharedLocation.getAbsolutePath());
+				props.put(IProfile.PROP_CACHE,
+						sharedLocation == null ? destination.getAbsolutePath() : sharedLocation.getAbsolutePath());
 			else
 				props.put(IProfile.PROP_CACHE, bundlePool.getAbsolutePath());
 			if (roamingProfile)
@@ -531,7 +597,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				}
 				anyValid = true;
 			} catch (ProvisionException e) {
-				//one of the repositories did not load
+				// one of the repositories did not load
 				log.log(e.getStatus());
 			}
 		}
@@ -558,12 +624,12 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				}
 				anyValid = true;
 			} catch (ProvisionException e) {
-				//one of the repositories did not load
+				// one of the repositories did not load
 				log.log(e.getStatus());
 			}
 		}
 		if (!anyValid)
-			//all repositories failed to load
+			// all repositories failed to load
 			throw new ProvisionException(Messages.Application_NoRepositories);
 
 		if (!EngineActivator.EXTENDED)
@@ -573,19 +639,22 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 		for (File f : extensions) {
 			metadataManager.addRepository(f.toURI());
-			metadataManager.setRepositoryProperty(f.toURI(), EngineActivator.P2_FRAGMENT_PROPERTY, Boolean.TRUE.toString());
+			metadataManager.setRepositoryProperty(f.toURI(), EngineActivator.P2_FRAGMENT_PROPERTY,
+					Boolean.TRUE.toString());
 			metadataRepositoryLocations.add(f.toURI());
 			artifactManager.addRepository(f.toURI());
-			artifactManager.setRepositoryProperty(f.toURI(), EngineActivator.P2_FRAGMENT_PROPERTY, Boolean.TRUE.toString());
+			artifactManager.setRepositoryProperty(f.toURI(), EngineActivator.P2_FRAGMENT_PROPERTY,
+					Boolean.TRUE.toString());
 			artifactRepositoryLocations.add(f.toURI());
 		}
 	}
 
 	private void adjustDestination() {
-		//Detect the desire to have a bundled mac application and tweak the environment
+		// Detect the desire to have a bundled mac application and tweak the environment
 		if (destination == null)
 			return;
-		if (org.eclipse.osgi.service.environment.Constants.OS_MACOSX.equals(os) && destination.getName().endsWith(".app")) //$NON-NLS-1$
+		if (org.eclipse.osgi.service.environment.Constants.OS_MACOSX.equals(os)
+				&& destination.getName().endsWith(".app")) //$NON-NLS-1$
 			destination = new File(destination, "Contents/Eclipse"); //$NON-NLS-1$
 	}
 
@@ -607,7 +676,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 					targetAgentIsSelfAndUp = true;
 				}
 			} catch (InvalidSyntaxException e) {
-				//Can't happen the filter never changes
+				// Can't happen the filter never changes
 			}
 		}
 		return p2DataArea;
@@ -616,7 +685,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	// Implement something here to position "p2 folder" correctly
 	private void initializeServices() throws CoreException {
 		BundleContext context = Activator.getContext();
-		ServiceReference<IProvisioningAgentProvider> agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.class);
+		ServiceReference<IProvisioningAgentProvider> agentProviderRef = context
+				.getServiceReference(IProvisioningAgentProvider.class);
 		IProvisioningAgentProvider provider = context.getService(agentProviderRef);
 
 		URI p2DataArea = getP2DataAreaLocation(context);
@@ -679,7 +749,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (RepositoryEvent.ADDED != event.getKind())
 			return;
 
-		//TODO BE CAREFUL SINCE WE ARE MODIFYING THE SELF PROFILE
+		// TODO BE CAREFUL SINCE WE ARE MODIFYING THE SELF PROFILE
 		int type = event.getRepositoryType();
 		URI location = event.getRepositoryLocation();
 		if (IRepository.TYPE_ARTIFACT == type && artifactReposForRemoval != null) {
@@ -720,14 +790,12 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 		ArrayList<IInstallableUnit> allRoots = new ArrayList<>();
 		if (rootsToList.size() == 0) {
-			Iterator<IInstallableUnit> roots = collectRootIUs(QueryUtil.createIUAnyQuery()).iterator();
-			while (roots.hasNext())
-				allRoots.add(roots.next());
+			for (IInstallableUnit element : collectRootIUs(QueryUtil.createIUAnyQuery()))
+				allRoots.add(element);
 		} else {
 			for (IQuery<IInstallableUnit> root : rootsToList) {
-				Iterator<IInstallableUnit> roots = collectRootIUs(root).iterator();
-				while (roots.hasNext())
-					allRoots.add(roots.next());
+				for (IInstallableUnit element : collectRootIUs(root))
+					allRoots.add(element);
 			}
 		}
 
@@ -742,7 +810,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		Collection<IInstallableUnit> installs = collectRoots(profile, rootsToInstall, true);
 		Collection<IInstallableUnit> uninstalls = collectRoots(profile, rootsToUninstall, false);
 
-		// keep this result status in case there is a problem so we can report it to the user
+		// keep this result status in case there is a problem so we can report it to the
+		// user
 		boolean wasRoaming = Boolean.parseBoolean(profile.getProperty(IProfile.PROP_ROAMING));
 		try {
 			updateRoamingProperties(profile);
@@ -758,14 +827,16 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 			planAndExecute(profile, context, request);
 		} finally {
-			// if we were originally were set to be roaming and we changed it, change it back before we return
+			// if we were originally were set to be roaming and we changed it, change it
+			// back before we return
 			if (wasRoaming && !Boolean.parseBoolean(profile.getProperty(IProfile.PROP_ROAMING))) {
 				setRoaming(profile);
 			}
 		}
 	}
 
-	private void planAndExecute(IProfile profile, ProvisioningContext context, ProfileChangeRequest request) throws CoreException {
+	private void planAndExecute(IProfile profile, ProvisioningContext context, ProfileChangeRequest request)
+			throws CoreException {
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 
 		IStatus operationStatus = result.getStatus();
@@ -787,21 +858,24 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (!downloadOnly)
 			operationStatus = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 		else
-			operationStatus = PlanExecutionHelper.executePlan(result, engine, PhaseSetFactory.createPhaseSetIncluding(new String[] {PhaseSetFactory.PHASE_COLLECT, PhaseSetFactory.PHASE_CHECK_TRUST}), context, new NullProgressMonitor());
+			operationStatus = PlanExecutionHelper.executePlan(result, engine,
+					PhaseSetFactory.createPhaseSetIncluding(
+							new String[] { PhaseSetFactory.PHASE_COLLECT, PhaseSetFactory.PHASE_CHECK_TRUST }),
+					context, new NullProgressMonitor());
 
 		switch (operationStatus.getSeverity()) {
-			case OK :
-				break;
-			case INFO :
-			case WARNING :
-				log.log(operationStatus);
-				break;
-			// All other status codes correspond to IStatus.isOk() == false
-			default :
-				if (noArtifactRepositorySpecified && hasNoRepositoryFound(operationStatus)) {
-					throw new ProvisionException(Messages.Application_NoRepositories);
-				}
-				throw new CoreException(operationStatus);
+		case OK:
+			break;
+		case INFO:
+		case WARNING:
+			log.log(operationStatus);
+			break;
+		// All other status codes correspond to IStatus.isOk() == false
+		default:
+			if (noArtifactRepositorySpecified && hasNoRepositoryFound(operationStatus)) {
+				throw new ProvisionException(Messages.Application_NoRepositories);
+			}
+			throw new CoreException(operationStatus);
 		}
 
 		if (tag == null) {
@@ -814,7 +888,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private boolean hasNoRepositoryFound(IStatus status) {
-		if (status.getException() != null && NO_ARTIFACT_REPOSITORIES_AVAILABLE.equals(status.getException().getMessage()))
+		if (status.getException() != null
+				&& NO_ARTIFACT_REPOSITORIES_AVAILABLE.equals(status.getException().getMessage()))
 			return true;
 		if (status.isMultiStatus()) {
 			for (IStatus child : status.getChildren()) {
@@ -1018,10 +1093,13 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 		if (listFormat != null && !printIUList && !printRootIUList) {
 			throw new ProvisionException(NLS.bind(Messages.ArgRequiresOtherArgs, //
-					new String[] {OPTION_LIST_FORMAT.identifiers[0], OPTION_LIST.identifiers[0], OPTION_LIST_INSTALLED.identifiers[0]}));
+					new String[] { OPTION_LIST_FORMAT.identifiers[0], OPTION_LIST.identifiers[0],
+							OPTION_LIST_INSTALLED.identifiers[0] }));
 		}
 
-		else if (!printHelpInfo && !printIUList && !printRootIUList && !printTags && !purgeRegistry && rootsToInstall.isEmpty() && rootsToUninstall.isEmpty() && revertToPreviousState == NOTHING_TO_REVERT_TO) {
+		else if (!printHelpInfo && !printIUList && !printRootIUList && !printTags && !purgeRegistry
+				&& rootsToInstall.isEmpty() && rootsToUninstall.isEmpty()
+				&& revertToPreviousState == NOTHING_TO_REVERT_TO) {
 			log.printOut(Messages.Help_Missing_argument);
 			printHelpInfo = true;
 		}
@@ -1032,7 +1110,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	/**
-	 * @param pairs	a comma separated list of tag=value pairs
+	 * @param pairs      a comma separated list of tag=value pairs
 	 * @param properties the collection into which the pairs are put
 	 */
 	private void putProperties(String pairs, Map<String, String> properties) {
@@ -1041,17 +1119,17 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			int eqIdx = propPair.indexOf('=');
 			if (eqIdx < 0)
 				continue;
-			String tag = propPair.substring(0, eqIdx).trim();
-			if (tag.length() == 0)
+			String tagKey = propPair.substring(0, eqIdx).trim();
+			if (tagKey.length() == 0)
 				continue;
-			String value = propPair.substring(eqIdx + 1).trim();
-			if (value.length() > 0)
-				properties.put(tag, value);
+			String tagValue = propPair.substring(eqIdx + 1).trim();
+			if (tagValue.length() > 0)
+				properties.put(tagKey, tagValue);
 		}
 	}
 
 	private void cleanupServices() {
-		//dispose agent, only if it is not already up and running
+		// dispose agent, only if it is not already up and running
 		if (targetAgent != null && !targetAgentIsSelfAndUp) {
 			targetAgent.stop();
 			targetAgent = null;
@@ -1099,7 +1177,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 			log.log(error);
 
-			//set empty exit data to suppress error dialog from launcher
+			// set empty exit data to suppress error dialog from launcher
 			setSystemProperty("eclipse.exitdata", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			return EXIT_ERROR;
 		} finally {
@@ -1129,7 +1207,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				return;
 			targetProfile = profileRegistry.getProfile(profile.getProfileId(), profiles[profiles.length - 1]);
 		} else {
-			targetProfile = profileRegistry.getProfile(profile.getProfileId(), getTimestampToRevertTo(profileRegistry, profile.getProfileId()));
+			targetProfile = profileRegistry.getProfile(profile.getProfileId(),
+					getTimestampToRevertTo(profileRegistry, profile.getProfileId()));
 		}
 
 		if (targetProfile == null)
@@ -1137,8 +1216,10 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		IProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
 
 		ProvisioningContext context = new ProvisioningContext(targetAgent);
-		context.setMetadataRepositories(metadataRepositoryLocations.toArray(new URI[metadataRepositoryLocations.size()]));
-		context.setArtifactRepositories(artifactRepositoryLocations.toArray(new URI[artifactRepositoryLocations.size()]));
+		context.setMetadataRepositories(
+				metadataRepositoryLocations.toArray(new URI[metadataRepositoryLocations.size()]));
+		context.setArtifactRepositories(
+				artifactRepositoryLocations.toArray(new URI[artifactRepositoryLocations.size()]));
 		context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, String.valueOf(followReferences));
 		context.setProperty(FOLLOW_ARTIFACT_REPOSITORY_REFERENCES, String.valueOf(followReferences));
 		executePlan(context, plan);
@@ -1147,10 +1228,10 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private long getTimestampToRevertTo(IProfileRegistry profileRegistry, String profId) {
 		long timestampToRevertTo = -1;
 		try {
-			//Deal with the case where the revert points to a timestamp
+			// Deal with the case where the revert points to a timestamp
 			timestampToRevertTo = Long.valueOf(revertToPreviousState).longValue();
 		} catch (NumberFormatException e) {
-			//Deal with the case where the revert points to tag
+			// Deal with the case where the revert points to tag
 			Map<String, String> tags = profileRegistry.getProfileStateProperties(profId, IProfile.STATE_PROP_TAG);
 			Set<Entry<String, String>> entries = tags.entrySet();
 			for (Entry<String, String> entry : entries) {
@@ -1160,7 +1241,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 						if (tmp > timestampToRevertTo)
 							timestampToRevertTo = tmp;
 					} catch (NumberFormatException e2) {
-						//Not expected since the value is supposed to be a timestamp as per API
+						// Not expected since the value is supposed to be a timestamp as per API
 					}
 			}
 		}
@@ -1179,7 +1260,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		}
 	}
 
-	IQueryResult<IInstallableUnit> getInstallableUnits(URI location, IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+	IQueryResult<IInstallableUnit> getInstallableUnits(URI location, IQuery<IInstallableUnit> query,
+			IProgressMonitor monitor) {
 		IQueryable<IInstallableUnit> queryable = null;
 		if (location == null) {
 			queryable = metadataManager;
@@ -1187,7 +1269,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			try {
 				queryable = metadataManager.loadRepository(location, monitor);
 			} catch (ProvisionException e) {
-				//repository is not available - just return empty result
+				// repository is not available - just return empty result
 			}
 		}
 		if (queryable != null)
@@ -1196,7 +1278,12 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private void performHelpInfo() {
-		CommandLineOption[] allOptions = new CommandLineOption[] {OPTION_HELP, OPTION_LIST, OPTION_LIST_INSTALLED, OPTION_LIST_FORMAT, OPTION_INSTALL_IU, OPTION_UNINSTALL_IU, OPTION_REVERT, OPTION_DESTINATION, OPTION_DOWNLOAD_ONLY, OPTION_METADATAREPOS, OPTION_ARTIFACTREPOS, OPTION_REPOSITORIES, OPTION_VERIFY_ONLY, OPTION_TAG, OPTION_LIST_TAGS, OPTION_PROFILE, OPTION_FLAVOR, OPTION_SHARED, OPTION_BUNDLEPOOL, OPTION_PROFILE_PROPS, OPTION_IU_PROFILE_PROPS, OPTION_ROAMING, OPTION_P2_OS, OPTION_P2_WS, OPTION_P2_ARCH, OPTION_P2_NL, OPTION_PURGEHISTORY, OPTION_FOLLOW_REFERENCES};
+		CommandLineOption[] allOptions = new CommandLineOption[] { OPTION_HELP, OPTION_LIST, OPTION_LIST_INSTALLED,
+				OPTION_LIST_FORMAT, OPTION_INSTALL_IU, OPTION_UNINSTALL_IU, OPTION_REVERT, OPTION_DESTINATION,
+				OPTION_DOWNLOAD_ONLY, OPTION_METADATAREPOS, OPTION_ARTIFACTREPOS, OPTION_REPOSITORIES,
+				OPTION_VERIFY_ONLY, OPTION_TAG, OPTION_LIST_TAGS, OPTION_PROFILE, OPTION_FLAVOR, OPTION_SHARED,
+				OPTION_BUNDLEPOOL, OPTION_PROFILE_PROPS, OPTION_IU_PROFILE_PROPS, OPTION_ROAMING, OPTION_P2_OS,
+				OPTION_P2_WS, OPTION_P2_ARCH, OPTION_P2_NL, OPTION_PURGEHISTORY, OPTION_FOLLOW_REFERENCES };
 		for (CommandLineOption allOption : allOptions) {
 			allOption.appendHelp(System.out);
 		}
@@ -1240,7 +1327,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			return;
 
 		// if the user didn't set a profile id on the command-line this is ok if they
-		// also didn't set the destination path. (handled in the case above) otherwise throw an error.
+		// also didn't set the destination path. (handled in the case above) otherwise
+		// throw an error.
 		if (noProfileId) // && destination != null
 			throw new ProvisionException(Messages.Missing_profileid);
 
@@ -1262,8 +1350,10 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (request.getProfileProperties().size() == 0)
 			return;
 
-		// otherwise we have to make a change so set the profile to be non-roaming so the
-		// values don't get recalculated to the wrong thing if we are flushed from memory - we
+		// otherwise we have to make a change so set the profile to be non-roaming so
+		// the
+		// values don't get recalculated to the wrong thing if we are flushed from
+		// memory - we
 		// will set it back later (see bug 269468)
 		request.setProfileProperty(IProfile.PROP_ROAMING, "false"); //$NON-NLS-1$
 
@@ -1273,7 +1363,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		IStatus status = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 		if (!status.isOK())
-			throw new CoreException(new MultiStatus(ID, ERROR, new IStatus[] {status}, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null));
+			throw new CoreException(new MultiStatus(ID, ERROR, new IStatus[] { status },
+					NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null));
 	}
 
 	@Override
@@ -1304,7 +1395,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		IProfile profile = initializeProfile();
 		IProfileRegistry registry = targetAgent.getService(IProfileRegistry.class);
 		Map<String, String> tags = registry.getProfileStateProperties(profile.getProfileId(), IProfile.STATE_PROP_TAG);
-		//Sort the tags from the most recent to the oldest
+		// Sort the tags from the most recent to the oldest
 		List<String> timeStamps = new ArrayList<>(tags.keySet());
 		timeStamps.sort(Collections.reverseOrder());
 		for (String timestamp : timeStamps) {
@@ -1332,8 +1423,10 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 		Throwable cause = status.getException();
 		if (cause != null) {
-			// TODO This is very unreliable. It assumes that if the IStatus message is the same as the IStatus cause
-			// message the cause exception has no more data to offer. Better to just print it.
+			// TODO This is very unreliable. It assumes that if the IStatus message is the
+			// same as the IStatus cause
+			// message the cause exception has no more data to offer. Better to just print
+			// it.
 			boolean isCauseMsg = msg.equals(cause.getMessage()) || msg.equals(cause.toString());
 			if (!isCauseMsg) {
 				log.printErr(prefix + "Caused by: "); //$NON-NLS-1$
@@ -1367,7 +1460,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private boolean canInstallInDestination() throws CoreException {
-		//When we are provisioning what we are running. We can always install.
+		// When we are provisioning what we are running. We can always install.
 		if (targetAgentIsSelfAndUp)
 			return true;
 		if (destination == null)
@@ -1376,7 +1469,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private static boolean canWrite(File installDir) {
-		installDir.mkdirs(); //Force create the folders because otherwise the call to canWrite fails on Mac
+		installDir.mkdirs(); // Force create the folders because otherwise the call to canWrite fails on Mac
 		return installDir.isDirectory() && Files.isWritable(installDir.toPath());
 	}
 }
