@@ -50,21 +50,15 @@ public interface IProductDescriptor {
 	/**
 	 * Returns the bundles listed in this product. Note: These bundles are only part of 
 	 * the product if {@link #useFeatures()} returns <code>false</code>.
-	 * @param includeFragments whether or not to include the fragments in the return value
 	 * @return the list of bundles in this product.
 	 */
-	public List<IVersionedId> getBundles(boolean includeFragments);
+	public List<IVersionedId> getBundles();
 
 	/**
-	 * Returns <code>true</code> when <code>getBundles(includeFragments)</code> returns a non-empty list.
+	 * Returns <code>true</code> when {@link #getBundles()} returns a non-empty
+	 * list.
 	 */
-	public boolean hasBundles(boolean includeFragments);
-
-	/**
-	 * Returns the fragments listed in the product.
-	 * @see #useFeatures()
-	 */
-	public List<IVersionedId> getFragments();
+	public boolean hasBundles();
 
 	/**
 	 * Returns the features listed in the product. Same as <code>getFeatures(INCLUDED_FEATURES)</code>. Note: These features are only part of 

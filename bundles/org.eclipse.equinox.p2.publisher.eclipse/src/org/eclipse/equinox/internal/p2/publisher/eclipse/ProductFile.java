@@ -190,7 +190,6 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private String uid = null;
 	private ProductContentType productContentType = null;
 	protected List<FeatureEntry> plugins = new ArrayList<>();
-	protected List<FeatureEntry> fragments = new ArrayList<>();
 	private final List<FeatureEntry> features = new ArrayList<>();
 	private final List<FeatureEntry> rootFeatures = new ArrayList<>();
 	private String splashLocation = null;
@@ -343,38 +342,20 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 	/**
 	 * Returns a List<VersionedName> for each bundle that makes up this product.
-	 * @param includeFragments Indicates whether or not fragments should
-	 * be included in the list
 	 */
 	@Override
-	public List<IVersionedId> getBundles(boolean includeFragments) {
-		List<IVersionedId> result = new LinkedList<>();
-
+	public List<IVersionedId> getBundles() {
+		List<IVersionedId> result = new ArrayList<>();
 		for (FeatureEntry plugin : plugins) {
 			result.add(new VersionedId(plugin.getId(), plugin.getVersion()));
 		}
-
-		if (includeFragments) {
-			for (FeatureEntry fragment : fragments) {
-				result.add(new VersionedId(fragment.getId(), fragment.getVersion()));
-			}
-		}
-
 		return result;
 	}
 
 	@Override
-	public boolean hasBundles(boolean includeFragments) {
+	public boolean hasBundles() {
 		// implement directly; don't call the potentially overridden getBundles
-		return !plugins.isEmpty() || (includeFragments && !fragments.isEmpty());
-	}
-
-	private List<FeatureEntry> getBundleEntries(boolean includeFragments) {
-		List<FeatureEntry> result = new LinkedList<>();
-		result.addAll(plugins);
-		if (includeFragments)
-			result.addAll(fragments);
-		return result;
+		return !plugins.isEmpty();
 	}
 
 	/**
@@ -385,20 +366,6 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	@Override
 	public List<BundleInfo> getBundleInfos() {
 		return bundleInfos != null ? bundleInfos : Collections.emptyList();
-	}
-
-	/**
-	 * Returns a list<VersionedName> of fragments that constitute this product.
-	 */
-	@Override
-	public List<IVersionedId> getFragments() {
-		List<IVersionedId> result = new LinkedList<>();
-
-		for (FeatureEntry fragment : fragments) {
-			result.add(new VersionedId(fragment.getId(), fragment.getVersion()));
-		}
-
-		return result;
 	}
 
 	/**
@@ -417,7 +384,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 	@Override
 	public List<IVersionedId> getFeatures(int options) {
-		List<IVersionedId> result = new LinkedList<>();
+		List<IVersionedId> result = new ArrayList<>();
 
 		if ((options & INCLUDED_FEATURES) != 0) {
 			for (FeatureEntry feature : features) {
@@ -435,13 +402,13 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 	public List<FeatureEntry> getProductEntries() {
 		if (useFeatures()) {
-			return features;
+			return Collections.unmodifiableList(features);
 		}
-		return getBundleEntries(true);
+		return Collections.unmodifiableList(plugins);
 	}
 
 	public boolean containsPlugin(String plugin) {
-		List<IVersionedId> bundles = getBundles(true);
+		List<IVersionedId> bundles = getBundles();
 		for (IVersionedId versionedId : bundles) {
 			if (versionedId.getId().equals(plugin)) {
 				return true;
@@ -1274,12 +1241,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 		FeatureEntry entry = new FeatureEntry(pluginId, pluginVersion != null ? pluginVersion : GENERIC_VERSION_NUMBER, true);
 		entry.setFragment(Boolean.parseBoolean(fragment));
-
-		if (fragment != null && Boolean.parseBoolean(fragment)) {
-			fragments.add(entry);
-		} else {
-			plugins.add(entry);
-		}
+		plugins.add(entry);
 	}
 
 	private void processFeature(Attributes attributes) {

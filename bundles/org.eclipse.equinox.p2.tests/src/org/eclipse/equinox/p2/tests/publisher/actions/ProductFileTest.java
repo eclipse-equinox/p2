@@ -98,12 +98,12 @@ public class ProductFileTest {
 	 */
 	@Test
 	public void testGetBundles() {
-		List<IVersionedId> bundles = productFile.getBundles(false);
-		assertEquals("1.0", 1, bundles.size());
-		assertEquals("1.1", "org.eclipse.core.runtime", bundles.get(0).getId());
-		assertEquals("1.2", Version.createOSGi(1, 0, 4), bundles.get(0).getVersion());
-		bundles = productFile.getBundles(true);
-		assertEquals("1.3", 2, bundles.size());
+		List<IVersionedId> bundles = productFile.getBundles();
+		assertEquals(2, bundles.size());
+		assertEquals("org.eclipse.core.runtime", bundles.get(0).getId());
+		assertEquals(Version.createOSGi(1, 0, 4), bundles.get(0).getVersion());
+		assertEquals("org.eclipse.swt.win32.win32.x86", bundles.get(1).getId());
+		assertEquals(Version.emptyVersion, bundles.get(1).getVersion());
 	}
 
 	/**
@@ -118,17 +118,6 @@ public class ProductFileTest {
 		assertEquals("1.1", "org.eclipse.core.runtime", info.getSymbolicName());
 		assertEquals("1.2", 2, info.getStartLevel());
 		assertTrue("1.3", info.isMarkedAsStarted());
-	}
-
-	/**
-	 * Test method for
-	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getFragments()}.
-	 */
-	@Test
-	public void testGetFragments() {
-		List<IVersionedId> fragments = productFile.getFragments();
-		assertEquals("1.0", 1, fragments.size());
-		assertEquals("1.1", "org.eclipse.swt.win32.win32.x86", fragments.get(0).getId());
 	}
 
 	/**
@@ -168,24 +157,21 @@ public class ProductFileTest {
 	public void testHasFeatures() throws Exception {
 		ProductFile featuresOnly = new ProductFile(TestData.getFile("ProductActionTest", "onlyFeatures.product").toString());
 		assertTrue(featuresOnly.hasFeatures());
-		assertFalse(featuresOnly.hasBundles(false));
-		assertFalse(featuresOnly.hasBundles(true));
+		assertFalse(featuresOnly.hasBundles());
 	}
 
 	@Test
 	public void testHasBundles() throws Exception {
 		ProductFile bundlesOnly = new ProductFile(TestData.getFile("ProductActionTest", "onlyBundles.product").toString());
 		assertFalse(bundlesOnly.hasFeatures());
-		assertTrue(bundlesOnly.hasBundles(false));
-		assertTrue(bundlesOnly.hasBundles(true));
+		assertTrue(bundlesOnly.hasBundles());
 	}
 
 	@Test
 	public void testHasFragments() throws Exception {
 		ProductFile bundlesOnly = new ProductFile(TestData.getFile("ProductActionTest", "onlyFragments.product").toString());
 		assertFalse(bundlesOnly.hasFeatures());
-		assertFalse(bundlesOnly.hasBundles(false));
-		assertTrue(bundlesOnly.hasBundles(true));
+		assertTrue(bundlesOnly.hasBundles());
 	}
 
 	/**
