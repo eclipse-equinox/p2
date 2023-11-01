@@ -227,7 +227,7 @@ public class ProductFileAdvice extends AbstractAdvice
 		if (product.useFeatures()) {
 			return;
 		}
-		List<IVersionedId> bundles = product.getBundles(true);
+		List<IVersionedId> bundles = product.getBundles();
 		Set<BundleInfo> set = new HashSet<>();
 		set.addAll(Arrays.asList(productConfigData.data.getBundles()));
 
@@ -247,7 +247,7 @@ public class ProductFileAdvice extends AbstractAdvice
 
 		// Add all the bundles here. We replace / update them later
 		// if we find configuration information
-		List<IVersionedId> bundles = product.getBundles(true);
+		List<IVersionedId> bundles = product.getBundles();
 		for (IVersionedId vid : bundles) {
 			BundleInfo bundleInfo = new BundleInfo();
 			bundleInfo.setSymbolicName(vid.getId());
