@@ -537,7 +537,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	//	 * The verification is done using the artifactComparator specified by comparatorID
 	//	 * Assumes more valuable logging and output is the responsibility of the artifactComparator implementation.
 	//	 * @param comparatorID
-	//	 * @returns true if the repository is consistent, false if two equal descriptors refer to different artifacts on disk.
+	//	 * @return true if the repository is consistent, false if two equal descriptors refer to different artifacts on disk.
 	//	 */
 	//	private boolean validate(String comparatorID) {
 	//		IArtifactComparator comparator = ArtifactComparatorFactory.getArtifactComparator(comparatorID);

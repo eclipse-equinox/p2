@@ -92,7 +92,7 @@ public abstract class Transport {
 	 * IStateful target is updated with status even if this methods throws
 	 * {@link OperationCanceledException}.
 	 *
-	 * @returns IStatus, that is a {@link DownloadStatus} on success.
+	 * @return IStatus, that is a {@link DownloadStatus} on success.
 	 * @param toDownload URI of file to download
 	 * @param target     OutputStream where result is written
 	 * @param startPos   the starting position of the download, or -1 for from start
@@ -118,7 +118,7 @@ public abstract class Transport {
 	 * reported on the monitor. If the <code>target</code> is an instance of
 	 * {@link IStateful} the resulting status is also set on the target.
 	 *
-	 * @returns IStatus, that is a {@link DownloadStatus} on success.
+	 * @return IStatus, that is a {@link DownloadStatus} on success.
 	 * @param toDownload URI of file to download
 	 * @param target     OutputStream where result is written
 	 * @param monitor    where progress should be reported
@@ -130,8 +130,8 @@ public abstract class Transport {
 	 * Perform a stream download, writing into an InputStream that is returned.
 	 * Performs authentication if needed.
 	 *
-	 * @returns InputStream a stream with the content from the toDownload URI, or
-	 *          null
+	 * @return InputStream a stream with the content from the toDownload URI, or
+	 *         null
 	 * @param toDownload URI of file to download
 	 * @param monitor    monitor checked for cancellation
 	 * @throws OperationCanceledException    if the operation was canceled.
@@ -184,7 +184,7 @@ public abstract class Transport {
 	 * @return the corresponding secure location or the location itself.
 	 * @throws CoreException if the location URI is considered unacceptably
 	 *                       insecure.
-	 * 
+	 *
 	 * @see #getProtocolRules()
 	 * @see #getDefaultProtocolRules()
 	 */

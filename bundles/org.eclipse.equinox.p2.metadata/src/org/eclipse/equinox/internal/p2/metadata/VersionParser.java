@@ -61,7 +61,7 @@ public abstract class VersionParser {
 	 * @param version The string to be parsed
 	 * @param start Start position in the <code>version</code> string
 	 * @param maxPos End position in the <code>version</code> string
-	 * @returns a version if one indeed was parsed or <code>null</code> if the string
+	 * @return a version if one indeed was parsed or <code>null</code> if the string
 	 * contained only whitespace.
 	 * @throws IllegalArgumentException if the version is malformed
 	 */
