@@ -24,16 +24,24 @@ public class Messages extends NLS {
 	public static String ActionManager_Exception_Creating_Action_Extension;
 	public static String ActionManager_Required_Touchpoint_Not_Found;
 
+	public static String AuthorityChecker_UntrustedAuthorities;
+
 	public static String actions_not_found;
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.engine.messages"; //$NON-NLS-1$
 
 	public static String CertificateChecker_CertificateError;
+
+	public static String CertificateChecker_CertificateOrPGPKeyRejected;
 	public static String CertificateChecker_CertificateRejected;
 	public static String CertificateChecker_KeystoreConnectionError;
+
+	public static String CertificateChecker_PGPKeyRejected;
 
 	public static String CertificateChecker_SignedContentError;
 	public static String CertificateChecker_SignedContentIOError;
 	public static String CertificateChecker_UnsignedNotAllowed;
+
+	public static String CertificateChecker_UnsignedRejected;
 
 	public static String committing;
 	public static String download_artifact;

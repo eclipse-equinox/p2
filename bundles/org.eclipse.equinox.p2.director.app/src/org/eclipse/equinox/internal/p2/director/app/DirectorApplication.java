@@ -26,10 +26,15 @@ import static org.eclipse.equinox.internal.p2.director.app.Activator.ID;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -40,6 +45,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.StringHelper;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.internal.p2.engine.phases.AuthorityChecker;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
@@ -56,13 +62,57 @@ import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.spi.IArtifactUIServices;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.spi.IInstallableUnitUIServices;
+import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 
 public class DirectorApplication implements IApplication, ProvisioningListener {
-	public static class AvoidTrustPromptService extends UIServices {
+	public static class AvoidTrustPromptService extends UIServices
+			implements IArtifactUIServices, IInstallableUnitUIServices {
+
+		// These are instructions that are common, expected, and both uninteresting and
+		// non-threatening.
+		private static final Pattern IGNORED_TOUCHPOINT_DATA = Pattern.compile(
+				"manifest=Instruction\\[Bundle-SymbolicName: [^ ]+(; singleton:=true)? Bundle-Version: [^,]+( Fragment-Host: [^;]+;bundle-version=\"[^\"]+\")?,null]|" //$NON-NLS-1$
+						+ "zipped=Instruction\\[true,null]"); //$NON-NLS-1$
+
+		private final PrintStream out;
+		private final ByteArrayOutputStream details;
+		private final boolean trustSignedContentOnly;
+		private final Set<URI> trustedAuthorityURIs;
+		private final Set<String> trustedPGPKeyFingerprints;
+		private final Set<String> trustedCertificateFingerprints;
+
+		public AvoidTrustPromptService() {
+			this(false, false, null, null, null);
+		}
+
+		public AvoidTrustPromptService(boolean verbose, boolean trustSignedContentOnly, Set<URI> trustedAuthorityURIs,
+				Set<String> trustedPGPKeys, Set<String> trustedCertificates) {
+			if (verbose) {
+				this.out = System.out;
+				this.details = null;
+			} else {
+				details = new ByteArrayOutputStream();
+				this.out = new PrintStream(details, false, StandardCharsets.UTF_8);
+			}
+			this.trustSignedContentOnly = trustSignedContentOnly;
+			this.trustedAuthorityURIs = trustedAuthorityURIs;
+			this.trustedPGPKeyFingerprints = trustedPGPKeys;
+			this.trustedCertificateFingerprints = trustedCertificates;
+		}
+
+		public void dump() {
+			if (details != null) {
+				out.close();
+				System.out.println(new String(details.toByteArray(), StandardCharsets.UTF_8));
+			}
+		}
+
 		@Override
 		public AuthenticationInfo getUsernamePassword(String location) {
 			return null;
@@ -73,33 +123,127 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			return null;
 		}
 
+		@Deprecated
 		@Override
 		public TrustInfo getTrustInfo(Certificate[][] untrustedChains, String[] unsignedDetail) {
-			final Certificate[] trusted;
-			if (untrustedChains == null) {
-				trusted = null;
-			} else {
-				trusted = new Certificate[untrustedChains.length];
-				for (int i = 0; i < untrustedChains.length; i++) {
-					trusted[i] = untrustedChains[i][0];
-				}
-			}
-			return new TrustInfo(trusted, false, true);
+			throw new UnsupportedOperationException(
+					"Use AvoidTrustPromptService.getTrustAuthorityInfo(Map<URI, Set<IInstallableUnit>>, Map<URI, List<Certificate>>)"); //$NON-NLS-1$
 		}
 
+		@Deprecated
 		@Override
 		public TrustInfo getTrustInfo(Certificate[][] untrustedChains, Collection<PGPPublicKey> untrustedPGPKeys,
 				String[] unsignedDetail) {
-			final Collection<Certificate> trusted;
-			if (untrustedChains == null) {
-				trusted = List.of();
-			} else {
-				trusted = new ArrayList<>(untrustedChains.length);
-				for (Certificate[] untrustedChain : untrustedChains) {
-					trusted.add(untrustedChain[0]);
+
+			throw new UnsupportedOperationException(
+					"Use AvoidTrustPromptService.getTrustAuthorityInfo(Map<URI, Set<IInstallableUnit>>, Map<URI, List<Certificate>>)"); //$NON-NLS-1$
+		}
+
+		@Override
+		public TrustAuthorityInfo getTrustAuthorityInfo(Map<URI, Set<IInstallableUnit>> siteIUs,
+				Map<URI, List<Certificate>> siteCertificates) {
+
+			Set<URI> trustedAuthorities = new LinkedHashSet<>();
+			for (Map.Entry<URI, Set<IInstallableUnit>> entry : siteIUs.entrySet()) {
+				URI authority = entry.getKey();
+				out.println(NLS.bind(Messages.DirectorApplication_FetchingIUsHeading, authority));
+				for (IInstallableUnit iu : entry.getValue()) {
+					out.println("  " + iu); //$NON-NLS-1$
+					for (ITouchpointData touchpointData : iu.getTouchpointData()) {
+						for (Map.Entry<String, ITouchpointInstruction> data : touchpointData.getInstructions()
+								.entrySet()) {
+							String text = data.toString().replaceAll("\\s+", " ").trim(); //$NON-NLS-1$ //$NON-NLS-2$
+							if (!IGNORED_TOUCHPOINT_DATA.matcher(text).matches()) {
+								out.println("    " + text); //$NON-NLS-1$
+							}
+						}
+					}
+				}
+
+				if (trustedAuthorityURIs != null) {
+					List<URI> authorityChain = AuthorityChecker.getAuthorityChain(authority);
+					for (URI uri : authorityChain) {
+						if (trustedAuthorityURIs.contains(uri)) {
+							trustedAuthorities.add(authority);
+							break;
+						}
+					}
 				}
 			}
-			return new TrustInfo(trusted, untrustedPGPKeys, false, true);
+
+			return new TrustAuthorityInfo(trustedAuthorityURIs != null ? trustedAuthorities : siteIUs.keySet(), false,
+					false);
+		}
+
+		@Override
+		public TrustInfo getTrustInfo(Map<List<Certificate>, Set<IArtifactKey>> untrustedCertificateChains,
+				Map<PGPPublicKey, Set<IArtifactKey>> untrustedPGPKeys, Set<IArtifactKey> unsignedArtifacts,
+				Map<IArtifactKey, File> artifactFiles) {
+
+			Set<Certificate> trustedCertificates = new LinkedHashSet<>();
+			if (untrustedCertificateChains != null) {
+				for (Map.Entry<List<Certificate>, Set<IArtifactKey>> entry : untrustedCertificateChains.entrySet()) {
+					out.println(Messages.DirectorApplication_CertficateTrustChainHeading);
+					List<Certificate> chain = entry.getKey();
+					boolean trusted = false;
+					for (Certificate certificate : chain) {
+						String fingerprint = getFingerprint(certificate);
+						if (trustedCertificateFingerprints == null
+								|| trustedCertificateFingerprints.contains(fingerprint)) {
+							trusted = true;
+						}
+
+						// Indent all the lines two more spaces then the lines for the artifacts.
+						String text = certificate.toString().replaceAll("(\r?\n)", "$1    "); //$NON-NLS-1$ //$NON-NLS-2$
+						out.println("    " + fingerprint + " -> " + text); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+
+					for (IArtifactKey artifactKey : entry.getValue()) {
+						File artifactFile = artifactFiles.get(artifactKey);
+						out.println("  " + artifactKey + " -> " + artifactFile); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+
+					if (trusted) {
+						trustedCertificates.add(chain.get(0));
+					}
+				}
+			}
+
+			Set<PGPPublicKey> pgpKeys = new LinkedHashSet<>();
+			if (untrustedPGPKeys != null) {
+				for (Map.Entry<PGPPublicKey, Set<IArtifactKey>> entry : untrustedPGPKeys.entrySet()) {
+					PGPPublicKey key = entry.getKey();
+					String fingerprint = PGPPublicKeyService.toHexFingerprint(key);
+					if (trustedPGPKeyFingerprints == null || trustedPGPKeyFingerprints.contains(fingerprint)) {
+						pgpKeys.add(key);
+					}
+
+					out.println(NLS.bind(Messages.DirectorApplication_PGPKeysHeading, fingerprint));
+					for (IArtifactKey artifactKey : entry.getValue()) {
+						File artifactFile = artifactFiles.get(artifactKey);
+						out.println("  " + artifactKey + " -> " + artifactFile); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+				}
+			}
+
+			if (unsignedArtifacts != null && !unsignedArtifacts.isEmpty()) {
+				out.println(Messages.DirectorApplication_UnsignedHeading);
+				for (IArtifactKey artifactKey : unsignedArtifacts) {
+					File artifactFile = artifactFiles.get(artifactKey);
+					out.println("  " + artifactKey + " -> " + artifactFile); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+
+			return new TrustInfo(trustedCertificates, pgpKeys, false, !trustSignedContentOnly);
+		}
+
+		private String getFingerprint(Certificate certificate) {
+			try {
+				MessageDigest digester = MessageDigest.getInstance("SHA-256"); //$NON-NLS-1$
+				return HexFormat.of().formatHex(digester.digest(certificate.getEncoded()));
+			} catch (CertificateEncodingException | NoSuchAlgorithmException e) {
+				return "deadbeef"; //$NON-NLS-1$
+			}
 		}
 	}
 
@@ -236,6 +380,21 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private static final CommandLineOption OPTION_DOWNLOAD_ONLY = new CommandLineOption(new String[] { //
 			"-downloadOnly" }, //$NON-NLS-1$
 			null, Messages.Help_Download_Only);
+	private static final CommandLineOption OPTION_VERBOSE_TRUST = new CommandLineOption(new String[] { //
+			"-verboseTrust", "-vt" }, //$NON-NLS-1$ //$NON-NLS-2$
+			null, "Whether to print detailed information about the content trust."); //$NON-NLS-1$
+	private static final CommandLineOption OPTION_TRUST_SIGNED_CONTENT_ONLY = new CommandLineOption(new String[] { //
+			"-trustSignedContentOnly", "-tsco" }, //$NON-NLS-1$ //$NON-NLS-2$
+			null, Messages.DirectorApplication_Help_TrustSignedContentOnly);
+	private static final CommandLineOption OPTION_TRUSTED_AUTHORITIES = new CommandLineOption(new String[] { //
+			"-trustedAuthorities", "-ta" }, //$NON-NLS-1$ //$NON-NLS-2$
+			Messages.Help_lt_comma_separated_list_gt, Messages.DirectorApplication_Help_TrustedAuthorities);
+	private static final CommandLineOption OPTION_TRUSTED_PGP_KEYS = new CommandLineOption(new String[] { //
+			"-trustedPGPKeys", "-tk" }, //$NON-NLS-1$ //$NON-NLS-2$
+			Messages.Help_lt_comma_separated_list_gt, Messages.DirectorApplication_Help_TrustedKeys);
+	private static final CommandLineOption OPTION_TRUSTED_CERTIFCATES = new CommandLineOption(new String[] { //
+			"-trustedCertificates", "-tc" }, //$NON-NLS-1$ //$NON-NLS-2$
+			Messages.Help_lt_comma_separated_list_gt, Messages.DirectorApplication_Help_TrustedCertificates);
 	private static final CommandLineOption OPTION_IGNORED = new CommandLineOption(new String[] { //
 			"-showLocation", "-eclipse.password", "-eclipse.keyring" }, //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
 			null, ""); //$NON-NLS-1$
@@ -252,6 +411,31 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	public static final String LINE_SEPARATOR = System.lineSeparator();
 
+	private static Set<URI> getAuthorityURIs(String spec) throws CoreException {
+		Set<URI> result = new LinkedHashSet<>();
+		List<URI> rawURIs = new ArrayList<>();
+		getURIs(rawURIs, spec);
+		for (URI uri : rawURIs) {
+			// Avoid URIs like https://host/ in favor of https://host which actual works.
+			List<URI> authorityChain = AuthorityChecker.getAuthorityChain(uri);
+			URI mainAuthority = authorityChain.get(0);
+			if (authorityChain.size() == 2) {
+				if ((mainAuthority + "/").equals(authorityChain.get(1).toString())) { //$NON-NLS-1$
+					result.add(mainAuthority);
+					continue;
+				}
+			}
+
+			// For longer authorities, ensure that it ends with a "/"
+			if (uri.toString().endsWith("/")) { //$NON-NLS-1$
+				result.add(uri);
+			}
+
+			result.add(URI.create(uri + "/")); //$NON-NLS-1$
+		}
+		return result;
+	}
+
 	private static void getURIs(List<URI> uris, String spec) throws CoreException {
 		if (spec == null)
 			return;
@@ -267,7 +451,6 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 							e);
 				}
 			}
-
 		}
 	}
 
@@ -345,11 +528,11 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private String revertToPreviousState = NOTHING_TO_REVERT_TO;
 	private static String NOTHING_TO_REVERT_TO = "-1"; //$NON-NLS-1$
 	private static String REVERT_TO_PREVIOUS = "0"; //$NON-NLS-1$
-	private boolean verifyOnly = false;
-	private boolean roamingProfile = false;
-	private boolean purgeRegistry = false;
-	private boolean followReferences = false;
-	private boolean downloadOnly = false;
+	private boolean verifyOnly;
+	private boolean roamingProfile;
+	private boolean purgeRegistry;
+	private boolean followReferences;
+	private boolean downloadOnly;
 	private String profileId;
 	private String profileProperties; // a comma-separated list of property pairs "tag=value"
 	private String iuProfileProperties; // path to Properties file with IU profile properties
@@ -358,15 +541,21 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private String arch;
 	private String nl;
 	private String tag;
+	private boolean verboseTrust;
+	private boolean trustSignedContentOnly;
+	private Set<URI> trustedAuthorityURIs;
+	private Set<String> trustedPGPKeys;
+	private Set<String> trustedCertificates;
 
 	private IEngine engine;
-	private boolean noProfileId = false;
+	private boolean noProfileId;
 	private IPlanner planner;
 	private ILog log = new DefaultLog();
 
 	private IProvisioningAgent targetAgent;
-	private boolean targetAgentIsSelfAndUp = false;
-	private boolean noArtifactRepositorySpecified = false;
+	private boolean targetAgentIsSelfAndUp;
+	private boolean noArtifactRepositorySpecified;
+	private AvoidTrustPromptService trustService;
 
 	protected ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collection<IInstallableUnit> installs,
 			Collection<IInstallableUnit> uninstalls) {
@@ -726,7 +915,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		if (engine == null)
 			throw new ProvisionException(Messages.Missing_Engine);
 
-		targetAgent.registerService(UIServices.SERVICE_NAME, new AvoidTrustPromptService());
+		trustService = new AvoidTrustPromptService(verboseTrust, trustSignedContentOnly, trustedAuthorityURIs,
+				trustedPGPKeys, trustedCertificates);
+		targetAgent.registerService(UIServices.SERVICE_NAME, trustService);
 
 		IProvisioningEventBus eventBus = targetAgent.getService(IProvisioningEventBus.class);
 		if (eventBus == null)
@@ -1079,6 +1270,44 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				continue;
 			}
 
+			if (OPTION_VERBOSE_TRUST.isOption(opt)) {
+				verboseTrust = true;
+				continue;
+			}
+
+			if (OPTION_TRUST_SIGNED_CONTENT_ONLY.isOption(opt)) {
+				trustSignedContentOnly = true;
+				continue;
+			}
+
+			if (OPTION_TRUSTED_AUTHORITIES.isOption(opt)) {
+				String optionalArgument = getOptionalArgument(args, i);
+				if (optionalArgument != null) {
+					i++;
+				}
+				trustedAuthorityURIs = getAuthorityURIs(optionalArgument);
+				continue;
+			}
+
+			if (OPTION_TRUSTED_PGP_KEYS.isOption(opt)) {
+				String optionalArgument = getOptionalArgument(args, i);
+				if (optionalArgument != null) {
+					i++;
+				}
+				trustedPGPKeys = new HashSet<>(Arrays.asList(StringHelper.getArrayFromString(optionalArgument, ',')));
+				continue;
+			}
+
+			if (OPTION_TRUSTED_CERTIFCATES.isOption(opt)) {
+				String optionalArgument = getOptionalArgument(args, i);
+				if (optionalArgument != null) {
+					i++;
+				}
+				trustedCertificates = new HashSet<>(
+						Arrays.asList(StringHelper.getArrayFromString(optionalArgument, ',')));
+				continue;
+			}
+
 			if (OPTION_IGNORED.isOption(opt)) {
 				String optionalArgument = getOptionalArgument(args, i);
 				if (optionalArgument != null) {
@@ -1176,6 +1405,13 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			printError(error, 0);
 
 			log.log(error);
+
+			// If the operation was canceled, and we aren't verbose printing the trust
+			// checking information, then print it now so that the user has details about
+			// which authorities, certificates, keys, and/or unsigned content is involved.
+			if (error.getSeverity() == IStatus.CANCEL && !verboseTrust) {
+				trustService.dump();
+			}
 
 			// set empty exit data to suppress error dialog from launcher
 			setSystemProperty("eclipse.exitdata", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1283,7 +1519,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				OPTION_DOWNLOAD_ONLY, OPTION_METADATAREPOS, OPTION_ARTIFACTREPOS, OPTION_REPOSITORIES,
 				OPTION_VERIFY_ONLY, OPTION_TAG, OPTION_LIST_TAGS, OPTION_PROFILE, OPTION_FLAVOR, OPTION_SHARED,
 				OPTION_BUNDLEPOOL, OPTION_PROFILE_PROPS, OPTION_IU_PROFILE_PROPS, OPTION_ROAMING, OPTION_P2_OS,
-				OPTION_P2_WS, OPTION_P2_ARCH, OPTION_P2_NL, OPTION_PURGEHISTORY, OPTION_FOLLOW_REFERENCES };
+				OPTION_P2_WS, OPTION_P2_ARCH, OPTION_P2_NL, OPTION_PURGEHISTORY, OPTION_FOLLOW_REFERENCES,
+				OPTION_VERBOSE_TRUST, OPTION_TRUST_SIGNED_CONTENT_ONLY, OPTION_TRUSTED_AUTHORITIES,
+				OPTION_TRUSTED_PGP_KEYS, OPTION_TRUSTED_CERTIFCATES };
 		for (CommandLineOption allOption : allOptions) {
 			allOption.appendHelp(System.out);
 		}

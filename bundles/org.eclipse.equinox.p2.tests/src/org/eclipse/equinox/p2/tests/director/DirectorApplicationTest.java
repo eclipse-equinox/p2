@@ -19,8 +19,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.net.MalformedURLException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -29,12 +29,19 @@ import java.security.SignatureException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.app.DirectorApplication;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.URIUtil;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.core.UIServices.TrustInfo;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -70,13 +77,8 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	 * creates the director app arguments based on the arguments submitted with bug 248045
 	 */
 	private String[] getSingleRepoUninstallArgs(String message, File srcRepo, File destinationRepo, String installIU) {
-		String[] args = new String[0];
-		try {
-			args = new String[] {"-repository", srcRepo.toURL().toExternalForm(), "-uninstallIU", installIU, "-destination", destinationRepo.toURL().toExternalForm(), "-profile", "PlatformSDKProfile"};
-		} catch (MalformedURLException e) {
-			fail(message, e);
-		}
-		return args;
+		return new String[] { "-repository", srcRepo.toURI().toString(), "-uninstallIU", installIU, "-destination",
+				destinationRepo.toURI().toString(), "-profile", "PlatformSDKProfile" };
 	}
 
 	/**
@@ -104,13 +106,12 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	 * creates the director app arguments based on the arguments submitted with bug 248045 but with multiple repositories for both  metadata and artifacts
 	 */
 	private String[] getMultipleRepoArgs(String message, File metadataRepo1, File metadataRepo2, File artifactRepo1, File artifactRepo2, File destinationRepo, String installIU) {
-		String[] args = new String[0];
-		try {
-			args = new String[] {"-metadataRepository", metadataRepo1.toURL().toExternalForm() + "," + metadataRepo2.toURL().toExternalForm(), "-artifactRepository", artifactRepo1.toURL().toExternalForm() + "," + artifactRepo2.toURL().toExternalForm(), "-installIU", installIU, "-destination", destinationRepo.toURL().toExternalForm(), "-profile", "PlatformSDKProfile", "-profileProperties", "org.eclipse.update.install.features=true", "-bundlepool", destinationRepo.getAbsolutePath(), "-roaming"};
-		} catch (MalformedURLException e) {
-			fail(message, e);
-		}
-		return args;
+		return new String[] { "-metadataRepository",
+				metadataRepo1.toURI().toString() + "," + metadataRepo2.toURI().toString(), "-artifactRepository",
+				artifactRepo1.toURI().toString() + "," + artifactRepo2.toURI().toString(), "-installIU", installIU,
+				"-destination", destinationRepo.toURI().toString(), "-profile", "PlatformSDKProfile",
+				"-profileProperties", "org.eclipse.update.install.features=true", "-bundlepool",
+				destinationRepo.getAbsolutePath(), "-roaming" };
 	}
 
 	/**
@@ -777,23 +778,28 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	private final class DummyCertificate extends Certificate {
-		DummyCertificate(String type) {
-			super(type);
+		private final String identity;
+
+		DummyCertificate(String identity) {
+			super("");
+			this.identity = identity;
 		}
 
 		@Override
-		public void verify(PublicKey key, String sigProvider) throws CertificateException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException, SignatureException {
+		public void verify(PublicKey key, String sigProvider) throws CertificateException, NoSuchAlgorithmException,
+				InvalidKeyException, NoSuchProviderException, SignatureException {
 			//
 		}
 
 		@Override
-		public void verify(PublicKey key) throws CertificateException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException, SignatureException {
+		public void verify(PublicKey key) throws CertificateException, NoSuchAlgorithmException, InvalidKeyException,
+				NoSuchProviderException, SignatureException {
 			//
 		}
 
 		@Override
 		public String toString() {
-			return null;
+			return "[ " + identity + " ]";
 		}
 
 		@Override
@@ -803,19 +809,21 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 
 		@Override
 		public byte[] getEncoded() throws CertificateEncodingException {
-			return null;
+			return identity.getBytes(StandardCharsets.UTF_8);
 		}
 	}
 
 	public void testAvoidTrustPromptServiceNoUntrustedCertificates() {
 		final TrustInfo trustInfo = getTrustInfoFor(null);
 		assertNotNull(trustInfo);
-		assertNull(trustInfo.getTrustedCertificates());
+		Certificate[] trustedCertificates = trustInfo.getTrustedCertificates();
+		assertNotNull(trustedCertificates);
+		assertEquals(0, trustedCertificates.length);
 	}
 
 	public void testAvoidTrustPromptServiceTrustsOneCertificate() {
-		final Certificate certificate = new DummyCertificate(""); //$NON-NLS-1$
-		final TrustInfo trustInfo = getTrustInfoFor(new Certificate[][] {{certificate}});
+		final Certificate certificate = new DummyCertificate("certificate"); //$NON-NLS-1$
+		final TrustInfo trustInfo = getTrustInfoFor(Map.of(List.of(certificate), Set.of()));
 		assertNotNull(trustInfo);
 		final Certificate[] trustedCertificates = trustInfo.getTrustedCertificates();
 		assertEquals(1, trustedCertificates.length);
@@ -823,19 +831,47 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	public void testAvoidTrustPromptServiceTrustsManyCertificates() {
-		final Certificate certificate1 = new DummyCertificate(""); //$NON-NLS-1$
-		final Certificate certificate2 = new DummyCertificate(""); //$NON-NLS-1$
-		final TrustInfo trustInfo = getTrustInfoFor(new Certificate[][] {{certificate1}, {certificate2}});
+		final Certificate certificate1 = new DummyCertificate("certificate1"); //$NON-NLS-1$
+		final Certificate certificate2 = new DummyCertificate("certificate2"); //$NON-NLS-1$
+		final TrustInfo trustInfo = getTrustInfoFor(
+				Map.of(List.of(certificate1), Set.of(), List.of(certificate2), Set.of()));
 		assertNotNull(trustInfo);
 		final Certificate[] trustedCertificates = trustInfo.getTrustedCertificates();
 		assertEquals(2, trustedCertificates.length);
-		assertSame(certificate1, trustedCertificates[0]);
-		assertSame(certificate2, trustedCertificates[1]);
+		Set<Certificate> keys = Collections.newSetFromMap(new IdentityHashMap<>());
+		keys.addAll(Arrays.asList(trustedCertificates));
+		assertTrue(keys.contains(certificate1));
+		assertTrue(keys.contains(certificate2));
 	}
 
-	private TrustInfo getTrustInfoFor(final Certificate[][] untrustedChain) {
-		UIServices avoidTrustPromptService = new DirectorApplication.AvoidTrustPromptService();
-		return avoidTrustPromptService.getTrustInfo(untrustedChain, null);
+	private TrustInfo getTrustInfoFor(Map<List<Certificate>, Set<IArtifactKey>> untrustedChains) {
+		DirectorApplication.AvoidTrustPromptService avoidTrustPromptService = new DirectorApplication.AvoidTrustPromptService();
+		return avoidTrustPromptService.getTrustInfo(untrustedChains, Map.of(), Set.of(), Map.of());
+	}
+
+	private TrustInfo getTrustInfoFor(Map<List<Certificate>, Set<IArtifactKey>> untrustedChains,
+			Set<String> trustedCertificates) {
+		DirectorApplication.AvoidTrustPromptService avoidTrustPromptService = new DirectorApplication.AvoidTrustPromptService(
+				false, true, null, null, trustedCertificates);
+		return avoidTrustPromptService.getTrustInfo(untrustedChains, Map.of(), Set.of(), Map.of());
+	}
+
+	public void testTrustPromptServiceTrustsOneCertificateReject() {
+		final Certificate certificate = new DummyCertificate("certificate"); //$NON-NLS-1$
+		final TrustInfo trustInfo = getTrustInfoFor(Map.of(List.of(certificate), Set.of()), Set.of());
+		assertNotNull(trustInfo);
+		final Certificate[] trustedCertificates = trustInfo.getTrustedCertificates();
+		assertEquals(0, trustedCertificates.length);
+	}
+
+	public void testTrustPromptServiceTrustsOneCertificateSpecificallyAccepted() {
+		final Certificate certificate = new DummyCertificate("certificate"); //$NON-NLS-1$
+		final TrustInfo trustInfo = getTrustInfoFor(Map.of(List.of(certificate), Set.of()),
+				Set.of("03d66dd08835c1ca3f128cceacd1f31ac94163096b20f445ae84285bc0832d72"));
+		assertNotNull(trustInfo);
+		final Certificate[] trustedCertificates = trustInfo.getTrustedCertificates();
+		assertEquals(1, trustedCertificates.length);
+		assertSame(certificate, trustedCertificates[0]);
 	}
 
 	public void testPGPSignedArtifact() throws Exception {
@@ -858,4 +894,53 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		metadataManager.removeRepository(srcRepo.toURI());
 		delete(destinationRepo);
 	}
+
+	public void testRejectedPGPSignedArtifact() throws Exception {
+		File srcRepo = getTestData(null, "/testData/pgp/repoPGPOK");
+
+		IArtifactRepositoryManager artifactManager = getAgent().getService(IArtifactRepositoryManager.class);
+		IMetadataRepositoryManager metadataManager = getAgent().getService(IMetadataRepositoryManager.class);
+		assertNotNull(artifactManager);
+		assertNotNull(metadataManager);
+
+		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
+		List<String> args = new ArrayList<>(
+				Arrays.asList(getSingleRepoArgs(null, srcRepo, srcRepo, destinationRepo, "blah")));
+		args.add("-tk");
+
+		destinationRepo.mkdirs();
+
+		StringBuffer buffer = runDirectorApp(null, args.toArray(String[]::new));
+		assertTrue(buffer.toString(), buffer.toString().contains("One or more PGP keys are not trusted."));
+
+		artifactManager.removeRepository(srcRepo.toURI());
+		metadataManager.removeRepository(srcRepo.toURI());
+		delete(destinationRepo);
+	}
+
+	public void testSpecificallyAcceptedGPSignedArtifact() throws Exception {
+		File srcRepo = getTestData(null, "/testData/pgp/repoPGPOK");
+
+		IArtifactRepositoryManager artifactManager = getAgent().getService(IArtifactRepositoryManager.class);
+		IMetadataRepositoryManager metadataManager = getAgent().getService(IMetadataRepositoryManager.class);
+		assertNotNull(artifactManager);
+		assertNotNull(metadataManager);
+
+		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
+		List<String> args = new ArrayList<>(
+				Arrays.asList(getSingleRepoArgs(null, srcRepo, srcRepo, destinationRepo, "blah")));
+		args.add("-tk");
+		args.add("e996c670aa7f65409bf5db56139e38d90ded11f0");
+		args.add("-verboseTrust");
+
+		destinationRepo.mkdirs();
+
+		StringBuffer buffer = runDirectorApp(null, args.toArray(String[]::new));
+		assertFalse(buffer.toString(), buffer.toString().contains("failed"));
+
+		artifactManager.removeRepository(srcRepo.toURI());
+		metadataManager.removeRepository(srcRepo.toURI());
+		delete(destinationRepo);
+	}
 }
+

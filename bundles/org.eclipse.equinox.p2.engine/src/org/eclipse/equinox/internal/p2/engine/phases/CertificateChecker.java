@@ -339,14 +339,13 @@ public class CertificateChecker {
 			untrustedCertificates.values().removeIf(Collection::isEmpty);
 			untrustedPGPKeys.values().removeIf(Collection::isEmpty);
 
-			IStatus status =
-					// If there is unsigned content and user doesn't trust unsigned content, cancel
-					// the operation.
-					!unsignedArtifacts.isEmpty() && !trustInfo.trustUnsignedContent() ? Status.CANCEL_STATUS :
-					// If there is still untrusted artifacts, cancel the operation.
-							!untrustedCertificates.isEmpty() || !untrustedPGPKeys.isEmpty() ? new Status(IStatus.CANCEL,
-									EngineActivator.ID, Messages.CertificateChecker_CertificateRejected) : null;
-			if (status != null) {
+			String errorMessage = !unsignedArtifacts.isEmpty() && !trustInfo.trustUnsignedContent()
+					? Messages.CertificateChecker_UnsignedRejected
+					: !untrustedCertificates.isEmpty() && !untrustedPGPKeys.isEmpty()
+							? Messages.CertificateChecker_CertificateOrPGPKeyRejected
+							: !untrustedCertificates.isEmpty() ? Messages.CertificateChecker_CertificateRejected
+									: !untrustedPGPKeys.isEmpty() ? Messages.CertificateChecker_PGPKeyRejected : null;
+			if (errorMessage != null) {
 				Set<IArtifactKey> keys = new HashSet<>();
 				keys.addAll(unsignedArtifacts);
 				untrustedCertificates.values().stream().forEach(keys::addAll);
@@ -355,7 +354,7 @@ public class CertificateChecker {
 					repository.removeDescriptors(keys.toArray(IArtifactKey[]::new), true, null);
 				}
 
-				return status;
+				return new Status(IStatus.CANCEL, EngineActivator.ID, errorMessage);
 			}
 		}
 
