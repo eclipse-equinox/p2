@@ -23,12 +23,30 @@ public class Messages extends NLS {
 	public static String could_not_remove_initialProfile;
 
 	public static String Deprecated_application;
+	public static String DirectorApplication_CertficateTrustChainHeading;
+
+	public static String DirectorApplication_FetchingIUsHeading;
+
+	public static String DirectorApplication_Help_TrustedAuthorities;
+
+	public static String DirectorApplication_Help_TrustedCertificates;
+
+	public static String DirectorApplication_Help_TrustedKeys;
+
+	public static String DirectorApplication_Help_TrustSignedContentOnly;
+
+	public static String DirectorApplication_PGPKeysHeading;
+
+	public static String DirectorApplication_UnsignedHeading;
+
 	public static String Ambigous_Command;
 	public static String Application_NoManager;
 
 	public static String Application_NoRepositories;
 
 	public static String ArgRequiresOtherArgs;
+
+	public static String AuthorityChecker_UntrustedAuthorities;
 	public static String Bad_format;
 	public static String Cant_change_roaming;
 	public static String destination_commandline;

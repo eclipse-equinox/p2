@@ -26,6 +26,7 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -143,7 +144,8 @@ public class AuthorityChecker {
 				});
 
 				if (!iuSources.isEmpty()) {
-					return Status.CANCEL_STATUS;
+					return new Status(IStatus.CANCEL, EngineActivator.ID,
+							Messages.AuthorityChecker_UntrustedAuthorities);
 				}
 			}
 		}
