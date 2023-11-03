@@ -294,6 +294,29 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			out.print("  "); //$NON-NLS-1$
 			out.println(helpString);
 		}
+
+		@SuppressWarnings("nls")
+		void appendHelpDocumentation(PrintStream out) {
+			out.print("<dt>");
+			out.print(identifiers[0]);
+			for (int idx = 1; idx < identifiers.length; ++idx) {
+				out.print(" | "); //$NON-NLS-1$
+				out.print(identifiers[idx]);
+			}
+			if (optionSyntaxString != null) {
+				out.print(' ');
+				out.print(escape(optionSyntaxString));
+			}
+			out.println("</dt>");
+			out.println("<dd>");
+			out.println(escape(helpString));
+			out.println("</dd>");
+		}
+
+		@SuppressWarnings("nls")
+		private String escape(String string) {
+			return string.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+		}
 	}
 
 	private static final CommandLineOption OPTION_HELP = new CommandLineOption(new String[] { //
@@ -1371,7 +1394,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		try {
 			processArguments(args);
 			if (printHelpInfo)
-				performHelpInfo();
+				performHelpInfo(false);
 			else {
 				adjustDestination();
 				initializeServices();
@@ -1513,17 +1536,49 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		return Collector.emptyCollector();
 	}
 
-	private void performHelpInfo() {
-		CommandLineOption[] allOptions = new CommandLineOption[] { OPTION_HELP, OPTION_LIST, OPTION_LIST_INSTALLED,
-				OPTION_LIST_FORMAT, OPTION_INSTALL_IU, OPTION_UNINSTALL_IU, OPTION_REVERT, OPTION_DESTINATION,
-				OPTION_DOWNLOAD_ONLY, OPTION_METADATAREPOS, OPTION_ARTIFACTREPOS, OPTION_REPOSITORIES,
-				OPTION_VERIFY_ONLY, OPTION_TAG, OPTION_LIST_TAGS, OPTION_PROFILE, OPTION_FLAVOR, OPTION_SHARED,
-				OPTION_BUNDLEPOOL, OPTION_PROFILE_PROPS, OPTION_IU_PROFILE_PROPS, OPTION_ROAMING, OPTION_P2_OS,
-				OPTION_P2_WS, OPTION_P2_ARCH, OPTION_P2_NL, OPTION_PURGEHISTORY, OPTION_FOLLOW_REFERENCES,
-				OPTION_VERBOSE_TRUST, OPTION_TRUST_SIGNED_CONTENT_ONLY, OPTION_TRUSTED_AUTHORITIES,
-				OPTION_TRUSTED_PGP_KEYS, OPTION_TRUSTED_CERTIFCATES };
+	private static void performHelpInfo(boolean documentation) {
+		CommandLineOption[] allOptions = new CommandLineOption[] { //
+				OPTION_METADATAREPOS, //
+				OPTION_ARTIFACTREPOS, //
+				OPTION_REPOSITORIES, //
+				OPTION_INSTALL_IU, //
+				OPTION_UNINSTALL_IU, //
+				OPTION_REVERT, //
+				OPTION_PURGEHISTORY, //
+				OPTION_DESTINATION, //
+				OPTION_LIST, //
+				OPTION_LIST_TAGS, //
+				OPTION_LIST_INSTALLED, //
+				OPTION_LIST_FORMAT, //
+				OPTION_PROFILE, //
+				OPTION_PROFILE_PROPS, //
+				OPTION_IU_PROFILE_PROPS, //
+				OPTION_FLAVOR, //
+				OPTION_BUNDLEPOOL, //
+				OPTION_P2_OS, //
+				OPTION_P2_WS, //
+				OPTION_P2_ARCH, //
+				OPTION_P2_NL, //
+				OPTION_ROAMING, //
+				OPTION_SHARED, //
+				OPTION_TAG, //
+				OPTION_VERIFY_ONLY, //
+				OPTION_DOWNLOAD_ONLY, //
+				OPTION_FOLLOW_REFERENCES, //
+				OPTION_VERBOSE_TRUST, //
+				OPTION_TRUST_SIGNED_CONTENT_ONLY, //
+				OPTION_TRUSTED_AUTHORITIES, //
+				OPTION_TRUSTED_PGP_KEYS, //
+				OPTION_TRUSTED_CERTIFCATES, //
+				OPTION_HELP, //
+		};
+
 		for (CommandLineOption allOption : allOptions) {
-			allOption.appendHelp(System.out);
+			if (documentation) {
+				allOption.appendHelpDocumentation(System.out);
+			} else {
+				allOption.appendHelp(System.out);
+			}
 		}
 	}
 
@@ -1710,4 +1765,19 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		installDir.mkdirs(); // Force create the folders because otherwise the call to canWrite fails on Mac
 		return installDir.isDirectory() && Files.isWritable(installDir.toPath());
 	}
+
+//	@SuppressWarnings("nls")
+//	public static void main(String[] args) {
+//		System.out.println(
+//				"<!-- This is generated from org.eclipse.equinox.internal.p2.director.app.DirectorApplication.main(String[]) -->");
+//		System.out.println("<dl>");
+//		System.out.println("<dt>");
+//		System.out.println("-application org.eclipse.equinox.p2.director");
+//		System.out.println("</dt>");
+//		System.out.println("<dd>");
+//		System.out.println("The application ID.");
+//		System.out.println("</dd>");
+//		performHelpInfo(true);
+//		System.out.println("</dl>");
+//	}
 }
