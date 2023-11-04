@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.equinox.p2.discovery.feature"
       label="%featureName"
-      version="1.3.100.qualifier"
+      version="1.3.200.qualifier"
       provider-name="%providerName"
       license-feature="org.eclipse.license"
       license-feature-version="0.0.0">
@@ -21,23 +21,14 @@
 
    <plugin
          id="org.eclipse.equinox.p2.discovery"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.equinox.p2.discovery.compatibility"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.equinox.p2.ui.discovery"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
 </feature>
