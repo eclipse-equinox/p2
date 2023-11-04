@@ -473,7 +473,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		Set<String> skipChecksums = ARTIFACT_MD5_CHECKSUM_ENABLED ? Collections.emptySet() : Collections.singleton(ChecksumHelper.MD5);
 		addChecksumVerifiers(descriptor, steps, skipChecksums, IArtifactDescriptor.ARTIFACT_CHECKSUM);
-		addPGPSignatureVerifier(descriptor, steps);
+
+		if (!isFolderBased(descriptor)) {
+			addPGPSignatureVerifier(descriptor, steps);
+		}
 
 		if (steps.isEmpty())
 			return destination;
