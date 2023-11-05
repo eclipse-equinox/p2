@@ -15,9 +15,15 @@
 package org.eclipse.equinox.internal.p2.repository.helpers;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.Activator;
@@ -136,6 +142,38 @@ public class RepositoryHelper {
 			} // else just return null
 		}
 		return null;
+	}
+
+	/**
+	 * Returns an unmodifiable list of global shared bundle pools, e.g., as used by
+	 * the Eclipse Installer.
+	 *
+	 * @return an unmodifiable list of global shared bundle pools.
+	 *
+	 * @throws IOException if there are problems loading the pool information.
+	 */
+	@SuppressWarnings("nls")
+	public static List<Path> getSharedBundlePools() throws IOException {
+			Path bundlePools = Path.of(System.getProperty("user.home"), ".p2/pools.info");
+			if (Files.isRegularFile(bundlePools)) {
+				try (Stream<String> lines = Files.lines(bundlePools, getSharedBundlePoolEncoding())) {
+					return lines.map(Path::of).filter(Files::isDirectory).toList();
+				}
+			}
+			return List.of();
+	}
+
+	@SuppressWarnings("nls")
+	private static Charset getSharedBundlePoolEncoding() {
+		Path encodingInfo = Path.of(System.getProperty("user.home"), ".p2/encoding.info");
+		if (Files.isRegularFile(encodingInfo)) {
+			try {
+				return Charset.forName(Files.readString(encodingInfo).trim());
+			} catch (Exception e) {
+				//$FALL-THROUGH$
+			}
+		}
+		return Charset.defaultCharset();
 	}
 
 }
