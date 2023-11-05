@@ -15,7 +15,6 @@
 package org.eclipse.equinox.internal.p2.repository.helpers;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -149,18 +148,18 @@ public class RepositoryHelper {
 	 * the Eclipse Installer.
 	 *
 	 * @return an unmodifiable list of global shared bundle pools.
-	 *
-	 * @throws IOException if there are problems loading the pool information.
 	 */
 	@SuppressWarnings("nls")
-	public static List<Path> getSharedBundlePools() throws IOException {
-			Path bundlePools = Path.of(System.getProperty("user.home"), ".p2/pools.info");
-			if (Files.isRegularFile(bundlePools)) {
-				try (Stream<String> lines = Files.lines(bundlePools, getSharedBundlePoolEncoding())) {
-					return lines.map(Path::of).filter(Files::isDirectory).toList();
-				}
+	public static List<Path> getSharedBundlePools() {
+		Path bundlePools = Path.of(System.getProperty("user.home"), ".p2/pools.info");
+		if (Files.isRegularFile(bundlePools)) {
+			try (Stream<String> lines = Files.lines(bundlePools, getSharedBundlePoolEncoding())) {
+				return lines.map(Path::of).filter(Files::isDirectory).toList();
+			} catch (Exception ex) {
+				LogHelper.log(Status.warning("The bundle pool load failed: " + bundlePools, ex));
 			}
-			return List.of();
+		}
+		return List.of();
 	}
 
 	@SuppressWarnings("nls")
