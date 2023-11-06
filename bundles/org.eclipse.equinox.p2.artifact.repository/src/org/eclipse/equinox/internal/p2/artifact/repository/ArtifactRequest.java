@@ -50,7 +50,7 @@ public abstract class ArtifactRequest implements IArtifactRequest {
 	@Override
 	public IStatus getResult() {
 		if (result == DEFAULT_STATUS)
-			return new Status(IStatus.ERROR, Activator.ID, "No repository found containing: " + getArtifactKey().toString());
+			return new Status(IStatus.ERROR, Activator.ID, "No repository found containing: " + getArtifactKey().toString()); //$NON-NLS-1$
 
 		return result;
 	}

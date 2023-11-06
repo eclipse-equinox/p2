@@ -373,7 +373,7 @@ public class RequestFlexer {
 		Set<IInstallableUnit> allRoots = profile.query(new IUProfilePropertyQuery(INCLUSION_RULES, IUProfilePropertyQuery.ANY), null).toSet();
 		if (!honorSharedSettings)
 			return allRoots;
-		IQueryResult<IInstallableUnit> baseRoots = profile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.base", Boolean.TRUE.toString()), null);
+		IQueryResult<IInstallableUnit> baseRoots = profile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.base", Boolean.TRUE.toString()), null); //$NON-NLS-1$
 		allRoots.removeAll(baseRoots.toUnmodifiableSet());
 		return allRoots;
 	}

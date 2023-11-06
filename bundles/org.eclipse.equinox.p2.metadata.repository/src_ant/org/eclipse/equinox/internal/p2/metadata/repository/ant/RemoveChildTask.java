@@ -35,13 +35,13 @@ public class RemoveChildTask extends AbstractMDRTask {
 	public void execute() {
 		IMetadataRepositoryManager manager = getAgent().getService(IMetadataRepositoryManager.class);
 		if (manager == null)
-			throw new BuildException("Unable to aquire metadata repository manager service.");
+			throw new BuildException("Unable to aquire metadata repository manager service."); //$NON-NLS-1$
 
 		CompositeMetadataRepository repo;
 		try {
 			repo = (CompositeMetadataRepository) manager.loadRepository(location, null);
 		} catch (ProvisionException e) {
-			throw new BuildException("Error occurred while loading repository.", e);
+			throw new BuildException("Error occurred while loading repository.", e); //$NON-NLS-1$
 		}
 
 		// remove all the children repositories if requested, otherwise

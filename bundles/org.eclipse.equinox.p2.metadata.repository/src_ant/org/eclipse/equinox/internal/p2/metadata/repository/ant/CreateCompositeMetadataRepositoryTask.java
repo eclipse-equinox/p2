@@ -29,6 +29,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 /**
  * Ant task for creating a new composite metadata repository.
  */
+@SuppressWarnings("nls")
 public class CreateCompositeMetadataRepositoryTask extends AbstractMDRTask {
 
 	URI location; // desired location of the composite repository

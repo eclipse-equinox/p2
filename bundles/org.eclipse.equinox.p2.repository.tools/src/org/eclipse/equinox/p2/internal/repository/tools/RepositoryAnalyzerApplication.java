@@ -25,6 +25,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
+@SuppressWarnings("nls")
 public class RepositoryAnalyzerApplication implements IApplication {
 
 	private URI uri = null;

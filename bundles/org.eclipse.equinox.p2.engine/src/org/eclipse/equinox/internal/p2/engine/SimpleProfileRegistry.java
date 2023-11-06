@@ -238,7 +238,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		if (!profileDirectory.isDirectory())
 			return new long[0];
 
-		File[] profileFiles = profileDirectory.listFiles((FileFilter) pathname -> (pathname.getName().endsWith(PROFILE_EXT) || pathname.getName().endsWith(PROFILE_GZ_EXT)) && pathname.isFile() && !pathname.getName().startsWith("._"));
+		File[] profileFiles = profileDirectory.listFiles((FileFilter) pathname -> (pathname.getName().endsWith(PROFILE_EXT) || pathname.getName().endsWith(PROFILE_GZ_EXT)) && pathname.isFile() && !pathname.getName().startsWith("._")); //$NON-NLS-1$
 
 		long[] timestamps = new long[profileFiles.length];
 		for (int i = 0; i < profileFiles.length; i++) {

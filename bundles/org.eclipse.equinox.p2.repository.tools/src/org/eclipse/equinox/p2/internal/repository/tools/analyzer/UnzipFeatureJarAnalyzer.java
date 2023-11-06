@@ -26,19 +26,19 @@ public class UnzipFeatureJarAnalyzer extends IUAnalyzer {
 
 	@Override
 	public void analyzeIU(IInstallableUnit iu) {
-		if (iu.getId().indexOf("feature.jar") > -1) {
+		if (iu.getId().indexOf("feature.jar") > -1) { //$NON-NLS-1$
 			Collection<ITouchpointData> touchpointData = iu.getTouchpointData();
 			if (touchpointData.size() == 0) {
-				error(iu, "[ERROR] No unzip touchpoint for: " + iu.getId());
+				error(iu, "[ERROR] No unzip touchpoint for: " + iu.getId()); //$NON-NLS-1$
 			} else {
 				boolean found = false;
 				for (ITouchpointData td : touchpointData) {
-					ITouchpointInstruction instruction = td.getInstruction("zipped");
-					if (instruction.getBody().equals("true"))
+					ITouchpointInstruction instruction = td.getInstruction("zipped"); //$NON-NLS-1$
+					if (instruction.getBody().equals("true")) //$NON-NLS-1$
 						found = true;
 				}
 				if (!found) {
-					error(iu, "[ERROR] No unzip touchpoint for: " + iu.getId());
+					error(iu, "[ERROR] No unzip touchpoint for: " + iu.getId()); //$NON-NLS-1$
 				}
 			}
 		}

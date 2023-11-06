@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
  *  1. No 0.0.0
  *  2. No x.y.z.qualifier (each qualifier has been replaced)
  */
+@SuppressWarnings("nls")
 public class VersionAnalyzer extends IUAnalyzer {
 
 	@Override

@@ -40,6 +40,7 @@ import org.eclipse.osgi.framework.console.CommandProvider;
  * An OSGi console command provider that adds various commands for interacting
  * with the provisioning system.
  */
+@SuppressWarnings("nls")
 public class ProvCommandProvider implements CommandProvider {
 	private static final String WILDCARD_ANY = "*"; //$NON-NLS-1$
 	public static final String NEW_LINE = "\r\n"; //$NON-NLS-1$

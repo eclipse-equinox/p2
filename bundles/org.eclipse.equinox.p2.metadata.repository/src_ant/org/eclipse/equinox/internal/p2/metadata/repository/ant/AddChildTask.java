@@ -34,16 +34,17 @@ public class AddChildTask extends AbstractMDRTask {
 		validate();
 		IMetadataRepositoryManager manager = getAgent().getService(IMetadataRepositoryManager.class);
 		if (manager == null)
-			throw new BuildException("Unable to aquire metadata repository manager service.");
+			throw new BuildException("Unable to aquire metadata repository manager service."); //$NON-NLS-1$
 
 		// load the composite repository
 		CompositeMetadataRepository repo = null;
 		try {
 			repo = (CompositeMetadataRepository) manager.loadRepository(location, null);
 		} catch (ClassCastException e) {
-			throw new BuildException("Repository at location: " + location + " is not a composite metadata repository.");
+			throw new BuildException(
+					"Repository at location: " + location + " is not a composite metadata repository."); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (ProvisionException e) {
-			throw new BuildException("Error occurred while loading repository.", e);
+			throw new BuildException("Error occurred while loading repository.", e); //$NON-NLS-1$
 		}
 
 		// add the child
@@ -56,9 +57,9 @@ public class AddChildTask extends AbstractMDRTask {
 	 */
 	private void validate() {
 		if (location == null)
-			throw new BuildException("Need to specify the composite repository location.");
+			throw new BuildException("Need to specify the composite repository location."); //$NON-NLS-1$
 		if (child == null)
-			throw new BuildException("Need to specify the child repository location.");
+			throw new BuildException("Need to specify the child repository location."); //$NON-NLS-1$
 	}
 
 	/*

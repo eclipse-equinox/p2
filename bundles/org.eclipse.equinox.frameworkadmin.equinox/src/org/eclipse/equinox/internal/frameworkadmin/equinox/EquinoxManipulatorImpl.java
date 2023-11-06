@@ -219,7 +219,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			File file = URIUtil.toFile(uri);
 			if (file == null) {
 				// fall back to path of URL in catch block
-				throw new URISyntaxException(uri.toString(), "file URL does not represent a local file");
+				throw new URISyntaxException(uri.toString(), "file URL does not represent a local file"); //$NON-NLS-1$
 			}
 			return file;
 		} catch (URISyntaxException e) {

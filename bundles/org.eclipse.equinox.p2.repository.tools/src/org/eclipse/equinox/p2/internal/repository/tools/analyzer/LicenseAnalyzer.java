@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 /**
  * This service checks that each IU has a license.
  */
+@SuppressWarnings("nls")
 public class LicenseAnalyzer extends IUAnalyzer {
 
 	@Override

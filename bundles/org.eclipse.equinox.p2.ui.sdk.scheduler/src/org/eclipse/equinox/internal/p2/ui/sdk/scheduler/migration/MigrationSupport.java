@@ -194,7 +194,7 @@ public class MigrationSupport {
 	private Set<IInstallableUnit> getUserRoots(IProfile previousProfile) {
 		IQueryResult<IInstallableUnit> allRoots = previousProfile.query(new UserVisibleRootQuery(), null);
 		Set<IInstallableUnit> rootsFromTheBase = previousProfile
-				.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.base", "true"), null).toUnmodifiableSet();
+				.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.base", "true"), null).toUnmodifiableSet(); //$NON-NLS-1$ //$NON-NLS-2$
 		Set<IInstallableUnit> userRoots = allRoots.toSet();
 		userRoots.removeAll(rootsFromTheBase);
 		return userRoots;

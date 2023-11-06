@@ -51,11 +51,11 @@ public class EclipseLauncherParser {
 		}
 		File folder = ParserUtils.fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath());
 		if (Constants.OS_MACOSX.equals(launcherData.getOS())) {
-			folder = new File(folder, "../MacOS");
+			folder = new File(folder, "../MacOS"); //$NON-NLS-1$
 		}
 		if (!folder.equals(launcherFolder)) {
 			// Launcher will replace "@launcher.dir" with actual path. See bug 572890.
-			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_INSTALL, "@launcher.dir/", lines);
+			ParserUtils.setValueForArgument(EquinoxConstants.OPTION_INSTALL, "@launcher.dir/", lines); //$NON-NLS-1$
 		}
 	}
 
