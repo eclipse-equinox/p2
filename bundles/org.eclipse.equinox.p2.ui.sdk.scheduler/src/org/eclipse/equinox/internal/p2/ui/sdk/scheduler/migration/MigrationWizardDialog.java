@@ -43,8 +43,8 @@ public class MigrationWizardDialog extends WizardDialog {
 		if (section == null) {
 			section = settings.addNewSection(wizard.getDialogSettingsSectionName());
 			// Set initial bound values for the MigrationWizardDialog so that it does not cover all the height of the screen when migrating a large set of IUs.
-			section.put("DIALOG_WIDTH", 883);
-			section.put("DIALOG_HEIGHT", 691);
+			section.put("DIALOG_WIDTH", 883); //$NON-NLS-1$
+			section.put("DIALOG_HEIGHT", 691); //$NON-NLS-1$
 
 		}
 		return section;

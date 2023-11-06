@@ -47,10 +47,10 @@ public class IUCounting implements IIUAnalyzer {
 
 	@Override
 	public IStatus postAnalysis() {
-		System.out.println("Total IUs: " + totalIUs);
-		System.out.println("  Total Groups: " + totalGroups);
-		System.out.println("  Total Fragments: " + totalFragments);
-		System.out.println("  Total Categories: " + totalCategories);
+		System.out.println("Total IUs: " + totalIUs); //$NON-NLS-1$
+		System.out.println("  Total Groups: " + totalGroups); //$NON-NLS-1$
+		System.out.println("  Total Fragments: " + totalFragments); //$NON-NLS-1$
+		System.out.println("  Total Categories: " + totalCategories); //$NON-NLS-1$
 		return null;
 	}
 

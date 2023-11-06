@@ -228,7 +228,7 @@ public class TarInputStream extends FilterInputStream {
 			long fileMode = Long.decode(mode.toString()).longValue();
 			entry.setMode(fileMode);
 		} catch (NumberFormatException nfe) {
-			throw new TarException("Not a valid TAR format.", nfe);
+			throw new TarException("Not a valid TAR format.", nfe); //$NON-NLS-1$
 		}
 
 		pos = 100 + 24;
@@ -249,7 +249,7 @@ public class TarInputStream extends FilterInputStream {
 		try {
 			fileSize = Integer.decode(size.toString()).intValue();
 		} catch (NumberFormatException nfe) {
-			throw new TarException("Not a valid TAR format.", nfe);
+			throw new TarException("Not a valid TAR format.", nfe); //$NON-NLS-1$
 		}
 
 		entry.setSize(fileSize);

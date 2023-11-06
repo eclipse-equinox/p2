@@ -46,7 +46,7 @@ public class HostCheckAnalyzer extends IUAnalyzer {
 					VersionRange range = RequiredCapability.extractRange(hostMatch);
 					IQueryResult<IInstallableUnit> results = repository.query(QueryUtil.createIUQuery(name, range), new NullProgressMonitor());
 					if (results.isEmpty()) {
-						error(iu, "IU Fragment: " + iu.getId() + " cannot find host" + name + " : " + range);
+						error(iu, "IU Fragment: " + iu.getId() + " cannot find host" + name + " : " + range); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						return;
 					}
 				}

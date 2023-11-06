@@ -30,9 +30,9 @@ public class UniqueIUAnalyzer extends IUAnalyzer {
 	@Override
 	public void analyzeIU(IInstallableUnit iu) {
 		// Create a unique name / version pair and cache it
-		String uniqueID = iu.getId() + ":" + iu.getVersion().toString();
+		String uniqueID = iu.getId() + ":" + iu.getVersion().toString(); //$NON-NLS-1$
 		if (versionedNames.contains(uniqueID)) {
-			error(iu, "[ERROR]" + iu.getId() + " with version: " + iu.getVersion() + " already exists in the repository");
+			error(iu, "[ERROR]" + iu.getId() + " with version: " + iu.getVersion() + " already exists in the repository"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			return;
 		}
 		versionedNames.add(uniqueID);

@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 /**
  * This service checks that all Group IUs have a copyright.
  */
+@SuppressWarnings("nls")
 public class CopyrightAnalyzer extends IUAnalyzer {
 
 	@Override

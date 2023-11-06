@@ -30,6 +30,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 /**
  * Ant task for creating a new composite artifact repository.
  */
+@SuppressWarnings("nls")
 public class CreateCompositeArtifactRepositoryTask extends Task {
 
 	URI location; // desired location of the composite repository

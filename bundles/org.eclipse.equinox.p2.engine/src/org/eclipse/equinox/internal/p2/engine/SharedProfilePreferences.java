@@ -83,7 +83,7 @@ public class SharedProfilePreferences extends ProfilePreferences {
 
 	@Override
 	protected synchronized void save() throws BackingStoreException {
-		throw new BackingStoreException("Can't store in shared install");
+		throw new BackingStoreException("Can't store in shared install"); //$NON-NLS-1$
 	}
 
 	@Override

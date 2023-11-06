@@ -172,7 +172,7 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 
 	public String getProperty(IInstallableUnit candidate, String key) {
 		String value = TranslationSupport.getInstance().getIUProperty(candidate, key);
-		return (value != null) ? value : "";
+		return (value != null) ? value : ""; //$NON-NLS-1$
 	}
 
 	private AbstractCatalogSource getSource(IMetadataRepository repository) {

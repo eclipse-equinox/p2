@@ -78,7 +78,7 @@ public final class Utils {
 			return false;
 
 		for (String classpath1 : classpath) {
-			if (classpath1.equals(".")) {
+			if (classpath1.equals(".")) { //$NON-NLS-1$
 				return false;
 			}
 		}
