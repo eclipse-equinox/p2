@@ -20,7 +20,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * @since 3.5
- *
  */
 public class UpdateActionTest extends ProfileModificationActionTest {
 	class TestUpdateAction extends UpdateAction {

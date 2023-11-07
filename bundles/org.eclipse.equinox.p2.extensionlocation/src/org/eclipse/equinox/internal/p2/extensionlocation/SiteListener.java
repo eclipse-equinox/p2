@@ -78,9 +78,6 @@ public class SiteListener extends DirectoryChangeListener {
 	 * synchronized in one go.  It is expected that both repos have been previously created
 	 * so simply loading them here will work and that all their properties etc have been configured
 	 * previously.
-	 * @param metadataRepository
-	 * @param artifactRepository
-	 * @param base
 	 */
 	public static synchronized void synchronizeRepositories(ExtensionLocationMetadataRepository metadataRepository, ExtensionLocationArtifactRepository artifactRepository, File base) {
 		try {

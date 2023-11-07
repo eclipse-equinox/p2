@@ -124,7 +124,6 @@ public class IUColumnConfig {
 	 * control.  If a specific width in pixels has already been specified by a client,
 	 * that width is used.  Otherwise, the value is computed based on the character
 	 * width specified for the column.
-	 * @param control
 	 * @return the width in pixels that should be used for the column
 	 *
 	 * @since 3.6

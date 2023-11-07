@@ -27,7 +27,6 @@ import org.eclipse.swt.widgets.*;
  * Dialog that allows a profile to be defined and added.
  * 
  * @since 3.4
- * 
  */
 public class AddProfileDialog extends StatusDialog {
 

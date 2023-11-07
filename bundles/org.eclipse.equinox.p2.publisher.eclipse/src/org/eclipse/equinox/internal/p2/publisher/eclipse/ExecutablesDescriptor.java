@@ -70,9 +70,6 @@ public class ExecutablesDescriptor {
 	 * Create an executable descriptor based on the given location, os and name.
 	 * This method is typically used to identify the executable related files in existing
 	 * unmanaged configurations.
-	 * @param os
-	 * @param location
-	 * @param executable
 	 * @return the created descriptor
 	 */
 	public static ExecutablesDescriptor createDescriptor(String os, String executable, File location) {

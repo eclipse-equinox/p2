@@ -49,9 +49,6 @@ public class IUDetailsGroup {
 	private boolean scrollable;
 	private String lastText;
 
-	/**
-	 *
-	 */
 	public IUDetailsGroup(Composite parent, ISelectionProvider selectionProvider, int widthHint, boolean scrollable) {
 		this.selectionProvider = selectionProvider;
 		this.widthHint = widthHint;

@@ -178,7 +178,6 @@ public abstract class ProvisioningJob extends Job {
 	 *
 	 * @noreference This method is not intended to be referenced by clients.
 	 * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.IProgressMonitor)
-	 *
 	 */
 	@Override
 	public final IStatus run(IProgressMonitor monitor) {
@@ -202,7 +201,6 @@ public abstract class ProvisioningJob extends Job {
 	 *            the progress monitor to use for the operation
 	 *
 	 * @return a status indicating the result of the operation.
-	 *
 	 */
 	public abstract IStatus runModal(IProgressMonitor monitor);
 

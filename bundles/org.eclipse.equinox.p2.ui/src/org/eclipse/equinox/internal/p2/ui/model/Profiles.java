@@ -22,7 +22,6 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  * the profiles that match the specified query for profiles.
  *
  * @since 3.4
- *
  */
 public class Profiles extends RootElement {
 

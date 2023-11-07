@@ -26,7 +26,6 @@ import org.junit.Test;
 /**
  * Tests versions specified with default OSGi version strings and tests OSGi compatibility
  * for versions specified using raw.
- *
  */
 public class OSGiVersionTest extends VersionTesting {
 	@Test

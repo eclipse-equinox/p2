@@ -10,7 +10,6 @@ package org.eclipse.equinox.internal.p2.repository;
 
 /**
  * TODO: Placeholder class - should have link to p2 tracing for repository debug
- *
  */
 public class RepositoryTracing {
 

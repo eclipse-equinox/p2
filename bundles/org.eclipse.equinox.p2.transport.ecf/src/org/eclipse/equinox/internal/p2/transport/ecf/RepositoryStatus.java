@@ -27,7 +27,6 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * Utility class to transform transport errors into error messages.
- *
  */
 public class RepositoryStatus {
 

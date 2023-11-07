@@ -25,7 +25,6 @@ import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 
 /**
  * @since 2.0
- *
  */
 public class RepositoryAnalyzer {
 

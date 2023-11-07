@@ -28,7 +28,6 @@ import org.eclipse.swt.dnd.*;
  * the URLTransfer mechanism unless otherwise stated.
  *
  * @since 3.4
- *
  */
 public abstract class URLDropAdapter extends DropTargetAdapter {
 

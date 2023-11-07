@@ -76,7 +76,6 @@ public interface BundlesState {
 	 * 
 	 * XXX this method is prepared mainly for debugging. 
 	 * 
-	 * @param bInfo
 	 * @return array of Strings which tells the unsatisfied constaints.
 	 * @throws FrameworkAdminRuntimeException if this implementation doesn't support resolving state, FrameworkAdminRuntimeException with a cause of {@link FrameworkAdminRuntimeException#UNSUPPORTED_OPERATION}  will be thrown.
 	 */

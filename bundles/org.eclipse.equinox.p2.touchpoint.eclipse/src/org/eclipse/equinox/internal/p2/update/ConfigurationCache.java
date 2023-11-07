@@ -20,7 +20,6 @@ import java.util.Map;
 
 /**
  * TODO ensure thread safety
- *
  */
 public class ConfigurationCache {
 	private static Map<String, CacheEntry> cache = new HashMap<>();

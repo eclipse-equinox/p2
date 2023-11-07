@@ -24,9 +24,6 @@ import org.eclipse.pde.internal.publishing.Activator;
 import org.eclipse.pde.internal.publishing.Utils;
 import org.eclipse.pde.internal.swt.tools.IconExe;
 
-/**
- *
- */
 public class BrandingIron {
 	private static final String XDOC_ICON = "-Xdock:icon=../Resources/Eclipse.icns"; //$NON-NLS-1$
 	private static final String XDOC_ICON_PREFIX = "-Xdock:icon=../Resources/"; //$NON-NLS-1$
@@ -254,11 +251,6 @@ public class BrandingIron {
 	/**
 	 * Brand the splash.app Info.plist and link or copy the mac launcher. It is
 	 * assumed that the mac launcher has been branded already.
-	 * 
-	 * @param descriptor
-	 * @param initialRoot
-	 * @param target
-	 * @param iconName
 	 */
 	private void brandMacSplash(ExecutablesDescriptor descriptor, File initialRoot, File target, String iconName) {
 		String splashContents = "Resources/Splash.app/Contents"; //$NON-NLS-1$

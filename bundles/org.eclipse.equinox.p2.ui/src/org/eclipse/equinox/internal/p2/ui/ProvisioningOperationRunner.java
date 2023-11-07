@@ -68,8 +68,6 @@ public class ProvisioningOperationRunner {
 	/**
 	 * Request a restart of the platform according to the specified
 	 * restart policy.
-	 *
-	 * @param restartPolicy
 	 */
 	void requestRestart(final int restartPolicy) {
 		// Global override of restart (used in test cases).

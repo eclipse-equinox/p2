@@ -41,7 +41,6 @@ import org.eclipse.swt.widgets.*;
  * before advancing to resolution detail.
  *
  * @since 3.5
- *
  */
 public class SelectableIUsPage extends ResolutionStatusPage implements IResolutionErrorReportingPage {
 
@@ -260,7 +259,6 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	 * Overridden so that we don't call getNextPage(). We use getNextPage() to start
 	 * resolving the operation so we only want to do that when the next button is
 	 * pressed.
-	 *
 	 */
 	@Override
 	public boolean canFlipToNextPage() {

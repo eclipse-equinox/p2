@@ -15,9 +15,6 @@ package org.eclipse.equinox.internal.p2.installer;
 
 import org.eclipse.osgi.util.NLS;
 
-/**
- * 
- */
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.installer.messages"; //$NON-NLS-1$
 	public static String Advisor_Canceled;

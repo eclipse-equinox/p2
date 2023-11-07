@@ -21,7 +21,6 @@ import java.util.zip.ZipException;
 
 /**
  * @author aniefer@ca.ibm.com
- *
  */
 public class Utils {
 	public static final String MARK_FILE_NAME = "META-INF/eclipse.inf"; //$NON-NLS-1$
@@ -66,11 +65,6 @@ public class Utils {
 	 * Transfers all available bytes from the given input stream to the given output
 	 * stream. Closes both streams if close == true, regardless of failure. Flushes
 	 * the destination stream if close == false
-	 * 
-	 * @param source
-	 * @param destination
-	 * @param close
-	 * @throws IOException
 	 */
 	public static void transferStreams(InputStream source, OutputStream destination, boolean close) throws IOException {
 		source = new BufferedInputStream(source);
@@ -169,7 +163,6 @@ public class Utils {
 	 * is not a jar, null is returned. If the file is a jar, but does not contain an
 	 * eclipse.inf file, an empty Properties object is returned.
 	 * 
-	 * @param jarFile
 	 * @return The eclipse.inf properties for the given jar file
 	 */
 	public static Properties getEclipseInf(File jarFile, boolean verbose) {
@@ -224,9 +217,6 @@ public class Utils {
 	 * Stores the given properties in the output stream. We store the properties in
 	 * sorted order so that the signing hash doesn't change if the properties didn't
 	 * change.
-	 * 
-	 * @param props
-	 * @param stream
 	 */
 	public static void storeProperties(Properties props, OutputStream stream) {
 		PrintStream printStream = new PrintStream(stream);

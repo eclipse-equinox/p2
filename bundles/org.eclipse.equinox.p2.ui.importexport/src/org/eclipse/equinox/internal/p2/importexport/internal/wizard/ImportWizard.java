@@ -88,8 +88,6 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 	 * Recompute the provisioning plan based on the items in the IUElementListRoot
 	 * and the given provisioning context. Report progress using the specified
 	 * runnable context. This method may be called before the page is created.
-	 *
-	 * @param runnableContext
 	 */
 	@Override
 	public void recomputePlan(IRunnableContext runnableContext, final boolean withRemediation) {

@@ -26,7 +26,6 @@ import org.junit.Test;
  * Tests inclusion of original version range string in raw format.
  * The tests in this class does not fully test the various "format(rules)" only that the sequence
  * "raw RANGE/format():ORIGINAL RANGE" works, and that errors at the top level are caught.
- *
  */
 public class RawRangeWithOriginalTest extends VersionTesting {
 	@Test

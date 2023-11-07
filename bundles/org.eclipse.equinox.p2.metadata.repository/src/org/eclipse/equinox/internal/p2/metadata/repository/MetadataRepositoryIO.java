@@ -85,9 +85,6 @@ public class MetadataRepositoryIO {
 		}
 	}
 
-	/**
-	 *
-	 */
 	public void write(IMetadataRepository repository, OutputStream output) throws IOException {
 		try (OutputStream bufferedOutput = new BufferedOutputStream(output)) {
 			Writer repositoryWriter = new Writer(bufferedOutput, repository.getClass());

@@ -179,7 +179,6 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 	 * A repository's enablement state has changed.  This is treated
 	 * as repository addition or removal by default.  Subclasses may
 	 * override.  May be called from a non-UI thread.
-	 * @param event
 	 */
 	protected void repositoryEnablement(RepositoryEvent event) {
 		// We treat enablement of a repository as if one were added.

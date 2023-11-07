@@ -23,28 +23,18 @@ public class FrameworkAdminRuntimeException extends RuntimeException {
 	private final String reason;
 	private Throwable cause;
 
-	/**
-	 * @param message
-	 */
 	public FrameworkAdminRuntimeException(String message, String reason) {
 		super(message);
 		this.reason = reason;
 		this.cause = null;
 	}
 
-	/**
-	 * @param message
-	 * @param cause
-	 */
 	public FrameworkAdminRuntimeException(String message, Throwable cause, String reason) {
 		super(message);
 		this.reason = reason;
 		this.cause = cause;
 	}
 
-	/**
-	 * @param cause
-	 */
 	public FrameworkAdminRuntimeException(Throwable cause, String reason) {
 		super(cause.getLocalizedMessage());
 		this.reason = reason;

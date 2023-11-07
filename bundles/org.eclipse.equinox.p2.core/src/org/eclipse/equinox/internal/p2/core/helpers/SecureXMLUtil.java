@@ -26,8 +26,6 @@ import org.xml.sax.*;
 public class SecureXMLUtil {
 	/**
 	 * Create a new {@link DocumentBuilderFactory}.
-	 *
-	 * @throws ParserConfigurationException
 	 */
 	public static DocumentBuilderFactory newSecureDocumentBuilderFactory() throws ParserConfigurationException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -40,10 +38,6 @@ public class SecureXMLUtil {
 
 	/**
 	 * Create a new {@link SAXParserFactory}.
-	 *
-	 * @throws ParserConfigurationException
-	 * @throws SAXNotSupportedException
-	 * @throws SAXNotRecognizedException
 	 */
 	public static SAXParserFactory newSecureSAXParserFactory() throws SAXNotRecognizedException, SAXNotSupportedException, ParserConfigurationException {
 		SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -57,9 +51,6 @@ public class SecureXMLUtil {
 
 	/**
 	 * Create a new {@link XMLReader}.
-	 *
-	 * @throws SAXException
-	 * @throws ParserConfigurationException
 	 */
 	public static XMLReader newSecureXMLReader() throws SAXException, ParserConfigurationException {
 		SAXParserFactory factory = newSecureSAXParserFactory();

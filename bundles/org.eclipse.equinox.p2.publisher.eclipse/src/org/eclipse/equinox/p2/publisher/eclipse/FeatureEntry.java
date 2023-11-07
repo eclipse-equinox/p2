@@ -17,8 +17,6 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 
-/**
- */
 public class FeatureEntry implements IPlatformEntry {
 	private final String id;
 	private String versionOrRange;

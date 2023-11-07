@@ -31,14 +31,10 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 
 /**
  * Base class for version testing. Adds useful assert methods.
- *
  */
 public class VersionTesting {
 	/**
 	 * Asserts that the versionString version is included in the range.
-	 * @param message
-	 * @param range
-	 * @param versionString
 	 */
 	public void assertIncludedInRange(String message, VersionRange range, String versionString) {
 		assertTrue(message, range.isIncluded(Version.parseVersion(versionString)));
@@ -46,9 +42,6 @@ public class VersionTesting {
 
 	/**
 	 * Asserts that the versionString version is not included in the range.
-	 * @param message
-	 * @param range
-	 * @param versionString
 	 */
 	public void assertNotIncludedInRange(String message, VersionRange range, String versionString) {
 		assertFalse(message, range.isIncluded(Version.parseVersion(versionString)));
@@ -57,8 +50,6 @@ public class VersionTesting {
 	/**
 	 * A strict assertion of order.
 	 * asserts that b > a, a < b, a !=b, b != a
-	 * @param a
-	 * @param b
 	 */
 	public static void assertOrder(Object a, Object b) {
 		if (!(a instanceof Comparable && b instanceof Comparable))
@@ -105,7 +96,6 @@ public class VersionTesting {
 
 	/**
 	 * Asserts serialization of a VersionRange instance.
-	 * @param v
 	 */
 	public static void assertSerialized(VersionRange range) {
 		VersionRange serialized = getSerialized(range);
@@ -142,7 +132,6 @@ public class VersionTesting {
 
 	/**
 	 * Asserts serialization of a Version instance.
-	 * @param v
 	 */
 	public static void assertSerialized(Version v) {
 		Version serialized = getSerialized(v);

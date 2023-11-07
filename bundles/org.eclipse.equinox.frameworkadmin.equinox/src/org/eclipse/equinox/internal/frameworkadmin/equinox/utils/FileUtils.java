@@ -137,8 +137,6 @@ public class FileUtils {
 	/**
 	 * Find the named plugin in the given bundlesDir
 	 * 
-	 * @param pluginName
-	 * @param bundlesDir
 	 * @return a URL string for the found plugin, or null
 	 */
 	// Based on org.eclipse.core.runtime.adaptor.EclipseStarter#searchFor

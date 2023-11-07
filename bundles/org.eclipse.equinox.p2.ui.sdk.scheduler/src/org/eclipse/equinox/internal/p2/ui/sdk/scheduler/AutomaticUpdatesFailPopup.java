@@ -23,7 +23,6 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 /**
  * UpdatesFailPopup is an async popup dialog for notifying the user of updates
  * that can't be installed.
- *
  */
 class AutomaticUpdatesFailPopup extends UpdatesPopup {
 

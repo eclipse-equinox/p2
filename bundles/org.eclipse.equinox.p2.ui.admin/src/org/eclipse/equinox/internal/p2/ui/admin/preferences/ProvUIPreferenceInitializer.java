@@ -20,7 +20,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 /**
  * Initializes the preferences for the provisioning UI.
  * @since 3.4
- *
  */
 public class ProvUIPreferenceInitializer extends AbstractPreferenceInitializer {
 

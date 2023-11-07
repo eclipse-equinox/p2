@@ -1128,8 +1128,6 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	/**
 	 * Asserts that the first line of text in f equals the content.
-	 * @param f
-	 * @param content
 	 */
 	public static void assertFileContent(String message, File f, String content) {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f)))) {

@@ -381,10 +381,6 @@ public class SimpleBackupStore implements IBackupStore {
 	 * Backs up a file, or everything under a directory.
 	 * 
 	 * A copy of the backup is left in the original place.
-	 *
-	 * @param file
-	 * 
-	 * @throws IOException
 	 */
 	@Override
 	public void backupCopyAll(File file) throws IOException {
@@ -515,8 +511,6 @@ public class SimpleBackupStore implements IBackupStore {
 	 * 
 	 * @return false if the directory is already created in the backup store, false
 	 *         if a placeholder had to be created and backed up.
-	 * 
-	 * @throws IOException
 	 */
 	private boolean copyDirToBackup(Path path) throws IOException {
 		Path buPath = toBackupPath(path);
@@ -618,8 +612,6 @@ public class SimpleBackupStore implements IBackupStore {
 	 *
 	 * @param unrestorable accumulate unrestorable paths (including the entire
 	 *                     backup store).
-	 * 
-	 * @throws IOException
 	 */
 	private void restoreBackups(Map<Path, Throwable> unrestorable) throws IOException {
 		if (!Files.exists(buStoreRoot)) {
@@ -741,8 +733,6 @@ public class SimpleBackupStore implements IBackupStore {
 	 * @param file a source file that needs to be backed up
 	 * 
 	 * @return a file to which the original content can be backed up
-	 * 
-	 * @throws IOException
 	 */
 	protected Path toBackupPath(Path path) throws IOException {
 		Path pathNormal = path.normalize();
@@ -868,10 +858,6 @@ public class SimpleBackupStore implements IBackupStore {
 
 	/**
 	 * Deletes a file, or a directory with all of it's children.
-	 * 
-	 * @param path
-	 * 
-	 * @throws IOException
 	 */
 	private static void deleteAll(Path path) throws IOException {
 		if (!Files.exists(path)) {

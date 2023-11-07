@@ -11,7 +11,6 @@ package org.eclipse.equinox.internal.p2.repository;
 /**
  * Holds various preferences for repository.
  * TODO: if values should be configurable, they need to be persisted and read back.
- *
  */
 public class RepositoryPreferences {
 

@@ -34,7 +34,6 @@ import org.eclipse.swt.widgets.*;
  * Class for showing a repository name and location
  *
  * @since 3.4
- *
  */
 public class RepositoryNameAndLocationDialog extends StatusDialog {
 

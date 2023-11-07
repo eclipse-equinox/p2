@@ -35,8 +35,6 @@ public class CompoundIterator<T> implements Iterator<T> {
 	 * of the provided <code>iterator</code>. Each element will be coerced
 	 * into an iterator and its elements in turn are returned
 	 * in succession by the compound iterator.
-	 *
-	 * @param iterator
 	 */
 	public CompoundIterator(Iterator<? extends Object> iterator) {
 		this.iteratorIterator = iterator;
@@ -60,7 +58,6 @@ public class CompoundIterator<T> implements Iterator<T> {
 	/**
 	 * Remove is not supported by this iterator so calling this method
 	 * will always yield an exception.
-	 * @throws UnsupportedOperationException
 	 */
 	@Override
 	public void remove() {

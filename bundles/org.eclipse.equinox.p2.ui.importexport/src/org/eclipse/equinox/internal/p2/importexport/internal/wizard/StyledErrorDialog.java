@@ -59,9 +59,6 @@ public class StyledErrorDialog extends MessageDialog {
 		return dialog.open() == 0;
 	}
 
-	/**
-	 * @param kind
-	 */
 	static String[] getButtonLabels(int kind) {
 		String[] dialogButtonLabels;
 		switch (kind) {

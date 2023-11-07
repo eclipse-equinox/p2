@@ -22,7 +22,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
  * using the IDeferredWorkbenchAdapter mechanism.
  *
  * @since 3.4
- *
  */
 public class RepositoryContentProvider extends DeferredQueryContentProvider {
 

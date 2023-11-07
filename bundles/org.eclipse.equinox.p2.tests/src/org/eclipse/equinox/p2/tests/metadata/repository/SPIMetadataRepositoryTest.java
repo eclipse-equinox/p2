@@ -699,8 +699,6 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	 * This test cases creates an SPI implementation of an IU and writes it to a repository.
 	 * If the repository is Cached, it reads back the SPI implementation. If the repository is
 	 * not cached, it reads back the default (InstallableUnit) implementation.
-	 *
-	 * @throws ProvisionException
 	 */
 	public void testSPIMetadataIU() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
@@ -728,8 +726,6 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	 * This test cases creates an SPI IU and adds a default provided capability. It ensures that
 	 * you can write this type of repository and read it back again.  If you read it back, and it is cached,
 	 * you get the SPI IU, otherwise you get the default (InstallableUnit) IU.
-	 *
-	 * @throws ProvisionException
 	 */
 	public void testProvidedCapabilitywithSPI_IU() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
@@ -767,8 +763,6 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	 * This test cases creates an IU and adds an SPI  required capability. It ensures that
 	 * you can write this type of repository and read it back again.  If you read it back, and it is cached,
 	 * you get the SPI Required Capability, otherwise you get the default RequiredCapability.
-	 *
-	 * @throws ProvisionException
 	 */
 	public void testSPIRequiredCapability() throws ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
@@ -808,7 +802,6 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	/**
 	 * This tests the .equals method in many of the metadata classes.  This test
 	 * case ensures that an SPI implementation .equals() the default one.
-	 * @throws ProvisionException
 	 */
 	public void testSPIEquals() throws ProvisionException, URISyntaxException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();

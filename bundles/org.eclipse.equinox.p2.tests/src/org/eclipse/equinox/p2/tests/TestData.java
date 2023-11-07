@@ -41,10 +41,7 @@ public class TestData {
 	/**
 	 * Get an input stream from the resource testDataName within the folder
 	 * testDataFolder of the testData folder of this project.
-	 * @param testDataFolder
-	 * @param testDataName
 	 * @return input stream for the test data
-	 * @throws IOException
 	 */
 	public static InputStream get(String testDataFolder, String testDataName) throws IOException {
 		return new BufferedInputStream(TestActivator.getContext().getBundle().getEntry(TEST_DATA_ROOT_FOLDER + "/" + testDataFolder + "/" + testDataName).openStream());
@@ -53,9 +50,7 @@ public class TestData {
 	/**
 	 * Get a File from the resource testDataName within the folder
 	 * testDataFolder of the testData folder of this project.
-	 * @param testDataFolder
 	 * @return test data File
-	 * @throws IOException
 	 */
 	public static File getFile(String testDataFolder, String testDataName) throws IOException {
 		return new File(FileLocator.toFileURL(TestActivator.getContext().getBundle().getEntry(TEST_DATA_ROOT_FOLDER + "/" + testDataFolder + "/" + testDataName)).getPath());
@@ -65,10 +60,7 @@ public class TestData {
 	 * Create a temporary file for the test data. The temporary file will be deleted
 	 * when the jvm exists. If testDataName contains an extension this extension will
 	 * be used as suffix for the temporary file.
-	 * @param testDataFolder
-	 * @param testDataName
 	 * @return temporary file with test data
-	 * @throws IOException
 	 */
 	public static File getTempFile(String testDataFolder, String testDataName) throws IOException {
 		File temp = createTempFile(testDataName);
@@ -81,9 +73,7 @@ public class TestData {
 	 * Create a temporary file. This file will be deleted if the jvm exits.
 	 * If testDataName contains an extension this extension will be used as
 	 * suffix for the temporary file.
-	 * @param testDataName
 	 * @return temporary file
-	 * @throws IOException
 	 */
 	public static File createTempFile(String testDataName) throws IOException {
 		int i = testDataName.lastIndexOf('.');
@@ -94,9 +84,6 @@ public class TestData {
 
 	/**
 	 * Assert equality of files.
-	 * @param expected
-	 * @param actual
-	 * @throws IOException
 	 */
 	public static void assertEquals(File expected, File actual) throws IOException {
 		Assert.assertEquals("Files have different lengths.", expected.length(), actual.length());
@@ -105,9 +92,6 @@ public class TestData {
 
 	/**
 	 * Assert equality of input streams.
-	 * @param expected
-	 * @param actual
-	 * @throws IOException
 	 */
 	public static void assertEquals(InputStream expected, InputStream actual) throws IOException {
 		try {
@@ -130,9 +114,6 @@ public class TestData {
 
 	/**
 	 * Assert equality of zip input streams.
-	 * @param expected
-	 * @param actual
-	 * @throws IOException
 	 */
 	public static void assertEquals(ZipInputStream expected, ZipInputStream actual) throws IOException {
 		Map<String, Object[]> expectedEntries = getEntries(expected);
@@ -168,8 +149,6 @@ public class TestData {
 	 *
 	 * @param fileMap a map of files to verify in <code>input2</code> keyed by relative paths
 	 * i.e. Map<String filePath, File fileBytes>
-	 * @param input2
-	 * @throws IOException
 	 */
 	public static void assertContains(Map<String, Object[]> fileMap, ZipInputStream input2, boolean compareContent) throws IOException {
 		Map<String, Object[]> jar2 = getEntries(input2);

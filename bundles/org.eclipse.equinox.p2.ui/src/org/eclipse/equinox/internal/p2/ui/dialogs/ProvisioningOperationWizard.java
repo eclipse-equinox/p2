@@ -322,8 +322,6 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	 * Recompute the provisioning plan based on the items in the IUElementListRoot
 	 * and the given provisioning context. Report progress using the specified
 	 * runnable context. This method may be called before the page is created.
-	 *
-	 * @param runnableContext
 	 */
 	public void recomputePlan(IRunnableContext runnableContext, final boolean withRemediation) {
 		couldNotResolveStatus = Status.OK_STATUS;

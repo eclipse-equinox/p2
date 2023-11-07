@@ -96,9 +96,6 @@ public class Bug351944 extends AbstractProvisioningTest {
 
 	/**
 	 * copy from {@link org.eclipse.equinox.internal.p2.engine.DownloadManager}
-	 * @param repository
-	 * @param requestsToProcess
-	 * @return
 	 */
 	private Collection<IArtifactRequest> getRequestsForRepository(IArtifactRepository repository,
 			IArtifactRequest[] requestsToProcess) {

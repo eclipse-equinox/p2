@@ -21,7 +21,6 @@ import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.Activator;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.Messages;
-import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.p2.transport.ecf.RepositoryTransport;
 
 /**
@@ -45,26 +44,24 @@ public class TransportUtil {
 	/**
 	 * Download an HTTP-based resource
 	 * 
-	 * @param target
-	 *            the target file to which the content is saved
-	 * @param location
-	 *            the web location of the content
-	 * @param monitor
-	 *            the monitor
-	 * @throws IOException
-	 *             if a network or IO problem occurs
-	 * @throws CoreException 
+	 * @param target   the target file to which the content is saved
+	 * @param location the web location of the content
+	 * @param monitor  the monitor
+	 * @throws IOException   if a network or IO problem occurs
 	 */
-	public static void downloadResource(URI location, File target, IProgressMonitor monitor) throws IOException, CoreException {
+	public static void downloadResource(URI location, File target, IProgressMonitor monitor)
+			throws IOException, CoreException {
 		CacheManager cm = Activator.getDefault().getCacheManager();
 		File cacheFile = cm.createCache(location, monitor);
 		if (cacheFile == null) {
 			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, Messages.TransportUtil_InternalError));
 		}
-		copyStream(new BufferedInputStream(new FileInputStream(cacheFile)), true, new BufferedOutputStream(new FileOutputStream(target)), true);
+		copyStream(new BufferedInputStream(new FileInputStream(cacheFile)), true,
+				new BufferedOutputStream(new FileOutputStream(target)), true);
 	}
 
-	public static int copyStream(InputStream in, boolean closeIn, OutputStream out, boolean closeOut) throws IOException {
+	public static int copyStream(InputStream in, boolean closeIn, OutputStream out, boolean closeOut)
+			throws IOException {
 		try {
 			int written = 0;
 			byte[] buffer = new byte[16 * 1024];
@@ -88,19 +85,16 @@ public class TransportUtil {
 	}
 
 	/**
-	 * Read a web-based resource at the specified location using the given processor.
+	 * Read a web-based resource at the specified location using the given
+	 * processor.
 	 * 
-	 * @param location
-	 *            the web location of the content
-	 * @param processor
-	 *            the processor that will handle content
-	 * @param monitor
-	 *            the monitor
-	 * @throws IOException
-	 *             if a network or IO problem occurs
-	 * @throws CoreException
+	 * @param location  the web location of the content
+	 * @param processor the processor that will handle content
+	 * @param monitor   the monitor
+	 * @throws IOException if a network or IO problem occurs
 	 */
-	public static void readResource(URI location, TextContentProcessor processor, IProgressMonitor monitor) throws IOException, CoreException {
+	public static void readResource(URI location, TextContentProcessor processor, IProgressMonitor monitor)
+			throws IOException, CoreException {
 		CacheManager cm = Activator.getDefault().getCacheManager();
 		File cacheFile = cm.createCache(location, monitor);
 		if (cacheFile == null) {
@@ -114,19 +108,16 @@ public class TransportUtil {
 	}
 
 	/**
-	 * Verify availability of resources at the given web locations. Normally this would be done using an HTTP HEAD.
+	 * Verify availability of resources at the given web locations. Normally this
+	 * would be done using an HTTP HEAD.
 	 * 
-	 * @param locations
-	 *            the locations of the resource to verify
-	 * @param one
-	 *            indicate if only one of the resources must exist
-	 * @param monitor
-	 *            the monitor
+	 * @param locations the locations of the resource to verify
+	 * @param one       indicate if only one of the resources must exist
+	 * @param monitor   the monitor
 	 * @return true if the resource exists
-	 * @throws CoreException
-	 * @throws AuthenticationFailedException
 	 */
-	public static boolean verifyAvailability(List<? extends URI> locations, boolean one, IProgressMonitor monitor) throws IOException, CoreException {
+	public static boolean verifyAvailability(List<? extends URI> locations, boolean one, IProgressMonitor monitor)
+			throws IOException, CoreException {
 		if (locations.isEmpty() || locations.size() > 5) {
 			throw new IllegalArgumentException();
 		}

@@ -60,8 +60,6 @@ public class MetadataRepositoryManagerExceptionsTest extends AbstractProvisionin
 	/**
 	 * Adds a repository for a non existing site, should
 	 * return REPOSITORY_NOT_FOUND, since any other status code gets logged.
-	 *
-	 * @throws URISyntaxException
 	 */
 	public void testFailedConnection() throws URISyntaxException {
 		//		URI location = new URI("invalid://example");

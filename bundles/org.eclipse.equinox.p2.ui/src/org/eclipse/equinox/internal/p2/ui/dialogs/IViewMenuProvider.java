@@ -20,7 +20,6 @@ import org.eclipse.jface.action.IMenuManager;
  *
  * IViewMenuProvider is used to fill a view menu in dialog groups that support them.
  * @since 3.4
- *
  */
 public interface IViewMenuProvider {
 	public void fillViewMenu(IMenuManager viewMenu);

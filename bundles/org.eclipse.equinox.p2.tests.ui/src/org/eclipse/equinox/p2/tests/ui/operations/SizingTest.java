@@ -20,9 +20,6 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
-/**
- * 
- */
 public class SizingTest extends AbstractProvisioningUITest {
 	public void testEmptySizing() {
 		String profileId = "testEmptySizing";

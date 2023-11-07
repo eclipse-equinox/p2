@@ -64,7 +64,6 @@ import java.io.IOException;
  * In addition, FrameworkAdminFactory will create this object. This is used by Java programs.
  * 
  * @see FrameworkAdminFactory
- *    
  */
 public interface FrameworkAdmin {
 

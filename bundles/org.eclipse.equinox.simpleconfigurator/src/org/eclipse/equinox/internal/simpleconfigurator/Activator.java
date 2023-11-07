@@ -41,7 +41,6 @@ import org.osgi.framework.*;
  * the bundles will not be listed in the specified url but installed at the time
  * of the method call except SystemBundle will be uninstalled.
  * Otherwise, no uninstallation will not be done.
- *
  */
 public class Activator implements BundleActivator {
 	public final static boolean DEBUG = false;

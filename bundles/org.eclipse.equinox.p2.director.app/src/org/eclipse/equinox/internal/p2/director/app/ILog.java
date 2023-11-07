@@ -24,14 +24,11 @@ import org.eclipse.core.runtime.IStatus;
 public interface ILog {
 	/**
 	 * Send status to the standard log
-	 *
-	 * @param status
 	 */
 	void log(IStatus status);
 
 	/**
 	 *
-	 * @param message
 	 * @deprecated Use {@link ILog#printOut()} or {@link ILog#printErr()}
 	 */
 	@Deprecated
@@ -48,8 +45,6 @@ public interface ILog {
 	 * Print status on stdout or stderr.
 	 *
 	 * By default calls {@link #log}
-	 *
-	 * @param status
 	 */
 	default void printOut(String line) {
 		System.out.println(line);

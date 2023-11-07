@@ -23,7 +23,6 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  * with its own ui and query context.
  *
  * @since 3.5
- *
  */
 public abstract class RootElement extends RemoteQueriedElement {
 

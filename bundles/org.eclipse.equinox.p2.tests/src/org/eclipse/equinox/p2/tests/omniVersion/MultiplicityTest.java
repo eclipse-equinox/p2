@@ -23,7 +23,6 @@ import org.junit.Test;
 
 /**
  * Tests {n.m} in different combinations and the special +?*
- *
  */
 public class MultiplicityTest {
 	@Test

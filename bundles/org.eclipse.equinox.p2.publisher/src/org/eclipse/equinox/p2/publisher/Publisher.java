@@ -48,7 +48,6 @@ public class Publisher {
 	 * @param append   whether or not the repository should appended or cleared
 	 * @param compress whether or not to compress the repository index
 	 * @return the discovered or created repository
-	 * @throws ProvisionException
 	 */
 	public static IMetadataRepository createMetadataRepository(IProvisioningAgent agent, URI location, String name,
 			boolean append, boolean compress) throws ProvisionException {
@@ -91,7 +90,6 @@ public class Publisher {
 	 * @param removeFromManager remove the loaded repository from the manager if it
 	 *                          wasn't already loaded
 	 * @return the loaded repository
-	 * @throws ProvisionException
 	 */
 	public static IMetadataRepository loadMetadataRepository(IProvisioningAgent agent, URI location, boolean modifiable,
 			boolean removeFromManager) throws ProvisionException {
@@ -109,7 +107,6 @@ public class Publisher {
 	 * @param name     the name of the repository
 	 * @param compress whether or not to compress the repository index
 	 * @return the discovered or created repository
-	 * @throws ProvisionException
 	 */
 	@Deprecated(forRemoval = true, since = "2.3.0")
 	public static IArtifactRepository createArtifactRepository(IProvisioningAgent agent, URI location, String name,
@@ -149,7 +146,6 @@ public class Publisher {
 	 * @param removeFromManager remove the loaded repository from the manager if it
 	 *                          wasn't already loaded
 	 * @return the loaded repository
-	 * @throws ProvisionException
 	 */
 	public static IArtifactRepository loadArtifactRepository(IProvisioningAgent agent, URI location, boolean modifiable,
 			boolean removeFromManager) throws ProvisionException {

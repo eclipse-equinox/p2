@@ -204,9 +204,7 @@ public class SimpleConfiguratorUtils {
 	 * Read the configuration from the given InputStream
 	 *
 	 * @param stream - the stream is always closed
-	 * @param base
 	 * @return List of {@link BundleInfo}
-	 * @throws IOException
 	 */
 	public static List<BundleInfo> readConfiguration(InputStream stream, URI base) throws IOException {
 		List<BundleInfo> bundles = new ArrayList<>();

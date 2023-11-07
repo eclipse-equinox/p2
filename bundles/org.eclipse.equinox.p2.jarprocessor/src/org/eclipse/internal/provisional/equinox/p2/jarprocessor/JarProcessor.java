@@ -65,7 +65,6 @@ public class JarProcessor {
 	 * @param outputJar    - the output
 	 * @param replacements - map of entryName -> new entryName
 	 * @param directory    - location to find file for new entryName
-	 * @throws IOException
 	 */
 	private void recreateJar(JarFile jar, JarOutputStream outputJar, Map<String, String> replacements, File directory,
 			Properties inf) throws IOException {

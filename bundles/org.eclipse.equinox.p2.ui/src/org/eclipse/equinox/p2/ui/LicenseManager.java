@@ -32,7 +32,6 @@ public abstract class LicenseManager {
 	 *
 	 * @return <code>true</code> if the license was recorded as accepted, <code>false</code> if
 	 * it was not.
-	 *
 	 */
 	public abstract boolean accept(ILicense license);
 
@@ -43,7 +42,6 @@ public abstract class LicenseManager {
 	 *
 	 * @return <code>true</code> if the license was recorded as rejected, <code>false</code> if
 	 * it was not.
-	 *
 	 */
 	public abstract boolean reject(ILicense license);
 
@@ -55,7 +53,6 @@ public abstract class LicenseManager {
 	 *
 	 * @return <code>true</code> if the license has previously been accepted,
 	 * <code>false</code> if it has not been accepted before.
-	 *
 	 */
 	public abstract boolean isAccepted(ILicense license);
 

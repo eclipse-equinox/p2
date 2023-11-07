@@ -25,7 +25,6 @@ import org.junit.Test;
 
 /**
  * Tests ranges of versions specified with osgi (default) version format.
- *
  */
 public class OSGiRangeTest extends VersionTesting {
 	@Test

@@ -90,7 +90,6 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 	 * runClearPlaceholderJob and DelayedFilterCheckboxTree.doCreateRefreshJob().new
 	 * JobChangeAdapter() {...}.done(IJobChangeEvent) has timing issue, I can't find
 	 * a way to guarantee the first job is executed firstly
-	 *
 	 */
 	final class ImportExportFilteredTree extends FilteredTree {
 		ArrayList<Object> checkState = new ArrayList<>();

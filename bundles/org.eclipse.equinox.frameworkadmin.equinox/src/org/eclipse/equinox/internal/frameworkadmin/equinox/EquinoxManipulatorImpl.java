@@ -47,8 +47,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 * directory.
 	 *
 	 * Then, reset fwConfigLocation and fwPersistentDataLocation to be matched.
-	 *
-	 * @param launcherData
 	 */
 	static void checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(LauncherData launcherData) {
 		File fwConfigLocation = launcherData.getFwConfigLocation();
@@ -493,7 +491,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 * available ConfiguratorManipulators. 3. Choose the one that will be firstly
 	 * started among them. 4. set the object that corresponds to the chosen
 	 * ConfiguratorBundle.
-	 *
 	 */
 	@SuppressWarnings("unchecked")
 	private ConfiguratorManipulator setConfiguratorManipulator() {
@@ -564,7 +561,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 * FwDependentProperties and FwIndependentProperties, return true. Otherwise
 	 * false.
 	 *
-	 * @param key
 	 * @return true if it should be elimineted from FwDependentProperties and
 	 *         FwIndependentProperties,
 	 */

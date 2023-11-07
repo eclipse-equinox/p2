@@ -204,7 +204,6 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * children to the viewer. see
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=229069 see
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=226343
-	 *
 	 */
 	@Override
 	public boolean hasQueryable() {

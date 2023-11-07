@@ -84,7 +84,6 @@ public class CategoryParser extends DefaultHandler {
 	private MultiStatus status;
 
 	/*
-	 *
 	 */
 	private static void debug(String s) {
 		Tracing.debug("CategoryParser: " + s); //$NON-NLS-1$
@@ -569,14 +568,12 @@ public class CategoryParser extends DefaultHandler {
 	}
 
 	/*
-	 *
 	 */
 	private void internalError(String message) {
 		error(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.OK, message, null));
 	}
 
 	/*
-	 *
 	 */
 	private void internalErrorUnknownTag(String msg) {
 		stateStack.push(Integer.valueOf(STATE_IGNORED_ELEMENT));
@@ -591,7 +588,6 @@ public class CategoryParser extends DefaultHandler {
 	}
 
 	/*
-	 *
 	 */
 	private void logStatus(SAXParseException ex) {
 		String name = ex.getSystemId();

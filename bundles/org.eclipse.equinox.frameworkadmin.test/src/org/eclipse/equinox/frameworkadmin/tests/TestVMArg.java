@@ -146,9 +146,6 @@ public class TestVMArg extends FwkAdminAndSimpleConfiguratorTest {
 	/**
 	 * But 282303: Have -vm ../jre as program arguments. See them vanish during the
 	 * save operation of the manipulator
-	 *
-	 * @throws FrameworkAdminRuntimeException
-	 * @throws IOException
 	 */
 	@Test
 	public void test282303() throws FrameworkAdminRuntimeException, IOException {

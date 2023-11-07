@@ -310,10 +310,6 @@ public class MirrorSelectorTest {
 
 	}
 
-	/**
-	 * @param originallist
-	 * @param mirrors
-	 */
 	private void assertList(List<MirrorInfo> originallist, MirrorInfo[] mirrors) {
 		assertEquals("length", originallist.size(), mirrors.length);
 		for (int i = 0; i < originallist.size(); i++) {

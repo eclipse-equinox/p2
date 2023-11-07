@@ -19,7 +19,6 @@ import java.util.Properties;
 
 /**
  * @author aniefer@ca.ibm.com
- *
  */
 public interface IProcessStep {
 
@@ -27,15 +26,12 @@ public interface IProcessStep {
 	 * The effect of this processing step if the JarProcessor was to recurse on this entry.
 	 * Return null if this step will not do anything with this entry.
 	 * Return the new entryName if this step will modify this entry on recursion.
-	 * @param entryName
 	 * @return The new entry name, or <code>null</code>
 	 */
 	public String recursionEffect(String entryName);
 
 	/**
 	 * Perform some processing on the input file before the JarProcessor considers the entries for recursion.
-	 * @param input
-	 * @param workingDirectory
 	 * @param containers inf properties for containing jars, innermost jar is first on the list
 	 * @return the file containing the result of the processing
 	 */
@@ -44,8 +40,6 @@ public interface IProcessStep {
 	/**
 	 * Perform some processing on the input file after the JarProcessor returns from recursion.
 	 *
-	 * @param input
-	 * @param workingDirectory
 	 * @param containers inf properties for containing jars, innermost jar is first on the list
 	 * @return the file containing the result of the processing
 	 */
@@ -59,8 +53,6 @@ public interface IProcessStep {
 
 	/**
 	 * Adjust any properties in the eclipse.inf as appropriate for this step
-	 * @param input
-	 * @param inf
 	 * @param containers inf properties for containing jars, innermost jar is first on the list
 	 * @return <code>true</code> if the properties file was adjusted, and false othewise
 	 */

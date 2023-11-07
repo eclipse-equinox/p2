@@ -29,7 +29,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * Generic element that represents a provisioning element in a viewer.
  *
  * @since 3.4
- *
  */
 public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 
@@ -83,7 +82,6 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 	 *
 	 * @param object the object whose image id is requested
 	 * @return the string id of the image in the provisioning image registry
-	 *
 	 */
 	public Image getImage(Object object) {
 		String id = getImageId(object);

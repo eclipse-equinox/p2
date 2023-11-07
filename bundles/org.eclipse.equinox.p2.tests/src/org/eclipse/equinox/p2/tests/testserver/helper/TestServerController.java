@@ -108,7 +108,6 @@ public class TestServerController {
 
 	/**
 	 * Used by tests in the suite to enable that they run individually
-	 * @throws Exception
 	 */
 	public static synchronized void checkSetUp() throws Exception {
 		if (setUpCounter == 0) {
@@ -120,7 +119,6 @@ public class TestServerController {
 
 	/**
 	 * Used by tests in the suite to enable that they run individually
-	 * @throws Exception
 	 */
 	public static synchronized void checkTearDown() throws Exception {
 		setUpCounter--;

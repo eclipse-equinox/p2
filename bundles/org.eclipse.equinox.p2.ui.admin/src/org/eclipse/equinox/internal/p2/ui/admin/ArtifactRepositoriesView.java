@@ -29,9 +29,6 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 
 	private RepositoryTracker tracker;
 
-	/**
-	 * 
-	 */
 	public ArtifactRepositoriesView() {
 		// constructor
 	}

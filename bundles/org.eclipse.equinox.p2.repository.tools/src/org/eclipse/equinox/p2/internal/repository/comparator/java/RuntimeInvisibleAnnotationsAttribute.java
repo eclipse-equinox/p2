@@ -21,10 +21,6 @@ public class RuntimeInvisibleAnnotationsAttribute extends ClassFileAttribute {
 
 	/**
 	 * Constructor for RuntimeInvisibleAnnotations.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public RuntimeInvisibleAnnotationsAttribute(byte[] classFileBytes, ConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);

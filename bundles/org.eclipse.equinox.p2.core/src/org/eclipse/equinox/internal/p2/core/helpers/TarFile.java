@@ -29,10 +29,6 @@ public class TarFile implements Closeable {
 
 	/**
 	 * Create a new TarFile for the given file.
-	 *
-	 * @param file
-	 * @throws TarException
-	 * @throws IOException
 	 */
 	public TarFile(File file) throws TarException, IOException {
 		this.file = file;
@@ -86,10 +82,7 @@ public class TarFile implements Closeable {
 	/**
 	 * Returns a new InputStream for the given file in the tar archive.
 	 *
-	 * @param entry
 	 * @return an input stream for the given file
-	 * @throws TarException
-	 * @throws IOException
 	 */
 	public InputStream getInputStream(TarEntry entry) throws TarException, IOException {
 		if (entryStream == null || !entryStream.skipToEntry(entry)) {

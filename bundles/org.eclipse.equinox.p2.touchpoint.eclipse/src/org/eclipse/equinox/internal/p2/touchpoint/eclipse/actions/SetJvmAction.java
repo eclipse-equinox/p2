@@ -29,7 +29,6 @@ import org.eclipse.osgi.util.NLS;
 /**
  * Touchpoint action which allows the user to set the -vm parameter in the
  * eclipse.ini file.
- *
  */
 public class SetJvmAction extends ProvisioningAction {
 	public static final String ID = "setJvm"; //$NON-NLS-1$

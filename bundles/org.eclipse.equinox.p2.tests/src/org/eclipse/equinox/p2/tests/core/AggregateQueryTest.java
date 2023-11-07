@@ -31,7 +31,6 @@ import org.junit.Test;
 
 /**
  * This tests both Compound and Composite queries
- *
  */
 public class AggregateQueryTest {
 

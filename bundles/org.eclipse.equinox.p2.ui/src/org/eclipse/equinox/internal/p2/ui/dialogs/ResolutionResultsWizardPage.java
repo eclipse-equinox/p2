@@ -43,7 +43,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * operation.  It allows drill down into the elements that will be installed.
  *
  * @since 3.4
- *
  */
 public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
@@ -272,7 +271,6 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	 * @see ProvisioningJob#RESTART_NONE
 	 * @see ProvisioningJob#RESTART_ONLY
 	 * @see ProvisioningJob#RESTART_OR_APPLY
-	 *
 	 */
 	protected int getRestartPolicy() {
 		return ProvisioningJob.RESTART_OR_APPLY;

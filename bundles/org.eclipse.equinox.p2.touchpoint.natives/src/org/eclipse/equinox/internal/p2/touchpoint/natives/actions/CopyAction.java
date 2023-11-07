@@ -31,7 +31,6 @@ import org.eclipse.osgi.util.NLS;
  * existing file with the same name is an error. The default is false. If the
  * source is a directory, a merge copy to the target is performed. Copy will
  * copy files and directories (recursively).
- * 
  */
 public class CopyAction extends ProvisioningAction {
 	public static final String ID = "cp"; //$NON-NLS-1$
@@ -107,11 +106,6 @@ public class CopyAction extends ProvisioningAction {
 
 	/**
 	 * Merge-copy file or directory.
-	 * 
-	 * @param source
-	 * @param target
-	 * @param overwrite
-	 * @throws IOException
 	 */
 	private static File[] mergeCopy(File source, File target, boolean overwrite, IBackupStore backupStore)
 			throws IOException {
@@ -124,10 +118,6 @@ public class CopyAction extends ProvisioningAction {
 	 * Merge-copy file or directory.
 	 * 
 	 * @param copiedFiles - ArrayList where copied files are collected
-	 * @param source
-	 * @param target
-	 * @param overwrite
-	 * @throws IOException
 	 */
 	private static void xcopy(ArrayList<File> copiedFiles, File source, File target, boolean overwrite,
 			IBackupStore backupStore) throws IOException {

@@ -29,7 +29,6 @@ import org.eclipse.swt.widgets.*;
 
 /**
  * Based on {@link org.eclipse.ui.internal.progress.DetailedProgressViewer}.
- * 
  */
 @SuppressWarnings("restriction")
 public abstract class ControlListViewer extends StructuredViewer {
@@ -44,9 +43,6 @@ public abstract class ControlListViewer extends StructuredViewer {
 
 	/**
 	 * Create a new instance of the receiver with a control that is a child of parent with style style.
-	 * 
-	 * @param parent
-	 * @param style
 	 */
 	public ControlListViewer(Composite parent, int style) {
 		scrolled = new ScrolledComposite(parent, style | SWT.VERTICAL);
@@ -237,7 +233,6 @@ public abstract class ControlListViewer extends StructuredViewer {
 	/**
 	 * Create a new item for info.
 	 * 
-	 * @param element
 	 * @return ControlListItem
 	 */
 	private ControlListItem<?> createNewItem(Object element) {

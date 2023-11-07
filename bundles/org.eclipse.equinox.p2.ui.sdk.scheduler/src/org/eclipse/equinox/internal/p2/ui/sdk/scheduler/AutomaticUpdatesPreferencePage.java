@@ -36,7 +36,6 @@ import org.eclipse.ui.*;
  * Preference page for automated updates.
  * 
  * @since 3.4
- * 
  */
 public class AutomaticUpdatesPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 

@@ -24,7 +24,6 @@ import org.junit.Test;
  *
  * Aprox 10000 instances are created.
  * Comparison compares all instances against all other (i.e. about 10 milj).
- *
  */
 public class PerformanceTest {
 	static final int MUL = 24;

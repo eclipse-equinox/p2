@@ -285,7 +285,6 @@ public class FileUtils {
 	 * @param source - the file or folder to zip
 	 * @param exclusions - set of files or folders to exclude
 	 * @param pathComputer - computer used to create the path of the files in the result.
-	 * @throws IOException
 	 */
 	public static void zip(ZipOutputStream output, File source, Set<File> exclusions, IPathComputer pathComputer) throws IOException {
 		zip(output, source, exclusions, pathComputer, new HashSet<>());

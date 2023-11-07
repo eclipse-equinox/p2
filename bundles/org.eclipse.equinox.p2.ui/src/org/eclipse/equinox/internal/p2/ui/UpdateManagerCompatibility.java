@@ -38,7 +38,6 @@ import org.xml.sax.SAXException;
  * Utility methods involving compatibility with the Eclipse Update Manager.
  *
  * @since 3.4
- *
  */
 public class UpdateManagerCompatibility {
 

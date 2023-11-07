@@ -139,7 +139,6 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 	 * @param stream the stream
 	 * @return <code>true</code> if the stream supports mark/reset and has the two
 	 *         magic bytes PK at its current position
-	 * @throws IOException
 	 */
 	private static boolean hasZipMagicHeader(InputStream stream) throws IOException {
 		if (stream.markSupported()) {

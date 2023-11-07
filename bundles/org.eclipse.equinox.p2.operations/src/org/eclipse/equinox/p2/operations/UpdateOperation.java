@@ -322,7 +322,6 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 * Overridden because our resolution job life cycle is different.  We have a job
 	 * before we've computed the profile change request, so we must ensure that we
 	 * have already computed the profile change request.
-	 *
 	 */
 	@Override
 	public boolean hasResolved() {

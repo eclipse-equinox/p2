@@ -23,7 +23,6 @@ import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
  * errors on a wizard page.
  *
  * @since 3.5
- *
  */
 public interface IResolutionErrorReportingPage extends ISelectableIUsPage {
 	public void updateStatus(IUElementListRoot root, ProfileChangeOperation operation);

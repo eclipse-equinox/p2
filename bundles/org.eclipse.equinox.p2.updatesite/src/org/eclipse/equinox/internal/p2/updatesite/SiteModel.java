@@ -332,7 +332,6 @@ public class SiteModel {
 
 	/**
 	 * Returns the URI from which the list of mirrors of this site can be retrieved.
-	 * 
 	 */
 	public String getMirrorsURI() {
 		return mirrorsURIString;

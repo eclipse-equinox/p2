@@ -213,7 +213,6 @@ public class Mirroring {
 	 * Callers should verify the ProvisionException was thrown due to the artifact
 	 * existing in the destination before invoking this method.
 	 *
-	 * @param descriptor
 	 * @return the status of the compare
 	 */
 	private IStatus compareToDestination(IArtifactDescriptor descriptor) {

@@ -53,7 +53,6 @@ public class FeatureRootAdvice extends AbstractAdvice implements IFeatureRootAdv
 	/**
 	 * Return the GatheringComputer containing the set of rootfiles to include for the given config
 	 * Returns null if we have no advice for the given config.
-	 * @param config
 	 * @return GatheringComputer
 	 */
 	@Override

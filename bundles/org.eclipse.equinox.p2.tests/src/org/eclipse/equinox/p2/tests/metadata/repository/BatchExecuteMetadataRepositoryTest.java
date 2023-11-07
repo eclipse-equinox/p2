@@ -211,11 +211,6 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 	class FailingSimpleMetadataRepository extends LocalMetadataRepository {
 		boolean executeBatch = false;
 
-		/**
-		 * @param repositoryName
-		 * @param location
-		 * @param properties
-		 */
 		public FailingSimpleMetadataRepository() {
 			super(getAgent());
 		}
@@ -273,11 +268,6 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 		boolean executeBatch = false;
 		public boolean didSave = false;
 
-		/**
-		 * @param repositoryName
-		 * @param location
-		 * @param properties
-		 */
 		public TrackSavignSimpleMetadataRepository() {
 			super(getAgent());
 		}

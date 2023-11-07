@@ -200,8 +200,6 @@ public class SimplePlanner implements IPlanner {
 	 * TODO Find a way to emit INFO status. The issue is that all
 	 * {@link IStatus#isOK()} calls will fail.
 	 *
-	 * @param requestChanges
-	 * @param requestSideEffects
 	 * @return the {@link IStatus}
 	 */
 	private static IStatus convertChangesToStatus(Map<IInstallableUnit, RequestStatus> requestChanges,

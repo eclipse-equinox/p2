@@ -59,7 +59,6 @@ public interface SimpleConfiguratorManipulator {
 	 * @param bundleInfoPath - pass null or a path to the bundle info file to read, relative to the configuration location.  Pass {@link #SOURCE_INFO}
 	 * to load the default source configuration.  Common locations are {@link #BUNDLES_INFO_PATH} and {@link #SOURCE_INFO_PATH}.
 	 * @return The loaded configuration.  Bundles will have at least symbolic name, version and location information.
-	 * @throws IOException
 	 */
 	public BundleInfo[] loadConfiguration(BundleContext context, String bundleInfoPath) throws IOException;
 
@@ -70,7 +69,6 @@ public interface SimpleConfiguratorManipulator {
 	 * @param configuration - the input stream to read the configuration from.  The stream will be closed even if an exception is thrown
 	 * @param installArea - Relative URIs from the configuration file will be resolved relative to here
 	 * @return The loaded configuration.   Bundles will have at least symbolic name, version and location information.
-	 * @throws IOException
 	 */
 	public BundleInfo[] loadConfiguration(InputStream configuration, URI installArea) throws IOException;
 
@@ -82,7 +80,6 @@ public interface SimpleConfiguratorManipulator {
 	 * @param configuration - bundle information to save
 	 * @param outputStream - the output stream to write to.  Stream is not closed
 	 * @param installArea - bundle locations are written as relative to this URI
-	 * @throws IOException
 	 */
 	public void saveConfiguration(BundleInfo[] configuration, OutputStream outputStream, URI installArea) throws IOException;
 
@@ -93,8 +90,6 @@ public interface SimpleConfiguratorManipulator {
 	 * @param configuration - bundle information to save
 	 * @param configurationFile - file to save the configuration in
 	 * @param installArea - bundle locations are written as relative to this URI
-	 *
-	 * @throws IOException
 	 */
 	public void saveConfiguration(BundleInfo[] configuration, File configurationFile, URI installArea) throws IOException;
 }

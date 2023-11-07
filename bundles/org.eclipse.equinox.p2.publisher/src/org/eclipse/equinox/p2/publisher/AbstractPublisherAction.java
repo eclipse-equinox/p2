@@ -555,7 +555,6 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @param exclusions     and folders to be excluded in the zip. files can be
 	 *                       null.
 	 * @param publisherInfo  the publisher info.
-	 * @param prefixComputer
 	 */
 	protected void publishArtifact(IArtifactDescriptor descriptor, File[] inclusions, File[] exclusions,
 			IPublisherInfo publisherInfo, IPathComputer prefixComputer) {
@@ -629,7 +628,6 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * Loop over the known metadata repositories looking for the given IU within a
 	 * particular range
 	 *
-	 * @param publisherResult
 	 * @param iuId            the id of the IU to look for
 	 * @param versionRange    the version range to consider
 	 * @return The the IUs with the matching ids in the given range

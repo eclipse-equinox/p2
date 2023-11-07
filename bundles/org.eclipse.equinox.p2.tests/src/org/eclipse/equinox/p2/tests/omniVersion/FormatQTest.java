@@ -29,7 +29,6 @@ import org.junit.Test;
  * {}, [], <>) which are handled as pairs, thus 'q' matches "<andrea-doria>" and
  * produces a single string segment with the text 'andrea-doria'. A non-quoted
  * sequence of characters are not matched by 'q'.
- *
  */
 public class FormatQTest {
 	@Test

@@ -27,7 +27,6 @@ import org.eclipse.jface.viewers.Viewer;
  * query mechanisms.
  *
  * @since 3.4
- *
  */
 public class DeferredQueryContentProvider extends ProvElementContentProvider {
 
@@ -40,9 +39,6 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 	boolean synchronous = false;
 	IDeferredQueryTreeListener onFetchingActionListener;
 
-	/**
-	 *
-	 */
 	public DeferredQueryContentProvider() {
 		// Default constructor
 	}

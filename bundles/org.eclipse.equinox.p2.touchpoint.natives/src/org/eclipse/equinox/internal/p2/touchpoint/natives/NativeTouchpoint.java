@@ -270,7 +270,6 @@ public class NativeTouchpoint extends Touchpoint {
 	 * Gets the transactional state associated with a profile. A transactional state
 	 * is created if it did not exist.
 	 * 
-	 * @param profile
 	 * @return a lazily initialized backup store
 	 */
 	private static synchronized IBackupStore getBackupStore(IProfile profile) {

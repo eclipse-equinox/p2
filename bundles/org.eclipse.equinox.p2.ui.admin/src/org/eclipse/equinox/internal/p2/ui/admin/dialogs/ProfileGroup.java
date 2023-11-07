@@ -35,7 +35,6 @@ import org.eclipse.swt.widgets.*;
  * or define profiles.
  * 
  * @since 3.4
- * 
  */
 public class ProfileGroup {
 

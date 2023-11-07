@@ -31,9 +31,6 @@ public class GatherBundleAction extends BundlesAction {
 	private File manifestRoot = null;
 	private File bundleLocation = null;
 
-	/**
-	 * @param location
-	 */
 	public GatherBundleAction(File location, File manifestRoot) {
 		super(new File[] {location});
 		this.manifestRoot = manifestRoot;

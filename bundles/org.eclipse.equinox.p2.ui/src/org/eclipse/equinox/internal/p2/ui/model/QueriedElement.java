@@ -28,7 +28,6 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  * query.
  *
  * @since 3.4
- *
  */
 public abstract class QueriedElement extends ProvElement {
 

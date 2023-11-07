@@ -27,7 +27,6 @@ import org.eclipse.ui.progress.*;
  * Content provider that retrieves children of a ProvElement.
  *
  * @since 3.5
- *
  */
 public class ProvElementContentProvider implements ITreeContentProvider {
 
@@ -37,9 +36,6 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 	// family is used by test cases
 	Object fetchFamily = new Object();
 
-	/**
-	 *
-	 */
 	public ProvElementContentProvider() {
 		// Default constructor
 	}

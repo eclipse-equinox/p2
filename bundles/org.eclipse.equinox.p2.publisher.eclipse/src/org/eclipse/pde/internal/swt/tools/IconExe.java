@@ -1228,7 +1228,6 @@ public class IconExe {
 		 * the background pixel for the logical screen (this 
 		 * corresponds to the GIF89a Background Color Index value).
 		 * The default is -1 which means 'unspecified background'
-		 * 
 		 */
 		public int backgroundPixel;
 

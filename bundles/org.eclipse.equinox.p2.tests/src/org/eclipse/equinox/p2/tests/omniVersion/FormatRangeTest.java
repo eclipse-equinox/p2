@@ -23,7 +23,6 @@ import org.junit.Test;
 
 /**
  * Tests ranges using format(xxx) version strings.
- *
  */
 public class FormatRangeTest extends VersionTesting {
 	public static String OSGI_PREFIX = "format(n[.n=0;[.n=0;[.S=[A-Za-z0-9_-];]]]):";

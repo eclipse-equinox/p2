@@ -143,7 +143,6 @@ public class RootFilesAction extends AbstractPublisherAction {
 	/**
 	 * Compiles the <class>IRootFilesAdvice</class> from the <code>info</code> into one <class>IRootFilesAdvice</class> 
 	 * and returns the result.
-	 * @param configSpec
 	 * @return a compilation of <class>IRootfilesAdvice</class> from the <code>info</code>.
 	 */
 	private IRootFilesAdvice getAdvice(String configSpec) {
