@@ -118,7 +118,6 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	/**
 	 * Validate the operation and return true if the operation should
 	 * be performed with plan.  Report any errors to the user before returning false.
-	 * @param operation
 	 * @return a boolean indicating whether the operation should be used in a
 	 * provisioning operation.
 	 */

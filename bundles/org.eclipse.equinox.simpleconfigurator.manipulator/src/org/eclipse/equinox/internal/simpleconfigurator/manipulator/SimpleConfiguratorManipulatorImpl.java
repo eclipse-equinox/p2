@@ -58,7 +58,6 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 	 * Return the ConfiguratorConfigFile which is determined by the parameters set
 	 * in Manipulator.
 	 *
-	 * @param manipulator
 	 * @return File
 	 */
 	private static File getConfigFile(Manipulator manipulator) throws IllegalStateException {

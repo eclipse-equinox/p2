@@ -49,8 +49,6 @@ public class NTLMTest extends AbstractTestServerClientCase {
 	/**
 	 * Test that a repeated status of 477 switches to JRE Http Client once.
 	 * TODO - test is incomplete, there is no test that switch has taken place yet.
-	 * @throws ProvisionException
-	 * @throws Exception
 	 */
 	public void test477Status() throws ProvisionException, Exception {
 		setUpRepo(super.getBaseURL() + "/status/477");

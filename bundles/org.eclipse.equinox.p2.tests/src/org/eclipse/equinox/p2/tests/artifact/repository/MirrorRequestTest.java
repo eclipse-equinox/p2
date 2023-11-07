@@ -131,7 +131,6 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	 * <li><code>mirror-two</code>, which has an invalid optimized artifact and causes processing step to fail</li>
 	 * <li>original repository, which has a valid canonical artifact</li>
 	 * </ul>
-	 *
 	 */
 	public void testFailToCanonicalWithMirrors() {
 		OrderedMirrorSelector selector = new OrderedMirrorSelector(sourceRepository);

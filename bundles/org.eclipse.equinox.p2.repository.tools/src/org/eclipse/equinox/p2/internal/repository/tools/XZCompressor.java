@@ -30,7 +30,6 @@ import org.tukaani.xz.*;
  * artifacts.xml or artifacts.jar. Note that the tool does not require both the
  * a metadata repository and an artifact repository. The output will be
  * <fileName>.xml.xz, and a p2.index
- *
  */
 public class XZCompressor {
 	private static final String CONTENT_XML_XZ = "content.xml.xz"; //$NON-NLS-1$

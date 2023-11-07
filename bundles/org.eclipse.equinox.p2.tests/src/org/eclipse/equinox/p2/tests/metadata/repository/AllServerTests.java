@@ -139,7 +139,6 @@ public class AllServerTests extends TestCase {
 
 	/**
 	 * Used by tests in the suite to enable that they run individually
-	 * @throws Exception
 	 */
 	public static synchronized void checkSetUp() throws Exception {
 		if (setUpCounter == 0) {
@@ -151,7 +150,6 @@ public class AllServerTests extends TestCase {
 
 	/**
 	 * Used by tests in the suite to enable that they run individually
-	 * @throws Exception
 	 */
 	public static synchronized void checkTearDown() throws Exception {
 		setUpCounter--;

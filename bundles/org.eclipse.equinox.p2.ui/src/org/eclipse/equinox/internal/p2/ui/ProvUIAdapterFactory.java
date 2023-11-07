@@ -25,7 +25,6 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
  * Adapter factory for provisioning elements
  *
  * @since 3.4
- *
  */
 
 public class ProvUIAdapterFactory implements IAdapterFactory {

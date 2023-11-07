@@ -82,10 +82,6 @@ public abstract class ControlListItem<T> extends Composite {
 
 	/**
 	 * Create a new instance of the receiver with the specified parent, style and info object/
-	 * 
-	 * @param parent
-	 * @param style
-	 * @param element
 	 */
 	public ControlListItem(Composite parent, int style, T element) {
 		super(parent, style | SWT.NO_FOCUS);
@@ -180,8 +176,6 @@ public abstract class ControlListItem<T> extends Composite {
 
 	/**
 	 * Set the color base on the index
-	 * 
-	 * @param index
 	 */
 	public void updateColors(int index) {
 		currentIndex = index;
@@ -230,8 +224,6 @@ public abstract class ControlListItem<T> extends Composite {
 
 	/**
 	 * Set the listener for index changes.
-	 * 
-	 * @param indexListener
 	 */
 	void setIndexListener(IndexListener indexListener) {
 		this.indexListener = indexListener;
@@ -248,9 +240,6 @@ public abstract class ControlListItem<T> extends Composite {
 
 	/**
 	 * Set whether or not the receiver is being displayed based on the top and bottom of the currently visible area.
-	 * 
-	 * @param top
-	 * @param bottom
 	 */
 	void setDisplayed(int top, int bottom) {
 		int itemTop = getLocation().y;
@@ -261,8 +250,6 @@ public abstract class ControlListItem<T> extends Composite {
 
 	/**
 	 * Set whether or not the receiver is being displayed
-	 * 
-	 * @param displayed
 	 */
 	private void setDisplayed(boolean displayed) {
 		// See if this element has been turned off

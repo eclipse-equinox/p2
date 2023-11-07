@@ -134,7 +134,6 @@ public class CacheManager {
 
 	/**
 	 * Deletes the local cache file(s) for the given location
-	 * @param location
 	 */
 	void deleteCache(URI location) {
 		File cacheFile = getCache(location);

@@ -148,7 +148,6 @@ public class AbstractTestServerClientCase extends TestCase {
 	/**
 	 * Service that tries to login with the wrong password.
 	 * @author henrik
-	 *
 	 */
 	public class BadLoginService extends UIServices {
 

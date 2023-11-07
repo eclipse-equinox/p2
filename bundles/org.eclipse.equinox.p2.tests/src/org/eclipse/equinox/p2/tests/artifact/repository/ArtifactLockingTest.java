@@ -119,7 +119,6 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 	 * Creates 1 thread that does a long running execute batch. We then try to add descriptors to another
 	 * instance of the same repository. This will block.  We then cancel the progress monitor to test
 	 * that the block terminates.
-	 * @throws InterruptedException
 	 */
 	public void testCancel() throws InterruptedException {
 		final IProgressMonitor progressMonitor = new NullProgressMonitor();
@@ -215,7 +214,6 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 	/**
 	 * This tests that two 'executeBatch' operations are not executed in
 	 * parallel, but rather, the second one waits for the first to complete.
-	 * @throws InterruptedException
 	 */
 	public void testMultipleExecuteBatch() throws InterruptedException {
 		this.lockAcquired = false;
@@ -260,7 +258,6 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 
 	/**
 	 * This tests that we wait for the lock to come off, we then add a descriptor
-	 * @throws InterruptedException
 	 */
 	public void testWait() throws InterruptedException {
 

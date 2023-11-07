@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Shell;
  * Dialog that allows a metadata repository to be defined and added.
  * 
  * @since 3.4
- * 
  */
 public class AddMetadataRepositoryDialog extends AddRepositoryDialog {
 

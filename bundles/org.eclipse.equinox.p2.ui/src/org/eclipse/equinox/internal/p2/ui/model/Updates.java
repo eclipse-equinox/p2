@@ -21,7 +21,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  * Element class that represents available updates.
  *
  * @since 3.4
- *
  */
 public class Updates extends QueriedElement {
 

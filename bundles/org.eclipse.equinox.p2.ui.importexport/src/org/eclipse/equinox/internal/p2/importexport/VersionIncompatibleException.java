@@ -19,9 +19,6 @@ public class VersionIncompatibleException extends RuntimeException {
 		super(message);
 	}
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -7584242899366859010L;
 
 }

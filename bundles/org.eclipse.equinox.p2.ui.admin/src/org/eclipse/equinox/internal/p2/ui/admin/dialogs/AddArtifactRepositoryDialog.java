@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Shell;
  * Dialog that allows an artifact repository to be defined and added.
  * 
  * @since 3.4
- * 
  */
 public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 

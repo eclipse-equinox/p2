@@ -191,10 +191,6 @@ public class EquinoxFwConfigFileParser {
 
 	/**
 	 * inputFile must be not a directory but a file.
-	 *
-	 * @param manipulator
-	 * @param inputFile
-	 * @throws IOException
 	 */
 	public void readFwConfig(Manipulator manipulator, File inputFile) throws IOException, URISyntaxException {
 		if (inputFile.isDirectory())

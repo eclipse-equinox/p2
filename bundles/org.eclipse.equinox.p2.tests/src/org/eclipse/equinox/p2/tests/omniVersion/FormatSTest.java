@@ -27,7 +27,6 @@ import org.junit.Test;
  * a string group matching any character except any following explicit/optional
  * delimiter. Use processing rules =[]; or =[^] to define the set of allowed
  * characters.
- *
  */
 public class FormatSTest {
 	@Test

@@ -23,7 +23,6 @@ import org.junit.Test;
 
 /**
  * Tests format(r)
- *
  */
 public class FormatRTest {
 	@Test

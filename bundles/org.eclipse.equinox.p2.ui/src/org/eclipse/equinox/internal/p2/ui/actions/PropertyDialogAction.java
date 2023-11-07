@@ -21,7 +21,6 @@ import org.eclipse.jface.window.IShellProvider;
  * PropertyDialogAction which sets its enablement on construction.
  *
  * @since 3.4
- *
  */
 
 public class PropertyDialogAction extends org.eclipse.ui.dialogs.PropertyDialogAction {

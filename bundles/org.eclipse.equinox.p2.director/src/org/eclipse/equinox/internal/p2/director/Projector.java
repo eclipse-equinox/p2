@@ -803,7 +803,6 @@ public class Projector {
 	}
 
 	/**
-	 * @param req
 	 * @return a list of mandatory requirements if any, an empty list if req.isOptional().
 	 */
 	private List<IInstallableUnit> getApplicableMatches(IRequirement req) {

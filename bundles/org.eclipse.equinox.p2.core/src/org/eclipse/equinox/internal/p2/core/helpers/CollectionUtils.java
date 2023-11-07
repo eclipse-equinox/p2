@@ -212,7 +212,6 @@ public class CollectionUtils {
 
 	/**
 	 * Copies all elements from <code>properties</code> into a Map. The returned map might be unmodifiable
-	 * @param properties
 	 * @return The map containing all elements
 	 */
 	public static Map<String, String> toMap(Properties properties) {
@@ -226,8 +225,6 @@ public class CollectionUtils {
 
 	/**
 	 * Copies all elements from <code>properties</code> into the given <code>result</code>.
-	 * @param properties
-	 * @param result
 	 */
 	public static void putAll(Properties properties, Map<String, String> result) {
 		for (Enumeration<Object> keys = properties.keys(); keys.hasMoreElements();) {
@@ -241,7 +238,6 @@ public class CollectionUtils {
 	 * @param properties The properties to store
 	 * @param stream The stream to store to
 	 * @param comment The comment to use
-	 * @throws IOException
 	 */
 	public static void storeProperties(Map<String, String> properties, OutputStream stream, String comment) throws IOException {
 		Properties props = new Properties();

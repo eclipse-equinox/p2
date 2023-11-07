@@ -74,9 +74,6 @@ public class Main {
 		return options;
 	}
 
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		JarProcessorExecutor.Options options = processArguments(args);
 		if (options == null)

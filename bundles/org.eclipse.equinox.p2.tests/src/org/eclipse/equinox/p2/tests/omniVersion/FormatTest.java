@@ -22,7 +22,6 @@ import org.junit.Test;
 
 /**
  * Test of format() performing tests not covered by tests per rule.
- *
  */
 public class FormatTest {
 

@@ -20,7 +20,6 @@ import org.eclipse.swt.widgets.Text;
 
 /**
  * @since 3.4
- *
  */
 public class TextURLDropAdapter extends URLDropAdapter {
 

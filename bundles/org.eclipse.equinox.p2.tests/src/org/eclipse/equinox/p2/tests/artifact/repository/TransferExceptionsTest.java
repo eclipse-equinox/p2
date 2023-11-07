@@ -22,7 +22,6 @@ import org.osgi.framework.BundleException;
 
 /**
  * Test supposed to be used interactively to monitor the error message output.
- *
  */
 public class TransferExceptionsTest extends AbstractProvisioningTest {
 

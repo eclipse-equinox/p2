@@ -256,7 +256,6 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * Set a boolean indicating whether a bold font should be used when
 	 * showing filtered items.  This method does not refresh the tree or
 	 * labels, so that must be done explicitly by the caller.
-	 * @param useBoldFont
 	 */
 	public void setUseBoldFontForFilteredItems(boolean useBoldFont) {
 		if (labelProvider != null)
@@ -446,7 +445,6 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * Set the checked elements to the specified selections.  This method
 	 * does not force visibility/expansion of the checked elements.  If they are not
 	 * visible, they will not be checked.
-	 * @param selections
 	 */
 	public void setChecked(Object[] selections) {
 		filteredTree.getCheckboxTreeViewer().setCheckedElements(selections);

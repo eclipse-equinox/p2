@@ -24,7 +24,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  * An abstract base class for the Analyzer.  Clients are encouraged to extends this 
  * class when defining IU Analysis extension points.
  * @since 2.0
- * 
  */
 public abstract class IUAnalyzer implements IIUAnalyzer {
 

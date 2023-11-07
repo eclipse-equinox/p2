@@ -43,9 +43,6 @@ public class SlicingOption extends Task {
 		options.includeOptionalDependencies(optional);
 	}
 
-	/**
-	 * 
-	 */
 	public void setPlatformFilter(String platformFilter) {
 		if (platformFilter == null || platformFilter.trim().equals("")) //$NON-NLS-1$
 			return;

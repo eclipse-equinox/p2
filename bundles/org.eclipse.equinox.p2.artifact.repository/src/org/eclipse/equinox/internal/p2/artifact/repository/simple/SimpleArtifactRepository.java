@@ -1581,8 +1581,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * Loads the repository from disk. This method will do nothing
 	 * if this instance of SimpleArtifactRepository holds the lock
 	 * because it will have loaded the repo when it acquired the lock.
-	 *
-	 * @param monitor
 	 */
 	private void load(IProgressMonitor monitor) {
 		monitor = IProgressMonitor.nullSafe(monitor);
@@ -1610,8 +1608,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * Loads the repository from disk. If the last modified timestamp on the file <=
 	 * to our cache, then this method does nothing.  Otherwise the artifact repository
 	 * on disk is loaded, and reconciled with this instance of the artifact repository.
-	 *
-	 * @param monitor
 	 */
 	private void doLoad(IProgressMonitor monitor) {
 		monitor = IProgressMonitor.nullSafe(monitor);

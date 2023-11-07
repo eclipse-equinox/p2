@@ -27,7 +27,6 @@ import org.eclipse.osgi.util.NLS;
  *
  * The class is not intended to included in a public API. Instead VersionFormats should
  * be created using {@link VersionFormat#parse(String)}
- *
  */
 class VersionFormatParser {
 

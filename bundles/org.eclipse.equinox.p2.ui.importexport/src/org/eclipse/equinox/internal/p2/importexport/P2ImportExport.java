@@ -23,9 +23,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 public interface P2ImportExport {
 	/**
 	 * 
-	 * @param input
 	 * @return iu listed in the file
-	 * @throws IOException
 	 * @throws VersionIncompatibleException if the given file version is not supported
 	 */
 	List<IUDetail> importP2F(InputStream input) throws IOException;

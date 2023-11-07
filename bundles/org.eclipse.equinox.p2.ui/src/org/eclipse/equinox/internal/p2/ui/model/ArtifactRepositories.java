@@ -22,7 +22,6 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  * the content provider.
  *
  * @since 3.4
- *
  */
 public class ArtifactRepositories extends RootElement {
 

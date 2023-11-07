@@ -32,8 +32,6 @@ public class IUComparator extends ViewerComparator {
 	/**
 	 * Use the specified column config to determine whether the id should be used in
 	 * lieu of an empty name when sorting.
-	 *
-	 * @param columnConfigs
 	 */
 	public void useColumnConfig(IUColumnConfig[] columnConfigs) {
 		for (IUColumnConfig columnConfig : columnConfigs) {

@@ -22,7 +22,6 @@ public class ServiceHelper {
 	 * that <b>immediately</b> ungets the service reference.  This results in a window where the
 	 * system thinks the service is not in use but indeed the caller is about to use the returned
 	 * service object.
-	 * @param context
 	 * @param clazz the service class
 	 * @return The requested service
 	 */
@@ -59,8 +58,6 @@ public class ServiceHelper {
 	 * that <b>immediately</b> ungets the service reference.  This results in a window where the
 	 * system thinks the service is not in use but indeed the caller is about to use the returned
 	 * service object.
-	 * @param context
-	 * @param name
 	 * @return The requested service
 	 */
 	public static Object getService(BundleContext context, String name) {

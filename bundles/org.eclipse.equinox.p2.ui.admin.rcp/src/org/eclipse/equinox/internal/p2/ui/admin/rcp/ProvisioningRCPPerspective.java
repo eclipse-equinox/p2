@@ -19,7 +19,6 @@ import org.eclipse.ui.*;
  * Perspective which makes the standard provisioning views available.
  * 
  * @since 3.4
- * 
  */
 public class ProvisioningRCPPerspective implements IPerspectiveFactory {
 

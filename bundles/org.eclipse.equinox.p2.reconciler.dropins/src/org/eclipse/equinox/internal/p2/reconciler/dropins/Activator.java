@@ -65,9 +65,6 @@ public class Activator implements BundleActivator {
 	 * If one already exists at that location then an exception will be thrown.
 	 *
 	 * This method never returns <code>null</code>.
-	 *
-	 * @throws IllegalStateException
-	 * @throws ProvisionException
 	 */
 	public static IMetadataRepository createExtensionLocationMetadataRepository(URI location, String name, Map<String, String> properties) throws ProvisionException {
 		IProvisioningAgent agent = getAgent();
@@ -94,9 +91,6 @@ public class Activator implements BundleActivator {
 
 	/**
 	 * Helper method to load an extension location metadata repository from the given URL.
-	 *
-	 * @throws IllegalStateException
-	 * @throws ProvisionException
 	 */
 	public static IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		return (IMetadataRepository) loadRepository(IMetadataRepositoryManager.class, location, monitor);
@@ -107,9 +101,6 @@ public class Activator implements BundleActivator {
 	 * If one already exists at that location then an exception will be thrown.
 	 *
 	 * This method never returns <code>null</code>.
-	 *
-	 * @throws IllegalStateException
-	 * @throws ProvisionException
 	 */
 	public static IArtifactRepository createExtensionLocationArtifactRepository(URI location, String name, Map<String, String> properties) throws ProvisionException {
 		IProvisioningAgent agent = getAgent();
@@ -132,9 +123,6 @@ public class Activator implements BundleActivator {
 
 	/**
 	 * Helper method to load an extension location metadata repository from the given URL.
-	 *
-	 * @throws IllegalStateException
-	 * @throws ProvisionException
 	 */
 	public static IArtifactRepository loadArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		return (IArtifactRepository) loadRepository(IArtifactRepositoryManager.class, location, monitor);

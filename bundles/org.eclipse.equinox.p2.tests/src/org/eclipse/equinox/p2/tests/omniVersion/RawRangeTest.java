@@ -23,7 +23,6 @@ import org.junit.Test;
 
 /**
  * Tests version ranges specified using raw.
- *
  */
 public class RawRangeTest extends VersionTesting {
 	@Test

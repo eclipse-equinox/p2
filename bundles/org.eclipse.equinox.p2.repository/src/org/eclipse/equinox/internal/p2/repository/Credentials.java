@@ -322,7 +322,6 @@ public class Credentials {
 
 	/**
 	 * Remember the fact that the host was canceled.
-	 * @param host
 	 */
 	private static void rememberCancel(String host) {
 		Map<String, HostEntry> r = getRemembered();
@@ -333,8 +332,6 @@ public class Credentials {
 	/**
 	 * Throws LoginCancledException if the host was previously canceled, and the information
 	 * is not stale.
-	 * @param host
-	 * @throws LoginCanceledException
 	 */
 	private static void checkRememberedCancel(String host) throws LoginCanceledException {
 		Map<String, HostEntry> r = getRemembered();
@@ -356,7 +353,6 @@ public class Credentials {
 	/**
 	 * Increments the prompt count for host. If information is stale, the count is restarted
 	 * at 1.
-	 * @param host
 	 */
 	private static void incrementPromptCount(String host) {
 		Map<String, HostEntry> r = getRemembered();
@@ -374,7 +370,6 @@ public class Credentials {
 
 	/**
 	 * Returns prompt count for host, except if information is stale in which case 0 is returned.
-	 * @param host
 	 * @return number of time prompt has been performed for a host (or 0 if information is stale)
 	 */
 	private static int getPromptCount(String host) {
@@ -470,7 +465,6 @@ public class Credentials {
 
 	/**
 	 * Get default "InternalError" ProvisionException.
-	 * @param t
 	 * @return a default "InternalError"
 	 */
 	public static ProvisionException internalError(Throwable t) {

@@ -25,7 +25,6 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  * the children.
  *
  * @since 3.4
- *
  */
 public class MetadataRepositories extends RootElement {
 

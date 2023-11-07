@@ -28,7 +28,6 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
 /**
  * @since 3.5
- *
  */
 public class ElementUtilsTest extends ProfileModificationActionTest {
 

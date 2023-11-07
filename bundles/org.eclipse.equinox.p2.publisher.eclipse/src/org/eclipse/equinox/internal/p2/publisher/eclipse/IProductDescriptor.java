@@ -29,7 +29,6 @@ import org.eclipse.equinox.p2.repository.IRepositoryReference;
  * 
  * If getLocation returns null, then config.ini and p2 advice files cannot
  * be used (since these are both relative to the product location).
- *
  */
 public interface IProductDescriptor {
 

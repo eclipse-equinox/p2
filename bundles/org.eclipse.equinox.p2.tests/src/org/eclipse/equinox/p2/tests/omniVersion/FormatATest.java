@@ -27,7 +27,6 @@ import org.junit.Test;
 
 /**
  * Tests the format(a) rule.
- *
  */
 public class FormatATest {
 	@Test

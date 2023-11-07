@@ -104,8 +104,6 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
 	/**
 	 * Update element after a checkstate change.
-	 *
-	 * @param element
 	 */
 	protected void doCheckStateChanged(Object element) {
 		Widget item = findItem(element);
@@ -231,9 +229,6 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
 	/**
 	 * Recursively add the filtered children of element to the result.
-	 *
-	 * @param element
-	 * @param result
 	 */
 	private void collectChildren(Object element, ArrayList<Object> result) {
 		Object[] filteredChildren = getFilteredChildren(element);

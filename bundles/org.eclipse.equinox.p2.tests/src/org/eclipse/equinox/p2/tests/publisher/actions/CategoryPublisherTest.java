@@ -21,9 +21,6 @@ import org.eclipse.equinox.internal.p2.updatesite.CategoryPublisherApplication;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherApplication;
 import org.eclipse.equinox.p2.tests.*;
 
-/**
- *
- */
 public class CategoryPublisherTest extends AbstractProvisioningTest {
 
 	/**

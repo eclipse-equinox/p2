@@ -20,10 +20,6 @@ public class SourceFileAttribute extends ClassFileAttribute {
 
 	/**
 	 * Constructor for SourceFileAttribute.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public SourceFileAttribute(byte[] classFileBytes, ConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);

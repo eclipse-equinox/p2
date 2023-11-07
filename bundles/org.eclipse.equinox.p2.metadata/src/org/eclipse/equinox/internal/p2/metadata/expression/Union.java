@@ -17,8 +17,6 @@ import java.util.Iterator;
 import java.util.Set;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 
-/**
- */
 final class Union extends Binary {
 	Union(Expression operand, Expression param) {
 		super(operand, param);

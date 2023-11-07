@@ -24,12 +24,9 @@ import org.eclipse.swt.widgets.Control;
 
 /**
  * @since 3.4
- *
  */
 public abstract class RefreshAction extends ProvisioningAction {
 
-	/**
-	 */
 	public RefreshAction(ProvisioningUI ui, ISelectionProvider selectionProvider, Control control) {
 		super(ui, ProvUIMessages.RefreshAction_Label, selectionProvider);
 		setToolTipText(ProvUIMessages.RefreshAction_Tooltip);

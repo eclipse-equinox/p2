@@ -25,11 +25,6 @@ public class Annotation extends ClassFileStruct {
 
 	/**
 	 * Constructor for Annotation.
-	 *
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public Annotation(byte[] classFileBytes, ConstantPool constantPool, int offset) throws ClassFormatException {
 

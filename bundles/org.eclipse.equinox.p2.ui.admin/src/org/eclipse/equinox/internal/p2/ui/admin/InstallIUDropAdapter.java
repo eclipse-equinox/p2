@@ -29,7 +29,6 @@ import org.eclipse.swt.dnd.*;
  * profile.
  * 
  * @since 3.4
- * 
  */
 public class InstallIUDropAdapter extends ViewerDropAdapter {
 

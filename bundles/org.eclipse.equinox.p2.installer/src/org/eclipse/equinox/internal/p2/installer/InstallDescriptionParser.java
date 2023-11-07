@@ -161,8 +161,6 @@ public class InstallDescriptionParser {
 	 * Add all of the given properties to profile properties of the given description 
 	 * after removing the keys known to be for the installer.  This allows install descriptions 
 	 * to also set random profile properties.
-	 * @param description
-	 * @param properties
 	 */
 	private static void initializeProfileProperties(InstallDescription description, Map<String, String> properties) {
 		//any remaining properties are profile properties

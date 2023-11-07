@@ -83,10 +83,7 @@ public class UpdateSite {
 	/**
 	 * Loads and returns a category file
 	 * 
-	 * @param location
-	 * @param monitor
 	 * @return A CategoryFile
-	 * @throws ProvisionException
 	 */
 	public static synchronized UpdateSite loadCategoryFile(URI location, Transport transport, IProgressMonitor monitor)
 			throws ProvisionException {

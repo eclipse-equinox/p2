@@ -22,7 +22,6 @@ import java.util.EventListener;
  * capabilities of the viewer.
  *
  * @since 3.4
- *
  */
 public interface IDeferredQueryTreeListener extends EventListener {
 

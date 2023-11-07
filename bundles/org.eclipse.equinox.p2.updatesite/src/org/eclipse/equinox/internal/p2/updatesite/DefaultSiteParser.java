@@ -97,7 +97,6 @@ public class DefaultSiteParser extends DefaultHandler {
 	private final URI siteLocation;
 
 	/*
-	 * 
 	 */
 	private static void debug(String s) {
 		Tracing.debug("DefaultSiteParser: " + s); //$NON-NLS-1$
@@ -563,14 +562,12 @@ public class DefaultSiteParser extends DefaultHandler {
 	}
 
 	/*
-	 * 
 	 */
 	private void internalError(String message) {
 		error(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.OK, message, null));
 	}
 
 	/*
-	 * 
 	 */
 	private void internalErrorUnknownTag(String msg) {
 		stateStack.push(Integer.valueOf(STATE_IGNORED_ELEMENT));
@@ -585,7 +582,6 @@ public class DefaultSiteParser extends DefaultHandler {
 	}
 
 	/*
-	 * 
 	 */
 	private void logStatus(SAXParseException ex) {
 		String name = ex.getSystemId();

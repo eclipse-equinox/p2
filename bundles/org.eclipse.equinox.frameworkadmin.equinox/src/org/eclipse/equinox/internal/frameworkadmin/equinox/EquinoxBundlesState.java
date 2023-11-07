@@ -51,8 +51,6 @@ public class EquinoxBundlesState implements BundlesState {
 	 * eclipse.exe will launch a fw where plugins/org.eclipse.osgi_*.*.*.*.jar is an
 	 * implementation of fw.
 	 *
-	 * @param launcherData
-	 * @param configData
 	 * @return File of fwJar to be used.
 	 */
 	static File getFwJar(LauncherData launcherData, ConfigData configData) {
@@ -238,11 +236,6 @@ public class EquinoxBundlesState implements BundlesState {
 	/**
 	 * If useFwPersistentData flag equals false, this constructor will not take a
 	 * framework persistent data into account. Otherwise, it will.
-	 *
-	 * @param context
-	 * @param fwAdmin
-	 * @param manipulator
-	 * @param useFwPersistentData
 	 */
 	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, PlatformAdmin admin,
 			boolean useFwPersistentData) {
@@ -260,11 +253,6 @@ public class EquinoxBundlesState implements BundlesState {
 	/**
 	 * This constructor does NOT take a framework persistent data into account. It
 	 * will create State object based on the specified platformProperties.
-	 *
-	 * @param context
-	 * @param fwAdmin
-	 * @param manipulator
-	 * @param platformProperties
 	 */
 	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, PlatformAdmin admin,
 			Properties platformProperties) {
@@ -286,10 +274,6 @@ public class EquinoxBundlesState implements BundlesState {
 	/**
 	 * compose new state without reading framework persistent data. The
 	 * configData.getFwDependentProps() is used for the composition.
-	 *
-	 * @param launcherData
-	 * @param configData
-	 * @param bInfos
 	 */
 	private void composeNewState(LauncherData launcherData, ConfigData configData, BundleInfo[] bInfos) {
 		this.composeNewState(launcherData, configData, configData.getProperties(), bInfos);
@@ -299,11 +283,6 @@ public class EquinoxBundlesState implements BundlesState {
 	 * compose new state without reading framework persistent data. The given
 	 * properties is used for the composition. If system bundle is not included in
 	 * the given bInfos, the fw jar launcherData contains will be used.
-	 *
-	 * @param launcherData
-	 * @param configData
-	 * @param properties
-	 * @param bInfos
 	 */
 	private void composeNewState(LauncherData launcherData, ConfigData configData, Properties properties,
 			BundleInfo[] bInfos) {
@@ -318,12 +297,7 @@ public class EquinoxBundlesState implements BundlesState {
 	/**
 	 * compose state. If it cannot compose it by somehow, false is returned.
 	 *
-	 * @param bInfos
-	 * @param props
-	 * @param fwPersistentDataLocation
 	 * @return if it cannot compose it by somehow, false is returned.
-	 * @throws IllegalArgumentException
-	 * @throws FrameworkAdminRuntimeException
 	 */
 	private boolean composeState(BundleInfo[] bInfos, Dictionary<Object, Object> props, File fwPersistentDataLocation)
 			throws IllegalArgumentException, FrameworkAdminRuntimeException {
@@ -641,8 +615,6 @@ public class EquinoxBundlesState implements BundlesState {
 
 	/**
 	 * get platforme properties from the given state.
-	 *
-	 * @param state
 	 */
 	private void setPlatformProperties(State state) {
 		@SuppressWarnings("unchecked")
@@ -662,8 +634,6 @@ public class EquinoxBundlesState implements BundlesState {
 	/**
 	 * set platfromProperties required to compose state object into
 	 * platformProperties of this state.
-	 *
-	 * @param props
 	 */
 	private void setPlatformPropertiesToState(Dictionary<Object, Object> props) {
 		Properties platformProperties = setDefaultPlatformProperties();

@@ -681,8 +681,6 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	 * Set the selections to be used in this page.  This method only changes the
 	 * selections of items that are already visible.  It does not expand items
 	 * or change the repository elements in order to make the selections valid.
-	 *
-	 * @param elements
 	 */
 	@Override
 	public void setCheckedElements(Object[] elements) {

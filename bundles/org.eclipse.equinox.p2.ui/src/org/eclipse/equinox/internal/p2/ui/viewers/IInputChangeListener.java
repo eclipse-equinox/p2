@@ -22,7 +22,6 @@ import org.eclipse.jface.viewers.Viewer;
  * in a viewer.
  *
  * @since 3.4
- *
  */
 public interface IInputChangeListener extends EventListener {
 	public void inputChanged(Viewer v, Object oldInput, Object newInput);

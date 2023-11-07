@@ -11,7 +11,6 @@ import java.util.Properties;
 
 /**
  * Carries information about a file transfer.
- * 
  */
 public class FileInfo {
 	public static final String PROPERTY_CONTENT_TYPE = "contentType"; //$NON-NLS-1$

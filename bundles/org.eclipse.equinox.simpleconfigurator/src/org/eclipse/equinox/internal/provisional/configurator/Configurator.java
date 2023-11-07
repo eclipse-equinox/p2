@@ -40,7 +40,6 @@ import java.net.URL;
  * At its stopping, the service registered will be unregistered.
  *
  * see org.eclipse.equinox.internal.provisional.configuratormanipulato.ConfiguratorManipulator
- *
  */
 public interface Configurator {
 

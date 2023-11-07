@@ -28,7 +28,6 @@ import org.eclipse.osgi.service.environment.EnvironmentInfo;
  * default values.
  * 
  * @since 3.4
- *
  */
 public class ProfileFactory {
 

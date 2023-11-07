@@ -54,7 +54,6 @@ public class ElementQueryDescriptor {
 
 	/**
 	 * Performs the query returning a collection of results.
-	 * @param monitor
 	 */
 	public Collection<?> performQuery(IProgressMonitor monitor) {
 		Collector<Object> results = this.collector;

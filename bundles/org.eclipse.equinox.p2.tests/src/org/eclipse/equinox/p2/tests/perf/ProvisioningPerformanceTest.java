@@ -16,9 +16,6 @@ package org.eclipse.equinox.p2.tests.perf;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
-/**
- * 
- */
 public class ProvisioningPerformanceTest extends AbstractProvisioningTest {
 
 	protected IInstallableUnit generateIU(int i) {

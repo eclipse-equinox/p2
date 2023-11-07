@@ -149,8 +149,6 @@ public abstract class Transport {
 	 * indicates that the server response is wrong, but should not be interpreted as
 	 * a file not found.
 	 *
-	 * @param toDownload
-	 * @param monitor
 	 * @throws OperationCanceledException if the operation was canceled by the user.
 	 * @return last modified date (possibly 0)
 	 */

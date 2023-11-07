@@ -36,7 +36,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * before advancing to resolution detail.
  *
  * @since 3.5
- *
  */
 public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	private static final String LIST_WEIGHT = "ListSashWeight"; //$NON-NLS-1$
@@ -46,9 +45,6 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	private static final String ID_COLUMN_WIDTH = "IDColumnWidth"; //$NON-NLS-1$
 	private IUColumnConfig nameColumn, versionColumn, idColumn;
 
-	/**
-	 * @param pageName
-	 */
 	protected ResolutionStatusPage(String pageName, ProvisioningUI ui, ProvisioningOperationWizard wizard) {
 		super(pageName, ui, wizard);
 	}

@@ -24,7 +24,6 @@ import org.junit.Test;
 /**
  * Tests processing rules not tested elsewhere, and combinations of processing
  * rules.
- *
  */
 public class FormatProcessingTest {
 

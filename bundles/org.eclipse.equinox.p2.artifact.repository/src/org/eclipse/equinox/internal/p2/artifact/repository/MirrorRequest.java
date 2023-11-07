@@ -213,9 +213,6 @@ public class MirrorRequest extends ArtifactRequest {
 	/**
 	 * Keep retrying the source repository until it reports back that it will be impossible
 	 * to get the artifact from it.
-	 * @param destinationDescriptor
-	 * @param sourceDescriptor
-	 * @param monitor
 	 * @return the status of the transfer operation
 	 */
 	protected IStatus transfer(IArtifactDescriptor destinationDescriptor, IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
@@ -332,7 +329,6 @@ public class MirrorRequest extends ArtifactRequest {
 	/**
 	 * Extract the root cause. The root cause is the first severe non-MultiStatus status
 	 * containing an exception when searching depth first otherwise null.
-	 * @param status
 	 * @return root cause
 	 */
 	private static IStatus extractRootCause(IStatus status) {

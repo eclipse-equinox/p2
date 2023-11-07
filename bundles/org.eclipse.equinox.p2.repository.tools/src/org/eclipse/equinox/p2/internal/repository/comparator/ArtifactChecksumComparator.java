@@ -34,7 +34,6 @@ final public class ArtifactChecksumComparator implements IArtifactComparator {
 	final private String id;
 
 	/**
-	 * @param checksumId
 	 * @param checksumName human-readable name of the checksum algorithm
 	 */
 	public ArtifactChecksumComparator(String checksumId, String checksumName) {

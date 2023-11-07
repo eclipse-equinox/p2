@@ -28,7 +28,6 @@ import org.eclipse.ui.progress.*;
  * contents.
  *
  * @since 3.4
- *
  */
 public class DeferredQueryTreeContentManager extends DeferredTreeContentManager {
 

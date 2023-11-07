@@ -26,7 +26,6 @@ import org.junit.Test;
  * - Mozilla
  * - RPM
  * - JSR277 (proposed version handling as documented Dec 30, 2008).
- *
  */
 public class CommonPatternsTest extends VersionTesting {
 	public static String TRIPLET_FORMAT_STRING = "n=0;[.n=0;[.n=0;]][dS=m;]";

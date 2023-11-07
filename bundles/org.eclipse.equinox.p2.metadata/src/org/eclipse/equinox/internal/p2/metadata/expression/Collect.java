@@ -17,8 +17,6 @@ import java.util.Iterator;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
 
-/**
- */
 final class Collect extends CollectionFilter {
 	final class CollectIterator implements Iterator<Object> {
 		private final IEvaluationContext context;

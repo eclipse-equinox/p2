@@ -36,9 +36,7 @@ public class ChecksumUtilities {
 	/**
 	 * Instances of checksum verifiers applicable for the artifact descriptor
 	 *
-	 * @param descriptor
 	 * @param property either {@link IArtifactDescriptor#ARTIFACT_CHECKSUM} or {@link IArtifactDescriptor#DOWNLOAD_CHECKSUM}
-	 * @param checksumsToSkip
 	 * @return list of checksum verifiers
 	 * @throws IllegalArgumentException if property neither {@link IArtifactDescriptor#ARTIFACT_CHECKSUM} nor {@link IArtifactDescriptor#DOWNLOAD_CHECKSUM}
 	 * @see ChecksumHelper#getChecksums(IArtifactDescriptor, String)
@@ -104,7 +102,6 @@ public class ChecksumUtilities {
 	 *
 	 * @param pathOnDisk file to calculate checksums for
 	 * @param checksums calculated checksums
-	 * @param checksumsToSkip
 	 * @return status
 	 */
 	public static IStatus calculateChecksums(File pathOnDisk, Map<String, String> checksums,
@@ -171,7 +168,6 @@ public class ChecksumUtilities {
 
 	/**
 	 * @param property either {@link IArtifactDescriptor#ARTIFACT_CHECKSUM} or {@link IArtifactDescriptor#DOWNLOAD_CHECKSUM}
-	 * @param checksums
 	 */
 	public static Map<String, String> checksumsToProperties(String property, Map<String, String> checksums) {
 		HashMap<String, String> properties = new HashMap<>();

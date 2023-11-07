@@ -31,8 +31,6 @@ import org.osgi.framework.ServiceReference;
 public class ProvisioningAgentTest extends AbstractProvisioningTest {
 	/**
 	 * See bug 307151 and bug 304899.
-	 * @throws ProvisionException
-	 * @throws URISyntaxException
 	 */
 	public void testMultipleAgents() throws ProvisionException, URISyntaxException {
 		URI repoLocation = new URI("https://download.eclipse.org/eclipse/updates/latest");

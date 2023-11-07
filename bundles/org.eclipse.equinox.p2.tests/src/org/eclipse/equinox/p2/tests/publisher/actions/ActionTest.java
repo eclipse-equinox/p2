@@ -108,9 +108,6 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	 * because match expressions are not safe to compare for equality.
 	 *
 	 * This must be guaranteed by all sub-class test cases
-	 *
-	 * @param actual
-	 * @param expected
 	 */
 	protected void verifyRequirement(Collection<IRequirement> actual, IRequirement expected) {
 		for (IRequirement act : actual) {

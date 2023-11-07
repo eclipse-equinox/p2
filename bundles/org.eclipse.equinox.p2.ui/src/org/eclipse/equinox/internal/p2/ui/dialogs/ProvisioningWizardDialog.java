@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.Shell;
 /**
  * Subclass of WizardDialog that provides bounds saving behavior.
  * @since 3.5
- *
  */
 public class ProvisioningWizardDialog extends WizardDialog {
 	private ProvisioningOperationWizard wizard;

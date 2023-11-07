@@ -30,7 +30,6 @@ import org.eclipse.ui.progress.WorkbenchJob;
  * elements that can survive a change of input.
  *
  * @since 3.4
- *
  */
 public class DelayedFilterCheckboxTree extends FilteredTree {
 

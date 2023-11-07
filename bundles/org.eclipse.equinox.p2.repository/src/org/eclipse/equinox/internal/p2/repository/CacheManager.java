@@ -290,7 +290,6 @@ public class CacheManager {
 
 	/**
 	 * Deletes the local cache file(s) for the given repository
-	 * @param repositoryLocation
 	 */
 	void deleteCache(URI repositoryLocation) {
 		for (String prefix : knownPrefixes) {

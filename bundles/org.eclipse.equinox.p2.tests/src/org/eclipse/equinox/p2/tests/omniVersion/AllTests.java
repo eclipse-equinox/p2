@@ -18,7 +18,6 @@ import org.junit.runners.Suite;
 
 /**
  * Tests the OmniVersion implementation of Version and VersionRange.
- *
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ CommonPatternsTest.class, FormatArrayTest.class, FormatATest.class, FormatDTest.class,

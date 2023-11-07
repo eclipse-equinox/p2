@@ -37,7 +37,6 @@ import org.eclipse.ui.PlatformUI;
  * will dictate what kind of repository and how it's created.
  *
  * @since 3.4
- *
  */
 public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialog {
 

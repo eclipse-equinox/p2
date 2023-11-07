@@ -652,7 +652,6 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	/**
 	 * Test the ProvisioningContext only uses the passed in repos and not all known repos.
 	 * Expect to install helloworld_1.0.0 not helloworld_1.0.1
-	 * @throws Exception
 	 */
 	public void testPassedInRepos_ProvisioningContext() throws Exception {
 		File artifactRepo1 = getTestData("13.0", "/testData/mirror/mirrorSourceRepo4");
@@ -754,7 +753,6 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	/**
 	 * Test the ProvisioningContext only uses the passed in repos and not all known repos.
 	 * Expect to install helloworld_1.0.0 not helloworld_1.0.1
-	 * @throws Exception
 	 */
 	public void testUninstallIgnoresPassedInRepos() throws Exception {
 		File srcRepo = getTestData("14.0", "/testData/mirror/mirrorSourceRepo4");

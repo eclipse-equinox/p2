@@ -43,7 +43,6 @@ import org.xml.sax.SAXException;
  * sorted geographically with closer mirrors first.
  * <br><br>
  * Always use {@link MirrorSelector.MirrorInfoComparator} for comparison.
- *
  */
 public class MirrorSelector {
 	private static final double LOG2 = Math.log(2);

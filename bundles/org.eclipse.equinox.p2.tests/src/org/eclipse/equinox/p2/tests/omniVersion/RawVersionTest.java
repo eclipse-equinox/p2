@@ -25,7 +25,6 @@ import org.junit.Test;
 
 /**
  * Tests the OmniVersion raw version format.
- *
  */
 public class RawVersionTest extends VersionTesting {
 

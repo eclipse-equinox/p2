@@ -101,8 +101,6 @@ public interface IBackupStore {
 	/**
 	 * Backs up a file, or everything under a directory.
 	 * A copy of the backup is left in the original place.
-	 * @param file
-	 * @throws IOException
 	 */
 	public void backupCopyAll(File file) throws IOException;
 }

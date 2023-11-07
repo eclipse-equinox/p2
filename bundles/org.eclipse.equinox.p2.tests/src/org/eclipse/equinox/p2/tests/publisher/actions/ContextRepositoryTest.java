@@ -20,9 +20,6 @@ import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
-/**
- *
- */
 public class ContextRepositoryTest extends AbstractProvisioningTest {
 
 	/**

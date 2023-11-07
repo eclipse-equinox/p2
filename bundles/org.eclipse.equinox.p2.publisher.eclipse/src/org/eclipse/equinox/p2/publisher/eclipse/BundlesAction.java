@@ -534,7 +534,6 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	/**
-	 * @param id
 	 * @return the id for the iu fragment containing localized properties for the
 	 *         fragment with the given id.
 	 */

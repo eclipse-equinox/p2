@@ -39,7 +39,6 @@ import org.eclipse.equinox.p2.metadata.Version;
  * 
  * Where repository.factory.order is a comma separated list of strings 
  * representing repository suffix filters.
- * 
  */
 public class LocationProperties {
 
@@ -152,8 +151,6 @@ public class LocationProperties {
 	 * Returns true if an MD5 has exists for the specified factoryID.  If the specified
 	 * factoryID was not specified in the LocatoinProperty file, this method
 	 * will return false.
-	 * 
-	 * @param factoryID
 	 */
 	public boolean hasMD5Hash(String factoryID) {
 		Boolean result = md5Hashes.get("md5." + factoryID); //$NON-NLS-1$
@@ -187,7 +184,6 @@ public class LocationProperties {
 
 	/**
 	 * @param key 
-	 * @param value
 	 */
 	private void initHashMD5Hash(String key, String value) {
 		// Empty for now

@@ -23,7 +23,6 @@ import org.junit.Test;
 
 /**
  * Tests format(<>) - arrays.
- *
  */
 public class FormatArrayTest {
 	@Test

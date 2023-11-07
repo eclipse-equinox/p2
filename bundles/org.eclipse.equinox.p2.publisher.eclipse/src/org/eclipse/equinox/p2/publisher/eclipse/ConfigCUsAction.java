@@ -336,8 +336,6 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	/**
 	 * Publish the CUs related to the given set of bundles. This generally covers
 	 * the start-level and and whether or not the bundle is to be started.
-	 * 
-	 * @param configBundles
 	 */
 	protected void publishBundleCUs(IPublisherInfo publisherInfo, BundleInfo[] bundles, String configSpec,
 			IPublisherResult result, Set<String> configBundles) {

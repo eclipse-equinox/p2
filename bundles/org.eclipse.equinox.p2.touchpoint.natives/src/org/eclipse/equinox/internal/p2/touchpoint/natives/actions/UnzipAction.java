@@ -45,7 +45,6 @@ public class UnzipAction extends ProvisioningAction {
 	 * Unzip as directed by parameters.
 	 * Record what was zipped in the profile.
 	 *
-	 * @param parameters
 	 * @param restoreable - if the unzip should be backed up
 	 * @return status
 	 */

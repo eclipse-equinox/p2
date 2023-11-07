@@ -22,7 +22,6 @@ import org.eclipse.jface.wizard.IWizardPage;
  * wizard page.
  *
  * @since 3.5
- *
  */
 public interface ISelectableIUsPage extends IWizardPage {
 	public Object[] getCheckedIUElements();

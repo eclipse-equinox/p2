@@ -21,10 +21,6 @@ public class RuntimeVisibleAnnotationsAttribute extends ClassFileAttribute {
 
 	/**
 	 * Constructor for RuntimeVisibleAnnotations.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public RuntimeVisibleAnnotationsAttribute(byte[] classFileBytes, ConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);

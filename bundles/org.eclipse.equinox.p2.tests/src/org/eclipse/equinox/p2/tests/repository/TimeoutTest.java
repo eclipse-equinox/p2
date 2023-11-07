@@ -42,8 +42,6 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 	 * Test that timeout occurs, that the expected exception is thrown, and with correct detail
 	 * and message.
 	 * Note that test takes at least 120 seconds to complete due to length of timeout.
-	 * @throws ProvisionException
-	 * @throws Exception
 	 */
 	public void doTimeout(int type) throws Exception {
 		System.out.print("Note that test takes at least 120 seconds before timing out\n");
@@ -98,8 +96,6 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 	 * Test that timeout occurs, that the expected exception is thrown, and with correct detail
 	 * and message.
 	 * Note that test takes at least 120 seconds to complete due to length of timeout.
-	 * @throws ProvisionException
-	 * @throws Exception
 	 */
 	public void testInfoTimeout() throws Exception {
 		doTimeout(MODIFIED);
@@ -109,8 +105,6 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 	 * Test that it is possible to cancel a repository load that hangs on a HEAD request.
 	 * Note that test takes at least 10 seconds (the cancel delay time). The real timeout is
 	 * 120 seconds.
-	 * @throws ProvisionException
-	 * @throws Exception
 	 */
 	public void testInfoTimeoutCancelation() throws Exception {
 		doTimeoutCancelation(MODIFIED);

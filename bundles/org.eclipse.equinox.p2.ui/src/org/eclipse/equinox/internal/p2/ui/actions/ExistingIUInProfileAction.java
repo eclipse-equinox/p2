@@ -31,7 +31,6 @@ import org.eclipse.jface.viewers.ISelectionProvider;
  * IU's involved are top level IU's from the same profile.
  *
  * @since 3.5
- *
  */
 public abstract class ExistingIUInProfileAction extends ProfileModificationAction {
 

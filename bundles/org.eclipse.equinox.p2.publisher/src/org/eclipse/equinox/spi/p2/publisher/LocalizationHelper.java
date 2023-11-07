@@ -23,7 +23,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 
 /**
  * Helper functions supporting the processing of localized property files.
- *
  */
 public final class LocalizationHelper {
 

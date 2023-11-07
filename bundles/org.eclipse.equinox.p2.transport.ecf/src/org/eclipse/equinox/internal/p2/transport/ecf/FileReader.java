@@ -493,9 +493,6 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	 * @param attemptCounter - the current attempt number (start with 0)
 	 * @return true if the exception is an IOException and attemptCounter <
 	 *         connectionRetryCount, false otherwise
-	 * @throws CoreException
-	 * @throws FileNotFoundException
-	 * @throws AuthenticationFailedException
 	 */
 	private boolean checkException(URI uri, int attemptCounter)
 			throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
@@ -551,8 +548,6 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 
 	/**
 	 * Closes input and output streams
-	 * 
-	 * @param aStream
 	 */
 	public static void hardClose(Object aStream) {
 		if (aStream != null) {

@@ -243,7 +243,6 @@ public class InstallWizard extends WizardWithLicenses {
 	 * the wizard's couldNotResolveStatus is reset on every new resolution, so that
 	 * status only holds the installHandler status when it is the current status.
 	 * The installHandlerStatus must be non-OK for it to matter at all.
-	 *
 	 */
 	@Override
 	public boolean statusOverridesOperation() {

@@ -31,7 +31,6 @@ import org.junit.Test;
  * - inside
  *
  * Tests made with both inclusive and non inclusive values.
- *
  */
 public class IntersectionTest {
 	@Test

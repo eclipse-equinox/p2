@@ -29,7 +29,6 @@ import org.xml.sax.*;
  * This class allows to deserialize {@link IInstallableUnit}s that have been serialized with {@link IUSerializer}.
  * The deserializer is able to read data that have been serialized with previous versions of the serializer.
  * @since 1.2
- *
  */
 public class IUDeserializer {
 	private IUDeserializerParser deserializer;
@@ -49,7 +48,6 @@ public class IUDeserializer {
 	 * Deserialize a set of {@link IInstallableUnit} from the input stream.
 	 * @param input the input stream to deserialize {@link IInstallableUnit}s from.
 	 * @return the collection of {@link IInstallableUnit}s read from the input stream.
-	 * @throws IOException
 	 */
 	public Collection<IInstallableUnit> read(InputStream input) throws IOException {
 		return deserializer.parse(input);

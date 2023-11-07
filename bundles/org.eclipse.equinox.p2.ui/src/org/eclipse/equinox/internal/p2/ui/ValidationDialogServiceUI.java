@@ -52,7 +52,6 @@ import org.eclipse.ui.PlatformUI;
 /**
  * The default GUI-based implementation of {@link UIServices}. The service
  * declaration is made in the serviceui_component.xml file.
- *
  */
 public class ValidationDialogServiceUI extends UIServices implements IArtifactUIServices, IInstallableUnitUIServices {
 

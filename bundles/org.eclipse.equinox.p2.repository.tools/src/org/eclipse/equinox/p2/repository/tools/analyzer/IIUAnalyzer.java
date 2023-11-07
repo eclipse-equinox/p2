@@ -28,7 +28,6 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
  * this interface.
  * 
  * @since 2.0
- * 
  */
 public interface IIUAnalyzer {
 

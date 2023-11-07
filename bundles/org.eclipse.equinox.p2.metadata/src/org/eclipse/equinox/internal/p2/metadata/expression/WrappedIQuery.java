@@ -31,7 +31,6 @@ public final class WrappedIQuery extends Function {
 	 * to an iterator. If it is not provided, it defaults to the variable
 	 * <code>everything</code>.
 	 * </ul>
-	 * @param operands
 	 */
 	public WrappedIQuery(Expression[] operands) {
 		super(assertLength(operands, 1, 2, KEYWORD_IQUERY));

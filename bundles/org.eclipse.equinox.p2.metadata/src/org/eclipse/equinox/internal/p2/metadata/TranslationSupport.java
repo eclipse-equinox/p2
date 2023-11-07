@@ -99,8 +99,6 @@ public class TranslationSupport {
 		this.fragmentSource = fragmentSource;
 	}
 
-	/**
-	 */
 	private List<String> buildLocaleVariants(String locale) {
 		ArrayList<String> result = new ArrayList<>(4);
 		int lastSeparator;

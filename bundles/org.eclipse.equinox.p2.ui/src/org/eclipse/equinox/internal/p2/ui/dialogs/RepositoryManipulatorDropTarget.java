@@ -34,7 +34,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * user wishes to add these files as repositories.
  *
  * @since 3.4
- *
  */
 public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 	ProvisioningUI ui;

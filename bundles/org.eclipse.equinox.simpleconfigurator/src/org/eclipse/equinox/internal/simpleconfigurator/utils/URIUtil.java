@@ -180,8 +180,6 @@ public class URIUtil {
 
 	/**
 	 * Returns a URI as a URL.
-	 *
-	 * @throws MalformedURLException
 	 */
 	public static URL toURL(URI uri) throws MalformedURLException {
 		return new URL(uri.toString());

@@ -211,11 +211,6 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 	class FailingSimpleArtifactRepository extends SimpleArtifactRepository {
 		boolean executeBatch = false;
 
-		/**
-		 * @param repositoryName
-		 * @param location
-		 * @param properties
-		 */
 		public FailingSimpleArtifactRepository(String repositoryName, URI location, Map<String, String> properties) {
 			super(getAgent(), repositoryName, location, properties);
 		}
@@ -236,11 +231,6 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 	class FailingCompositeArtifactRepository extends CompositeArtifactRepository {
 		boolean executeBatch = false;
 
-		/**
-		 * @param repositoryName
-		 * @param location
-		 * @param properties
-		 */
 		public FailingCompositeArtifactRepository(IArtifactRepositoryManager manager, String repositoryName, URI location, Map<String, String> properties) {
 			super(manager, location, repositoryName, properties);
 		}
@@ -357,11 +347,6 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		boolean executeBatch = false;
 		public boolean didSave = false;
 
-		/**
-		 * @param repositoryName
-		 * @param location
-		 * @param properties
-		 */
 		public TrackSavignSimpleArtifactRepository(String repositoryName, URI location, Map<String, String> properties) {
 			super(getAgent(), repositoryName, location, properties);
 		}

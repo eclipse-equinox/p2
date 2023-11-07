@@ -21,10 +21,6 @@ public class InnerClassesAttribute extends ClassFileAttribute {
 
 	/**
 	 * Constructor for InnerClassesAttribute.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public InnerClassesAttribute(byte[] classFileBytes, ConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);

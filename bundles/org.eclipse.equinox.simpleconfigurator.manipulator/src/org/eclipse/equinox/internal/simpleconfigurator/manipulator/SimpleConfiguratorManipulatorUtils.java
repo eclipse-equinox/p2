@@ -57,9 +57,6 @@ public class SimpleConfiguratorManipulatorUtils {
 
 	/**
 	 * The output stream is left open
-	 * @param simpleInfos
-	 * @param stream
-	 * @throws IOException
 	 */
 	public static void writeConfiguration(BundleInfo[] simpleInfos, OutputStream stream) throws IOException {
 		// sort by symbolic name

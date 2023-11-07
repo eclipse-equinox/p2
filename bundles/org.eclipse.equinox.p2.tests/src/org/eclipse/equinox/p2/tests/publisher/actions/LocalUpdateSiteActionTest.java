@@ -59,7 +59,6 @@ public class LocalUpdateSiteActionTest extends ActionTest {
 	/**
 	 * This test uses a simple site.xml (with a zipped up feature) and ensures
 	 * that the metadata to unzip the feature is available.
-	 * @throws Exception
 	 */
 	public void testUnzipTouchpointAction() throws Exception {
 		File file = TestData.getFile("updatesite/site", "");

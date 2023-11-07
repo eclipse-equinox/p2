@@ -32,7 +32,6 @@ import org.eclipse.osgi.util.NLS;
  * The FileInfoReader is a {@link Job} similar to {@link FileReader}, but without the support
  * from ECF (there is currently no way to wait on a BrowseRequest job, as this is internal to
  * ECF). If such support is added, this class is easily modified.
- * 
  */
 public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	private Exception exception;
@@ -203,9 +202,6 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	 * @param uri the URI being read - used for logging purposes
 	 * @param attemptCounter - the current attempt number (start with 0)
 	 * @return true if the exception is an IOException and attemptCounter < connectionRetryCount, false otherwise
-	 * @throws CoreException
-	 * @throws FileNotFoundException
-	 * @throws AuthenticationFailedException
 	 * @throws JREHttpClientRequiredException 
 	 */
 	private boolean checkException(URI uri, int attemptCounter) throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
