@@ -19,8 +19,7 @@ import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.eclipse.core.runtime.*;
@@ -151,20 +150,37 @@ public class RepositoryHelper {
 	 */
 	@SuppressWarnings("nls")
 	public static List<Path> getSharedBundlePools() {
-		Path bundlePools = Path.of(System.getProperty("user.home"), ".p2/pools.info");
-		if (Files.isRegularFile(bundlePools)) {
-			try (Stream<String> lines = Files.lines(bundlePools, getSharedBundlePoolEncoding())) {
-				return lines.map(Path::of).filter(Files::isDirectory).toList();
+		Path agentsInfoLocation = getAgentManagerLocation().resolve("agents.info");
+		if (Files.isRegularFile(agentsInfoLocation)) {
+			Charset encoding = getSharedAgentEncoding();
+			try (Stream<String> agentLocations = Files.lines(agentsInfoLocation, encoding)) {
+				List<Path> result = new ArrayList<>();
+				agentLocations.map(agentLocation -> Path.of(agentLocation, "pools.info")).filter(Files::isRegularFile)
+						.forEach(poolsInfoLocation -> {
+							try (Stream<String> poolLocations = Files.lines(poolsInfoLocation, encoding)) {
+								poolLocations.map(Path::of)
+										.filter(poolLocation -> Files.exists(poolLocation.resolve("artifacts.xml")))
+										.forEach(result::add);
+							} catch (Exception ex) {
+								LogHelper.log(Status.warning("The bundle pools load failed: " + poolsInfoLocation, ex));
+							}
+						});
+				return result;
 			} catch (Exception ex) {
-				LogHelper.log(Status.warning("The bundle pool load failed: " + bundlePools, ex));
+				LogHelper.log(Status.warning("The agents load failed: " + agentsInfoLocation, ex));
 			}
 		}
 		return List.of();
 	}
 
 	@SuppressWarnings("nls")
-	private static Charset getSharedBundlePoolEncoding() {
-		Path encodingInfo = Path.of(System.getProperty("user.home"), ".p2/encoding.info");
+	private static Path getAgentManagerLocation() {
+		return Path.of(System.getProperty("user.home"), ".eclipse/org.eclipse.oomph.p2");
+	}
+
+	@SuppressWarnings("nls")
+	private static Charset getSharedAgentEncoding() {
+		Path encodingInfo = getAgentManagerLocation().resolve("encoding.info");
 		if (Files.isRegularFile(encodingInfo)) {
 			try {
 				return Charset.forName(Files.readString(encodingInfo).trim());
