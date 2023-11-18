@@ -63,7 +63,7 @@ public abstract class BasicVersion extends Version {
 	public abstract String getQualifier();
 
 	/**
-	 * Appends the original for this version onto the <code>sb</code> StringBuffer
+	 * Appends the original for this version onto the <code>sb</code> StringBuilder
 	 * if present.
 	 * @param sb The buffer that will receive the raw string format
 	 * @param rangeSafe Set to <code>true</code> if range delimiters should be escaped
@@ -71,7 +71,7 @@ public abstract class BasicVersion extends Version {
 	public abstract void originalToString(StringBuilder sb, boolean rangeSafe);
 
 	/**
-	 * Appends the raw format for this version onto the <code>sb</code> StringBuffer.
+	 * Appends the raw format for this version onto the <code>sb</code> StringBuilder.
 	 * @param sb The buffer that will receive the raw string format
 	 * @param rangeSafe Set to <code>true</code> if range delimiters should be escaped
 	 */
