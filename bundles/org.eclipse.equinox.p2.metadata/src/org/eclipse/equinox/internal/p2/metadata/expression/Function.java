@@ -76,7 +76,7 @@ public abstract class Function extends NAry {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		bld.append(getOperator());
 		bld.append('(');
 		elementsToString(bld, rootVariable, operands);

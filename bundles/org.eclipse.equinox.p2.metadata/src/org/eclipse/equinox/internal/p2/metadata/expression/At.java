@@ -86,7 +86,7 @@ class At extends Binary {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		appendOperand(bld, rootVariable, lhs, getPriority());
 		bld.append('[');
 		appendOperand(bld, rootVariable, rhs, PRIORITY_MAX);

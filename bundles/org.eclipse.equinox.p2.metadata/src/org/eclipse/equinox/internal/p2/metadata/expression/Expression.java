@@ -34,7 +34,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 
 	static final Expression[] emptyArray = new Expression[0];
 
-	public static void appendOperand(StringBuffer bld, Variable rootVariable, Expression operand, int priority) {
+	public static void appendOperand(StringBuilder bld, Variable rootVariable, Expression operand, int priority) {
 		if (priority < operand.getPriority()) {
 			bld.append('(');
 			operand.toString(bld, rootVariable);
@@ -96,7 +96,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		return result;
 	}
 
-	public static void elementsToString(StringBuffer bld, Variable rootVariable, Expression[] elements) {
+	public static void elementsToString(StringBuilder bld, Variable rootVariable, Expression[] elements) {
 		int top = elements.length;
 		if (top > 0) {
 			elements[0].toString(bld, rootVariable);
@@ -172,29 +172,29 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 	}
 
 	public final String toLDAPString() {
-		StringBuffer bld = new StringBuffer();
+		StringBuilder bld = new StringBuilder();
 		toLDAPString(bld);
 		return bld.toString();
 	}
 
 	@Override
-	public void toLDAPString(StringBuffer buf) {
+	public void toLDAPString(StringBuilder buf) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public final String toString() {
-		StringBuffer bld = new StringBuffer();
+		StringBuilder bld = new StringBuilder();
 		toString(bld);
 		return bld.toString();
 	}
 
 	@Override
-	public void toString(StringBuffer bld) {
+	public void toString(StringBuilder bld) {
 		toString(bld, ExpressionFactory.THIS);
 	}
 
-	public abstract void toString(StringBuffer bld, Variable rootVariable);
+	public abstract void toString(StringBuilder bld, Variable rootVariable);
 
 	private static class Compacter {
 		private Expression base;

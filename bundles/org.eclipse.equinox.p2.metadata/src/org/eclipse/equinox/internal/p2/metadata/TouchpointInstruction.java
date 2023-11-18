@@ -69,7 +69,7 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 	 * @return An encoded touchpoint instruction statement
 	 */
 	public static String encodeAction(String actionName, Map<String, String> parameters) {
-		StringBuffer result = new StringBuffer(actionName);
+		StringBuilder result = new StringBuilder(actionName);
 		result.append('(');
 		boolean first = true;
 		for (Entry<String, String> entry : parameters.entrySet()) {
@@ -89,7 +89,7 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 	 * Append the given value to the given buffer, encoding any illegal characters
 	 * with appropriate escape sequences.
 	 */
-	private static void appendEncoded(StringBuffer buf, String value) {
+	private static void appendEncoded(StringBuilder buf, String value) {
 		char[] chars = value.toCharArray();
 		for (char c : chars) {
 			switch (c) {

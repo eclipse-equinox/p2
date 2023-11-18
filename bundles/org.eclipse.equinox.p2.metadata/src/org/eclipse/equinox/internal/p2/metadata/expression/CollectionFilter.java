@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
  * <code>x.&lt;operation&gt;(y | &lt;expression&gt;)</code>
  */
 public abstract class CollectionFilter extends Unary {
-	public static void appendProlog(StringBuffer bld, Variable rootVariable, Expression lhs, String operator) {
+	public static void appendProlog(StringBuilder bld, Variable rootVariable, Expression lhs, String operator) {
 		if (lhs != rootVariable) {
 			appendOperand(bld, rootVariable, lhs, PRIORITY_COLLECTION);
 			bld.append('.');
@@ -73,7 +73,7 @@ public abstract class CollectionFilter extends Unary {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		appendProlog(bld, rootVariable, operand, getOperator());
 		appendOperand(bld, rootVariable, lambda, PRIORITY_LAMBDA);
 		bld.append(')');

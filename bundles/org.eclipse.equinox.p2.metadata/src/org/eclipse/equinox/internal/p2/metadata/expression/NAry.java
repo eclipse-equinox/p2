@@ -56,7 +56,7 @@ public abstract class NAry extends Expression {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		appendOperand(bld, rootVariable, operands[0], getPriority());
 		for (int idx = 1; idx < operands.length; ++idx) {
 			bld.append(' ');

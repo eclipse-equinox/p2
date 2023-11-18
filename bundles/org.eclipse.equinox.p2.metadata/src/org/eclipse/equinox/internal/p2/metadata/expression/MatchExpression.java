@@ -96,12 +96,12 @@ public class MatchExpression<T> extends Unary implements IMatchExpression<T> {
 	}
 
 	@Override
-	public void toLDAPString(StringBuffer bld) {
+	public void toLDAPString(StringBuilder bld) {
 		operand.toLDAPString(bld);
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		operand.toString(bld, rootVariable);
 	}
 }

@@ -59,7 +59,7 @@ final class Equals extends Binary {
 	}
 
 	@Override
-	public void toLDAPString(StringBuffer buf) {
+	public void toLDAPString(StringBuilder buf) {
 		if (negate)
 			buf.append("(!"); //$NON-NLS-1$
 		buf.append('(');

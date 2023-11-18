@@ -68,14 +68,14 @@ public abstract class BasicVersion extends Version {
 	 * @param sb The buffer that will receive the raw string format
 	 * @param rangeSafe Set to <code>true</code> if range delimiters should be escaped
 	 */
-	public abstract void originalToString(StringBuffer sb, boolean rangeSafe);
+	public abstract void originalToString(StringBuilder sb, boolean rangeSafe);
 
 	/**
 	 * Appends the raw format for this version onto the <code>sb</code> StringBuffer.
 	 * @param sb The buffer that will receive the raw string format
 	 * @param rangeSafe Set to <code>true</code> if range delimiters should be escaped
 	 */
-	public abstract void rawToString(StringBuffer sb, boolean rangeSafe);
+	public abstract void rawToString(StringBuilder sb, boolean rangeSafe);
 
 	/**
 	 * This method is package protected since it violates the immutable

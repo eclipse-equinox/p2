@@ -208,7 +208,7 @@ public class VersionFormat implements IVersionFormat, Serializable {
 				: OmniVersion.fromVector(vector, originalFormat, original);
 	}
 
-	static void rawToString(StringBuffer sb, boolean forRange, Comparable<?> e) {
+	static void rawToString(StringBuilder sb, boolean forRange, Comparable<?> e) {
 		if (e instanceof String) {
 			writeQuotedString(sb, forRange, (String) e, '\'', 0, false);
 		} else if (e instanceof VersionVector) {
@@ -239,7 +239,7 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	 * @param didFlip   True if the call is recursive and thus, cannot switch quotes
 	 *                  in the first string.
 	 */
-	private static void writeQuotedString(StringBuffer sb, boolean rangeSafe, String s, char quote, int startPos,
+	private static void writeQuotedString(StringBuilder sb, boolean rangeSafe, String s, char quote, int startPos,
 			boolean didFlip) {
 		int quotePos = sb.length();
 		sb.append(quote);
@@ -330,14 +330,14 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	@Override
 	public synchronized String toString() {
 		if (fmtString == null) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			toString(sb);
 		}
 		return fmtString;
 	}
 
 	@Override
-	public synchronized void toString(StringBuffer sb) {
+	public synchronized void toString(StringBuilder sb) {
 		if (fmtString != null)
 			sb.append(fmtString);
 		else {

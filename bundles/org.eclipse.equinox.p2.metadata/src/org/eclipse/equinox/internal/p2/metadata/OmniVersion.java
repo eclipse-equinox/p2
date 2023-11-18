@@ -185,7 +185,7 @@ public class OmniVersion extends BasicVersion {
 	 * @param rangeSafe Set to <code>true</code> if range delimiters should be escaped
 	 */
 	@Override
-	public void originalToString(StringBuffer sb, boolean rangeSafe) {
+	public void originalToString(StringBuilder sb, boolean rangeSafe) {
 		if (original != null) {
 			if (rangeSafe) {
 				// Escape all range delimiters while appending
@@ -208,7 +208,7 @@ public class OmniVersion extends BasicVersion {
 	 * @param rangeSafe Set to <code>true</code> if range delimiters should be escaped
 	 */
 	@Override
-	public void rawToString(StringBuffer sb, boolean rangeSafe) {
+	public void rawToString(StringBuilder sb, boolean rangeSafe) {
 		VersionVector.toString(sb, vector, padValue, rangeSafe);
 	}
 
@@ -218,7 +218,7 @@ public class OmniVersion extends BasicVersion {
 	 * @param sb The buffer that will receive the version string
 	 */
 	@Override
-	public void toString(StringBuffer sb) {
+	public void toString(StringBuilder sb) {
 		if (this == emptyVersion)
 			sb.append("0.0.0"); //$NON-NLS-1$
 		else {

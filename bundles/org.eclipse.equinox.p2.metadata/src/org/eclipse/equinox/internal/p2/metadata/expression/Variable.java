@@ -85,7 +85,7 @@ public class Variable extends Expression {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		bld.append(name);
 	}
 

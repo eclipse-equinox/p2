@@ -46,7 +46,7 @@ public class VersionRange implements Serializable {
 	private final Version maxVersion;
 	private final boolean includeMax;
 
-	private static int copyEscaped(String vr, int pos, String breakChars, StringBuffer sb) {
+	private static int copyEscaped(String vr, int pos, String breakChars, StringBuilder sb) {
 		int top = vr.length();
 		pos = VersionParser.skipWhite(vr, pos);
 		if (pos >= top)
@@ -153,7 +153,7 @@ public class VersionRange implements Serializable {
 
 		String minStr;
 		String maxStr;
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (c == '[' || c == '(') {
 			includeMin = (c == '[');
 			pos = copyEscaped(versionRange, ++pos, ",)]", sb); //$NON-NLS-1$
@@ -173,7 +173,7 @@ public class VersionRange implements Serializable {
 			c = versionRange.charAt(pos++);
 			includeMax = (c == ']');
 		} else {
-			StringBuffer sbMin = new StringBuffer();
+			StringBuilder sbMin = new StringBuilder();
 			pos = copyEscaped(versionRange, pos, rawPrefix ? "/" : null, sbMin); //$NON-NLS-1$
 			includeMin = includeMax = true;
 			minStr = sbMin.toString();
@@ -438,12 +438,12 @@ public class VersionRange implements Serializable {
 
 	@Override
 	public String toString() {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		toString(result);
 		return result.toString();
 	}
 
-	public void toString(StringBuffer result) {
+	public void toString(StringBuilder result) {
 		boolean gtEqual = includeMin && includeMax && Version.MAX_VERSION.equals(maxVersion);
 		if (gtEqual && Version.emptyVersion.equals(minVersion)) {
 			minVersion.toString(result);

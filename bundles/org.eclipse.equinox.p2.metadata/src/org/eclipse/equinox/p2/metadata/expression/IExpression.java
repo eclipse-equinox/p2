@@ -77,12 +77,12 @@ public interface IExpression {
 	/**
 	 * Appends the string representation of this expression to the collector <code>collector</code>.
 	 */
-	void toString(StringBuffer collector);
+	void toString(StringBuilder collector);
 
 	/**
 	 * Appends the an LDAP filter representation of this expression to the <code>collector</code>.
 	 * @throws UnsupportedOperationException if the expression contains nodes
 	 * that cannot be represented in an LDAP filter
 	 */
-	void toLDAPString(StringBuffer collector);
+	void toLDAPString(StringBuilder collector);
 }

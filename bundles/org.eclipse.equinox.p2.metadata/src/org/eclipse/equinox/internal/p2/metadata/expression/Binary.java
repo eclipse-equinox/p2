@@ -68,7 +68,7 @@ public abstract class Binary extends Expression {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		appendOperand(bld, rootVariable, lhs, getPriority());
 		bld.append(' ');
 		bld.append(getOperator());
@@ -82,7 +82,7 @@ public abstract class Binary extends Expression {
 	 * @throws UnsupportedOperationException when this expression does not conform to an
 	 * LDAP filter binary expression
 	 */
-	void appendLDAPAttribute(StringBuffer buf) {
+	void appendLDAPAttribute(StringBuilder buf) {
 		if (lhs instanceof DynamicMember) {
 			DynamicMember attr = (DynamicMember) lhs;
 			if (attr.operand instanceof Variable) {
@@ -97,11 +97,11 @@ public abstract class Binary extends Expression {
 		return (char) (value < 10 ? ('0' + value) : ('a' + (value - 10)));
 	}
 
-	static void appendLDAPEscaped(StringBuffer bld, String str) {
+	static void appendLDAPEscaped(StringBuilder bld, String str) {
 		appendLDAPEscaped(bld, str, true);
 	}
 
-	static void appendLDAPEscaped(StringBuffer bld, String str, boolean escapeWild) {
+	static void appendLDAPEscaped(StringBuilder bld, String str, boolean escapeWild) {
 		int top = str.length();
 		for (int idx = 0; idx < top; ++idx) {
 			char c = str.charAt(idx);
@@ -131,7 +131,7 @@ public abstract class Binary extends Expression {
 	 * @throws UnsupportedOperationException when this expression does not conform to an
 	 * LDAP filter binary expression
 	 */
-	void appendLDAPValue(StringBuffer buf) {
+	void appendLDAPValue(StringBuilder buf) {
 		if (rhs instanceof Literal) {
 			Object value = rhs.evaluate(null);
 			if (value instanceof String || value instanceof Version) {

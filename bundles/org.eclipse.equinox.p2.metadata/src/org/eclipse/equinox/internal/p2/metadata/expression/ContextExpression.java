@@ -37,7 +37,7 @@ public class ContextExpression<T> extends Unary implements IContextExpression<T>
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		operand.toString(bld, rootVariable);
 	}
 
@@ -95,7 +95,7 @@ public class ContextExpression<T> extends Unary implements IContextExpression<T>
 	}
 
 	@Override
-	public void toString(StringBuffer bld) {
+	public void toString(StringBuilder bld) {
 		toString(bld, ExpressionFactory.EVERYTHING);
 	}
 }

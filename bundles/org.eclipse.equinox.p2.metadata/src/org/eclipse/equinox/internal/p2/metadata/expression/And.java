@@ -49,7 +49,7 @@ final class And extends NAry {
 	}
 
 	@Override
-	public void toLDAPString(StringBuffer buf) {
+	public void toLDAPString(StringBuilder buf) {
 		buf.append("(&"); //$NON-NLS-1$
 		for (Expression operand : operands)
 			operand.toLDAPString(buf);

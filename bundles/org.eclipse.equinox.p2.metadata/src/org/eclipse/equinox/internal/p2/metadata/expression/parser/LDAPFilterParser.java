@@ -44,7 +44,7 @@ public class LDAPFilterParser {
 
 	private final IExpression self;
 
-	private final StringBuffer sb = new StringBuffer();
+	private final StringBuilder sb = new StringBuilder();
 
 	private String filterString;
 
