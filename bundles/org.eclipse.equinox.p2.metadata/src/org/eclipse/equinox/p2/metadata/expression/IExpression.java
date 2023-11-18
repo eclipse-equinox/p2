@@ -75,14 +75,48 @@ public interface IExpression {
 	int getExpressionType();
 
 	/**
-	 * Appends the string representation of this expression to the collector <code>collector</code>.
+	 * Appends the string representation of this expression to the collector
+	 * <code>collector</code>.
+	 * 
+	 * @deprecated use {@link #toString(StringBuilder)} instead
+	 */
+	@Deprecated(since = "2.9")
+	default void toString(StringBuffer collector) {
+		StringBuilder builder = new StringBuilder();
+		toString(builder);
+		collector.append(builder);
+	}
+
+	/**
+	 * Appends the string representation of this expression to the collector
+	 * <code>collector</code>.
+	 * 
+	 * @since 2.9
 	 */
 	void toString(StringBuilder collector);
 
 	/**
-	 * Appends the an LDAP filter representation of this expression to the <code>collector</code>.
-	 * @throws UnsupportedOperationException if the expression contains nodes
-	 * that cannot be represented in an LDAP filter
+	 * Appends the an LDAP filter representation of this expression to the
+	 * <code>collector</code>.
+	 * 
+	 * @throws UnsupportedOperationException if the expression contains nodes that
+	 *                                       cannot be represented in an LDAP filter
+	 * @deprecated use {@link #toLDAPString(StringBuilder)} instead
+	 */
+	@Deprecated(since = "2.9")
+	default void toLDAPString(StringBuffer collector) {
+		StringBuilder builder = new StringBuilder();
+		toLDAPString(builder);
+		collector.append(builder);
+	}
+
+	/**
+	 * Appends the an LDAP filter representation of this expression to the
+	 * <code>collector</code>.
+	 * 
+	 * @throws UnsupportedOperationException if the expression contains nodes that
+	 *                                       cannot be represented in an LDAP filter
+	 * @since 2.9
 	 */
 	void toLDAPString(StringBuilder collector);
 }

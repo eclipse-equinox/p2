@@ -443,6 +443,19 @@ public class VersionRange implements Serializable {
 		return result.toString();
 	}
 
+	/**
+	 * @deprecated use {@link #toString(StringBuilder)} instead.
+	 */
+	@Deprecated(since = "2.9")
+	public void toString(StringBuffer result) {
+		StringBuilder builder = new StringBuilder();
+		toString(builder);
+		result.append(builder);
+	}
+
+	/**
+	 * @since 2.9
+	 */
 	public void toString(StringBuilder result) {
 		boolean gtEqual = includeMin && includeMax && Version.MAX_VERSION.equals(maxVersion);
 		if (gtEqual && Version.emptyVersion.equals(minVersion)) {

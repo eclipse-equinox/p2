@@ -179,7 +179,7 @@ public class OmniVersion extends BasicVersion {
 	}
 
 	/**
-	 * Appends the original for this version onto the <code>sb</code> StringBuffer
+	 * Appends the original for this version onto the <code>sb</code> StringBuilder
 	 * if present.
 	 * @param sb The buffer that will receive the raw string format
 	 * @param rangeSafe Set to <code>true</code> if range delimiters should be escaped
@@ -203,7 +203,7 @@ public class OmniVersion extends BasicVersion {
 	}
 
 	/**
-	 * Appends the raw format for this version onto the <code>sb</code> StringBuffer.
+	 * Appends the raw format for this version onto the <code>sb</code> StringBuilder.
 	 * @param sb The buffer that will receive the raw string format
 	 * @param rangeSafe Set to <code>true</code> if range delimiters should be escaped
 	 */
@@ -214,7 +214,7 @@ public class OmniVersion extends BasicVersion {
 
 	/**
 	 * Appends the string representation of this version onto the
-	 * <code>sb</code> StringBuffer.
+	 * <code>sb</code> StringBuilder.
 	 * @param sb The buffer that will receive the version string
 	 */
 	@Override

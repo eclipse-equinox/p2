@@ -37,9 +37,25 @@ public interface IVersionFormat {
 	static final String DEFAULT_MIN_STRING_TRANSLATION = "-"; //$NON-NLS-1$
 
 	/**
-	 * Appends the string representation of this compiled format to
-	 * the given StringBuffer.
+	 * Appends the string representation of this compiled format to the given
+	 * StringBuffer.
+	 * 
 	 * @param sb The buffer that will receive the string representation
+	 * @deprecated Use {@link #toString(StringBuilder)} instead
+	 */
+	@Deprecated(since = "2.9")
+	default void toString(StringBuffer sb) {
+		StringBuilder builder = new StringBuilder();
+		toString(builder);
+		sb.append(builder);
+	}
+
+	/**
+	 * Appends the string representation of this compiled format to the given
+	 * StringBuilder.
+	 * 
+	 * @param sb The builder that will receive the string representation
+	 * @since 2.9
 	 */
 	void toString(StringBuilder sb);
 
