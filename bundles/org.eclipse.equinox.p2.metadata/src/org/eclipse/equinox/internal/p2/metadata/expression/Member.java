@@ -251,7 +251,7 @@ public abstract class Member extends Unary {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		if (operand != rootVariable) {
 			appendOperand(bld, rootVariable, operand, getPriority());
 			bld.append('.');

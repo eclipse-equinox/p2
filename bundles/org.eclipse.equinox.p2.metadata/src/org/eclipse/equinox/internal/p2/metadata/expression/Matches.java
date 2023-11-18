@@ -104,7 +104,7 @@ public class Matches extends Binary {
 	}
 
 	@Override
-	public void toLDAPString(StringBuffer buf) {
+	public void toLDAPString(StringBuilder buf) {
 		if (!(rhs instanceof Literal))
 			throw new UnsupportedOperationException();
 

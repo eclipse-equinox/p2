@@ -91,7 +91,7 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 			return definition.getIdentifier(ordinal);
 		}
 
-		void toString(StringBuffer sb) {
+		void toString(StringBuilder sb) {
 			definition.toString(sb, ordinal);
 		}
 
@@ -253,12 +253,12 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 
 	@Override
 	public String toString() {
-		StringBuffer bld = new StringBuffer();
+		StringBuilder bld = new StringBuilder();
 		toString(bld);
 		return bld.toString();
 	}
 
-	public void toString(StringBuffer bld) {
+	public void toString(StringBuilder bld) {
 		bld.append('{');
 		int top = identifiers.length;
 		for (int ordinal = 0;;) {
@@ -276,7 +276,7 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 		bld.append('}');
 	}
 
-	void toString(StringBuffer bld, int selectedOrdinal) {
+	void toString(StringBuilder bld, int selectedOrdinal) {
 		bld.append('{');
 		int top = identifiers.length;
 		for (int ordinal = 0;;) {

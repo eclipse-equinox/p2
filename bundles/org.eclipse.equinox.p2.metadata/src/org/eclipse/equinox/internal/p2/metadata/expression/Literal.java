@@ -101,18 +101,18 @@ public final class Literal extends Expression {
 	}
 
 	@Override
-	public void toLDAPString(StringBuffer buf) {
+	public void toLDAPString(StringBuilder buf) {
 		if (!(value instanceof Filter))
 			throw new UnsupportedOperationException();
 		buf.append(value.toString());
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		appendValue(bld, value);
 	}
 
-	private static void appendValue(StringBuffer bld, Object value) {
+	private static void appendValue(StringBuilder bld, Object value) {
 		if (value == null)
 			bld.append("null"); //$NON-NLS-1$
 		else if (value == Boolean.TRUE)
@@ -152,7 +152,7 @@ public final class Literal extends Expression {
 
 	}
 
-	private static void appendLiteralCollection(StringBuffer bld, Collection<?> collection) {
+	private static void appendLiteralCollection(StringBuilder bld, Collection<?> collection) {
 		bld.append('[');
 		Iterator<?> iter = collection.iterator();
 		if (iter.hasNext()) {
@@ -165,7 +165,7 @@ public final class Literal extends Expression {
 		bld.append(']');
 	}
 
-	private static void appendQuotedString(StringBuffer bld, String str) {
+	private static void appendQuotedString(StringBuilder bld, String str) {
 		if (str.indexOf('\'') < 0) {
 			bld.append('\'');
 			bld.append(str);
@@ -174,7 +174,7 @@ public final class Literal extends Expression {
 			appendEscaped(bld, '"', str);
 	}
 
-	private static void appendEscaped(StringBuffer bld, char delimiter, String str) {
+	private static void appendEscaped(StringBuilder bld, char delimiter, String str) {
 		bld.append(delimiter);
 		int top = str.length();
 		for (int idx = 0; idx < top; ++idx) {

@@ -72,7 +72,7 @@ final class Unique extends Binary {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		CollectionFilter.appendProlog(bld, rootVariable, lhs, getOperator());
 		if (rhs != Literal.NULL_CONSTANT)
 			appendOperand(bld, rootVariable, rhs, IExpressionConstants.PRIORITY_COMMA);

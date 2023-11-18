@@ -48,7 +48,7 @@ final class Condition extends Binary {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		super.toString(bld, rootVariable);
 		bld.append(' ');
 		bld.append(OPERATOR_ELSE);

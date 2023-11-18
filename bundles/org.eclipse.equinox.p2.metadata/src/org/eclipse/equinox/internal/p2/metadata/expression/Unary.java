@@ -59,7 +59,7 @@ public abstract class Unary extends Expression {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		bld.append(getOperator());
 		appendOperand(bld, rootVariable, operand, getPriority());
 	}

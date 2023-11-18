@@ -83,7 +83,7 @@ final class Limit extends Binary {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		CollectionFilter.appendProlog(bld, rootVariable, lhs, getOperator());
 		appendOperand(bld, rootVariable, rhs, IExpressionConstants.PRIORITY_COMMA);
 		bld.append(')');

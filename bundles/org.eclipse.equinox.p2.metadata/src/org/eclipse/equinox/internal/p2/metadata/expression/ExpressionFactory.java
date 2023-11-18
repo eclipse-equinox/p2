@@ -271,7 +271,7 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 		// Insert functions that takes arguments here
 
 		//
-		StringBuffer bld = new StringBuffer();
+		StringBuilder bld = new StringBuilder();
 		bld.append("Don't know how to do a member call with "); //$NON-NLS-1$
 		bld.append(name);
 		bld.append('(');

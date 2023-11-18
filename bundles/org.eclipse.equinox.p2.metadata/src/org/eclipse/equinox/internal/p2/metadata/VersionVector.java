@@ -179,7 +179,7 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 		return hashCode;
 	}
 
-	static void toString(StringBuffer sb, Comparable<?>[] vector, Comparable<?> padValue, boolean rangeSafe) {
+	static void toString(StringBuilder sb, Comparable<?>[] vector, Comparable<?> padValue, boolean rangeSafe) {
 		int top = vector.length;
 		if (top == 0)
 			// Write one pad value as explicit. It will be considered
@@ -316,7 +316,7 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		toString(sb);
 		return sb.toString();
 	}
@@ -326,7 +326,7 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 	 * <code>sb</code> buffer.
 	 * @param sb The buffer to append to
 	 */
-	public void toString(StringBuffer sb) {
+	public void toString(StringBuilder sb) {
 		toString(sb, vector, padValue, false);
 	}
 
@@ -337,7 +337,7 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 	 * @param rangeSafe If <code>true</code>, the range delimiters will be escaped
 	 * with backslash.
 	 */
-	void toString(StringBuffer sb, boolean rangeSafe) {
+	void toString(StringBuilder sb, boolean rangeSafe) {
 		toString(sb, vector, padValue, rangeSafe);
 	}
 

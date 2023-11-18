@@ -70,7 +70,7 @@ final class Array extends NAry {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		bld.append('[');
 		elementsToString(bld, rootVariable, operands);
 		bld.append(']');

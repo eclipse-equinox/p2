@@ -41,7 +41,7 @@ public interface IVersionFormat {
 	 * the given StringBuffer.
 	 * @param sb The buffer that will receive the string representation
 	 */
-	void toString(StringBuffer sb);
+	void toString(StringBuilder sb);
 
 	/**
 	 * Parse the given version string.

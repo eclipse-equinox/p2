@@ -208,7 +208,7 @@ public abstract class Version implements Comparable<Version>, Serializable {
 
 	@Override
 	public String toString() {
-		StringBuffer buf = new StringBuffer(20);
+		StringBuilder buf = new StringBuilder(20);
 		toString(buf);
 		return buf.toString();
 	}
@@ -218,5 +218,5 @@ public abstract class Version implements Comparable<Version>, Serializable {
 	 * <code>sb</code> StringBuffer.
 	 * @param sb The buffer that will receive the version string
 	 */
-	public abstract void toString(StringBuffer sb);
+	public abstract void toString(StringBuilder sb);
 }

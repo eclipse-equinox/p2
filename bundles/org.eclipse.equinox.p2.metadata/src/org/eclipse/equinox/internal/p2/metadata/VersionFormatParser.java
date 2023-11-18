@@ -76,7 +76,7 @@ class VersionFormatParser {
 			return null;
 		}
 
-		void toString(StringBuffer bld) {
+		void toString(StringBuilder bld) {
 			bld.append('=');
 			definition.toString(bld);
 			if (begins)
@@ -142,7 +142,7 @@ class VersionFormatParser {
 
 		@Override
 		public String toString() {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			toString(sb);
 			return sb.toString();
 		}
@@ -173,7 +173,7 @@ class VersionFormatParser {
 			// No-op at this level
 		}
 
-		void toString(StringBuffer sb) {
+		void toString(StringBuilder sb) {
 			if (!(qualifier == VersionFormatParser.EXACT_ONE_QUALIFIER || (qualifier == VersionFormatParser.ZERO_OR_ONE_QUALIFIER && this.isGroup())))
 				qualifier.toString(sb);
 		}
@@ -210,7 +210,7 @@ class VersionFormatParser {
 
 		@Override
 		public String toString() {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			toString(sb);
 			return sb.toString();
 		}
@@ -290,7 +290,7 @@ class VersionFormatParser {
 			}
 		}
 
-		void toString(StringBuffer sb) {
+		void toString(StringBuilder sb) {
 			if (min == 0) {
 				switch (max) {
 					case 1:
@@ -420,7 +420,7 @@ class VersionFormatParser {
 		}
 
 		@Override
-		void toString(StringBuffer sb) {
+		void toString(StringBuilder sb) {
 			sb.append('a');
 			super.toString(sb);
 		}
@@ -468,7 +468,7 @@ class VersionFormatParser {
 		}
 
 		@Override
-		void toString(StringBuffer sb) {
+		void toString(StringBuilder sb) {
 			sb.append('d');
 			if (delimChars != null)
 				appendCharacterRange(sb, delimChars, inverted);
@@ -476,7 +476,7 @@ class VersionFormatParser {
 		}
 	}
 
-	static void appendCharacterRange(StringBuffer sb, char[] range, boolean inverted) {
+	static void appendCharacterRange(StringBuilder sb, char[] range, boolean inverted) {
 		sb.append('=');
 		sb.append('[');
 		if (inverted)
@@ -592,7 +592,7 @@ class VersionFormatParser {
 		}
 
 		@Override
-		void toString(StringBuffer sb) {
+		void toString(StringBuilder sb) {
 			if (ignored) {
 				sb.append('=');
 				sb.append('!');
@@ -677,7 +677,7 @@ class VersionFormatParser {
 		}
 
 		@Override
-		void toString(StringBuffer sb) {
+		void toString(StringBuilder sb) {
 			if (array) {
 				sb.append('<');
 				for (Fragment fragment : fragments)
@@ -725,7 +725,7 @@ class VersionFormatParser {
 		}
 
 		@Override
-		void toString(StringBuffer sb) {
+		void toString(StringBuilder sb) {
 			String str = string;
 			if (str.length() != 1) {
 				sb.append('\'');
@@ -830,7 +830,7 @@ class VersionFormatParser {
 		}
 
 		@Override
-		void toString(StringBuffer sb) {
+		void toString(StringBuilder sb) {
 			sb.append(signed ? 'N' : 'n');
 			super.toString(sb);
 		}
@@ -861,7 +861,7 @@ class VersionFormatParser {
 		}
 
 		@Override
-		void toString(StringBuffer sb) {
+		void toString(StringBuilder sb) {
 			sb.append('p');
 			super.toString(sb);
 		}
@@ -932,7 +932,7 @@ class VersionFormatParser {
 		}
 
 		@Override
-		void toString(StringBuffer sb) {
+		void toString(StringBuilder sb) {
 			sb.append('q');
 			super.toString(sb);
 		}
@@ -1005,7 +1005,7 @@ class VersionFormatParser {
 		}
 
 		@Override
-		void toString(StringBuffer sb) {
+		void toString(StringBuilder sb) {
 			if (characters != null)
 				appendCharacterRange(sb, characters, inverted);
 			if (rangeMin != 0 || rangeMax != Integer.MAX_VALUE) {
@@ -1047,7 +1047,7 @@ class VersionFormatParser {
 		}
 
 		@Override
-		void toString(StringBuffer sb) {
+		void toString(StringBuilder sb) {
 			sb.append('r');
 			super.toString(sb);
 		}
@@ -1166,7 +1166,7 @@ class VersionFormatParser {
 		}
 
 		@Override
-		void toString(StringBuffer sb) {
+		void toString(StringBuilder sb) {
 			sb.append(anyChar ? 'S' : 's');
 			super.toString(sb);
 		}
@@ -1772,7 +1772,7 @@ class VersionFormatParser {
 		currentList.add(createStringFragment(ep, parseQualifier(), unlimited));
 	}
 
-	static void toStringEscaped(StringBuffer sb, String value, String escapes) {
+	static void toStringEscaped(StringBuilder sb, String value, String escapes) {
 		for (int idx = 0; idx < value.length(); ++idx) {
 			char c = value.charAt(idx);
 			if (c == '\\' || escapes.indexOf(c) >= 0)

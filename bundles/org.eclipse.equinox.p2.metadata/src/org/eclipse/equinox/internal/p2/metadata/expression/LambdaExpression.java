@@ -57,7 +57,7 @@ public class LambdaExpression extends Unary {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		each.toString(bld, rootVariable);
 		bld.append(" | "); //$NON-NLS-1$
 		appendOperand(bld, rootVariable, operand, IExpressionConstants.PRIORITY_COMMA);

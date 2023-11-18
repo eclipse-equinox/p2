@@ -60,7 +60,7 @@ final class CurryedLambdaExpression extends LambdaExpression {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		int top = assignments.length;
 		if (top > 0) {
 			for (int idx = 0; idx < top; ++idx) {

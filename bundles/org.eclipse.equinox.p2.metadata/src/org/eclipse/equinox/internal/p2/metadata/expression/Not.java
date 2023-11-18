@@ -49,7 +49,7 @@ final class Not extends Unary {
 	}
 
 	@Override
-	public void toLDAPString(StringBuffer buf) {
+	public void toLDAPString(StringBuilder buf) {
 		buf.append("(!"); //$NON-NLS-1$
 		operand.toLDAPString(buf);
 		buf.append(')');

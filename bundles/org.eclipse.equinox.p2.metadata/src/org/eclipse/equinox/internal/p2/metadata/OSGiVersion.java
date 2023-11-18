@@ -176,12 +176,12 @@ public class OSGiVersion extends BasicVersion {
 	}
 
 	@Override
-	public void originalToString(StringBuffer sb, boolean rangeSafe) {
+	public void originalToString(StringBuilder sb, boolean rangeSafe) {
 		toString(sb);
 	}
 
 	@Override
-	public void rawToString(StringBuffer sb, boolean rangeSafe) {
+	public void rawToString(StringBuilder sb, boolean rangeSafe) {
 		sb.append(major);
 		sb.append('.');
 		sb.append(minor);
@@ -194,7 +194,7 @@ public class OSGiVersion extends BasicVersion {
 	}
 
 	@Override
-	public void toString(StringBuffer sb) {
+	public void toString(StringBuilder sb) {
 		sb.append(major);
 		sb.append('.');
 		sb.append(minor);

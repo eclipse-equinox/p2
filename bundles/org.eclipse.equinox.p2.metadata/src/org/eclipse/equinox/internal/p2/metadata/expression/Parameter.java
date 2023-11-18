@@ -68,7 +68,7 @@ public class Parameter extends Expression {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		bld.append('$');
 		bld.append(position);
 	}

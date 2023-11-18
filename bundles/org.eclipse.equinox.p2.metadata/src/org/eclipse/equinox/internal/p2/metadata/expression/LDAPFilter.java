@@ -91,7 +91,7 @@ public class LDAPFilter extends Unary implements IFilterExpression {
 	}
 
 	@Override
-	public void toString(StringBuffer bld, Variable rootVariable) {
+	public void toString(StringBuilder bld, Variable rootVariable) {
 		operand.toLDAPString(bld);
 	}
 
