@@ -93,7 +93,9 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 				monitor.done();
 			}
 		} catch (OperationCanceledException e) {
-			throw new InterruptedException();
+			InterruptedException interruptedException = new InterruptedException(e.getLocalizedMessage());
+			interruptedException.initCause(e);
+			throw interruptedException;
 		} catch (Exception e) {
 			throw new InvocationTargetException(e);
 		}
