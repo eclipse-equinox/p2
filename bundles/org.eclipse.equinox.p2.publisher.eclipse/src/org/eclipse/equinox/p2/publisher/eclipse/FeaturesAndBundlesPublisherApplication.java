@@ -17,6 +17,7 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.RootIUAction;
@@ -41,7 +42,11 @@ public class FeaturesAndBundlesPublisherApplication extends AbstractPublisherApp
 	protected String rootVersion = null;
 
 	public FeaturesAndBundlesPublisherApplication() {
-		// nothing to do
+		super();
+	}
+
+	public FeaturesAndBundlesPublisherApplication(IProvisioningAgent agent) {
+		super(agent);
 	}
 
 	@Override

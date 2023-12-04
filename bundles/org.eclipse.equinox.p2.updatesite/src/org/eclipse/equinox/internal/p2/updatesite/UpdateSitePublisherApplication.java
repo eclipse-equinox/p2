@@ -15,13 +15,15 @@
 package org.eclipse.equinox.internal.p2.updatesite;
 
 import java.net.URISyntaxException;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.JREAction;
 
 /**
  * <p>
- * This application generates meta-data/artifact repositories from a local update site.
- * The -source <localdir> parameter must specify the top-level directory containing the update site.
+ * This application generates meta-data/artifact repositories from a local
+ * update site. The -source <localdir> parameter must specify the top-level
+ * directory containing the update site.
  * </p>
  */
 public class UpdateSitePublisherApplication extends AbstractPublisherApplication {
@@ -30,7 +32,11 @@ public class UpdateSitePublisherApplication extends AbstractPublisherApplication
 	private String categoryVersion = null;
 
 	public UpdateSitePublisherApplication() {
-		// nothing todo
+		super();
+	}
+
+	public UpdateSitePublisherApplication(IProvisioningAgent agent) {
+		super(agent);
 	}
 
 	@Override
@@ -49,9 +55,9 @@ public class UpdateSitePublisherApplication extends AbstractPublisherApplication
 		LocalUpdateSiteAction action = new LocalUpdateSiteAction(source, categoryQualifier);
 		action.setCategoryVersion(categoryVersion);
 		if (addJRE) {
-			return new IPublisherAction[] {action, new JREAction((String) null)};
+			return new IPublisherAction[] { action, new JREAction((String) null) };
 		}
-		return new IPublisherAction[] {action};
+		return new IPublisherAction[] { action };
 	}
 
 	/** by default don't generate the JRE IU */
