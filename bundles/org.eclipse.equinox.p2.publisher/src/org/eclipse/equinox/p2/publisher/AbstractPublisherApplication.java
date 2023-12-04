@@ -19,20 +19,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -74,6 +68,14 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	private ServiceReference<IProvisioningAgent> agentRef;
 
 	protected IProvisioningAgent agent;
+
+	public AbstractPublisherApplication() {
+		this(null);
+	}
+
+	public AbstractPublisherApplication(IProvisioningAgent agent) {
+		this.agent = agent;
+	}
 
 	/**
 	 * Returns the error message for this application, or the empty string if the
@@ -253,22 +255,24 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	}
 
 	protected void setupAgent() throws ProvisionException {
-		agentRef = Activator.getContext().getServiceReference(IProvisioningAgent.class);
-		if (agentRef != null) {
-			agent = Activator.getContext().getService(agentRef);
-			if (agent != null)
-				return;
+		if (agent == null) {
+			agentRef = Activator.getContext().getServiceReference(IProvisioningAgent.class);
+			if (agentRef != null) {
+				agent = Activator.getContext().getService(agentRef);
+				if (agent != null)
+					return;
+			}
+			ServiceReference<IProvisioningAgentProvider> providerRef = Activator.getContext()
+					.getServiceReference(IProvisioningAgentProvider.class);
+			if (providerRef == null)
+				throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+			IProvisioningAgentProvider provider = Activator.getContext().getService(providerRef);
+			if (provider == null)
+				throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+			// obtain agent for currently running system
+			agent = provider.createAgent(null);
+			Activator.getContext().ungetService(providerRef);
 		}
-		ServiceReference<IProvisioningAgentProvider> providerRef = Activator.getContext()
-				.getServiceReference(IProvisioningAgentProvider.class);
-		if (providerRef == null)
-			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
-		IProvisioningAgentProvider provider = Activator.getContext().getService(providerRef);
-		if (provider == null)
-			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
-		// obtain agent for currently running system
-		agent = provider.createAgent(null);
-		Activator.getContext().ungetService(providerRef);
 	}
 
 	public Object run(String args[]) throws Exception {

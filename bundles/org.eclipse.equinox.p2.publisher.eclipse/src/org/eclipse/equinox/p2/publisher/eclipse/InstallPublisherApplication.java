@@ -17,6 +17,7 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
@@ -33,7 +34,11 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 	protected String[] rootExclusions;
 
 	public InstallPublisherApplication() {
-		//hidden
+		super();
+	}
+
+	public InstallPublisherApplication(IProvisioningAgent agent) {
+		super(agent);
 	}
 
 	@Override

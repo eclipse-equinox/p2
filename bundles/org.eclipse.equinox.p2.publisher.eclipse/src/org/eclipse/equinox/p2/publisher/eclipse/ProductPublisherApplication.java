@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;
@@ -35,7 +36,11 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 	private String jreLocation;
 
 	public ProductPublisherApplication() {
-		//hidden
+		super();
+	}
+
+	public ProductPublisherApplication(IProvisioningAgent agent) {
+		super(agent);
 	}
 
 	@Override
