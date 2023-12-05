@@ -340,6 +340,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 		public class ProfilesProfileHandler extends ProfileHandler {
 			private final Map<String, ProfileHandler> profileHandlers;
 
+			@SuppressWarnings("synthetic-access")
 			public ProfilesProfileHandler(ProfilesHandler profilesHandler, Attributes attributes, Map<String, ProfileHandler> profileHandlers) {
 				this.profileHandlers = profileHandlers;
 				this.parentHandler = profilesHandler;

@@ -23,8 +23,10 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  */
 public class UninstallActionTest extends ProfileModificationActionTest {
 	class TestUninstallAction extends UninstallAction {
+		@SuppressWarnings("synthetic-access")
 		TestUninstallAction(Object[] sel) {
-			super(UninstallActionTest.this.getProvisioningUI(), UninstallActionTest.this.getSelectionProvider(sel), profile.getProfileId());
+			super(UninstallActionTest.this.getProvisioningUI(), UninstallActionTest.this.getSelectionProvider(sel),
+					profile.getProfileId());
 		}
 
 		@Override
