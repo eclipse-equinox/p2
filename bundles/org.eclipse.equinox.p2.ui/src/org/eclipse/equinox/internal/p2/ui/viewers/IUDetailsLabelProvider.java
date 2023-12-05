@@ -171,10 +171,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 					if (shell == null || shell.isDisposed())
 						return Status.CANCEL_STATUS;
 
-					shell.getDisplay().asyncExec(() -> {
-						if (shell != null && !shell.isDisposed())
-							fireLabelProviderChanged(new LabelProviderChangedEvent(IUDetailsLabelProvider.this, element));
-					});
+					shell.getDisplay().asyncExec(() -> labelProviderChanged(element));
 
 					return Status.OK_STATUS;
 				}
@@ -190,6 +187,12 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			resolveJob.schedule();
 		}
 		return ProvUIMessages.IUDetailsLabelProvider_ComputingSize;
+	}
+
+	private void labelProviderChanged(final IIUElement element) {
+		if (shell != null && !shell.isDisposed()) {
+			fireLabelProviderChanged(new LabelProviderChangedEvent(IUDetailsLabelProvider.this, element));
+		}
 	}
 
 	private String getFormattedSize(long size) {

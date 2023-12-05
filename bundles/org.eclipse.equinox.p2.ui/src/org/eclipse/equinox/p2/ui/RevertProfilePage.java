@@ -283,13 +283,17 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 				}
 				boolean finish = revert();
 				if (finish) {
-					getPageContainer().closeModalContainers();
+					closeModalContainers();
 				}
 
 			}
 		};
 		revertAction.setText(ProvUIMessages.RevertProfilePage_RevertLabel);
 		revertAction.setToolTipText(ProvUIMessages.RevertProfilePage_RevertTooltip);
+	}
+
+	private void closeModalContainers() {
+		getPageContainer().closeModalContainers();
 	}
 
 	private Object getInput() {

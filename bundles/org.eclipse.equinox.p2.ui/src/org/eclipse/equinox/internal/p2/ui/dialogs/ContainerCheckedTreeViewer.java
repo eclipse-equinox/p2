@@ -14,7 +14,6 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.widgets.*;
@@ -90,16 +89,21 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 		addTreeListener(new ITreeViewerListener() {
 			@Override
 			public void treeCollapsed(TreeExpansionEvent event) {
+				// do nothing
 			}
 
 			@Override
 			public void treeExpanded(TreeExpansionEvent event) {
-				Widget item = findItem(event.getElement());
+				Widget item = findEventItem(event);
 				if (item instanceof TreeItem) {
 					initializeItem((TreeItem) item);
 				}
 			}
 		});
+	}
+
+	private Widget findEventItem(TreeExpansionEvent event) {
+		return findItem(event.getElement());
 	}
 
 	/**
@@ -277,10 +281,8 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 		setCheckedElements(new Object[0]);
 		setGrayedElements(new Object[0]);
 		Object element = null;
-		// We are assuming that once a leaf, always a leaf.
-		Iterator<Object> iter = savedCheckState.iterator();
-		while (iter.hasNext()) {
-			element = iter.next();
+		for (Object element2 : savedCheckState) {
+			element = element2;
 			setChecked(element, true);
 		}
 		// Listeners need to know something changed.

@@ -79,9 +79,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 						// of the triggering element, not just the direct descendants.
 						uncheckAllChildren(unchecked, event.getElement());
 
-						Iterator<Object> iter = checkState.iterator();
-						while (iter.hasNext()) {
-							Object current = iter.next();
+						for (Object current : checkState) {
 							if (current != null && unchecked.contains(current)) {
 								toRemove.add(current);
 							}
@@ -159,6 +157,24 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		checkState = null;
 	}
 
+	private void refresh(final boolean[] shouldPreFilter) {
+		if (filterText != null && !filterText.isDisposed()) {
+			String text = getFilterString();
+			// If we are about to filter and there is
+			// actually filtering to do, check for a prefilter
+			// job and the content provider to synchronous mode.
+			// We want the prefilter job to complete before continuing with filtering.
+			if (text == null || (initialText != null && initialText.equals(text))) {
+				return;
+			}
+			if (!contentProvider.getSynchronous() && preFilterJob == null) {
+				if (filterText != null && !filterText.isDisposed()) {
+					shouldPreFilter[0] = true;
+				}
+			}
+		}
+	}
+
 	/*
 	 * Overridden to hook a listener on the job and set the deferred content provider
 	 * to synchronous mode before a filter is done.
@@ -177,23 +193,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				}
 				final boolean[] shouldPreFilter = new boolean[1];
 				shouldPreFilter[0] = false;
-				display.syncExec(() -> {
-					if (filterText != null && !filterText.isDisposed()) {
-						String text = getFilterString();
-						// If we are about to filter and there is
-						// actually filtering to do, check for a prefilter
-						// job and the content  provider to synchronous mode.
-						// We want the prefilter job to complete before continuing with filtering.
-						if (text == null || (initialText != null && initialText.equals(text))) {
-							return;
-						}
-						if (!contentProvider.getSynchronous() && preFilterJob == null) {
-							if (filterText != null && !filterText.isDisposed()) {
-								shouldPreFilter[0] = true;
-							}
-						}
-					}
-				});
+				display.syncExec(() -> refresh(shouldPreFilter));
 				if (shouldPreFilter[0]) {
 					event.getJob().sleep();
 					schedulePreFilterJob();

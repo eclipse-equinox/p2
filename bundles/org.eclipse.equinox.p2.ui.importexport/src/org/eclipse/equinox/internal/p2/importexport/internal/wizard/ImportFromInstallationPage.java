@@ -113,13 +113,11 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 		boolean rt;
 		if (Display.findDisplay(Thread.currentThread()) == null) {
 			Callable<Boolean> getSuperValidateDest = new Callable<>() {
-				Boolean validated;
 
+				@SuppressWarnings("synthetic-access")
 				@Override
 				public Boolean call() throws Exception {
-					Display.getDefault()
-							.syncExec(() -> validated = ImportFromInstallationPage.super.validateDestinationGroup());
-					return validated;
+					return Display.getDefault().syncCall(ImportFromInstallationPage.super::validateDestinationGroup);
 				}
 			};
 			ExecutorService executor = Executors.newSingleThreadScheduledExecutor();
