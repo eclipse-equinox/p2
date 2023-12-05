@@ -14,7 +14,6 @@
 package org.eclipse.equinox.internal.frameworkadmin.utils;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
