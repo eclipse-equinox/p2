@@ -2,9 +2,8 @@ package org.eclipse.equinox.p2.examples.rcp.prestartupdate;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.operations.UpdateOperation;
@@ -45,8 +44,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		final IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(Activator.bundleContext,
 				IProvisioningAgent.SERVICE_NAME);
 		if (agent == null) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-					"No provisioning agent found.  This application is not set up for updates."));
+			ILog.get().error("No provisioning agent found.  This application is not set up for updates.");
 		}
 		// XXX if we're restarting after updating, don't check again.
 		final IPreferenceStore prefStore = Activator.getDefault().getPreferenceStore();
@@ -67,7 +65,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 				prefStore.setValue(JUSTUPDATED, true);
 				PlatformUI.getWorkbench().restart();
 			} else {
-				LogHelper.log(updateStatus);
+				ILog.get().log(updateStatus);
 			}
 		};
 		try {
