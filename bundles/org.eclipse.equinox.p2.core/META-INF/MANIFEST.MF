@@ -9,6 +9,7 @@ Bundle-Localization: plugin
 Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equinox.p2.publisher,org.eclipse.equinox.p2.repository",
  org.eclipse.equinox.internal.p2.core.helpers;
   x-friends:="org.eclipse.equinox.frameworkadmin.test,
+   org.eclipse.equinox.p2.examples.rcp.prestartupdate,
    org.eclipse.equinox.p2.artifact.optimizers,
    org.eclipse.equinox.p2.artifact.processors,
    org.eclipse.equinox.p2.artifact.repository,
