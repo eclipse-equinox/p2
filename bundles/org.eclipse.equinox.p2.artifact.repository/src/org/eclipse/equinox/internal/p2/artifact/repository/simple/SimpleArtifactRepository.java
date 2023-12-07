@@ -656,7 +656,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (baseLocation == null)
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.no_location, descriptor));
 		URI mirrorLocation = getMirror(baseLocation, subMon.split(1));
-		IStatus status = downloadArtifact(mirrorLocation, destination, subMon.split(1));
+		IStatus status = downloadArtifact(descriptor, mirrorLocation, destination, subMon.split(1));
 		IStatus result = reportStatus(descriptor, destination, status);
 		// if the original download went reasonably but the reportStatus found some issues
 		// (e..g, in the processing steps/validators) then mark the mirror as bad and return
@@ -727,14 +727,15 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return status;
 	}
 
-	private IStatus downloadArtifact(URI mirrorLocation, OutputStream destination, IProgressMonitor monitor) {
+	private IStatus downloadArtifact(IArtifactDescriptor descriptor, URI mirrorLocation, OutputStream destination,
+			IProgressMonitor monitor) {
 		monitor = IProgressMonitor.nullSafe(monitor);
 		//Bug 340352: transport has performance overhead of 100ms and more, bypass it for local copies
 		IStatus result = Status.OK_STATUS;
 		if (SimpleArtifactRepositoryFactory.PROTOCOL_FILE.equals(mirrorLocation.getScheme()))
 			result = copyFileToStream(new File(mirrorLocation), destination, monitor);
 		else
-			result = getTransport().download(mirrorLocation, destination, monitor);
+			result = getTransport().downloadArtifact(mirrorLocation, destination, descriptor, monitor);
 		if (mirrors != null)
 			mirrors.reportResult(mirrorLocation.toString(), result);
 		if (result.isOK() || result.getSeverity() == IStatus.CANCEL)

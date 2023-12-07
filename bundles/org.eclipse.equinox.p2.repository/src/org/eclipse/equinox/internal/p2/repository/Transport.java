@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -125,6 +126,30 @@ public abstract class Transport {
 	 * @throws OperationCanceledException if the operation was canceled.
 	 */
 	public abstract IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor);
+
+	/**
+	 * Perform a download, writing into the target output stream. Progress is
+	 * reported on the monitor. If the <code>target</code> is an instance of
+	 * {@link IStateful} the resulting status is also set on the target. This method
+	 * differs to {@link #download(URI, OutputStream, long, IProgressMonitor)} in
+	 * that it allows to optionally pass in additional context of the download
+	 * request. The default implementation simply delegates to the former method and
+	 * do not make any special handling but subclasses may overwrite.
+	 *
+	 * @return IStatus, that is a {@link DownloadStatus} on success.
+	 * @param source URI of file to download, this might be a mirror of the
+	 *                   actual artifact repository
+	 * @param target     OutputStream where result is written
+	 * @param descriptor the descriptor of the artifact that is about to be
+	 *                   downloaded
+	 * @param monitor    where progress should be reported
+	 * @throws OperationCanceledException if the operation was canceled.
+	 */
+	public IStatus downloadArtifact(URI source, OutputStream target, IArtifactDescriptor descriptor,
+			IProgressMonitor monitor) {
+		Objects.requireNonNull(descriptor);
+		return download(source, target, monitor);
+	}
 
 	/**
 	 * Perform a stream download, writing into an InputStream that is returned.
