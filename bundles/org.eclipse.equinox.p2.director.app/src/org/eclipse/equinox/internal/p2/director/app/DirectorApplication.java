@@ -870,43 +870,18 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			destination = new File(destination, "Contents/Eclipse"); //$NON-NLS-1$
 	}
 
-	private URI getP2DataAreaLocation(BundleContext context) {
-		URI p2DataArea;
-		if (destination != null || sharedLocation != null) {
-			File dataAreaFile = sharedLocation == null ? new File(destination, "p2") : sharedLocation;//$NON-NLS-1$
-			p2DataArea = dataAreaFile.toURI();
-		} else {
-			p2DataArea = null;
-		}
-		if (p2DataArea == null) {
-			final String currentAgentFiler = '(' + IProvisioningAgent.SERVICE_CURRENT + '=' + "true)"; //$NON-NLS-1$
-			try {
-				Collection<ServiceReference<IProvisioningAgent>> refs;
-				refs = context.getServiceReferences(IProvisioningAgent.class, currentAgentFiler);
-				if (!refs.isEmpty()) {
-					targetAgent = context.getService(refs.iterator().next());
-					targetAgentIsSelfAndUp = true;
-				}
-			} catch (InvalidSyntaxException e) {
-				// Can't happen the filter never changes
-			}
-		}
-		return p2DataArea;
-	}
-
 	// Implement something here to position "p2 folder" correctly
 	private void initializeServices() throws CoreException {
-		BundleContext context = Activator.getContext();
-		ServiceReference<IProvisioningAgentProvider> agentProviderRef = context
-				.getServiceReference(IProvisioningAgentProvider.class);
-		IProvisioningAgentProvider provider = context.getService(agentProviderRef);
-
-		URI p2DataArea = getP2DataAreaLocation(context);
 		if (targetAgent == null) {
-			targetAgent = provider.createAgent(p2DataArea);
-			targetAgent.registerService(IProvisioningAgent.INSTALLER_AGENT, provider.createAgent(null));
+			if (destination != null || sharedLocation != null) {
+				File dataAreaFile = sharedLocation == null ? new File(destination, "p2") : sharedLocation;//$NON-NLS-1$
+				targetAgent = createAgent(dataAreaFile.toURI());
+				targetAgentIsSelfAndUp = false;
+			} else {
+				targetAgent = getDefaultAgent();
+				targetAgentIsSelfAndUp = true;
+			}
 		}
-		context.ungetService(agentProviderRef);
 		if (profileId == null) {
 			if (destination != null) {
 				File configIni = new File(destination, "configuration/config.ini"); //$NON-NLS-1$
@@ -948,6 +923,53 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		eventBus.addListener(this);
 
 	}
+
+	/**
+	 * Called when the director application want to use the default provisioning
+	 * agent
+	 *
+	 * @return the current default agent, never <code>null</code>
+	 * @throws CoreException when fetching the agent failed
+	 */
+	protected IProvisioningAgent getDefaultAgent() throws CoreException {
+		BundleContext context = Activator.getContext();
+		final String currentAgentFiler = String.format("(%s=true)", IProvisioningAgent.SERVICE_CURRENT); //$NON-NLS-1$
+		try {
+			Collection<ServiceReference<IProvisioningAgent>> refs = context
+					.getServiceReferences(IProvisioningAgent.class, currentAgentFiler);
+			for (ServiceReference<IProvisioningAgent> serviceReference : refs) {
+				IProvisioningAgent service = context.getService(serviceReference);
+				if (service != null) {
+					context.ungetService(serviceReference);
+					return service;
+				}
+			}
+		} catch (InvalidSyntaxException e) {
+			// Can't happen the filter never changes
+			throw new CoreException(Status.error("Internal error", e)); //$NON-NLS-1$
+		}
+		throw new CoreException(Status.error("Can't fetch the default agent")); //$NON-NLS-1$
+	}
+
+	/**
+	 * Creates a new agent for the given data area
+	 *
+	 * @param p2DataArea the data area to create a new agent
+	 * @return the new agent, never <code>null</code>
+	 * @throws CoreException if creation of the agent for the given location failed
+	 */
+	protected IProvisioningAgent createAgent(URI p2DataArea) throws CoreException {
+		BundleContext context = Activator.getContext();
+		ServiceReference<IProvisioningAgentProvider> agentProviderRef = context
+				.getServiceReference(IProvisioningAgentProvider.class);
+		IProvisioningAgentProvider provider = context.getService(agentProviderRef);
+
+		IProvisioningAgent agent = provider.createAgent(p2DataArea);
+		agent.registerService(IProvisioningAgent.INSTALLER_AGENT, provider.createAgent(null));
+			context.ungetService(agentProviderRef);
+		return agent;
+	}
+
 
 	/*
 	 * See bug: https://bugs.eclipse.org/340971 Using the event bus to detect
