@@ -694,7 +694,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	public void testSyntaxErrorWhileParsing() {
 		File badCompositeArtifacts = getTestData("1", "/testData/artifactRepo/composite/Bad/syntaxError");
 		PrintStream err = System.err;
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		try {
 			System.setErr(new PrintStream(new StringBufferStream(buffer)));
 			getArtifactRepositoryManager().loadRepository(badCompositeArtifacts.toURI(), null);

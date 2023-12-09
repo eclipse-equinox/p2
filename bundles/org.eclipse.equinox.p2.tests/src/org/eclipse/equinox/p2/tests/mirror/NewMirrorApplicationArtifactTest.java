@@ -107,7 +107,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		super.tearDown();
 	}
 
-	private StringBuffer basicRunMirrorApplication(String message, URI source, URI destination, Boolean append, Boolean formatDestination, String destName) throws Exception {
+	private StringBuilder basicRunMirrorApplication(String message, URI source, URI destination, Boolean append, Boolean formatDestination, String destName) throws Exception {
 		MirrorApplication app = new MirrorApplication();
 
 		if (destination != null) {
@@ -124,7 +124,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			app.addSource(src);
 		}
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));
@@ -135,11 +135,11 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		return buffer;
 	}
 
-	private StringBuffer basicRunMirrorApplication(String message, URI source, URI destination, Boolean append, Boolean formatDestination) throws Exception {
+	private StringBuilder basicRunMirrorApplication(String message, URI source, URI destination, Boolean append, Boolean formatDestination) throws Exception {
 		return basicRunMirrorApplication(message, source, destination, append, formatDestination, null);
 	}
 
-	private StringBuffer basicRunMirrorApplication(String message, URI source, URI destination) throws Exception {
+	private StringBuilder basicRunMirrorApplication(String message, URI source, URI destination) throws Exception {
 		return basicRunMirrorApplication(message, source, destination, null, null, null);
 	}
 
@@ -826,7 +826,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		}
 		assertEquals("Assert name is set correctly before mirror", oldName, destinationRepo.getName());
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));

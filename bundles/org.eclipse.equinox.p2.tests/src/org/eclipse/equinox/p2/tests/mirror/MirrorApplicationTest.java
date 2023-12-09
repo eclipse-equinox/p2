@@ -134,8 +134,8 @@ public class MirrorApplicationTest {
 		return descriptor;
 	}
 
-	private static StringBuffer runApplication(MirrorApplication app) throws ProvisionException {
-		StringBuffer buffer = new StringBuffer();
+	private static StringBuilder runApplication(MirrorApplication app) throws ProvisionException {
+		StringBuilder buffer = new StringBuilder();
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));

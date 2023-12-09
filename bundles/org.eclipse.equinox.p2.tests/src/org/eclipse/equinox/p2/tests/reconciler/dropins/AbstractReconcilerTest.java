@@ -280,7 +280,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 				// then use the non canonical one...
 			}
 		}
-		StringBuffer detailedMessage = new StringBuffer(600);
+		StringBuilder detailedMessage = new StringBuilder(600);
 		detailedMessage.append(" propertyToPlatformArchive was ").append(propertyToPlatformArchive == null ? " not set " : propertyToPlatformArchive).append('\n');
 		detailedMessage.append(" org.eclipse.equinox.p2.reconciler.tests.platform.archive was ").append(property == null ? " not set " : property).append('\n');
 		detailedMessage.append(" install location is ").append(getInstallLocation()).append('\n');

@@ -99,8 +99,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	/**
 	 * runs the mirror application with arguments args
 	 */
-	private StringBuffer runMirrorApplication(String message, final String[] args) throws Exception {
-		StringBuffer buffer = new StringBuffer();
+	private StringBuilder runMirrorApplication(String message, final String[] args) throws Exception {
+		StringBuilder buffer = new StringBuilder();
 		PrintStream out = System.out;
 		PrintStream err = System.err;
 		try {

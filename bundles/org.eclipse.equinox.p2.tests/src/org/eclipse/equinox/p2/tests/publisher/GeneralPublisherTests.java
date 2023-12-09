@@ -44,7 +44,7 @@ public class GeneralPublisherTests {
 	public void testInvalidConfiguration1() {
 		FeaturesAndBundlesPublisherApplication application = new FeaturesAndBundlesPublisherApplication();
 		Integer retValue = 0;
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));
@@ -63,7 +63,7 @@ public class GeneralPublisherTests {
 	public void testInvalidConfiguration2() {
 		FeaturesAndBundlesPublisherApplication application = new FeaturesAndBundlesPublisherApplication();
 		Integer retValue = 0;
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));

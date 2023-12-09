@@ -56,10 +56,10 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	/**
 	 * runs default director app.
 	 */
-	private StringBuffer runDirectorApp(String message, final String[] args) throws Exception {
+	private StringBuilder runDirectorApp(String message, final String[] args) throws Exception {
 		PrintStream out = System.out;
 		PrintStream err = System.err;
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		try {
 			PrintStream newStream = new PrintStream(new StringBufferStream(buffer));
 			System.setOut(newStream);
@@ -132,7 +132,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		//Setup: use default arguments
 		String[] args = getSingleRepoArgs("1.0", metadataRepo, artifactRepo, destinationRepo, installIU);
 
-		StringBuffer outputBuffer = null;
+		StringBuilder outputBuffer = null;
 		try {
 			outputBuffer = runDirectorApp("1.1", args);
 		} catch (ProvisionException e) {
@@ -178,7 +178,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		//Setup: use default arguments
 		String[] args = getSingleRepoArgs("2.1", metadataRepo, artifactRepo, destinationRepo, installIU);
 
-		StringBuffer outputBuffer = null;
+		StringBuilder outputBuffer = null;
 		try {
 			outputBuffer = runDirectorApp("2.2", args);
 		} catch (ProvisionException e) {
@@ -221,7 +221,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 
 		//Setup: use default arguments
 		String[] args = getSingleRepoArgs("3.1", metadataRepo, artifactRepo, destinationRepo, installIU);
-		StringBuffer outputBuffer = null;
+		StringBuilder outputBuffer = null;
 		try {
 			outputBuffer = runDirectorApp("3.2", args);
 		} catch (ProvisionException e) {
@@ -636,7 +636,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 
 		destinationRepo.mkdirs();
 
-		StringBuffer buffer = runDirectorApp("12.5", args);
+		StringBuilder buffer = runDirectorApp("12.5", args);
 		assertTrue(buffer.toString().contains("The installable unit yetanotherplugin has not been found."));
 
 		final URI[] afterArtifactRepos = artifactManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
@@ -672,7 +672,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		String[] args = getSingleRepoArgs("13.4", metadataRepo2, artifactRepo2, destinationRepo, "helloworld");
 
 		destinationRepo.mkdirs();
-		StringBuffer buffer = runDirectorApp("13.5", args);
+		StringBuilder buffer = runDirectorApp("13.5", args);
 		assertTrue(buffer.toString().contains("Installing helloworld 1.0.0."));
 
 		artifactManager.removeRepository(artifactRepo1.toURI());
@@ -694,7 +694,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		String[] args = getSingleRepoArgs("testDownloadOnly", metadataRepo, artifactRepo, destinationRepo, installIU, "-downloadOnly");
 
 		try {
-			StringBuffer buffer = runDirectorApp("testDownloadOnly", args);
+			StringBuilder buffer = runDirectorApp("testDownloadOnly", args);
 			assertTrue(buffer.toString().contains("Installing fff.feature.group 1.0.0."));
 		} catch (Exception e) {
 			fail("fail", e);
@@ -722,7 +722,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		//Setup: create the args
 		String[] args = getSingleRepoArgsForListing("testListFormatMissingListArgument", metadataRepo, artifactRepo, "", "", "-listFormat", "%i=%v,%d");
 
-		StringBuffer buffer = runDirectorApp("testListFormatMissingListArgument", args);
+		StringBuilder buffer = runDirectorApp("testListFormatMissingListArgument", args);
 		assertThat(buffer.toString(), containsString("-listFormat requires"));
 	}
 
@@ -734,7 +734,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		//Setup: create the args
 		String[] args = getSingleRepoArgsForListing("testListFormat", metadataRepo, artifactRepo, "-list", "", "-listFormat", "${id}_${version},${id},${org.eclipse.equinox.p2.name}");
 
-		StringBuffer buffer = runDirectorApp("testListFormat", args);
+		StringBuilder buffer = runDirectorApp("testListFormat", args);
 		assertThat(buffer.toString(), containsString("org.eclipse.ui.examples.job_3.0.0,org.eclipse.ui.examples.job,Progress Examples Plug-in"));
 	}
 
@@ -746,7 +746,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		//Setup: create the args
 		String[] args = getSingleRepoArgsForListing("testListNoExplicitFormat", metadataRepo, artifactRepo, "-list", "", "", "");
 
-		StringBuffer buffer = runDirectorApp("testListNoExplicitFormat", args);
+		StringBuilder buffer = runDirectorApp("testListNoExplicitFormat", args);
 		assertThat(buffer.toString(), containsString("org.eclipse.ui.examples.job=3.0.0"));
 	}
 
@@ -767,7 +767,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 
 		destinationRepo.mkdirs();
 
-		StringBuffer buffer = runDirectorApp("14.2", args);
+		StringBuilder buffer = runDirectorApp("14.2", args);
 		assertTrue(buffer.toString().contains("The installable unit helloworld has not been found."));
 
 		artifactManager.removeRepository(srcRepo.toURI());
@@ -885,7 +885,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 
 		destinationRepo.mkdirs();
 
-		StringBuffer buffer = runDirectorApp(null, args);
+		StringBuilder buffer = runDirectorApp(null, args);
 		assertFalse(buffer.toString(), buffer.toString().contains("failed"));
 
 		artifactManager.removeRepository(srcRepo.toURI());
@@ -908,7 +908,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 
 		destinationRepo.mkdirs();
 
-		StringBuffer buffer = runDirectorApp(null, args.toArray(String[]::new));
+		StringBuilder buffer = runDirectorApp(null, args.toArray(String[]::new));
 		assertTrue(buffer.toString(), buffer.toString().contains("One or more PGP keys are not trusted."));
 
 		artifactManager.removeRepository(srcRepo.toURI());
@@ -933,7 +933,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 
 		destinationRepo.mkdirs();
 
-		StringBuffer buffer = runDirectorApp(null, args.toArray(String[]::new));
+		StringBuilder buffer = runDirectorApp(null, args.toArray(String[]::new));
 		assertFalse(buffer.toString(), buffer.toString().contains("failed"));
 
 		artifactManager.removeRepository(srcRepo.toURI());

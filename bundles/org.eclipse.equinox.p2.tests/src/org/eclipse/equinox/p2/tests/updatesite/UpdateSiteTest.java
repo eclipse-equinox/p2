@@ -308,7 +308,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));
@@ -373,7 +373,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));
@@ -463,7 +463,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));
@@ -617,7 +617,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		assertNotNull(repoMan);
 		File site = getTestData("Update site", "/testData/updatesite/missingUpdateURLFeature/");
 		IMetadataRepository metadataRepo = null;
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));
