@@ -17,17 +17,17 @@ package org.eclipse.equinox.p2.tests;
 import java.io.OutputStream;
 
 public class StringBufferStream extends OutputStream {
-	private StringBuffer buffer;
+	private StringBuilder buffer;
 
 	public StringBufferStream() {
-		this.buffer = new StringBuffer();
+		this.buffer = new StringBuilder();
 	}
 
-	public StringBufferStream(StringBuffer buffer) {
+	public StringBufferStream(StringBuilder buffer) {
 		this.buffer = buffer;
 	}
 
-	public StringBuffer getBuffer() {
+	public StringBuilder getBuffer() {
 		return buffer;
 	}
 

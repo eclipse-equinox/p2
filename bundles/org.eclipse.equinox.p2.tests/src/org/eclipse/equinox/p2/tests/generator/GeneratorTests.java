@@ -59,10 +59,10 @@ public class GeneratorTests extends AbstractProvisioningTest {
 		}
 
 		public Object go(String[] arguments) throws Exception {
-			return go(arguments, new StringBuffer());
+			return go(arguments, new StringBuilder());
 		}
 
-		public Object go(String[] arguments, StringBuffer buffer) throws Exception {
+		public Object go(String[] arguments, StringBuilder buffer) throws Exception {
 			Object result = null;
 			PrintStream out = System.out;
 			PrintStream err = System.err;
@@ -112,7 +112,7 @@ public class GeneratorTests extends AbstractProvisioningTest {
 
 		//Taunt you one more time
 		application = new TestGeneratorApplication();
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		try {
 			application.go(arguments, buffer);
 			fail("3.0 - Expected Illegal Argument Exception not thrown.");

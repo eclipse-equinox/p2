@@ -389,7 +389,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testSyntaxErrorWhileParsing() {
 		File badCompositeContent = getTestData("1", "/testData/metadataRepo/composite/Bad/syntaxError");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		PrintStream err = System.err;
 		try {
 			System.setErr(new PrintStream(new StringBufferStream(buffer)));
