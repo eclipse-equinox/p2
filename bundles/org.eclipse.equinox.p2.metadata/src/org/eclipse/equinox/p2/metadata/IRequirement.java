@@ -57,7 +57,13 @@ public interface IRequirement {
 	int getMax();
 
 	/**
-	 * @noreference This method is not intended to be referenced by clients.
+	 * Returns the filter on this requirement. The filter is matched against
+	 * the properties of the environment the requirement is installed into. A requirement
+	 * not applicable, i.e., is ignored, if it has a filter condition that is not satisfied
+	 * by the properties of the environment.
+	 * 
+	 * @return The requirement filter for this unit, or <code>null</code>
+	 * 
 	 * @since 2.0
 	 */
 	IMatchExpression<IInstallableUnit> getFilter();
