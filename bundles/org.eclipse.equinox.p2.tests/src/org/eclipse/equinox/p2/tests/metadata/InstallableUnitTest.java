@@ -7,21 +7,28 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
- * Black box tests for API of {@link org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit}.
+ * Black box tests for API of
+ * {@link org.eclipse.equinox.p2.metadata.IInstallableUnit}.
  */
 public class InstallableUnitTest extends AbstractProvisioningTest {
 	/**
-	 * Tests for {@link org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit#satisfies(org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability)}.
+	 * Tests for
+	 * {@link org.eclipse.equinox.p2.metadata.IInstallableUnit#satisfies(org.eclipse.equinox.internal.p2.metadata.RequiredCapability)}.
 	 */
 	public void testSatisfies() {
 		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("testNamespace", "name", Version.createOSGi(1, 0, 0))};

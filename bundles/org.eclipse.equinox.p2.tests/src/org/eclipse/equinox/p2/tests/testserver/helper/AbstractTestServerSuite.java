@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      Cloudsmith - initial API and implementation
  *******************************************************************************/
@@ -16,9 +16,11 @@ package org.eclipse.equinox.p2.tests.testserver.helper;
 import junit.framework.TestCase;
 
 /**
- * Testsuite that manages the start and stop of the testserver for a suite of tests.
- * 
- * A derived class should implement the following:<br/><br/>
+ * Testsuite that manages the start and stop of the testserver for a suite of
+ * tests.
+ *
+ * A derived class should implement the following:<br/>
+ * <br/>
  * <code>
  *	public static Test suite() throws Exception { <br/>
  *		&nbsp;&nbsp;&nbsp;&nbsp;final TestSuite suite = new TestSuite("...name of suite..."); <br/>
@@ -30,11 +32,11 @@ import junit.framework.TestCase;
  *		&nbsp;&nbsp;&nbsp;&nbsp;suite.addTest(new AbstractTestServerSuite("startServer"));<br/>
  *      &nbsp;&nbsp;&nbsp;&nbsp;return suite;<br/>
  *  }<br/>
- * </code>
- * The tests in the suite should call {@link TestServerLauncher} to make sure the server is
- * running either started by this suite, or directly when test is run individually. This is
- * handled by the class {@link AbstractTestServerClientCase} which serves as the base for
- * tests requiring access to a running server.
+ * </code> The tests in the suite should call {@link TestServerController} to
+ * make sure the server is running either started by this suite, or directly
+ * when test is run individually. This is handled by the class
+ * {@link AbstractTestServerClientCase} which serves as the base for tests
+ * requiring access to a running server.
  */
 public class AbstractTestServerSuite extends TestCase {
 
