@@ -11,3 +11,4 @@ Bug 578351 - Lambda generation order is unstable in ecj
 Bug 579126 - 4.24 I-Build: I20220307-0340 - Comparator Errors Found
 Comparator errors in I20230307-0840
 Bug 527899 [9] Implement JEP 280: Indify String Concatenation
+https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1659
