@@ -130,7 +130,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	/**
-	 * Returns a collection of {@link RepositoryReference}.
+	 * Returns a collection of {@link IRepositoryReference}.
 	 */
 	@Override
 	public Collection<IRepositoryReference> getReferences() {

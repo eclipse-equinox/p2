@@ -15,7 +15,6 @@ package org.eclipse.equinox.p2.tests.core;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
 import java.util.List;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -25,7 +24,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.junit.Test;
 
 /**
- * Tests for the {@link org.eclipse.equinox.internal.provisional.p2.query.Query} class.
+ * Tests for the {@link org.eclipse.equinox.p2.query.Query} class.
  */
 public class QueryTest {
 
@@ -41,13 +40,13 @@ public class QueryTest {
 	 */
 	@Test
 	public void testPerformSimple() {
-		List<String> items = Arrays.asList("red", "green", "blue");
+		List<String> items = List.of("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
 		IQueryResult collector = query.perform(items.iterator());
-		assertEquals("1.0", 3, AbstractProvisioningTest.queryResultSize(collector));
-		AbstractProvisioningTest.assertContains("1.1", collector, "red");
-		AbstractProvisioningTest.assertContains("1.2", collector, "green");
-		AbstractProvisioningTest.assertContains("1.3", collector, "blue");
+		assertEquals(3, AbstractProvisioningTest.queryResultSize(collector));
+		AbstractProvisioningTest.assertContains(collector, "red");
+		AbstractProvisioningTest.assertContains(collector, "green");
+		AbstractProvisioningTest.assertContains(collector, "blue");
 	}
 
 	/**
@@ -55,69 +54,52 @@ public class QueryTest {
 	 */
 	@Test
 	public void testPerformSomeMatches() {
-		List<Object> items = Arrays.asList(new Object(), "green", new Object());
+		List<Object> items = List.of(new Object(), "green", new Object());
 		IQuery query = new AnyStringQuery();
 		IQueryResult collector = query.perform(items.iterator());
-		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(collector));
-		AbstractProvisioningTest.assertContains("1.1", collector, "green");
+		assertEquals(1, AbstractProvisioningTest.queryResultSize(collector));
+		AbstractProvisioningTest.assertContains(collector, "green");
 	}
 
 	@Test
 	public void testLimitQuery() {
-		List<String> items = Arrays.asList("red", "green", "blue");
+		List<String> items = List.of("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
 		IQuery limitQuery = QueryUtil.createLimitQuery(query, 1);
 		IQueryResult collector = limitQuery.perform(items.iterator());
-		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(collector));
-		AbstractProvisioningTest.assertContains("1.1", collector, "red");
+		assertEquals(1, AbstractProvisioningTest.queryResultSize(collector));
+		AbstractProvisioningTest.assertContains(collector, "red");
 	}
 
 	@Test
 	public void testLimitQuery2() {
-		List<String> items = Arrays.asList("red", "green", "blue");
+		List<String> items = List.of("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
 		IQuery limitQuery = QueryUtil.createLimitQuery(query, 2);
 		IQueryResult collector = limitQuery.perform(items.iterator());
-		assertEquals("1.0", 2, AbstractProvisioningTest.queryResultSize(collector));
-		AbstractProvisioningTest.assertContains("1.1", collector, "red");
-		AbstractProvisioningTest.assertContains("1.2", collector, "green");
+		assertEquals(2, AbstractProvisioningTest.queryResultSize(collector));
+		AbstractProvisioningTest.assertContains(collector, "red");
+		AbstractProvisioningTest.assertContains(collector, "green");
 	}
 
 	@Test
 	public void testLimitQuery3() {
-		List<String> items = Arrays.asList("red", "green", "blue");
+		List<String> items = List.of("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
 		IQuery limitQuery = QueryUtil.createLimitQuery(query, 3);
 		IQueryResult collector = limitQuery.perform(items.iterator());
-		assertEquals("1.0", 3, AbstractProvisioningTest.queryResultSize(collector));
-		AbstractProvisioningTest.assertContains("1.1", collector, "red");
-		AbstractProvisioningTest.assertContains("1.2", collector, "green");
-		AbstractProvisioningTest.assertContains("1.3", collector, "blue");
+		assertEquals(3, AbstractProvisioningTest.queryResultSize(collector));
+		AbstractProvisioningTest.assertContains(collector, "red");
+		AbstractProvisioningTest.assertContains(collector, "green");
+		AbstractProvisioningTest.assertContains(collector, "blue");
 	}
 
 	@Test
 	public void testLimitQuery0() {
-		List<String> items = Arrays.asList("red", "green", "blue");
+		List<String> items = List.of("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
 		IQuery limitQuery = QueryUtil.createLimitQuery(query, 0);
 		IQueryResult collector = limitQuery.perform(items.iterator());
-		assertEquals("1.0", 0, AbstractProvisioningTest.queryResultSize(collector));
+		assertEquals(0, AbstractProvisioningTest.queryResultSize(collector));
 	}
-
-	//	public void testPipedLimitQuery() {
-	//		List items = Arrays.asList("pink", "red", "green", "pink");
-	//		IQuery anyString = new AnyStringQuery();
-	//		IQuery containsI = new MatchQuery() {
-	//
-	//			public boolean isMatch(Object candidate) {
-	//				return ((String) candidate).contains("e");
-	//			}
-	//		};
-	//		IQuery pipedQuery = new PipedQuery(new IQuery[] {anyString, containsI});
-	//		IQuery limitQuery = LimitQuery.create(pipedQuery, 1);
-	//		Collector collector = limitQuery.perform(items.iterator(), new Collector());
-	//		Collection result = collector.toCollection();
-	//		assertEquals("1.0", 1, result.size());
-	//		assertTrue("1.1", result.contains("red"));
-	//	}
 }

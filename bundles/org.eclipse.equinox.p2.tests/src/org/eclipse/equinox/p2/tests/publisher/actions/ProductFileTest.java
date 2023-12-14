@@ -68,7 +68,7 @@ public class ProductFileTest {
 	 */
 	@Test
 	public void testGetLauncherName() {
-		assertEquals("1.0", "sample", productFile.getLauncherName());
+		assertEquals("sample", productFile.getLauncherName());
 	}
 
 	/**
@@ -76,7 +76,7 @@ public class ProductFileTest {
 	 */
 	@Test
 	public void testGetLocation() {
-		assertEquals("1.0", productFileLocation, productFile.getLocation().toString());
+		assertEquals(productFileLocation, productFile.getLocation().toString());
 	}
 
 	/**
@@ -85,11 +85,11 @@ public class ProductFileTest {
 	@Test
 	public void testGetConfigurationProperties() {
 		Map<String, String> properties = productFile.getConfigurationProperties();
-		assertEquals("1.0", 4, properties.size());
-		assertEquals("1.1", "bar", properties.get("foo"));
-		assertTrue("1.2", properties.get("foo1").isEmpty());
-		assertEquals("1.3", "test.product", properties.get("eclipse.product"));
-		assertEquals("1.4", "test.app", properties.get("eclipse.application"));
+		assertEquals(4, properties.size());
+		assertEquals("bar", properties.get("foo"));
+		assertTrue(properties.get("foo1").isEmpty());
+		assertEquals("test.product", properties.get("eclipse.product"));
+		assertEquals("test.app", properties.get("eclipse.application"));
 	}
 
 	/**
@@ -114,10 +114,10 @@ public class ProductFileTest {
 	public void testGetBundleInfos() {
 		List<BundleInfo> bundleInfos = productFile.getBundleInfos();
 		BundleInfo info = bundleInfos.iterator().next();
-		assertEquals("1.0", 1, bundleInfos.size());
-		assertEquals("1.1", "org.eclipse.core.runtime", info.getSymbolicName());
-		assertEquals("1.2", 2, info.getStartLevel());
-		assertTrue("1.3", info.isMarkedAsStarted());
+		assertEquals(1, bundleInfos.size());
+		assertEquals("org.eclipse.core.runtime", info.getSymbolicName());
+		assertEquals(2, info.getStartLevel());
+		assertTrue(info.isMarkedAsStarted());
 	}
 
 	/**
@@ -127,9 +127,9 @@ public class ProductFileTest {
 	@Test
 	public void testGetFeatures() {
 		List<IVersionedId> features = productFile.getFeatures();
-		assertEquals("1.0", 1, features.size());
-		assertEquals("1.1", "org.eclipse.rcp", features.get(0).getId());
-		assertEquals("1.2", Version.create("3.5.0.v20081110-9C9tEvNEla71LZ2jFz-RFB-t"), features.get(0).getVersion());
+		assertEquals(1, features.size());
+		assertEquals("org.eclipse.rcp", features.get(0).getId());
+		assertEquals(Version.create("3.5.0.v20081110-9C9tEvNEla71LZ2jFz-RFB-t"), features.get(0).getVersion());
 	}
 
 	@Test
@@ -175,22 +175,13 @@ public class ProductFileTest {
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getIcons(java.lang.String)}.
-	 */
-	//	public void testGetIcons() {
-	//		String[] icons = productFile.getIcons("win32");
-	//		String absolutePath = new File(productFile.getLocation().getParentFile(), "test/icon.bmp").getAbsolutePath();
-	//		assertEquals("1.0", 1, icons.length);
-	//		assertEquals("1.1", absolutePath, icons[0]);
-	//	}
-	/**
 	 * Test method for
 	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getConfigIniPath()}.
 	 */
 	@Test
 	public void testGetConfigIniPath() {
 		String configIni = productFile.getConfigIniPath("win32");
-		assertEquals("1.0", "config.ini", configIni);
+		assertEquals("config.ini", configIni);
 	}
 
 	/**
@@ -200,13 +191,13 @@ public class ProductFileTest {
 	@Test
 	public void testGetId() {
 		String id = productFile.getId();
-		assertEquals("1.0", "test.product", id);
+		assertEquals("test.product", id);
 	}
 
 	@Test
 	public void testGetUID() {
 		String id = uidProductFile.getId();
-		assertEquals("1.0", "UID.test.product", id);
+		assertEquals("UID.test.product", id);
 	}
 
 	/**
@@ -216,7 +207,7 @@ public class ProductFileTest {
 	@Test
 	public void testGetSplashLocation() {
 		String splashLocation = productFile.getSplashLocation();
-		assertEquals("1.0", "org.eclipse.equinox.p2.tests", splashLocation);
+		assertEquals("org.eclipse.equinox.p2.tests", splashLocation);
 	}
 
 	/**
@@ -226,7 +217,7 @@ public class ProductFileTest {
 	@Test
 	public void testGetProductName() {
 		String productName = productFile.getProductName();
-		assertEquals("1.0", "aaTestProduct", productName);
+		assertEquals("aaTestProduct", productName);
 	}
 
 	/**
@@ -236,7 +227,7 @@ public class ProductFileTest {
 	@Test
 	public void testGetApplication() {
 		String application = productFile.getApplication();
-		assertEquals("1.0", "test.app", application);
+		assertEquals("test.app", application);
 	}
 
 	/**
@@ -266,16 +257,16 @@ public class ProductFileTest {
 	@Test
 	public void testGetVMArguments() {
 		String vmArguments = productFile.getVMArguments("");
-		assertEquals("1.0", "vmArg -Dfoo=\"b a r\"", vmArguments);
+		assertEquals("vmArg -Dfoo=\"b a r\"", vmArguments);
 		vmArguments = productFile.getVMArguments(null);
-		assertEquals("1.1", "vmArg -Dfoo=\"b a r\"", vmArguments);
+		assertEquals("vmArg -Dfoo=\"b a r\"", vmArguments);
 	}
 
 	@Test
 	public void testIncludeLaunchers() {
-		assertTrue("1.0", noLauncherFlag.includeLaunchers());
-		assertFalse("1.1", falseLauncherFlag.includeLaunchers());
-		assertTrue("1.2", trueLauncherFlag.includeLaunchers());
+		assertTrue(noLauncherFlag.includeLaunchers());
+		assertFalse(falseLauncherFlag.includeLaunchers());
+		assertTrue(trueLauncherFlag.includeLaunchers());
 	}
 
 	/**
@@ -285,23 +276,23 @@ public class ProductFileTest {
 	@Test
 	public void testGetProgramArguments() {
 		String programArguments = productFile.getProgramArguments("");
-		assertEquals("1.0", "programArg -name \"My Name\"", programArguments);
+		assertEquals("programArg -name \"My Name\"", programArguments);
 		programArguments = productFile.getProgramArguments(null);
-		assertEquals("1.1", "programArg -name \"My Name\"", programArguments);
+		assertEquals("programArg -name \"My Name\"", programArguments);
 	}
 
 	@Test
 	public void testGetLicenseURL() throws Exception {
 		String productWithLicense = TestData.getFile("ProductActionTest", "productWithLicense.product").toString();
 		ProductFile product = new ProductFile(productWithLicense);
-		assertEquals("1.0", "http://www.example.com", product.getLicenseURL());
+		assertEquals("http://www.example.com", product.getLicenseURL());
 	}
 
 	@Test
 	public void testGetLicenseText() throws Exception {
 		String productWithLicense = TestData.getFile("ProductActionTest", "productWithLicense.product").toString();
 		ProductFile product = new ProductFile(productWithLicense);
-		assertEquals("1.0", "This is the liCenSE.", product.getLicenseText().trim());
+		assertEquals("This is the liCenSE.", product.getLicenseText().trim());
 	}
 
 	@Test

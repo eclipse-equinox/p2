@@ -23,11 +23,12 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
- * Black box tests for API of {@link org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitPatch}.
+ * Black box tests for API of
+ * {@link org.eclipse.equinox.p2.metadata.IInstallableUnitPatch}.
  */
 public class InstallableUnitPatchTest extends AbstractProvisioningTest {
 	/**
-	 * Tests for {@link org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit#satisfies(org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability)}.
+	 * Tests for {@link org.eclipse.equinox.p2.metadata.IInstallableUnit#satisfies(org.eclipse.equinox.internal.p2.metadata.RequiredCapability)}.
 	 */
 	public void testLifeCycleRequirement() {
 

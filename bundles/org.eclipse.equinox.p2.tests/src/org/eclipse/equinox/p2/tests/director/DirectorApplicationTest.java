@@ -49,7 +49,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.StringBufferStream;
 
 /**
- * Various automated tests of the {@link IDirector} API.
+ * Various automated tests of the {@link DirectorApplication} API.
  */
 public class DirectorApplicationTest extends AbstractProvisioningTest {
 
@@ -330,11 +330,11 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		destinationRepo.delete();
 
 		//ensures that repositories have not been mistakenly created
-		assertFalse("5.6", metadataRepo1.exists());
-		assertFalse("5.7", metadataRepo2.exists());
-		assertTrue("5.8", artifactRepo1.exists());
-		assertTrue("5.9", artifactRepo2.exists());
-		assertFalse("5.10", destinationRepo.exists());
+		assertFalse(metadataRepo1.exists());
+		assertFalse(metadataRepo2.exists());
+		assertTrue(artifactRepo1.exists());
+		assertTrue(artifactRepo2.exists());
+		assertFalse(destinationRepo.exists());
 
 		//Cleanup: delete the folders
 		delete(metadataRepo1);
@@ -346,7 +346,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	 * Test the application's behaviour given multiple metadata and artifact repositories where only one metadata repo is invalid
 	 * Note: this test should end with "The installable unit invalidIU has not been found."
 	 */
-	public void testMultipleRepoCreationOneMetadataInvalid() {
+	public void testMultipleRepoCreationOneMetadataInvalid() throws Exception {
 		//Setup: Create the folders
 		File metadataRepo1 = new File(getTempFolder(), "DirectorApp Metadata1");
 		//Valid repositories
@@ -363,13 +363,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		//Setup: create the args
 		String[] args = getMultipleRepoArgs("6.3", metadataRepo1, metadataRepo2, artifactRepo1, artifactRepo2, destinationRepo, installIU);
 
-		try {
-			runDirectorApp("6.4", args);
-		} catch (ProvisionException e) {
-			fail("6.5", e);
-		} catch (Exception e) {
-			fail("6.6", e);
-		}
+		runDirectorApp("6.4", args);
 		//remove the agent data produced by the director
 		delete(new File(destinationRepo, "p2"));
 		//this will only succeed if the destination is empty, which is what we expect because the install failed
@@ -437,7 +431,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	 * Test the application's behaviour given multiple metadata and artifact repositories where only one artifact repo is invalid
 	 * Note: this test should end with "The installable unit invalidIU has not been found."
 	 */
-	public void testMultipleRepoCreationOneArtifactInvalid() {
+	public void testMultipleRepoCreationOneArtifactInvalid() throws Exception {
 		//Setup: Create the folders
 		File artifactRepo1 = new File(getTempFolder(), "DirectorApp Artifact1");
 		//Valid repositories
@@ -454,13 +448,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		//Setup: create the args
 		String[] args = getMultipleRepoArgs("8.3", metadataRepo1, metadataRepo2, artifactRepo1, artifactRepo2, destinationRepo, installIU);
 
-		try {
-			runDirectorApp("8.4", args);
-		} catch (ProvisionException e) {
-			fail("8.5", e);
-		} catch (Exception e) {
-			fail("8.6", e);
-		}
+		runDirectorApp("8.4", args);
 		//remove the agent data produced by the director
 		delete(new File(destinationRepo, "p2"));
 		//this will only succeed if the destination is empty, which is what we expect because the install failed
@@ -471,11 +459,11 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		destinationRepo.delete();
 
 		//ensures that repositories have not been mistakenly created
-		assertTrue("8.7", metadataRepo1.exists());
-		assertTrue("8.8", metadataRepo2.exists());
-		assertFalse("8.9", artifactRepo1.exists());
-		assertTrue("8.10", artifactRepo2.exists());
-		assertFalse("8.11", destinationRepo.exists());
+		assertTrue(metadataRepo1.exists());
+		assertTrue(metadataRepo2.exists());
+		assertFalse(artifactRepo1.exists());
+		assertTrue(artifactRepo2.exists());
+		assertFalse(destinationRepo.exists());
 
 		//Cleanup: delete the folders
 		delete(artifactRepo1);
@@ -486,7 +474,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	 * Test the application's behaviour given multiple metadata and artifact repositories where only one artifact repo and only one metadata repo are invalid
 	 * Note: this test should end with "The installable unit invalidIU has not been found."
 	 */
-	public void testMultipleRepoCreationOneArtifactOneMetadataInvalid() {
+	public void testMultipleRepoCreationOneArtifactOneMetadataInvalid() throws Exception {
 		//Setup: Create the folders
 		File artifactRepo1 = new File(getTempFolder(), "DirectorApp Artifact1");
 		File metadataRepo1 = new File(getTempFolder(), "DirectorApp Metadata1");
@@ -503,24 +491,18 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		//Setup: create the args
 		String[] args = getMultipleRepoArgs("9.2", metadataRepo1, metadataRepo2, artifactRepo1, artifactRepo2, destinationRepo, installIU);
 
-		try {
-			runDirectorApp("9.3", args);
-		} catch (ProvisionException e) {
-			fail("9.4", e);
-		} catch (Exception e) {
-			fail("9.5", e);
-		}
+		runDirectorApp("9.3", args);
 		//remove the agent data produced by the director
 		delete(new File(destinationRepo, "p2"));
 		//this will only succeed if the destination is empty, which is what we expect because the install failed
 		destinationRepo.delete();
 
 		//ensures that repositories have not been mistakenly created
-		assertFalse("9.6", metadataRepo1.exists());
-		assertTrue("9.7", metadataRepo2.exists());
-		assertFalse("9.8", artifactRepo1.exists());
-		assertTrue("9.9", artifactRepo2.exists());
-		assertFalse("9.10", destinationRepo.exists());
+		assertFalse(metadataRepo1.exists());
+		assertTrue(metadataRepo2.exists());
+		assertFalse(artifactRepo1.exists());
+		assertTrue(artifactRepo2.exists());
+		assertFalse(destinationRepo.exists());
 
 		//Cleanup: delete the folders
 		delete(artifactRepo1);
@@ -532,7 +514,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	 * Test the application's behaviour given a single metadata and a single artifact repository where all are valid
 	 * Note: this test should end with "The installable unit invalidIU has not been found."
 	 */
-	public void testSingleRepoCreationNoneInvalid() {
+	public void testSingleRepoCreationNoneInvalid() throws Exception {
 		//Setup: get repositories
 		File artifactRepo = getTestData("10.0", "/testData/mirror/mirrorSourceRepo1 with space");
 		File metadataRepo = getTestData("10.1", "/testData/mirror/mirrorSourceRepo1 with space");
@@ -545,22 +527,16 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		//Setup: create the args
 		String[] args = getSingleRepoArgs("10.2", metadataRepo, artifactRepo, destinationRepo, installIU);
 
-		try {
-			runDirectorApp("10.3", args);
-		} catch (ProvisionException e) {
-			fail("10.4", e);
-		} catch (Exception e) {
-			fail("10.5", e);
-		}
+		runDirectorApp("10.3", args);
 		//remove the agent data produced by the director
 		delete(new File(destinationRepo, "p2"));
 		//this will only succeed if the destination is empty, which is what we expect because the install failed
 		destinationRepo.delete();
 
 		//ensures that repositories have not been mistakenly created
-		assertTrue("10.6", metadataRepo.exists());
-		assertTrue("10.7", artifactRepo.exists());
-		assertFalse("10.8", destinationRepo.exists());
+		assertTrue(metadataRepo.exists());
+		assertTrue(artifactRepo.exists());
+		assertFalse(destinationRepo.exists());
 
 		//Cleanup: delete the folders
 		delete(destinationRepo);
