@@ -20,6 +20,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.eclipse.core.runtime.*;
@@ -32,11 +34,16 @@ import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class RepositoryHelper {
+
+	private static final Pattern WORKSPACE_KEY_PATTERN = Pattern.compile(
+			"\\s*<key href=\"(file:/.*)\\.metadata/\\.plugins/org\\.eclipse\\.oomph\\.setup/workspace\\.setup#/\"/>"); //$NON-NLS-1$
+
 	protected static final String FILE_SCHEME = "file"; //$NON-NLS-1$
 
 	/**
-	 * If the provided URI can be interpreted as representing a local address (no schema, or one letter schema)
-	 * but is missing the file schema, a new URI is created which represents the local file.
+	 * If the provided URI can be interpreted as representing a local address (no
+	 * schema, or one letter schema) but is missing the file schema, a new URI is
+	 * created which represents the local file.
 	 *
 	 * @param location the URI to convert
 	 * @return the converted URI, or the original
@@ -44,11 +51,11 @@ public class RepositoryHelper {
 	public static URI localRepoURIHelper(URI location) {
 		if (location == null)
 			return null;
-		if (location.getScheme() == null)			// Probably a local path:  /home/user/repo
+		if (location.getScheme() == null) // Probably a local path: /home/user/repo
 
 			location = (new File(location.getPath())).getAbsoluteFile().toURI();
 		else if (location.getScheme().length() == 1)
-			// Probably a windows path:  C:\repo
+			// Probably a windows path: C:\repo
 			location = (new File(URIUtil.toUnencodedString(location))).toURI();
 		else if (!FILE_SCHEME.equalsIgnoreCase(location.getScheme()))
 			// This else must occur last!
@@ -62,8 +69,10 @@ public class RepositoryHelper {
 	}
 
 	/**
-		 * Determine if the repository could be used as a valid destination (eg, it is modifiable)
- * @param repository the repository to test
+	 * Determine if the repository could be used as a valid destination (eg, it is
+	 * modifiable)
+	 *
+	 * @param repository the repository to test
 	 * @return the repository
 	 */
 	public static <T> IRepository<T> validDestinationRepository(IRepository<T> repository) {
@@ -168,6 +177,37 @@ public class RepositoryHelper {
 				return result;
 			} catch (Exception ex) {
 				LogHelper.log(Status.warning("The agents load failed: " + agentsInfoLocation, ex));
+			}
+		}
+		return List.of();
+	}
+
+	/**
+	 * Returns an unmodifiable list of workspace bundle pools, e.g., as used by PDE.
+	 *
+	 * @return an unmodifiable list of workspace bundle pools.
+	 */
+	@SuppressWarnings("nls")
+	public static List<Path> getWorkspaceBundlePools() {
+		Path locations = Path.of(System.getProperty("user.home"),
+				".eclipse/org.eclipse.oomph.setup/setups/locations.setup");
+		if (Files.isRegularFile(locations)) {
+			try (Stream<String> allLocations = Files.lines(locations)) {
+				return allLocations.map(location -> {
+					Matcher matcher = WORKSPACE_KEY_PATTERN.matcher(location);
+					if (matcher.matches()) {
+						try {
+							return Path.of(URI.create(matcher.group(1)));
+						} catch (Exception ex) {
+							//$FALL-THROUGH$
+						}
+					}
+					return null;
+				}).filter(Objects::nonNull).distinct()
+						.map(workspace -> workspace.resolve(".metadata/.plugins/org.eclipse.pde.core/.bundle_pool"))
+						.filter(pool -> Files.isRegularFile(pool.resolve("artifacts.xml"))).toList();
+			} catch (Exception ex) {
+				LogHelper.log(Status.warning("The locations load failed: " + locations, ex));
 			}
 		}
 		return List.of();
