@@ -55,7 +55,7 @@ public interface ILog {
 	 *
 	 * By default does nothing
 	 *
-	 * @param message line
+	 * @param line Message line
 	 */
 	default void printErr(String line) {
 		System.err.println(line);

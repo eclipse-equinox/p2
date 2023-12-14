@@ -18,7 +18,6 @@ import java.lang.reflect.Constructor;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Comparator;
-
 import org.eclipse.equinox.p2.metadata.Version;
 import org.osgi.framework.FrameworkUtil;
 
@@ -285,7 +284,7 @@ public abstract class CoercingComparator<T> {
 	 *                                  was impossible
 	 * @see Comparator#compare(Object, Object)
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("unchecked")
 	public static <TA extends Object, TB extends Object> int coerceAndCompare(TA o1, TB o2)
 			throws IllegalArgumentException {
 		if (o1 == null || o2 == null)

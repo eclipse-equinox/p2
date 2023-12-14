@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -46,8 +46,9 @@ public class DownloadStatus extends Status {
 	}
 
 	/**
-	 * Returns the download rate in bytes per second.  If the rate is unknown,
-	 * @{link {@link #UNKNOWN_RATE}} is returned.
+	 * Returns the download rate in bytes per second. If the rate is unknown,
+	 * {@link #UNKNOWN_RATE} is returned.
+	 *
 	 * @return the download rate in bytes per second
 	 */
 	public long getTransferRate() {
