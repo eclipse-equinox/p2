@@ -51,29 +51,25 @@ import org.osgi.resource.*;
 @SuppressWarnings("restriction")
 public class VerifierApplication implements IApplication {
 
+	private static final String SYMBOLIC_NAME = FrameworkUtil.getBundle(VerifierApplication.class).getSymbolicName();
 	private static final File DEFAULT_PROPERTIES_FILE = new File("verifier.properties"); //$NON-NLS-1$
 	private static final String ARG_PROPERTIES = "-verifier.properties"; //$NON-NLS-1$
 	private IProvisioningAgent agent;
 	private Properties properties = null;
 	private List<String> ignoreResolved = null;
 
-	/*
-	 * Create and return an error status with the given message.
-	 */
-	private static IStatus createError(String message) {
-		return new Status(IStatus.ERROR, Activator.PLUGIN_ID, message);
-	}
-
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
 		processArguments(args);
 
-		agent = ServiceHelper.getService(Activator.getBundleContext(), IProvisioningAgent.class);
+		agent = ServiceHelper.getService(FrameworkUtil.getBundle(getClass()).getBundleContext(),
+				IProvisioningAgent.class);
 
 		IStatus result = verify();
 		if (!result.isOK()) {
-			//			PrintWriter out = new PrintWriter(new FileWriter(new File("c:/tmp/dropins-debug.txt")));
+			// PrintWriter out = new PrintWriter(new FileWriter(new
+			// File("c:/tmp/dropins-debug.txt")));
 			try (PrintWriter out = new PrintWriter(new OutputStreamWriter(System.err))) {
 				out.println("Error from dropin verifier application: " + result.getMessage()); //$NON-NLS-1$
 				Throwable t = result.getException();
@@ -86,8 +82,8 @@ public class VerifierApplication implements IApplication {
 	}
 
 	/*
-	 * Go through the command-line args and pull out interesting ones
-	 * for later consumption.
+	 * Go through the command-line args and pull out interesting ones for later
+	 * consumption.
 	 */
 	private void processArguments(String[] args) {
 		if (args == null)
@@ -140,9 +136,10 @@ public class VerifierApplication implements IApplication {
 	}
 
 	/*
-	 * Return a boolean value indicating whether or not the bundle with the given symbolic name
-	 * should be considered when looking at bundles which are not resolved in the system.
-	 * TODO the call to this method was removed. we should add it back
+	 * Return a boolean value indicating whether or not the bundle with the given
+	 * symbolic name should be considered when looking at bundles which are not
+	 * resolved in the system. TODO the call to this method was removed. we should
+	 * add it back
 	 */
 	protected boolean shouldCheckResolved(String bundle) {
 		if (ignoreResolved == null) {
@@ -163,15 +160,15 @@ public class VerifierApplication implements IApplication {
 	/*
 	 * Check to ensure all of the bundles in the system are resolved.
 	 *
-	 * Copied and modified from EclipseStarter#logUnresolvedBundles.
-	 * This method prints out all the reasons while asking the resolver directly
-	 * will only print out the first reason.
+	 * Copied and modified from EclipseStarter#logUnresolvedBundles. This method
+	 * prints out all the reasons while asking the resolver directly will only print
+	 * out the first reason.
 	 */
 	private IStatus checkResolved() {
 		List<IStatus> allProblems = new ArrayList<>();
 
 		List<Bundle> unresolved = new ArrayList<>();
-		for (Bundle b : Activator.getBundleContext().getBundles()) {
+		for (Bundle b : FrameworkUtil.getBundle(getClass()).getBundleContext().getBundles()) {
 			BundleRevision revision = b.adapt(BundleRevision.class);
 			if (revision != null && revision.getWiring() == null) {
 				unresolved.add(b);
@@ -193,28 +190,32 @@ public class VerifierApplication implements IApplication {
 		// first lets look for missing leaf constraints (bug 114120)
 		for (Resource leafResource : leafResources) {
 			BundleRevision revision = (BundleRevision) leafResource;
-			String message = NLS.bind(EclipseAdaptorMsg.ECLIPSE_STARTUP_ERROR_BUNDLE_NOT_RESOLVED, revision.getBundle().getLocation()) + '\n';
+			String message = NLS.bind(EclipseAdaptorMsg.ECLIPSE_STARTUP_ERROR_BUNDLE_NOT_RESOLVED,
+					revision.getBundle().getLocation()) + '\n';
 			message += report.getResolutionReportMessage(leafResource);
-			allProblems.add(createError(message));
+			allProblems.add(Status.error(message));
 		}
 		// now report all others
 		for (Resource unresolvedResource : unresolvedResources) {
 			BundleRevision revision = (BundleRevision) unresolvedResource;
-			String message = NLS.bind(EclipseAdaptorMsg.ECLIPSE_STARTUP_ERROR_BUNDLE_NOT_RESOLVED, revision.getBundle().getLocation()) + '\n';
+			String message = NLS.bind(EclipseAdaptorMsg.ECLIPSE_STARTUP_ERROR_BUNDLE_NOT_RESOLVED,
+					revision.getBundle().getLocation()) + '\n';
 			message += report.getResolutionReportMessage(unresolvedResource);
-			allProblems.add(createError(message));
+			allProblems.add(Status.error(message));
 		}
 
-		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.OK, "Problems checking resolved bundles.", null); //$NON-NLS-1$
+		MultiStatus result = new MultiStatus(SYMBOLIC_NAME, IStatus.OK, "Problems checking resolved bundles.", //$NON-NLS-1$
+				null);
 		for (IStatus status : allProblems)
 			result.add(status);
 		return result;
 	}
 
 	private static ResolutionReport getResolutionReport(Collection<Bundle> bundles) {
-		BundleContext context = Activator.getBundleContext();
+		BundleContext context = FrameworkUtil.getBundle(VerifierApplication.class).getBundleContext();
 		DiagReportListener reportListener = new DiagReportListener(bundles);
-		ServiceRegistration<ResolverHookFactory> hookReg = context.registerService(ResolverHookFactory.class, reportListener, null);
+		ServiceRegistration<ResolverHookFactory> hookReg = context.registerService(ResolverHookFactory.class,
+				reportListener, null);
 		try {
 			Bundle systemBundle = context.getBundle(Constants.SYSTEM_BUNDLE_LOCATION);
 			FrameworkWiring frameworkWiring = systemBundle.adapt(FrameworkWiring.class);
@@ -253,7 +254,8 @@ public class VerifierApplication implements IApplication {
 			}
 
 			@Override
-			public void filterSingletonCollisions(BundleCapability singleton, Collection<BundleCapability> collisionCandidates) {
+			public void filterSingletonCollisions(BundleCapability singleton,
+					Collection<BundleCapability> collisionCandidates) {
 				// nothing
 			}
 
@@ -288,14 +290,15 @@ public class VerifierApplication implements IApplication {
 	private IStatus checkProfileRegistry() {
 		IProfileRegistry registry = agent.getService(IProfileRegistry.class);
 		if (registry == null)
-			return createError("Profile registry service not available."); //$NON-NLS-1$
+			return Status.error("Profile registry service not available."); //$NON-NLS-1$
 		IProfile profile = registry.getProfile(IProfileRegistry.SELF);
 		if (profile == null)
-			return createError("SELF profile not available in profile registry."); //$NON-NLS-1$
-		if (properties.get("checkPresenceOfVerifier") != null && !Boolean.FALSE.toString().equals(properties.get("checkPresenceOfVerifier"))) {
-			IQueryResult<IInstallableUnit> results = profile.query(QueryUtil.createIUQuery(Activator.PLUGIN_ID), null);
+			return Status.error("SELF profile not available in profile registry."); //$NON-NLS-1$
+		if (properties.get("checkPresenceOfVerifier") != null
+				&& !Boolean.FALSE.toString().equals(properties.get("checkPresenceOfVerifier"))) {
+			IQueryResult<IInstallableUnit> results = profile.query(QueryUtil.createIUQuery(SYMBOLIC_NAME), null);
 			if (results.isEmpty())
-				return createError(NLS.bind("IU for {0} not found in SELF profile.", Activator.PLUGIN_ID)); //$NON-NLS-1$
+				return Status.error(NLS.bind("IU for {0} not found in SELF profile.", SYMBOLIC_NAME)); //$NON-NLS-1$
 		}
 		return Status.OK_STATUS;
 	}
@@ -305,7 +308,7 @@ public class VerifierApplication implements IApplication {
 	 */
 	public IStatus verify() {
 		String message = "Problems occurred during verification."; //$NON-NLS-1$
-		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.OK, message, null);
+		MultiStatus result = new MultiStatus(SYMBOLIC_NAME, IStatus.OK, message, null);
 
 		// ensure all the bundles are resolved
 		IStatus temp = checkResolved();
@@ -367,7 +370,7 @@ public class VerifierApplication implements IApplication {
 	private IStatus checkSystemProperties() {
 		final String ABSENT_SYS_PROPERTY = "not.sysprop.";
 		final String PRESENT_SYS_PROPERTY = "sysprop.";
-		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.ERROR, "System properties validation", null);
+		MultiStatus result = new MultiStatus(SYMBOLIC_NAME, IStatus.ERROR, "System properties validation", null);
 
 		Set<Entry<Object, Object>> entries = properties.entrySet();
 		for (Entry<Object, Object> entry : entries) {
@@ -375,13 +378,14 @@ public class VerifierApplication implements IApplication {
 			if (key.startsWith(ABSENT_SYS_PROPERTY)) {
 				String property = key.substring(ABSENT_SYS_PROPERTY.length());
 				if (System.getProperty(property) != null)
-					result.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Property " + property + " should not be set."));
+					result.add(Status.error("Property " + property + " should not be set."));
 			}
 			if (key.startsWith(PRESENT_SYS_PROPERTY)) {
 				String property = key.substring(PRESENT_SYS_PROPERTY.length());
 				String foundValue = System.getProperty(property);
 				if (!entry.getValue().equals(foundValue))
-					result.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Property " + property + " should be set to " + entry.getValue() + " and is set to " + foundValue + "."));
+					result.add(Status.error("Property " + property + " should be set to " + entry.getValue()
+							+ " and is set to " + foundValue + "."));
 			}
 		}
 		if (result.getChildren().length == 0)
@@ -390,14 +394,14 @@ public class VerifierApplication implements IApplication {
 	}
 
 	private IStatus checkAbsenceOfBundles() {
-		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.ERROR, "Some bundles should not be there", null);
+		MultiStatus result = new MultiStatus(SYMBOLIC_NAME, IStatus.ERROR, "Some bundles should not be there", null);
 		String unexpectedBundlesString = properties.getProperty("unexpectedBundleList");
 		if (unexpectedBundlesString == null)
 			return Status.OK_STATUS;
 		String[] unexpectedBundles = unexpectedBundlesString.split(",");
 		for (String bsn : unexpectedBundles) {
 			if (containsBundle(bsn)) {
-				result.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID, bsn + " should not have been found in the install"));
+				result.add(Status.error(bsn + " should not have been found in the install"));
 			}
 		}
 		if (result.getChildren().length == 0)
@@ -406,7 +410,8 @@ public class VerifierApplication implements IApplication {
 	}
 
 	private boolean containsBundle(final String bsn) {
-		FrameworkWiring fWiring = Activator.getBundleContext().getBundle(Constants.SYSTEM_BUNDLE_LOCATION).adapt(FrameworkWiring.class);
+		FrameworkWiring fWiring = FrameworkUtil.getBundle(getClass()).getBundleContext()
+				.getBundle(Constants.SYSTEM_BUNDLE_LOCATION).adapt(FrameworkWiring.class);
 		Collection<BundleCapability> existing = fWiring.findProviders(new Requirement() {
 
 			@Override
@@ -416,12 +421,13 @@ public class VerifierApplication implements IApplication {
 
 			@Override
 			public Map<String, String> getDirectives() {
-				return Collections.singletonMap(Namespace.REQUIREMENT_FILTER_DIRECTIVE, "(" + IdentityNamespace.IDENTITY_NAMESPACE + "=" + bsn + ")");
+				return Collections.singletonMap(Namespace.REQUIREMENT_FILTER_DIRECTIVE,
+						"(" + IdentityNamespace.IDENTITY_NAMESPACE + "=" + bsn + ")");
 			}
 
 			@Override
 			public Map<String, Object> getAttributes() {
-				return Collections.EMPTY_MAP;
+				return Collections.emptyMap();
 			}
 
 			@Override
@@ -433,14 +439,14 @@ public class VerifierApplication implements IApplication {
 	}
 
 	private IStatus checkPresenceOfBundles() {
-		MultiStatus result = new MultiStatus(Activator.PLUGIN_ID, IStatus.ERROR, "Some bundles should not be there", null);
+		MultiStatus result = new MultiStatus(SYMBOLIC_NAME, IStatus.ERROR, "Some bundles should not be there", null);
 		String expectedBundlesString = properties.getProperty("expectedBundleList");
 		if (expectedBundlesString == null)
 			return Status.OK_STATUS;
 		String[] expectedBundles = expectedBundlesString.split(",");
 		for (String bsn : expectedBundles) {
 			if (!containsBundle(bsn)) {
-				result.add(new Status(IStatus.ERROR, Activator.PLUGIN_ID, bsn + " is missing from the install"));
+				result.add(Status.error(bsn + " is missing from the install"));
 			}
 		}
 		if (result.getChildren().length == 0)
@@ -449,28 +455,32 @@ public class VerifierApplication implements IApplication {
 	}
 
 	private IStatus hasProfileFlag() {
-		if (properties.getProperty("checkProfileResetFlag") == null || "false".equals(properties.getProperty("checkProfileResetFlag")))
+		if (properties.getProperty("checkProfileResetFlag") == null
+				|| "false".equals(properties.getProperty("checkProfileResetFlag")))
 			return Status.OK_STATUS;
-		//Make sure that the profile is already loaded
+		// Make sure that the profile is already loaded
 		IProfileRegistry reg = agent.getService(IProfileRegistry.class);
 		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
 		String profileId = profile.getProfileId();
 
 		long history[] = reg.listProfileTimestamps(profileId);
 		long lastTimestamp = history[history.length - 1];
-		if (IProfile.STATE_SHARED_INSTALL_VALUE_NEW.equals(reg.getProfileStateProperties(profileId, lastTimestamp).get(IProfile.STATE_PROP_SHARED_INSTALL))) {
+		if (IProfile.STATE_SHARED_INSTALL_VALUE_NEW.equals(
+				reg.getProfileStateProperties(profileId, lastTimestamp).get(IProfile.STATE_PROP_SHARED_INSTALL))) {
 			return Status.OK_STATUS;
 		}
 		if (history.length == 1) {
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "The flag indicating that a profile has been reset is incorrectly setup");
+			return Status.error("The flag indicating that a profile has been reset is incorrectly setup");
 		}
 
 		long previousToLastTimestamp = history[history.length - 2];
-		if (IProfile.STATE_SHARED_INSTALL_VALUE_NEW.equals(reg.getProfileStateProperties(profileId, previousToLastTimestamp).get(IProfile.STATE_PROP_SHARED_INSTALL))) {
+		if (IProfile.STATE_SHARED_INSTALL_VALUE_NEW
+				.equals(reg.getProfileStateProperties(profileId, previousToLastTimestamp)
+						.get(IProfile.STATE_PROP_SHARED_INSTALL))) {
 			return Status.OK_STATUS;
 		}
 
-		return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "The flag indicating that a profile has been reset is incorrectly setup");
+		return Status.error("The flag indicating that a profile has been reset is incorrectly setup");
 	}
 
 	private IStatus checkMigrationWizard() {
@@ -480,7 +490,7 @@ public class VerifierApplication implements IApplication {
 		IProfileRegistry reg = agent.getService(IProfileRegistry.class);
 		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
 
-		//Fake the opening of the wizard
+		// Fake the opening of the wizard
 		MigrationWizardTestHelper migrationSupport = new MigrationWizardTestHelper();
 		migrationSupport.performMigration(agent, reg, profile);
 
@@ -488,7 +498,7 @@ public class VerifierApplication implements IApplication {
 		if (migrationSupport.wizardOpened == wizardExpectedToOpen)
 			return Status.OK_STATUS;
 
-		return new Status(IStatus.ERROR, Activator.PLUGIN_ID, "The migration wizard did " + (wizardExpectedToOpen ? "not" : "") + " open");
+		return Status.error("The migration wizard did " + (wizardExpectedToOpen ? "not" : "") + " open");
 	}
 
 	private void assumeMigrated() {
