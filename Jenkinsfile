@@ -17,7 +17,7 @@ pipeline {
 				wrap([$class: 'Xvnc', useXauthority: true]) {
 					sh """
 					mvn clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
-						-Pbree-libs -Papi-check \
+						-Pbree-libs -Papi-check -Pjavadoc \
 						-Dcompare-version-with-baselines.skip=false \
 						-Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true \
 						-Dproject.build.sourceEncoding=UTF-8 \
@@ -29,7 +29,7 @@ pipeline {
 				always {
 					archiveArtifacts artifacts: '*.log,*/target/work/data/.metadata/*.log,*/tests/target/work/data/.metadata/*.log,apiAnalyzer-workspace/.metadata/*.log', allowEmptyArchive: true
 					junit '**/target/surefire-reports/TEST-*.xml'
-					publishIssues issues:[scanForIssues(tool: java()), scanForIssues(tool: mavenConsole())]
+					recordIssues tools: [eclipse(), java(), javaDoc(), mavenConsole()]
 				}
 			}
 		}
