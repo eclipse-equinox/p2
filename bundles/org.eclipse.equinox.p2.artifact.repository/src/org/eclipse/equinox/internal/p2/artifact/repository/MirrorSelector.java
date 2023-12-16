@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc - bug fixes
@@ -36,15 +36,22 @@ import org.xml.sax.SAXException;
 
 /**
  * Mirror support class for repositories. This class implements
- * mirror support equivalent to the mirroring of update manager sites. A repository 
- * optionally provides a mirror URL via the {@link IRepository#PROP_MIRRORS_URL} key. 
- * The contents of the file at this URL is expected to be an XML document 
- * containing a list of <mirror> elements. The mirrors are assumed to be already 
+ * mirror support equivalent to the mirroring of update manager sites. A repository
+ * optionally provides a mirror URL via the {@link IRepository#PROP_MIRRORS_URL} key.
+ * The contents of the file at this URL is expected to be an XML document
+ * containing a list of <mirror> elements. The mirrors are assumed to be already
  * sorted geographically with closer mirrors first.
  * <br><br>
  * Always use {@link MirrorSelector.MirrorInfoComparator} for comparison.
  */
 public class MirrorSelector {
+
+	/**
+	 * Allows to globally control the level at what mirror errors are logged that
+	 * originate from not being able to process mirror urls, the default is error.
+	 */
+	public static volatile int MIRROR_PARSE_ERROR_LEVEL = IStatus.ERROR;
+
 	private static final double LOG2 = Math.log(2);
 
 	/**
@@ -179,15 +186,15 @@ public class MirrorSelector {
 	 * <pre>
 	 *                       ->   ->
 	 *                       q  * t                             (dot product)
-	 *  sim(q,t) = --------------------------- 
+	 *  sim(q,t) = ---------------------------
 	 *               / || -> ||   || -> || \
 	 *              |  || q  || * || t  ||  |             (euclidean lengths)
 	 *               \                     /
-	 *  
+	 *
 	 *                              N
 	 *                             ---
 	 *                             \
-	 *                              >   Q   * T           
+	 *                              >   Q   * T
 	 *                             /     ai    ai
 	 *                             ---
 	 *                            i = 1
@@ -199,7 +206,7 @@ public class MirrorSelector {
 	 *              |   \ |   >   Q    *  \ |   >   T     |
 	 *              |    \|  /     ai      \|  /     ai   |
 	 *              |     |  ---            |  ---        |
-	 *               \    | i = 1           | i = 1      / 
+	 *               \    | i = 1           | i = 1      /
 	 * </pre>
 	 */
 	public static final class MirrorInfoComparator implements Comparator<MirrorInfo> {
@@ -210,7 +217,7 @@ public class MirrorSelector {
 		static final double WEIGHT_BYTESPERSECOND = 1d / 25000d;
 		/**
 		 * This weight influences the failureCount classification
-		 * Value was calculated by empirical tests. 
+		 * Value was calculated by empirical tests.
 		 */
 		static final double WEIGHT_FAILURECOUNT = 1.75d;
 
@@ -249,7 +256,7 @@ public class MirrorSelector {
 	/**
 	 * Parses the given mirror URL to obtain the list of mirrors. Returns the mirrors,
 	 * or null if mirrors could not be computed.
-	 * 
+	 *
 	 * Originally copied from DefaultSiteParser.getMirrors in org.eclipse.update.core
 	 */
 	private MirrorInfo[] computeMirrors(String mirrorsURL, IProgressMonitor monitor) {
@@ -275,7 +282,9 @@ public class MirrorSelector {
 					LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
 							String.format("Mirrors URL %s was not found", mirrorsURL))); //$NON-NLS-1$
 				} else {
-					log("Error processing mirrors URL: " + mirrorsURL, e); //$NON-NLS-1$
+					LogHelper.log(
+							new Status(MIRROR_PARSE_ERROR_LEVEL, Activator.ID,
+									"Error processing mirrors URL: " + mirrorsURL, e)); //$NON-NLS-1$
 				}
 			}
 			return null;
@@ -322,7 +331,7 @@ public class MirrorSelector {
 	}
 
 	/**
-	 * Returns an equivalent location for the given artifact location in the base 
+	 * Returns an equivalent location for the given artifact location in the base
 	 * repository.  Always falls back to the given input location in case of failure
 	 * to compute mirrors. Never returns null.
 	 */
@@ -371,7 +380,7 @@ public class MirrorSelector {
 	}
 
 	private void log(String message, Throwable exception) {
-		LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, exception));
+		LogHelper.log(new Status(MIRROR_PARSE_ERROR_LEVEL, Activator.ID, message, exception));
 	}
 
 	/**
@@ -409,7 +418,7 @@ public class MirrorSelector {
 		}
 	}
 
-	/** 
+	/**
 	 * Return whether or not all the mirrors for this selector have proven to be invalid
 	 * @return whether or not there is a valid mirror in this selector.
 	 */
@@ -438,8 +447,8 @@ public class MirrorSelector {
 			Arrays.sort(mirrors, getComparator());
 			for (;;) {
 				//this is a function that randomly selects a mirror based on a logarithmic
-				//distribution. Mirror 0 has a 1/2 chance of being selected, mirror 1 has a 1/4 chance, 
-				// mirror 2 has a 1/8 chance, etc. This introduces some variation in the mirror 
+				//distribution. Mirror 0 has a 1/2 chance of being selected, mirror 1 has a 1/4 chance,
+				// mirror 2 has a 1/8 chance, etc. This introduces some variation in the mirror
 				//selection, while still heavily favoring better mirrors
 				//the algorithm computes the most significant digit in a binary number by computing the base 2 logarithm
 				//if the first digit is most significant, mirror 0 is selected, if the second is most significant, mirror 1 is selected, etc
