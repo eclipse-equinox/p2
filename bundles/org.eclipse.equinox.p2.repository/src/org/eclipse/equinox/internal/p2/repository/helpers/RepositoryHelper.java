@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -131,24 +130,33 @@ public class RepositoryHelper {
 		if (manager == null) {
 			return null;
 		}
-		try {
-			// create a unique URI
-			URI repositoryURI = LongStream.iterate(System.currentTimeMillis(), t -> t + 1)
-					.mapToObj(t -> URI.create("memory:" + t)) //$NON-NLS-1$
-					.dropWhile(manager::contains).findFirst().orElseThrow();
-			IRepository<T> result = manager.createRepository(repositoryURI, repositoryURI.toString(), repositoryType,
-					null);
-			manager.removeRepository(repositoryURI);
-			return result;
-		} catch (ProvisionException e) {
-			LogHelper.log(e);
-			// just return null
-		} catch (IllegalArgumentException e) {
-			if (!(e.getCause() instanceof URISyntaxException)) {
-				throw e; // not thrown by the URI creation above
-			} // else just return null
+		synchronized (manager) {
+			// one must synchronize here because even if we check that the manager does not
+			// contain a repository, it is still possible that two threads perform the
+			// check at the same time! This will result in both threads see "not exits",
+			// then both try to create the repos and one of them will fail
+			URI repositoryURI;
+			do {
+				try {
+					repositoryURI = new URI("memory:" + UUID.randomUUID()); //$NON-NLS-1$
+				} catch (URISyntaxException e) {
+					// if we can't create the URI we are all lost...
+					return null;
+				}
+				// very unlikely but check if the manager already has this one and the generate
+				// a fresh one...
+			} while (manager.contains(repositoryURI));
+
+			try {
+				IRepository<T> result = manager.createRepository(repositoryURI, repositoryURI.toString(),
+						repositoryType, null);
+				manager.removeRepository(repositoryURI);
+				return result;
+			} catch (ProvisionException e) {
+				LogHelper.log(e);
+			}
+			return null;
 		}
-		return null;
 	}
 
 	/**
