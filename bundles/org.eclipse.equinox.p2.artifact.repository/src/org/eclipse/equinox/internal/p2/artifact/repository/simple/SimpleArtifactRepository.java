@@ -1414,6 +1414,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		boolean lockAcquired = false;
 		synchronized (this) {
+			boolean disableSaveState = disableSave;
 			try {
 				if (canLock()) {
 					lockAcquired = lockAndLoad(false, monitor);
@@ -1428,9 +1429,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			} catch (Throwable e) {
 				result = new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
 			} finally {
-				disableSave = false;
+				disableSave = disableSaveState;
 				try {
-					save();
+					if (!disableSaveState) {
+						save();
+					}
 				} catch (Exception e) {
 					if (result != null)
 						result = new MultiStatus(Activator.ID, IStatus.ERROR, new IStatus[] {result}, e.getMessage(), e);
