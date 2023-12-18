@@ -15,18 +15,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.mirroring;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Status;
+import java.util.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.artifact.repository.RawMirrorRequest;
 import org.eclipse.equinox.internal.p2.repository.Transport;
@@ -36,9 +26,7 @@ import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.tools.comparator.ArtifactComparatorFactory;
 import org.eclipse.equinox.p2.repository.tools.comparator.IArtifactComparator;
@@ -106,8 +94,7 @@ public class Mirroring {
 		if (compare)
 			getComparator(); // initialize the comparator. Only needed if we're comparing. Used to force
 								// error if comparatorID is invalid.
-		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_mirroringStatus, null);
-		Iterator<IArtifactKey> keys = null;
+		Iterator<IArtifactKey> keys;
 		if (keysToMirror != null)
 			keys = keysToMirror.iterator();
 		else {
@@ -120,36 +107,38 @@ public class Mirroring {
 					null);
 			compareExclusions = exclusions.toUnmodifiableSet();
 		}
-
-		while (keys.hasNext()) {
-			IArtifactKey key = keys.next();
-			IArtifactDescriptor[] descriptors = source.getArtifactDescriptors(key);
-			for (IArtifactDescriptor descriptor : descriptors) {
-				IStatus result = mirror(descriptor, verbose);
-				// Only log INFO and WARNING if we want verbose logging. Always log ERRORs
-				if (!result.isOK() && (verbose || result.getSeverity() == IStatus.ERROR))
-					multiStatus.add(result);
-				// stop mirroring as soon as we have an error
-				if (failOnError && multiStatus.getSeverity() == IStatus.ERROR)
-					return multiStatus;
+		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_mirroringStatus, null);
+		IStatus batchStatus = destination.executeBatch(monitor -> {
+			while (keys.hasNext()) {
+				IArtifactKey key = keys.next();
+				IArtifactDescriptor[] descriptors = source.getArtifactDescriptors(key);
+				for (IArtifactDescriptor descriptor : descriptors) {
+					IStatus result = mirror(descriptor, verbose);
+					// Only log INFO and WARNING if we want verbose logging. Always log ERRORs
+					if (!result.isOK() && (verbose || result.getSeverity() == IStatus.ERROR))
+						multiStatus.add(result);
+					// stop mirroring as soon as we have an error
+					if (failOnError && multiStatus.getSeverity() == IStatus.ERROR)
+						return;
+				}
 			}
-		}
-
-		// mirror the source repository's properties unless they are already set up
-		// in the destination repository
-		if (mirrorProperties) {
-			IArtifactRepository toCopyFrom = source;
-			if (toCopyFrom instanceof CompositeArtifactRepository) {
-				List<IArtifactRepository> children = ((CompositeArtifactRepository) toCopyFrom).getLoadedChildren();
-				if (children.size() > 0)
-					toCopyFrom = children.get(0);
+			// mirror the source repository's properties unless they are already set up
+			// in the destination repository
+			if (mirrorProperties) {
+				IArtifactRepository toCopyFrom = source;
+				if (toCopyFrom instanceof CompositeArtifactRepository) {
+					List<IArtifactRepository> children = ((CompositeArtifactRepository) toCopyFrom).getLoadedChildren();
+					if (children.size() > 0)
+						toCopyFrom = children.get(0);
+				}
+				Map<String, String> sourceProperties = toCopyFrom.getProperties();
+				for (String key : sourceProperties.keySet()) {
+					if (!destination.getProperties().containsKey(key))
+						destination.setProperty(key, sourceProperties.get(key));
+				}
 			}
-			Map<String, String> sourceProperties = toCopyFrom.getProperties();
-			for (String key : sourceProperties.keySet()) {
-				if (!destination.getProperties().containsKey(key))
-					destination.setProperty(key, sourceProperties.get(key));
-			}
-		}
+		}, new NullProgressMonitor());
+		multiStatus.add(batchStatus);
 
 		if (validate) {
 			// Simple validation of the mirror
