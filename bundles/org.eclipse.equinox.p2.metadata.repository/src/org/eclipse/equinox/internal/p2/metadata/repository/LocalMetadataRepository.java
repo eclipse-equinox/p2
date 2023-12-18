@@ -331,6 +331,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		IStatus result = null;
 		synchronized (this) {
+			boolean disableSaveState = disableSave;
 			try {
 				disableSave = true;
 				runnable.run(monitor);
@@ -339,9 +340,11 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 			} catch (Throwable e) {
 				result = new Status(IStatus.ERROR, Constants.ID, e.getMessage(), e);
 			} finally {
-				disableSave = false;
+				disableSave = disableSaveState;
 				try {
-					save();
+					if (!disableSaveState) {
+						save();
+					}
 				} catch (Exception e) {
 					if (result != null)
 						result = new MultiStatus(Constants.ID, IStatus.ERROR, new IStatus[] {result}, e.getMessage(), e);
