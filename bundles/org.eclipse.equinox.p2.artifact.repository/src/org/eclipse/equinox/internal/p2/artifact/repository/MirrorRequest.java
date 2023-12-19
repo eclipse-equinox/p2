@@ -29,6 +29,7 @@ import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -233,7 +234,7 @@ public class MirrorRequest extends ArtifactRequest {
 				throw (Error) lastResult.getException();
 			}
 		} while (lastResult.getSeverity() == IStatus.ERROR && lastResult.getCode() == IArtifactRepository.CODE_RETRY && counter++ < MAX_RETRY_REQUEST);
-		IProvisioningEventBus bus = source.getProvisioningAgent().getService(IProvisioningEventBus.class);
+		IProvisioningEventBus bus = getEventBus();
 		if (bus != null)
 			bus.publishEvent(new MirrorEvent(source, sourceDescriptor, lastResult.isOK() ? lastResult : (allResults.getChildren().length <= 1 ? lastResult : allResults)));
 		if (lastResult.isOK()) {
@@ -243,6 +244,18 @@ public class MirrorRequest extends ArtifactRequest {
 			return lastResult;
 		}
 		return allResults;
+	}
+
+	protected IProvisioningEventBus getEventBus() {
+		IProvisioningAgent sourceProvisioningAgent = source.getProvisioningAgent();
+		if (sourceProvisioningAgent != null) {
+			return sourceProvisioningAgent.getService(IProvisioningEventBus.class);
+		}
+		IProvisioningAgent targetProvisioningAgent = target.getProvisioningAgent();
+		if (targetProvisioningAgent != null) {
+			return targetProvisioningAgent.getService(IProvisioningEventBus.class);
+		}
+		return null;
 	}
 
 	/**
