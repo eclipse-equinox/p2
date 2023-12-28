@@ -136,6 +136,11 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 
 	private void handleLoadFailure(ProvisionException e, URI location) {
 		if (shouldAccumulateFailures()) {
+			RepositoryTracker repositoryTracker = ui.getRepositoryTracker();
+			if (accumulatedStatus != null && repositoryTracker.hasNotFoundStatusBeenReported(location)) {
+				// no need to report the same failure multiple times...
+				return;
+			}
 			// Some ProvisionExceptions include an empty multi status with a message.
 			// Since empty multi statuses have a severity OK, The platform status handler
 			// doesn't handle
@@ -151,7 +156,7 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 			} else {
 				accumulatedStatus.add(status);
 			}
-			ui.getRepositoryTracker().addNotFound(location);
+			repositoryTracker.addNotFound(location);
 			// Always log the complete exception so the detailed stack trace is in the log.
 			LogHelper.log(e);
 		} else {
