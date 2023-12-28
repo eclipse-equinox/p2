@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -28,7 +28,7 @@ import org.eclipse.osgi.util.NLS;
 /**
  * RepositoryTracker defines a service that retrieves repositories, tracks their status, and
  * reports errors.
- * 
+ *
  * @since 2.0
  */
 public abstract class RepositoryTracker {
@@ -48,7 +48,7 @@ public abstract class RepositoryTracker {
 
 	/**
 	 * Return an array of repository locations known for the specified provisioning session.
-	 * 
+	 *
 	 * @param session the provisioning session providing the provisioning services
 	 * @return an array of repository locations known by this tracker
 	 */
@@ -66,9 +66,9 @@ public abstract class RepositoryTracker {
 	/**
 	 * Return a repository location represented by the supplied string. The provided
 	 * string should either be an unencoded string representation of a URI, or a
-	 * local file system path. This method is generally suitable for converting a 
+	 * local file system path. This method is generally suitable for converting a
 	 * location string entered by an end user into a suitable URI representation.
-	 * 
+	 *
 	 * @param locationString a text representation of the location
 	 * @return a repository location URI, or <code>null</code> if the
 	 * text could not be interpreted.
@@ -89,7 +89,7 @@ public abstract class RepositoryTracker {
 
 	/**
 	 * Validate the specified repository location.
-	 * 
+	 *
 	 * @param session the provisioning session providing the repository services
 	 * @param location the location in question
 	 * @param contactRepositories <code>true</code> if the appropriate repository manager(s) should be
@@ -121,7 +121,7 @@ public abstract class RepositoryTracker {
 	/**
 	 * Return a boolean indicating whether this tracker already contains the specified
 	 * repository location.
-	 * 
+	 *
 	 * @param location the location in question
 	 * @param session the provisioning session providing the repository services
 	 * @since 2.1
@@ -142,9 +142,9 @@ public abstract class RepositoryTracker {
 	 * Add the specified location to the list of "not found" repositories.
 	 * This list is used to ensure that errors are not reported multiple times
 	 * for the same repository.
-	 * 
+	 *
 	 * The caller is already assumed to have reported any errors if necessary.
-	 * 
+	 *
 	 * @param location the location of the repository that cannot be found
 	 */
 	public void addNotFound(URI location) {
@@ -154,7 +154,7 @@ public abstract class RepositoryTracker {
 	/**
 	 * Answer a boolean indicating whether not found status has already been
 	 * reported for the specified location.
-	 * 
+	 *
 	 * @param location the location in question
 	 * @return <code>true</code> if the repository has already been reported as
 	 * being not found, <code>false</code> if no status has been reported for this
@@ -177,7 +177,7 @@ public abstract class RepositoryTracker {
 	 * Remove the specified repository from the list of repositories that
 	 * have already been reported as not found.  This method has no effect
 	 * if the repository has never been reported as not found.
-	 * 
+	 *
 	 * @param location the location in question
 	 */
 	public void clearRepositoryNotFound(URI location) {
@@ -185,9 +185,9 @@ public abstract class RepositoryTracker {
 	}
 
 	/**
-	 * Return the repository flags suitable for retrieving known repositories from 
+	 * Return the repository flags suitable for retrieving known repositories from
 	 * a repository manager
-	 * 
+	 *
 	 * @return the repository flags
 	 */
 	public int getArtifactRepositoryFlags() {
@@ -195,9 +195,9 @@ public abstract class RepositoryTracker {
 	}
 
 	/**
-	 * Set the repository flags suitable for retrieving known repositories from 
+	 * Set the repository flags suitable for retrieving known repositories from
 	 * a repository manager
-	 * 
+	 *
 	 * @param flags the repository flags
 	 */
 	public void setArtifactRepositoryFlags(int flags) {
@@ -205,9 +205,9 @@ public abstract class RepositoryTracker {
 	}
 
 	/**
-	 * Return the repository flags suitable for retrieving known repositories from 
+	 * Return the repository flags suitable for retrieving known repositories from
 	 * a repository manager
-	 * 
+	 *
 	 * @return the repository flags
 	 */
 	public int getMetadataRepositoryFlags() {
@@ -215,9 +215,9 @@ public abstract class RepositoryTracker {
 	}
 
 	/**
-	 * Set the repository flags suitable for retrieving known repositories from 
+	 * Set the repository flags suitable for retrieving known repositories from
 	 * a repository manager
-	 * 
+	 *
 	 * @param flags the repository flags
 	 */
 
