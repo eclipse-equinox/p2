@@ -19,6 +19,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.eclipse.osgi.report.resolution.ResolutionReport.Entry.Type;
@@ -105,7 +106,7 @@ class ConfigApplier {
 		}
 
 		Set<Bundle> prevouslyResolved = getResolvedBundles();
-		Collection<Bundle> toRefresh = new ArrayList<>();
+		Collection<Bundle> toRefresh = new LinkedHashSet<>();
 		Collection<Bundle> toStart = new ArrayList<>();
 		if (exclusiveMode) {
 			toRefresh.addAll(installBundles(expectedState, toStart));
@@ -123,12 +124,19 @@ class ConfigApplier {
 			} else {
 				// In this case the platform is up, we should try to do an incremental resolve
 				// TODO consider removing this case because it can cause inconsistent results.
-				refreshPackages(toRefresh.toArray(new Bundle[toRefresh.size()]), manipulatingContext);
-				if (toRefresh.size() > 0) {
-					Bundle[] additionalRefresh = getAdditionalRefresh(prevouslyResolved, toRefresh);
-					if (additionalRefresh.length > 0)
-						refreshPackages(additionalRefresh, manipulatingContext);
+				Map<String, List<Bundle>> bundlesByBsn = Arrays.stream(manipulatingContext.getBundles())
+						.filter(bundle -> bundle.getSymbolicName() != null)
+						.collect(Collectors.groupingBy(Bundle::getSymbolicName));
+				// Prior to Luna the Equinox framework would refresh all bundles with the same
+				// BSN automatically. This is no longer the case for Luna or other framework
+				// implementations. Here we want to make sure all existing bundles with the
+				// same BSN are refreshed also.
+				Set<Bundle> allSameBSNs = new LinkedHashSet<>(); // maintain order and avoid duplicates
+				for (Bundle bundle : toRefresh) {
+					allSameBSNs.addAll(bundlesByBsn.getOrDefault(bundle.getSymbolicName(), List.of(bundle)));
 				}
+				refreshPackages(allSameBSNs);
+				refreshPackages(getAdditionalRefresh(prevouslyResolved, toRefresh));
 			}
 			if (deepRefresh) {
 				// when refreshing large sets of bundles the resolver sometimes take a choice
@@ -218,11 +226,10 @@ class ConfigApplier {
 				.distinct().filter(bundle -> !doNotRefresh.contains(bundle)).toList();
 	}
 
-	private Bundle[] getAdditionalRefresh(Set<Bundle> previouslyResolved, Collection<Bundle> toRefresh) {
+	private Collection<Bundle> getAdditionalRefresh(Set<Bundle> previouslyResolved, Collection<Bundle> toRefresh) {
 		// This is the luna equinox framework or a non-equinox framework.
 		// Use standard OSGi API.
 		final Set<Bundle> additionalRefresh = new HashSet<>();
-		final Set<Bundle> originalRefresh = new HashSet<>(toRefresh);
 		for (Bundle bundle : toRefresh) {
 			BundleRevision revision = bundle.adapt(BundleRevision.class);
 			if (bundle.getState() == Bundle.INSTALLED && revision != null && (revision.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0) {
@@ -243,7 +250,7 @@ class ConfigApplier {
 				if (foundPayLoadReq) {
 					Collection<BundleCapability> candidates = frameworkWiring.findProviders(hostReq);
 					for (BundleCapability candidate : candidates) {
-						if (!originalRefresh.contains(candidate.getRevision().getBundle())) {
+						if (!toRefresh.contains(candidate.getRevision().getBundle())) {
 							additionalRefresh.add(candidate.getRevision().getBundle());
 						}
 					}
@@ -297,7 +304,7 @@ class ConfigApplier {
 				}
 			}
 		}
-		return additionalRefresh.toArray(new Bundle[additionalRefresh.size()]);
+		return additionalRefresh;
 	}
 
 	private BundleWiring getHostWiring(BundleWiring wiring) {
@@ -331,19 +338,7 @@ class ConfigApplier {
 				toRefresh.add(bundle);
 			}
 		}
-
-		CountDownLatch latch = new CountDownLatch(1);
-		FrameworkListener listener = event -> {
-			if (event.getType() == FrameworkEvent.PACKAGES_REFRESHED) {
-				latch.countDown();
-			}
-		};
-		frameworkWiring.refreshBundles(toRefresh, listener);
-		try {
-			latch.await();
-		} catch (InterruptedException e) {
-			// ignore
-		}
+		refreshPackages(toRefresh);
 	}
 
 	private Set<Bundle> getDoNotRefresh() {
@@ -531,26 +526,9 @@ class ConfigApplier {
 		return (revision != null) && ((revision.getTypes() & BundleRevision.TYPE_FRAGMENT) != 0);
 	}
 
-	private void refreshPackages(Bundle[] bundles, BundleContext context) {
-		if (bundles.length == 0 || packageAdminService == null)
+	private void refreshPackages(Collection<Bundle> bundles) {
+		if (bundles.isEmpty()) {
 			return;
-
-		// Prior to Luna the Equinox framework would refresh all bundles with the same
-		// BSN automatically.  This is no longer the case for Luna or other framework
-		// implementations.  Here we want to make sure all existing bundles with the
-		// same BSN are refreshed also.
-		Set<Bundle> allSameBSNs = new LinkedHashSet<>(); // maintain order and avoid duplicates
-		for (Bundle bundle : bundles) {
-			allSameBSNs.add(bundle);
-			String bsn = bundle.getSymbolicName();
-			if (bsn != null) {
-				// look for others with same BSN
-				Bundle[] sameBSNs = packageAdminService.getBundles(bsn, null);
-				if (sameBSNs != null) {
-					// likely contains the bundle we just added above but a set is used
-					allSameBSNs.addAll(Arrays.asList(sameBSNs));
-				}
-			}
 		}
 
 		CountDownLatch latch = new CountDownLatch(1);
@@ -559,21 +537,12 @@ class ConfigApplier {
 				latch.countDown();
 			}
 		};
-		context.addFrameworkListener(listener);
-		packageAdminService.refreshPackages(allSameBSNs.toArray(new Bundle[0]));
-
+		frameworkWiring.refreshBundles(bundles, listener);
 		try {
 			latch.await();
 		} catch (InterruptedException e) {
 			// ignore
 		}
-
-		//		if (DEBUG) {
-		//			for (int i = 0; i < bundles.length; i++) {
-		//				System.out.println(SimpleConfiguratorUtils.getBundleStateString(bundles[i]));
-		//			}
-		//		}
-		context.removeFrameworkListener(listener);
 	}
 
 	private void startBundles(Bundle[] bundles) {
