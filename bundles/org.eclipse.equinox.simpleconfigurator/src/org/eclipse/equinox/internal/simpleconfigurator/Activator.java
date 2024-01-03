@@ -43,7 +43,7 @@ import org.osgi.framework.*;
  * Otherwise, no uninstallation will not be done.
  */
 public class Activator implements BundleActivator {
-	public final static boolean DEBUG = false;
+	public final static boolean DEBUG = Boolean.getBoolean("equinox.simpleconfigurator.debug");
 
 	/**
 	 * If this property is set to true, simpleconfigurator will attempt to read

@@ -19,16 +19,21 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Stream;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
+import org.eclipse.osgi.report.resolution.ResolutionReport.Entry.Type;
 import org.osgi.framework.*;
+import org.osgi.framework.hooks.resolver.ResolverHookFactory;
 import org.osgi.framework.namespace.*;
 import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.framework.wiring.*;
 import org.osgi.resource.Namespace;
 import org.osgi.resource.Requirement;
 import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.service.resolver.ResolutionException;
 
 class ConfigApplier {
+
 	private static final String LAST_BUNDLES_INFO = "last.bundles.info"; //$NON-NLS-1$
 	private static final String PROP_DEVMODE = "osgi.dev"; //$NON-NLS-1$
 
@@ -40,8 +45,17 @@ class ConfigApplier {
 
 	private final Bundle callingBundle;
 	private final URI baseLocation;
+	private boolean deepRefresh;
+	private int maxRefreshTry;
 
 	ConfigApplier(BundleContext context, Bundle callingBundle) {
+		deepRefresh = Boolean.parseBoolean(context.getProperty("equinox.simpleconfigurator.deeprefresh"));
+		String maxRefreshValue = context.getProperty("equinox.simpleconfigurator.maxrefresh");
+		if (maxRefreshValue != null) {
+			maxRefreshTry = Integer.parseInt(maxRefreshValue);
+		} else {
+			maxRefreshTry = 10;
+		}
 		manipulatingContext = context;
 		this.callingBundle = callingBundle;
 		runningOnEquinox = "Eclipse".equals(context.getProperty(Constants.FRAMEWORK_VENDOR)); //$NON-NLS-1$
@@ -115,11 +129,93 @@ class ConfigApplier {
 					if (additionalRefresh.length > 0)
 						refreshPackages(additionalRefresh, manipulatingContext);
 				}
+			}
+			if (deepRefresh) {
+				// when refreshing large sets of bundles the resolver sometimes take a choice
+				// where a requirement can't be bound even though it is there and resolvable
+				// this code collects all those requirements and refresh the smaller set of
+				// bundles that provide these until a max retry is reached, all bundles are
+				// resolved, or all providers have been tried to refresh already
+				Set<Bundle> bundlesTried = new HashSet<>();
+				Collection<Bundle> provider;
+				Set<Bundle> doNotRefresh = getDoNotRefresh();
+				int maxtry = maxRefreshTry;
+				do {
+					provider = getUnresolvedRequirementsProvider(doNotRefresh);
+					if (provider.isEmpty() || !bundlesTried.addAll(provider)) {
+						// nothing more we can do...
+						break;
+					}
+					if (Activator.DEBUG) {
+						System.out.println("There are " + provider.size() + " bundles to refresh...");
+						for (Bundle bundle : provider) {
+							System.out.println("\t" + bundle.getSymbolicName() + " " + bundle.getVersion());
+						}
+					}
+					CountDownLatch latch = new CountDownLatch(1);
+					frameworkWiring.refreshBundles(provider, event -> {
+						if (event.getType() == FrameworkEvent.PACKAGES_REFRESHED) {
+							latch.countDown();
+						}
+					});
+					try {
+						latch.await();
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
+				} while (maxtry-- > 0);
+			}
 		}
-
-		}
-
 		startBundles(toStart.toArray(new Bundle[toStart.size()]));
+	}
+
+	/**
+	 * This method performs a resolve on all unresolved bundles and captures
+	 * <ol>
+	 * <li>Missing capabilities</li>
+	 * <li>Use constraint violations</li>
+	 * </ol>
+	 * 
+	 * after that each unique requirement is looked up in the wiring if there is any
+	 * provider for it, if that is the case, the requirements is not really missing
+	 * or part of a conflicting chain
+	 * 
+	 * @param doNotRefresh
+	 * 
+	 * @return a collection of bundles that potentially can provide a missing
+	 *         requirement
+	 */
+	private Collection<Bundle> getUnresolvedRequirementsProvider(Set<Bundle> doNotRefresh) {
+		ResolutionReportListener reportListener = new ResolutionReportListener();
+		ServiceRegistration<ResolverHookFactory> hookReg = manipulatingContext
+				.registerService(ResolverHookFactory.class,
+				reportListener, null);
+		try {
+			if (frameworkWiring.resolveBundles(null)) {
+				return List.of();
+			}
+			if (Activator.DEBUG) {
+				System.out.println("There are unresolved bundles...");
+			}
+		} finally {
+			hookReg.unregister();
+		}
+		return reportListener.getReports().stream()
+				.flatMap(rr -> rr.getEntries().values().stream().flatMap(Collection::stream)).flatMap(error -> {
+					if (error.getType() == Type.MISSING_CAPABILITY) {
+						Requirement requirement = (Requirement) error.getData();
+						if (!"optional".equals(requirement.getDirectives().get("resolution"))) {
+							return Stream.of(requirement);
+						}
+					}
+					if (error.getType() == Type.USES_CONSTRAINT_VIOLATION) {
+						ResolutionException ex = (ResolutionException) error.getData();
+						return ex.getUnresolvedRequirements().stream();
+					}
+					return Stream.empty();
+				}).distinct().flatMap(req -> frameworkWiring.findProviders(req).stream())
+				.map(bc -> bc.getResource().getBundle())
+				.distinct().filter(bundle -> !doNotRefresh.contains(bundle)).toList();
 	}
 
 	private Bundle[] getAdditionalRefresh(Set<Bundle> previouslyResolved, Collection<Bundle> toRefresh) {
