@@ -50,6 +50,7 @@ org.eclipse.platform</programArgsMac>
 
    <features>
       <feature id="org.eclipse.platform"/>
+      <feature id="org.example" installMode="root"/>
    </features>
 
 

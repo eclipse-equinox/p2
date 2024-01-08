@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
@@ -42,6 +43,7 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
@@ -433,6 +435,49 @@ public class ProductActionTest extends ActionTest {
 			}
 		}
 		assertTrue(found);
+	}
+
+
+	public void testInstallModeRootFeature() throws Exception {
+		ProductFile productFile = new ProductFile(
+				TestData.getFile("ProductActionTest", "brandedProduct/branded.product").toString());
+		addContextIU("org.eclipse.platform.feature.group", "1.2.3");
+		addContextIU("org.example.feature.group", "1.0.0");
+		performProductAction(productFile);
+		Collection<IInstallableUnit> ius = publisherResult.getIUs("branded.product", IPublisherResult.NON_ROOT);
+		assertEquals(1, ius.size());
+		IInstallableUnit productIU = ius.iterator().next();
+		Optional<IRequiredCapability> installModeRootFeatureRequirement = productIU.getRequirements().stream()
+				.filter(IRequiredCapability.class::isInstance)
+				.map(IRequiredCapability.class::cast).filter(it -> it.getName().equals("org.example.feature.group"))
+				.findFirst();
+		assertTrue(installModeRootFeatureRequirement.isPresent());
+		IMatchExpression<IInstallableUnit> filter = installModeRootFeatureRequirement.get().getFilter();
+		assertNotNull(filter);
+		String filterString = filter.getParameters()[0].toString();
+		assertEquals("(|(branded.product.install.mode.root=true)(org.eclipse.equinox.p2.install.mode.root=true))",
+				filterString);
+	}
+
+	public void testInstallModeRootFeatureWithFilter() throws Exception {
+		ProductFile productFile = new ProductFile(
+				TestData.getFile("ProductActionTest", "brandedProduct/branded.product").toString());
+		addContextIU("org.eclipse.platform.feature.group", "1.2.3");
+		addContextIU("org.example.feature.group", "1.0.0", WIN_FILTER);
+		performProductAction(productFile);
+		Collection<IInstallableUnit> ius = publisherResult.getIUs("branded.product", IPublisherResult.NON_ROOT);
+		assertEquals(1, ius.size());
+		IInstallableUnit productIU = ius.iterator().next();
+		Optional<IRequiredCapability> installModeRootFeatureRequirement = productIU.getRequirements().stream()
+				.filter(IRequiredCapability.class::isInstance).map(IRequiredCapability.class::cast)
+				.filter(it -> it.getName().equals("org.example.feature.group")).findFirst();
+		assertTrue(installModeRootFeatureRequirement.isPresent());
+		IMatchExpression<IInstallableUnit> filter = installModeRootFeatureRequirement.get().getFilter();
+		assertNotNull(filter);
+		String filterString = filter.getParameters()[0].toString();
+		assertEquals(
+				"(&(osgi.arch=x86)(osgi.os=win32)(osgi.ws=win32)(|(branded.product.install.mode.root=true)(org.eclipse.equinox.p2.install.mode.root=true)))",
+				filterString);
 	}
 
 	private void performProductAction(ProductFile productFile) {

@@ -19,6 +19,7 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
@@ -180,9 +181,11 @@ public class ProductAction extends AbstractPublisherAction {
 			case MIXED : // include all content types
 				list = versionElements(listElements(product.getFeatures(), ".feature.group"), IInstallableUnit.NAMESPACE_IU_ID); //$NON-NLS-1$
 				list.addAll(versionElements(listElements(product.getBundles(), null), IInstallableUnit.NAMESPACE_IU_ID));
+				list.addAll(createInstallModeRootFeatures());
 				break;
 			case FEATURES : // include features only
 				list = versionElements(listElements(product.getFeatures(), ".feature.group"), IInstallableUnit.NAMESPACE_IU_ID); //$NON-NLS-1$
+				list.addAll(createInstallModeRootFeatures());
 
 				if (product.hasBundles()) {
 					finalStatus.add(new Status(IStatus.INFO, Activator.ID, Messages.bundlesInProductFileIgnored));
@@ -200,6 +203,15 @@ public class ProductAction extends AbstractPublisherAction {
 		}
 
 		info.addAdvice(new RootIUAdvice(list));
+	}
+
+	private Collection<IVersionedId> createInstallModeRootFeatures() {
+		Collection<IVersionedId> rootFeatures = listElements(product.getFeatures(IProductDescriptor.ROOT_FEATURES),
+				".feature.group"); //$NON-NLS-1$
+		if (!rootFeatures.isEmpty()) {
+			info.addAdvice(new RootFeatureAdvice(rootFeatures));
+		}
+		return rootFeatures; // $NON-NLS-1$
 	}
 
 	private void createProductAdvice() {
@@ -262,5 +274,53 @@ public class ProductAction extends AbstractPublisherAction {
 		if (source != null)
 			return new File(source);
 		return null;
+	}
+
+	protected class RootFeatureAdvice implements IFilterAdvice {
+
+		private final Collection<IVersionedId> rootFeatures;
+
+		public RootFeatureAdvice(Collection<IVersionedId> rootFeatures) {
+			this.rootFeatures = rootFeatures;
+		}
+
+		@Override
+		public boolean isApplicable(String configSpec, boolean includeDefault, String elementId,
+				Version elementVersion) {
+			return rootFeatures.contains(new VersionedId(elementId, elementVersion));
+		}
+
+		@Override
+		@SuppressWarnings("all")
+		public IMatchExpression<IInstallableUnit> getFilter(String id, Version version, boolean exact) {
+			IInstallableUnit unit = queryForIU(publisherResults, id, version);
+			if (unit == null && !exact) {
+				unit = queryForIU(publisherResults, id, null);
+			}
+			String iuFilter = getFilter(unit);
+			String installModeRootFilter = "(|(" + ProductAction.this.id + ".install.mode.root"
+					+ "=true)(org.eclipse.equinox.p2.install.mode.root=true))";
+			return InstallableUnit.parseFilter(
+					iuFilter == null ? installModeRootFilter : "(&" + iuFilter + installModeRootFilter + ")");
+		}
+
+		private String getFilter(IInstallableUnit unit) {
+			if (unit == null) {
+				return null;
+			}
+			IMatchExpression<IInstallableUnit> filter = unit.getFilter();
+			if (filter == null) {
+				return null;
+			}
+			Object[] parameters = filter.getParameters();
+			if (parameters == null || parameters.length == 0) {
+				return null;
+			}
+			Object parameter = parameters[0];
+			if (parameter == null) {
+				return null;
+			}
+			return parameter.toString();
+		}
 	}
 }
