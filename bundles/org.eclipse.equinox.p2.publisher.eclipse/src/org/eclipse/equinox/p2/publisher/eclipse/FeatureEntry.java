@@ -27,9 +27,7 @@ public class FeatureEntry implements IPlatformEntry {
 	private String nl;
 	private String match;
 	private final boolean isPlugin;
-	private boolean isFragment = false;
 	private boolean isRequires = false;
-	private Boolean unpack = null;
 	private boolean optional = false;
 	private boolean isPatch = false;
 	/**
@@ -42,7 +40,6 @@ public class FeatureEntry implements IPlatformEntry {
 		result.match = match;
 		result.isRequires = true;
 		// for requires we don't care what the form is so leave it as false (JAR'd)
-		result.unpack = false;
 		if (filter != null)
 			result.setFilter(filter);
 		return result;
@@ -53,7 +50,6 @@ public class FeatureEntry implements IPlatformEntry {
 		result.match = match;
 		result.isRequires = true;
 		// for requires we don't care what the form is so leave it as false (JAR'd)
-		result.unpack = false;
 		if (filter != null)
 			result.setFilter(filter);
 		return result;
@@ -150,10 +146,6 @@ public class FeatureEntry implements IPlatformEntry {
 		return result;
 	}
 
-	public boolean isFragment() {
-		return isFragment;
-	}
-
 	public boolean isOptional() {
 		return optional;
 	}
@@ -164,10 +156,6 @@ public class FeatureEntry implements IPlatformEntry {
 
 	public boolean isRequires() {
 		return isRequires;
-	}
-
-	public boolean isUnpack() {
-		return (unpack == null || unpack.booleanValue());
 	}
 
 	public void setEnvironment(String os, String ws, String arch, String nl) {
@@ -185,16 +173,8 @@ public class FeatureEntry implements IPlatformEntry {
 
 	}
 
-	public void setFragment(boolean value) {
-		isFragment = value;
-	}
-
 	public void setOptional(boolean value) {
 		optional = value;
-	}
-
-	public void setUnpack(boolean value) {
-		unpack = Boolean.valueOf(value);
 	}
 
 	public void setURL(String value) {
@@ -213,10 +193,6 @@ public class FeatureEntry implements IPlatformEntry {
 		result.append(id != null ? id.toString() : ""); //$NON-NLS-1$
 		result.append(versionOrRange != null ? " " + versionOrRange.toString() : ""); //$NON-NLS-1$ //$NON-NLS-2$
 		return result.toString();
-	}
-
-	public boolean unpackSet() {
-		return unpack != null;
 	}
 
 	public boolean isPatch() {

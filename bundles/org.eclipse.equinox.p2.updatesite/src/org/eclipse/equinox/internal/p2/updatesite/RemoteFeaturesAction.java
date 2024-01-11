@@ -67,7 +67,8 @@ public class RemoteFeaturesAction extends FeaturesAction {
 					mockManifest.put("Bundle-Version", entry.getVersion()); //$NON-NLS-1$
 					BundleDescription bundleDescription = BundlesAction.createBundleDescription(mockManifest, null);
 					IArtifactKey key = BundlesAction.createBundleArtifactKey(entry.getId(), entry.getVersion());
-					IInstallableUnit[] bundleIUs = EclipsePublisherHelper.createEclipseIU(bundleDescription, entry.isUnpack(), key, extraProperties);
+					IInstallableUnit[] bundleIUs = EclipsePublisherHelper.createEclipseIU(bundleDescription, false, key,
+							extraProperties);
 					for (IInstallableUnit bundleIU : bundleIUs) {
 						result.addIU(bundleIU, IPublisherResult.ROOT);
 					}
