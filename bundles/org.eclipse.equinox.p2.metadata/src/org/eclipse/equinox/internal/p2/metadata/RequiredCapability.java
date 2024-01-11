@@ -123,9 +123,13 @@ public class RequiredCapability extends Requirement implements IRequiredCapabili
 		return extractRange(matchExpression);
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public String toString() {
-		return getNamespace() + "; " + getName() + " " + getRange(); //$NON-NLS-1$ //$NON-NLS-2$
+		StringBuilder result = new StringBuilder();
+		result.append(getNamespace()).append("; ").append(getName()).append(" ").append(getRange());
+		appendDetails(result);
+		return result.toString();
 	}
 
 	public static IMatchExpression<IInstallableUnit> createMatchExpressionFromRange(String namespace, String name,

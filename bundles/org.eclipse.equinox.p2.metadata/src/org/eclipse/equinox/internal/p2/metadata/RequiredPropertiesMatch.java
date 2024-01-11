@@ -58,6 +58,7 @@ public class RequiredPropertiesMatch extends Requirement {
 		result.append(extractNamespace(getMatches()));
 		result.append("; "); //$NON-NLS-1$
 		result.append(extractPropertiesMatch(getMatches()));
+		appendDetails(result);
 
 		return result.toString();
 	}

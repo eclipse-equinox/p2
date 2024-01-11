@@ -85,7 +85,31 @@ public class Requirement implements IRequirement, IMemberProvider {
 			result.append(')');
 		}
 
+		appendDetails(result);
+
 		return result.toString();
+	}
+
+	@SuppressWarnings("nls")
+	protected void appendDetails(StringBuilder builder) {
+		if (min != 1) {
+			builder.append(", min=").append(min);
+		}
+
+		if (max != 1) {
+			builder.append(", max=").append(max);
+		}
+
+		if (!greedy) {
+			builder.append(", greedy=").append(greedy);
+		}
+
+		if (filter != null) {
+			Object[] parameters = filter.getParameters();
+			if (parameters != null && parameters.length > 0 && parameters[0] != null) {
+				builder.append(", filter=").append(parameters[0]);
+			}
+		}
 	}
 
 	@Override
