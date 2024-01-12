@@ -525,10 +525,13 @@ public class FeaturesAction extends AbstractPublisherAction {
 	}
 
 	private IMatchExpression<IInstallableUnit> getFilter(FeatureEntry entry) {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		result.append("(&"); //$NON-NLS-1$
 		if (entry.getFilter() != null)
 			result.append(entry.getFilter());
+		if (entry.isImport()) {
+			result.append("(!(org.eclipse.equinox.p2.exclude.import=true))"); //$NON-NLS-1$
+		}
 		expandFilter(entry.getOS(), "osgi.os", result); //$NON-NLS-1$
 		expandFilter(entry.getWS(), "osgi.ws", result); //$NON-NLS-1$
 		expandFilter(entry.getArch(), "osgi.arch", result);//$NON-NLS-1$
@@ -539,7 +542,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return InstallableUnit.parseFilter(result.toString());
 	}
 
-	private void expandFilter(String filter, String osgiFilterValue, StringBuffer result) {
+	private void expandFilter(String filter, String osgiFilterValue, StringBuilder result) {
 		if (filter != null && filter.length() != 0) {
 			StringTokenizer token = new StringTokenizer(filter, ","); //$NON-NLS-1$
 			if (token.countTokens() == 1)

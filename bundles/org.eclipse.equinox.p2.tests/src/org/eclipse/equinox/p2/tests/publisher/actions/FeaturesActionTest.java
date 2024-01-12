@@ -219,9 +219,13 @@ public class FeaturesActionTest extends ActionTest {
 				assertEquals(ExpressionUtil.parseLDAP("(&(my.prop=foo)(osgi.os=win32))"),
 						require.getFilter().getParameters()[0]);
 			} else if (((IRequiredCapability) require).getName().equals("org.plug2")) {
-				assertEquals(ExpressionUtil.parseLDAP("(my.prop=foo)"), require.getFilter().getParameters()[0]);
+				assertEquals(
+						ExpressionUtil.parseLDAP("(&(my.prop=foo)(!(org.eclipse.equinox.p2.exclude.import=true)))"),
+						require.getFilter().getParameters()[0]);
 			} else if (((IRequiredCapability) require).getName().equals("org.foo2.feature.group")) {
-				assertEquals(ExpressionUtil.parseLDAP("(my.prop=foo)"), require.getFilter().getParameters()[0]);
+				assertEquals(
+						ExpressionUtil.parseLDAP("(&(my.prop=foo)(!(org.eclipse.equinox.p2.exclude.import=true)))"),
+						require.getFilter().getParameters()[0]);
 			}
 		}
 	}
