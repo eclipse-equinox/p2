@@ -40,7 +40,7 @@ public class FeatureManifestParser extends DefaultHandler {
 	private SAXParser parser;
 	protected Feature result;
 	private URL url;
-	private StringBuffer characters = null;
+	private StringBuilder characters = null;
 	private MultiStatus status = null;
 	private boolean hasImports = false;
 
@@ -140,12 +140,12 @@ public class FeatureManifestParser extends DefaultHandler {
 
 	private void processCopyright(Attributes attributes) {
 		result.setCopyrightURL(attributes.getValue("url")); //$NON-NLS-1$
-		characters = new StringBuffer();
+		characters = new StringBuilder();
 	}
 
 	private void processDescription(Attributes attributes) {
 		result.setDescriptionURL(attributes.getValue("url")); //$NON-NLS-1$
-		characters = new StringBuffer();
+		characters = new StringBuilder();
 	}
 
 	private void processDiscoverySite(Attributes attributes) {
@@ -207,9 +207,9 @@ public class FeatureManifestParser extends DefaultHandler {
 		if ("versionRange".equals(attributes.getValue("match"))) { //$NON-NLS-1$//$NON-NLS-2$
 			VersionRange versionRange = VersionRange.create(versionStr);
 			entry = FeatureEntry.createRequires(id, versionRange, attributes.getValue("match"), //$NON-NLS-1$
-					attributes.getValue("filter"), isPlugin); //$NON-NLS-1$
+					attributes.getValue("filter"), isPlugin, true); //$NON-NLS-1$
 		} else {
-			entry = FeatureEntry.createRequires(id, versionStr, match, attributes.getValue("filter"), isPlugin); //$NON-NLS-1$
+			entry = FeatureEntry.createRequires(id, versionStr, match, attributes.getValue("filter"), isPlugin, true); //$NON-NLS-1$
 		}
 		if (isPatch) {
 			entry.setPatch(true);
@@ -241,7 +241,7 @@ public class FeatureManifestParser extends DefaultHandler {
 
 	private void processLicense(Attributes attributes) {
 		result.setLicenseURL(attributes.getValue("url")); //$NON-NLS-1$
-		characters = new StringBuffer();
+		characters = new StringBuilder();
 	}
 
 	private void processPlugin(Attributes attributes) {

@@ -27,17 +27,28 @@ public class FeatureEntry implements IPlatformEntry {
 	private String nl;
 	private String match;
 	private final boolean isPlugin;
-	private boolean isFragment = false;
-	private boolean isRequires = false;
-	private Boolean unpack = null;
-	private boolean optional = false;
-	private boolean isPatch = false;
-	/**
-	 * Temporary field to add provorg.eclipse.pde.internal.publishing.model.filters to features
-	 */
+	private boolean isFragment;
+	private boolean isRequires;
+	private Boolean unpack;
+	private boolean optional;
+	private boolean isPatch;
 	private String filter;
+	private boolean isImport;
 
+	/**
+	 * @deprecated Use
+	 *             {@link #createRequires(String, String, String, String, boolean, boolean)}
+	 */
+	@Deprecated
 	public static FeatureEntry createRequires(String id, String version, String match, String filter, boolean isPlugin) {
+		return createRequires(id, version, match, filter, isPlugin, true);
+	}
+
+	/**
+	 * @since 1.6.0
+	 */
+	public static FeatureEntry createRequires(String id, String version, String match, String filter, boolean isPlugin,
+			boolean isImport) {
 		FeatureEntry result = new FeatureEntry(id, version, isPlugin);
 		result.match = match;
 		result.isRequires = true;
@@ -45,10 +56,24 @@ public class FeatureEntry implements IPlatformEntry {
 		result.unpack = false;
 		if (filter != null)
 			result.setFilter(filter);
+		result.isImport = isImport;
 		return result;
 	}
 
+	/**
+	 * @deprecated Use
+	 *             {@link #createRequires(String, VersionRange, String, String, boolean, boolean)}
+	 */
+	@Deprecated(since = "1.6.0")
 	public static FeatureEntry createRequires(String id, VersionRange versionRange, String match, String filter, boolean isPlugin) {
+		return createRequires(id, versionRange, match, filter, isPlugin, true);
+	}
+
+	/**
+	 * @since 1.6.0
+	 */
+	public static FeatureEntry createRequires(String id, VersionRange versionRange, String match, String filter,
+			boolean isPlugin, boolean isImport) {
 		FeatureEntry result = new FeatureEntry(id, versionRange, isPlugin);
 		result.match = match;
 		result.isRequires = true;
@@ -56,6 +81,7 @@ public class FeatureEntry implements IPlatformEntry {
 		result.unpack = false;
 		if (filter != null)
 			result.setFilter(filter);
+		result.isImport = isImport;
 		return result;
 	}
 
@@ -225,5 +251,19 @@ public class FeatureEntry implements IPlatformEntry {
 
 	public void setPatch(boolean patch) {
 		this.isPatch = patch;
+	}
+
+	/**
+	 * @since 1.6.0
+	 */
+	public boolean isImport() {
+		return isImport;
+	}
+
+	/**
+	 * @since 1.6.0
+	 */
+	public void setImport(boolean isImport) {
+		this.isImport = isImport;
 	}
 }
