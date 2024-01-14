@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -203,7 +203,11 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 
 	@Override
 	public int hashCode() {
-		return (this.getLocation().toString().hashCode()) * 87;
+		URI location = this.getLocation();
+		if (location == null) {
+			return 0;
+		}
+		return (location.toString().hashCode()) * 87;
 	}
 
 	@Override
