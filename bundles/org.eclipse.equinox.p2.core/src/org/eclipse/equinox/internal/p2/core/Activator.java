@@ -95,14 +95,22 @@ public class Activator implements BundleActivator {
 	}
 
 	private static String substituteVar(String source, String var, String prop) {
-		String value = Activator.context.getProperty(prop);
+		String value = getProperty(prop);
 		if (value == null)
 			value = ""; //$NON-NLS-1$
 		return value + source.substring(var.length());
 	}
 
+	public static String getProperty(String prop) {
+		BundleContext bundleContext = Activator.context;
+		if (bundleContext != null) {
+			return bundleContext.getProperty(prop);
+		}
+		return System.getProperty(prop);
+	}
+
 	private IAgentLocation buildLocation(String property, URI defaultLocation, boolean readOnlyDefault, boolean addTrailingSlash) {
-		String location = Activator.context.getProperty(property);
+		String location = getProperty(property);
 		// if the instance location is not set, predict where the workspace will be and
 		// put the instance area inside the workspace meta area.
 		if (location == null)

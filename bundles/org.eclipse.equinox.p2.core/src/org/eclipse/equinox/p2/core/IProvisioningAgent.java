@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.core;
 
+import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 
 /**
@@ -38,22 +39,22 @@ public interface IProvisioningAgent {
 	 * obtain an agent for a different system the {@link IProvisioningAgentProvider}
 	 * service must be used.
 	 */
-	public static final String SERVICE_NAME = IProvisioningAgent.class.getName();
+	String SERVICE_NAME = IProvisioningAgent.class.getName();
 
-	public static final String INSTALLER_AGENT = "org.eclipse.equinox.p2.installer.agent"; //$NON-NLS-1$
-	public static final String INSTALLER_PROFILEID = "org.eclipse.equinox.p2.installer.profile.id"; //$NON-NLS-1$
+	String INSTALLER_AGENT = "org.eclipse.equinox.p2.installer.agent"; //$NON-NLS-1$
+	String INSTALLER_PROFILEID = "org.eclipse.equinox.p2.installer.profile.id"; //$NON-NLS-1$
 
 	/**
 	 * When running in "shared mode", this allows to retrieve from the IProvisioningAgent the agent representing what is in the shared location aka the base
 	 * @since 2.3
 	 */
-	public static final String SHARED_BASE_AGENT = "org.eclipse.equinox.shared.base.agent"; //$NON-NLS-1$
+	String SHARED_BASE_AGENT = "org.eclipse.equinox.shared.base.agent"; //$NON-NLS-1$
 
 	/**
 	 * When running in "shared mode", this allows to retrieve from the IProvisioningAgent identified by {@link #SHARED_BASE_AGENT} the current agent
 	 * @since 2.3
 	 */
-	public static final String SHARED_CURRENT_AGENT = "org.eclipse.equinox.shared.current.agent"; //$NON-NLS-1$
+	String SHARED_CURRENT_AGENT = "org.eclipse.equinox.shared.current.agent"; //$NON-NLS-1$
 	/**
 	 * Service property identifying whether an agent is the default agent.
 	 *
@@ -65,14 +66,14 @@ public interface IProvisioningAgent {
 	 * has any other value, then the service is not the agent for the currently running system.
 	 * </p>
 	 */
-	public static final String SERVICE_CURRENT = "agent.current"; //$NON-NLS-1$
+	String SERVICE_CURRENT = "agent.current"; //$NON-NLS-1$
 
 	/**
 	 * Returns the service with the given service name, or <code>null</code>
 	 * if no such service is available in this agent.
 	 * @exception IllegalStateException if this agent has been stopped
 	 */
-	public Object getService(String serviceName);
+	Object getService(String serviceName);
 
 	/**
 	 * Returns the service with the given service name, or <code>null</code>
@@ -82,7 +83,7 @@ public interface IProvisioningAgent {
 	 * @since 2.6
 	 */
 	@SuppressWarnings("unchecked")
-	public default <T> T getService(Class<T> key) {
+	default <T> T getService(Class<T> key) {
 		return (T) getService(key.getName());
 	}
 
@@ -93,7 +94,7 @@ public interface IProvisioningAgent {
 	 * @param service The service implementation
 	 * @exception IllegalStateException if this agent has been stopped
 	 */
-	public void registerService(String serviceName, Object service);
+	void registerService(String serviceName, Object service);
 
 	/**
 	 * Stops the provisioning agent. This causes services provided by this
@@ -105,7 +106,7 @@ public interface IProvisioningAgent {
 	 * by invoking {@link IProvisioningAgentProvider#createAgent(java.net.URI)}.
 	 * </p>
 	 */
-	public void stop();
+	void stop();
 
 	/**
 	 * Unregisters a service that has previously been registered with this
@@ -115,6 +116,30 @@ public interface IProvisioningAgent {
 	 * @param serviceName The name of the service to unregister
 	 * @param service The service implementation to unregister.
 	 */
-	public void unregisterService(String serviceName, Object service);
+	void unregisterService(String serviceName, Object service);
+
+	/**
+	 * Returns an agent bound property, the default implementation delegates to the
+	 * bundle properties if running and to the system properties otherwise.
+	 *
+	 * @since 2.11
+	 */
+	default String getProperty(String key) {
+		return Activator.getProperty(key);
+	}
+
+	/**
+	 * Returns an agent bound property, the default implementation delegates to the
+	 * bundle properties if running and to the system properties otherwise.
+	 *
+	 * @since 2.11
+	 */
+	default String getProperty(String key, String defaultValue) {
+		String property = getProperty(key);
+		if (property == null) {
+			return defaultValue;
+		}
+		return property;
+	}
 
 }
