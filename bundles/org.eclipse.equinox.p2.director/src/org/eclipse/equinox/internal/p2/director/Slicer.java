@@ -16,6 +16,7 @@
 package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
@@ -23,7 +24,8 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnitPatch;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.util.NLS;
 
 public class Slicer {
@@ -187,19 +189,14 @@ public class Slicer {
 		if (req.getMax() == 0) {
 			return;
 		}
-		IQueryResult<IInstallableUnit> matches = possibilites.query(QueryUtil.createMatchQuery(req.getMatches()), null);
-		int validMatches = 0;
-		for (IInstallableUnit match : matches) {
-			if (!isApplicable(match)) {
-				continue;
-			}
-			validMatches++;
+		List<IInstallableUnit> selected = selectIUsForRequirement(possibilites, req);
+		for (IInstallableUnit match : selected) {
 			Map<Version, IInstallableUnit> iuSlice = slice.get(match.getId());
 			if ((iuSlice == null || !iuSlice.containsKey(match.getVersion())) && considered.add(match)) {
 				toProcess.add(match);
 			}
 		}
-		if (validMatches == 0) {
+		if (selected.isEmpty()) {
 			if (req.getMin() == 0) {
 				if (DEBUG) {
 					System.out.println("No IU found to satisfy optional dependency of " + iu + " on req " + req); //$NON-NLS-1$//$NON-NLS-2$
@@ -208,6 +205,18 @@ public class Slicer {
 				result.add(Status.warning(NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
 			}
 		}
+	}
+
+	protected List<IInstallableUnit> selectIUsForRequirement(IQueryable<IInstallableUnit> queryable, IRequirement req) {
+		// first group by ID
+		Map<String, List<IInstallableUnit>> groupById = queryable
+				.query(QueryUtil.createMatchQuery(req.getMatches()), null).stream().filter(this::isApplicable)
+				.collect(Collectors.groupingBy(IInstallableUnit::getId));
+		// now select the max of items in each group with the same id
+		return groupById
+				.values().stream().flatMap(list -> list.stream()
+						.sorted(Comparator.comparing(IInstallableUnit::getVersion).reversed()).limit(req.getMax()))
+				.toList();
 	}
 
 	Set<IInstallableUnit> getNonGreedyIUs() {
