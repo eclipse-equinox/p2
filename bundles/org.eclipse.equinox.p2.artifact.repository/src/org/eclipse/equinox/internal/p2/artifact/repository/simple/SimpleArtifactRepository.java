@@ -54,36 +54,21 @@ import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.*;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.BundleContext;
 
 public class SimpleArtifactRepository extends AbstractArtifactRepository implements IFileArtifactRepository, IIndexProvider<IArtifactKey> {
-	/**
-	 * A boolean property controlling whether mirroring is enabled.
-	 */
-	public static final boolean MIRRORS_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
 
-	/**
-	 * A boolean property controlling whether any checksums of the artifact should be checked.
-	 * @see IArtifactDescriptor#DOWNLOAD_MD5
-	 * @see IArtifactDescriptor#DOWNLOAD_CHECKSUM
-	 * @see IArtifactDescriptor#ARTIFACT_MD5
-	 * @see IArtifactDescriptor#ARTIFACT_CHECKSUM
-	 */
-	public static final boolean CHECKSUMS_ENABLED = !"true".equals(Activator.getContext().getProperty("eclipse.p2.checksums.disable")); //$NON-NLS-1$//$NON-NLS-2$
+	public static final String PROPERTY_ECLIPSE_P2_MD5_ARTIFACT_CHECK = "eclipse.p2.MD5ArtifactCheck"; //$NON-NLS-1$
 
-	/**
-	 * A boolean property controlling whether MD5 checksum of the artifact bytes that are transferred should be checked.
-	 * @see IArtifactDescriptor#DOWNLOAD_MD5
-	 * @see IArtifactDescriptor#DOWNLOAD_CHECKSUM
-	 */
-	public static final boolean DOWNLOAD_MD5_CHECKSUM_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.MD5Check")); //$NON-NLS-1$//$NON-NLS-2$
+	public static final String PROPERTY_ECLIPSE_P2_MD5_CHECK = "eclipse.p2.MD5Check"; //$NON-NLS-1$
 
-	/**
-	 * A boolean property controlling whether MD5 checksum of the artifact bytes in its native format (after processing steps have
-	 * been applied) should be checked.
-	 * @see IArtifactDescriptor#ARTIFACT_MD5
-	 * @see IArtifactDescriptor#ARTIFACT_CHECKSUM
-	 */
-	public static final boolean ARTIFACT_MD5_CHECKSUM_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.MD5ArtifactCheck")); //$NON-NLS-1$//$NON-NLS-2$
+	public static final String PROPERTY_ECLIPSE_P2_CHECKSUMS_DISABLE = "eclipse.p2.checksums.disable"; //$NON-NLS-1$
+
+	public static final String PROPERTY_ECLIPSE_P2_MIRRORS = "eclipse.p2.mirrors"; //$NON-NLS-1$
+
+	private static final String FALSE = "false"; //$NON-NLS-1$
+
+	private static final String TRUE = "true"; //$NON-NLS-1$
 
 	public static final String CONTENT_FILENAME = "artifacts"; //$NON-NLS-1$
 
@@ -470,8 +455,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		monitor = IProgressMonitor.nullSafe(monitor);
 		ArrayList<ProcessingStep> steps = new ArrayList<>();
 		steps.add(new SignatureVerifier());
-
-		Set<String> skipChecksums = ARTIFACT_MD5_CHECKSUM_ENABLED ? Collections.emptySet() : Collections.singleton(ChecksumHelper.MD5);
+		Set<String> skipChecksums = isArtifactMd5ChecksumEnabled(getProvisioningAgent()) ? Collections.emptySet()
+				: Collections.singleton(ChecksumHelper.MD5);
 		addChecksumVerifiers(descriptor, steps, skipChecksums, IArtifactDescriptor.ARTIFACT_CHECKSUM);
 
 		if (!isFolderBased(descriptor)) {
@@ -500,7 +485,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
 			steps.add(new ZipVerifierStep());
 
-		Set<String> skipChecksums = DOWNLOAD_MD5_CHECKSUM_ENABLED ? Collections.emptySet() : Collections.singleton(ChecksumHelper.MD5);
+		Set<String> skipChecksums = isDownloadMd5ChecksumEnabled(getProvisioningAgent()) ? Collections.emptySet()
+				: Collections.singleton(ChecksumHelper.MD5);
 		ArrayList<ProcessingStep> downloadChecksumSteps = new ArrayList<>();
 		addChecksumVerifiers(descriptor, downloadChecksumSteps, skipChecksums, IArtifactDescriptor.DOWNLOAD_CHECKSUM);
 		if (downloadChecksumSteps.isEmpty() && !isLocal()) {
@@ -518,7 +504,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private void addChecksumVerifiers(IArtifactDescriptor descriptor, ArrayList<ProcessingStep> steps, Set<String> skipChecksums, String property) {
-		if (CHECKSUMS_ENABLED) {
+		if (isChecksumsEnabled(getProvisioningAgent())) {
 			Collection<ChecksumVerifier> checksumVerifiers = ChecksumUtilities.getChecksumVerifiers(descriptor,
 					property, skipChecksums);
 			steps.addAll(checksumVerifiers);
@@ -758,11 +744,73 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 */
 	private synchronized URI getMirror(URI baseLocation, IProgressMonitor monitor) {
 		monitor = IProgressMonitor.nullSafe(monitor);
-		if (!MIRRORS_ENABLED || (!isForceThreading() && isLocal()))
+		if (!isMirrorsEnabled(getProvisioningAgent()) || (!isForceThreading() && isLocal()))
 			return baseLocation;
 		if (mirrors == null)
 			mirrors = new MirrorSelector(this, getTransport());
 		return mirrors.getMirrorLocation(baseLocation, monitor);
+	}
+
+	/**
+	 * A boolean property controlling whether mirroring is enabled.
+	 *
+	 * @param agent the agent to use for determine properties, might be
+	 *              <code>null</code>
+	 */
+	public static boolean isMirrorsEnabled(IProvisioningAgent agent) {
+		return !FALSE.equals(getAgentPropertyWithFallback(agent, PROPERTY_ECLIPSE_P2_MIRRORS));
+	}
+
+	/**
+	 * A boolean property controlling whether any checksums of the artifact should
+	 * be checked.
+	 *
+	 * @param agent the agent to use for determine properties, might be
+	 *              <code>null</code>
+	 *
+	 * @see IArtifactDescriptor#DOWNLOAD_MD5
+	 * @see IArtifactDescriptor#DOWNLOAD_CHECKSUM
+	 * @see IArtifactDescriptor#ARTIFACT_MD5
+	 * @see IArtifactDescriptor#ARTIFACT_CHECKSUM
+	 */
+	public static boolean isChecksumsEnabled(IProvisioningAgent agent) {
+		return !FALSE.equals(getAgentPropertyWithFallback(agent, PROPERTY_ECLIPSE_P2_CHECKSUMS_DISABLE));
+	}
+
+	/**
+	 * A boolean property controlling whether MD5 checksum of the artifact bytes
+	 * that are transferred should be checked.
+	 *
+	 * @see IArtifactDescriptor#DOWNLOAD_MD5
+	 * @see IArtifactDescriptor#DOWNLOAD_CHECKSUM
+	 * @param agent the agent to use for determine properties, might be
+	 *              <code>null</code>
+	 */
+	public static boolean isDownloadMd5ChecksumEnabled(IProvisioningAgent agent) {
+		return !FALSE.equals(getAgentPropertyWithFallback(agent, PROPERTY_ECLIPSE_P2_MD5_CHECK));
+	}
+
+	/**
+	 * A boolean property controlling whether MD5 checksum of the artifact bytes in
+	 * its native format (after processing steps have been applied) should be
+	 * checked.
+	 *
+	 * @see IArtifactDescriptor#ARTIFACT_MD5
+	 * @see IArtifactDescriptor#ARTIFACT_CHECKSUM
+	 */
+	public static boolean isArtifactMd5ChecksumEnabled(IProvisioningAgent agent) {
+		return !FALSE.equals(getAgentPropertyWithFallback(agent, PROPERTY_ECLIPSE_P2_MD5_ARTIFACT_CHECK));
+	}
+
+	private static String getAgentPropertyWithFallback(IProvisioningAgent agent, String key) {
+		if (agent == null) {
+			BundleContext context = Activator.getContext();
+			if (context != null) {
+				return context.getProperty(key);
+			}
+			return System.getProperty(key);
+		}
+		return agent.getProperty(key);
 	}
 
 	@Override
@@ -961,7 +1009,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private int getMaximumThreads() {
 		int maxThreads = DEFAULT_MAX_THREADS;
 		try {
-			String maxThreadString = Activator.getContext().getProperty(PROP_MAX_THREADS);
+			String maxThreadString = getAgentPropertyWithFallback(getProvisioningAgent(), PROP_MAX_THREADS);
 			if (maxThreadString != null)
 				maxThreads = Math.max(1, Integer.parseInt(maxThreadString));
 		} catch (NumberFormatException nfe) {
@@ -1114,7 +1162,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private boolean isForceThreading() {
-		return "true".equals(getProperties().get(PROP_FORCE_THREADING)); //$NON-NLS-1$
+		String property = getAgentPropertyWithFallback(getProvisioningAgent(), PROP_FORCE_THREADING);
+		if (property != null) {
+			return TRUE.equals(property);
+		}
+		return TRUE.equals(getProperties().get(PROP_FORCE_THREADING));
 	}
 
 	private boolean isLocal() {
@@ -1298,7 +1350,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public void save() {
 		if (disableSave)
 			return;
-		boolean compress = "true".equalsIgnoreCase(getProperty(PROP_COMPRESSED)); //$NON-NLS-1$
+		boolean compress = TRUE.equalsIgnoreCase(getProperty(PROP_COMPRESSED));
 		save(compress);
 	}
 

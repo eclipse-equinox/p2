@@ -89,7 +89,7 @@ public class RawMirrorRequest extends MirrorRequest {
 	@Override
 	protected IStatus getArtifact(IArtifactDescriptor artifactDescriptor, OutputStream destination, IProgressMonitor monitor) {
 		SubMonitor subMon = SubMonitor.convert(monitor, 2);
-		if (SimpleArtifactRepository.CHECKSUMS_ENABLED) {
+		if (SimpleArtifactRepository.isChecksumsEnabled(target.getProvisioningAgent())) {
 			Collection<ChecksumVerifier> steps = ChecksumUtilities.getChecksumVerifiers(artifactDescriptor,
 					IArtifactDescriptor.DOWNLOAD_CHECKSUM, Collections.emptySet());
 			if (steps.isEmpty()) {
