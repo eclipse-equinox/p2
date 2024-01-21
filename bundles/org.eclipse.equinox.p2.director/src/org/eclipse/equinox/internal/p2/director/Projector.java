@@ -333,12 +333,12 @@ public class Projector {
 	}
 
 	// Check whether the requirement is applicable
-	private boolean isApplicable(IRequirement req) {
+	protected boolean isApplicable(IRequirement req) {
 		IMatchExpression<IInstallableUnit> filter = req.getFilter();
 		return filter == null || filter.isMatch(selectionContext);
 	}
 
-	private boolean isApplicable(IInstallableUnit iu) {
+	protected boolean isApplicable(IInstallableUnit iu) {
 		IMatchExpression<IInstallableUnit> filter = iu.getFilter();
 		return filter == null || filter.isMatch(selectionContext);
 	}
@@ -487,7 +487,7 @@ public class Projector {
 		}
 	}
 
-	private Collection<IRequirement> getRequiredCapabilities(IInstallableUnit iu) {
+	protected Collection<IRequirement> getRequiredCapabilities(IInstallableUnit iu) {
 		boolean isFragment = iu instanceof IInstallableUnitFragment;
 		//Short-circuit for the case of an IInstallableUnit
 		if ((!isFragment) && iu.getMetaRequirements().size() == 0)
