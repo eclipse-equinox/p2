@@ -56,14 +56,18 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	 * @param destination the stream into which to write the processed data
 	 * @param monitor the progress monitor to use for reporting activity
 	 */
+	@SuppressWarnings("hiding")
 	public void link(OutputStream destination, IProgressMonitor monitor) {
 		this.destination = destination;
 		this.monitor = monitor;
 	}
 
 	/**
-	 * Process the given byte and pass the result on to the configured destination stream
+	 * Process the given byte and pass the result on to the configured destination
+	 * stream
+	 *
 	 * @param b the byte being written
+	 * @throws IOException may be thrown by overrides
 	 */
 	@Override
 	public void write(int b) throws IOException {

@@ -32,9 +32,10 @@ public class Overview {
 	}
 
 	/**
-	 * A description providing detailed information about the item. Newlines can be used to format the text into
-	 * multiple paragraphs if necessary. Text must fit into an area 320x240, otherwise it will be truncated in the UI.
-	 * More lengthy descriptions can be provided on a web page if required, see @url.
+	 * A description providing detailed information about the item. Newlines can be
+	 * used to format the text into multiple paragraphs if necessary. Text must fit
+	 * into an area 320x240, otherwise it will be truncated in the UI. More lengthy
+	 * descriptions can be provided on a web page if required, see @url.
 	 */
 	public String getSummary() {
 		return summary;
@@ -45,7 +46,8 @@ public class Overview {
 	}
 
 	/**
-	 * An URL that points to a web page with more information relevant to the connector or category.
+	 * An URL that points to a web page with more information relevant to the
+	 * connector or category.
 	 */
 	public String getUrl() {
 		return url;
@@ -82,7 +84,8 @@ public class Overview {
 		this.category = category;
 	}
 
-	public void validate() throws ValidationException {
+	public void validate() {
+		// nothing
 	}
 
 }

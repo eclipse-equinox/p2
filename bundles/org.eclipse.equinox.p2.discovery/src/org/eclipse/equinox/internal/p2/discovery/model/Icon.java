@@ -71,7 +71,8 @@ public class Icon {
 		this.image128 = image128;
 	}
 
-	public void validate() throws ValidationException {
+	public void validate() {
+		// nothing
 	}
 
 }
