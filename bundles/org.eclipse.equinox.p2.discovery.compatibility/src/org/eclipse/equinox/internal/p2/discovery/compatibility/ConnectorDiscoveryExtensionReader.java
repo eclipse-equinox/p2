@@ -49,7 +49,7 @@ public class ConnectorDiscoveryExtensionReader {
 
 	public static Tag VCS = new Tag("vcs", Messages.ConnectorDiscoveryExtensionReader_Version_Control); //$NON-NLS-1$
 
-	public static final Tag[] DEFAULT_TAGS = new Tag[] {DOCUMENT, TASK, VCS};
+	public static final Tag[] DEFAULT_TAGS = new Tag[] { DOCUMENT, TASK, VCS };
 
 	private Map<String, Tag> tagById = new HashMap<>();
 
@@ -58,13 +58,13 @@ public class ConnectorDiscoveryExtensionReader {
 	}
 
 	/**
-	 * return the enum constant whose {@link Tag#getValue() value} is the same as the given value.
+	 * return the enum constant whose {@link Tag#getValue() value} is the same as
+	 * the given value.
 	 * 
-	 * @param value
-	 *            the string value, or null
+	 * @param value the string value, or null
 	 * @return the corresponding enum constant or null if the given value was null
-	 * @throws IllegalArgumentException
-	 *             if the given value does not correspond to any enum constant
+	 * @throws IllegalArgumentException if the given value does not correspond to
+	 *                                  any enum constant
 	 */
 	public static Tag fromValue(String value) throws IllegalArgumentException {
 		if (value == null) {
@@ -108,7 +108,8 @@ public class ConnectorDiscoveryExtensionReader {
 		return readConnectorDescriptor(element, CatalogItem.class);
 	}
 
-	public <T extends CatalogItem> T readConnectorDescriptor(IConfigurationElement element, Class<T> clazz) throws ValidationException {
+	public <T extends CatalogItem> T readConnectorDescriptor(IConfigurationElement element, Class<T> clazz)
+			throws ValidationException {
 		T connectorDescriptor;
 		try {
 			connectorDescriptor = clazz.getDeclaredConstructor().newInstance();
@@ -187,7 +188,8 @@ public class ConnectorDiscoveryExtensionReader {
 		return readConnectorCategory(element, CatalogCategory.class);
 	}
 
-	public <T extends CatalogCategory> T readConnectorCategory(IConfigurationElement element, Class<T> clazz) throws ValidationException {
+	public <T extends CatalogCategory> T readConnectorCategory(IConfigurationElement element, Class<T> clazz)
+			throws ValidationException {
 		T connectorCategory;
 		try {
 			connectorCategory = clazz.getDeclaredConstructor().newInstance();
@@ -226,7 +228,8 @@ public class ConnectorDiscoveryExtensionReader {
 		return connectorCategory;
 	}
 
-	public <T extends Certification> T readCertification(IConfigurationElement element, Class<T> clazz) throws ValidationException {
+	public <T extends Certification> T readCertification(IConfigurationElement element, Class<T> clazz)
+			throws ValidationException {
 		T certification;
 		try {
 			certification = clazz.getDeclaredConstructor().newInstance();
@@ -253,7 +256,7 @@ public class ConnectorDiscoveryExtensionReader {
 		return certification;
 	}
 
-	public Icon readIcon(IConfigurationElement element) throws ValidationException {
+	public Icon readIcon(IConfigurationElement element) {
 		Icon icon = new Icon();
 
 		icon.setImage16(element.getAttribute("image16")); //$NON-NLS-1$
@@ -267,7 +270,7 @@ public class ConnectorDiscoveryExtensionReader {
 		return icon;
 	}
 
-	public Overview readOverview(IConfigurationElement element) throws ValidationException {
+	public Overview readOverview(IConfigurationElement element) {
 		Overview overview = new Overview();
 
 		overview.setSummary(element.getAttribute("summary")); //$NON-NLS-1$

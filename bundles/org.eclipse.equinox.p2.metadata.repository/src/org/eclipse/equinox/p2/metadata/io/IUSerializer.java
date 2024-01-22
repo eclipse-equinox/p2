@@ -30,7 +30,9 @@ public class IUSerializer {
 
 	/**
 	 * Construct a serializer.
+	 *
 	 * @param os the output stream against which the serializer will work.
+	 * @throws UnsupportedEncodingException never thrown but API
 	 */
 	public IUSerializer(OutputStream os) throws UnsupportedEncodingException {
 		writer = new MetadataWriter(os, null);

@@ -286,8 +286,10 @@ public class ProfilePreferences extends EclipsePreferences {
 	}
 
 	/**
-	 * Schedules the save job. This method is synchronized to protect lazily initialization
-	 * of the save job instance.
+	 * Schedules the save job. This method is synchronized to protect lazily
+	 * initialization of the save job instance.
+	 *
+	 * @throws BackingStoreException may be thrown by overrides
 	 */
 	@Override
 	protected synchronized void save() throws BackingStoreException {

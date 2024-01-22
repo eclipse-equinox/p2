@@ -734,7 +734,7 @@ public class SimpleBackupStore implements IBackupStore {
 	 * 
 	 * @return a file to which the original content can be backed up
 	 */
-	protected Path toBackupPath(Path path) throws IOException {
+	protected Path toBackupPath(Path path) {
 		Path pathNormal = path.normalize();
 
 		String buPath = pathNormal.toAbsolutePath().toString();
