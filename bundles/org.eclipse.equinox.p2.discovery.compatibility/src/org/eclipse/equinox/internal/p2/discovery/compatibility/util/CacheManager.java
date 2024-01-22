@@ -40,8 +40,8 @@ public class CacheManager {
 	private final Transport transport;
 
 	/**
-	 * IStateful implementation of BufferedOutputStream. Class is used to get the status from
-	 * a download operation.
+	 * IStateful implementation of BufferedOutputStream. Class is used to get the
+	 * status from a download operation.
 	 */
 	private static class StatefulStream extends BufferedOutputStream implements IStateful {
 		private IStatus status;
@@ -75,17 +75,21 @@ public class CacheManager {
 	}
 
 	/**
-	 * Returns a local cache file with the contents of the given remote location,
-	 * or <code>null</code> if a local cache could not be created.
+	 * Returns a local cache file with the contents of the given remote location, or
+	 * <code>null</code> if a local cache could not be created.
 	 * 
 	 * @param location the remote location to be cached
-	 * @param monitor a progress monitor
+	 * @param monitor  a progress monitor
 	 * @return A {@link File} object pointing to the cache file or <code>null</code>
-	 * @throws FileNotFoundException if neither jar nor xml index file exists at given location 
-	 * @throws AuthenticationFailedException if jar not available and xml causes authentication fail
-	 * @throws IOException on general IO errors
-	 * @throws ProvisionException on any error (e.g. user cancellation, unknown host, malformed address, connection refused, etc.)
-	 * @throws OperationCanceledException - if user cancelled
+	 * @throws FileNotFoundException         if neither jar nor xml index file
+	 *                                       exists at given location
+	 * @throws AuthenticationFailedException if jar not available and xml causes
+	 *                                       authentication fail
+	 * @throws IOException                   on general IO errors
+	 * @throws ProvisionException            on any error (e.g. user cancellation,
+	 *                                       unknown host, malformed address,
+	 *                                       connection refused, etc.)
+	 * @throws OperationCanceledException    - if user cancelled
 	 */
 	public File createCache(URI location, IProgressMonitor monitor) throws IOException, ProvisionException {
 
@@ -105,11 +109,15 @@ public class CacheManager {
 			try {
 				lastModifiedRemote = transport.getLastModified(location, submonitor.newChild(1));
 				if (lastModifiedRemote <= 0)
-					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified <= 0 for " + location)); //$NON-NLS-1$
+					LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
+							"Server returned lastModified <= 0 for " + location)); //$NON-NLS-1$
 			} catch (AuthenticationFailedException e) {
 				// it is not meaningful to continue - the credentials are for the server
-				// do not pass the exception - it gives no additional meaningful user information
-				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, NLS.bind(Messages.CacheManager_AuthenticationFaileFor_0, location), null));
+				// do not pass the exception - it gives no additional meaningful user
+				// information
+				throw new ProvisionException(
+						new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION,
+								NLS.bind(Messages.CacheManager_AuthenticationFaileFor_0, location), null));
 			} catch (CoreException e) {
 				throw new ProvisionException(e.getStatus());
 			} catch (OperationCanceledException e) {
@@ -123,7 +131,8 @@ public class CacheManager {
 			if (!stale)
 				return cacheFile;
 
-			// The cache is stale or missing, so we need to update it from the remote location
+			// The cache is stale or missing, so we need to update it from the remote
+			// location
 			cacheFile = getCacheFile(location);
 			updateCache(cacheFile, location, lastModifiedRemote, submonitor);
 			return cacheFile;
@@ -145,6 +154,7 @@ public class CacheManager {
 
 	/**
 	 * Determines the local file paths of the locations potential cache file.
+	 * 
 	 * @param location The location to compute the cache for
 	 * @return A {@link File} array with the cache files for JAR and XML extensions.
 	 */
@@ -158,7 +168,8 @@ public class CacheManager {
 	}
 
 	/**
-	 * Returns the file corresponding to the data area to be used by the cache manager.
+	 * Returns the file corresponding to the data area to be used by the cache
+	 * manager.
 	 */
 	protected File getCacheDirectory() {
 		return Activator.getDefault().getStateLocation().append("cache").toFile(); //$NON-NLS-1$
@@ -174,48 +185,49 @@ public class CacheManager {
 		return false;
 	}
 
-	protected void updateCache(File cacheFile, URI remoteFile, long lastModifiedRemote, SubMonitor submonitor) throws FileNotFoundException, IOException, ProvisionException {
+	protected void updateCache(File cacheFile, URI remoteFile, long lastModifiedRemote, SubMonitor submonitor)
+			throws FileNotFoundException, IOException, ProvisionException {
 		cacheFile.getParentFile().mkdirs();
 		File downloadDir = new File(cacheFile.getParentFile(), DOWNLOADING);
 		if (!downloadDir.exists())
 			downloadDir.mkdir();
 		File tempFile = new File(downloadDir, cacheFile.getName());
-		// Ensure that the file from a previous download attempt is removed 
+		// Ensure that the file from a previous download attempt is removed
 		if (tempFile.exists())
 			safeDelete(tempFile);
 
 		tempFile.createNewFile();
 
-		StatefulStream stream = null;
-		try {
-			stream = new StatefulStream(new FileOutputStream(tempFile));
-		} catch (Exception e) {
+		try (StatefulStream stream = new StatefulStream(new FileOutputStream(tempFile))) {
+			IStatus result = null;
+			try {
+				submonitor.setWorkRemaining(1000);
+				result = transport.download(remoteFile, stream, submonitor.newChild(1000));
+			} catch (OperationCanceledException e) {
+				// need to pick up the status - a new operation canceled exception is thrown at
+				// the end
+				// as status will be CANCEL.
+				result = stream.getStatus();
+			} finally {
+				// If there was any problem fetching the file, delete the temp file
+				if (result == null || !result.isOK())
+					safeDelete(tempFile);
+			}
+			if (result.isOK()) {
+				if (cacheFile.exists())
+					safeDelete(cacheFile);
+				if (tempFile.renameTo(cacheFile))
+					return;
+				result = new Status(IStatus.ERROR, Activator.ID,
+						NLS.bind(Messages.CacheManage_ErrorRenamingCache, new Object[] { remoteFile.toString(),
+								tempFile.getAbsolutePath(), cacheFile.getAbsolutePath() }));
+			}
+
+			if (result.getSeverity() == IStatus.CANCEL || submonitor.isCanceled())
+				throw new OperationCanceledException();
+			throw new ProvisionException(result);
+		} catch (FileNotFoundException e) {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
 		}
-		IStatus result = null;
-		try {
-			submonitor.setWorkRemaining(1000);
-			result = transport.download(remoteFile, stream, submonitor.newChild(1000));
-		} catch (OperationCanceledException e) {
-			// need to pick up the status - a new operation canceled exception is thrown at the end
-			// as status will be CANCEL.
-			result = stream.getStatus();
-		} finally {
-			stream.close();
-			// If there was any problem fetching the file, delete the temp file
-			if (result == null || !result.isOK())
-				safeDelete(tempFile);
-		}
-		if (result.isOK()) {
-			if (cacheFile.exists())
-				safeDelete(cacheFile);
-			if (tempFile.renameTo(cacheFile))
-				return;
-			result = new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CacheManage_ErrorRenamingCache, new Object[] {remoteFile.toString(), tempFile.getAbsolutePath(), cacheFile.getAbsolutePath()}));
-		}
-
-		if (result.getSeverity() == IStatus.CANCEL || submonitor.isCanceled())
-			throw new OperationCanceledException();
-		throw new ProvisionException(result);
 	}
 }

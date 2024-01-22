@@ -104,45 +104,34 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	 */
 	private static Map<String, String> loadAdviceMap(IPath basePath, IPath adviceFilePath) {
 		File location = basePath.toFile();
-		if (location == null || !location.exists())
-			return Collections.emptyMap();
-
-		ZipFile jar = null;
-		InputStream stream = null;
-		try {
-			if (location.isDirectory()) {
-				File adviceFile = new File(location, adviceFilePath.toString());
-				if (!adviceFile.isFile())
-					return Collections.emptyMap();
-				stream = new BufferedInputStream(new FileInputStream(adviceFile));
-			} else if (location.isFile()) {
-				jar = new ZipFile(location);
-				ZipEntry entry = jar.getEntry(adviceFilePath.toString());
-				if (entry == null)
-					return Collections.emptyMap();
-
-				stream = new BufferedInputStream(jar.getInputStream(entry));
+		if (location != null && location.exists()) {
+			try {
+				if (location.isDirectory()) {
+					File adviceFile = new File(location, adviceFilePath.toString());
+					if (adviceFile.isFile()) {
+						try (InputStream stream = new BufferedInputStream(new FileInputStream(adviceFile))) {
+							return CollectionUtils.loadProperties(stream);
+						}
+					}
+				} else if (location.isFile()) {
+					try (ZipFile jar = new ZipFile(location)) {
+						ZipEntry entry = jar.getEntry(adviceFilePath.toString());
+						if (entry != null) {
+							try (InputStream stream = new BufferedInputStream(jar.getInputStream(entry))) {
+								return CollectionUtils.loadProperties(stream);
+							}
+						}
+					}
+				}
+			} catch (IOException e) {
+				String message = "An error occured while reading advice file: basePath=" + basePath //$NON-NLS-1$
+						+ ", adviceFilePath=" //$NON-NLS-1$
+						+ adviceFilePath + "."; //$NON-NLS-1$
+				IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
+				LogHelper.log(status);
 			}
-			return CollectionUtils.loadProperties(stream);
-		} catch (IOException e) {
-			String message = "An error occured while reading advice file: basePath=" + basePath + ", adviceFilePath=" + adviceFilePath + "."; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
-			LogHelper.log(status);
-			return Collections.emptyMap();
-		} finally {
-			if (stream != null)
-				try {
-					stream.close();
-				} catch (IOException e) {
-					// ignore secondary failure
-				}
-			if (jar != null)
-				try {
-					jar.close();
-				} catch (IOException e) {
-					// ignore secondary failure
-				}
 		}
+		return Collections.emptyMap();
 	}
 
 	@Override

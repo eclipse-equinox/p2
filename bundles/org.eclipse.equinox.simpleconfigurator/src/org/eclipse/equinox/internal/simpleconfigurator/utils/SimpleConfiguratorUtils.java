@@ -183,20 +183,11 @@ public class SimpleConfiguratorUtils {
 	}
 
 	private static List<BundleInfo> readConfigurationFromFile(URL url, URI base) throws IOException {
-		InputStream stream = null;
-		try {
-			stream = url.openStream();
-		} catch (IOException e) {
-			// if the exception is a FNF we return an empty bundle list
-			if (e instanceof FileNotFoundException)
-				return Collections.emptyList();
-			throw e;
-		}
-
-		try {
+		try (InputStream stream = url.openStream()) {
 			return readConfiguration(stream, base);
-		} finally {
-			stream.close();
+		} catch (FileNotFoundException e) {
+			// if the exception is a FNF we return an empty bundle list
+			return Collections.emptyList();
 		}
 	}
 
