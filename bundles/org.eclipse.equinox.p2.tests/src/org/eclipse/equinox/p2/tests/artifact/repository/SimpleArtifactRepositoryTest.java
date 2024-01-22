@@ -185,7 +185,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testErrorStatus() {
+	public void testErrorStatus() throws IOException {
 		class TestStep extends ProcessingStep {
 			IStatus myStatus;
 
@@ -210,46 +210,34 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 		IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", Version.create("1.0.0")));
 
-		OutputStream out = null;
-		try {
-			TestStep errStep = new TestStep(new Status(IStatus.ERROR, "plugin", "Error Step Message"));
-			TestStep warnStep = new TestStep(new Status(IStatus.WARNING, "plugin", "Warning Step Message"));
-			TestStep okStep = new TestStep(Status.OK_STATUS);
-			out = new FileOutputStream(repositoryFile);
-			(new ProcessingStepHandler()).link(new ProcessingStep[] {okStep, errStep, warnStep}, out, new NullProgressMonitor());
+		TestStep errStep = new TestStep(new Status(IStatus.ERROR, "plugin", "Error Step Message"));
+		TestStep warnStep = new TestStep(new Status(IStatus.WARNING, "plugin", "Warning Step Message"));
+		TestStep okStep = new TestStep(Status.OK_STATUS);
+		try (OutputStream out = new FileOutputStream(repositoryFile)) {
+			(new ProcessingStepHandler()).link(new ProcessingStep[] { okStep, errStep, warnStep }, out,
+					new NullProgressMonitor());
 			IStatus status = repo.getRawArtifact(descriptor, okStep, new NullProgressMonitor());
-			out.close();
 
 			// Only the error step should be collected
 			assertFalse(status.isOK());
 			assertTrue("Unexpected Severity", status.matches(IStatus.ERROR));
 			assertEquals(1, status.getChildren().length);
+		}
 
-			errStep = new TestStep(new Status(IStatus.ERROR, "plugin", "Error Step Message"));
-			warnStep = new TestStep(new Status(IStatus.WARNING, "plugin", "Warning Step Message"));
-			TestStep warnStep2 = new TestStep(new Status(IStatus.WARNING, "plugin", "2 - Warning Step Message"));
-			okStep = new TestStep(Status.OK_STATUS);
-			out = new FileOutputStream(repositoryFile);
-			(new ProcessingStepHandler()).link(new ProcessingStep[] {okStep, warnStep, errStep, warnStep2}, out, new NullProgressMonitor());
-			status = repo.getRawArtifact(descriptor, okStep, new NullProgressMonitor());
-			out.close();
+		errStep = new TestStep(new Status(IStatus.ERROR, "plugin", "Error Step Message"));
+		warnStep = new TestStep(new Status(IStatus.WARNING, "plugin", "Warning Step Message"));
+		TestStep warnStep2 = new TestStep(new Status(IStatus.WARNING, "plugin", "2 - Warning Step Message"));
+		okStep = new TestStep(Status.OK_STATUS);
+		try (OutputStream out = new FileOutputStream(repositoryFile)) {
+			(new ProcessingStepHandler()).link(new ProcessingStep[] { okStep, warnStep, errStep, warnStep2 }, out,
+					new NullProgressMonitor());
+			IStatus status = repo.getRawArtifact(descriptor, okStep, new NullProgressMonitor());
 
 			// The first warning step and the error step should be collected
 			assertFalse(status.isOK());
 			assertTrue("Unexpected Severity", status.matches(IStatus.ERROR));
 			assertEquals(2, status.getChildren().length);
-
-		} catch (IOException e) {
-			fail("Failed to create ouptut stream", e);
-		} finally {
-			if (out != null)
-				try {
-					out.close();
-				} catch (IOException e) {
-					// don't care
-				}
 		}
-
 	}
 
 	public void testRelativeRepositoryLocation() throws ProvisionException {

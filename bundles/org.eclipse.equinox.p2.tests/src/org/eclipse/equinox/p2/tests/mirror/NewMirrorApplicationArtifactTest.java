@@ -26,7 +26,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -984,30 +983,26 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	//for Bug 250527
 	@Test
 	public void testIgnoreErrorsArgument() {
-		//Error prints to stderr, redirect that to a file
-		PrintStream oldErr = System.err;
-		PrintStream newErr = null;
-		try {
+		// Error prints to stderr, redirect that to a file
+		destRepoLocation.mkdir();
+		try (PrintStream newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")))) {
+			PrintStream oldErr = System.err;
 			try {
-				destRepoLocation.mkdir();
-				newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
-			} catch (FileNotFoundException e) {
-				fail("Error redirecting outputs", e);
+				System.setErr(newErr);
+
+				// run test without verbose
+				mirrorWithError(false);
+			} finally {
+				System.setErr(oldErr);
 			}
-			System.setErr(newErr);
 
-			//run test without verbose
-			mirrorWithError(false);
-
-		} finally {
-			System.setErr(oldErr);
-			if (newErr != null)
-				newErr.close();
+		} catch (FileNotFoundException e) {
+			fail("Error redirecting outputs", e);
 		}
 		assertEquals("Verifying correct number of Keys", 2, getArtifactKeyCount(destRepoLocation.toURI()));
-		//Because only 2 of the artifacts exists on disk, the number of artifacts in the destination should only be 1.
-		//Order in which mirror application mirrors artifacts is random.
-
+		// Because only 2 of the artifacts exists on disk, the number of artifacts in
+		// the destination should only be 1.
+		// Order in which mirror application mirrors artifacts is random.
 	}
 
 	@DataPoints
@@ -1281,55 +1276,47 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		assertTrue("Clearing log file", log.getFile().exists() && log.getFile().delete());
 
 		//Comparator prints to stdout, redirect that to a file
-		PrintStream oldOut = System.out;
-		PrintStream newOut = null;
-		PrintStream oldErr = System.err;
-		PrintStream newErr = null;
-		try {
+		destRepoLocation.mkdir();
+		try (PrintStream newOut = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.out")));
+				PrintStream newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")))) {
+			PrintStream oldOut = System.out;
+			PrintStream oldErr = System.err;
 			try {
-				destRepoLocation.mkdir();
-				newOut = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.out")));
-				newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
-			} catch (FileNotFoundException e) {
-				fail("Error redirecting output", e);
+				System.setOut(newOut);
+				System.setErr(newErr);
+
+				//run test with verbose, results in error
+				mirrorWithError(true);
+
+				//verify log
+				try {
+					String[] parts = { "Artifact not found:", MISSING_ARTIFACT };
+					assertLogContainsLine(log.getFile(), parts);
+				} catch (Exception e) {
+					fail("error verifying output", e);
+				}
+
+				//run with verbose
+				//populate destination with duplicate artifacts. We assume this works
+				runMirrorApplication("Initializing Destiantion", sourceRepoLocation, destRepoLocation, false); //value of append should not matter
+
+				try {
+					MirrorApplication app = new MirrorApplication();
+					app.addSource(createRepositoryDescriptor(sourceRepoLocation.toURI(), null, null, null));
+					app.addDestination(createRepositoryDescriptor(destRepoLocation.toURI(), null, null, null));
+					//set the arguments with verbose
+					app.setVerbose(true);
+					//run the mirror application
+					app.run(null);
+				} catch (Exception e) {
+					fail("Error running mirror application to generate INFO items", e);
+				}
+			} finally {
+				System.setOut(oldOut);
+				System.setErr(oldErr);
 			}
-			System.setOut(newOut);
-			System.setErr(newErr);
-
-			//run test with verbose, results in error
-			mirrorWithError(true);
-
-			//verify log
-			try {
-				String[] parts = { "Artifact not found:", MISSING_ARTIFACT };
-				assertLogContainsLine(log.getFile(), parts);
-			} catch (Exception e) {
-				fail("error verifying output", e);
-			}
-
-			//run with verbose
-			//populate destination with duplicate artifacts. We assume this works
-			runMirrorApplication("Initializing Destiantion", sourceRepoLocation, destRepoLocation, false); //value of append should not matter
-
-			try {
-				MirrorApplication app = new MirrorApplication();
-				app.addSource(createRepositoryDescriptor(sourceRepoLocation.toURI(), null, null, null));
-				app.addDestination(createRepositoryDescriptor(destRepoLocation.toURI(), null, null, null));
-				//set the arguments with verbose
-				app.setVerbose(true);
-				//run the mirror application
-				app.run(null);
-			} catch (Exception e) {
-				fail("Error running mirror application to generate INFO items", e);
-			}
-
-		} finally {
-			System.setOut(oldOut);
-			if (newOut != null)
-				newOut.close();
-			System.setErr(oldErr);
-			if (newErr != null)
-				newErr.close();
+		} catch (FileNotFoundException e) {
+			fail("Error redirecting output", e);
 		}
 
 		IArtifactRepository sourceRepository = null;

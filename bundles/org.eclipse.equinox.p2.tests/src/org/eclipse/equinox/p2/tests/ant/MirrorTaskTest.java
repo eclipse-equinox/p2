@@ -712,7 +712,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	/*
 	 * Modified from org.eclipse.equinox.p2.tests.mirror.ArtifactMirrorApplicationTest
 	 */
-	public void testBaselineCompareUsingComparator() {
+	public void testBaselineCompareUsingComparator() throws FileNotFoundException {
 		// Setup create descriptors with different checksum values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/content.xml");
@@ -744,44 +744,38 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		}
 
 		//Comparator prints to stderr, redirect that to a file
-		PrintStream oldErr = System.err;
-		PrintStream newErr = null;
-		PrintStream oldOut = System.out;
-		PrintStream newOut = null;
-		try {
-			new File(destinationRepo).mkdir();
-			newErr = new PrintStream(new FileOutputStream(new File(new File(destinationRepo), "sys.err")));
-			newOut = new PrintStream(new FileOutputStream(new File(new File(destinationRepo), "sys.out")));
-		} catch (FileNotFoundException e) {
-			fail("Error redirecting outputs", e);
-		}
+		File dir = new File(destinationRepo);
+		dir.mkdir();
+		try (PrintStream newErr = new PrintStream(new FileOutputStream(new File(dir, "sys.err")));
+				PrintStream newOut = new PrintStream(new FileOutputStream(new File(dir, "sys.out")))) {
 
-		try {
-			System.setErr(newErr);
-			System.setOut(newOut);
+			PrintStream oldErr = System.err;
+			PrintStream oldOut = System.out;
+			try {
+				System.setErr(newErr);
+				System.setOut(newOut);
 
-			// Create task
-			AntTaskElement mirror = createMirrorTask(TYPE_BOTH);
-			// Add source
-			mirror.addElement(createSourceElement(repoLocation.toURI(), repoLocation.toURI()));
-			// set verbose
-			mirror.addAttribute("verbose", String.valueOf(true));
+				// Create task
+				AntTaskElement mirror = createMirrorTask(TYPE_BOTH);
+				// Add source
+				mirror.addElement(createSourceElement(repoLocation.toURI(), repoLocation.toURI()));
+				// set verbose
+				mirror.addAttribute("verbose", String.valueOf(true));
 
-			// Create a comparator element
-			AntTaskElement comparator = new AntTaskElement("comparator");
-			comparator.addAttribute("comparator", ArtifactChecksumComparator.COMPARATOR_ID + ".sha-256");
-			comparator.addElement(getRepositoryElement(baselineLocation.toURI(), null));
-			mirror.addElement(comparator);
+				// Create a comparator element
+				AntTaskElement comparator = new AntTaskElement("comparator");
+				comparator.addAttribute("comparator", ArtifactChecksumComparator.COMPARATOR_ID + ".sha-256");
+				comparator.addElement(getRepositoryElement(baselineLocation.toURI(), null));
+				mirror.addElement(comparator);
 
-			runAntTaskWithExceptions();
-		} catch (Exception e) {
-			fail("Running mirror application with baseline compare", rootCause(e));
-		} finally {
-			System.setErr(oldErr);
-			newErr.close();
-			System.setOut(oldOut);
-			newOut.close();
-		}
+				runAntTaskWithExceptions();
+			} catch (Exception e) {
+				fail("Running mirror application with baseline compare", rootCause(e));
+			} finally {
+				System.setErr(oldErr);
+				System.setOut(oldOut);
+			}
+	}
 
 		IArtifactRepository destination = null;
 		try {
