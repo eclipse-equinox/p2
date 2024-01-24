@@ -65,7 +65,8 @@ public class TextSearchControl extends Composite {
 	 * Get image descriptors for the clear button.
 	 */
 	static {
-		ImageDescriptor descriptor = AbstractUIPlugin.imageDescriptorFromPlugin(PlatformUI.PLUGIN_ID, "$nl$/icons/full/etool16/clear_co.png"); //$NON-NLS-1$
+		ImageDescriptor descriptor = AbstractUIPlugin.imageDescriptorFromPlugin(PlatformUI.PLUGIN_ID,
+				"$nl$/icons/full/etool16/clear_co.png"); //$NON-NLS-1$
 		if (descriptor != null) {
 			JFaceResources.getImageRegistry().put(CLEAR_ICON, descriptor);
 		}
@@ -92,6 +93,7 @@ public class TextSearchControl extends Composite {
 
 	private static Boolean useNativeSearchField;
 
+	@SuppressWarnings("nls")
 	public TextSearchControl(Composite parent, boolean automaticFind) {
 		super(parent, getCompositeStyle(automaticFind, parent));
 		this.automaticFind = automaticFind;
@@ -112,7 +114,8 @@ public class TextSearchControl extends Composite {
 				numColumns += 1;
 			}
 		}
-		GridLayoutFactory.swtDefaults().margins(0, 0).extendedMargins(0, 0, 0, 0).spacing(0, 1).numColumns(numColumns).applyTo(this);
+		GridLayoutFactory.swtDefaults().margins(0, 0).extendedMargins(0, 0, 0, 0).spacing(0, 1).numColumns(numColumns)
+				.applyTo(this);
 
 		textControl = new Text(this, textStyle);
 
@@ -120,8 +123,10 @@ public class TextSearchControl extends Composite {
 		textControl.setLayoutData(gridData);
 
 		if (useNativeSearchField == null || !useNativeSearchField) {
-			findControl = createLabelButtonControl(this, textControl, JFaceResources.getImageRegistry().getDescriptor(FIND_ICON), "Find", "Find", ICON_SEARCH);
-			clearControl = createLabelButtonControl(this, textControl, JFaceResources.getImageRegistry().getDescriptor(CLEAR_ICON), WorkbenchMessages.FilteredTree_ClearToolTip, //FilteredTree_AccessibleListenerClearButton,
+			findControl = createLabelButtonControl(this, JFaceResources.getImageRegistry().getDescriptor(FIND_ICON),
+					"Find", "Find", ICON_SEARCH); //$NON-NLS-2$
+			clearControl = createLabelButtonControl(this, JFaceResources.getImageRegistry().getDescriptor(CLEAR_ICON),
+					WorkbenchMessages.FilteredTree_ClearToolTip, // FilteredTree_AccessibleListenerClearButton,
 					WorkbenchMessages.FilteredTree_ClearToolTip, ICON_CANCEL);
 			addModifyListener(e -> updateButtonVisibilityAndEnablement());
 			updateButtonVisibilityAndEnablement();
@@ -166,7 +171,8 @@ public class TextSearchControl extends Composite {
 						style |= ICON_SEARCH;
 					}
 					testText = new Text(parent, style);
-					useNativeSearchField = Boolean.valueOf((testText.getStyle() & ICON_CANCEL) != 0 && (!automaticFind || (testText.getStyle() & ICON_SEARCH) != 0));
+					useNativeSearchField = Boolean.valueOf((testText.getStyle() & ICON_CANCEL) != 0
+							&& (!automaticFind || (testText.getStyle() & ICON_SEARCH) != 0));
 				} finally {
 					if (testText != null) {
 						testText.dispose();
@@ -180,11 +186,14 @@ public class TextSearchControl extends Composite {
 		return useNativeSearchField.booleanValue();
 	}
 
-	private Control createLabelButtonControl(Composite parent, final Text textControl, ImageDescriptor activeImageDescriptor, final String accessibilityText, String toolTipText, final int detail) {
+	private Control createLabelButtonControl(Composite parent, ImageDescriptor activeImageDescriptor,
+			final String accessibilityText, String toolTipText, final int detail) {
 
 		final Image nativeImage = parent.getDisplay().getSystemImage(detail);
 
-		final Image activeImage = nativeImage != null ? nativeImage : activeImageDescriptor == null ? ImageDescriptor.getMissingImageDescriptor().createImage() : activeImageDescriptor.createImage();
+		final Image activeImage = nativeImage != null ? nativeImage
+				: activeImageDescriptor == null ? ImageDescriptor.getMissingImageDescriptor().createImage()
+						: activeImageDescriptor.createImage();
 		final Image inactiveImage = new Image(parent.getDisplay(), activeImage, SWT.IMAGE_GRAY);
 		final Image pressedImage = inactiveImage;
 
@@ -214,8 +223,8 @@ public class TextSearchControl extends Composite {
 					private boolean fMouseInButton = true;
 
 					@Override
-					public void mouseMove(MouseEvent e) {
-						boolean mouseInButton = isMouseInButton(e);
+					public void mouseMove(MouseEvent event) {
+						boolean mouseInButton = isMouseInButton(event);
 						if (mouseInButton != fMouseInButton) {
 							fMouseInButton = mouseInButton;
 							labelButton.setImage(mouseInButton ? pressedImage : inactiveImage);
@@ -263,7 +272,8 @@ public class TextSearchControl extends Composite {
 
 		});
 
-		labelButton.getAccessible().addAccessibleListener(AccessibleListener.getNameAdapter(e -> e.result = accessibilityText));
+		labelButton.getAccessible()
+				.addAccessibleListener(AccessibleListener.getNameAdapter(e -> e.result = accessibilityText));
 		labelButton.getAccessible().addAccessibleControlListener(new AccessibleControlAdapter() {
 			@Override
 			public void getRole(AccessibleControlEvent e) {

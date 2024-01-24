@@ -311,9 +311,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		recomputePlan(runnableContext, false);
 	}
 
-	public void computeRemediationOperation(ProfileChangeOperation op, ProvisioningUI ui, IProgressMonitor monitor) {
+	public void computeRemediationOperation(ProfileChangeOperation op, ProvisioningUI pui, IProgressMonitor monitor) {
 		monitor.setTaskName(ProvUIMessages.ProvisioningOperationWizard_Remediation_Operation);
-		remediationOperation = new RemediationOperation(ui.getSession(), op.getProfileChangeRequest());
+		remediationOperation = new RemediationOperation(pui.getSession(), op.getProfileChangeRequest());
 		remediationOperation.resolveModal(monitor);
 		monitor.done();
 	}

@@ -113,8 +113,8 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			@SuppressWarnings("unchecked")
 			List<IArtifactRequest> artifactRequests = (List<IArtifactRequest>) parameters.get(NATIVE_ARTIFACTS);
 			ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
-			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-			DownloadManager dm = new DownloadManager(context, agent);
+			IProvisioningAgent pa = (IProvisioningAgent) parameters.get(PARM_AGENT);
+			DownloadManager dm = new DownloadManager(context, pa);
 			for (IArtifactRequest request : artifactRequests) {
 				dm.add(request);
 			}

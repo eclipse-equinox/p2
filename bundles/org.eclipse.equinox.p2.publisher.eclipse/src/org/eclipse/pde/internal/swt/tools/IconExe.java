@@ -1429,14 +1429,14 @@ public class IconExe {
 		 * within the logical screen (this field corresponds to
 		 * the GIF89a Image Left Position value).
 		 */
-		public int x;
+		public int topLeftX;
 
 		/**
 		 * The y coordinate of the top left corner of the image
 		 * within the logical screen (this field corresponds to
 		 * the GIF89a Image Top Position value).
 		 */
-		public int y;
+		public int topLeftY;
 
 		/**
 		 * A description of how to dispose of the current image
@@ -1555,7 +1555,7 @@ public class IconExe {
 			if (data.length < 1)
 				SWT.error(SWT.ERROR_INVALID_IMAGE);
 			ImageData i = data[0];
-			setAllFields(i.width, i.height, i.depth, i.scanlinePad, i.bytesPerLine, i.data, i.palette, i.transparentPixel, i.maskData, i.maskPad, i.alphaData, i.alpha, i.type, i.x, i.y, i.disposalMethod, i.delayTime);
+			setAllFields(i.width, i.height, i.depth, i.scanlinePad, i.bytesPerLine, i.data, i.palette, i.transparentPixel, i.maskData, i.maskPad, i.alphaData, i.alpha, i.type, i.topLeftX, i.topLeftY, i.disposalMethod, i.delayTime);
 		}
 
 		/**
@@ -1584,8 +1584,9 @@ public class IconExe {
 			if (scanlinePad == 0)
 				SWT.error(SWT.ERROR_CANNOT_BE_ZERO);
 
-			int bytesPerLine = (((width * depth + 7) / 8) + (scanlinePad - 1)) / scanlinePad * scanlinePad;
-			setAllFields(width, height, depth, scanlinePad, bytesPerLine, data != null ? data : new byte[bytesPerLine * height], palette, transparentPixel, maskData, maskPad, alphaData, alpha, type, x, y, disposalMethod, delayTime);
+			int bpl = (((width * depth + 7) / 8) + (scanlinePad - 1)) / scanlinePad * scanlinePad; // bytesPerLine
+			setAllFields(width, height, depth, scanlinePad, bpl, data != null ? data : new byte[bpl * height], palette,
+					transparentPixel, maskData, maskPad, alphaData, alpha, type, x, y, disposalMethod, delayTime);
 		}
 
 		/**
@@ -1612,8 +1613,8 @@ public class IconExe {
 			this.alphaData = alphaData;
 			this.alpha = alpha;
 			this.type = type;
-			this.x = x;
-			this.y = y;
+			this.topLeftX = x;
+			this.topLeftY = y;
 			this.disposalMethod = disposalMethod;
 			this.delayTime = delayTime;
 		}
@@ -1639,8 +1640,8 @@ public class IconExe {
 		ImageData colorMaskImage(int pixel) {
 			ImageData mask = new ImageData(width, height, 1, bwPalette(), 2, null, 0, null, null, -1, -1, SWT.IMAGE_UNDEFINED, 0, 0, 0, 0);
 			int[] row = new int[width];
-			for (int y = 0; y < height; y++) {
-				getPixels(0, y, width, row, 0);
+			for (int h = 0; h < height; h++) {
+				getPixels(0, h, width, row, 0);
 				for (int i = 0; i < width; i++) {
 					if (pixel != -1 && row[i] == pixel) {
 						row[i] = 0;
@@ -1648,7 +1649,7 @@ public class IconExe {
 						row[i] = 1;
 					}
 				}
-				mask.setPixels(0, y, width, row, 0);
+				mask.setPixels(0, h, width, row, 0);
 			}
 			return mask;
 		}
@@ -2743,9 +2744,9 @@ public class IconExe {
 		 * four bytes of the input stream.
 		 */
 		public int readInt() throws IOException {
-			byte[] buf = new byte[4];
-			read(buf);
-			return ((((((buf[3] & 0xFF) << 8) | (buf[2] & 0xFF)) << 8) | (buf[1] & 0xFF)) << 8) | (buf[0] & 0xFF);
+			byte[] b = new byte[4];
+			read(b);
+			return ((((((b[3] & 0xFF) << 8) | (b[2] & 0xFF)) << 8) | (b[1] & 0xFF)) << 8) | (b[0] & 0xFF);
 		}
 
 		/**
@@ -2753,9 +2754,9 @@ public class IconExe {
 		 * two bytes of the input stream.
 		 */
 		public short readShort() throws IOException {
-			byte[] buf = new byte[2];
-			read(buf);
-			return (short) (((buf[1] & 0xFF) << 8) | (buf[0] & 0xFF));
+			byte[] b = new byte[2];
+			read(b);
+			return (short) (((b[1] & 0xFF) << 8) | (b[0] & 0xFF));
 		}
 
 		/**
@@ -2826,7 +2827,6 @@ public class IconExe {
 
 	static class WinBMPFileFormat extends FileFormat {
 		static final int BMPFileHeaderSize = 14;
-		static final int BMPHeaderFixedSize = 40;
 		int importantColors;
 
 		void decompressData(byte[] src, byte[] dest, int stride, int cmp) {
@@ -3166,7 +3166,7 @@ public class IconExe {
 			int maskDataStride = (i.width + 31) / 32 * 4;
 			int dataSize = (shapeDataStride + maskDataStride) * i.height;
 			int paletteSize = i.palette.colors != null ? i.palette.colors.length * 4 : 0;
-			return WinBMPFileFormat.BMPHeaderFixedSize + paletteSize + dataSize;
+			return BMPHeaderFixedSize + paletteSize + dataSize;
 		}
 
 		@Override
@@ -3302,7 +3302,7 @@ public class IconExe {
 					return null;
 				}
 			}
-			byte[] infoHeader = new byte[WinBMPFileFormat.BMPHeaderFixedSize];
+			byte[] infoHeader = new byte[BMPHeaderFixedSize];
 			try {
 				inputStream.read(infoHeader);
 			} catch (IOException e) {

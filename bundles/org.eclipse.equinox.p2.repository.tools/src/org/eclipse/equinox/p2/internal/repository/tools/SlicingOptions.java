@@ -85,7 +85,7 @@ public class SlicingOptions {
 		this.latestVersion = latest;
 	}
 
-	public void installTimeLikeResolution(boolean resolve) {
+	public void setResolve(boolean resolve) {
 		this.resolve = resolve;
 	}
 

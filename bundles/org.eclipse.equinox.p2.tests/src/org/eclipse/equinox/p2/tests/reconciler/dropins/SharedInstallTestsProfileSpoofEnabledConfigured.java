@@ -13,7 +13,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -41,11 +45,11 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 		super(name);
 	}
 
-	public void reconcileReadOnly(String message, File extensions) {
+	private static void reconcileReadOnly(String message, File extensions) {
 		reconcileReadOnly(message, extensions, false);
 	}
 
-	public void reconcileReadOnly(String message, File extensions, boolean debug) {
+	private static void reconcileReadOnly(String message, File extensions, boolean debug) {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");

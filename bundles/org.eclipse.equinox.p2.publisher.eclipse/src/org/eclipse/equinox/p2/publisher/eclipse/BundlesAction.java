@@ -182,7 +182,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		return new BundlesAction(new BundleDescription[] { bd }).doCreateBundleIU(bd, key, info);
 	}
 
-	protected IInstallableUnit doCreateBundleIU(BundleDescription bd, IArtifactKey key, IPublisherInfo info) {
+	protected IInstallableUnit doCreateBundleIU(BundleDescription bd, IArtifactKey key, IPublisherInfo publisherInfo) {
 		@SuppressWarnings("unchecked")
 		Map<String, String> manifest = (Map<String, String>) bd.getUserObject();
 
@@ -298,8 +298,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		iu.setCapabilities(providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
 
 		// Process advice
-		processUpdateDescriptorAdvice(iu, info);
-		processCapabilityAdvice(iu, info);
+		processUpdateDescriptorAdvice(iu, publisherInfo);
+		processCapabilityAdvice(iu, publisherInfo);
 
 		// Set certain properties from the manifest header attributes as IU properties.
 		// The values of these attributes may be localized (strings starting with '%')
@@ -322,13 +322,13 @@ public class BundlesAction extends AbstractPublisherAction {
 		// that this is something that will not impact the configuration.
 		Map<String, String> touchpointData = new HashMap<>();
 		touchpointData.put("manifest", toManifestString(manifest)); //$NON-NLS-1$
-		if (isDir(bd, info)) {
+		if (isDir(bd, publisherInfo)) {
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		// Process more advice
-		processTouchpointAdvice(iu, touchpointData, info);
-		processInstallableUnitPropertiesAdvice(iu, info);
+		processTouchpointAdvice(iu, touchpointData, publisherInfo);
+		processInstallableUnitPropertiesAdvice(iu, publisherInfo);
 
 		return MetadataFactory.createInstallableUnit(iu);
 	}
@@ -995,12 +995,12 @@ public class BundlesAction extends AbstractPublisherAction {
 	 * 
 	 * @param bundleDescriptions Equinox framework descriptions of the bundles to
 	 *                           publish.
-	 * @param info               Configuration and publication advice information.
+	 * @param publisherInfo               Configuration and publication advice information.
 	 * @param result             Used to attach status for the publication
 	 *                           operation.
 	 * @param monitor            Used to fire progress events.
 	 */
-	protected void generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherInfo info,
+	protected void generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherInfo publisherInfo,
 			IPublisherResult result, IProgressMonitor monitor) {
 		// This assumes that hosts are processed before fragments because for each
 		// fragment the host
@@ -1019,20 +1019,20 @@ public class BundlesAction extends AbstractPublisherAction {
 					PublisherHelper.fromOSGiVersion(bd.getVersion()));
 			IArtifactKey bundleArtKey = createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
 			if (bundleIU == null) {
-				createAdviceFileAdvice(bd, info);
+				createAdviceFileAdvice(bd, publisherInfo);
 				// Create the bundle IU according to any shape advice we have
-				bundleIU = doCreateBundleIU(bd, bundleArtKey, info);
+				bundleIU = doCreateBundleIU(bd, bundleArtKey, publisherInfo);
 			}
 
 			File bundleLocation = new File(bd.getLocation());
-			IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(info, bundleArtKey, bundleLocation);
-			processArtifactPropertiesAdvice(bundleIU, ad, info);
+			IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(publisherInfo, bundleArtKey, bundleLocation);
+			processArtifactPropertiesAdvice(bundleIU, ad, publisherInfo);
 
 			// Publish according to the shape on disk
 			if (bundleLocation.isDirectory()) {
-				publishArtifact(ad, bundleLocation, bundleLocation.listFiles(), info);
+				publishArtifact(ad, bundleLocation, bundleLocation.listFiles(), publisherInfo);
 			} else {
-				publishArtifact(ad, bundleLocation, info);
+				publishArtifact(ad, bundleLocation, publisherInfo);
 			}
 
 			IInstallableUnit fragment = null;
@@ -1057,7 +1057,7 @@ public class BundlesAction extends AbstractPublisherAction {
 				result.addIU(fragment, IPublisherResult.NON_ROOT);
 			}
 
-			InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(bundleIU, info);
+			InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(bundleIU, publisherInfo);
 			for (int iuIndex = 0; others != null && iuIndex < others.length; iuIndex++) {
 				result.addIU(MetadataFactory.createInstallableUnit(others[iuIndex]), IPublisherResult.ROOT);
 			}

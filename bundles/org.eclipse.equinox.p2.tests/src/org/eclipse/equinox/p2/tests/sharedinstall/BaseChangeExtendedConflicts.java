@@ -32,7 +32,7 @@ public class BaseChangeExtendedConflicts extends BaseChange {
 		return suite;
 	}
 
-	private File extensions;
+	private File extFolder;
 
 	public BaseChangeExtendedConflicts(String name) {
 		super(name);
@@ -110,17 +110,17 @@ public class BaseChangeExtendedConflicts extends BaseChange {
 
 	@Override
 	protected void tearDown() throws Exception {
-		setReadOnly(extensions, false);
-		extensions.delete();
+		setReadOnly(extFolder, false);
+		extFolder.delete();
 		super.tearDown();
 	}
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		extensions = getTestFolder("ext");
-		copy("", getTestData("", "testData/reconciler/extensions/ext1"), extensions);
-		setReadOnly(extensions, true);
+		extFolder = getTestFolder("ext");
+		copy("", getTestData("", "testData/reconciler/extensions/ext1"), extFolder);
+		setReadOnly(extFolder, true);
 	}
 
 	public void testBundlesSpecifiedMultipleTimes() {
@@ -129,12 +129,12 @@ public class BaseChangeExtendedConflicts extends BaseChange {
 
 		{ //install verifier and something else in user and checks there are there
 			// when extensions are enabled and configured
-			installFeature1AndVerifierInUser(extensions, extensions);
+			installFeature1AndVerifierInUser(extFolder, extFolder);
 			Properties verificationProperties = new Properties();
 			verificationProperties.setProperty("expectedBundleList", "p2TestBundle1,org.eclipse.equinox.p2.tests.verifier,zzz");
 			verificationProperties.setProperty("checkProfileResetFlag", "false");
 			verificationProperties.setProperty("not.sysprop.eclipse.ignoreUserConfiguration", "");
-			executeVerifier(verificationProperties, extensions);
+			executeVerifier(verificationProperties, extFolder);
 
 			assertTrue(isInUserBundlesInfo("p2TestBundle1"));
 			assertTrue(isInUserBundlesInfo("zzz"));
@@ -159,7 +159,7 @@ public class BaseChangeExtendedConflicts extends BaseChange {
 			verificationProperties.setProperty("checkProfileResetFlag", "false");
 			verificationProperties.setProperty("checkMigrationWizard", "true");
 			verificationProperties.setProperty("checkMigrationWizard.open", "true");
-			executeVerifier(verificationProperties, extensions, extensions);
+			executeVerifier(verificationProperties, extFolder, extFolder);
 
 			assertTrue(isInUserBundlesInfo("p2TestBundle1")); //Despite the reset, the bundles.info is still on-disk unmodified since no provisioning has been done
 			assertProfileStatePropertiesHasKey(getUserProfileFolder(), "_simpleProfileRegistry_internal_" + getMostRecentProfileTimestampFromBase());
@@ -169,14 +169,14 @@ public class BaseChangeExtendedConflicts extends BaseChange {
 			verificationProperties.setProperty("checkProfileResetFlag", "false");
 			verificationProperties.setProperty("checkPresenceOfVerifier", "false");
 			verificationProperties.setProperty("expectedBundleList", "org.eclipse.equinox.p2.tests.verifier,zzz");
-			executeVerifier(verificationProperties, extensions, extensions);
+			executeVerifier(verificationProperties, extFolder, extFolder);
 		}
 
 		{ //Now add something into the user install again
-			installFeature2InUser(extensions, extensions);
+			installFeature2InUser(extFolder, extFolder);
 			Properties verificationProperties = new Properties();
 			verificationProperties.setProperty("expectedBundleList", "org.eclipse.equinox.p2.tests.verifier,zzz,p2TestBundle2");
-			executeVerifier(verificationProperties, extensions, extensions);
+			executeVerifier(verificationProperties, extFolder, extFolder);
 
 			assertFalse(isInUserBundlesInfo("p2TestBundle1")); // was dropped some time ago
 			assertTrue(isInUserBundlesInfo("p2TestBundle2")); // was installed recently
@@ -184,7 +184,7 @@ public class BaseChangeExtendedConflicts extends BaseChange {
 			assertTrue(isInUserBundlesInfo("zzz")); // from extensions
 
 			verificationProperties.setProperty("expectedBundleList", "org.eclipse.equinox.p2.tests.verifier,zzz,p2TestBundle2");
-			executeVerifier(verificationProperties, extensions, extensions);
+			executeVerifier(verificationProperties, extFolder, extFolder);
 
 			//verifier without extensions should drop all except verifier in the base
 			Properties newVerificationProperties = new Properties();
@@ -196,7 +196,7 @@ public class BaseChangeExtendedConflicts extends BaseChange {
 			// p2Test bundle visible, because all timestamp match properly again!
 			verificationProperties.setProperty("expectedBundleList", "org.eclipse.equinox.p2.tests.verifier,zzz,p2TestBundle2,");
 			verificationProperties.setProperty("unexpectedBundleList", "p2TestBundle1");
-			executeVerifier(verificationProperties, extensions, extensions);
+			executeVerifier(verificationProperties, extFolder, extFolder);
 		}
 	}
 }

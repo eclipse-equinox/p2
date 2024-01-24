@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
 public class QueryProviderTests extends AbstractProvisioningUITest {
-	IInstallableUnit category, nestedCategory;
+	IInstallableUnit nestedCategory;
 	IInstallableUnit a, b, c;
 	static final String CAT = "Category";
 	static final String NESTED = "NestedCategory";
@@ -40,7 +40,7 @@ public class QueryProviderTests extends AbstractProvisioningUITest {
 		categoryProperties.put("org.eclipse.equinox.p2.type.category", "true");
 		HashMap<String, String> groupProperties = new HashMap<>();
 		groupProperties.put("org.eclipse.equinox.p2.type.group", "true");
-		category = createIU(CAT, Version.create("1.0.0"),
+		IInstallableUnit cat = createIU(CAT, Version.create("1.0.0"),
 				createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, NESTED), categoryProperties, true);
 		nestedCategory = createIU(NESTED, Version.create("1.0.0"),
 				createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, A), categoryProperties, true);
@@ -49,7 +49,7 @@ public class QueryProviderTests extends AbstractProvisioningUITest {
 		b = createIU(B, Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, C),
 				groupProperties, true);
 		c = createIU(C, Version.create("1.0.0"), NO_REQUIRES, NO_PROPERTIES, true);
-		testRepo = createTestMetdataRepository(new IInstallableUnit[] { category, nestedCategory, a, b, c });
+		testRepo = createTestMetdataRepository(new IInstallableUnit[] { cat, nestedCategory, a, b, c });
 	}
 
 	public void testNestedCategories() {

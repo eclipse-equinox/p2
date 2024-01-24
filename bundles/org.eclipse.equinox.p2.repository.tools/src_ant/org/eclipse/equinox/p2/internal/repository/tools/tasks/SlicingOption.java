@@ -32,7 +32,7 @@ public class SlicingOption extends Task {
 		options.everythingGreedy(true);
 		options.includeOptionalDependencies(true);
 		options.followOnlyFilteredRequirements(false);
-		options.installTimeLikeResolution(false);
+		options.setResolve(false);
 		setIncludeFeatures(true);
 	}
 
@@ -106,7 +106,7 @@ public class SlicingOption extends Task {
 	}
 
 	public void setResolve(boolean resolve) {
-		options.installTimeLikeResolution(resolve);
+		options.setResolve(resolve);
 	}
 
 	public SlicingOptions getOptions() {

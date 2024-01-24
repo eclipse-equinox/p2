@@ -56,8 +56,8 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	 * @param destination the stream into which to write the processed data
 	 * @param monitor the progress monitor to use for reporting activity
 	 */
-	@SuppressWarnings("hiding")
-	public void link(OutputStream destination, IProgressMonitor monitor) {
+	public void link(@SuppressWarnings("hiding") OutputStream destination,
+			@SuppressWarnings("hiding") IProgressMonitor monitor) {
 		this.destination = destination;
 		this.monitor = monitor;
 	}

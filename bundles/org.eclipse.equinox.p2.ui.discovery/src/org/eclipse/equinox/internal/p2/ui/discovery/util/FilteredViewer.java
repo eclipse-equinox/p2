@@ -87,7 +87,7 @@ public abstract class FilteredViewer {
 	protected PatternFilter doCreateFilter() {
 		return new PatternFilter() {
 			@Override
-			protected boolean isParentMatch(Viewer viewer, Object element) {
+			protected boolean isParentMatch(Viewer v, Object element) {
 				return false;
 			}
 		};
@@ -180,7 +180,8 @@ public abstract class FilteredViewer {
 	}
 
 	/**
-	 * Invoked whenever the filter text is changed or the user otherwise causes the filter text to change.
+	 * Invoked whenever the filter text is changed or the user otherwise causes the
+	 * filter text to change.
 	 */
 	protected void filterTextChanged() {
 		if (refreshJob == null) {
@@ -224,7 +225,8 @@ public abstract class FilteredViewer {
 	public void setMinimumHeight(int minimumHeight) {
 		this.minimumHeight = minimumHeight;
 		if (viewer != null) {
-			GridDataFactory.fillDefaults().grab(true, true).hint(SWT.DEFAULT, minimumHeight).applyTo(viewer.getControl());
+			GridDataFactory.fillDefaults().grab(true, true).hint(SWT.DEFAULT, minimumHeight)
+					.applyTo(viewer.getControl());
 		}
 	}
 

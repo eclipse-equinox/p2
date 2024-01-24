@@ -26,6 +26,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
  */
 public class AddChildTask extends AbstractMDRTask {
 
+	@SuppressWarnings("hiding")
 	URI location; // location of the composite repository
 	URI child; // address of the child to add
 

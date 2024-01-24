@@ -56,8 +56,8 @@ public class HostCheckAnalyzer extends IUAnalyzer {
 	}
 
 	@Override
-	public void preAnalysis(IMetadataRepository repository) {
-		this.repository = repository;
+	public void preAnalysis(IMetadataRepository repo) {
+		this.repository = repo;
 	}
 
 }

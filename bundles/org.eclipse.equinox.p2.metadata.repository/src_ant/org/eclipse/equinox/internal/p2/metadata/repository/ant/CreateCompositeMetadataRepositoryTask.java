@@ -32,6 +32,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 @SuppressWarnings("nls")
 public class CreateCompositeMetadataRepositoryTask extends AbstractMDRTask {
 
+	@SuppressWarnings("hiding")
 	URI location; // desired location of the composite repository
 	String name = "Composite Metadata Repository";
 	boolean atomic = false;

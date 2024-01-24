@@ -27,6 +27,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
  */
 public class RemoveChildTask extends AbstractMDRTask {
 
+	@SuppressWarnings("hiding")
 	URI location; // location of the composite repository
 	URI child; // address of the child to be removed
 	boolean allChildren; // should we remove all the children?

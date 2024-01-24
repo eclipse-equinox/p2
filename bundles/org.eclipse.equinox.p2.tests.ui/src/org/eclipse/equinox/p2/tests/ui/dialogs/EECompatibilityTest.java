@@ -146,10 +146,10 @@ public class EECompatibilityTest extends WizardTest {
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
-	private void addAJREJavaSEUnit(IProfile profile) {
+	private void addAJREJavaSEUnit(IProfile p) {
 		InstallOperation installOperation = new InstallOperation(getSession(),
 				Collections.singletonList(aJREJavaSE(latestKnownJavaVersion)));
-		installOperation.setProfileId(TESTPROFILE);
+		installOperation.setProfileId(p.getProfileId());
 		installOperation.resolveModal(new NullProgressMonitor());
 		installOperation.getProvisioningJob(new NullProgressMonitor()).run(new NullProgressMonitor());
 	}
