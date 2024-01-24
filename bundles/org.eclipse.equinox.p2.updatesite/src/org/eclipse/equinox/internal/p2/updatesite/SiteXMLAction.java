@@ -744,11 +744,10 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		return categoryName;
 	}
 
-	protected Transport getTransport(IPublisherInfo info) {
-		@SuppressWarnings("rawtypes")
-		IRepository repo = info.getMetadataRepository();
+	protected Transport getTransport(IPublisherInfo publisherInfo) {
+		IRepository repo = publisherInfo.getMetadataRepository();
 		if (repo == null)
-			repo = info.getArtifactRepository();
+			repo = publisherInfo.getArtifactRepository();
 		if (repo == null)
 			throw new IllegalStateException("The transport service can not be found."); //$NON-NLS-1$
 		return repo.getProvisioningAgent().getService(Transport.class);

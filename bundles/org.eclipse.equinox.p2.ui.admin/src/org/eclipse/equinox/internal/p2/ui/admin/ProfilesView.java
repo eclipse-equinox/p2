@@ -226,9 +226,9 @@ public class ProfilesView extends ProvView {
 
 	@Override
 	protected ProvisioningUI getProvisioningUI() {
-		ProvisioningUI ui = ProvAdminUIActivator.getDefault().getProvisioningUI(getProfileId());
-		if (ui != null)
-			return ui;
+		ProvisioningUI pui = ProvAdminUIActivator.getDefault().getProvisioningUI(getProfileId());
+		if (pui != null)
+			return pui;
 		return super.getProvisioningUI();
 	}
 }

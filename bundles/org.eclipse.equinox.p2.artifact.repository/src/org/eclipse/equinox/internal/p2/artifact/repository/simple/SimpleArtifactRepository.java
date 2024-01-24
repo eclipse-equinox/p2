@@ -917,8 +917,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			try {
 				DownloadJob jobs[] = new DownloadJob[numberOfJobs];
 				for (int i = 0; i < numberOfJobs; i++) {
-					jobs[i] = new DownloadJob(Messages.sar_downloadJobName + i);
-					jobs[i].initialize(this, requestsPending, monitor, overallStatus);
+					jobs[i] = new DownloadJob(Messages.sar_downloadJobName + i, this, requestsPending, monitor,
+							overallStatus);
 					jobs[i].schedule();
 				}
 				// wait for all the jobs to complete

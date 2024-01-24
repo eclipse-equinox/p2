@@ -83,11 +83,11 @@ public class DiscoveryImages {
 	 * @return Image
 	 */
 	public static Image getImage(ImageDescriptor imageDescriptor) {
-		ImageRegistry imageRegistry = getImageRegistry();
-		Image image = imageRegistry.get("" + imageDescriptor.hashCode()); //$NON-NLS-1$
+		ImageRegistry reg = getImageRegistry();
+		Image image = reg.get("" + imageDescriptor.hashCode()); //$NON-NLS-1$
 		if (image == null) {
 			image = imageDescriptor.createImage(true);
-			imageRegistry.put("" + imageDescriptor.hashCode(), image); //$NON-NLS-1$
+			reg.put("" + imageDescriptor.hashCode(), image); //$NON-NLS-1$
 		}
 		return image;
 	}

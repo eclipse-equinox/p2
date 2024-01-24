@@ -20,7 +20,10 @@ import java.net.URL;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.osgi.framework.log.FrameworkLog;
-import org.osgi.framework.*;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 public class TestActivator implements BundleActivator {
@@ -43,10 +46,10 @@ public class TestActivator implements BundleActivator {
 	}
 
 	@Override
-	public void start(BundleContext context) throws Exception {
-		TestActivator.context = context;
-		packageAdminRef = context.getServiceReference(PackageAdmin.class);
-		packageAdmin = context.getService(packageAdminRef);
+	public void start(BundleContext ctx) throws Exception {
+		TestActivator.context = ctx;
+		packageAdminRef = ctx.getServiceReference(PackageAdmin.class);
+		packageAdmin = ctx.getService(packageAdminRef);
 
 		//This is a hack because the junit plugin launch config do not allow to start bundles
 		AbstractProvisioningTest.startBundle(getBundle("org.eclipse.equinox.frameworkadmin.equinox"));
@@ -54,7 +57,7 @@ public class TestActivator implements BundleActivator {
 	}
 
 	@Override
-	public void stop(BundleContext context) throws Exception {
+	public void stop(BundleContext ctx) throws Exception {
 		TestActivator.context = null;
 	}
 

@@ -236,9 +236,9 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		}
 
 		@Override
-		public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream dest, IProgressMonitor monitor) {
 			try {
-				destination.write(new byte[] {1, 1, 2});
+				dest.write(new byte[] {1, 1, 2});
 			} catch (Exception e) {
 				fail("Failed to write to stream", e);
 			}
@@ -300,9 +300,9 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		}
 
 		@Override
-		public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream dest, IProgressMonitor monitor) {
 			downloadCount++;
-			return delegate.getArtifact(descriptor, destination, monitor);
+			return delegate.getArtifact(descriptor, dest, monitor);
 		}
 
 		@Override
@@ -321,8 +321,8 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		}
 
 		@Override
-		public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-			return delegate.getRawArtifact(descriptor, destination, monitor);
+		public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream dest, IProgressMonitor monitor) {
+			return delegate.getRawArtifact(descriptor, dest, monitor);
 		}
 
 		@Override

@@ -42,7 +42,8 @@ public abstract class ControlListViewer extends StructuredViewer {
 	protected boolean hasFocus;
 
 	/**
-	 * Create a new instance of the receiver with a control that is a child of parent with style style.
+	 * Create a new instance of the receiver with a control that is a child of
+	 * parent with style style.
 	 */
 	public ControlListViewer(Composite parent, int style) {
 		scrolled = new ScrolledComposite(parent, style | SWT.VERTICAL);
@@ -51,14 +52,14 @@ public abstract class ControlListViewer extends StructuredViewer {
 		scrolled.setExpandHorizontal(true);
 		scrolled.setExpandVertical(true);
 		// bug 311276: can cause unintended scrolling of viewer
-		//scrolled.setShowFocusedControl(true);
+		// scrolled.setShowFocusedControl(true);
 
 		control = new Composite(scrolled, SWT.NONE) {
-			//			@Override
-			//			public boolean setFocus() {
-			//				forceFocus();
-			//				return true;
-			//			}
+			// @Override
+			// public boolean setFocus() {
+			// forceFocus();
+			// return true;
+			// }
 
 			@Override
 			public void setVisible(boolean visible) {
@@ -106,68 +107,69 @@ public abstract class ControlListViewer extends StructuredViewer {
 					return;
 				}
 				switch (event.detail) {
-					case SWT.TRAVERSE_ARROW_PREVIOUS : {
-						Control[] children = control.getChildren();
-						if (children.length > 0) {
-							boolean selected = false;
-							for (int i = 0; i < children.length; i++) {
-								ControlListItem<?> item = (ControlListItem<?>) children[i];
-								if (item.isSelected()) {
-									selected = true;
-									if (i > 0) {
-										setSelection(new StructuredSelection(children[i - 1].getData()), true);
-									}
-									break;
+				case SWT.TRAVERSE_ARROW_PREVIOUS: {
+					Control[] children = control.getChildren();
+					if (children.length > 0) {
+						boolean selected = false;
+						for (int i = 0; i < children.length; i++) {
+							ControlListItem<?> item = (ControlListItem<?>) children[i];
+							if (item.isSelected()) {
+								selected = true;
+								if (i > 0) {
+									setSelection(new StructuredSelection(children[i - 1].getData()), true);
 								}
-							}
-							if (!selected) {
-								setSelection(new StructuredSelection(children[children.length - 1].getData()), true);
-							}
-						}
-						break;
-					}
-					case SWT.TRAVERSE_ARROW_NEXT : {
-						Control[] children = control.getChildren();
-						if (children.length > 0) {
-							boolean selected = false;
-							for (int i = 0; i < children.length; i++) {
-								ControlListItem<?> item = (ControlListItem<?>) children[i];
-								if (item.isSelected()) {
-									selected = true;
-									if (i < children.length - 1) {
-										setSelection(new StructuredSelection(children[i + 1].getData()), true);
-									}
-									break;
-								}
-							}
-							if (!selected) {
-								setSelection(new StructuredSelection(children[0].getData()), true);
-							}
-						}
-						break;
-					}
-					default :
-						handleEvent = false;
-						event.doit = true;
-						Control control = ControlListViewer.this.control;
-						Shell shell = control.getShell();
-						while (control != null) {
-							if (control.traverse(event.detail)) {
 								break;
 							}
-							if (!event.doit || control == shell) {
+						}
+						if (!selected) {
+							setSelection(new StructuredSelection(children[children.length - 1].getData()), true);
+						}
+					}
+					break;
+				}
+				case SWT.TRAVERSE_ARROW_NEXT: {
+					Control[] children = control.getChildren();
+					if (children.length > 0) {
+						boolean selected = false;
+						for (int i = 0; i < children.length; i++) {
+							ControlListItem<?> item = (ControlListItem<?>) children[i];
+							if (item.isSelected()) {
+								selected = true;
+								if (i < children.length - 1) {
+									setSelection(new StructuredSelection(children[i + 1].getData()), true);
+								}
 								break;
 							}
-							control = control.getParent();
 						}
-						handleEvent = true;
-						break;
+						if (!selected) {
+							setSelection(new StructuredSelection(children[0].getData()), true);
+						}
+					}
+					break;
+				}
+				default:
+					handleEvent = false;
+					event.doit = true;
+					Control c = ControlListViewer.this.control;
+					Shell shell = c.getShell();
+					while (c != null) {
+						if (c.traverse(event.detail)) {
+							break;
+						}
+						if (!event.doit || c == shell) {
+							break;
+						}
+						c = c.getParent();
+					}
+					handleEvent = true;
+					break;
 				}
 			}
 		});
 	}
 
 	protected void doCreateNoEntryArea(Composite parent) {
+		//
 	}
 
 	public void add(Object[] elements) {
@@ -237,16 +239,16 @@ public abstract class ControlListViewer extends StructuredViewer {
 	 */
 	private ControlListItem<?> createNewItem(Object element) {
 		final ControlListItem<?> item = doCreateItem(control, element);
-		//		item.getChildren()[0].addPaintListener(new PaintListener() {
-		//			public void paintControl(PaintEvent e) {
-		//				if (hasFocus && item.isSelected()) {
-		//					Point size = item.getSize();
-		//					e.gc.setForeground(e.gc.getDevice().getSystemColor(SWT.COLOR_DARK_GRAY));
-		//					e.gc.setLineDash(new int[] { 1, 2 });
-		//					e.gc.drawRoundRectangle(0, 0, size.x - 1, size.y - 1, 5, 5);
-		//				}
-		//			}
-		//		});
+		// item.getChildren()[0].addPaintListener(new PaintListener() {
+		// public void paintControl(PaintEvent e) {
+		// if (hasFocus && item.isSelected()) {
+		// Point size = item.getSize();
+		// e.gc.setForeground(e.gc.getDevice().getSystemColor(SWT.COLOR_DARK_GRAY));
+		// e.gc.setLineDash(new int[] { 1, 2 });
+		// e.gc.drawRoundRectangle(0, 0, size.x - 1, size.y - 1, 5, 5);
+		// }
+		// }
+		// });
 		item.setIndexListener(new ControlListItem.IndexListener() {
 			@Override
 			public void selectNext() {
@@ -318,7 +320,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 			unmapElement(item);
 		}
 		item.dispose();
-		add(new Object[] {element});
+		add(new Object[] { element });
 	}
 
 	@Override
@@ -366,7 +368,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 		}
 		Widget widget = findItem(element);
 		if (widget == null) {
-			add(new Object[] {element});
+			add(new Object[] { element });
 			return;
 		}
 		((ControlListItem<?>) widget).refresh();
@@ -394,17 +396,17 @@ public abstract class ControlListViewer extends StructuredViewer {
 
 	@Override
 	public void reveal(Object element) {
-		Control control = doFindItem(element);
-		if (control != null) {
-			revealControl(control);
+		Control c = doFindItem(element);
+		if (c != null) {
+			revealControl(c);
 		}
 	}
 
-	private void revealControl(Control control) {
+	private void revealControl(Control c) {
 		Rectangle clientArea = scrolled.getClientArea();
 		Point origin = scrolled.getOrigin();
-		Point location = control.getLocation();
-		Point size = control.getSize();
+		Point location = c.getLocation();
+		Point size = c.getSize();
 		if (location.y + size.y > origin.y + clientArea.height) {
 			scrolled.setOrigin(origin.x, location.y + size.y - clientArea.height);
 		}
@@ -413,13 +415,13 @@ public abstract class ControlListViewer extends StructuredViewer {
 		}
 	}
 
-	@SuppressWarnings({"rawtypes"})
+	@SuppressWarnings({ "rawtypes" })
 	@Override
 	protected void setSelectionToWidget(List list, boolean reveal) {
 		if (list != null) {
-			//see bug 423628. This should be suppressed as:
-			//1. it will cause warning at build time.
-			//2. should be possible to fix once swt/jface enables generics for good.
+			// see bug 423628. This should be suppressed as:
+			// 1. it will cause warning at build time.
+			// 2. should be possible to fix once swt/jface enables generics for good.
 			@SuppressWarnings("unchecked")
 			HashSet<Object> elements = new HashSet<>(list);
 			Control[] children = control.getChildren();
@@ -451,15 +453,15 @@ public abstract class ControlListViewer extends StructuredViewer {
 	public void setFocus() {
 		Control[] children = control.getChildren();
 		if (children.length > 0) {
-			// causes the item's tool bar to get focus when clicked which is undesirable 
-			//			for (Control element : children) {
-			//				ControlListItem item = (ControlListItem) element;
-			//				if (item.isSelected()) {
-			//					if (item.setFocus()) {
-			//						return;
-			//					}
-			//				}
-			//			}
+			// causes the item's tool bar to get focus when clicked which is undesirable
+			// for (Control element : children) {
+			// ControlListItem item = (ControlListItem) element;
+			// if (item.isSelected()) {
+			// if (item.setFocus()) {
+			// return;
+			// }
+			// }
+			// }
 			control.forceFocus();
 		} else {
 			noEntryArea.setFocus();

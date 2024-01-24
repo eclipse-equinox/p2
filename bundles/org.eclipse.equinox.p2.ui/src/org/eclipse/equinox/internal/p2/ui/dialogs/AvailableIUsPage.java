@@ -206,9 +206,9 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			((DeferredQueryContentProvider) contentProvider).addOnFetchingActionListener(new IDeferredQueryTreeListener() {
 
 				@Override
-				public void finishedFetchingDeferredChildren(Object parent, Object placeHolder) {
-					if (parent instanceof QueriedElement) {
-						if (((QueriedElement) parent).getCachedChildren().length > 0) {
+				public void finishedFetchingDeferredChildren(Object o, Object placeHolder) {
+					if (o instanceof QueriedElement queriedElement) {
+						if (queriedElement.getCachedChildren().length > 0) {
 							if (progressBarRefCount > 0) {
 								progressBarRefCount--;
 							}
@@ -218,7 +218,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 				}
 
 				@Override
-				public void fetchingDeferredChildren(Object parent, Object placeHolder) {
+				public void fetchingDeferredChildren(Object o, Object placeHolder) {
 					progressBarRefCount++;
 					changeProgressBarVisibility(progressBarComposite);
 				}

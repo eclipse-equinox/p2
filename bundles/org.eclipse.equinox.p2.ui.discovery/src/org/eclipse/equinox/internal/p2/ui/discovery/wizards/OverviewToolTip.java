@@ -59,10 +59,10 @@ class OverviewToolTip extends GradientToolTip {
 	}
 
 	@Override
-	protected Composite createToolTipArea(Event event, final Composite parent) {
-		GridLayoutFactory.fillDefaults().applyTo(parent);
+	protected Composite createToolTipArea(Event event, final Composite parentComposite) {
+		GridLayoutFactory.fillDefaults().applyTo(parentComposite);
 
-		Composite container = new Composite(parent, SWT.NULL);
+		Composite container = new Composite(parentComposite, SWT.NULL);
 		container.setBackground(null);
 
 		Image image = null;
@@ -132,7 +132,7 @@ class OverviewToolTip extends GradientToolTip {
 			imageLabel.setSize(widthHint, fixedImageHeight);
 
 			// creates a border
-			imageContainer.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+			imageContainer.setBackground(parentComposite.getDisplay().getSystemColor(SWT.COLOR_BLACK));
 		}
 		if (hasLearnMoreLink) {
 			Link link = new Link(summaryContainer, SWT.NULL);
@@ -163,8 +163,8 @@ class OverviewToolTip extends GradientToolTip {
 		// hack: cause the tooltip to gain focus so that we can capture the escape key
 		//       this must be done async since the tooltip is not yet visible.
 		Display.getCurrent().asyncExec(() -> {
-			if (!parent.isDisposed()) {
-				parent.setFocus();
+			if (!parentComposite.isDisposed()) {
+				parentComposite.setFocus();
 			}
 		});
 		return container;

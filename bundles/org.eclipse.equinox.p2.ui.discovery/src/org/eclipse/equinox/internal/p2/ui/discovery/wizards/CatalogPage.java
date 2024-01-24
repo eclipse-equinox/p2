@@ -25,7 +25,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 /**
- * A wizard page that allows users to select connectors that they wish to install.
+ * A wizard page that allows users to select connectors that they wish to
+ * install.
  * 
  * @see DiscoveryWizard
  * @author David Green
@@ -57,10 +58,10 @@ public class CatalogPage extends WizardPage implements IShellProvider {
 	}
 
 	protected CatalogViewer doCreateViewer(Composite parent) {
-		CatalogViewer viewer = new CatalogViewer(getCatalog(), this, getContainer(), getWizard().getConfiguration());
-		viewer.setMinimumHeight(MINIMUM_HEIGHT);
-		viewer.createControl(parent);
-		return viewer;
+		CatalogViewer result = new CatalogViewer(getCatalog(), this, getContainer(), getWizard().getConfiguration());
+		result.setMinimumHeight(MINIMUM_HEIGHT);
+		result.createControl(parent);
+		return result;
 	}
 
 	protected CatalogViewer getViewer() {

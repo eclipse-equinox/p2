@@ -21,48 +21,48 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  */
 public abstract class ProfileModificationActionTest extends ActionTest {
 	protected IInstallableUnit[] getMixedIUs() {
-		return new IInstallableUnit[] {top1, top2, nested};
+		return new IInstallableUnit[] { top1, top2, nested };
 	}
 
 	protected Object[] getCategoryAndChildIUElements() {
 		CategoryElement element = new CategoryElement(null, category);
 		AvailableIUElement child = new AvailableIUElement(element, uninstalled, TESTPROFILE, true);
-		return new Object[] {element, child};
+		return new Object[] { element, child };
 	}
 
 	protected Object[] getNestedCategoriesAndChildIUElements() {
 		CategoryElement element = new CategoryElement(null, category);
-		CategoryElement nested = new CategoryElement(element, category);
-		AvailableIUElement child = new AvailableIUElement(nested, uninstalled, TESTPROFILE, true);
-		return new Object[] {element, nested, child};
+		CategoryElement parent = new CategoryElement(element, category);
+		AvailableIUElement child = new AvailableIUElement(parent, uninstalled, TESTPROFILE, true);
+		return new Object[] { element, parent, child };
 	}
 
 	protected IInstallableUnit[] getTopLevelIUs() {
-		return new IInstallableUnit[] {top1, top2};
+		return new IInstallableUnit[] { top1, top2 };
 	}
 
 	protected IInstallableUnit[] getTopLevelIUsWithLockedIU() {
-		return new IInstallableUnit[] {top1, top2, locked};
+		return new IInstallableUnit[] { top1, top2, locked };
 	}
 
 	protected IIUElement[] getTopLevelIUElements() {
-		return new IIUElement[] {element(top1), element(top2)};
+		return new IIUElement[] { element(top1), element(top2) };
 	}
 
 	protected Object[] getMixedIUElements() {
-		return new IIUElement[] {element(top1), element(top2), element(nested)};
+		return new IIUElement[] { element(top1), element(top2), element(nested) };
 	}
 
 	protected Object[] getTopLevelIUElementsWithLockedIU() {
-		return new IIUElement[] {element(top1), element(top2), element(locked)};
+		return new IIUElement[] { element(top1), element(top2), element(locked) };
 	}
 
 	protected Object[] getMixedIUsAndElements() {
-		return new Object[] {top1, element(top2)};
+		return new Object[] { top1, element(top2) };
 	}
 
 	protected Object[] getMixedIUsAndNonIUs() {
-		return new Object[] {top1, top2, new Object()};
+		return new Object[] { top1, top2, new Object() };
 	}
 
 	protected Object[] getNonIUSelection() {

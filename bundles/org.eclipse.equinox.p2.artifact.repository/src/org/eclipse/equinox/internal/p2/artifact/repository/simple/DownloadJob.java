@@ -8,7 +8,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors: Genuitec, LLC - initial API and implementation
  * 						IBM Corporation - ongoing maintenance
  ******************************************************************************/
@@ -22,17 +22,15 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 public class DownloadJob extends Job {
 	static final Object FAMILY = new Object();
 
-	private LinkedList<IArtifactRequest> requestsPending;
-	private SimpleArtifactRepository repository;
-	private IProgressMonitor masterMonitor;
-	private MultiStatus overallStatus;
+	private final LinkedList<IArtifactRequest> requestsPending;
+	private final SimpleArtifactRepository repository;
+	private final IProgressMonitor masterMonitor;
+	private final MultiStatus overallStatus;
 
-	DownloadJob(String name) {
+	DownloadJob(String name, SimpleArtifactRepository repository, LinkedList<IArtifactRequest> requestsPending,
+			IProgressMonitor masterMonitor, MultiStatus overallStatus) {
 		super(name);
 		setSystem(true);
-	}
-
-	void initialize(SimpleArtifactRepository repository, LinkedList<IArtifactRequest> requestsPending, IProgressMonitor masterMonitor, MultiStatus overallStatus) {
 		this.repository = repository;
 		this.requestsPending = requestsPending;
 		this.masterMonitor = masterMonitor;
@@ -46,7 +44,7 @@ public class DownloadJob extends Job {
 
 	@Override
 	protected IStatus run(IProgressMonitor jobMonitor) {
-		jobMonitor.beginTask("Downloading software", IProgressMonitor.UNKNOWN);
+		jobMonitor.beginTask("Downloading software", IProgressMonitor.UNKNOWN); //$NON-NLS-1$
 		do {
 			// get the request we are going to process
 			IArtifactRequest request;

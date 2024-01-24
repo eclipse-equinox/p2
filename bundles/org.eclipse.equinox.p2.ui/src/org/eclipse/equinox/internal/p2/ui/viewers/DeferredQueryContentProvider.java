@@ -22,22 +22,20 @@ import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
 /**
- * Content provider that retrieves children asynchronously where
- * possible using the IDeferredWorkbenchAdapter and provisioning
- * query mechanisms.
+ * Content provider that retrieves children asynchronously where possible using
+ * the IDeferredWorkbenchAdapter and provisioning query mechanisms.
  *
  * @since 3.4
  */
 public class DeferredQueryContentProvider extends ProvElementContentProvider {
 
-	DeferredQueryTreeContentManager manager;
-	Object currentInput;
-	HashMap<Object, Object> alreadyQueried = new HashMap<>();
-	HashSet<Object> queryCompleted = new HashSet<>();
-	AbstractTreeViewer viewer = null;
-	ListenerList<IInputChangeListener> listeners = new ListenerList<>();
-	boolean synchronous = false;
-	IDeferredQueryTreeListener onFetchingActionListener;
+	private DeferredQueryTreeContentManager manager;
+	private Object currentInput;
+	private HashMap<Object, Object> alreadyQueried = new HashMap<>();
+	private HashSet<Object> queryCompleted = new HashSet<>();
+	private ListenerList<IInputChangeListener> listeners = new ListenerList<>();
+	private boolean synchronous = false;
+	private IDeferredQueryTreeListener onFetchingActionListener;
 
 	public DeferredQueryContentProvider() {
 		// Default constructor
@@ -61,10 +59,9 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 
 		if (manager != null)
 			manager.cancel(oldInput);
-		if (v instanceof AbstractTreeViewer) {
-			manager = new DeferredQueryTreeContentManager((AbstractTreeViewer) v);
+		if (v instanceof AbstractTreeViewer atv) {
+			manager = new DeferredQueryTreeContentManager(atv);
 			manager.addListener(onFetchingActionListener);
-			viewer = (AbstractTreeViewer) v;
 			manager.addListener(new IDeferredQueryTreeListener() {
 
 				@Override
@@ -77,8 +74,7 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 					queryCompleted.add(parent);
 				}
 			});
-		} else
-			viewer = null;
+		}
 		alreadyQueried = new HashMap<>();
 		queryCompleted = new HashSet<>();
 		currentInput = newInput;
@@ -119,7 +115,8 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 			// We rely on the assumption that the queryable is the most expensive
 			// thing to get vs. the query itself being expensive.
 			// (loading a repo vs. querying a repo afterward)
-			if (manager != null && !synchronous && (element instanceof MetadataRepositoryElement || element instanceof MetadataRepositories)) {
+			if (manager != null && !synchronous
+					&& (element instanceof MetadataRepositoryElement || element instanceof MetadataRepositories)) {
 				if (element.getCachedChildren().length == 0)
 					return manager.getChildren(element);
 				return element.getChildren(element);

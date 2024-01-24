@@ -279,6 +279,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	private List<IBrandingAdvice> setupBrandingAdvice(final String osArg, final File icon) {
 		List<IBrandingAdvice> brandingAdvice = new LinkedList<>();
 		brandingAdvice.add(new IBrandingAdvice() {
+			@SuppressWarnings("hiding")
 			@Override
 			public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
 				return true;

@@ -19,14 +19,13 @@ import org.eclipse.equinox.p2.tests.TestData;
 import org.osgi.framework.BundleContext;
 
 public class NonExclusiveMode extends AbstractSimpleConfiguratorTest {
-	private static String BUNDLE_JAR_DIRECTORY = "simpleConfiguratorTest/bundlesTxt";
 	private File[] jars = null;
 	private File bundleInfo = null;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		jars = getBundleJars(TestData.getFile(BUNDLE_JAR_DIRECTORY, ""));
+		jars = getBundleJars(TestData.getFile("simpleConfiguratorTest/bundlesTxt", ""));
 		bundleInfo = createBundlesTxt(jars);
 	}
 

@@ -33,6 +33,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 @SuppressWarnings("nls")
 public class CreateCompositeArtifactRepositoryTask extends Task {
 
+	@SuppressWarnings("hiding")
 	URI location; // desired location of the composite repository
 	String name = "Composite Artifact Repository";
 	boolean atomic = true; // bug 356561: newly created repositories shall be atomic (by default)

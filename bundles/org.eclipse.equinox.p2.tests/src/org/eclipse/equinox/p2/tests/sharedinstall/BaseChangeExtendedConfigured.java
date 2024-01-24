@@ -17,7 +17,10 @@ package org.eclipse.equinox.p2.tests.sharedinstall;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
@@ -38,7 +41,7 @@ public class BaseChangeExtendedConfigured extends BaseChange {
 		super(name);
 	}
 
-	protected void realExecuteVerifier(Properties verificationProperties, boolean withConfigFlag, File... extensions) {
+	protected void realExecuteVerifier(Properties verificationProperties, boolean withConfigFlag, File... files) {
 		File verifierConfig = new File(getTempFolder(), "verification.properties");
 		try {
 			writeProperties(verifierConfig, verificationProperties);
@@ -54,14 +57,14 @@ public class BaseChangeExtendedConfigured extends BaseChange {
 			args = new String[] {"-application", "org.eclipse.equinox.p2.tests.verifier.application", "-verifier.properties", verifierConfig.getAbsolutePath(), "-consoleLog"};
 		}
 
-		assertEquals(0, runEclipse("Running verifier", output, args, extensions));
+		assertEquals(0, runEclipse("Running verifier", output, args, files));
 	}
 
-	protected void executeVerifier(Properties verificationProperties, File... extensions) {
-		realExecuteVerifier(verificationProperties, true, extensions);
+	protected void executeVerifier(Properties verificationProperties, File... files) {
+		realExecuteVerifier(verificationProperties, true, files);
 	}
 
-	protected int runEclipse(String message, File location, String[] args, File... extensions) {
+	protected int runEclipse(String message, File location, String[] args, File... files) {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
@@ -72,9 +75,9 @@ public class BaseChangeExtendedConfigured extends BaseChange {
 		Collections.addAll(command, (new File(location == null ? output : location, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath());
 		Collections.addAll(command, args);
 		Collections.addAll(command, "-vmArgs", "-Dosgi.checkConfiguration=true", "-Dosgi.dataAreaRequiresExplicitInit=false");
-		if (extensions != null) {
+		if (files != null) {
 			String extensionParameter = "";
-			for (File f : extensions) {
+			for (File f : files) {
 				extensionParameter += f.toString() + ",";
 			}
 			extensionParameter = extensionParameter.substring(0, extensionParameter.length() - 1);
