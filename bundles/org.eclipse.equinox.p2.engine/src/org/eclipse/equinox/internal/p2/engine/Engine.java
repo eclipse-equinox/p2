@@ -83,7 +83,7 @@ public class Engine implements IEngine {
 			String property = context.getProperty(ProvisioningContext.CHECK_AUTHORITIES);
 			if (property == null) {
 				// Allow a system property to force the property.
-				property = EngineActivator.getContext().getProperty(ProvisioningContext.CHECK_AUTHORITIES);
+				property = EngineActivator.getProperty(ProvisioningContext.CHECK_AUTHORITIES, agent);
 				if (property == null) {
 					// Otherwise, if we are checking trust, also check the authorities.
 					if (Arrays.asList(phases.getPhaseIds()).contains(PhaseSetFactory.PHASE_CHECK_TRUST)) {
@@ -136,7 +136,7 @@ public class Engine implements IEngine {
 			monitor = new NullProgressMonitor();
 
 		ActionManager actionManager = agent.getService(ActionManager.class);
-		return phaseSet.validate(actionManager, iprofile, operands, context, monitor);
+		return phaseSet.validate(actionManager, iprofile, operands, context, agent, monitor);
 	}
 
 	@Override

@@ -490,7 +490,7 @@ public class CertificateChecker {
 	 * Return the policy on unsigned content.
 	 */
 	private String getUnsignedContentPolicy() {
-		String policy = EngineActivator.getContext().getProperty(EngineActivator.PROP_UNSIGNED_POLICY);
+		String policy = EngineActivator.getProperty(EngineActivator.PROP_UNSIGNED_POLICY, agent);
 		if (policy == null)
 			policy = EngineActivator.UNSIGNED_PROMPT;
 		return policy;

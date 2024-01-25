@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -15,7 +15,6 @@ package org.eclipse.equinox.p2.engine;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.internal.p2.engine.phases.*;
 
 /**
  * @since 2.0
@@ -23,58 +22,61 @@ import org.eclipse.equinox.internal.p2.engine.phases.*;
  */
 public class PhaseSetFactory {
 
-	private static final boolean forcedUninstall = Boolean.parseBoolean(EngineActivator.getContext().getProperty("org.eclipse.equinox.p2.engine.forcedUninstall")); //$NON-NLS-1$
-
 	/**
 	 * A phase id (value "checkTrust") describing the certificate trust check phase.
 	 * This phase examines the code signing certificates of the artifacts being installed
 	 * to ensure they are signed and trusted by the running system.
 	 */
-	public static String PHASE_CHECK_TRUST = "checkTrust"; //$NON-NLS-1$
+	public static final String PHASE_CHECK_TRUST = "checkTrust"; //$NON-NLS-1$
 	/**
 	 * A phase id (value "collect") describing the collect phase.
 	 * This phase gathers all the artifacts to be installed, typically by copying them
 	 * from some repository into a suitable local location for the application being installed.
 	 */
-	public static String PHASE_COLLECT = "collect"; //$NON-NLS-1$
+	public static final String PHASE_COLLECT = "collect"; //$NON-NLS-1$
 	/**
 	 * A phase id (value "configure") describing the configuration phase.
 	 * This phase writes configuration data related to the software being provisioned.
 	 * Until configuration occurs the end user of the software will be have access to
 	 * the installed functionality.
 	 */
-	public static String PHASE_CONFIGURE = "configure"; //$NON-NLS-1$
+	public static final String PHASE_CONFIGURE = "configure"; //$NON-NLS-1$
 	/**
 	 * A phase id (value "install") describing the install phase.
 	 * This phase performs any necessary transformations on the downloaded
 	 * artifacts to put them in the correct shape for the running application, such
 	 * as decompressing or moving content, setting file permissions, etc).
 	 */
-	public static String PHASE_INSTALL = "install"; //$NON-NLS-1$
+	public static final String PHASE_INSTALL = "install"; //$NON-NLS-1$
 	/**
 	 * A phase id (value "property") describing the property modification phase.
 	 * This phase performs changes to profile properties.
 	 */
-	public static String PHASE_PROPERTY = "property"; //$NON-NLS-1$
+	public static final String PHASE_PROPERTY = "property"; //$NON-NLS-1$
 	/**
 	 * A phase id (value "unconfigure") describing the unconfigure phase.
 	 * This phase removes configuration data related to the software being removed.
 	 * This phase is the inverse of the changes performed in the configure phase.
 	 */
-	public static String PHASE_UNCONFIGURE = "unconfigure"; //$NON-NLS-1$
+	public static final String PHASE_UNCONFIGURE = "unconfigure"; //$NON-NLS-1$
 	/**
 	 * A phase id (value "uninstall") describing the uninstall phase.
 	 * This phase removes artifacts from the system being provisioned that are
 	 * no longer required in the new profile.
 	 */
-	public static String PHASE_UNINSTALL = "uninstall"; //$NON-NLS-1$
+	public static final String PHASE_UNINSTALL = "uninstall"; //$NON-NLS-1$
+
+	/**
+	 * @since 2.10
+	 */
+	public static final String NATIVE_ARTIFACTS = "nativeArtifacts"; //$NON-NLS-1$
 
 	private static final List<String> ALL_PHASES_LIST = Arrays.asList(new String[] {PHASE_COLLECT, PHASE_UNCONFIGURE, PHASE_UNINSTALL, PHASE_PROPERTY, PHASE_CHECK_TRUST, PHASE_INSTALL, PHASE_CONFIGURE});
 
 	/**
 	 * Creates a default phase set that covers all the provisioning operations.
 	 * Phases can be specified for exclusion.
-	 * 
+	 *
 	 * @param exclude - A set of bit options that specify the phases to exclude.
 	 * See {@link PhaseSetFactory} for possible options
 	 * @return the {@link PhaseSet}
@@ -91,35 +93,20 @@ public class PhaseSetFactory {
 	/**
 	 * Creates a default phase set that covers all the provisioning operations.
 	 * Phases can be specified for inclusion.
-	 * 
-	 * @param include - A set of bit options that specify the phases to include.
-	 * See {@link PhaseSetFactory} for possible options
+	 *
+	 * @param include - A set of bit options that specify the phases to include. See
+	 *                {@link PhaseSetFactory} for possible options
 	 * @return the {@link PhaseSet}
 	 */
 	public static final IPhaseSet createPhaseSetIncluding(String[] include) {
-		if (include == null || include.length == 0)
+		if (include == null || include.length == 0) {
 			return new PhaseSet(new Phase[0]);
-		List<String> includeList = Arrays.asList(include);
-		ArrayList<Phase> phases = new ArrayList<>();
-		if (includeList.contains(PHASE_COLLECT))
-			phases.add(new Collect(100));
-		if (includeList.contains(PHASE_CHECK_TRUST))
-			phases.add(new CheckTrust(10));
-		if (includeList.contains(PHASE_UNCONFIGURE))
-			phases.add(new Unconfigure(10, forcedUninstall));
-		if (includeList.contains(PHASE_UNINSTALL))
-			phases.add(new Uninstall(50, forcedUninstall));
-		if (includeList.contains(PHASE_PROPERTY))
-			phases.add(new Property(1));
-		if (includeList.contains(PHASE_INSTALL))
-			phases.add(new Install(50));
-		if (includeList.contains(PHASE_CONFIGURE))
-			phases.add(new Configure(10));
-		return new PhaseSet(phases.toArray(new Phase[phases.size()]));
+		}
+		return new PhaseSet(include);
 	}
 
 	public static IPhaseSet createDefaultPhaseSet() {
-		return createPhaseSetIncluding(ALL_PHASES_LIST.toArray(new String[ALL_PHASES_LIST.size()]));
+		return createPhaseSetIncluding(ALL_PHASES_LIST.toArray(String[]::new));
 	}
 
 	public static ISizingPhaseSet createSizingPhaseSet() {

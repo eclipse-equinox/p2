@@ -635,7 +635,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	 */
 	private boolean shouldGzipFile(Profile profile) {
 		//check system property controlling compression
-		String format = EngineActivator.getContext().getProperty(EngineActivator.PROP_PROFILE_FORMAT);
+		String format = EngineActivator.getProperty(EngineActivator.PROP_PROFILE_FORMAT, agent);
 		if (format != null && format.equals(EngineActivator.PROFILE_FORMAT_UNCOMPRESSED))
 			return false;
 

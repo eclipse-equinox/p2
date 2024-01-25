@@ -129,7 +129,7 @@ public class DebugHelper {
 
 	public static String formatPhaseSet(PhaseSet phaseSet) {
 		StringBuilder buffer = new StringBuilder(phaseSet.getClass().getName());
-		buffer.append(DebugHelper.formatArray(Arrays.asList(phaseSet.getPhases()), false, false));
+		buffer.append(DebugHelper.formatArray(Arrays.asList(phaseSet.getPhaseIds()), false, false));
 		return buffer.toString();
 	}
 

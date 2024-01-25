@@ -54,7 +54,8 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 
 	private SoftReference<IProfile> cachedProfile;
 
-	private static void addSharedProfileBaseIUs(final IProfile sharedProfile, final Profile userProfile) {
+	private static void addSharedProfileBaseIUs(final IProfile sharedProfile, final Profile userProfile,
+			IProvisioningAgent agent) {
 		IQuery<IInstallableUnit> rootIUQuery = QueryUtil.createMatchQuery( //
 				"profileProperties[$0] == 'true' || (touchpointType != null && touchpointType.id == $1)", //$NON-NLS-1$
 				IProfile.PROP_PROFILE_ROOT_IU, NATIVE_TOUCHPOINT_TYPE);
@@ -62,8 +63,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		for (IInstallableUnit iu : rootIUs) {
 			userProfile.addInstallableUnit(iu);
 			userProfile.addInstallableUnitProperties(iu, sharedProfile.getInstallableUnitProperties(iu));
-			String profileLockedIUSystemProperty = EngineActivator.getContext()
-					.getProperty(IProfile.PROP_PROFILE_LOCKED_IU);
+			String profileLockedIUSystemProperty = EngineActivator.getProperty(IProfile.PROP_PROFILE_LOCKED_IU, agent);
 			if (profileLockedIUSystemProperty == null) {
 				userProfile.setInstallableUnitProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, IU_LOCKED);
 			} else {
@@ -150,7 +150,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 
 	private synchronized SimpleProfileRegistry getProfileRegistry() {
 		if (profileRegistry == null) {
-			String installArea = EngineActivator.getContext().getProperty(OSGI_INSTALL_AREA);
+			String installArea = EngineActivator.getProperty(OSGI_INSTALL_AREA, agent);
 			try {
 				URL registryURL = new URL(installArea + P2_ENGINE_DIR + SimpleProfileRegistry.DEFAULT_STORAGE_DIR);
 				File sharedRegistryDirectory = URIUtil.toFile(URIUtil.toURI(registryURL));
@@ -233,7 +233,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 			userProfile.setProperty(PROP_SURROGATE, Boolean.TRUE.toString());
 			userProfile.setSurrogateProfileHandler(this);
 			updateProperties(sharedProfile, userProfile);
-			addSharedProfileBaseIUs(sharedProfile, userProfile);
+			addSharedProfileBaseIUs(sharedProfile, userProfile, agent);
 
 			return userProfile;
 		}
@@ -279,7 +279,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		userProfile.setProperty(PROP_SURROGATE, Boolean.TRUE.toString());
 		userProfile.setSurrogateProfileHandler(this);
 		updateProperties(sharedProfile, userProfile);
-		addSharedProfileBaseIUs(sharedProfile, userProfile);
+		addSharedProfileBaseIUs(sharedProfile, userProfile, agent);
 
 		return userProfile;
 	}
