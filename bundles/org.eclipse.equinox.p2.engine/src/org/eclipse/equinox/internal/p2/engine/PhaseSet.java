@@ -15,36 +15,51 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.engine.phases.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
 public class PhaseSet implements IPhaseSet {
 
-	private final Phase[] phases;
+	private static final Set<String> SUPPORTED_PHASES = Set.of(PhaseSetFactory.PHASE_COLLECT,
+			PhaseSetFactory.PHASE_UNCONFIGURE, PhaseSetFactory.PHASE_UNINSTALL, PhaseSetFactory.PHASE_PROPERTY,
+			PhaseSetFactory.PHASE_CHECK_TRUST, PhaseSetFactory.PHASE_INSTALL, PhaseSetFactory.PHASE_CONFIGURE);
+
+	private Phase[] phases;
 	private boolean isRunning = false;
 	private boolean isPaused = false;
+	private String[] phaseIds;
 
 	public PhaseSet(Phase[] phases) {
-		if (phases == null)
+		if (phases == null) {
 			throw new IllegalArgumentException(Messages.null_phases);
-
+		}
 		this.phases = phases;
+	}
+
+	public PhaseSet(String[] phases) {
+		if (phases == null) {
+			throw new IllegalArgumentException(Messages.null_phases);
+		}
+		this.phaseIds = Arrays.stream(phases).filter(SUPPORTED_PHASES::contains).toArray(String[]::new);
 	}
 
 	public final MultiStatus perform(EngineSession session, Operand[] operands, IProgressMonitor monitor) {
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
-		int[] weights = getProgressWeights(operands);
+		Phase[] array = getPhases(session.getAgent());
+		int[] weights = getProgressWeights(operands, array);
 		int totalWork = getTotalWork(weights);
 		SubMonitor pm = SubMonitor.convert(monitor, totalWork);
 		try {
 			isRunning = true;
-			for (int i = 0; i < phases.length; i++) {
+			for (int i = 0; i < array.length; i++) {
 				if (pm.isCanceled()) {
 					status.add(Status.CANCEL_STATUS);
 					return status;
 				}
-				Phase phase = phases[i];
+				Phase phase = array[i];
 				phase.actionManager = session.getAgent().getService(ActionManager.class);
 				try {
 					phase.perform(status, session, operands, pm.newChild(weights[i]));
@@ -80,9 +95,9 @@ public class PhaseSet implements IPhaseSet {
 	}
 
 	public synchronized boolean pause() {
-		if (isRunning && !isPaused) {
+		if (isRunning && !isPaused && this.phases != null) {
 			isPaused = true;
-			for (Phase phase : phases) {
+			for (Phase phase : this.phases) {
 				phase.setPaused(isPaused);
 			}
 			return true;
@@ -91,9 +106,9 @@ public class PhaseSet implements IPhaseSet {
 	}
 
 	public synchronized boolean resume() {
-		if (isRunning && isPaused) {
+		if (isRunning && isPaused && this.phases != null) {
 			isPaused = false;
-			for (Phase phase : phases) {
+			for (Phase phase : this.phases) {
 				phase.setPaused(isPaused);
 			}
 			return true;
@@ -101,9 +116,10 @@ public class PhaseSet implements IPhaseSet {
 		return false;
 	}
 
-	public final IStatus validate(ActionManager actionManager, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+	public final IStatus validate(ActionManager actionManager, IProfile profile, Operand[] operands,
+			ProvisioningContext context, IProvisioningAgent agent, IProgressMonitor monitor) {
 		Set<MissingAction> missingActions = new HashSet<>();
-		for (Phase phase2 : phases) {
+		for (Phase phase2 : getPhases(agent)) {
 			Phase phase = phase2;
 			phase.actionManager = actionManager;
 			try {
@@ -151,14 +167,14 @@ public class PhaseSet implements IPhaseSet {
 		return sum;
 	}
 
-	private int[] getProgressWeights(Operand[] operands) {
-		int[] weights = new int[phases.length];
-		for (int i = 0; i < phases.length; i += 1) {
+	private int[] getProgressWeights(Operand[] operands, Phase[] array) {
+		int[] weights = new int[array.length];
+		for (int i = 0; i < array.length; i += 1) {
 			if (operands.length > 0)
 				//alter weights according to the number of operands applicable to that phase
-				weights[i] = (phases[i].weight * countApplicable(phases[i], operands) / operands.length);
+				weights[i] = (array[i].weight * countApplicable(array[i], operands) / operands.length);
 			else
-				weights[i] = phases[i].weight;
+				weights[i] = array[i].weight;
 		}
 		return weights;
 	}
@@ -174,14 +190,37 @@ public class PhaseSet implements IPhaseSet {
 
 	@Override
 	public String[] getPhaseIds() {
-		String[] ids = new String[phases.length];
-		for (int i = 0; i < ids.length; i++) {
-			ids[i] = phases[i].phaseId;
+		if (phaseIds != null) {
+			return phaseIds.clone();
 		}
-		return ids;
+		if (phases != null) {
+			return Arrays.stream(phases).map(p -> p.phaseId).toArray(String[]::new);
+		}
+		return new String[0];
 	}
 
-	public Phase[] getPhases() {
+	private Phase[] getPhases(IProvisioningAgent agent) {
+		if (phases == null) {
+			boolean forcedUninstall = Boolean
+					.parseBoolean(EngineActivator.getProperty("org.eclipse.equinox.p2.engine.forcedUninstall", agent)); //$NON-NLS-1$
+			List<String> includeList = Arrays.asList(phaseIds);
+			List<Phase> list = new ArrayList<>();
+			if (includeList.contains(PhaseSetFactory.PHASE_COLLECT))
+				list.add(new Collect(100));
+			if (includeList.contains(PhaseSetFactory.PHASE_CHECK_TRUST))
+				list.add(new CheckTrust(10));
+			if (includeList.contains(PhaseSetFactory.PHASE_UNCONFIGURE))
+				list.add(new Unconfigure(10, forcedUninstall));
+			if (includeList.contains(PhaseSetFactory.PHASE_UNINSTALL))
+				list.add(new Uninstall(50, forcedUninstall));
+			if (includeList.contains(PhaseSetFactory.PHASE_PROPERTY))
+				list.add(new Property(1));
+			if (includeList.contains(PhaseSetFactory.PHASE_INSTALL))
+				list.add(new Install(50));
+			if (includeList.contains(PhaseSetFactory.PHASE_CONFIGURE))
+				list.add(new Configure(10));
+			this.phases = list.toArray(Phase[]::new);
+		}
 		return phases;
 	}
 }

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat, Inc - fragments support added
@@ -22,6 +22,7 @@ import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -174,5 +175,16 @@ public class EngineActivator implements BundleActivator {
 			}
 		}
 		return result;
+	}
+
+	public static String getProperty(String key, IProvisioningAgent agent) {
+		if (agent != null) {
+			return agent.getProperty(key);
+		}
+		BundleContext bc = EngineActivator.getContext();
+		if (bc != null) {
+			return bc.getProperty(key);
+		}
+		return System.getProperty(key);
 	}
 }

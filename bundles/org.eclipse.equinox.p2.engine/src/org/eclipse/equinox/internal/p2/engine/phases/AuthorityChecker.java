@@ -179,7 +179,7 @@ public class AuthorityChecker {
 		var result = new LinkedHashSet<URI>();
 		var preferences = getEnngineProfilePreferences();
 		if (preferences != null) {
-			String defaultValue = EngineActivator.getContext().getProperty("p2.trustedAuthorities");
+			String defaultValue = EngineActivator.getProperty("p2.trustedAuthorities", agent);
 			if (defaultValue == null) {
 				defaultValue = "https://download.eclipse.org https://archive.eclipse.org";
 			} else {

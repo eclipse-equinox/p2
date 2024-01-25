@@ -75,7 +75,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 
 	public void testNullPhases() {
 		assertThrows(IllegalArgumentException.class, () ->
-			new PhaseSet(null) {
+			new PhaseSet((Phase[]) null) {
 				// empty PhaseSet
 		});
 	}
