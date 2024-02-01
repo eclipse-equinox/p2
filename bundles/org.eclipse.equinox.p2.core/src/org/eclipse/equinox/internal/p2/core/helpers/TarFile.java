@@ -117,9 +117,4 @@ public class TarFile implements Closeable {
 	public String getName() {
 		return file.getPath();
 	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		close();
-	}
 }
