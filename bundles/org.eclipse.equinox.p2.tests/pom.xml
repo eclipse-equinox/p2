@@ -20,7 +20,6 @@
 
 	<properties>
 		<testClass>org.eclipse.equinox.p2.tests.AutomatedTests</testClass>
-		<code.ignoredWarnings>${tests.ignoredWarnings}</code.ignoredWarnings>
 		<defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
 		<archiveExtension>tar.gz</archiveExtension>
 		<dropinsProduct>org.eclipse.equinox.p2.reconciler-${tycho.env.osgi.os}.${tycho.env.osgi.ws}.${tycho.env.osgi.arch}.${archiveExtension}</dropinsProduct>
