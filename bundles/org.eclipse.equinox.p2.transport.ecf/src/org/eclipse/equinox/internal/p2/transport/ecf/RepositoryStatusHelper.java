@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.util.concurrent.ExecutionException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -135,7 +136,8 @@ public abstract class RepositoryStatusHelper {
 			// We don't use instanceof operator since we want
 			// the explicit class, not subclasses.
 			//
-			if (tc != RuntimeException.class && tc != InvocationTargetException.class && tc != IOException.class)
+			if (tc != RuntimeException.class && tc != InvocationTargetException.class && tc != IOException.class
+					&& tc != ExecutionException.class)
 				break;
 
 			Throwable cause = t.getCause();
