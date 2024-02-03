@@ -29,7 +29,7 @@ pipeline {
 				always {
 					archiveArtifacts artifacts: '*.log,*/target/work/data/.metadata/*.log,*/tests/target/work/data/.metadata/*.log,apiAnalyzer-workspace/.metadata/*.log', allowEmptyArchive: true
 					junit '**/target/surefire-reports/TEST-*.xml'
-					recordIssues tools: [eclipse(pattern: '**/target/compilelogs/*.xml'), javaDoc(), mavenConsole()]
+					recordIssues tools: [eclipse(name: 'Compiler and API Tools', pattern: '**/target/compilelogs/*.xml'), javaDoc(), mavenConsole()]
 				}
 			}
 		}
