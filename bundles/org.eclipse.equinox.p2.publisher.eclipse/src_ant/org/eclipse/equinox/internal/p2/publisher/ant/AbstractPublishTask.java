@@ -19,12 +19,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.tools.ant.Task;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
@@ -32,9 +28,7 @@ import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.p2.publisher.Publisher;
-import org.eclipse.equinox.p2.publisher.PublisherInfo;
+import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
@@ -47,10 +41,10 @@ public abstract class AbstractPublishTask extends Task {
 
 	/**
 	 * Support nested repository elements that looking something like
-	 * <repo location="file:/foo" metadata="true" artifact="true" /> Both metadata
-	 * and artifact are optional: 1) if neither are set, the repo is used for both
-	 * metadata and artifacts 2) if only one is true, the repo is that type and not
-	 * the other
+	 * {@code <repo location="file:/foo" metadata="true" artifact="true" />} Both
+	 * metadata and artifact are optional: 1) if neither are set, the repo is used
+	 * for both metadata and artifacts 2) if only one is true, the repo is that type
+	 * and not the other
 	 */
 	static public class RepoEntry {
 		private URI repoLocation;

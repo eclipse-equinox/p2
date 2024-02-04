@@ -281,8 +281,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	/**
-	 * Returns the properties found in .product file.  Properties
-	 * are located in the <configurations> block of the file
+	 * Returns the properties found in .product file. Properties are located in the
+	 * {@code <configurations>} block of the file
 	 */
 	@Override
 	public Map<String, String> getConfigurationProperties() {
@@ -290,11 +290,11 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	/**
-	 * Returns the properties found in .product file that are valid
-	 * for the specified platform os and architecture.  If there is no
-	 * platform os and/or architecture specified, return only the properties
-	 * that are not filtered by the unspecified os and/or arch. 
-	 * Properties are located in the <configurations> block of the file
+	 * Returns the properties found in .product file that are valid for the
+	 * specified platform os and architecture. If there is no platform os and/or
+	 * architecture specified, return only the properties that are not filtered by
+	 * the unspecified os and/or arch. Properties are located in the
+	 * {@code <configurations>} block of the file
 	 */
 	@Override
 	public Map<String, String> getConfigurationProperties(String os, String arch) {
@@ -341,7 +341,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	/**
-	 * Returns a List<VersionedName> for each bundle that makes up this product.
+	 * Returns a {@code List<VersionedName>} for each bundle that makes up this
+	 * product.
 	 */
 	@Override
 	public List<IVersionedId> getBundles() {
@@ -359,9 +360,10 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	/**
-	 * Returns a List<BundleInfo> for each bundle that has custom configuration data
-	 * in the product file.
-	 * @return A List<BundleInfo>
+	 * Returns a {@code List<BundleInfo>} for each bundle that has custom
+	 * configuration data in the product file.
+	 * 
+	 * @return A {@code List<BundleInfo>}
 	 */
 	@Override
 	public List<BundleInfo> getBundleInfos() {
@@ -369,7 +371,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	/**
-	 * Returns a List<VersionedName> of features that constitute this product.
+	 * Returns a {@code List<VersionedName>} of features that constitute this
+	 * product.
 	 */
 	@Override
 	public List<IVersionedId> getFeatures() {

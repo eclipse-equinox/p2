@@ -281,7 +281,7 @@ public class BundlesActionTest extends ActionTest {
 		verifyRequirement(requirements, TEST2_IU_B_NAMESPACE, TEST2_REQ_B_NAME, TEST2_IU_B_VERSION_RANGE);
 		verifyRequirement(requirements, TEST2_IU_C_NAMESPACE, TEST2_REQ_C_NAME, TEST2_IU_C_VERSION_RANGE);
 		verifyRequirement(requirements, OSGI_EE, TEST2_REQ_EE, null, 1, 1, true);
-		assertEquals(4, requirements.size());
+		assertEquals(5, requirements.size());
 
 		// check provided capabilities
 		Collection<IProvidedCapability> providedCapabilities = bundleIu.getProvidedCapabilities();
@@ -365,7 +365,7 @@ public class BundlesActionTest extends ActionTest {
 				1, true);
 		verifyRequirement(requirements, OSGI, TEST4_REQ_BUNDLE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, null, 0, 1, false);
 		verifyRequirement(requirements, OSGI, TEST4_REQ_BUNDLE_OPTGREEDY_NAME, DEFAULT_VERSION_RANGE, null, 0, 1, true);
-		assertEquals(4, requirements.size());
+		assertEquals(5, requirements.size());
 	}
 
 	private void verifyBundle5() {
@@ -492,7 +492,7 @@ public class BundlesActionTest extends ActionTest {
 
 		Collection<IRequirement> requirements = iu.getRequirements();
 		verifyRequirement(requirements, OSGI_EE, TESTDYN_REQ_EE, null, 1, 1, true);
-		assertEquals(1, requirements.size());
+		assertEquals(2, requirements.size());
 	}
 
 	public void testPublishBundlesWhereOneBundleIsInvalid() throws Exception {

@@ -49,7 +49,8 @@ import org.eclipse.pde.internal.publishing.Activator;
  * be actual locations of the features or folders of features.
  */
 public class FeaturesAction extends AbstractPublisherAction {
-	public static final String INSTALL_FEATURES_FILTER = "(org.eclipse.update.install.features=true)"; //$NON-NLS-1$
+	public static final String FILTER_PROPERTY_INSTALL_FEATURES = "org.eclipse.update.install.features"; //$NON-NLS-1$
+	public static final String INSTALL_FEATURES_FILTER = String.format("(%s=true)", FILTER_PROPERTY_INSTALL_FEATURES); //$NON-NLS-1$
 	private static final String UPDATE_FEATURE_APPLICATION_PROP = "org.eclipse.update.feature.application"; //$NON-NLS-1$
 	private static final String UPDATE_FEATURE_PLUGIN_PROP = "org.eclipse.update.feature.plugin"; //$NON-NLS-1$
 	private static final String UPDATE_FEATURE_EXCLUSIVE_PROP = "org.eclipse.update.feature.exclusive"; //$NON-NLS-1$
