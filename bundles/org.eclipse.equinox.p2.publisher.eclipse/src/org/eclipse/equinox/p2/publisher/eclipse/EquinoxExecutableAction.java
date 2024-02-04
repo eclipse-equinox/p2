@@ -17,7 +17,8 @@
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.BrandingIron;
@@ -32,7 +33,7 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.environment.Constants;
 
 /**
- * Given the description of an executable, this action publishes optionally 
+ * Given the description of an executable, this action publishes optionally
  * non-destructively brands the executable, publishes the resultant artifacts
  * and publishes the required IUs to identify the branded executable, configure
  * the executable and set it up as the launcher for a profile.
@@ -40,7 +41,7 @@ import org.eclipse.osgi.service.environment.Constants;
  * This action works on one platform configuration only.
  * <p>
  * This action consults the following types of advice:
- * </ul>
+ * <ul>
  * <li>{@link IBrandingAdvice}</li>
  * </ul>
  */

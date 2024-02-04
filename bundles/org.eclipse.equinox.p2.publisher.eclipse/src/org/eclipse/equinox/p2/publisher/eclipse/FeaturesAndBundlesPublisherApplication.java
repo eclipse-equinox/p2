@@ -25,12 +25,15 @@ import org.eclipse.equinox.p2.publisher.actions.RootIUResultFilterAdvice;
 
 /**
  * <p>
- * This application generates meta-data and artifact repositories from a set of features and bundles.
- * If -source <localdir> parameter is given, it specifies the directory under which to find the features 
- * and bundles (in the standard "features" and "plugins" sub-directories).
- * </p><p>
- * Optionally, the -features <csv of file locations> and -bundles <csv of file locations> arguments can 
- * be specified.  If given, these override the defaults derived from a supplied -source parameter.
+ * This application generates meta-data and artifact repositories from a set of
+ * features and bundles. If {@code -source <localdir>} parameter is given, it
+ * specifies the directory under which to find the features and bundles (in the
+ * standard "features" and "plugins" sub-directories).
+ * </p>
+ * <p>
+ * Optionally, the {@code -features <csv of file locations>} and
+ * {@code -bundles <csv} of file locations> arguments can be specified. If
+ * given, these override the defaults derived from a supplied -source parameter.
  * </p>
  */
 public class FeaturesAndBundlesPublisherApplication extends AbstractPublisherApplication {

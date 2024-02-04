@@ -165,8 +165,10 @@ public interface IProductDescriptor {
 	public String[] getIcons(String os);
 
 	/**
-	 * Returns a List<BundleInfo> for each bundle that has custom configuration data.
-	 * @return A List<BundleInfo>
+	 * Returns a {@code List<BundleInfo>} for each bundle that has custom
+	 * configuration data.
+	 * 
+	 * @return A {@code List<BundleInfo>}
 	 */
 	public List<BundleInfo> getBundleInfos();
 
@@ -191,8 +193,10 @@ public interface IProductDescriptor {
 	public String getLicenseText();
 
 	/**
-	 * Returns a List<IRepositoryReference> for each update repository used by the product.
-	 * @return A List<IRepositoryReference>
+	 * Returns a {@code List<IRepositoryReference>} for each update repository used
+	 * by the product.
+	 * 
+	 * @return A {@code List<IRepositoryReference>}
 	 */
 	public List<IRepositoryReference> getRepositoryEntries();
 

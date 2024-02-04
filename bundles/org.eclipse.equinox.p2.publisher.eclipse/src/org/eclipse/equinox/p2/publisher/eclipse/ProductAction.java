@@ -205,7 +205,7 @@ public class ProductAction extends AbstractPublisherAction {
 		info.addAdvice(new RootIUAdvice(list));
 	}
 
-	private Collection<IVersionedId> createInstallModeRootFeatures() {
+	protected Collection<IVersionedId> createInstallModeRootFeatures() {
 		Collection<IVersionedId> rootFeatures = listElements(product.getFeatures(IProductDescriptor.ROOT_FEATURES),
 				".feature.group"); //$NON-NLS-1$
 		if (!rootFeatures.isEmpty()) {
