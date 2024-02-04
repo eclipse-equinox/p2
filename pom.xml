@@ -19,7 +19,7 @@
     <relativePath>../eclipse-platform-parent</relativePath>
   </parent>
 
-  <groupId>org.eclipse.equinox.p2</groupId>
+  <groupId>org.eclipse.platform</groupId>
   <artifactId>rt.equinox.p2</artifactId>
   <packaging>pom</packaging>
   <version>${releaseVersion}${qualifier}</version>
@@ -125,6 +125,18 @@
             <goals>
               <goal>p2-metadata</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-packaging-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-update-consumer-pom</id>
+            <configuration>
+				<skipPomGeneration>false</skipPomGeneration>
+			</configuration>
           </execution>
         </executions>
       </plugin>
