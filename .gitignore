@@ -6,3 +6,6 @@ bin/
 pom.tycho
 .tycho-consumer-pom.xml
 apiAnalyzer-workspace/
+
+#Generated OSGi declarative service files
+**/OSGI-INF/org.eclipse.*.xml
