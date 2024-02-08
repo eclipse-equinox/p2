@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.publisher.eclipse" version="2">
+    <resource path="src/org/eclipse/equinox/internal/p2/publisher/eclipse/bundledescription/BaseDescriptionImpl.java" type="org.eclipse.equinox.internal.p2.publisher.eclipse.bundledescription.BaseDescriptionImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="BaseDescription"/>
+                <message_argument value="BaseDescriptionImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/publisher/eclipse/bundledescription/BundleDescriptionImpl.java" type="org.eclipse.equinox.internal.p2.publisher.eclipse.bundledescription.BundleDescriptionImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="BundleDescription"/>
+                <message_argument value="BundleDescriptionImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/publisher/eclipse/bundledescription/BundleSpecificationImpl.java" type="org.eclipse.equinox.internal.p2.publisher.eclipse.bundledescription.BundleSpecificationImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="BundleSpecification"/>
+                <message_argument value="BundleSpecificationImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/publisher/eclipse/bundledescription/ExportPackageDescriptionImpl.java" type="org.eclipse.equinox.internal.p2.publisher.eclipse.bundledescription.ExportPackageDescriptionImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="ExportPackageDescription"/>
+                <message_argument value="ExportPackageDescriptionImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/publisher/eclipse/bundledescription/GenericDescriptionImpl.java" type="org.eclipse.equinox.internal.p2.publisher.eclipse.bundledescription.GenericDescriptionImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="GenericDescription"/>
+                <message_argument value="GenericDescriptionImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/publisher/eclipse/bundledescription/GenericSpecificationImpl.java" type="org.eclipse.equinox.internal.p2.publisher.eclipse.bundledescription.GenericSpecificationImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="GenericSpecification"/>
+                <message_argument value="GenericSpecificationImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/publisher/eclipse/bundledescription/HostSpecificationImpl.java" type="org.eclipse.equinox.internal.p2.publisher.eclipse.bundledescription.HostSpecificationImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="HostSpecification"/>
+                <message_argument value="HostSpecificationImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/publisher/eclipse/bundledescription/ImportPackageSpecificationImpl.java" type="org.eclipse.equinox.internal.p2.publisher.eclipse.bundledescription.ImportPackageSpecificationImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="ImportPackageSpecification"/>
+                <message_argument value="ImportPackageSpecificationImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/publisher/eclipse/bundledescription/VersionConstraintImpl.java" type="org.eclipse.equinox.internal.p2.publisher.eclipse.bundledescription.VersionConstraintImpl">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="VersionConstraint"/>
+                <message_argument value="VersionConstraintImpl"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>
