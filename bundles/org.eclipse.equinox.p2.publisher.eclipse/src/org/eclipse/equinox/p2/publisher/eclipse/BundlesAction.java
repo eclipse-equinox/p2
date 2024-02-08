@@ -33,6 +33,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
+import org.eclipse.equinox.internal.p2.publisher.eclipse.bundledescription.BundleDescriptionBuilder;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
@@ -766,12 +767,8 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static BundleDescription createBundleDescription(Dictionary<String, String> enhancedManifest,
 			File bundleLocation) {
 		try {
-			BundleDescription descriptor = StateObjectFactory.defaultFactory.createBundleDescription(null,
-					enhancedManifest, bundleLocation == null ? null : bundleLocation.getAbsolutePath(), 1); // TODO Do
-																											// we need
-																											// to have a
-																											// real
-																											// bundle id
+			BundleDescription descriptor = BundleDescriptionBuilder.createBundleDescription(enhancedManifest,
+					bundleLocation == null ? null : bundleLocation.getAbsolutePath());
 			descriptor.setUserObject(enhancedManifest);
 			return descriptor;
 		} catch (BundleException e) {
