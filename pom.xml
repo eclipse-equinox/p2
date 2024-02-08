@@ -69,30 +69,6 @@
         <osgi.ws>cocoa</osgi.ws>
       </properties>
     </profile>
-    <profile>
-      <id>reconciler.product</id>
-      <activation>
-        <file><exists>reconciler.product</exists></file>
-      </activation>
-      <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.eclipse.tycho</groupId>
-              <artifactId>tycho-p2-director-plugin</artifactId>
-              <configuration>
-                <products>
-                  <product>
-                    <id>org.eclipse.equinox.p2.reconciler</id>
-                    <rootFolder>eclipse</rootFolder>
-                  </product>
-                </products>
-              </configuration>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-      </build>
-    </profile>
   </profiles>
 
   <modules>

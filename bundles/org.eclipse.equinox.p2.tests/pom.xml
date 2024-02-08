@@ -21,30 +21,8 @@
 	<properties>
 		<testClass>org.eclipse.equinox.p2.tests.AutomatedTests</testClass>
 		<defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
-		<archiveExtension>tar.gz</archiveExtension>
-		<dropinsProduct>org.eclipse.equinox.p2.reconciler-${tycho.env.osgi.os}.${tycho.env.osgi.ws}.${tycho.env.osgi.arch}.${archiveExtension}</dropinsProduct>
 	</properties>
-	<profiles>
-		<profile>
-			<id>windows</id>
-			<activation>
-				<os><family>win</family></os>
-			</activation>
-			<properties>
-					<archiveExtension>zip</archiveExtension>
-			</properties>
-		</profile>
-	</profiles>
 
-	<dependencies>
-		<!-- The tests require the reconciler product -->
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>org.eclipse.equinox.p2.reconciler</artifactId>
-			<version>1.1.0-SNAPSHOT</version>
-			<type>pom</type>
-		</dependency>
-	</dependencies>
 
 	<build>
 		<plugins>
@@ -52,7 +30,7 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<configuration>
-					<argLine>-Xmx512m -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=${project.build.directory}/../../org.eclipse.equinox.p2.tests.reconciler.product/target/products/${dropinsProduct} -Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.repository -Dorg.eclipse.equinox.p2.transport.ecf.retry=5</argLine>
+					<argLine>-Xmx512m -Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.repository -Dorg.eclipse.equinox.p2.transport.ecf.retry=5</argLine>
 					<appArgLine>-consoleLog -debug</appArgLine>
 					<explodedBundles>
 						<explodedBundle>org.apache.ant</explodedBundle>
