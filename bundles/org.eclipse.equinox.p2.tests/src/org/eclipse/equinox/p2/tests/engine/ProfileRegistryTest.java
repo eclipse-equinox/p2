@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.Profile;
@@ -557,15 +558,8 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 			saveMethod = registry.getClass().getDeclaredMethod("saveProfile", Profile.class);
 			saveMethod.setAccessible(true);
 			saveMethod.invoke(profileRegistry, profile);
-		} catch (SecurityException e) {
-			fail();
-		} catch (NoSuchMethodException e) {
-			fail();
-		} catch (IllegalArgumentException e) {
-			fail();
-		} catch (IllegalAccessException e) {
-			fail();
-		} catch (InvocationTargetException e) {
+		} catch (SecurityException | NoSuchMethodException | IllegalArgumentException | IllegalAccessException
+				| InvocationTargetException e) {
 			fail();
 		}
 		File profileFolder = new File(folder, getName() + ".profile");
@@ -636,15 +630,8 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 			saveMethod = registry.getClass().getDeclaredMethod("saveProfile", Profile.class);
 			saveMethod.setAccessible(true);
 			saveMethod.invoke(profileRegistry, profile);
-		} catch (SecurityException e) {
-			fail();
-		} catch (NoSuchMethodException e) {
-			fail();
-		} catch (IllegalArgumentException e) {
-			fail();
-		} catch (IllegalAccessException e) {
-			fail();
-		} catch (InvocationTargetException e) {
+		} catch (SecurityException | NoSuchMethodException | IllegalArgumentException | IllegalAccessException
+				| InvocationTargetException e) {
 			fail();
 		}
 		File profileFolder = new File(folder, getName() + ".profile");

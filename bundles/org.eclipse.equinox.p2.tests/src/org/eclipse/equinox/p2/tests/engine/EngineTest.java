@@ -13,18 +13,47 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.File;
-import java.util.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.internal.p2.engine.phases.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.eclipse.core.runtime.AssertionFailedException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.engine.Operand;
+import org.eclipse.equinox.internal.p2.engine.Phase;
+import org.eclipse.equinox.internal.p2.engine.PhaseSet;
+import org.eclipse.equinox.internal.p2.engine.phases.CheckTrust;
+import org.eclipse.equinox.internal.p2.engine.phases.Collect;
+import org.eclipse.equinox.internal.p2.engine.phases.Configure;
+import org.eclipse.equinox.internal.p2.engine.phases.Install;
+import org.eclipse.equinox.internal.p2.engine.phases.Property;
+import org.eclipse.equinox.internal.p2.engine.phases.Sizing;
+import org.eclipse.equinox.internal.p2.engine.phases.Unconfigure;
+import org.eclipse.equinox.internal.p2.engine.phases.Uninstall;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IPhaseSet;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.PhaseSetFactory;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -178,34 +207,21 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testNullProfile() {
 
 		IProfile profile = null;
-		try {
-			engine.perform(engine.createPlan(profile, null), new NullProgressMonitor());
-		} catch (AssertionFailedException expected) {
-			return;
-		}
-		fail();
+		assertThrows(AssertionFailedException.class,
+				() ->
+			engine.perform(engine.createPlan(profile, null), new NullProgressMonitor()));
 	}
 
 	public void testNullPhaseSet() {
 
 		IProfile profile = createProfile("test");
 		PhaseSet phaseSet = null;
-		try {
-			engine.perform(engine.createPlan(profile, null), phaseSet, new NullProgressMonitor());
-		} catch (IllegalArgumentException expected) {
-			return;
-		}
-		fail();
+		assertThrows(IllegalArgumentException.class,
+				() -> engine.perform(engine.createPlan(profile, null), phaseSet, new NullProgressMonitor()));
 	}
 
 	public void testNullPlan() {
-
-		try {
-			engine.perform(null, new NullProgressMonitor());
-			fail();
-		} catch (RuntimeException expected) {
-			//expected
-		}
+		assertThrows(RuntimeException.class, () -> engine.perform(null, new NullProgressMonitor()));
 	}
 
 	/*
@@ -816,13 +832,8 @@ public class EngineTest extends AbstractProvisioningTest {
 				return new Collector<>();
 			}
 		};
-		try {
-			IProvisioningPlan plan = engine.createPlan(profile, null);
-			plan.addInstallableUnit(createOSGiIU());
-			engine.perform(plan, new NullProgressMonitor());
-		} catch (IllegalArgumentException expected) {
-			return;
-		}
-		fail();
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		plan.addInstallableUnit(createOSGiIU());
+		assertThrows(IllegalArgumentException.class, () -> engine.perform(plan, new NullProgressMonitor()));
 	}
 }

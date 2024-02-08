@@ -13,9 +13,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.directorywatcher;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.List;
+
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
@@ -29,12 +35,7 @@ public class DirectoryWatcherTest extends AbstractProvisioningTest {
 	}
 
 	public void testCreateDirectoryWatcherNullDirectory() throws Exception {
-		try {
-			new DirectoryWatcher((File) null);
-		} catch (IllegalArgumentException e) {
-			return;
-		}
-		fail();
+		assertThrows(IllegalArgumentException.class, () -> new DirectoryWatcher((File) null));
 	}
 
 	public void testCreateDirectoryWatcherOneDirectory() throws Exception {

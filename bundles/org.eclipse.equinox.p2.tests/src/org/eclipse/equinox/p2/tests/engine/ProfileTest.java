@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -20,7 +22,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler;
 import org.eclipse.equinox.internal.p2.engine.Profile;
@@ -57,21 +61,11 @@ public class ProfileTest extends AbstractProvisioningTest {
 	}
 
 	public void testNullProfile() {
-		try {
-			createProfile(null);
-		} catch (IllegalArgumentException expected) {
-			return;
-		}
-		fail();
+		assertThrows(IllegalArgumentException.class, () -> createProfile(null));
 	}
 
 	public void testEmptyProfile() {
-		try {
-			createProfile("");
-		} catch (IllegalArgumentException expected) {
-			return;
-		}
-		fail();
+		assertThrows(IllegalArgumentException.class, () -> createProfile(""));
 	}
 
 	public void testAddRemoveProperty() throws ProvisionException {

@@ -13,16 +13,40 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EventObject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.engine.CollectEvent;
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitPhase;
+import org.eclipse.equinox.internal.p2.engine.Operand;
+import org.eclipse.equinox.internal.p2.engine.ParameterizedProvisioningAction;
+import org.eclipse.equinox.internal.p2.engine.Phase;
+import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -131,39 +155,19 @@ public class PhaseTest extends AbstractProvisioningTest {
 	}
 
 	public void testNullPhaseId() {
-		try {
-			new TestPhase(null, 1);
-		} catch (IllegalArgumentException expected) {
-			return;
-		}
-		fail();
+		assertThrows(IllegalArgumentException.class, () -> new TestPhase(null, 1));
 	}
 
 	public void testEmptyPhaseId() {
-		try {
-			new TestPhase("", 1);
-		} catch (IllegalArgumentException expected) {
-			return;
-		}
-		fail();
+		assertThrows(IllegalArgumentException.class, () -> new TestPhase("", 1));
 	}
 
 	public void testNegativeWeight() {
-		try {
-			new TestPhase("xyz", -1);
-		} catch (IllegalArgumentException expected) {
-			return;
-		}
-		fail();
+		assertThrows(IllegalArgumentException.class, () -> new TestPhase("xyz", -1));
 	}
 
 	public void testZeroWeight() {
-		try {
-			new TestPhase("xyz", 0);
-		} catch (IllegalArgumentException expected) {
-			return;
-		}
-		fail();
+		assertThrows(IllegalArgumentException.class, () -> new TestPhase("xyz", 0));
 	}
 
 	public void testPerform() {

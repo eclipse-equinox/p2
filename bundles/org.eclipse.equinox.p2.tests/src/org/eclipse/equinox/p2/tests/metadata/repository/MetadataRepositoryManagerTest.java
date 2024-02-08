@@ -15,6 +15,7 @@
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,8 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -53,6 +53,9 @@ import org.eclipse.equinox.p2.tests.FailingMetadataRepositoryFactory;
 import org.eclipse.equinox.p2.tests.StringBufferStream;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.TestRepositoryListener;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Tests for API of {@link IMetadataRepositoryManager}.
@@ -445,14 +448,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 
 	public void testRelativePath() throws URISyntaxException {
 		URI location = new URI("test");
-		try {
-			manager.loadRepository(location, getMonitor());
-			fail();
-		} catch (IllegalArgumentException e) {
-			//expected
-		} catch (ProvisionException e) {
-			fail("4.99", e);
-		}
+		assertThrows(IllegalArgumentException.class, () -> manager.loadRepository(location, getMonitor()));
 	}
 
 	/**
@@ -607,18 +603,8 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	}
 
 	public void testFailureAddRemove() {
-		try {
-			manager.addRepository(null);
-			fail();
-		} catch (RuntimeException e) {
-			//expected
-		}
-		try {
-			manager.removeRepository(null);
-			fail();
-		} catch (RuntimeException e) {
-			//expected
-		}
+		assertThrows(RuntimeException.class, () -> manager.addRepository(null));
+		assertThrows(RuntimeException.class, () -> manager.removeRepository(null));
 	}
 
 	/**
