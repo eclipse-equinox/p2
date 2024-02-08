@@ -17,11 +17,20 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -32,15 +41,11 @@ public class AgentPlanTestInExternalInstance extends AbstractProvisioningTest {
 		super.setUp();
 
 		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) getProfileRegistry();
-		try {
-			Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
-			selfField.setAccessible(true);
-			previousSelfValue = selfField.get(profileRegistry);
-			selfField.set(profileRegistry, "agent");
-			clearProfileMap(profileRegistry);
-		} catch (Throwable t) {
-			fail();
-		}
+		Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
+		selfField.setAccessible(true);
+		previousSelfValue = selfField.get(profileRegistry);
+		selfField.set(profileRegistry, "agent");
+		clearProfileMap(profileRegistry);
 		createProfile("agent");
 		Map<String, String> p = new HashMap<>();
 		p.put("org.eclipse.equinox.p2.planner.resolveMetaRequirements", "false");
@@ -50,16 +55,12 @@ public class AgentPlanTestInExternalInstance extends AbstractProvisioningTest {
 	@Override
 	public void tearDown() throws Exception {
 		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) getProfileRegistry();
-		try {
-			Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
-			selfField.setAccessible(true);
-			Object self = selfField.get(profileRegistry);
-			if (self.equals("agent"))
-				selfField.set(profileRegistry, previousSelfValue);
-			clearProfileMap(profileRegistry);
-		} catch (Throwable t) {
-			fail();
-		}
+		Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
+		selfField.setAccessible(true);
+		Object self = selfField.get(profileRegistry);
+		if (self.equals("agent"))
+			selfField.set(profileRegistry, previousSelfValue);
+		clearProfileMap(profileRegistry);
 		super.tearDown();
 	}
 

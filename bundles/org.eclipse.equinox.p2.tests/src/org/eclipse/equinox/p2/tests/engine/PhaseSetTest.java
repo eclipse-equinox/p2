@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.File;
 import java.net.URI;
 import java.util.EventObject;
@@ -20,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -71,14 +74,10 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 	}
 
 	public void testNullPhases() {
-		try {
+		assertThrows(IllegalArgumentException.class, () ->
 			new PhaseSet(null) {
 				// empty PhaseSet
-			};
-		} catch (IllegalArgumentException exepcted) {
-			return;
-		}
-		fail();
+		});
 	}
 
 	public void testNoTrustCheck() {

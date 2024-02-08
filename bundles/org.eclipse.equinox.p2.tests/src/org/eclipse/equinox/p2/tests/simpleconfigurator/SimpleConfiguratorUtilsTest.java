@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+
 import org.eclipse.equinox.internal.simpleconfigurator.Activator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorUtils;
@@ -202,20 +203,16 @@ public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 		fail("improper version error not caught");
 	}
 
-	public void testReadMissingBundleInfo() {
+	public void testReadMissingBundleInfo() throws MalformedURLException, IOException {
 
 		File bundleInfoFile = new File(getTempFolder(), "bundle.info");
 		assertFalse(bundleInfoFile.exists());
-		try {
-			if (Activator.EXTENSIONS == null) {
-				// base bundles only
-				assertEquals(0, SimpleConfiguratorUtils.readConfiguration(bundleInfoFile.toURL(), null).size());
-			} else {
-				// including bundles from configured extensions
-				assertEquals(4, SimpleConfiguratorUtils.readConfiguration(bundleInfoFile.toURL(), null).size());
-			}
-		} catch (IOException e) {
-			fail();
+		if (Activator.EXTENSIONS == null) {
+			// base bundles only
+			assertEquals(0, SimpleConfiguratorUtils.readConfiguration(bundleInfoFile.toURL(), null).size());
+		} else {
+			// including bundles from configured extensions
+			assertEquals(4, SimpleConfiguratorUtils.readConfiguration(bundleInfoFile.toURL(), null).size());
 		}
 	}
 }

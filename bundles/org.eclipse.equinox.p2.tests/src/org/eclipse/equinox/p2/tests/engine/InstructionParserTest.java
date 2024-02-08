@@ -13,17 +13,23 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import static org.junit.Assert.assertThrows;
+
 import java.util.List;
 import java.util.Map;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.InstructionParser;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class InstructionParserTest extends AbstractProvisioningTest {
 
@@ -59,12 +65,7 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 	}
 
 	public void testNullIUPhase() {
-		try {
-			new InstructionParser(null);
-		} catch (RuntimeException e) {
-			return;
-		}
-		fail();
+		assertThrows(RuntimeException.class, () -> new InstructionParser(null));
 	}
 
 	public void testGoodAction() {
@@ -81,13 +82,9 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 
 	public void testBadActionFullyQualified() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
-		try {
-			List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("instructionparsertest.badAction()", null), null);
-			actions.get(0).execute(null);
-		} catch (IllegalArgumentException e) {
-			return;
-		}
-		fail();
+		List<ProvisioningAction> actions = parser.parseActions(
+				MetadataFactory.createTouchpointInstruction("instructionparsertest.badAction()", null), null);
+		assertThrows(IllegalArgumentException.class, () -> actions.get(0).execute(null));
 	}
 
 	public void testGoodActionFromImport() {
@@ -104,13 +101,9 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 
 	public void testBadActionFromImport() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
-		try {
-			List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("badAction()", "instructionparsertest.badAction"), null);
-			actions.get(0).execute(null);
-		} catch (IllegalArgumentException e) {
-			return;
-		}
-		fail();
+		List<ProvisioningAction> actions = parser.parseActions(
+				MetadataFactory.createTouchpointInstruction("badAction()", "instructionparsertest.badAction"), null);
+		assertThrows(IllegalArgumentException.class, () -> actions.get(0).execute(null));
 	}
 
 	public void testGoodActions() {
@@ -133,53 +126,36 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 
 	public void testBadParameter() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
-		try {
-			parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction(badParameter)", null), TOUCHPOINT_TYPE);
-		} catch (IllegalArgumentException e) {
-			return;
-		}
-		fail();
+		assertThrows(IllegalArgumentException.class,
+				() -> parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction(badParameter)", null),
+						TOUCHPOINT_TYPE));
 	}
 
 	public void testGoodParamterBadParameter() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
-		try {
-			parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction(a:1, badParameter)", null), TOUCHPOINT_TYPE);
-		} catch (IllegalArgumentException e) {
-			return;
-		}
-		fail();
+		assertThrows(IllegalArgumentException.class,
+				() -> parser.parseActions(
+						MetadataFactory.createTouchpointInstruction("goodAction(a:1, badParameter)", null),
+						TOUCHPOINT_TYPE));
 	}
 
 	public void testBadAction() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
-		try {
-			parser.parseActions(MetadataFactory.createTouchpointInstruction("badAction", null), TOUCHPOINT_TYPE);
-		} catch (IllegalArgumentException e) {
-			return;
-		}
-		fail();
+		assertThrows(IllegalArgumentException.class, () -> parser
+				.parseActions(MetadataFactory.createTouchpointInstruction("badAction", null), TOUCHPOINT_TYPE));
 	}
 
 	public void testGoodActionBadAction() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
-		try {
-			List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction(); badAction()", null), TOUCHPOINT_TYPE);
-			actions.get(1).execute(null);
-		} catch (IllegalArgumentException e) {
-			return;
-		}
-		fail();
+		List<ProvisioningAction> actions = parser.parseActions(
+				MetadataFactory.createTouchpointInstruction("goodAction(); badAction()", null), TOUCHPOINT_TYPE);
+		assertThrows(IllegalArgumentException.class, () -> actions.get(1).execute(null));
 	}
 
 	public void testNoActionFound() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
-		try {
-			List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("notfoundaction()", null), TOUCHPOINT_TYPE);
-			actions.get(0).execute(null);
-		} catch (IllegalArgumentException e) {
-			return;
-		}
-		fail();
+		List<ProvisioningAction> actions = parser
+				.parseActions(MetadataFactory.createTouchpointInstruction("notfoundaction()", null), TOUCHPOINT_TYPE);
+		assertThrows(IllegalArgumentException.class, () -> actions.get(0).execute(null));
 	}
 }
