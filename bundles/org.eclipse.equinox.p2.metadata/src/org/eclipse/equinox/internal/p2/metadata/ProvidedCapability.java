@@ -16,7 +16,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,8 +65,7 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 		} else {
 			resolvedProps.put(PROPERTY_VERSION, Version.emptyVersion);
 		}
-
-		this.properties = Collections.unmodifiableMap(resolvedProps);
+		this.properties = Map.copyOf(resolvedProps);
 	}
 
 	public ProvidedCapability(String namespace, String name, Version version) {
