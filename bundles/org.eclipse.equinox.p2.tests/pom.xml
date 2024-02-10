@@ -22,37 +22,59 @@
 		<testClass>org.eclipse.equinox.p2.tests.AutomatedTests</testClass>
 		<defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
 		<archiveExtension>tar.gz</archiveExtension>
-		<dropinsProduct>org.eclipse.equinox.p2.reconciler-${tycho.env.osgi.os}.${tycho.env.osgi.ws}.${tycho.env.osgi.arch}.${archiveExtension}</dropinsProduct>
+		<dropinsProduct>${project.build.directory}/products/org.eclipse.equinox.p2.reconciler/${tycho.env.osgi.os}/${tycho.env.osgi.ws}/${tycho.env.osgi.arch}</dropinsProduct>
 	</properties>
-	<profiles>
-		<profile>
-			<id>windows</id>
-			<activation>
-				<os><family>win</family></os>
-			</activation>
-			<properties>
-					<archiveExtension>zip</archiveExtension>
-			</properties>
-		</profile>
-	</profiles>
-
-	<dependencies>
-		<!-- The tests require the reconciler product -->
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>org.eclipse.equinox.p2.reconciler</artifactId>
-			<version>1.1.0-SNAPSHOT</version>
-			<type>pom</type>
-		</dependency>
-	</dependencies>
 
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<configuration>
+					<environments combine.self="override">
+						<!-- clear to enforce using the default environment only -->
+					</environments>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-publisher-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<executions>
+					<execution>
+						<id>publish-products</id>
+						<goals>
+							<goal>publish-products</goal>
+						</goals>
+						<phase>pre-integration-test</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-director-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>materialize-products</id>
+						<goals>
+							<goal>materialize-products</goal>
+						</goals>
+						<phase>pre-integration-test</phase>
+						<configuration>
+							<products>
+								<product>
+									<id>org.eclipse.equinox.p2.reconciler</id>
+								</product>
+							</products>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<configuration>
-					<argLine>-Xmx512m -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=${project.build.directory}/../../org.eclipse.equinox.p2.tests.reconciler.product/target/products/${dropinsProduct} -Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.repository -Dorg.eclipse.equinox.p2.transport.ecf.retry=5</argLine>
+					<argLine>-Xmx512m -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=${dropinsProduct} -Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.repository -Dorg.eclipse.equinox.p2.transport.ecf.retry=5</argLine>
 					<appArgLine>-consoleLog -debug</appArgLine>
 					<explodedBundles>
 						<explodedBundle>org.apache.ant</explodedBundle>

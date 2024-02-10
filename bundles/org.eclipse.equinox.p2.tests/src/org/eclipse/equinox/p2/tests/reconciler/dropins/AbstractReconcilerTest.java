@@ -33,6 +33,11 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -102,26 +107,43 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 */
 	public void initialize() throws Exception {
 		initialized = false;
-		File file = getPlatformZip();
+		File platform = getPlatformZip();
 		output = getUniqueFolder();
 		toRemove.add(output);
 		// for now we will exec to un-tar archives to keep the executable bits
-		if (file.getName().toLowerCase().endsWith(".zip")) {
+		if (platform.isDirectory()) {
+			final Path targetPath = output.toPath();
+			final Path sourcePath = platform.toPath();
+			Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
+						throws IOException {
+					Files.createDirectories(targetPath.resolve(sourcePath.relativize(dir)));
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+					Files.copy(file, targetPath.resolve(sourcePath.relativize(file)));
+					return FileVisitResult.CONTINUE;
+				}
+			});
+		} else if (platform.getName().toLowerCase().endsWith(".zip")) {
 			try {
-				FileUtils.unzipFile(file, output);
+				FileUtils.unzipFile(platform, output);
 			} catch (IOException e) {
 				fail("0.99", e);
 			}
-		} else if (file.getName().toLowerCase().endsWith(".dmg")) {
-			extractDmg("1.1", file);
+		} else if (platform.getName().toLowerCase().endsWith(".dmg")) {
+			extractDmg("1.1", platform);
 		} else {
-			untar("1.0", file);
+			untar("1.0", platform);
 		}
 		File exe = new File(output, getExeFolder() + "eclipse.exe");
 		if (!exe.exists()) {
 			exe = new File(output, getExeFolder() + "eclipse");
 			if (!exe.exists())
-				fail("Executable file: " + exe.getAbsolutePath() + "(or .exe) not found after extracting: " + file.getAbsolutePath() + " to: " + output);
+				fail("Executable file: " + exe.getAbsolutePath() + "(or .exe) not found after extracting: " + platform.getAbsolutePath() + " to: " + output);
 			if (!exe.canExecute()) {
 				// Try first to set --x--x--x, then --x------ if we can't do the former
 				if (!exe.setExecutable(true, false) || !exe.setExecutable(true, true)) {
@@ -278,6 +300,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 				file = file.getCanonicalFile();
 			} catch (IOException e) {
 				// then use the non canonical one...
+			}
+			if (file.isDirectory()) {
+				return file;
 			}
 		}
 		StringBuilder detailedMessage = new StringBuilder(600);
