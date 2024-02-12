@@ -40,9 +40,12 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 
 public class JREAction extends AbstractPublisherAction {
+
+	private static final int RUNTIME_VERSION = Runtime.version().feature();
+
 	private static final String DEFAULT_JRE_NAME = "a.jre"; //$NON-NLS-1$
-	private static final Version DEFAULT_JRE_VERSION = Version.parseVersion("17.0"); //$NON-NLS-1$
-	private static final String DEFAULT_PROFILE = "JavaSE-17"; //$NON-NLS-1$
+	private static final Version DEFAULT_JRE_VERSION = Version.parseVersion(RUNTIME_VERSION + ".0"); //$NON-NLS-1$
+	private static final String DEFAULT_PROFILE = "JavaSE-" + RUNTIME_VERSION; //$NON-NLS-1$
 	private static final String PROFILE_LOCATION = "jre.action.profile.location"; //$NON-NLS-1$
 	private static final String PROFILE_NAME = "osgi.java.profile.name"; //$NON-NLS-1$
 	private static final String PROFILE_TARGET_VERSION = "org.eclipse.jdt.core.compiler.codegen.targetPlatform"; //$NON-NLS-1$
