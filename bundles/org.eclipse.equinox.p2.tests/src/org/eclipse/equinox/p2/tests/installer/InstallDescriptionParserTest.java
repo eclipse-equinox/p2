@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -15,8 +15,13 @@ package org.eclipse.equinox.p2.tests.installer;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.*;
-import org.eclipse.core.runtime.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.installer.InstallDescriptionParser;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
@@ -42,6 +47,7 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 		assertEquals(message, expected.isAutoStart(), actual.isAutoStart());
 	}
 
+	@SuppressWarnings("deprecation") // java.io.File.toURL()
 	private InstallDescription loadDescription(String filename) {
 		URL location = null;
 		try {
@@ -136,6 +142,7 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 	/**
 	 * Tests loading a missing install description
 	 */
+	@SuppressWarnings("deprecation") // java.io.File.toURL()
 	public void testLoadMissing() {
 		try {
 			InstallDescriptionParser.createDescription(new File("/does/not/exist/InstallDescriptionParserTest").toURL().toExternalForm(), SubMonitor.convert(getMonitor()));

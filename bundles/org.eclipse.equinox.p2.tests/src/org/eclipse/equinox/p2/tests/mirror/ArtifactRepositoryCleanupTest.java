@@ -57,6 +57,7 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 	/**
 	 * runs default mirror. source is the source repo, destination is the destination repo
 	 */
+	@SuppressWarnings("deprecation") // java.io.File.toURL()
 	private void runMirrorApplication(final File source, final File destination, final boolean append) throws Exception {
 		MirrorApplication application = new MirrorApplication();
 		String[] args = new String[] {"-source", source.toURL().toExternalForm(), "-destination", destination.toURL().toExternalForm(), append ? "-append" : ""};

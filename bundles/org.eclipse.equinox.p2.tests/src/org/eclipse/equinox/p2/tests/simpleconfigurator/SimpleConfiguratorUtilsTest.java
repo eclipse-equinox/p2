@@ -19,12 +19,12 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-
 import org.eclipse.equinox.internal.simpleconfigurator.Activator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorUtils;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
+@SuppressWarnings("deprecation") // java.io.File.toURL()
 public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 
 	private static final boolean WINDOWS = java.io.File.separatorChar == '\\';

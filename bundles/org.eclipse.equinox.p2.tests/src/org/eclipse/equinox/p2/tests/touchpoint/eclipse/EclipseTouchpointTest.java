@@ -14,15 +14,27 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
-import java.net.*;
-import java.util.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.AggregatedBundleRepository;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -93,6 +105,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 	/**
 	 * Tests loading cache extensions from a profile whose install directory contains spaces
 	 */
+	@SuppressWarnings("deprecation") // java.io.File.toURL()
 	public void testBug262073() throws MalformedURLException {
 		Map<String, String> properties = new HashMap<>();
 		File site = getTestData("Repository", "/testData/artifactRepo/simple with spaces/");

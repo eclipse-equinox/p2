@@ -33,6 +33,7 @@ import org.junit.Test;
 /**
  * Tests the compound queryable
  */
+@SuppressWarnings("deprecation") // MatchQuery
 public class CompoundQueryableTest {
 
 	public static class CompoundQueryTestProgressMonitor extends TestProgressMonitor {

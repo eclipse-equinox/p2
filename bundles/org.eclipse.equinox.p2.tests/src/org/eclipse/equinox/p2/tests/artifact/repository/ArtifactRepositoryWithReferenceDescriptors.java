@@ -39,6 +39,7 @@ public class ArtifactRepositoryWithReferenceDescriptors extends AbstractProvisio
 	//  </artifact>
 
 	@Override
+	@SuppressWarnings("deprecation") // java.io.File.toURL()
 	protected void setUp() throws Exception {
 		super.setUp();
 		repo = createArtifactRepository(getTempFolder().toURI(), null);

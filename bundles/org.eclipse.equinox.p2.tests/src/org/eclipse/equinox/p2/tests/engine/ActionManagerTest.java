@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -16,7 +16,9 @@ package org.eclipse.equinox.p2.tests.engine;
 import java.io.File;
 import java.net.MalformedURLException;
 import org.eclipse.equinox.internal.p2.engine.ActionManager;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.Bundle;
@@ -50,6 +52,7 @@ public class ActionManagerTest extends AbstractProvisioningTest {
 		assertNotNull(manager.getAction("test1.test", null));
 	}
 
+	@SuppressWarnings("deprecation") // java.io.File.toURL()
 	// temporarily disabling this test until API is done
 	public void DISABLED_testDynamicAction() throws MalformedURLException, BundleException, InterruptedException {
 		ActionManager manager = new ActionManager();

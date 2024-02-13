@@ -58,6 +58,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.Filter;
 
+@SuppressWarnings("deprecation") // MatchQuery
 public class EvaluatorTest extends AbstractProvisioningTest {
 	private static final IExpressionParser parser = ExpressionUtil.getParser();
 	private static final IExpressionFactory factory = ExpressionUtil.getFactory();

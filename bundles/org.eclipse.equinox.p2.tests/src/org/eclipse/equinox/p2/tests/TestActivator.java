@@ -26,6 +26,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.PackageAdmin;
 
+@SuppressWarnings("deprecation") // PackageAdmin
 public class TestActivator implements BundleActivator {
 	public static final String PI_PROV_TESTS = "org.eclipse.equinox.p2.test";
 	public static BundleContext context;

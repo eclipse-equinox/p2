@@ -38,6 +38,7 @@ import org.eclipse.osgi.util.NLS;
 /*
  * Modified from MetadataMirrorApplicationTest
  */
+@SuppressWarnings("deprecation") // java.io.File.toURL()
 public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 	protected File destRepoLocation;
 	protected File sourceRepoLocation; //helloworldfeature

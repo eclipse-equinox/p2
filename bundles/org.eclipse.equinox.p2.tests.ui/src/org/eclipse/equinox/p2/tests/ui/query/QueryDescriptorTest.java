@@ -70,6 +70,7 @@ public class QueryDescriptorTest {
 		}
 	}
 
+	@SuppressWarnings("deprecation") // MatchQuery
 	class SimpleMatchQuery extends MatchQuery<Object> {
 
 		@Override
@@ -81,6 +82,7 @@ public class QueryDescriptorTest {
 		}
 	}
 
+	@SuppressWarnings("deprecation") // MatchQuery
 	class SimpleMatchQuery2 extends MatchQuery<Object> {
 		@Override
 		@Deprecated

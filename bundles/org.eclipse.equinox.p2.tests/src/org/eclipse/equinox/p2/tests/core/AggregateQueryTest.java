@@ -32,6 +32,7 @@ import org.junit.Test;
 /**
  * This tests both Compound and Composite queries
  */
+@SuppressWarnings("deprecation") // MatchQuery
 public class AggregateQueryTest {
 
 	public List<String> getABCDE() {

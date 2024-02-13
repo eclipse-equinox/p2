@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 /**
  * Abstract class to set up the mock query provider
  */
+@SuppressWarnings("deprecation") // MatchQuery
 public abstract class AbstractQueryTest extends AbstractProvisioningTest {
 	@Override
 	protected void setUp() throws Exception {

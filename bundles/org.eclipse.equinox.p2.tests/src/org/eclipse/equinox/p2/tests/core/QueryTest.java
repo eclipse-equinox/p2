@@ -26,6 +26,7 @@ import org.junit.Test;
 /**
  * Tests for the {@link org.eclipse.equinox.p2.query.Query} class.
  */
+@SuppressWarnings("deprecation") // MatchQuery
 public class QueryTest {
 
 	static class AnyStringQuery extends MatchQuery {
