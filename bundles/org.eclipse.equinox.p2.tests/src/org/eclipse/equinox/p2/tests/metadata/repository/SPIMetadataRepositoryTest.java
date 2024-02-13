@@ -67,6 +67,7 @@ import org.eclipse.equinox.p2.tests.StringBufferStream;
 /**
  * Test API of the metadata interfaces with an SPI implementation.
  */
+@SuppressWarnings("deprecation") // MatchQuery
 public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	protected File repoLocation;
 

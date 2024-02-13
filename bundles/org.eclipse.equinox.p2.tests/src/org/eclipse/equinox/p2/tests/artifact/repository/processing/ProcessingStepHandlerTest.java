@@ -39,6 +39,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.junit.Test;
 
+@SuppressWarnings("deprecation") // MD5Verifier
 public class ProcessingStepHandlerTest {
 
 	//	private static final int BUFFER_SIZE = 8 * 1024;
@@ -198,7 +199,6 @@ public class ProcessingStepHandlerTest {
 		assertEquals(ByteShifter.class, steps[0].getClass());
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
 	public void testCreateMD5VerifierPS() {
 		String processorId = "org.eclipse.equinox.p2.processing.MD5Verifier";

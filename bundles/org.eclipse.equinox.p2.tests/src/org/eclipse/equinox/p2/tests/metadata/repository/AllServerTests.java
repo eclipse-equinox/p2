@@ -35,6 +35,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
  * Performs all automated metadata repository tests that requires a local test server running
  * on port 8080.
  */
+@SuppressWarnings("deprecation") // PackageAdmin
 public class AllServerTests extends TestCase {
 
 	private static final String BUNDLE_EQUINOX_HTTP = "org.eclipse.equinox.http";

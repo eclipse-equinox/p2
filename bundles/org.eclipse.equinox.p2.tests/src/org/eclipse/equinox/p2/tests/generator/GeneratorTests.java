@@ -16,7 +16,6 @@ package org.eclipse.equinox.p2.tests.generator;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Map;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
@@ -81,6 +80,7 @@ public class GeneratorTests extends AbstractProvisioningTest {
 		}
 	}
 
+	@SuppressWarnings("deprecation") // java.io.File.toURL()
 	public void test233240_artifactsDeleted() throws Exception {
 		//this also covers 220494
 		File rootFolder = getTestFolder("artifactsDeleted");

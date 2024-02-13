@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -49,6 +49,7 @@ public class TouchpointManagerTest extends AbstractProvisioningTest {
 		assertNotNull(manager.getTouchpoint("phaseTest", null));
 	}
 
+	@SuppressWarnings("deprecation") // java.io.File.toURL()
 	// temporarily disabling this test until API is done
 	public void DISABLED_testDynamicTouchpoint() throws MalformedURLException, BundleException, InterruptedException {
 		TouchpointManager manager = new TouchpointManager();

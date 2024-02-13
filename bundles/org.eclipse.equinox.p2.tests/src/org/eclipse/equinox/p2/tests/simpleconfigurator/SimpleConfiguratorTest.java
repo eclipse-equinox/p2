@@ -37,6 +37,7 @@ public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 	protected URL[] localConfiguration = new URL[1];
 	protected SimpleConfiguratorImpl configurator;
 
+	@SuppressWarnings("deprecation") // java.io.File.toURL()
 	@Override
 	public void setUp() throws Exception {
 		relativeURL = new URL("file://bundles.info");
@@ -83,11 +84,13 @@ public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 		assertIsPropertySet(false);
 	}
 
+	@SuppressWarnings("deprecation") // java.io.File.toURL()
 	public void testNotExistingConfigiration() throws MalformedURLException {
 		assertNull(configurator.chooseConfigurationURL(relativeURL, new URL[] {new File(".", "notexisting").toURL()}));
 		assertIsPropertySet(false);
 	}
 
+	@SuppressWarnings("deprecation") // java.io.File.toURL()
 	public void testSharedConfigurationUserNotExisting() throws MalformedURLException {
 		sharedConfiguration[0] = new File(".", "notexisting").toURL();
 		assertEquals(sharedConfiguration[1], configurator.chooseConfigurationURL(relativeURL, sharedConfiguration));

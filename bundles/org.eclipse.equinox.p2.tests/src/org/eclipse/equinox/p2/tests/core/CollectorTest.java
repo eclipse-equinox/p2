@@ -26,6 +26,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 /**
  * Tests for {@link Collector}.
  */
+@SuppressWarnings("deprecation") // MatchQuery
 public class CollectorTest extends AbstractProvisioningTest {
 	public void testAccept() {
 		Collector<Object> collector = new Collector<>();

@@ -44,6 +44,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
+@SuppressWarnings("deprecation") // MatchQuery
 public class PerformanceTest extends AbstractProvisioningTest {
 	public void testParserPerformance() throws Exception {
 		IExpressionParser parser = ExpressionUtil.getParser();

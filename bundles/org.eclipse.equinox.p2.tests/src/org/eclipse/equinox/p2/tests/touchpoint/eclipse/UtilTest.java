@@ -53,6 +53,7 @@ public class UtilTest extends AbstractProvisioningTest {
 		assertEquals(agentLocation.getDataArea("org.eclipse.equinox.p2.touchpoint.eclipse"), Util.getBundlePoolLocation(getAgent(), profile));
 	}
 
+	@SuppressWarnings("deprecation") // java.io.File.toURL()
 	public void testExplicitBundlePool() throws MalformedURLException {
 		Map<String, String> props = new HashMap<>();
 		File cacheDir = new File(System.getProperty("java.io.tmpdir"), "cache");

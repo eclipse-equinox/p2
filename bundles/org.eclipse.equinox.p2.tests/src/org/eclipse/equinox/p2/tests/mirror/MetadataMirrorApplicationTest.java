@@ -33,6 +33,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 /**
  * Test API of the basic mirror application functionality's implementation.
  */
+@SuppressWarnings("deprecation") // java.io.File.toURL()
 public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	protected File destRepoLocation;
 	protected File sourceRepoLocation; //helloworldfeature

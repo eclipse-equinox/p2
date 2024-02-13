@@ -33,6 +33,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
  * that require the test server to be running.
  * Also see {@link AbstractTestServerClientCase} for a base class for test in such a suite.
  */
+@SuppressWarnings("deprecation") // PackageAdmin
 public class TestServerController {
 
 	private static final String BUNDLE_EQUINOX_HTTP = "org.eclipse.equinox.http";

@@ -25,7 +25,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -59,6 +58,7 @@ import org.eclipse.osgi.util.NLS;
 /**
  * Test API of the basic mirror application functionality's implementation.
  */
+@SuppressWarnings("deprecation") // java.io.File.toURL()
 public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	private static final String DOWNLOAD_CHECKSUM = IArtifactDescriptor.DOWNLOAD_CHECKSUM + ".sha-256";
 	private static final String COMPARATOR = ArtifactChecksumComparator.COMPARATOR_ID + ".sha-256";
@@ -1100,7 +1100,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			}
 
 			@Override
-			public Iterator<IArtifactKey> everything() {
+			public synchronized Iterator<IArtifactKey> everything() {
 				return ((SimpleArtifactRepository) source).everything();
 			}
 
