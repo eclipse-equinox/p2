@@ -27,7 +27,6 @@ import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
-import org.osgi.service.log.LogService;
 
 public class EquinoxBundlesState implements BundlesState {
 	static final long DEFAULT_TIMESTAMP = 0L;
@@ -332,7 +331,7 @@ public class EquinoxBundlesState implements BundlesState {
 		}
 		if (DEBUG) {
 			System.out.println(""); //$NON-NLS-1$
-			Log.log(LogService.LOG_DEBUG, this, "composeExpectedState()", "installBundle():"); //$NON-NLS-1$ //$NON-NLS-2$
+			Log.debug(this, "composeExpectedState()", "installBundle():"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (flagNewState) {
 			int indexSystemBundle = -1;
@@ -354,13 +353,13 @@ public class EquinoxBundlesState implements BundlesState {
 		}
 		for (int j = 0; j < bInfos.length; j++) {
 			if (DEBUG)
-				Log.log(LogService.LOG_DEBUG, this, "composeExpectedState()", "bInfos[" + j + "]=" + bInfos[j]); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				Log.debug(this, "composeExpectedState()", "bInfos[" + j + "]=" + bInfos[j]); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			try {
 				this.installBundle(bInfos[j]);
 				// System.out.println("install bInfos[" + j + "]=" + bInfos[j]);
 			} catch (RuntimeException e) {
 				// catch the exception and continue
-				Log.log(LogService.LOG_ERROR, this, "composeExpectedState()", "BundleInfo:" + bInfos[j], e); //$NON-NLS-1$ //$NON-NLS-2$
+				Log.error("BundleInfo:" + bInfos[j], e); //$NON-NLS-1$
 			}
 		}
 		return true;
@@ -387,7 +386,7 @@ public class EquinoxBundlesState implements BundlesState {
 				}
 			}
 		} catch (FrameworkAdminRuntimeException e1) {
-			Log.log(LogService.LOG_ERROR, "", e1); //$NON-NLS-1$
+			Log.error("", e1); //$NON-NLS-1$
 		}
 		return createBundleInfo(toConvert, markedAsStarted, sl, location, null);
 	}
@@ -541,7 +540,7 @@ public class EquinoxBundlesState implements BundlesState {
 				File installArea = ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()),
 						configData.getProperties(), launcherData);
 				if (DEBUG)
-					Log.log(LogService.LOG_DEBUG, this, "initialize(useFwPersistentDat)", "installArea=" + installArea); //$NON-NLS-1$ //$NON-NLS-2$
+					Log.debug(this, "initialize(useFwPersistentDat)", "installArea=" + installArea); //$NON-NLS-1$ //$NON-NLS-2$
 				if (installArea == null)
 					throw new IllegalStateException(Messages.exception_noInstallArea);
 				File fwPersistentDataLocation = new File(installArea, "configuration"); //$NON-NLS-1$
@@ -581,7 +580,7 @@ public class EquinoxBundlesState implements BundlesState {
 			addBundleToState(newBundleDescription);
 			manipulator.getConfigData().addBundle(bInfo);
 		} catch (BundleException e) {
-			Log.log(LogService.LOG_WARNING, this, "installBundle(BundleInfo)", e); //$NON-NLS-1$
+			Log.warn(this, "installBundle(BundleInfo)", e); //$NON-NLS-1$
 		}
 	}
 
@@ -703,7 +702,7 @@ public class EquinoxBundlesState implements BundlesState {
 			try {
 				Dictionary<String, String> manifest = Utils.getOSGiManifest(bInfo.getLocation());
 				if (manifest == null) {
-					Log.log(LogService.LOG_WARNING, this, "uninstallBundle(BundleInfo)", //$NON-NLS-1$
+					Log.warn(this, "uninstallBundle(BundleInfo)", //$NON-NLS-1$
 							NLS.bind(Messages.exception_bundleManifest, bInfo.getLocation()));
 					return;
 				}
@@ -712,7 +711,7 @@ public class EquinoxBundlesState implements BundlesState {
 				removeBundleFromState(bundleDescription);
 				manipulator.getConfigData().removeBundle(bInfo);
 			} catch (BundleException e) {
-				Log.log(LogService.LOG_WARNING, this, "uninstallBundle(BundleInfo)", e); //$NON-NLS-1$
+				Log.warn(this, "uninstallBundle(BundleInfo)", e); //$NON-NLS-1$
 			}
 		}
 	}

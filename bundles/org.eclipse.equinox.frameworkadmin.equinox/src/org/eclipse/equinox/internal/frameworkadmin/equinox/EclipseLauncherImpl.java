@@ -20,7 +20,6 @@ import java.util.List;
 import org.eclipse.equinox.internal.frameworkadmin.utils.SimpleBundlesState;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
-import org.osgi.service.log.LogService;
 
 public class EclipseLauncherImpl {
 	static String getStringOfCmd(String[] cmdarray) {
@@ -41,7 +40,7 @@ public class EclipseLauncherImpl {
 	public Process launch(Manipulator manipulator, File cwd)
 			throws IllegalArgumentException, IOException, FrameworkAdminRuntimeException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
-		Log.log(LogService.LOG_DEBUG, this, "launch(Manipulator , File )", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		Log.debug(this, "launch(Manipulator , File )", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		LauncherData launcherData = manipulator.getLauncherData();
 		if (launcherData.getLauncher() == null)
 			return launchInMemory(manipulator, cwd);
@@ -57,7 +56,7 @@ public class EclipseLauncherImpl {
 		if (cwd == null)
 			cwd = launcherData.getLauncher().getParentFile();
 		Process process = Runtime.getRuntime().exec(cmdarray, null, cwd);
-		Log.log(LogService.LOG_DEBUG, "\t" + getStringOfCmd(cmdarray)); //$NON-NLS-1$
+		Log.debug("\t" + getStringOfCmd(cmdarray)); //$NON-NLS-1$
 		return process;
 	}
 
@@ -88,7 +87,7 @@ public class EclipseLauncherImpl {
 
 		String[] cmdarray = new String[cmdList.size()];
 		cmdList.toArray(cmdarray);
-		Log.log(LogService.LOG_DEBUG, "In CWD = " + cwd + "\n\t" + getStringOfCmd(cmdarray)); //$NON-NLS-1$ //$NON-NLS-2$
+		Log.debug("In CWD = " + cwd + "\n\t" + getStringOfCmd(cmdarray)); //$NON-NLS-1$ //$NON-NLS-2$
 		Process process = Runtime.getRuntime().exec(cmdarray, null, cwd);
 		return process;
 	}

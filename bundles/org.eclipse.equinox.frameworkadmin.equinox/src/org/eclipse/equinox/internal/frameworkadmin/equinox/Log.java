@@ -21,7 +21,7 @@ import org.osgi.util.tracker.ServiceTracker;
 /**
  * Utility class with static methods for logging to LogService, if available
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({ "deprecation", "rawtypes", "unchecked" })
 public class Log {
 	static private ServiceTracker logTracker;
 	static private boolean useLog = false;
@@ -38,11 +38,19 @@ public class Log {
 		logTracker.open();
 	}
 
-	public static void log(int level, Object obj, String method, String message) {
-		log(level, obj, method, message, null);
+	static void debug(Object obj, String method, String message) {
+		log(LogService.LOG_DEBUG, obj, method, message, null);
 	}
 
-	public static void log(int level, Object obj, String method, String message, Throwable e) {
+	static void warn(Object obj, String method, String message) {
+		log(LogService.LOG_WARNING, obj, method, message, null);
+	}
+
+	static void info(Object obj, String method, String message) {
+		log(LogService.LOG_INFO, obj, method, message, null);
+	}
+
+	private static void log(int level, Object obj, String method, String message, Throwable e) {
 		LogService logService = null;
 		String msg = ""; //$NON-NLS-1$
 		if (method == null) {
@@ -78,16 +86,28 @@ public class Log {
 		}
 	}
 
-	public static void log(int level, Object obj, String method, Throwable e) {
-		log(level, obj, method, null, e);
+	static void warn(Object obj, String method, Throwable e) {
+		log(LogService.LOG_WARNING, obj, method, null, e);
 	}
 
-	public static void log(int level, String message) {
-		log(level, null, null, message, null);
+	static void debug(String message) {
+		log(LogService.LOG_DEBUG, null, null, message, null);
 	}
 
-	public static void log(int level, String message, Throwable e) {
-		log(level, null, null, message, e);
+	static void warn(String message) {
+		log(LogService.LOG_WARNING, null, null, message, null);
+	}
+
+	static void info(String message) {
+		log(LogService.LOG_INFO, null, null, message, null);
+	}
+
+	static void error(String message) {
+		log(LogService.LOG_ERROR, null, null, message, null);
+	}
+
+	static void error(String message, Throwable e) {
+		log(LogService.LOG_ERROR, null, null, message, e);
 	}
 
 	private Log() {

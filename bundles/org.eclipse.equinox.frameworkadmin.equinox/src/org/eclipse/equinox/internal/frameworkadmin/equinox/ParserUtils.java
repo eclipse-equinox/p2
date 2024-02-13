@@ -19,12 +19,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Properties;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.service.log.LogService;
 
 public class ParserUtils {
 	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
@@ -53,11 +53,12 @@ public class ParserUtils {
 		File launcherFile = launcherData.getLauncher();
 		if (launcherFile != null) {
 			if (Constants.OS_MACOSX.equals(launcherData.getOS())) { //
-				//TODO We are going to change this - the equinox launcher will look 3 levels up on the mac when going from executable to launcher.jar
-				//see org.eclipse.equinox.executable/library/eclipse.c : findStartupJar();
+				// TODO We are going to change this - the equinox launcher will look 3 levels up
+				// on the mac when going from executable to launcher.jar
+				// see org.eclipse.equinox.executable/library/eclipse.c : findStartupJar();
 				IPath launcherPath = IPath.fromOSString(launcherFile.getAbsolutePath());
 				if (launcherPath.segmentCount() > 2) {
-					//removing "MacOS/eclipse" from the end of the path
+					// removing "MacOS/eclipse" from the end of the path
 					launcherPath = launcherPath.removeLastSegments(2).append("Eclipse"); //$NON-NLS-1$
 					return launcherPath.toFile();
 				}
@@ -70,8 +71,9 @@ public class ParserUtils {
 	public static URI getFrameworkJar(List<String> lines, URI launcherFolder) {
 		String fwk = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_FW, lines);
 		if (fwk == null) {
-			//Search the file system using the default location
-			URI location = FileUtils.getEclipsePluginFullLocation(EquinoxConstants.FW_SYMBOLIC_NAME, new File(URIUtil.toFile(launcherFolder), EquinoxConstants.PLUGINS_DIR));
+			// Search the file system using the default location
+			URI location = FileUtils.getEclipsePluginFullLocation(EquinoxConstants.FW_SYMBOLIC_NAME,
+					new File(URIUtil.toFile(launcherFolder), EquinoxConstants.PLUGINS_DIR));
 			if (location != null)
 				return location;
 			return null;
@@ -79,12 +81,13 @@ public class ParserUtils {
 		try {
 			return URIUtil.makeAbsolute(URIUtil.fromString(fwk), launcherFolder);
 		} catch (URISyntaxException e) {
-			Log.log(LogService.LOG_ERROR, NLS.bind(Messages.exception_createAbsoluteURI, fwk, launcherFolder));
+			Log.error(NLS.bind(Messages.exception_createAbsoluteURI, fwk, launcherFolder));
 			return null;
 		}
 	}
 
-	//This method should only be used to determine the osgi install area when reading the eclipse.ini
+	// This method should only be used to determine the osgi install area when
+	// reading the eclipse.ini
 	public static File getOSGiInstallArea(List<String> args, Properties properties, File launcherFile, URI base) {
 		if (args == null)
 			return null;
