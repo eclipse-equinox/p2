@@ -312,8 +312,7 @@ public abstract class CoercingComparator<T> {
 	 *                                  was impossible
 	 * @see Object#equals(Object)
 	 */
-	public static <TA extends Object, TB extends Object> boolean coerceAndEquals(TA o1, TB o2)
-			throws IllegalArgumentException {
+	static boolean coerceAndEquals(Object o1, Object o2) throws IllegalArgumentException {
 		if (o1 == o2)
 			return true;
 
@@ -326,8 +325,8 @@ public abstract class CoercingComparator<T> {
 			if (o2.getClass().isAssignableFrom(o1.getClass()))
 				return o2.equals(o1);
 			try {
-				CoercingComparator<TA> ca = getComparator(o1, o2);
-				CoercingComparator<TB> cb = getComparator(o2, o1);
+				CoercingComparator<?> ca = getComparator(o1, o2);
+				CoercingComparator<?> cb = getComparator(o2, o1);
 				return ca.getCoercePrio() <= cb.getCoercePrio() ? o1.equals(ca.coerce(o2)) : o2.equals(cb.coerce(o1));
 			} catch (IllegalArgumentException e) {
 				//
