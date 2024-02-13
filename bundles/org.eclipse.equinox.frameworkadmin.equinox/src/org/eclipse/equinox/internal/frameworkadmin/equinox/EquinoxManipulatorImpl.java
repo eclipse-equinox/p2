@@ -29,10 +29,10 @@ import org.eclipse.osgi.service.resolver.PlatformAdmin;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 import org.osgi.framework.startlevel.BundleStartLevel;
-import org.osgi.service.log.LogService;
 import org.osgi.service.startlevel.StartLevel;
 import org.osgi.util.tracker.ServiceTracker;
 
+@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
 public class EquinoxManipulatorImpl implements Manipulator {
 	private static final long DEFAULT_LASTMODIFIED = 0L;
 	private static final boolean LOG_ILLEGALSTATEEXCEPTION = false;
@@ -115,7 +115,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	BundleContext context = null;
 	private Properties platformProperties = new Properties();
 
-	@SuppressWarnings("rawtypes")
 	ServiceTracker cmTracker;
 	int trackingCount = -1;
 	private final PlatformAdmin platformAdmin;
@@ -127,7 +126,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 	EquinoxFwAdminImpl fwAdmin = null;
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	EquinoxManipulatorImpl(BundleContext context, EquinoxFwAdminImpl fwAdmin, PlatformAdmin admin, StartLevel slService,
 			boolean runtime) {
 		this.context = context;
@@ -195,7 +193,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 *
 	 * @see Location
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private File getRunningConfigurationLocation() {
 		ServiceTracker tracker = null;
 		Filter filter = null;
@@ -223,7 +220,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			}
 			return file;
 		} catch (URISyntaxException e) {
-			Log.log(LogService.LOG_WARNING, "URL is not a valid URI, using only path for file", e); //$NON-NLS-1$
+			Log.warn("URL is not a valid URI, using only path for file", "toFile(URL url)", e); //$NON-NLS-1$ //$NON-NLS-2$
 			return new File(url.getFile());
 		}
 	}
@@ -292,7 +289,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 	@Override
 	public void initialize() {
-		Log.log(LogService.LOG_DEBUG, this, "initialize()", "BEGIN"); //$NON-NLS-1$ //$NON-NLS-2$
+		Log.debug(this, "initialize()", "BEGIN"); //$NON-NLS-1$ //$NON-NLS-2$
 		configData.initialize();
 		launcherData.initialize();
 	}
@@ -362,7 +359,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 	@Override
 	public void load() throws IllegalStateException, IOException, FrameworkAdminRuntimeException {
-		Log.log(LogService.LOG_DEBUG, this, "load()", "BEGIN"); //$NON-NLS-1$//$NON-NLS-2$
+		Log.debug(this, "load()", "BEGIN"); //$NON-NLS-1$//$NON-NLS-2$
 		loadWithoutFwPersistentData();
 
 		BundlesState bundlesState = null;
@@ -408,7 +405,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	// Save all parameter in memory into proper config files.
 	@Override
 	public void save(boolean backup) throws IOException, FrameworkAdminRuntimeException {
-		Log.log(LogService.LOG_DEBUG, this, "save()", "BEGIN"); //$NON-NLS-1$//$NON-NLS-2$
+		Log.debug(this, "save()", "BEGIN"); //$NON-NLS-1$//$NON-NLS-2$
 		SimpleBundlesState.checkAvailability(fwAdmin);
 
 		try {
@@ -443,7 +440,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 				newBInfos = configuratorManipulator.save(this, backup);
 			} catch (IllegalStateException e) {
 				if (LOG_ILLEGALSTATEEXCEPTION)
-					Log.log(LogService.LOG_WARNING, this, "save()", e); //$NON-NLS-1$
+					Log.warn(this, "save()", e); //$NON-NLS-1$
 				newBInfos = configData.getBundles();
 			}
 		} else {
@@ -492,7 +489,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 * started among them. 4. set the object that corresponds to the chosen
 	 * ConfiguratorBundle.
 	 */
-	@SuppressWarnings("unchecked")
 	private ConfiguratorManipulator setConfiguratorManipulator() {
 		if (context == null) {
 			this.configuratorManipulator = this.fwAdmin.getConfiguratorManipulator();

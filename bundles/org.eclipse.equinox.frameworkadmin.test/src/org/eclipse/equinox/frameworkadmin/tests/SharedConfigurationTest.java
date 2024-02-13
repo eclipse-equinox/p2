@@ -22,15 +22,11 @@ import java.util.Properties;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.frameworkadmin.equinox.Log;
-import org.eclipse.equinox.internal.frameworkadmin.equinox.Messages;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
-import org.eclipse.osgi.util.NLS;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.osgi.framework.BundleException;
-import org.osgi.service.log.LogService;
 
 public class SharedConfigurationTest extends AbstractFwkAdminTest {
 
@@ -235,7 +231,6 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 		try {
 			out = new FileOutputStream(outputFile);
 			configProps.store(out, header);
-			Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_propertiesSaved, outputFile));
 		} finally {
 			try {
 				out.flush();
