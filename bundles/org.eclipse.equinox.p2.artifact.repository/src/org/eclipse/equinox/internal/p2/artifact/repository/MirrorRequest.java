@@ -121,7 +121,8 @@ public class MirrorRequest extends ArtifactRequest {
 
 	@Override
 	public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
-		monitor.subTask(NLS.bind(Messages.downloading, getArtifactKey().getId()));
+		SubMonitor subMonitor = SubMonitor.convert(monitor, NLS.bind(Messages.downloading, getArtifactKey().getId()),
+				3);
 		setSourceRepository(sourceRepository);
 		// Do we already have the artifact in the target?
 		if (target.contains(getArtifactKey())) {
@@ -160,13 +161,13 @@ public class MirrorRequest extends ArtifactRequest {
 		}
 
 		IArtifactDescriptor destinationDescriptor = getDestinationDescriptor(descriptor, descriptor == canonical);
-		IStatus status = transfer(destinationDescriptor, descriptor, monitor);
+		IStatus status = transfer(destinationDescriptor, descriptor, subMonitor.split(1));
 		// if ok, cancelled or transfer has already been done with the canonical form return with status set
 		if (status.getSeverity() == IStatus.CANCEL) {
 			setResult(status);
 			return;
 		}
-		if (monitor.isCanceled()) {
+		if (subMonitor.isCanceled()) {
 			setResult(Status.CANCEL_STATUS);
 			return;
 		}
@@ -176,15 +177,21 @@ public class MirrorRequest extends ArtifactRequest {
 		}
 
 		// failed, first remove possibly erroneously added descriptor
-		if (target.contains(destinationDescriptor))
-			target.removeDescriptor(destinationDescriptor);
+		if (target.contains(destinationDescriptor)) {
+			try {
+				target.removeDescriptor(destinationDescriptor, subMonitor.split(1));
+			} catch (UnsupportedOperationException e) {
+				setResult(Status.warning("unable to remove Descriptor", e)); //$NON-NLS-1$
+				return;
+			}
+		}
 
 		if (descriptor == canonical || canonical == null) {
 			setResult(status);
 			return;
 		}
 
-		IStatus canonicalStatus = transfer(getDestinationDescriptor(canonical, true), canonical, monitor);
+		IStatus canonicalStatus = transfer(getDestinationDescriptor(canonical, true), canonical, subMonitor.split(1));
 		// To prevent the optimized transfer status severity from dominating the canonical, only merge
 		// if the canonical severity is equal to or higher than the optimized transfer severity.
 		if (canonicalStatus.getSeverity() < status.getSeverity())
