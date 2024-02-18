@@ -180,9 +180,20 @@ public class MirrorRequest extends ArtifactRequest {
 		if (target.contains(destinationDescriptor)) {
 			try {
 				target.removeDescriptor(destinationDescriptor, subMonitor.split(1));
-			} catch (UnsupportedOperationException e) {
-				setResult(Status.warning("unable to remove Descriptor", e)); //$NON-NLS-1$
-				return;
+			} catch (RuntimeException e) {
+				// In case the repository does not support this, fall through to get the real
+				// error, maybe the repository does not support downloads at all!
+				Status warning = Status.warning(NLS.bind(Messages.MirrorRequest_removal_failed, destinationDescriptor),
+						e);
+				if (status instanceof MultiStatus multi) {
+					multi.add(warning);
+				} else {
+					MultiStatus multiStatus = new MultiStatus(Activator.ID, 0,
+							NLS.bind(Messages.MirrorRequest_transferFailed, descriptor), null);
+					multiStatus.add(status);
+					multiStatus.add(warning);
+					status = multiStatus;
+				}
 			}
 		}
 
