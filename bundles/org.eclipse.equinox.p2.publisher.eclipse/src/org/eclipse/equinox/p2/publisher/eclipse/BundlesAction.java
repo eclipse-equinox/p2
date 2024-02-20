@@ -398,10 +398,10 @@ public class BundlesAction extends AbstractPublisherAction {
 		Map<String, String> directives = req.getDirectives();
 
 		String capFilter = directives.get(Namespace.REQUIREMENT_FILTER_DIRECTIVE);
-		boolean optional = directives.get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE) == Namespace.RESOLUTION_OPTIONAL;
-		boolean greedy = optional ? INSTALLATION_GREEDY.equals(directives.get(INSTALLATION_DIRECTIVE)) : true;
-
-		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter, null, optional ? 0 : 1, 1,
+		boolean greedy = isGreedy(directives);
+		int minCard = getMinCardinality(directives);
+		int maxCard = getMaxCardinality(directives);
+		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter, null, minCard, maxCard,
 				greedy);
 		reqsDeps.add(requireCap);
 	}
@@ -414,12 +414,29 @@ public class BundlesAction extends AbstractPublisherAction {
 		Map<String, String> directives = req.getDirectives();
 
 		String capFilter = directives.get(Namespace.REQUIREMENT_FILTER_DIRECTIVE);
-		boolean optional = directives.get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE) == Namespace.RESOLUTION_OPTIONAL;
-		boolean greedy = optional ? INSTALLATION_GREEDY.equals(directives.get(INSTALLATION_DIRECTIVE)) : true;
-
-		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter, null, optional ? 0 : 1, 1,
+		boolean greedy = isGreedy(directives);
+		int minCard = getMinCardinality(directives);
+		int maxCard = getMaxCardinality(directives);
+		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter, null, minCard, maxCard,
 				greedy, bd.getSymbolicName());
 		reqsDeps.add(requireCap);
+	}
+
+	protected int getMinCardinality(Map<String, String> directives) {
+		return Namespace.RESOLUTION_OPTIONAL.equals(directives.get(Namespace.REQUIREMENT_RESOLUTION_DIRECTIVE)) ? 0 : 1;
+	}
+
+	protected int getMaxCardinality(Map<String, String> directives) {
+		return Namespace.CARDINALITY_MULTIPLE.equals(directives.get(Namespace.REQUIREMENT_CARDINALITY_DIRECTIVE))
+				? Integer.MAX_VALUE
+				: 1;
+	}
+
+	protected boolean isGreedy(Map<String, String> directives) {
+		if (getMinCardinality(directives) == 0) {
+			return INSTALLATION_GREEDY.equals(directives.get(INSTALLATION_DIRECTIVE));
+		}
+		return true;
 	}
 
 	protected void addCapability(List<IProvidedCapability> caps, GenericDescription provideCapDesc,
