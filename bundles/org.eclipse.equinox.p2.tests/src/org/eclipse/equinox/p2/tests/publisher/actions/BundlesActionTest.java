@@ -48,6 +48,7 @@ import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.OSGiVersion;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredPropertiesMatch;
 import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -513,6 +514,27 @@ public class BundlesActionTest extends ActionTest {
 		Collection<IInstallableUnit> ius = publisherResult.getIUs("org.eclipse.p2.test.validManifest",
 				IPublisherResult.ROOT);
 		assertThat(ius.size(), is(1));
+	}
+
+	public void testMultiRequired() throws Exception {
+		File testData = new File(TestActivator.getTestDataFolder(), "requireMultiple");
+		IInstallableUnit iu = BundlesAction.createBundleIU(BundlesAction.createBundleDescription(testData), null,
+				new PublisherInfo());
+		Map<String, List<RequiredPropertiesMatch>> map = iu.getRequirements().stream()
+				.filter(RequiredPropertiesMatch.class::isInstance)
+				.map(RequiredPropertiesMatch.class::cast)
+				.collect(Collectors.groupingBy(m -> RequiredPropertiesMatch.extractNamespace(m.getMatches())));
+		assertCardinality(map.get("single.required"), 1, 1);
+		assertCardinality(map.get("single.optional"), 0, 1);
+		assertCardinality(map.get("multiple.required"), 1, Integer.MAX_VALUE);
+		assertCardinality(map.get("multiple.optional"), 0, Integer.MAX_VALUE);
+	}
+
+	protected void assertCardinality(List<RequiredPropertiesMatch> matches, int min, int max) {
+		assertNotNull(matches);
+		assertEquals(1, matches.size());
+		assertEquals(min, matches.get(0).getMin());
+		assertEquals(max, matches.get(0).getMax());
 	}
 
 	public void testMultiVersionCapability() throws Exception {

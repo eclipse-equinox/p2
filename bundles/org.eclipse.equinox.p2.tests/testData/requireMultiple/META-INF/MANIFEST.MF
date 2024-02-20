@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: require.multiple
+Bundle-SymbolicName: require.multiple
+Bundle-Version: 1.0.0
+Require-Capability: single.required;filter:="(objectClass=testme)",
+ single.optional;filter:="(objectClass=testme)";resolution:=optional,
+ multiple.required;filter:="(objectClass=testme)";cardinality:=multiple,
+ multiple.optional;filter:="(objectClass=testme)";cardinality:=multiple;resolution:=optional
