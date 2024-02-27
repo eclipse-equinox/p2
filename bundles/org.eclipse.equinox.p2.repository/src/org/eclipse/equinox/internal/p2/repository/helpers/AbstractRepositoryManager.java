@@ -739,12 +739,21 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	private LocationProperties handleRemoteIndexFile(URI indexFileURI, IProgressMonitor monitor) {
 		ByteArrayOutputStream index = new ByteArrayOutputStream();
 		IStatus indexFileStatus = null;
-		indexFileStatus = getTransport().download(indexFileURI, index, monitor);
-		while (indexFileStatus.getCode() == IArtifactRepository.CODE_RETRY) {
-			indexFileStatus = getTransport().download(indexFileURI, index, monitor);
+		Transport transport = getTransport();
+		if (transport != null) {
+			indexFileStatus = transport.download(indexFileURI, index, monitor);
+			while (indexFileStatus.getCode() == IArtifactRepository.CODE_RETRY) {
+				indexFileStatus = transport.download(indexFileURI, index, monitor);
+			}
+			if (indexFileStatus != null && indexFileStatus.isOK())
+				return LocationProperties.create(new ByteArrayInputStream(index.toByteArray()));
+		} else {
+			try (InputStream openStream = indexFileURI.toURL().openStream()) {
+				return LocationProperties.create(openStream);
+			} catch (IOException e) {
+				// nothing more to do here...
+			}
 		}
-		if (indexFileStatus != null && indexFileStatus.isOK())
-			return LocationProperties.create(new ByteArrayInputStream(index.toByteArray()));
 		return LocationProperties.createEmptyIndexFile();
 	}
 
