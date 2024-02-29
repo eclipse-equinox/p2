@@ -48,6 +48,7 @@ import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
+import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.IAdditionalInstallableUnitAdvice;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
@@ -55,6 +56,7 @@ import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;
 import org.eclipse.equinox.p2.publisher.actions.ITouchpointAdvice;
 import org.eclipse.equinox.p2.publisher.actions.IUpdateDescriptorAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
+import org.eclipse.equinox.p2.publisher.eclipse.IBundleShapeAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -189,6 +191,50 @@ public class FeaturesActionTest extends ActionTest {
 				verifyRequirement(Collections.singleton(expected), require);
 			}
 		}
+	}
+
+	public void testUnpack() throws Exception {
+		File testFolder = getTestFolder("FeaturesAction.testUnpack");
+		File featureXML = new File(testFolder, "feature.xml");
+		writeBuffer(featureXML, """
+				<feature id="test.feature" version="1.0.0" >
+				   <plugin id="org.plugin1" version ="1.0.0" />
+				   <plugin id="org.plugin2" version ="1.0.0" unpack="true" />
+				   <plugin id="org.plugin3" version ="1.0.0" unpack="false" />
+				   <requires>
+				      <import plugin="org.import1"/>
+				      <import plugin="org.import2" unpack="true"/>
+				   	  <import plugin="org.import3" unpack="false"/>
+				   </requires>
+				</feature>
+								""");
+		PublisherInfo info = new PublisherInfo();
+		FeaturesAction action = new FeaturesAction(new File[] { testFolder });
+		PublisherResult results = new PublisherResult();
+		action.perform(info, results, new NullProgressMonitor());
+		// no unpack attribute --> jar
+		assertShapeAdvice(info, "org.plugin1", IBundleShapeAdvice.JAR);
+		// unpack=true --> dir
+		assertShapeAdvice(info, "org.plugin2", IBundleShapeAdvice.DIR);
+		// unpack=false --> JAR
+		assertShapeAdvice(info, "org.plugin3", IBundleShapeAdvice.JAR);
+		// imports should never unpack as attribute is invalid for them!
+		assertShapeAdvice(info, "org.import1", IBundleShapeAdvice.JAR);
+		assertShapeAdvice(info, "org.import2", IBundleShapeAdvice.JAR);
+		assertShapeAdvice(info, "org.import3", IBundleShapeAdvice.JAR);
+	}
+
+	protected void assertShapeAdvice(PublisherInfo info, String bundle, String shape) {
+		for (IBundleShapeAdvice shapeAdvice : info.getAdvice(null, true, bundle, Version.create("1.0.0"),
+				IBundleShapeAdvice.class)) {
+			assertEquals(bundle + " has wrong advice", shape, shapeAdvice.getShape());
+			return;
+		}
+		if (IBundleShapeAdvice.JAR.equals(shape)) {
+			return;
+		}
+		fail(shape + " was expected for " + bundle + " but no advice was found!");
+
 	}
 
 	public void testFilters() throws Exception {

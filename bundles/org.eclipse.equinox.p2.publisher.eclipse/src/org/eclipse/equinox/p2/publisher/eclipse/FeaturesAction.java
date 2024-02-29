@@ -186,7 +186,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	private void createBundleShapeAdvice(Feature feature, IPublisherInfo publisherInfo) {
 		FeatureEntry entries[] = feature.getEntries();
 		for (FeatureEntry entry : entries) {
-			if (entry.isUnpack() && entry.isPlugin() && !entry.isRequires())
+			if (entry.unpackSet() && entry.isUnpack() && entry.isPlugin() && !entry.isRequires())
 				publisherInfo.addAdvice(new BundleShapeAdvice(entry.getId(), Version.parseVersion(entry.getVersion()), IBundleShapeAdvice.DIR));
 		}
 	}

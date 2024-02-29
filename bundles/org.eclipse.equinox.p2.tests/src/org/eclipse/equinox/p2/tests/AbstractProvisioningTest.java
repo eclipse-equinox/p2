@@ -739,7 +739,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			}
 	}
 
-	public static void writeBuffer(File outputFile, StringBuilder buffer) throws IOException {
+	public static void writeBuffer(File outputFile, CharSequence buffer) throws IOException {
 		outputFile.getParentFile().mkdirs();
 		try (FileOutputStream stream = new FileOutputStream(outputFile)) {
 			stream.write(buffer.toString().getBytes());
