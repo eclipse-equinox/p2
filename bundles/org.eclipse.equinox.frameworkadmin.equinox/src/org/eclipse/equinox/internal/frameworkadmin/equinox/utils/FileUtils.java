@@ -16,6 +16,7 @@ package org.eclipse.equinox.internal.frameworkadmin.equinox.utils;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.Charset;
 import java.util.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.URIUtil;
@@ -214,9 +215,12 @@ public class FileUtils {
 	 * Loads an ini file, returning a list of all non-blank lines in the file. Like
 	 * eclipseConfig.c/readConfigFile() comment lines ('#' its first character) are
 	 * skipped too.
+	 * 
+	 * This must load the content using the native system encoding because that's
+	 * what the native launcher executable does.
 	 */
 	public static List<String> loadFile(File file) throws IOException {
-		try (BufferedReader br = new BufferedReader(new FileReader(file));) {
+		try (BufferedReader br = new BufferedReader(new FileReader(file, getNativeCharset()));) {
 			String line;
 			List<String> list = new ArrayList<>();
 			while ((line = br.readLine()) != null) {
@@ -228,6 +232,15 @@ public class FileUtils {
 			}
 			return list;
 		}
+	}
+
+	/**
+	 * The encoding used for reading and writing the ini file. This must be the
+	 * native encoding; as of Java 21, the default encoding is UTF-8.
+	 */
+	public static Charset getNativeCharset() {
+		String encoding = System.getProperty("native.encoding"); //$NON-NLS-1$
+		return encoding != null ? Charset.forName(encoding) : Charset.defaultCharset();
 	}
 
 }
