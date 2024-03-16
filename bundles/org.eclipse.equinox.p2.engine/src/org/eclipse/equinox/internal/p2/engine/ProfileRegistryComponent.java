@@ -16,12 +16,16 @@ package org.eclipse.equinox.internal.p2.engine;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.spi.AgentServicename;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * Instantiates default instances of {@link IProfileRegistry}.
  */
+@Component(name = "org.eclipse.equinox.p2.engine.registry", service = IAgentServiceFactory.class)
+@AgentServicename(IProfileRegistry.class)
 public class ProfileRegistryComponent implements IAgentServiceFactory {
 
 	@Override

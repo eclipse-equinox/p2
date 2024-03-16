@@ -7,20 +7,24 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.spi.AgentServicename;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.equinox.p2.engine.IEngine;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * Component that provides a factory that can create and initialize
  * {@link IEngine} instances.
  */
+@Component(name = "org.eclipse.equinox.p2.engine", service = IAgentServiceFactory.class)
+@AgentServicename(IEngine.class)
 public class EngineComponent implements IAgentServiceFactory {
 
 	@Override
