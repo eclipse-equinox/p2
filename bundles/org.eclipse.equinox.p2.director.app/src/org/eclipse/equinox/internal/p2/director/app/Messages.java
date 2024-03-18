@@ -117,6 +117,8 @@ public class Messages extends NLS {
 
 	public static String Cant_write_in_destination;
 
+	public static String Help_Add_Jre_IU;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
