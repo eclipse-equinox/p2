@@ -70,8 +70,7 @@ public class JREAction extends AbstractPublisherAction {
 	@Override public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		String problemMessage = NLS.bind(Messages.message_problemsWhilePublishingEE, jreLocation != null ? jreLocation : environment);
 		resultStatus = new MultiStatus(Activator.ID, 0, problemMessage, null);
-
-		initialize(publisherInfo);
+		this.info = publisherInfo;
 		IArtifactDescriptor artifact = createJREData(results);
 		if (artifact != null)
 			publishArtifact(artifact, new File[] {jreLocation}, null, publisherInfo, createRootPrefixComputer(jreLocation));
@@ -95,13 +94,7 @@ public class JREAction extends AbstractPublisherAction {
 	 * If the jreLocation is <code>null</code>, default information is generated.
 	 */
 	protected IArtifactDescriptor createJREData(IPublisherResult results) {
-		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
-		iu.setSingleton(false);
-		iu.setId(DEFAULT_JRE_NAME);
-		iu.setVersion(DEFAULT_JRE_VERSION);
-		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
-
-		generateJREIUData(iu);
+		InstallableUnitDescription iu = generateJREIUDesc();
 
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
 		String configId = "config." + iu.getId();//$NON-NLS-1$
@@ -256,9 +249,15 @@ public class JREAction extends AbstractPublisherAction {
 		}
 	}
 
-	private void generateJREIUData(InstallableUnitDescription iu) {
+	private InstallableUnitDescription generateJREIUDesc() {
+		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
+		iu.setSingleton(false);
+		iu.setId(DEFAULT_JRE_NAME);
+		iu.setVersion(DEFAULT_JRE_VERSION);
+		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
+		initialize();
 		if (profileProperties == null || profileProperties.size() == 0)
-			return; //got nothing
+			return iu;
 
 		String profileLocation = profileProperties.get(PROFILE_LOCATION);
 
@@ -296,11 +295,11 @@ public class JREAction extends AbstractPublisherAction {
 
 		List<IProvidedCapability> capabilities = generateJRECapability(iu.getId(), iu.getVersion());
 		iu.addProvidedCapabilities(capabilities);
+		return iu;
 	}
 
-	private void initialize(IPublisherInfo publisherInfo) {
+	private void initialize() {
 		File runtimeProfile = null;
-		this.info = publisherInfo;
 		if (jreLocation == null && environment == null) {
 			// create a runtime profile
 			StringBuilder buffer = createDefaultProfileFromRunningJvm();
@@ -509,5 +508,14 @@ public class JREAction extends AbstractPublisherAction {
 			}
 		}
 		return null;
+	}
+
+	public static IInstallableUnit createJREIU() {
+		JREAction jreAction =  new JREAction((File) null);
+		return jreAction.createJREInstallableUnit();
+	}
+
+	private IInstallableUnit createJREInstallableUnit() {
+		return MetadataFactory.createInstallableUnit(generateJREIUDesc());
 	}
 }
