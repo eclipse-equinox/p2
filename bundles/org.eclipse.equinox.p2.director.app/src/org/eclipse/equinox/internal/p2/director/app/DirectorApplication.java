@@ -59,6 +59,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
+import org.eclipse.equinox.p2.publisher.actions.JREAction;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -421,6 +422,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private static final CommandLineOption OPTION_IGNORED = new CommandLineOption(new String[] { //
 			"-showLocation", "-eclipse.password", "-eclipse.keyring" }, //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
 			null, ""); //$NON-NLS-1$
+	private static final CommandLineOption OPTION_ADD_JRE_IU = new CommandLineOption(new String[] { //
+			"-addJREIU" }, //$NON-NLS-1$
+			null, Messages.Help_Add_JRE_IU);
 
 	private static final Integer EXIT_ERROR = 13;
 	static private final String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
@@ -579,6 +583,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private boolean targetAgentIsSelfAndUp;
 	private boolean noArtifactRepositorySpecified;
 	private AvoidTrustPromptService trustService;
+	private boolean addJREIU;
 
 	protected ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collection<IInstallableUnit> installs,
 			Collection<IInstallableUnit> uninstalls) {
@@ -1058,6 +1063,10 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, String.valueOf(followReferences));
 			context.setProperty(FOLLOW_ARTIFACT_REPOSITORY_REFERENCES, String.valueOf(followReferences));
 
+			if (addJREIU) {
+				context.setExtraInstallableUnits(List.of(JREAction.createJREIU()));
+			}
+
 			ProfileChangeRequest request = buildProvisioningRequest(profile, installs, uninstalls);
 			printRequest(request);
 
@@ -1361,6 +1370,11 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				continue;
 			}
 
+			if (OPTION_ADD_JRE_IU.isOption(opt)) {
+				this.addJREIU = true;
+				continue;
+			}
+
 			if (opt != null && opt.length() > 0)
 				throw new ProvisionException(NLS.bind(Messages.unknown_option_0, opt));
 		}
@@ -1593,6 +1607,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				OPTION_TRUSTED_PGP_KEYS, //
 				OPTION_TRUSTED_CERTIFCATES, //
 				OPTION_HELP, //
+				OPTION_ADD_JRE_IU, //
 		};
 
 		for (CommandLineOption allOption : allOptions) {
