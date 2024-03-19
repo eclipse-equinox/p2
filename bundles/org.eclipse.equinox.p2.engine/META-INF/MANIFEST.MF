@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.equinox.common,
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.metadata.repository
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
-Service-Component: OSGI-INF/profileRegistry.xml, OSGI-INF/engine.xml
+Service-Component: OSGI-INF/org.eclipse.equinox.p2.engine.registry.xml,
+ OSGI-INF/org.eclipse.equinox.p2.engine.xml
 Import-Package: javax.xml.parsers,
  org.bouncycastle.openpgp;version="1.65.0",
  org.eclipse.core.internal.preferences,

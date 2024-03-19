@@ -15,14 +15,15 @@ package org.eclipse.equinox.internal.p2.core;
 
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.spi.AgentServicename;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.osgi.service.component.annotations.Component;
 
 /**
  * Factory for creating {@link IProvisioningEventBus} instances.
  */
-@Component(service = IAgentServiceFactory.class, property = IAgentServiceFactory.PROP_CREATED_SERVICE_NAME + "="
-		+ IProvisioningEventBus.SERVICE_NAME, name = "org.eclipse.equinox.p2.core.eventbus")
+@Component(service = IAgentServiceFactory.class, name = "org.eclipse.equinox.p2.core.eventbus")
+@AgentServicename(IProvisioningEventBus.class)
 public class EventBusComponent implements IAgentServiceFactory {
 	@Override
 	public Object createService(IProvisioningAgent agent) {
