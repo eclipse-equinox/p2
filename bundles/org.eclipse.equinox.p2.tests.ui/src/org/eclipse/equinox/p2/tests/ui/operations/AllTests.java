@@ -21,7 +21,8 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ ColocatedRepositoryTrackerTest.class, SizingTest.class, InstallOperationTests.class,
-		UpdateOperationTests.class, UninstallOperationTests.class })
+		UpdateOperationTests.class, UninstallOperationTests.class, LoadFailureTest.class,
+		LoadFailureAccumulatorTest.class, LocationNotFoundDialogTest.class, MultipleLocationsNotFoundDialogTest.class })
 public class AllTests {
 // test suite
 }
