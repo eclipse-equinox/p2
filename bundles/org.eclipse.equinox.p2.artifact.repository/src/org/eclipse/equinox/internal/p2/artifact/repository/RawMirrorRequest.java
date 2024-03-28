@@ -94,7 +94,8 @@ public class RawMirrorRequest extends MirrorRequest {
 					IArtifactDescriptor.DOWNLOAD_CHECKSUM, Collections.emptySet());
 			if (steps.isEmpty()) {
 				LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
-						NLS.bind(Messages.noDigestAlgorithmToVerifyDownload, artifactDescriptor.getArtifactKey())));
+						NLS.bind(Messages.noDigestAlgorithmToVerifyDownload, artifactDescriptor.getArtifactKey(),
+								artifactDescriptor.getRepository().getLocation())));
 			}
 			ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
 			// TODO should probably be using createAndLink here
