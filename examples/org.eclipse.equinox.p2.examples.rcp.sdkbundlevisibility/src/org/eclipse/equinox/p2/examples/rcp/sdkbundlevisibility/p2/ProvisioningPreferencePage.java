@@ -35,6 +35,7 @@ import org.eclipse.ui.PlatformUI;
  * @since 3.4
  */
 
+@SuppressWarnings("deprecation") // Preferences
 public class ProvisioningPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
 	private Group browsingGroup, validateGroup;
