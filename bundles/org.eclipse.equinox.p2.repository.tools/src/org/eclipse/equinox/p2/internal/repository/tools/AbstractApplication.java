@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2021 IBM Corporation and others.
+ * Copyright (c) 2009, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,8 +17,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.*;
 import java.util.function.Predicate;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
@@ -249,7 +248,7 @@ public abstract class AbstractApplication {
 			} else if (repository instanceof IMetadataRepository metadataRepository && !descriptor.isAppend()) {
 				metadataRepository.removeAll();
 			} else if (repository instanceof IArtifactRepository artifactRepository && !descriptor.isAppend()) {
-				artifactRepository.removeAll();
+				artifactRepository.removeAll(new NullProgressMonitor());
 			}
 			return true;
 		}
