@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2024 Tasktop Technologies and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -59,7 +59,8 @@ class DiscoveryRegistryStrategy extends RegistryStrategy {
 		// extension point itself
 		try {
 			Bundle bundle = Platform.getBundle("org.eclipse.equinox.p2.discovery.compatibility"); //$NON-NLS-1$
-			IContributor contributor = new RegistryContributor(bundle.getSymbolicName(), bundle.getSymbolicName(), null, null);
+			IContributor contributor = new RegistryContributor(bundle.getSymbolicName(), bundle.getSymbolicName(), null,
+					null);
 
 			try (InputStream inputStream = bundle.getEntry("plugin.xml").openStream()) { //$NON-NLS-1$
 				registry.addContribution(inputStream, contributor, false, bundle.getSymbolicName(), null, token);
@@ -77,12 +78,16 @@ class DiscoveryRegistryStrategy extends RegistryStrategy {
 			try {
 				processBundle(registry, bundleFile.getValue(), bundleFile.getKey());
 			} catch (Exception e) {
-				LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.DiscoveryRegistryStrategy_cannot_load_bundle, new Object[] {bundleFile.getKey().getName(), bundleFile.getValue().getLocation(), e.getMessage()}), e));
+				LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN,
+						NLS.bind(Messages.DiscoveryRegistryStrategy_cannot_load_bundle, new Object[] {
+								bundleFile.getKey().getName(), bundleFile.getValue().getLocation(), e.getMessage() }),
+						e));
 			}
 		}
 	}
 
 	private void processBundle(IExtensionRegistry registry, Directory.Entry entry, File bundleFile) throws IOException {
+		@SuppressWarnings("resource")
 		JarFile jarFile = new JarFile(bundleFile);
 		jars.add(jarFile);
 
@@ -159,8 +164,7 @@ class DiscoveryRegistryStrategy extends RegistryStrategy {
 	/**
 	 * get the jar file that corresponds to the given contributor.
 	 * 
-	 * @throws IllegalArgumentException
-	 *             if the given contributor is unknown
+	 * @throws IllegalArgumentException if the given contributor is unknown
 	 */
 	public File getJarFile(IContributor contributor) {
 		File file = contributorToJarFile.get(contributor);
@@ -173,8 +177,7 @@ class DiscoveryRegistryStrategy extends RegistryStrategy {
 	/**
 	 * get the directory entry that corresponds to the given contributor.
 	 * 
-	 * @throws IllegalArgumentException
-	 *             if the given contributor is unknown
+	 * @throws IllegalArgumentException if the given contributor is unknown
 	 */
 	public Entry getDirectoryEntry(IContributor contributor) {
 		Entry entry = contributorToDirectoryEntry.get(contributor);
