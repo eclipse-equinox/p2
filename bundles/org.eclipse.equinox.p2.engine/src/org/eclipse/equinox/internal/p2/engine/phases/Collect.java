@@ -89,9 +89,9 @@ public class Collect extends InstallableUnitPhase {
 			agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
 		}
 
+		@SuppressWarnings("unchecked")
+		Set<IInstallableUnit> ius = (Set<IInstallableUnit>) parameters.get(PARM_IUS);
 		if (Boolean.parseBoolean(context.getProperty(ProvisioningContext.CHECK_AUTHORITIES))) {
-			@SuppressWarnings("unchecked")
-			Set<IInstallableUnit> ius = (Set<IInstallableUnit>) parameters.get(PARM_IUS);
 			IStatus authorityStatus = new AuthorityChecker(agent, context, ius, artifactRequests.stream()
 						.flatMap(Arrays::stream).map(IArtifactRequest::getArtifactKey).collect(Collectors.toList()),
 						profile).start(monitor);
@@ -111,7 +111,7 @@ public class Collect extends InstallableUnitPhase {
 		}
 
 		List<IArtifactRequest> totalArtifactRequests = new ArrayList<>(artifactRequests.size());
-		DownloadManager dm = new DownloadManager(context, agent);
+		DownloadManager dm = new DownloadManager(context, ius, agent);
 		for (IArtifactRequest[] requests : artifactRequests) {
 			for (IArtifactRequest request : requests) {
 				dm.add(request);

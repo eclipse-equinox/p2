@@ -14,16 +14,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import java.net.URI;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
+import org.eclipse.osgi.util.NLS;
 
 public class DownloadManager {
 	private ProvisioningContext provContext = null;
@@ -49,9 +53,15 @@ public class DownloadManager {
 			return 0;
 		}
 	};
+	private Set<IInstallableUnit> ius;
 
 	public DownloadManager(ProvisioningContext context, IProvisioningAgent agent) {
+		this(context, Set.of(), agent);
+	}
+
+	public DownloadManager(ProvisioningContext context, Set<IInstallableUnit> ius, IProvisioningAgent agent) {
 		provContext = context;
+		this.ius = ius;
 		this.agent = agent;
 	}
 
@@ -96,7 +106,7 @@ public class DownloadManager {
 			if (repositories.length == 0)
 				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository, new Exception(Collect.NO_ARTIFACT_REPOSITORIES_AVAILABLE));
 			fetch(repositories, subMonitor.newChild(500));
-			return overallStatus(monitor);
+			return overallStatus(monitor, repositories);
 		} finally {
 			subMonitor.done();
 		}
@@ -148,12 +158,7 @@ public class DownloadManager {
 		return applicable.toArray(new IArtifactRequest[applicable.size()]);
 	}
 
-	//	private void notifyFetched() {
-	//		ProvisioningEventBus bus = (ProvisioningEventBus) ServiceHelper.getService(DownloadActivator.context, ProvisioningEventBus.class);
-	//		bus.publishEvent();
-	//	}
-
-	private IStatus overallStatus(IProgressMonitor monitor) {
+	private IStatus overallStatus(IProgressMonitor monitor, IArtifactRepository[] repositories) {
 		if (monitor != null && monitor.isCanceled())
 			return Status.CANCEL_STATUS;
 
@@ -163,9 +168,51 @@ public class DownloadManager {
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		for (IArtifactRequest request : requestsToProcess) {
 			IStatus failed = request.getResult();
-			if (failed != null && !failed.isOK())
+			if (failed != null && !failed.isOK()) {
+				IArtifactKey key = request.getArtifactKey();
+				IInstallableUnit unit = getUnit(key);
+				if (unit != null) {
+					String dependencyPath = computeDependency(unit);
+					result.add(Status.error(NLS.bind(Messages.DownloadManager_cant_find_artifact,
+							new Object[] { request.getArtifactKey().toString(), dependencyPath,
+									Arrays.stream(repositories).map(repo -> repo.getLocation()).filter(Objects::nonNull)
+											.map(URI::toString).collect(Collectors.joining(System.lineSeparator(),
+													System.lineSeparator(), "")) }))); //$NON-NLS-1$
+					continue;
+				}
 				result.add(failed);
+			}
 		}
 		return result;
+	}
+
+	private IInstallableUnit getUnit(IArtifactKey artifactKey) {
+		if (ius != null) {
+			for (IInstallableUnit unit : ius) {
+				if (unit.getArtifacts().contains(artifactKey)) {
+					return unit;
+				}
+			}
+		}
+		return null;
+	}
+
+	private String computeDependency(IInstallableUnit unit) {
+		List<String> requiredBy = new ArrayList<>();
+		requiredBy.add(toIdAndVersion(unit));
+		if (ius != null) {
+			for (IInstallableUnit other : ius) {
+				List<IRequirement> requirement = other.getRequirements().stream().filter(req -> unit.satisfies(req))
+						.toList();
+				if (!requirement.isEmpty()) {
+					requiredBy.add(toIdAndVersion(other));
+				}
+			}
+		}
+		return requiredBy.stream().collect(Collectors.joining(", ")); //$NON-NLS-1$
+	}
+
+	private static String toIdAndVersion(IInstallableUnit unit) {
+		return String.format("%s[%s]", unit.getId(), unit.getVersion()); //$NON-NLS-1$
 	}
 }

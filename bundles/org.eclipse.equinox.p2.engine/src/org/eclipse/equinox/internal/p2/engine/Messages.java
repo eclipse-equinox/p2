@@ -46,6 +46,8 @@ public class Messages extends NLS {
 	public static String committing;
 	public static String download_artifact;
 	public static String download_no_repository;
+
+	public static String DownloadManager_cant_find_artifact;
 	public static String Engine_Operation_Canceled_By_User;
 
 	public static String EngineActivator_0;
