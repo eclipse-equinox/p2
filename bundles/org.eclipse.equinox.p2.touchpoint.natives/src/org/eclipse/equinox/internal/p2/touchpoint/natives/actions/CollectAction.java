@@ -13,10 +13,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitPhase;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -24,8 +24,7 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
+import org.eclipse.equinox.p2.repository.artifact.*;
 
 public class CollectAction extends ProvisioningAction {
 
@@ -37,10 +36,13 @@ public class CollectAction extends ProvisioningAction {
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(ActionConstants.PARM_IU);
 		try {
-			IArtifactRequest[] requests = collect(agent, iu, profile);
-			@SuppressWarnings("unchecked")
-			Collection<IArtifactRequest[]> artifactRequests = (Collection<IArtifactRequest[]>) parameters.get(ActionConstants.PARM_ARTIFACT_REQUESTS);
-			artifactRequests.add(requests);
+			List<IArtifactRequest> requests = collect(agent, iu, profile);
+			if (!requests.isEmpty()) {
+				@SuppressWarnings("unchecked")
+				Collection<IArtifactRequest[]> artifactRequests = (Collection<IArtifactRequest[]>) parameters
+						.get(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS);
+				artifactRequests.add(requests.toArray(IArtifactRequest[]::new));
+			}
 		} catch (ProvisionException e) {
 			return e.getStatus();
 		}
@@ -53,22 +55,22 @@ public class CollectAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	IArtifactRequest[] collect(IProvisioningAgent agent, IInstallableUnit installableUnit, IProfile profile) throws ProvisionException {
+	private List<IArtifactRequest> collect(IProvisioningAgent agent, IInstallableUnit installableUnit, IProfile profile)
+			throws ProvisionException {
 		Collection<IArtifactKey> toDownload = installableUnit.getArtifacts();
-		if (toDownload == null)
-			return new IArtifactRequest[0];
+		if (toDownload == null || toDownload.isEmpty()) {
+			return List.of();
+		}
 		IArtifactRepository destination = Util.getDownloadCacheRepo(agent);
-		IArtifactRequest[] requests = new IArtifactRequest[toDownload.size()];
-		int count = 0;
+		IArtifactRepositoryManager manager = Util.getArtifactRepositoryManager(agent);
+		List<IArtifactRequest> requests = new ArrayList<>(toDownload.size());
 		for (IArtifactKey key : toDownload) {
-			//TODO Here there are cases where the download is not necessary again because what needs to be done is just a configuration step
-			requests[count++] = Util.getArtifactRepositoryManager(agent).createMirrorRequest(key, destination, null, null, profile.getProperty(IProfile.PROP_STATS_PARAMETERS));
+			// TODO Here there are cases where the download is not necessary again because
+			// what needs to be done is just a configuration step
+			requests.add(manager.createMirrorRequest(key, destination, null, null,
+					profile.getProperty(IProfile.PROP_STATS_PARAMETERS)));
 		}
 
-		if (requests.length == count)
-			return requests;
-		IArtifactRequest[] result = new IArtifactRequest[count];
-		System.arraycopy(requests, 0, result, 0, count);
-		return result;
+		return requests;
 	}
 }

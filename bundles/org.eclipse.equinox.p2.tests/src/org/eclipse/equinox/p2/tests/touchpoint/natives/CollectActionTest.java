@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.eclipse.equinox.internal.p2.engine.phases.Collect;
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitPhase;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.CollectAction;
@@ -63,14 +63,15 @@ public class CollectActionTest extends AbstractProvisioningTest {
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
-		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList<>());
+		parameters.put(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS, new ArrayList<>());
 		NativeTouchpoint touchpoint = new NativeTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		parameters.put("iu", iu);
 		touchpoint.initializeOperand(profile, parameters);
 		parameters = Collections.unmodifiableMap(parameters);
 
-		List<IArtifactRequest[]> requests = (List<IArtifactRequest[]>) parameters.get(Collect.PARM_ARTIFACT_REQUESTS);
+		List<IArtifactRequest[]> requests = (List<IArtifactRequest[]>) parameters
+				.get(InstallableUnitPhase.PARM_ARTIFACT_REQUESTS);
 		assertFalse(hasRequest(requests, key));
 		CollectAction action = new CollectAction();
 		action.execute(parameters);

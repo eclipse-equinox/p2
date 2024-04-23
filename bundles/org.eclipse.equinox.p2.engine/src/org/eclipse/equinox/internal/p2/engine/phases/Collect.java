@@ -32,7 +32,7 @@ import org.eclipse.osgi.util.NLS;
  * The goal of the collect phase is to ask the touchpoints if the artifacts associated with an IU need to be downloaded.
  */
 public class Collect extends InstallableUnitPhase {
-	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
+
 	public static final String NO_ARTIFACT_REPOSITORIES_AVAILABLE = "noArtifactRepositoriesAvailable"; //$NON-NLS-1$
 	private static final String PARM_IUS = "ius"; //$NON-NLS-1$
 	private IProvisioningAgent agent = null;

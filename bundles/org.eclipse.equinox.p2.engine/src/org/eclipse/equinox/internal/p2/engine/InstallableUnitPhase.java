@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     WindRiver - https://bugs.eclipse.org/bugs/show_bug.cgi?id=227372
@@ -25,6 +25,7 @@ public abstract class InstallableUnitPhase extends Phase {
 	public static final String PARM_ARTIFACT = "artifact"; //$NON-NLS-1$
 	public static final String PARM_IU = "iu"; //$NON-NLS-1$
 	public static final String PARM_INSTALL_FOLDER = "installFolder"; //$NON-NLS-1$
+	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 
 	protected InstallableUnitPhase(String phaseId, int weight, boolean forced) {
 		super(phaseId, weight, forced);
