@@ -77,7 +77,7 @@ public class Sizing extends InstallableUnitPhase {
 	@Override
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		@SuppressWarnings("unchecked")
-		List<IArtifactRequest[]> artifactRequests = (List<IArtifactRequest[]>) parameters.get(Collect.PARM_ARTIFACT_REQUESTS);
+		List<IArtifactRequest[]> artifactRequests = (List<IArtifactRequest[]>) parameters.get(PARM_ARTIFACT_REQUESTS);
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
 		int statusCode = 0;
 
@@ -131,7 +131,7 @@ public class Sizing extends InstallableUnitPhase {
 
 	@Override
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
-		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList<>());
+		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList<>());
 		return null;
 	}
 
