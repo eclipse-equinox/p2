@@ -41,12 +41,17 @@ public interface IPlanner {
 	 * satisfy the given profile change request.
 	 *
 	 * @param profileChangeRequest the request to be evaluated
-	 * @param context the context in which the request is processed
-	 * @param monitor a monitor on which planning
+	 * @param context              the context in which the request is processed
+	 * @param includeReferences    whether to consider repository references
+	 * @param monitor              a monitor on which planning
 	 * @return the plan representing the system that needs to be
+	 * @since 2.7
 	 */
-	public IProvisioningPlan getProvisioningPlan(IProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor);
+	public IProvisioningPlan getProvisioningPlan(IProfileChangeRequest profileChangeRequest, ProvisioningContext context, boolean includeReferences, IProgressMonitor monitor);
 
+	public default IProvisioningPlan getProvisioningPlan(IProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor) {
+		return getProvisioningPlan(profileChangeRequest, context, true, monitor);
+	}
 	public IProvisioningPlan getDiffPlan(IProfile currentProfile, IProfile targetProfile, IProgressMonitor monitor);
 
 	public IProfileChangeRequest createChangeRequest(IProfile profileToChange);

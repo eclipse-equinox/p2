@@ -109,6 +109,7 @@ public class ProvisioningContext {
 
 	private static final String FOLLOW_ARTIFACT_REPOSITORY_REFERENCES = "org.eclipse.equinox.p2.director.followArtifactRepositoryReferences"; //$NON-NLS-1$
 
+
 	/**
 	 * Creates a new provisioning context that includes all available metadata and
 	 * artifact repositories available to the specified provisioning agent.
@@ -116,11 +117,22 @@ public class ProvisioningContext {
 	 * @param agent the provisioning agent from which to obtain any necessary services.
 	 */
 	public ProvisioningContext(IProvisioningAgent agent) {
+		this(agent, true);
+	}
+
+	/**
+	 * @see #ProvisioningContext(IProvisioningAgent)
+	 *
+	 * @param followArtifactRepositoryReferences whether to follow artifact repository references
+	 * 
+	 * @since 2.11
+	 */
+	public ProvisioningContext(IProvisioningAgent agent, boolean followArtifactRepositoryReferences) {
 		this.agent = agent;
 		// null repos means look at them all
 		metadataRepositories = null;
 		artifactRepositories = null;
-		setProperty(FOLLOW_ARTIFACT_REPOSITORY_REFERENCES, Boolean.TRUE.toString());
+		setProperty(FOLLOW_ARTIFACT_REPOSITORY_REFERENCES, Boolean.toString(followArtifactRepositoryReferences));
 	}
 
 	/**

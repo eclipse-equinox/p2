@@ -480,7 +480,7 @@ public class SimplePlanner implements IPlanner {
 
 	@Override
 	public IProvisioningPlan getProvisioningPlan(IProfileChangeRequest request, ProvisioningContext context,
-			IProgressMonitor monitor) {
+			boolean includeReferences, IProgressMonitor monitor) {
 		ProfileChangeRequest pcr = (ProfileChangeRequest) request;
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
@@ -498,13 +498,13 @@ public class SimplePlanner implements IPlanner {
 			fullState.addAll(newState);
 			newState = AttachmentHelper.attachFragments(newState.stream(), projector.getFragmentAssociation());
 
-			IProvisioningPlan temporaryPlan = generatePlan(projector, newState, pcr, context);
+			IProvisioningPlan temporaryPlan = generatePlan(projector, newState, pcr, context, includeReferences);
 			projector.close();
 
 			// Create a plan for installing necessary pieces to complete the installation
 			// (e.g touchpoint actions)
 			return createInstallerPlan(pcr.getProfile(), pcr, fullState, newState, temporaryPlan, context,
-					sub.newChild(ExpandWork / 2));
+					includeReferences, sub.newChild(ExpandWork / 2));
 		} catch (OperationCanceledException e) {
 			IProvisioningPlan plan = engine.createPlan(pcr.getProfile(), context);
 			plan.setStatus(Status.CANCEL_STATUS);
@@ -586,7 +586,8 @@ public class SimplePlanner implements IPlanner {
 
 	private IProvisioningPlan createInstallerPlan(IProfile profile, ProfileChangeRequest initialRequest,
 			Collection<IInstallableUnit> unattachedState, Collection<IInstallableUnit> expectedState,
-			IProvisioningPlan initialPlan, ProvisioningContext initialContext, IProgressMonitor monitor) {
+			IProvisioningPlan initialPlan, ProvisioningContext initialContext, boolean includeReferences,
+			IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 
 		try {
@@ -619,20 +620,21 @@ public class SimplePlanner implements IPlanner {
 						return plan;
 					}
 					return createInstallerPlanForCohostedCase(profile, initialRequest, initialPlan, unattachedState,
-							expectedState, initialContext, sub);
+							expectedState, initialContext, includeReferences, sub);
 				}
 
 			}
 
 			if (satisfyMetaRequirements(profile) && !profile.getProfileId().equals(installerProfile.getProfileId())) {
 				// co-hosted case from external installer
-				IProvisioningPlan planForProfile = generatePlan(null, expectedState, initialRequest, initialContext);
+				IProvisioningPlan planForProfile = generatePlan(null, expectedState, initialRequest, initialContext,
+						includeReferences);
 				return createInstallerPlanForExternalInstaller(profile, initialRequest, planForProfile, expectedState,
-						initialContext, installerProfile, sub);
+						initialContext, installerProfile, includeReferences, sub);
 			}
 
 			return createInstallerPlanForExternalInstaller(profile, initialRequest, initialPlan, expectedState,
-					initialContext, installerProfile, sub);
+					initialContext, installerProfile, includeReferences, sub);
 
 		} finally {
 			sub.done();
@@ -656,7 +658,7 @@ public class SimplePlanner implements IPlanner {
 	private IProvisioningPlan createInstallerPlanForExternalInstaller(IProfile targetedProfile,
 			ProfileChangeRequest initialRequest, IProvisioningPlan initialPlan,
 			Collection<IInstallableUnit> expectedState, ProvisioningContext initialContext, IProfile agentProfile,
-			SubMonitor sub) {
+			boolean includeReferences, SubMonitor sub) {
 		IProfileRegistry installerRegistry = (IProfileRegistry) ((IProvisioningAgent) agent
 				.getService(IProvisioningAgent.INSTALLER_AGENT)).getService(IProfileRegistry.SERVICE_NAME);
 		IProfile installerProfile = installerRegistry
@@ -690,7 +692,8 @@ public class SimplePlanner implements IPlanner {
 		}
 
 		initialPlan
-				.setInstallerPlan(generatePlan((Projector) externalInstallerPlan, null, agentRequest, initialContext));
+				.setInstallerPlan(generatePlan((Projector) externalInstallerPlan, null, agentRequest, initialContext,
+						includeReferences));
 		return initialPlan;
 	}
 
@@ -700,7 +703,8 @@ public class SimplePlanner implements IPlanner {
 	// metaRequirements have been satisfied.
 	private IProvisioningPlan createInstallerPlanForCohostedCase(IProfile profile, ProfileChangeRequest initialRequest,
 			IProvisioningPlan initialPlan, Collection<IInstallableUnit> unattachedState,
-			Collection<IInstallableUnit> expectedState, ProvisioningContext initialContext, SubMonitor monitor) {
+			Collection<IInstallableUnit> expectedState, ProvisioningContext initialContext, boolean includeReferences,
+			SubMonitor monitor) {
 		Collection<IRequirement> metaRequirements = initialRequest.getRemovals().isEmpty()
 				? areMetaRequirementsSatisfied(profile, expectedState, initialPlan)
 				: extractMetaRequirements(expectedState, initialPlan);
@@ -757,7 +761,7 @@ public class SimplePlanner implements IPlanner {
 		agentState = AttachmentHelper.attachFragments(agentState.stream(),
 				((Projector) agentSolution).getFragmentAssociation());
 
-		ProvisioningContext noRepoContext = createNoRepoContext(initialRequest);
+		ProvisioningContext noRepoContext = createNoRepoContext(initialRequest, includeReferences);
 		// ...This computes the attachment of what is currently in the profile
 		Object initialSolution = getSolutionFor(
 				new ProfileChangeRequest(new EverythingOptionalProfile(initialRequest.getProfile())), noRepoContext,
@@ -782,13 +786,13 @@ public class SimplePlanner implements IPlanner {
 
 	// Compute the set of operands based on the solution obtained previously
 	private IProvisioningPlan generatePlan(Projector newSolution, Collection<IInstallableUnit> newState,
-			ProfileChangeRequest request, ProvisioningContext context) {
+			ProfileChangeRequest request, ProvisioningContext context, boolean includeReferences) {
 		// Compute the attachment of the new state if not provided
 		if (newState == null) {
 			newState = newSolution.extractSolution();
 			newState = AttachmentHelper.attachFragments(newState.stream(), newSolution.getFragmentAssociation());
 		}
-		ProvisioningContext noRepoContext = createNoRepoContext(request);
+		ProvisioningContext noRepoContext = createNoRepoContext(request, includeReferences);
 
 		// Compute the attachment of the previous state
 		Object initialSolution = getSolutionFor(
@@ -808,8 +812,8 @@ public class SimplePlanner implements IPlanner {
 		return generateProvisioningPlan(initialState, newState, request, null, context);
 	}
 
-	private ProvisioningContext createNoRepoContext(ProfileChangeRequest request) {
-		ProvisioningContext noRepoContext = new ProvisioningContext(agent);
+	private ProvisioningContext createNoRepoContext(ProfileChangeRequest request, boolean includeReferences) {
+		ProvisioningContext noRepoContext = new ProvisioningContext(agent, includeReferences);
 		noRepoContext.setMetadataRepositories();
 		noRepoContext.setArtifactRepositories();
 		noRepoContext.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
