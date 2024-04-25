@@ -191,8 +191,8 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 
 		List<IRepositoryReference> repositoriesSnapshot = createRepositoriesSnapshot();
 		for (IRepositoryReference reference : repositoriesSnapshot) {
-			boolean isEnabled = (reference.getOptions() & IRepository.ENABLED) != 0;
-			bus.publishEvent(new RepositoryEvent(reference.getLocation(), reference.getType(), RepositoryEvent.DISCOVERED, isEnabled));
+			bus.publishEvent(new RepositoryEvent(reference.getLocation(), reference.getType(),
+					RepositoryEvent.DISCOVERED, reference.isEnabled()));
 		}
 	}
 
