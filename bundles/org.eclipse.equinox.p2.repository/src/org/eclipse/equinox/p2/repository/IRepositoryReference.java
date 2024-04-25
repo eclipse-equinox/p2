@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc - public API
@@ -36,7 +36,7 @@ public interface IRepositoryReference {
 	int getType();
 
 	/**
-	 * Returns bit-wise or of option constants (currently either 
+	 * Returns bit-wise or of option constants (currently either
 	 * {@link IRepository#ENABLED} or {@link IRepository#NONE}).
 	 * @return bit-wise or of option constants
 	 */
@@ -47,4 +47,15 @@ public interface IRepositoryReference {
 	 * @return The nickname or <code>null</code>
 	 */
 	String getNickname();
+
+	/**
+	 * Returns whether this reference is enabled or not
+	 *
+	 * @see IRepository#ENABLED
+	 * @return whether this reference is enabled or not
+	 * @since 2.9
+	 */
+	default boolean isEnabled() {
+		return (getOptions() & IRepository.ENABLED) != 0;
+	}
 }

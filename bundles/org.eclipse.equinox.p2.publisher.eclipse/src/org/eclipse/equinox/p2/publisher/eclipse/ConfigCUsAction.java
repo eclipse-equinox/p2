@@ -29,7 +29,6 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.*;
-import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.ManifestElement;
@@ -275,7 +274,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 					if (repo.getNickname() != null) {
 						parameters.put("name", repo.getNickname()); //$NON-NLS-1$
 					}
-					parameters.put("enabled", Boolean.toString((repo.getOptions() & IRepository.ENABLED) == IRepository.ENABLED)); //$NON-NLS-1$
+					parameters.put("enabled", Boolean.toString(repo.isEnabled())); //$NON-NLS-1$
 					configurationData += TouchpointInstruction.encodeAction("addRepository", parameters); //$NON-NLS-1$
 					parameters.remove("enabled"); //$NON-NLS-1$
 					unconfigurationData += TouchpointInstruction.encodeAction("removeRepository", parameters);//$NON-NLS-1$
