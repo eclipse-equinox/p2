@@ -431,7 +431,6 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	static private final String PROP_P2_PROFILE = "eclipse.p2.profile"; //$NON-NLS-1$
 	static private final String NO_ARTIFACT_REPOSITORIES_AVAILABLE = "noArtifactRepositoriesAvailable"; //$NON-NLS-1$
 
-	private static final String FOLLOW_ARTIFACT_REPOSITORY_REFERENCES = "org.eclipse.equinox.p2.director.followArtifactRepositoryReferences"; //$NON-NLS-1$
 	private static final String LIST_GROUPS_SHORTCUT = "Q:GROUP"; //$NON-NLS-1$
 	private static final String QUERY_SEPARATOR = "Q:"; //$NON-NLS-1$
 	private static final String QUERY_SEPARATOR_SMALL = "q:"; //$NON-NLS-1$
@@ -1061,7 +1060,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			context.setMetadataRepositories(metadataRepositoryLocations.stream().toArray(URI[]::new));
 			context.setArtifactRepositories(artifactRepositoryLocations.stream().toArray(URI[]::new));
 			context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, String.valueOf(followReferences));
-			context.setProperty(FOLLOW_ARTIFACT_REPOSITORY_REFERENCES, String.valueOf(followReferences));
+			context.setProperty(ProvisioningContext.FOLLOW_ARTIFACT_REPOSITORY_REFERENCES, String.valueOf(followReferences));
 
 			if (addJREIU) {
 				context.setExtraInstallableUnits(List.of(JREAction.createJREIU()));
@@ -1516,7 +1515,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		context.setArtifactRepositories(
 				artifactRepositoryLocations.toArray(new URI[artifactRepositoryLocations.size()]));
 		context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, String.valueOf(followReferences));
-		context.setProperty(FOLLOW_ARTIFACT_REPOSITORY_REFERENCES, String.valueOf(followReferences));
+		context.setProperty(ProvisioningContext.FOLLOW_ARTIFACT_REPOSITORY_REFERENCES, String.valueOf(followReferences));
 		executePlan(context, plan);
 	}
 
