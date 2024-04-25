@@ -107,7 +107,17 @@ public class ProvisioningContext {
 	 */
 	public static final String CHECK_AUTHORITIES = "org.eclipse.equinox.p2.director.checkAuthorities"; //$NON-NLS-1$
 
-	private static final String FOLLOW_ARTIFACT_REPOSITORY_REFERENCES = "org.eclipse.equinox.p2.director.followArtifactRepositoryReferences"; //$NON-NLS-1$
+	/**
+	 * Instructs the provisioning context to follow artifact repository references
+	 * when providing queryables for obtaining metadata and artifacts. When this
+	 * property is set to "true", then artifact repository references that are
+	 * encountered while loading the specified artifact repositories will be
+	 * included in the provisioning context.
+	 *
+	 * @see #setArtifactRepositories(URI...)
+	 * @since 2.10
+	 */
+	public static final String FOLLOW_ARTIFACT_REPOSITORY_REFERENCES = "org.eclipse.equinox.p2.director.followArtifactRepositoryReferences"; //$NON-NLS-1$
 
 	/**
 	 * Creates a new provisioning context that includes all available metadata and
