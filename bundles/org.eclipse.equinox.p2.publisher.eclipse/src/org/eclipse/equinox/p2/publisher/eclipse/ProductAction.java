@@ -276,7 +276,7 @@ public class ProductAction extends AbstractPublisherAction {
 		return null;
 	}
 
-	protected class RootFeatureAdvice implements IFilterAdvice {
+	protected class RootFeatureAdvice implements IFilterAdvice, IVersionRangeAdvice {
 
 		private final Collection<IVersionedId> rootFeatures;
 
@@ -321,6 +321,22 @@ public class ProductAction extends AbstractPublisherAction {
 				return null;
 			}
 			return parameter.toString();
+		}
+
+		@Override
+		public Optional<VersionRange> getVersionRange(String namespace, String fid) {
+			if (NS_FEATURE.equals(namespace)) {
+				for (IVersionedId featureId : rootFeatures) {
+					if (fid.equals(featureId.getId())) {
+						Version fversion = featureId.getVersion();
+						if (fversion == null || Version.emptyVersion.equals(fversion)) {
+							return Optional.of(VersionRange.emptyRange);
+						}
+						return Optional.of(new VersionRange(fversion, true, Version.MAX_VERSION, true));
+					}
+				}
+			}
+			return Optional.empty();
 		}
 	}
 }

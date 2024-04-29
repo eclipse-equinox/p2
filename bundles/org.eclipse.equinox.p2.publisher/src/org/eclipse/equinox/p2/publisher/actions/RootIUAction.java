@@ -172,6 +172,15 @@ public class RootIUAction extends AbstractPublisherAction {
 		return root;
 	}
 
+	@Override
+	protected VersionRange getVersionRange(IVersionedId versionedId) {
+		String namespace = versionedId.getId().endsWith(".feature.group") ? IVersionRangeAdvice.NS_FEATURE //$NON-NLS-1$
+				: IVersionRangeAdvice.NS_IU;
+		return info.getAdvice(null, true, versionedId.getId(), versionedId.getVersion(), IVersionRangeAdvice.class)
+				.stream().flatMap(advice -> advice.getVersionRange(namespace, versionedId.getId()).stream()).findFirst()
+				.orElseGet(() -> super.getVersionRange(versionedId));
+	}
+
 	private Version getVersionAdvice(String iuID) {
 		if (versionAdvice == null) {
 			versionAdvice = info.getAdvice(null, true, null, null, IVersionAdvice.class);

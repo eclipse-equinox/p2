@@ -212,15 +212,19 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				result.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range,
 						iu.getFilter() == null ? null : iu.getFilter(), false, false));
 			} else {
-				Version version = next.getVersion();
-				VersionRange range = (version == null || Version.emptyVersion.equals(version)) ? VersionRange.emptyRange
-						: new VersionRange(version, true, version, true);
+				VersionRange range = getVersionRange(next);
 				IMatchExpression<IInstallableUnit> filter = getFilterAdvice(next);
 				result.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, next.getId(), range,
 						filter, false, false));
 			}
 		}
 		return result;
+	}
+
+	protected VersionRange getVersionRange(IVersionedId versionedId) {
+		Version version = versionedId.getVersion();
+		return (version == null || Version.emptyVersion.equals(version)) ? VersionRange.emptyRange
+				: new VersionRange(version, true, version, true);
 	}
 
 	private IMatchExpression<IInstallableUnit> getFilterAdvice(IVersionedId name) {
