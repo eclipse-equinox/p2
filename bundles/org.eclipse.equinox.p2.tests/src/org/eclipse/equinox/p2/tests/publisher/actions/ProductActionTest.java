@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -42,7 +43,10 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherAction;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
@@ -440,7 +444,22 @@ public class ProductActionTest extends ActionTest {
 
 	public void testInstallModeRootFeature() throws Exception {
 		ProductFile productFile = new ProductFile(
-				TestData.getFile("ProductActionTest", "brandedProduct/branded.product").toString());
+				TestData.getFile("ProductActionTest", "brandedProduct/branded.product").toString()) {
+			@Override
+			public List<IVersionedId> getFeatures(int options) {
+				if (options == ROOT_FEATURES) {
+					List<IVersionedId> features = super.getFeatures(options);
+					return features.stream().map(v -> {
+						// we simulate an expanded feature version here...
+						if ("org.example".equals(v.getId())) {
+							return new VersionedId(v.getId(), "1.2.3");
+						}
+						return v;
+					}).toList();
+				}
+				return super.getFeatures(options);
+			}
+		};
 		addContextIU("org.eclipse.platform.feature.group", "1.2.3");
 		addContextIU("org.example.feature.group", "1.0.0");
 		performProductAction(productFile);
@@ -452,11 +471,15 @@ public class ProductActionTest extends ActionTest {
 				.map(IRequiredCapability.class::cast).filter(it -> it.getName().equals("org.example.feature.group"))
 				.findFirst();
 		assertTrue(installModeRootFeatureRequirement.isPresent());
-		IMatchExpression<IInstallableUnit> filter = installModeRootFeatureRequirement.get().getFilter();
+		IRequiredCapability capability = installModeRootFeatureRequirement.get();
+		IMatchExpression<IInstallableUnit> filter = capability.getFilter();
 		assertNotNull(filter);
 		String filterString = filter.getParameters()[0].toString();
 		assertEquals("(|(branded.product.install.mode.root=true)(org.eclipse.equinox.p2.install.mode.root=true))",
 				filterString);
+		VersionRange versionRange = capability.getRange();
+		assertTrue("Version Range is too strict: " + versionRange,
+				versionRange.isIncluded(Version.parseVersion("9999")));
 	}
 
 	public void testInstallModeRootFeatureWithFilter() throws Exception {
