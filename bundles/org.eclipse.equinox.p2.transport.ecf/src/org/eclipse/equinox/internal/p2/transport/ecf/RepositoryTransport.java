@@ -15,9 +15,11 @@ package org.eclipse.equinox.internal.p2.transport.ecf;
 
 import java.io.*;
 import java.net.*;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import javax.net.ssl.SSLContext;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.core.identity.IDCreateException;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
@@ -95,7 +97,18 @@ public class RepositoryTransport extends Transport {
 	@Override
 	public IStatus download(URI toDownload, OutputStream target, IProgressMonitor monitor) {
 		boolean promptUser = false;
+
 		boolean useJREHttp = false;
+		try {
+			// DELMARVA - is org.eclipse.core.pki installed and configured
+			if (SSLContext.getDefault().getProvider().getName().contains("PKCS")) { //$NON-NLS-1$
+				useJREHttp = true;
+				Activator.getDefault().useJREHttpClient();
+			}
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		AuthenticationInfo loginDetails = null;
 		URI secureToDownload;
 		try {
