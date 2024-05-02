@@ -101,7 +101,7 @@ public class RepositoryTransport extends Transport {
 		boolean useJREHttp = false;
 		try {
 			// DELMARVA - is org.eclipse.core.pki installed and configured
-			if (SSLContext.getDefault().getProvider().getName().contains("PKCS")) { //$NON-NLS-1$
+			if (SSLContext.getDefault().getProvider().getName().contains("TLS")) { //$NON-NLS-1$
 				useJREHttp = true;
 				Activator.getDefault().useJREHttpClient();
 			}
