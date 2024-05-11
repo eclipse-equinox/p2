@@ -160,18 +160,23 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		RepositoryInfo<T> info = new RepositoryInfo<>();
 		info.location = location;
 		info.isEnabled = isEnabled;
+		return addRepository(info, signalAdd);
+	}
+
+	private boolean addRepository(RepositoryInfo<T> info, boolean signalAdd) {
+
 		boolean added = true;
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
-			if (contains(location))
+			if (contains(info.location))
 				return false;
-			added = repositories.put(getKey(location), info) == null;
+			added = repositories.put(getKey(info.location), info) == null;
 			// save the given repository in the preferences.
 			remember(info, true);
 		}
 		if (added && signalAdd)
-			broadcastChangeEvent(location, getRepositoryType(), RepositoryEvent.ADDED, isEnabled);
+			broadcastChangeEvent(info.location, getRepositoryType(), RepositoryEvent.ADDED, info.isEnabled);
 		return added;
 	}
 
@@ -837,8 +842,13 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	public void notify(EventObject o) {
 		if (o instanceof RepositoryEvent) {
 			RepositoryEvent event = (RepositoryEvent) o;
-			if (event.getKind() == RepositoryEvent.DISCOVERED && event.getRepositoryType() == getRepositoryType())
-				addRepository(event.getRepositoryLocation(), event.isRepositoryEnabled(), true);
+			if (event.getKind() == RepositoryEvent.DISCOVERED && event.getRepositoryType() == getRepositoryType()) {
+				RepositoryInfo<T> info = new RepositoryInfo<>();
+				info.location = event.getRepositoryLocation();
+				info.isEnabled = event.isRepositoryEnabled();
+				info.nickname = event.getRepositoryNickname();
+				addRepository(info, true);
+			}
 		}
 	}
 
