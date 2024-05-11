@@ -186,13 +186,14 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	 */
 	public void publishRepositoryReferences() {
 		IProvisioningEventBus bus = getProvisioningAgent().getService(IProvisioningEventBus.class);
-		if (bus == null)
+		if (bus == null) {
 			return;
-
+		}
 		List<IRepositoryReference> repositoriesSnapshot = createRepositoriesSnapshot();
 		for (IRepositoryReference reference : repositoriesSnapshot) {
-			bus.publishEvent(new RepositoryEvent(reference.getLocation(), reference.getType(),
-					RepositoryEvent.DISCOVERED, reference.isEnabled()));
+			RepositoryEvent event = RepositoryEvent.newDiscoveryEvent(reference.getLocation(), reference.getNickname(),
+					reference.getType(), reference.isEnabled());
+			bus.publishEvent(event);
 		}
 	}
 
