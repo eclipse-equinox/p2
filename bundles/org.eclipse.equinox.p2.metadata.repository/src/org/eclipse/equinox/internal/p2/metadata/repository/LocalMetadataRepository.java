@@ -185,14 +185,17 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	 * Broadcast discovery events for all repositories referenced by this repository.
 	 */
 	public void publishRepositoryReferences() {
-		IProvisioningEventBus bus = getProvisioningAgent().getService(IProvisioningEventBus.class);
+		IProvisioningAgent agent = getProvisioningAgent();
+		IProvisioningEventBus bus = agent.getService(IProvisioningEventBus.class);
 		if (bus == null) {
 			return;
 		}
 		List<IRepositoryReference> repositoriesSnapshot = createRepositoriesSnapshot();
+		boolean referenceAsSystem = Boolean
+				.parseBoolean(agent.getProperty("p2.metadata.repository.reference.system", "true")); //$NON-NLS-1$ //$NON-NLS-2$
 		for (IRepositoryReference reference : repositoriesSnapshot) {
 			RepositoryEvent event = RepositoryEvent.newDiscoveryEvent(reference.getLocation(), reference.getNickname(),
-					reference.getType(), reference.isEnabled());
+					reference.getType(), reference.isEnabled(), referenceAsSystem);
 			bus.publishEvent(event);
 		}
 	}

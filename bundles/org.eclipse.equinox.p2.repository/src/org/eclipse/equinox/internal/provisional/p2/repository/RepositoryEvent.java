@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
 /**
  * An event indicating a repository was added, removed, changed,
  * or discovered.
- * 
+ *
  * @see IProvisioningEventBus
  * @noextend This class is not intended to be subclassed by clients.
  */
@@ -29,19 +29,19 @@ public class RepositoryEvent extends EventObject {
 	private static final long serialVersionUID = 3082402920617281765L;
 
 	/**
-	 * A change kind constant (value 0), indicating a repository was added to the 
+	 * A change kind constant (value 0), indicating a repository was added to the
 	 * list of repositories known to a repository manager.
 	 */
 	public static final int ADDED = 0;
 
 	/**
-	 * A change kind constant (value 1), indicating a repository was removed from 
+	 * A change kind constant (value 1), indicating a repository was removed from
 	 * the list of repositories known to a repository manager.
 	 */
 	public static final int REMOVED = 1;
 
 	/**
-	 * A change kind constant (value 2), indicating a repository known to a 
+	 * A change kind constant (value 2), indicating a repository known to a
 	 * repository manager was modified.
 	 */
 	public static final int CHANGED = 2;
@@ -67,25 +67,48 @@ public class RepositoryEvent extends EventObject {
 	private final int kind, type;
 	private boolean isEnabled;
 	private String nickname;
+	private boolean system;
 
 	/**
 	 * Creates and returns a new repository discovery event.
-	 * @param location the location of the repository that changed.
-	 * @param nickname the repository nickname
+	 *
+	 * @param location       the location of the repository that changed.
+	 * @param nickname       the repository nickname
 	 * @param repositoryType the type of repository that was changed
-	 * @param enabled whether the repository is enabled
+	 * @param enabled        whether the repository is enabled
 	 * @return A new repository discovery event
 	 * @see IRepository#PROP_NICKNAME
 	 */
-	public static RepositoryEvent newDiscoveryEvent(URI location, String nickname, int repositoryType, boolean enabled) {
+	public static RepositoryEvent newDiscoveryEvent(URI location, String nickname, int repositoryType,
+			boolean enabled) {
 		RepositoryEvent event = new RepositoryEvent(location, repositoryType, DISCOVERED, enabled);
 		event.nickname = nickname;
 		return event;
 	}
 
 	/**
+	 * Creates and returns a new repository discovery event.
+	 *
+	 * @param location       the location of the repository that changed.
+	 * @param nickname       the repository nickname
+	 * @param repositoryType the type of repository that was changed
+	 * @param enabled        whether the repository is enabled
+	 * @param system         whether the repository is a system repository
+	 * @return A new repository discovery event
+	 * @see IRepository#PROP_NICKNAME
+	 * @since 2.9
+	 */
+	public static RepositoryEvent newDiscoveryEvent(URI location, String nickname, int repositoryType, boolean enabled,
+			boolean system) {
+		RepositoryEvent event = new RepositoryEvent(location, repositoryType, DISCOVERED, enabled);
+		event.nickname = nickname;
+		event.system = system;
+		return event;
+	}
+
+	/**
 	 * Creates a new repository event.
-	 * 
+	 *
 	 * @param location the location of the repository that changed.
 	 * @param repositoryType the type of repository that was changed
 	 * @param kind the kind of change that occurred.
@@ -122,8 +145,20 @@ public class RepositoryEvent extends EventObject {
 	}
 
 	/**
+	 * Returns if the repository is a system type see
+	 * {@link IRepository#PROP_SYSTEM}. This method is only applicable for the
+	 * {@link #DISCOVERED} event type. For other event types this method returns
+	 * <code>false</code>.
+	 *
+	 * @since 2.9
+	 */
+	public boolean isSystem() {
+		return system;
+	}
+
+	/**
 	 * Returns the location of the repository associated with this event.
-	 * 
+	 *
 	 * @return the location of the repository associated with this event.
 	 */
 	public URI getRepositoryLocation() {
@@ -134,7 +169,7 @@ public class RepositoryEvent extends EventObject {
 	 * Returns the type of repository associated with this event. Clients
 	 * should not assume that the set of possible repository types is closed;
 	 * clients should ignore events from repository types they don't know about.
-	 * 
+	 *
 	 * @return the type of repository associated with this event.
 	 *  ({@link IRepository#TYPE_METADATA} or {@link IRepository#TYPE_ARTIFACT}).
 	 */
@@ -144,7 +179,7 @@ public class RepositoryEvent extends EventObject {
 
 	/**
 	 * Returns whether the affected repository is enabled.
-	 * 
+	 *
 	 * @return <code>true</code> if the repository is enabled,
 	 * and <code>false</code> otherwise.
 	 */
