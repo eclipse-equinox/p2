@@ -149,7 +149,7 @@ abstract class RepositoryAction extends ProvisioningAction {
 		// default is to be enabled
 		String enablement = (String) parameters.get(ActionConstants.PARM_REPOSITORY_ENABLEMENT);
 		boolean enabled = enablement == null ? true : Boolean.parseBoolean(enablement);
-		return RepositoryEvent.newDiscoveryEvent(location, name, type, enabled);
+		return RepositoryEvent.newDiscoveryEvent(location, name, type, enabled, false);
 	}
 
 	/**
