@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource   - Ongoing development
@@ -42,7 +42,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 
 	/**
 	 * Creates a new repository with the given attributes.
-	 * 
+	 *
 	 * @param agent the provisioning agent to be used by this repository
 	 * @param name the repository name
 	 * @param type the repository type
@@ -126,7 +126,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 
 	/**
 	 * Returns the provisioning agent used by this repository
-	 * 
+	 *
 	 * @return the provisioning agent
 	 */
 	@Override
@@ -159,7 +159,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 
 	/**
 	 * Sets the description of this repository
-	 * 
+	 *
 	 * @param description the repository description
 	 */
 	public synchronized void setDescription(String description) {
@@ -168,7 +168,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 
 	/**
 	 * Sets the name of this repository
-	 * 
+	 *
 	 * @param value the repository name
 	 */
 	public synchronized void setName(String value) {
@@ -196,7 +196,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 
 	/**
 	 * Sets the provider of this repository
-	 * 
+	 *
 	 * @param provider the repository provider
 	 */
 	public synchronized void setProvider(String provider) {
@@ -205,7 +205,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 
 	/**
 	 * Sets the type of this repository
-	 * 
+	 *
 	 * @param type the repository type
 	 */
 	protected synchronized void setType(String type) {
@@ -214,7 +214,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 
 	/**
 	 * Sets the location of this repository
-	 * 
+	 *
 	 * @param location the repository location
 	 */
 	protected synchronized void setLocation(URI location) {
@@ -223,7 +223,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 
 	/**
 	 * Sets the version of this repository
-	 * 
+	 *
 	 * @param version the repository version
 	 */
 	protected synchronized void setVersion(String version) {
@@ -232,10 +232,26 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 
 	/**
 	 * Sets the properties of this repository
-	 * 
+	 *
 	 * @param properties the repository provider
 	 */
 	protected synchronized void setProperties(Map<String, String> properties) {
 		this.properties = properties;
+	}
+
+	@Override
+	public String toString() {
+		String repoName = getName();
+		URI uri = getLocation();
+		if (repoName != null) {
+			if (uri == null) {
+				return name;
+			}
+			return String.format("%s (%s)", name, uri); //$NON-NLS-1$
+		}
+		if (uri != null) {
+			return uri.toString();
+		}
+		return super.toString();
 	}
 }
