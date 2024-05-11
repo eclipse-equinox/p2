@@ -107,7 +107,7 @@ public class RepositoryTransport extends Transport {
 			}
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// No TLS is installed, so let the process work as it would have with no mod
 		}
 		AuthenticationInfo loginDetails = null;
 		URI secureToDownload;
