@@ -35,14 +35,16 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  */
 public class ElementUtils {
 
-	public static void updateRepositoryUsingElements(final ProvisioningUI ui, final MetadataRepositoryElement[] elements) {
+	public static void updateRepositoryUsingElements(final ProvisioningUI ui,
+			final MetadataRepositoryElement[] elements) {
 		ui.signalRepositoryOperationStart();
 		IMetadataRepositoryManager metaManager = ProvUI.getMetadataRepositoryManager(ui.getSession());
 		IArtifactRepositoryManager artManager = ProvUI.getArtifactRepositoryManager(ui.getSession());
 		try {
 			int visibilityFlags = ui.getRepositoryTracker().getMetadataRepositoryFlags();
 			URI[] currentlyEnabled = metaManager.getKnownRepositories(visibilityFlags);
-			URI[] currentlyDisabled = metaManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | visibilityFlags);
+			URI[] currentlyDisabled = metaManager
+					.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | visibilityFlags);
 			for (MetadataRepositoryElement element : elements) {
 				URI location = element.getLocation();
 				if (element.isEnabled()) {
@@ -50,16 +52,21 @@ public class ElementUtils {
 						// It should be enabled and is not currently
 						setColocatedRepositoryEnablement(ui, location, true);
 					else if (!containsURI(currentlyEnabled, location)) {
-						// It is not known as enabled or disabled.  Add it.
+						// It is not known as enabled or disabled. Add it.
 						metaManager.addRepository(location);
 						artManager.addRepository(location);
+						// even though it is not contained in the visible repositories, it could have
+						// been a system repository we mark it here explicitly as no longer being a
+						// system one
+						metaManager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, "false"); //$NON-NLS-1$
+						artManager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, "false"); //$NON-NLS-1$
 					}
 				} else {
 					if (containsURI(currentlyEnabled, location))
 						// It should be disabled, and is currently enabled
 						setColocatedRepositoryEnablement(ui, location, false);
 					else if (!containsURI(currentlyDisabled, location)) {
-						// It is not known as enabled or disabled.  Add it and then disable it.
+						// It is not known as enabled or disabled. Add it and then disable it.
 						metaManager.addRepository(location);
 						artManager.addRepository(location);
 						setColocatedRepositoryEnablement(ui, location, false);
@@ -71,7 +78,7 @@ public class ElementUtils {
 					artManager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 				}
 			}
-			// Are there any elements that need to be deleted?  Go over the original state
+			// Are there any elements that need to be deleted? Go over the original state
 			// and remove any elements that weren't in the elements we were given
 			Set<String> nowKnown = new HashSet<>();
 			for (MetadataRepositoryElement element : elements)
@@ -137,7 +144,9 @@ public class ElementUtils {
 			if (iuDetail.getStatus() == RemedyIUDetail.STATUS_NOT_ADDED)
 				continue;
 			AvailableIUElement element = new AvailableIUElement(root, iuDetail.getIu(), ui.getProfileId(), true);
-			if (iuDetail.getBeingInstalledVersion() != null && iuDetail.getRequestedVersion() != null && iuDetail.getBeingInstalledVersion().compareTo(iuDetail.getRequestedVersion()) < 0 && !installMode)
+			if (iuDetail.getBeingInstalledVersion() != null && iuDetail.getRequestedVersion() != null
+					&& iuDetail.getBeingInstalledVersion().compareTo(iuDetail.getRequestedVersion()) < 0
+					&& !installMode)
 				element.setImageOverlayId(ProvUIImages.IMG_INFO);
 			else if (iuDetail.getStatus() == RemedyIUDetail.STATUS_REMOVED)
 				element.setImageId(ProvUIImages.IMG_REMOVED);

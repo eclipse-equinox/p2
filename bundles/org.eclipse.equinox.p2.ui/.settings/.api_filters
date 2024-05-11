@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.ui" version="2">
+    <resource path="src/org/eclipse/equinox/internal/p2/ui/model/ElementUtils.java" type="org.eclipse.equinox.internal.p2.ui.model.ElementUtils">
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="Remedy"/>
+                <message_argument value="ElementUtils"/>
+                <message_argument value="getIusDetails()"/>
+            </message_arguments>
+        </filter>
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="RemedyIUDetail"/>
+                <message_argument value="ElementUtils"/>
+                <message_argument value="getBeingInstalledVersion()"/>
+            </message_arguments>
+        </filter>
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="RemedyIUDetail"/>
+                <message_argument value="ElementUtils"/>
+                <message_argument value="getIu()"/>
+            </message_arguments>
+        </filter>
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="RemedyIUDetail"/>
+                <message_argument value="ElementUtils"/>
+                <message_argument value="getRequestedVersion()"/>
+            </message_arguments>
+        </filter>
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="RemedyIUDetail"/>
+                <message_argument value="ElementUtils"/>
+                <message_argument value="getStatus()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>
