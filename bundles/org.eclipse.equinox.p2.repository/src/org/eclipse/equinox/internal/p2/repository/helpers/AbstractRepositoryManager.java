@@ -167,16 +167,19 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 
 		boolean added = true;
 		synchronized (repositoryLock) {
-			if (repositories == null)
+			if (repositories == null) {
 				restoreRepositories();
-			if (contains(info.location))
+			}
+			if (contains(info.location)) {
 				return false;
+			}
 			added = repositories.put(getKey(info.location), info) == null;
 			// save the given repository in the preferences.
 			remember(info, true);
 		}
-		if (added && signalAdd)
+		if (added && signalAdd) {
 			broadcastChangeEvent(info.location, getRepositoryType(), RepositoryEvent.ADDED, info.isEnabled);
+		}
 		return added;
 	}
 
@@ -847,6 +850,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 				info.location = event.getRepositoryLocation();
 				info.isEnabled = event.isRepositoryEnabled();
 				info.nickname = event.getRepositoryNickname();
+				info.isSystem = event.isSystem();
 				addRepository(info, true);
 			}
 		}
