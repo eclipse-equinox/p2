@@ -31,6 +31,7 @@ import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.PlatformUI;
@@ -175,7 +176,13 @@ public class AutomaticUpdateScheduler implements IStartup {
 			StatusManager.getManager().handle(status, StatusManager.LOG);
 			return;
 		}
-		checker.addUpdateCheck(IProfileRegistry.SELF, getProfileQuery(), delay, poll, listener);
+		checker.addUpdateCheck(IProfileRegistry.SELF, getProfileQuery(), delay, poll, () -> {
+			if (pagent.getBooleanProperty("p2.ui.sdk.scheduler.update.useProvisioningUI", true)) { //$NON-NLS-1$
+				return AutomaticUpdatePlugin.getDefault().getAutomaticUpdater().getProvisioningUI()
+						.getRepositoryTracker().getMetadataRepositoryFlags();
+			}
+			return IRepositoryManager.REPOSITORIES_ALL;
+		}, listener);
 
 	}
 

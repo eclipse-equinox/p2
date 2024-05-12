@@ -18,6 +18,7 @@ package org.eclipse.equinox.internal.p2.updatechecker;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.IntSupplier;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -57,12 +58,16 @@ public class UpdateChecker implements IUpdateChecker {
 		IUpdateListener listener;
 		String profileId;
 		IQuery<IInstallableUnit> query;
+		private IntSupplier repositoryFlags;
 
-		UpdateCheckThread(String profileId, IQuery<IInstallableUnit> query, long delay, long poll, IUpdateListener listener) {
+		UpdateCheckThread(String profileId, IQuery<IInstallableUnit> query, long delay, long poll,
+				IntSupplier repositoryFlags,
+				IUpdateListener listener) {
 			this.poll = poll;
 			this.delay = delay;
 			this.profileId = profileId;
 			this.query = query;
+			this.repositoryFlags = repositoryFlags;
 			this.listener = listener;
 		}
 
@@ -75,7 +80,8 @@ public class UpdateChecker implements IUpdateChecker {
 				while (!done) {
 					listener.checkingForUpdates();
 					trace("Checking for updates for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
-					Collection<IInstallableUnit> iusWithUpdates = checkForUpdates(profileId, query);
+					Collection<IInstallableUnit> iusWithUpdates = checkForUpdates(profileId, query,
+							repositoryFlags.getAsInt());
 					if (iusWithUpdates.size() > 0) {
 						trace("Notifying listener of available updates"); //$NON-NLS-1$
 						UpdateEvent event = new UpdateEvent(profileId, iusWithUpdates);
@@ -104,10 +110,17 @@ public class UpdateChecker implements IUpdateChecker {
 
 	@Override
 	public void addUpdateCheck(String profileId, IQuery<IInstallableUnit> query, long delay, long poll, IUpdateListener listener) {
-		if (checkers.containsKey(listener))
+		addUpdateCheck(profileId, query, delay, poll, () -> IRepositoryManager.REPOSITORIES_ALL, listener);
+	}
+
+	@Override
+	public void addUpdateCheck(String profileId, IQuery<IInstallableUnit> query, long delay, long poll,
+			IntSupplier repositoryFlags, IUpdateListener listener) {
+		if (checkers.containsKey(listener)) {
 			return;
+		}
 		trace("Adding update checker for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
-		UpdateCheckThread thread = new UpdateCheckThread(profileId, query, delay, poll, listener);
+		UpdateCheckThread thread = new UpdateCheckThread(profileId, query, delay, poll, repositoryFlags, listener);
 		checkers.put(listener, thread);
 		thread.start();
 	}
@@ -121,18 +134,17 @@ public class UpdateChecker implements IUpdateChecker {
 	 * Return the array of ius in the profile that have updates
 	 * available.
 	 */
-	Collection<IInstallableUnit> checkForUpdates(String profileId, IQuery<IInstallableUnit> query) {
+	Collection<IInstallableUnit> checkForUpdates(String profileId, IQuery<IInstallableUnit> query,
+			int repositoryFlags) {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
 		ArrayList<IInstallableUnit> iusWithUpdates = new ArrayList<>();
 		if (profile == null)
 			return Collections.emptyList();
 		ProvisioningContext context = new ProvisioningContext(agent);
-		context.setMetadataRepositories(getAvailableRepositories());
+		context.setMetadataRepositories(getAvailableRepositories(repositoryFlags));
 		if (query == null)
 			query = QueryUtil.createIUAnyQuery();
-		Iterator<IInstallableUnit> iter = profile.query(query, null).iterator();
-		while (iter.hasNext()) {
-			IInstallableUnit iu = iter.next();
+		for (IInstallableUnit iu : profile.query(query, null)) {
 			IQueryResult<IInstallableUnit> replacements = getPlanner().updatesFor(iu, context, null);
 			if (!replacements.isEmpty())
 				iusWithUpdates.add(iu);
@@ -143,9 +155,9 @@ public class UpdateChecker implements IUpdateChecker {
 	/**
 	 * Returns the list of metadata repositories that are currently available.
 	 */
-	private URI[] getAvailableRepositories() {
+	private URI[] getAvailableRepositories(int repositoryFlags) {
 		IMetadataRepositoryManager repoMgr = agent.getService(IMetadataRepositoryManager.class);
-		URI[] repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+		URI[] repositories = repoMgr.getKnownRepositories(repositoryFlags);
 		ArrayList<URI> available = new ArrayList<>();
 		for (URI repositorie : repositories) {
 			try {
