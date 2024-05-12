@@ -191,8 +191,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 			return;
 		}
 		List<IRepositoryReference> repositoriesSnapshot = createRepositoriesSnapshot();
-		boolean referenceAsSystem = Boolean
-				.parseBoolean(agent.getProperty("p2.metadata.repository.reference.system", "true")); //$NON-NLS-1$ //$NON-NLS-2$
+		boolean referenceAsSystem = agent.getBooleanProperty("p2.metadata.repository.reference.system", true); //$NON-NLS-1$
 		for (IRepositoryReference reference : repositoriesSnapshot) {
 			RepositoryEvent event = RepositoryEvent.newDiscoveryEvent(reference.getLocation(), reference.getNickname(),
 					reference.getType(), reference.isEnabled(), referenceAsSystem);

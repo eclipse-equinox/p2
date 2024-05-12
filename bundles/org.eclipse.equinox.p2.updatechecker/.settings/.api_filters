@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.updatechecker" version="2">
+    <resource path="src/org/eclipse/equinox/internal/p2/updatechecker/UpdateChecker.java" type="org.eclipse.equinox.internal.p2.updatechecker.UpdateChecker">
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="IPlanner"/>
+                <message_argument value="UpdateChecker"/>
+                <message_argument value="updatesFor(IInstallableUnit, ProvisioningContext, IProgressMonitor)"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

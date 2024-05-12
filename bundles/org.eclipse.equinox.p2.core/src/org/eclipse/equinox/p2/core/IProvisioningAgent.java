@@ -142,4 +142,27 @@ public interface IProvisioningAgent {
 		return property;
 	}
 
+	/**
+	 * Returns an agent bound property as a boolean, the default implementation
+	 * delegates to {@link IProvisioningAgent#getBooleanProperty(String, boolean)}
+	 * with <code>false</code> as the default.
+	 *
+	 * @since 2.11
+	 */
+	default boolean getBooleanProperty(String key) {
+		return getBooleanProperty(key, false);
+	}
+
+	/**
+	 * Returns an agent bound property as a boolean, the default implementation
+	 * delegates to {@link IProvisioningAgent#getProperty(String)} with the given
+	 * default as a String and parses the result as by
+	 * {@link Boolean#parseBoolean(String)}.
+	 *
+	 * @since 2.11
+	 */
+	default boolean getBooleanProperty(String key, boolean defaultValue) {
+		return Boolean.parseBoolean(getProperty(key, Boolean.toString(defaultValue)));
+	}
+
 }
