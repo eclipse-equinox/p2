@@ -22,7 +22,10 @@ import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -199,6 +202,12 @@ public class ProvisioningContextTest extends AbstractProvisioningTest {
 		context.setArtifactRepositories(new URI[0]);
 		IProvisioningPlan plan = getPlanner(getAgent()).getProvisioningPlan(request, context, getMonitor());
 		assertFalse("resolve should fail with missing requirements", plan.getStatus().isOK());
+		// we need to create a new context as the planner is calling
+		// ProvisioningContext.getMetadata(IProgressMonitor) and after that call
+		// repositories are fixed as per API...
+		context = new ProvisioningContext(getAgent());
+		context.setMetadataRepositories(new URI[] { repoA.getLocation() });
+		context.setArtifactRepositories(new URI[0]);
 		context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, "true");
 		plan = getPlanner(getAgent()).getProvisioningPlan(request, context, getMonitor());
 		assertTrue("resolve should pass", plan.getStatus().isOK());

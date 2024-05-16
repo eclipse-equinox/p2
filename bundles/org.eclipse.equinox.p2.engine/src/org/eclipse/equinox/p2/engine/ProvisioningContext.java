@@ -219,8 +219,8 @@ public class ProvisioningContext {
 
 			// Clear out the list of remembered artifact repositories
 			referencedArtifactRepositories = new HashMap<>();
-			for (URI repositorie : repositories) {
-				loadMetadataRepository(repoManager, repositorie, loadedRepos, shouldFollowReferences(), sub.split(1));
+			for (URI repository : repositories) {
+				loadMetadataRepository(repoManager, repository, loadedRepos, shouldFollowReferences(), sub.split(1));
 			}
 		}
 		return new HashSet<>(loadedRepos.values());
