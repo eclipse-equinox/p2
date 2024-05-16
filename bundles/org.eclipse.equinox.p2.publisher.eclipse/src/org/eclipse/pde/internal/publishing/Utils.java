@@ -103,7 +103,14 @@ public final class Utils {
 		return result;
 	}
 
+	/**
+	 * @param manifest manifest entries, or {@code null}
+	 * @return requested header value, or {@code null}
+	 */
 	public static String getBundleManifestHeader(Dictionary<String, String> manifest, String header) {
+		if (manifest == null) {
+			return null;
+		}
 		String value = manifest.get(header);
 		if (value != null)
 			return value;
