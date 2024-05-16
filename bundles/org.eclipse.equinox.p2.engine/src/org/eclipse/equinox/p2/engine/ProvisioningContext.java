@@ -208,18 +208,22 @@ public class ProvisioningContext {
 	}
 
 	private Set<IMetadataRepository> getLoadedMetadataRepositories(IProgressMonitor monitor) {
-		IMetadataRepositoryManager repoManager = agent.getService(IMetadataRepositoryManager.class);
-		URI[] repositories = metadataRepositories == null ? repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL) : metadataRepositories;
+		if (loadedRepos == null) {
+			IMetadataRepositoryManager repoManager = agent.getService(IMetadataRepositoryManager.class);
+			URI[] repositories = metadataRepositories == null
+					? repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL)
+					: metadataRepositories;
 
-		Map<String, IMetadataRepository> repos = new HashMap<>();
-		SubMonitor sub = SubMonitor.convert(monitor, repositories.length);
+			loadedRepos = new HashMap<>();
+			SubMonitor sub = SubMonitor.convert(monitor, repositories.length);
 
-		// Clear out the list of remembered artifact repositories
-		referencedArtifactRepositories = new HashMap<>();
-		for (URI repositorie : repositories) {
-			loadMetadataRepository(repoManager, repositorie, repos, shouldFollowReferences(), sub.split(1));
+			// Clear out the list of remembered artifact repositories
+			referencedArtifactRepositories = new HashMap<>();
+			for (URI repositorie : repositories) {
+				loadMetadataRepository(repoManager, repositorie, loadedRepos, shouldFollowReferences(), sub.split(1));
+			}
 		}
-		return new HashSet<>(repos.values());
+		return new HashSet<>(loadedRepos.values());
 	}
 
 	private void loadMetadataRepository(IMetadataRepositoryManager manager, URI location,
@@ -406,6 +410,7 @@ public class ProvisioningContext {
 	private static final Comparator<IArtifactKey> ARTIFACT_KEY_COMPARATOR = Comparator //
 			.comparing(IArtifactKey::getId) //
 			.thenComparing(IArtifactKey::getVersion);
+	private Map<String, IMetadataRepository> loadedRepos;
 
 	/**
 	 * Returns a map from simple artifact repository location to a subset of the
