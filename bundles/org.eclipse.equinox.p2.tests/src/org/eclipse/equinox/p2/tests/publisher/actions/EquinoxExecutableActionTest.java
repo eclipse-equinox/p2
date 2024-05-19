@@ -195,7 +195,8 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				assertTrue(providedCapabilities.size() == 2);
 
 				Collection<IRequirement> requiredCapability = possibleExec.getRequirements();
-				verifyRequirement(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher." + (idBase.equals("mac") || idBase.equals("macCocoa") ? confSpec.substring(0, confSpec.lastIndexOf(".")) : confSpec), VersionRange.emptyRange); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				verifyRequirement(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID,
+						"org.eclipse.equinox.launcher." + confSpec, VersionRange.emptyRange); //$NON-NLS-1$
 				assertTrue(requiredCapability.size() == 1);
 
 				try {
