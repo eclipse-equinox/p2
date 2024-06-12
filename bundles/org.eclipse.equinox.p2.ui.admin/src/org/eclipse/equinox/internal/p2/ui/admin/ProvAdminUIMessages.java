@@ -62,6 +62,8 @@ public class ProvAdminUIMessages extends NLS {
 	public static String RepositoryImplementationPropertyPage_PropertiesLabel;
 	public static String RepositoryImplementationPropertyPage_ValueColumnLabel;
 
+	public static String InstallAction_ChooseProfile;
+
 	public static String IUGroup_ID;
 	public static String IUGroup_IU_ID_Required;
 	public static String IUGroup_Namespace;

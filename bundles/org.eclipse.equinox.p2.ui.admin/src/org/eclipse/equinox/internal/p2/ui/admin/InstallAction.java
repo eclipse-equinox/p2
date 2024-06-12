@@ -103,7 +103,7 @@ public class InstallAction extends ProfileModificationAction {
 		}
 
 		ListDialog dialog = new ListDialog(getShell());
-		dialog.setTitle("Choose a Profile");
+		dialog.setTitle(ProvAdminUIMessages.InstallAction_ChooseProfile);
 		dialog.setLabelProvider(new ProvElementLabelProvider());
 		dialog.setInput(new Profiles(getProvisioningUI()));
 		dialog.setContentProvider(new ProvElementContentProvider());
