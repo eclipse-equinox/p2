@@ -107,11 +107,7 @@ public class RepositoryTransport extends Transport {
 			}
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
-<<<<<<< Upstream, based on origin/master
 			// No TLS is installed, so let the process work as it would have with no mod
-=======
-			e.printStackTrace();
->>>>>>> b63a969 Adding org.eclipse.core.pki capability Check if PKI has been installed and configured
 		}
 		AuthenticationInfo loginDetails = null;
 		URI secureToDownload;
