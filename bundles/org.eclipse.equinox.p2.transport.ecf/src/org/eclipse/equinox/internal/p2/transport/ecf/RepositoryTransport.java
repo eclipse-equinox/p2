@@ -209,6 +209,16 @@ public class RepositoryTransport extends Transport {
 
 		boolean promptUser = false;
 		boolean useJREHttp = false;
+		try {
+			// DELMARVA - is org.eclipse.core.pki installed and configured
+			if (SSLContext.getDefault().getProvider().getName().contains("TLS")) { //$NON-NLS-1$
+				useJREHttp = true;
+				Activator.getDefault().useJREHttpClient();
+			}
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			// No TLS is installed, so let the process work as it would have with no mod
+		}
 		AuthenticationInfo loginDetails = null;
 		URI secureToDownload = getSecureLocation(toDownload);
 		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i--) {
@@ -275,6 +285,16 @@ public class RepositoryTransport extends Transport {
 			throws CoreException, FileNotFoundException, AuthenticationFailedException {
 		boolean promptUser = false;
 		boolean useJREHttp = false;
+		try {
+			// DELMARVA - is org.eclipse.core.pki installed and configured
+			if (SSLContext.getDefault().getProvider().getName().contains("TLS")) { //$NON-NLS-1$
+				useJREHttp = true;
+				Activator.getDefault().useJREHttpClient();
+			}
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			// No TLS is installed, so let the process work as it would have with no mod
+		}
 		AuthenticationInfo loginDetails = null;
 		URI secureToDownload = getSecureLocation(toDownload);
 		for (int i = RepositoryPreferences.getLoginRetryCount(); i > 0; i--) {
