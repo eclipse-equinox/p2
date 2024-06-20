@@ -200,7 +200,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 
 		// Update with the new elements to prevent flash
 		for (Control element : existingChildren) {
-			((ControlListItem<?>) element).dispose();
+			element.dispose();
 		}
 
 		for (int i = 0; i < infos.length; i++) {

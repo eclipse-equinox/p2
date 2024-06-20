@@ -55,7 +55,7 @@ public class ExportWizard extends AbstractWizard implements IExportWizard {
 
 	@Override
 	public boolean performFinish() {
-		File file = new File(((ExportPage) mainPage).getDestinationValue());
+		File file = new File(mainPage.getDestinationValue());
 		if (file.exists()) {
 			if (!MessageDialog.openConfirm(this.getShell(), Messages.ExportWizard_ConfirmDialogTitle,
 					NLS.bind(Messages.ExportWizard_OverwriteConfirm, file.getAbsolutePath())))
