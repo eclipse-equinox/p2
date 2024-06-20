@@ -875,8 +875,8 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(unit.getTouchpointData().size(), 1);
 		assertEquals(((IRequiredCapability) unit.getRequirements().iterator().next()).getNamespace(), spiRequiredCapability.getNamespace());
 		assertEquals(((IRequiredCapability) unit.getRequirements().iterator().next()).getName(), spiRequiredCapability.getName());
-		assertEquals(((IRequiredCapability) unit.getRequirements().iterator().next()).getMin(), spiRequiredCapability.getMin());
-		assertEquals(((IRequiredCapability) unit.getRequirements().iterator().next()).getMax(), spiRequiredCapability.getMax());
+		assertEquals(unit.getRequirements().iterator().next().getMin(), spiRequiredCapability.getMin());
+		assertEquals(unit.getRequirements().iterator().next().getMax(), spiRequiredCapability.getMax());
 		assertEquals(unit.getProvidedCapabilities().iterator().next(), spiProvidedCapability);
 		assertEquals(unit.getTouchpointData().iterator().next(), spiTouchpointData);
 		assertEquals(unit.getTouchpointType(), spiTouchpointType);
