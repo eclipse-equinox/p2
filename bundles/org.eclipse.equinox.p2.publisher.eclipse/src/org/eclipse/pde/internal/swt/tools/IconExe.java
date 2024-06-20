@@ -87,7 +87,8 @@ public class IconExe {
 				ImageData iconData = icon.data;
 				System.err.println(String.format("\t- %dx%d, %d bits, %d byte(s) @ %d", iconData.height, iconData.width, iconData.depth, icon.size, icon.offset)); //$NON-NLS-1$
 			}
-			System.err.println("[IconExe] For more details, see https://git.eclipse.org/c/equinox/rt.equinox.p2.git/tree/bundles/org.eclipse.equinox.p2.publisher.eclipse/src/org/eclipse/pde/internal/swt/tools/IconExe.java"); //$NON-NLS-1$
+			System.err.println(
+					"[IconExe] For more details, see https://github.com/eclipse-equinox/p2/blob/master/bundles/org.eclipse.equinox.p2.publisher.eclipse/src/org/eclipse/pde/internal/swt/tools/IconExe.java"); //$NON-NLS-1$
 		}
 	}
 
