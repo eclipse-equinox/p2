@@ -15,11 +15,28 @@
 
 package org.eclipse.equinox.p2.tests;
 
-import java.io.*;
-import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.StringTokenizer;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 public class ReducedCUDFParser {
 
@@ -71,7 +88,7 @@ public class ReducedCUDFParser {
 	public void parse(InputStream stream, boolean includeRecommends, String sumProperty) {
 		BufferedReader reader = null;
 		try {
-			reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+			reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
 			String next = reader.readLine();
 			while (true) {
 
