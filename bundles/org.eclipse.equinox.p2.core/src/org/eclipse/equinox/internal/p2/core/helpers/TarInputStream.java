@@ -14,6 +14,7 @@
 package org.eclipse.equinox.internal.p2.core.helpers;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Copied from org.eclipse.ui.internal.wizards.datatransfer.TarInputStream.
@@ -188,14 +189,14 @@ public class TarInputStream extends FilterInputStream {
 		while (pos < 100 && header[pos] != 0) {
 			pos++;
 		}
-		String name = new String(header, 0, pos, "UTF8"); //$NON-NLS-1$
+		String name = new String(header, 0, pos, StandardCharsets.UTF_8);
 		// Prepend the prefix here.
 		pos = 345;
 		if (header[pos] != 0) {
 			while (pos < 500 && header[pos] != 0) {
 				pos++;
 			}
-			String prefix = new String(header, 345, pos - 345, "UTF8"); //$NON-NLS-1$
+			String prefix = new String(header, 345, pos - 345, StandardCharsets.UTF_8);
 			name = prefix + "/" + name; //$NON-NLS-1$
 		}
 
@@ -290,7 +291,7 @@ public class TarInputStream extends FilterInputStream {
 			while (pos < longNameData.length && longNameData[pos] != 0) {
 				pos++;
 			}
-			longLinkName = new String(longNameData, 0, pos, "UTF8"); //$NON-NLS-1$
+			longLinkName = new String(longNameData, 0, pos, StandardCharsets.UTF_8);
 			return getNextEntryInternal();
 		}
 		return entry;

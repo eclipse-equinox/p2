@@ -16,6 +16,7 @@ package org.eclipse.equinox.internal.p2.ui;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Vector;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
@@ -128,7 +129,7 @@ public class UpdateManagerCompatibility {
 		PrintWriter writer = null;
 		try {
 			fos = new FileOutputStream(fileName);
-			osw = new OutputStreamWriter(fos, "UTF8"); //$NON-NLS-1$
+			osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
 			writer = new PrintWriter(osw);
 			writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"); //$NON-NLS-1$
 			writer.println("<bookmarks>"); //$NON-NLS-1$
