@@ -14,6 +14,7 @@ package org.eclipse.equinox.internal.simpleconfigurator.manipulator;
 
 import java.io.*;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.Messages;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
@@ -27,7 +28,9 @@ public class SimpleConfiguratorManipulatorUtils {
 	private static final String VERSION_PREFIX = "#version="; //$NON-NLS-1$
 	private static final String VERSION_1 = "1"; //$NON-NLS-1$
 	private static final Version OLD_STYLE_SIMPLE_CONFIGURATOR_VERSION = new Version("1.0.100.v20081206"); //$NON-NLS-1$
-	private static final Version DEFAULT_ENCODING_CONFIGURATOR_VERSION = new Version("1.0.200.v20100503"); //$NON-NLS-1$ 3.6, after bug 289644
+	private static final Version DEFAULT_ENCODING_CONFIGURATOR_VERSION = new Version("1.0.200.v20100503"); //$NON-NLS-1$ 3.6,
+																											// after bug
+																											// 289644
 
 	public static void writeConfiguration(BundleInfo[] simpleInfos, File outputFile) throws IOException {
 		if (!Utils.createParentDir(outputFile)) {
@@ -72,7 +75,8 @@ public class SimpleConfiguratorManipulatorUtils {
 		boolean oldStyle = false;
 		boolean utf8 = true;
 		for (BundleInfo simpleInfo : simpleInfos) {
-			if (SimpleConfiguratorManipulator.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(simpleInfo.getSymbolicName())) {
+			if (SimpleConfiguratorManipulator.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME
+					.equals(simpleInfo.getSymbolicName())) {
 				Version version = new Version(simpleInfo.getVersion());
 				if (version.compareTo(OLD_STYLE_SIMPLE_CONFIGURATOR_VERSION) < 0)
 					oldStyle = true;
@@ -83,8 +87,8 @@ public class SimpleConfiguratorManipulatorUtils {
 		}
 
 		if (utf8) {
-			writer = new BufferedWriter(new OutputStreamWriter(stream, "UTF-8")); //$NON-NLS-1$
-			//encoding is expected to be the first line
+			writer = new BufferedWriter(new OutputStreamWriter(stream, StandardCharsets.UTF_8));
+			// encoding is expected to be the first line
 			writer.write(SimpleConfiguratorUtils.ENCODING_UTF8);
 			writer.newLine();
 		} else {
@@ -128,7 +132,8 @@ public class SimpleConfiguratorManipulatorUtils {
 			return scheme + ':' + location.getSchemeSpecificPart();
 		}
 
-		//encode comma characters because it is used as the segment delimiter in the bundle info file
+		// encode comma characters because it is used as the segment delimiter in the
+		// bundle info file
 		String result = location.toString();
 		int commaIndex = result.indexOf(',');
 		while (commaIndex != -1) {
