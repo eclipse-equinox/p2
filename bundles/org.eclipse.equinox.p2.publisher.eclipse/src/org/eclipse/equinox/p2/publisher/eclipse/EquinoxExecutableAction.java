@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Code 9 and others.
+ * Copyright (c) 2008, 2024 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -13,6 +13,7 @@
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
+ *   SAP SE - support macOS bundle URL types
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
@@ -254,6 +255,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		iron.setId(idBase);
 		iron.setVersion(version);
 		iron.setIcons(advice.getIcons());
+		iron.setMacOsBundleUrlTypes(advice.getMacOsBundleUrlTypes());
 		String name = advice.getExecutableName();
 		if (name == null)
 			name = "eclipse"; //$NON-NLS-1$

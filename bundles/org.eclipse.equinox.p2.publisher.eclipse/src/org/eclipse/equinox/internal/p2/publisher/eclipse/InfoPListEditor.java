@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2015, 2023 Rapicorp, Inc and others.
+ *  Copyright (c) 2015, 2024 Rapicorp, Inc and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  * 
  *  Contributors:
  * 	Rapicorp, Inc. - initial API and implementation
+ * 	SAP SE - support macOS bundle URL types
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
@@ -34,6 +35,7 @@ public class InfoPListEditor {
 	public static final String BUNDLE_INFO_KEY = "CFBundleGetInfoString"; //$NON-NLS-1$
 	public static final String BUNDLE_VERSION_KEY = "CFBundleVersion"; //$NON-NLS-1$
 	public static final String BUNDLE_SHORT_VERSION_KEY = "CFBundleShortVersionString"; //$NON-NLS-1$
+	public static final String BUNDLE_URL_TYPES = "CFBundleURLTypes"; //$NON-NLS-1$
 	public static final String ICON_KEY = "CFBundleIconFile"; //$NON-NLS-1$
 
 	private final Element infoPList;
@@ -108,15 +110,57 @@ public class InfoPListEditor {
 	}
 
 	private void addKey(String key, String value) throws DOMException, XPathExpressionException {
-		Element keyNode = document.createElement("key"); //$NON-NLS-1$
-		Text keyName = document.createTextNode(key);
-		keyNode.appendChild(keyName);
+		Node dict = getNode(infoPList, "/plist/dict"); //$NON-NLS-1$
+		appendTextContentChild(dict, "key", key); //$NON-NLS-1$
+		appendTextContentChild(dict, "string", value); //$NON-NLS-1$
+	}
 
-		Element stringNode = document.createElement("string"); //$NON-NLS-1$
-		Text stringValue = document.createTextNode(value);
-		stringNode.appendChild(stringValue);
-		getNode(infoPList, "/plist/dict").appendChild(keyNode); //$NON-NLS-1$
-		getNode(infoPList, "/plist/dict").appendChild(stringNode); //$NON-NLS-1$
+	public void addCfBundleUrlType(String scheme, String displayName) {
+		if (scheme == null) {
+			throw new IllegalArgumentException("Scheme can't be null"); //$NON-NLS-1$
+		}
+		if (displayName == null) {
+			throw new IllegalArgumentException("Display Name can't be null"); //$NON-NLS-1$
+		}
+		Node bundleUrlTypesNode = getOrCreateCfBundleUrlTypesArray();
+		Element dict = appendNewChild(bundleUrlTypesNode, "dict"); //$NON-NLS-1$
+		{
+			appendTextContentChild(dict, "key", "CFBundleURLName"); //$NON-NLS-1$ //$NON-NLS-2$
+			appendTextContentChild(dict, "string", displayName); //$NON-NLS-1$
+		}
+		{
+			appendTextContentChild(dict, "key", "CFBundleURLSchemes"); //$NON-NLS-1$ //$NON-NLS-2$
+			Element array = appendNewChild(dict, "array"); //$NON-NLS-1$
+			appendTextContentChild(array, "string", scheme); //$NON-NLS-1$
+		}
+	}
+
+	private Node getOrCreateCfBundleUrlTypesArray() {
+		try {
+			String expression = String.format("/plist/dict/key[text() = '%s']/following-sibling::array[1]", //$NON-NLS-1$
+					BUNDLE_URL_TYPES);
+			Node arrayNode = getNode(infoPList, expression);
+			if (arrayNode == null) {
+				Node dict = getNode(infoPList, "/plist/dict"); //$NON-NLS-1$
+				appendTextContentChild(dict, "key", "CFBundleURLTypes"); //$NON-NLS-1$ //$NON-NLS-2$
+				arrayNode = appendNewChild(dict, "array"); //$NON-NLS-1$
+			}
+			return arrayNode;
+		} catch (XPathExpressionException e) {
+			// Can't happen since we craft the expression carefully
+			throw new IllegalStateException(e);
+		}
+	}
+
+	Element appendNewChild(Node parent, String name) {
+		Element node = document.createElement(name);
+		parent.appendChild(node);
+		return node;
+	}
+
+	private void appendTextContentChild(Node parent, String elementName, String text) {
+		Element keyNode = appendNewChild(parent, elementName);
+		keyNode.appendChild(document.createTextNode(text));
 	}
 
 	private XPath getXPathTool() {
@@ -176,12 +220,9 @@ public class InfoPListEditor {
 	public void setEclipseArguments(List<String> arguments) {
 		try {
 			removeNodes(infoPList, "/plist/dict/key[text() = 'Eclipse']/following-sibling::array[1]/string"); //$NON-NLS-1$
+			Node parent = getNode(infoPList, "/plist/dict/key[text() = 'Eclipse']/following-sibling::array[1]"); //$NON-NLS-1$
 			for (String arg : arguments) {
-				Element stringNode = document.createElement("string"); //$NON-NLS-1$
-				Text stringName = document.createTextNode(arg);
-				stringNode.appendChild(stringName);
-				Node toAppendTo = getNode(infoPList, "/plist/dict/key[text() = 'Eclipse']/following-sibling::array[1]"); //$NON-NLS-1$
-				toAppendTo.appendChild(stringNode);
+				appendTextContentChild(parent, "string", arg); //$NON-NLS-1$
 			}
 		} catch (XPathExpressionException e) {
 			//can't happen

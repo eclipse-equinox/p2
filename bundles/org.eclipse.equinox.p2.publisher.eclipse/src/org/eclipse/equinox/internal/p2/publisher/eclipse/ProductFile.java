@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2023 IBM Corporation and others.
+ * Copyright (c) 2005, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,6 +16,7 @@
  *     SAP AG - ongoing development
  *     Rapicorp - additional features
  *     Red Hat Inc. - Bug 460967
+ *     SAP SE - support macOS bundle URL types
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
@@ -32,6 +33,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
+import org.eclipse.equinox.p2.publisher.eclipse.IMacOsBundleUrlType;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
@@ -65,6 +67,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String ATTRIBUTE_ARCH = "arch"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_ENABLED = "enabled"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_FEATURE_INSTALL_MODE = "installMode"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_MACOS_BUNDLE_URL_TYPE_SCHEME = "scheme"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_MACOS_BUNDLE_URL_TYPE_NAME = "name"; //$NON-NLS-1$
 
 	private static final String PROPERTY_ECLIPSE_APPLICATION = "eclipse.application"; //$NON-NLS-1$
 	private static final String PROPERTY_ECLIPSE_PRODUCT = "eclipse.product"; //$NON-NLS-1$
@@ -134,6 +138,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String EL_ARCH_SPARC = "argsSPARC"; //$NON-NLS-1$
 	private static final String EL_REPOSITORIES = "repositories"; //$NON-NLS-1$
 	private static final String EL_REPOSITORY = "repository"; //$NON-NLS-1$
+	private static final String EL_BUNDLE_URL_TYPES = "bundleUrlTypes"; //$NON-NLS-1$
+	private static final String EL_BUNDLE_URL_TYPE = "bundleUrlType"; //$NON-NLS-1$
 
 	//These constants form a small state machine to parse the .product file
 	private static final int STATE_START = 0;
@@ -169,6 +175,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final int STATE_VM_LINUX = 31;
 	private static final int STATE_VM_MACOS = 32;
 	private static final int STATE_VM_WINDOWS = 33;
+	private static final int STATE_LAUNCHER_MAC = 34;
+	private static final int STATE_LAUNCHER_MAC_BUNDLE_URL_TYPES = 35;
 
 	private static final String PI_PDEBUILD = "org.eclipse.pde.build"; //$NON-NLS-1$
 	private final static int EXCEPTION_PRODUCT_FORMAT = 23;
@@ -207,6 +215,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private final String currentOS;
 	private final List<IRepositoryReference> repositories = new ArrayList<>();
 	private final Map<String, String> vms = new HashMap<>();
+	private final List<IMacOsBundleUrlType> macOsBundleUrlTypes = new ArrayList<>();
 
 	private static String normalize(String text) {
 		if (text == null || text.trim().length() == 0)
@@ -802,6 +811,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 						break;
 					case OS_MACOSX:
 						processMac(attributes);
+						state = STATE_LAUNCHER_MAC;
 						break;
 					default:
 						break;
@@ -813,8 +823,24 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				}
 				break;
 
+			case STATE_LAUNCHER_MAC:
+				if (null != localName) {
+					if (EL_BUNDLE_URL_TYPES.equals(localName)) {
+						state = STATE_LAUNCHER_MAC_BUNDLE_URL_TYPES;
+					}
+				}
+				break;
 
-			case STATE_LAUNCHER_ARGS :
+			case STATE_LAUNCHER_MAC_BUNDLE_URL_TYPES:
+				if (null != localName) {
+					if (EL_BUNDLE_URL_TYPE.equals(localName)) {
+						processMacOsBundleUrlTypes(attributes);
+						state = STATE_LAUNCHER_MAC_BUNDLE_URL_TYPES;
+					}
+				}
+				break;
+
+			case STATE_LAUNCHER_ARGS:
 				if (null != localName) switch (localName) {
 					case PROGRAM_ARGS:
 						state = STATE_PROGRAM_ARGS;
@@ -1083,6 +1109,16 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			case STATE_LICENSE :
 				if (EL_LICENSE.equals(localName))
 					state = STATE_PRODUCT;
+				break;
+			case STATE_LAUNCHER_MAC_BUNDLE_URL_TYPES:
+				if (EL_BUNDLE_URL_TYPES.equals(localName)) {
+					state = STATE_LAUNCHER_MAC;
+				}
+				break;
+			case STATE_LAUNCHER_MAC:
+				if (OS_MACOSX.equals(localName)) {
+					state = STATE_LAUNCHER;
+				}
 				break;
 			case STATE_VM :
 				state = STATE_PRODUCT;
@@ -1376,8 +1412,18 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		addIcon(OS_MACOSX, attributes.getValue(ATTRIBUTE_ICON));
 	}
 
+	private void processMacOsBundleUrlTypes(Attributes attributes) {
+		macOsBundleUrlTypes.add(new MacOsBundleUrlType(attributes.getValue(ATTRIBUTE_MACOS_BUNDLE_URL_TYPE_SCHEME),
+				attributes.getValue(ATTRIBUTE_MACOS_BUNDLE_URL_TYPE_NAME)));
+	}
+
 	@Override
 	public ProductContentType getProductContentType() {
 		return productContentType;
+	}
+
+	@Override
+	public List<IMacOsBundleUrlType> getMacOsBundleUrlTypes() {
+		return macOsBundleUrlTypes;
 	}
 }

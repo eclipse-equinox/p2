@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Code 9 and others.
+ * Copyright (c) 2008, 2024 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -12,6 +12,7 @@
  * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
+ *   SAP SE - support macOS bundle URL types
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
@@ -19,6 +20,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -26,16 +28,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -54,6 +53,7 @@ import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.EquinoxExecutableAction;
 import org.eclipse.equinox.p2.publisher.eclipse.IBrandingAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.IMacOsBundleUrlType;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -236,23 +236,33 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	 * properly rewritten.
 	 * @param zip file to check for the Info.plist
 	 */
-	private void checkInfoPlist(ZipFile zip) {
-		ZipEntry candidate = null;
-		boolean found = false;
-		for (Enumeration<? extends ZipEntry> iter = zip.entries(); !found && iter.hasMoreElements();) {
-			candidate = iter.nextElement();
-			found = candidate.getName().endsWith("Info.plist");
-		}
-		assertTrue(found);
-		try {
-			String contents = readContentsAndClose(zip.getInputStream(candidate));
+	private void checkInfoPlist(ZipFile zip) throws IOException {
+		var candidate = zip.stream().filter(e -> e.getName().endsWith("Info.plist")).findFirst();
+		assertTrue(candidate.isPresent());
+		try (InputStream is = zip.getInputStream(candidate.get())) {
+			String contents = new String(is.readAllBytes(), StandardCharsets.UTF_8);
 			assertEquals(id, getPlistStringValue(contents, "CFBundleIdentifier"));
 			assertEquals(EXECUTABLE_NAME, getPlistStringValue(contents, "CFBundleExecutable"));
 			assertEquals(EXECUTABLE_NAME, getPlistStringValue(contents, "CFBundleName"));
 			assertEquals(EXECUTABLE_NAME, getPlistStringValue(contents, "CFBundleDisplayName"));
 			assertEquals(version.toString(), getPlistStringValue(contents, "CFBundleVersion"));
-		} catch (IOException e) {
-			fail();
+			assertEquals("""
+					<dict>
+						<key>CFBundleURLName</key>
+						<string>Eclipse Command</string>
+						<key>CFBundleURLSchemes</key>
+						<array>
+							<string>eclipse+command</string>
+						</array>
+					</dict>
+					<dict>
+						<key>CFBundleURLName</key>
+						<string>Vendor Application</string>
+						<key>CFBundleURLSchemes</key>
+						<array>
+							<string>vendor</string>
+						</array>
+					</dict>""".replaceAll(">\\s+<", "><"), getPlistBundleUrlTypesXmlWithoutWhitespace(contents));
 		}
 	}
 
@@ -265,16 +275,15 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		return null;
 	}
 
-	private String readContentsAndClose(InputStream inputStream) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		try (Reader is = new InputStreamReader(inputStream)) {
-			char[] buf = new char[1024];
-			int rc;
-			while ((rc = is.read(buf)) >= 0) {
-				sb.append(buf, 0, rc - 1);
-			}
-			return sb.toString();
+	private static final Pattern PLIST_BUNDLE_URL_TYPES_PATTERN = Pattern
+			.compile("<key>CFBundleURLTypes</key>\\s*<array>\\s*(.*</dict>.*?)\\s*</array>", Pattern.DOTALL);
+
+	private String getPlistBundleUrlTypesXmlWithoutWhitespace(String contents) {
+		Matcher m = PLIST_BUNDLE_URL_TYPES_PATTERN.matcher(contents);
+		if (m.find()) {
+			return m.group(1).replace("\\n", "").replaceAll(">\\s+<", "><");
 		}
+		return null;
 	}
 
 	private List<IBrandingAdvice> setupBrandingAdvice(final String osArg, final File icon) {
@@ -299,6 +308,17 @@ public class EquinoxExecutableActionTest extends ActionTest {
 			@Override
 			public String getExecutableName() {
 				return EXECUTABLE_NAME;
+			}
+
+			@Override
+			public List<IMacOsBundleUrlType> getMacOsBundleUrlTypes() {
+				IMacOsBundleUrlType scheme1 = mock(IMacOsBundleUrlType.class);
+				when(scheme1.getName()).thenReturn("Eclipse Command");
+				when(scheme1.getScheme()).thenReturn("eclipse+command");
+				IMacOsBundleUrlType scheme2 = mock(IMacOsBundleUrlType.class);
+				when(scheme2.getName()).thenReturn("Vendor Application");
+				when(scheme2.getScheme()).thenReturn("vendor");
+				return List.of(scheme1, scheme2);
 			}
 		});
 		return brandingAdvice;

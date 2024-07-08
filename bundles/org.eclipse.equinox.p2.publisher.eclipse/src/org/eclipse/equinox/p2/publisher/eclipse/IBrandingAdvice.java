@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 EclipseSource and others.
+ * Copyright (c) 2009, 2024 EclipseSource and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -11,9 +11,11 @@
  * 
  * Contributors: 
  *   EclipseSource - initial API and implementation
+ *   SAP SE - support macOS bundle URL types
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import java.util.List;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 
 /**
@@ -42,4 +44,16 @@ public interface IBrandingAdvice extends IPublisherAdvice {
 	 * @return the name of the branded launcher or <code>null</code> if none.
 	 */
 	public String getExecutableName();
+
+	/**
+	 * Returns the list of URL schemes / names to be handled by the macOS app
+	 * bundle.
+	 * <p>
+	 * They will be stored in the Information Property List file
+	 * (<code>Info.plist</code>) of the app bundle.
+	 *
+	 * @return the the list of URL schemes / names to be handled by the macOS app
+	 *         bundle
+	 */
+	public List<IMacOsBundleUrlType> getMacOsBundleUrlTypes();
 }
