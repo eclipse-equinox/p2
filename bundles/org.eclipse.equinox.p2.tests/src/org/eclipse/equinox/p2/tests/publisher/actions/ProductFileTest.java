@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009, 2017 EclipseSource and others.
+* Copyright (c) 2009, 2024 EclipseSource and others.
  *
  * This
 * program and the accompanying materials are made available under the terms of
@@ -11,6 +11,7 @@
 *
 * Contributors:
 *   EclipseSource - initial API and implementation
+*   SAP SE - support macOS bundle URL types
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
@@ -31,6 +32,7 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.equinox.p2.publisher.eclipse.IMacOsBundleUrlType;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.junit.Before;
 import org.junit.Test;
@@ -302,5 +304,18 @@ public class ProductFileTest {
 		assertEquals("org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/OSGi%Minimum-1.2", product.getVM(Platform.OS_WIN32));
 		assertEquals("org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-9", product.getVM(Platform.OS_LINUX));
 		assertNull(product.getVM(Platform.OS_MACOSX));
+	}
+
+	@Test
+	public void testGetMacOsBundleUrlTypes() throws Exception {
+		String productWithMacOsBundleUrlTypes = TestData
+				.getFile("ProductActionTest", "productWithMacOsBundleUrlTypes.product").toString();
+		ProductFile product = new ProductFile(productWithMacOsBundleUrlTypes);
+		List<IMacOsBundleUrlType> macOsBundleUrlTypes = product.getMacOsBundleUrlTypes();
+		assertEquals(2, macOsBundleUrlTypes.size());
+		assertEquals("eclipse+command", macOsBundleUrlTypes.get(0).getScheme());
+		assertEquals("Eclipse Command", macOsBundleUrlTypes.get(0).getName());
+		assertEquals("vendor", macOsBundleUrlTypes.get(1).getScheme());
+		assertEquals("Vendor Application", macOsBundleUrlTypes.get(1).getName());
 	}
 }

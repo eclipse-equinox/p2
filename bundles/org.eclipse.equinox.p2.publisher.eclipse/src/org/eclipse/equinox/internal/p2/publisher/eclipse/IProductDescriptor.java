@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Code 9 and others.
+ * Copyright (c) 2008, 2024 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -14,6 +14,7 @@
  *   EclipseSource - ongoing development
  *   SAP AG - ongoing development
  *   Rapicorp - additional features
+ *   SAP SE - support macOS bundle URL types
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.publisher.eclipse.IMacOsBundleUrlType;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 
 /**
@@ -206,5 +208,15 @@ public interface IProductDescriptor {
 	 * @return the VM for this OS, null if none is set
 	 */
 	public String getVM(String os);
+
+	/**
+	 * Returns a list of URI schemes handled by the product.
+	 * <p>
+	 * Currently, these are only evaluated on macOS, since they need to be placed in
+	 * the Information Property List file (<code>Info.plist</code>).
+	 */
+	public default List<IMacOsBundleUrlType> getMacOsBundleUrlTypes() {
+		return List.of();
+	}
 
 }
