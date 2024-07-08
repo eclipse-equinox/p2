@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Code 9 and others.
+ * Copyright (c) 2008, 2024 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -15,6 +15,7 @@
  *   IBM Corporation - ongoing development
  *   Rapicorp - additional features
  *   Christoph Läubrich - Bug 574952 p2 should distinguish between "product plugins" and "configuration plugins" (gently sponsored by Compart AG)
+ *   SAP SE - support macOS bundle URL types
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
@@ -173,6 +174,11 @@ public class ProductFileAdvice extends AbstractAdvice
 	@Override
 	public String getLicenseText() {
 		return product.getLicenseText();
+	}
+
+	@Override
+	public List<IMacOsBundleUrlType> getMacOsBundleUrlTypes() {
+		return product.getMacOsBundleUrlTypes();
 	}
 
 	/**

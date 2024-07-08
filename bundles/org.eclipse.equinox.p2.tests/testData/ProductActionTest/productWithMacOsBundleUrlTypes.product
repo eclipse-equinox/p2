@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Product With Handled URL Schemes" uid="licenseIU.product" useFeatures="false" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <launcher>
+      <win useIco="false">
+         <bmp/>
+      </win>
+      <macosx>
+         <bundleUrlTypes>
+            <bundleUrlType scheme="eclipse+command" name="Eclipse Command"/>
+            <bundleUrlType scheme="vendor" name="Vendor Application"/>
+         </bundleUrlTypes>
+      </macosx>
+   </launcher>
+
+   <license>
+        <url>http://www.example.com</url>
+        <text>
+   This is the liCenSE.
+         </text>
+   </license>
+
+   <plugins>
+   </plugins>
+
+
+</product>

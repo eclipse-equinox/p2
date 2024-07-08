@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009, 2017 EclipseSource and others.
+* Copyright (c) 2009, 2024 EclipseSource and others.
  *
  * This
 * program and the accompanying materials are made available under the terms of
@@ -12,14 +12,17 @@
 * Contributors:
 *   EclipseSource - initial API and implementation
 *   IBM Corporation - on-going maintenance
+*   SAP SE - support macOS bundle URL types
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
+import org.eclipse.equinox.p2.publisher.eclipse.IMacOsBundleUrlType;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductFileAdvice;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -196,6 +199,19 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 		absolutePath = new File(productFile2.getLocation().getParentFile(), "icon.bmp").getAbsolutePath();
 		assertEquals("2.0", 1, icons.length);
 		assertEquals("2.1", absolutePath, icons[0]);
+	}
+
+	/**
+	 * Test method for
+	 * {@link org.eclipse.equinox.p2.publisher.eclipse.ProductFileAdvice#getMacOsBundleUrlTypes()}.
+	 */
+	public void testgetMacOsBundleUrlTypes() {
+		List<IMacOsBundleUrlType> macOsBundleUrlTypes = productFileAdvice2.getMacOsBundleUrlTypes();
+		assertEquals(2, macOsBundleUrlTypes.size());
+		assertEquals("eclipse+command", macOsBundleUrlTypes.get(0).getScheme());
+		assertEquals("Eclipse Command", macOsBundleUrlTypes.get(0).getName());
+		assertEquals("vendor", macOsBundleUrlTypes.get(1).getScheme());
+		assertEquals("Vendor Application", macOsBundleUrlTypes.get(1).getName());
 	}
 
 	public void testSimpleConfiguratorConfigURL() throws Exception {
