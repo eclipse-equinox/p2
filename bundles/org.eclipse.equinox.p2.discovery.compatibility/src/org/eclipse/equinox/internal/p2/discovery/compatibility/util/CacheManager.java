@@ -198,8 +198,8 @@ public class CacheManager {
 
 		tempFile.createNewFile();
 
+		IStatus result = null;
 		try (StatefulStream stream = new StatefulStream(new FileOutputStream(tempFile))) {
-			IStatus result = null;
 			try {
 				submonitor.setWorkRemaining(1000);
 				result = transport.download(remoteFile, stream, submonitor.newChild(1000));
@@ -213,21 +213,21 @@ public class CacheManager {
 				if (result == null || !result.isOK())
 					safeDelete(tempFile);
 			}
-			if (result.isOK()) {
-				if (cacheFile.exists())
-					safeDelete(cacheFile);
-				if (tempFile.renameTo(cacheFile))
-					return;
-				result = new Status(IStatus.ERROR, Activator.ID,
-						NLS.bind(Messages.CacheManage_ErrorRenamingCache, new Object[] { remoteFile.toString(),
-								tempFile.getAbsolutePath(), cacheFile.getAbsolutePath() }));
-			}
-
-			if (result.getSeverity() == IStatus.CANCEL || submonitor.isCanceled())
-				throw new OperationCanceledException();
-			throw new ProvisionException(result);
 		} catch (FileNotFoundException e) {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
 		}
+
+		if (result != null && result.isOK()) {
+			if (cacheFile.exists())
+				safeDelete(cacheFile);
+			if (tempFile.renameTo(cacheFile))
+				return;
+			result = new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CacheManage_ErrorRenamingCache,
+					new Object[] { remoteFile.toString(), tempFile.getAbsolutePath(), cacheFile.getAbsolutePath() }));
+		}
+
+		if (result != null && result.getSeverity() == IStatus.CANCEL || submonitor.isCanceled())
+			throw new OperationCanceledException();
+		throw new ProvisionException(result);
 	}
 }
