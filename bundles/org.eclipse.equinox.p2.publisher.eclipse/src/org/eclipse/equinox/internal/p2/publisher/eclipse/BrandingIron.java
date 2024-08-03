@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2012 IBM Corporation and others.
+ *  Copyright (c) 2005, 2024 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -11,16 +11,19 @@
  *  Contributors:
  * 	IBM Corporation - initial API and implementation
  * 	Code 9 - Additional function and fixes
+ * 	SAP SE - support macOS bundle URL types
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.util.List;
 import javax.xml.transform.TransformerException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.publisher.eclipse.IMacOsBundleUrlType;
 import org.eclipse.pde.internal.publishing.Activator;
 import org.eclipse.pde.internal.publishing.Utils;
 import org.eclipse.pde.internal.swt.tools.IconExe;
@@ -38,6 +41,7 @@ public class BrandingIron {
 	private boolean brandIcons = true;
 	private String id;
 	private Version version;
+	private List<IMacOsBundleUrlType> macOsBundleUrlTypes = List.of();
 
 	public BrandingIron() {
 	}
@@ -58,6 +62,10 @@ public class BrandingIron {
 
 	public void setIcons(String[] value) {
 		icons = (value == null || value.length == 0) ? null : value;
+	}
+
+	public void setMacOsBundleUrlTypes(List<IMacOsBundleUrlType> value) {
+		macOsBundleUrlTypes = value;
 	}
 
 	public void setIcons(String value) {
@@ -560,6 +568,10 @@ public class BrandingIron {
 
 		if (iconName.length() > 0) {
 			infoPListEditor.setKey(InfoPListEditor.ICON_KEY, iconName);
+		}
+
+		for (IMacOsBundleUrlType macOsBundleUrlType : macOsBundleUrlTypes) {
+			infoPListEditor.addCfBundleUrlType(macOsBundleUrlType.getScheme(), macOsBundleUrlType.getName());
 		}
 
 		File target = new File(targetRoot, "Info.plist"); //$NON-NLS-1$ ;

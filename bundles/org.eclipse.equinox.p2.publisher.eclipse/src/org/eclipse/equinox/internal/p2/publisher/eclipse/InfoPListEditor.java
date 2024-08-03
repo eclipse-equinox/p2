@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2015, 2023 Rapicorp, Inc and others.
+ *  Copyright (c) 2015, 2024 Rapicorp, Inc and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  * 
  *  Contributors:
  * 	Rapicorp, Inc. - initial API and implementation
+ * 	SAP SE - support macOS bundle URL types
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
@@ -34,6 +35,7 @@ public class InfoPListEditor {
 	public static final String BUNDLE_INFO_KEY = "CFBundleGetInfoString"; //$NON-NLS-1$
 	public static final String BUNDLE_VERSION_KEY = "CFBundleVersion"; //$NON-NLS-1$
 	public static final String BUNDLE_SHORT_VERSION_KEY = "CFBundleShortVersionString"; //$NON-NLS-1$
+	public static final String BUNDLE_URL_TYPES = "CFBundleURLTypes"; //$NON-NLS-1$
 	public static final String ICON_KEY = "CFBundleIconFile"; //$NON-NLS-1$
 
 	private final Element infoPList;
@@ -117,6 +119,63 @@ public class InfoPListEditor {
 		stringNode.appendChild(stringValue);
 		getNode(infoPList, "/plist/dict").appendChild(keyNode); //$NON-NLS-1$
 		getNode(infoPList, "/plist/dict").appendChild(stringNode); //$NON-NLS-1$
+	}
+
+	public void addCfBundleUrlType(String scheme, String displayName) {
+		if (scheme == null)
+			throw new IllegalArgumentException("Scheme can't be null"); //$NON-NLS-1$
+		if (displayName == null)
+			throw new IllegalArgumentException("Display Name can't be null"); //$NON-NLS-1$
+
+		Node bundleUrlTypesNode = getOrCreateCfBundleUrlTypesArray();
+		Element dictNode = document.createElement("dict"); //$NON-NLS-1$
+		bundleUrlTypesNode.appendChild(dictNode);
+
+		{
+			Element keyNode = document.createElement("key"); //$NON-NLS-1$
+			dictNode.appendChild(keyNode);
+			Text keyName = document.createTextNode("CFBundleURLName"); //$NON-NLS-1$
+			keyNode.appendChild(keyName);
+			Element stringNode = document.createElement("string"); //$NON-NLS-1$
+			dictNode.appendChild(stringNode);
+			Text stringValue = document.createTextNode(displayName);
+			stringNode.appendChild(stringValue);
+		}
+
+		{
+			Element keyNode = document.createElement("key"); //$NON-NLS-1$
+			dictNode.appendChild(keyNode);
+			Text keyName = document.createTextNode("CFBundleURLSchemes"); //$NON-NLS-1$
+			keyNode.appendChild(keyName);
+			Element arrayNode = document.createElement("array"); //$NON-NLS-1$
+			dictNode.appendChild(arrayNode);
+			Element stringNode = document.createElement("string"); //$NON-NLS-1$
+			arrayNode.appendChild(stringNode);
+			Text stringValue = document.createTextNode(scheme);
+			stringNode.appendChild(stringValue);
+		}
+	}
+
+	private Node getOrCreateCfBundleUrlTypesArray() {
+		String expression = String.format("/plist/dict/key[text() = '%s']/following-sibling::array[1]", //$NON-NLS-1$
+				BUNDLE_URL_TYPES);
+		Node arrayNode;
+		try {
+			arrayNode = getNode(infoPList, expression);
+			if (arrayNode == null) {
+				Element keyNode = document.createElement("key"); //$NON-NLS-1$
+				Text keyName = document.createTextNode("CFBundleURLTypes"); //$NON-NLS-1$
+				keyNode.appendChild(keyName);
+
+				arrayNode = document.createElement("array"); //$NON-NLS-1$
+				getNode(infoPList, "/plist/dict").appendChild(keyNode); //$NON-NLS-1$
+				getNode(infoPList, "/plist/dict").appendChild(arrayNode); //$NON-NLS-1$
+			}
+			return arrayNode;
+		} catch (XPathExpressionException e) {
+			// Can't happen since we craft the expression carefully
+			throw new IllegalStateException(e);
+		}
 	}
 
 	private XPath getXPathTool() {
