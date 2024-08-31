@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2024 IBM Corporation and others.
+ *  Copyright (c) 2005, 2025 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -12,6 +12,7 @@
  * 	IBM Corporation - initial API and implementation
  * 	Code 9 - Additional function and fixes
  * 	SAP SE - support macOS bundle URL types
+ *     Tue Ton - support for FreeBSD
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
@@ -125,7 +126,8 @@ public class BrandingIron {
 				brandWindows(descriptor);
 				break;
 			case "linux": //$NON-NLS-1$
-				brandLinux(descriptor);
+			case "freebsd": //$NON-NLS-1$
+				brandUnix(descriptor);
 				break;
 			case "solaris": //$NON-NLS-1$
 				brandSolaris(descriptor);
@@ -155,7 +157,7 @@ public class BrandingIron {
 		renameLauncher(descriptor);
 	}
 
-	private void brandLinux(ExecutablesDescriptor descriptor) throws Exception {
+	private void brandUnix(ExecutablesDescriptor descriptor) throws Exception {
 		renameLauncher(descriptor);
 		if (brandIcons) {
 			File icon = null;
