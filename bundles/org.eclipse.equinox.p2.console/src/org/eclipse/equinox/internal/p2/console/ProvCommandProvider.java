@@ -263,8 +263,8 @@ public class ProvCommandProvider implements CommandProvider {
 	/**
 	 * Lists the installable units that match the given URL and query. A third
 	 * boolean argument can be provided where <code>true</code> means &quot;full
-	 * query&quot; and <code>false</code> means &quote;match query&quote;. The
-	 * default is <code>false</code>.
+	 * query&quot; and <code>false</code> means &quot;match query&quot;. The default
+	 * is <code>false</code>.
 	 */
 	public void _provlquery(CommandInterpreter interpreter) {
 		String urlString = processArgument(interpreter.nextArgument());
@@ -546,7 +546,7 @@ public class ProvCommandProvider implements CommandProvider {
 	 * Lists the installable units that match the given profile id and query. The id
 	 * can be &quot;this&quot; to denote the self profile. A third boolean argument
 	 * can be provided where <code>true</code> means &quot;full query&quot; and
-	 * <code>false</code> means &quote;match query&quote;. The default is
+	 * <code>false</code> means &quot;match query&quot;. The default is
 	 * <code>false</code>.
 	 */
 	public void _provlpquery(CommandInterpreter interpreter) {

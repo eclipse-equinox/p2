@@ -48,8 +48,7 @@ public class VersionTesting {
 	}
 
 	/**
-	 * A strict assertion of order.
-	 * asserts that b > a, a < b, a !=b, b != a
+	 * A strict assertion of order. asserts that b &gt; a, a &lt; b, a !=b, b != a
 	 */
 	public static void assertOrder(Object a, Object b) {
 		if (!(a instanceof Comparable && b instanceof Comparable))

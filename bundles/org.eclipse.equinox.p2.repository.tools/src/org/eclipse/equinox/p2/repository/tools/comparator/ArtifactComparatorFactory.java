@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Compeople AG (Stefan Liebig) - various ongoing maintenance
@@ -37,19 +37,28 @@ public class ArtifactComparatorFactory {
 	/**
 	 * Find artifact comparator by comparator's extension id, for instance:
 	 * <ul>
-	 * <li><code>org.eclipse.equinox.p2.repository.tools.jar.comparator</code> for {@link JarComparator}</li>
-	 * <li><code>org.eclipse.equinox.artifact.md5.comparator</code> for {@link MD5ArtifactComparator}</li>
+	 * <li><code>org.eclipse.equinox.p2.repository.tools.jar.comparator</code> for
+	 * {@link JarComparator}</li>
+	 * <li><code>org.eclipse.equinox.artifact.md5.comparator</code> for
+	 * {@link MD5ArtifactComparator}</li>
 	 * </ul>
 	 *
-	 * For {@link ArtifactChecksumComparator}, there is no static id that could be used directly. Instead, its extension point id <code>org.eclipse.equinox.artifact.comparator.checksum</code> should be concatenated with id of desired checksum algorithm:
+	 * For {@link ArtifactChecksumComparator}, there is no static id that could be
+	 * used directly. Instead, its extension point id
+	 * <code>org.eclipse.equinox.artifact.comparator.checksum</code> should be
+	 * concatenated with id of desired checksum algorithm:
 	 * <ul>
-	 * <li><code>org.eclipse.equinox.artifact.comparator.checksum.sha-256</code> to use artifact checksum comparator with SHA-256 message digest</li>
-	 * <li><code>org.eclipse.equinox.artifact.comparator.checksum.tiger</code> to use Tiger message digest</li>
+	 * <li><code>org.eclipse.equinox.artifact.comparator.checksum.sha-256</code> to
+	 * use artifact checksum comparator with SHA-256 message digest</li>
+	 * <li><code>org.eclipse.equinox.artifact.comparator.checksum.tiger</code> to
+	 * use Tiger message digest</li>
 	 * </ul>
 	 *
-	 * @param comparatorID id of the extension contributed to <code>org.eclipse.equinox.p2.artifact.repository.artifactComparators</code> extension point
+	 * @param comparatorID id of the extension contributed to
+	 *                     <code>org.eclipse.equinox.p2.artifact.repository.artifactComparators</code>
+	 *                     extension point
 	 * @return if found, instance of artifact comparator
-	 * @throws {@link IllegalArgumentException} otherwise
+	 * @throws IllegalArgumentException otherwise
 	 */
 	public static IArtifactComparator getArtifactComparator(String comparatorID) {
 		List<IConfigurationElement> extensions = Stream.of(RegistryFactory.getRegistry().getConfigurationElementsFor(COMPARATOR_POINT))

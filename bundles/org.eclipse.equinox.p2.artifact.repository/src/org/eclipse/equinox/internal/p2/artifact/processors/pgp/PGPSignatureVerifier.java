@@ -40,8 +40,7 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 
 	/**
 	 * ID of the registering
-	 * <code>org.eclipse.equinox.p2.artifact.repository.processingSteps</tt>
-	 * extension.
+	 * {@code org.eclipse.equinox.p2.artifact.repository.processingSteps} extension.
 	 */
 	public static final String ID = "org.eclipse.equinox.p2.processing.PGPSignatureCheck"; //$NON-NLS-1$
 

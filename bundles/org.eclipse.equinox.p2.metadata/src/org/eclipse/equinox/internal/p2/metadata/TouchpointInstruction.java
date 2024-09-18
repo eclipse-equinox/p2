@@ -26,30 +26,17 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory;
  * <p>
  * The format of a touchpoint instruction statement sequence is as follows:
  * 
- *   statement-sequence :
- *     | statement ';'
- *      | statement-sequence statement
- *      ;
+ * statement-sequence : | statement ';' | statement-sequence statement ;
  *
- *Where a statement is of the format:
+ * Where a statement is of the format:
  *
- *  statement :
- *      | actionName '(' parameters ')'
- *      ;
+ * statement : | actionName '(' parameters ')' ;
  *
- *  parameters :
- *      | // empty
- *      | parameter
- *      | parameters ',' parameter
- *      ;
+ * parameters : | // empty | parameter | parameters ',' parameter ;
  *
- *   parameter : 
- *      | paramName ':' paramValue
- *      ;
+ * parameter : | paramName ':' paramValue ;
  *
- * actionName, paramName, paramValue :
- *      | String 
- *      ;
+ * actionName, paramName, paramValue : | String ;
  *
  * @noextend This class is not intended to be subclassed by clients.
  * @see MetadataFactory#createTouchpointInstruction(String, String)
@@ -60,12 +47,13 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 	private final String importAttribute;
 
 	/**
-	 * Encodes an action statement in string form. This method will
-	 * take care of escaping any illegal characters in function parameter values.
+	 * Encodes an action statement in string form. This method will take care of
+	 * escaping any illegal characters in function parameter values.
 	 * 
 	 * @param actionName The name of the action.
-	 * @param parameters The function's parameters. This is a Map<String,String>
-	 * where the keys are parameter names, and the values are parameter values
+	 * @param parameters The function's parameters. This is a
+	 *                   Map&lt;String,String&gt; where the keys are parameter names
+	 *                   and the values are parameter values
 	 * @return An encoded touchpoint instruction statement
 	 */
 	public static String encodeAction(String actionName, Map<String, String> parameters) {
@@ -93,16 +81,16 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 		char[] chars = value.toCharArray();
 		for (char c : chars) {
 			switch (c) {
-				case '$' :
-				case ',' :
-				case ':' :
-				case ';' :
-				case '{' :
-				case '}' :
-					buf.append("${#").append(Integer.toString(c)).append('}'); //$NON-NLS-1$
-					break;
-				default :
-					buf.append(c);
+			case '$':
+			case ',':
+			case ':':
+			case ';':
+			case '{':
+			case '}':
+				buf.append("${#").append(Integer.toString(c)).append('}'); //$NON-NLS-1$
+				break;
+			default:
+				buf.append(c);
 			}
 		}
 	}
@@ -138,8 +126,8 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 	}
 
 	/**
-	 * Returns the body of this touchpoint instruction. The body is either a sequence
-	 * of instruction statements, or a simple string value.
+	 * Returns the body of this touchpoint instruction. The body is either a
+	 * sequence of instruction statements, or a simple string value.
 	 * 
 	 * @return The body of this touchpoint instruction
 	 */
@@ -148,7 +136,7 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 		return body;
 	}
 
-	//TODO What is this? Please doc
+	// TODO What is this? Please doc
 	@Override
 	public String getImportAttribute() {
 		return importAttribute;
@@ -164,7 +152,8 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 	}
 
 	/**
-	 * Returns a string representation of this instruction for debugging purposes only.
+	 * Returns a string representation of this instruction for debugging purposes
+	 * only.
 	 */
 	@Override
 	public String toString() {

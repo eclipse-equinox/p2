@@ -41,7 +41,8 @@ public class AbstractTestServerClientCase extends TestCase {
 	}
 
 	/**
-	 * Returns a URL string part consisting of http://localhost:<port>
+	 * Returns a URL string part consisting of http://localhost:&lt;port&gt;
+	 *
 	 * @return String with first part of URL
 	 */
 	public String getBaseURL() {

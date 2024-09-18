@@ -22,8 +22,8 @@ import org.eclipse.equinox.p2.publisher.actions.JREAction;
 /**
  * <p>
  * This application generates meta-data/artifact repositories from a local
- * update site. The -source <localdir> parameter must specify the top-level
- * directory containing the update site.
+ * update site. The -source &lt;localdir&gt; parameter must specify the
+ * top-level directory containing the update site.
  * </p>
  */
 public class UpdateSitePublisherApplication extends AbstractPublisherApplication {

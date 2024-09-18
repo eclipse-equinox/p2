@@ -20,22 +20,29 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
+ * <p>
  * ContextQuery is the abstract superclass for Queries that require the entire
- * input to evaluate the results.  Queries must consider the group of elements before
- * processing the results. <P>
+ * input to evaluate the results. Queries must consider the group of elements
+ * before processing the results.
+ * </p>
  *
+ * <p>
  * ContextQueries must also be transitive. That is, if run on a subset of the
  * input, the order in which they are executed must not matter. If there is the
  * need for a non-transitive query, please see:
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=261403
+ * </p>
  * <p>
- * Users of this query must call {@link #perform(Iterator)} to compute
- * the results. <P>
+ * Users of this query must call {@link #perform(Iterator)} to compute the
+ * results.
+ * </p>
+ * <p>
  * This class may be subclassed by clients. Subclasses should specify the type
  * of object they support querying on. Subclasses are also encouraged to clearly
- * specify their match algorithm, and expose the parameters involved in the match
- * computation, to allow {@link IQueryable} implementations to optimize their
- * execution of the query. <P>
+ * specify their match algorithm, and expose the parameters involved in the
+ * match computation, to allow {@link org.eclipse.equinox.p2.query.IQueryable}
+ * implementations to optimize their execution of the query.
+ * </p>
  *
  * @since 2.0
  */

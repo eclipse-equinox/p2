@@ -181,7 +181,8 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests for {@link IMetadataRepositoryManager#refreshRepository(URI, org.eclipse.core.runtime.IProgressMonitor)}.
+	 * Tests for
+	 * {@link org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager#refreshRepository(URI, org.eclipse.core.runtime.IProgressMonitor)}.
 	 */
 	public void testRefresh() throws ProvisionException {
 		File site = getTestData("Repositoy", "/testData/artifactRepo/simple/");
@@ -276,7 +277,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Tests for {@link IRepositoryManager#contains(URI).
+	 * Tests for {@link IRepositoryManager#contains(URI)}.
 	 */
 	public void testContains() {
 		File site = getTestData("Repositoy", "/testData/artifactRepo/simple/");

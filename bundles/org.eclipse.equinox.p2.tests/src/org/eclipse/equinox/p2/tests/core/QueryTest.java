@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.junit.Test;
 
 /**
- * Tests for the {@link org.eclipse.equinox.p2.query.Query} class.
+ * Tests for the {@link org.eclipse.equinox.p2.query.IQuery} class.
  */
 @SuppressWarnings("deprecation") // MatchQuery
 public class QueryTest {

@@ -18,10 +18,11 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 /**
- * Any class which declares itself as an extension to the <tt>org.eclipse.equinox.p2.garbagecollector.marksetproviders</tt>
- * extension point must extend this base class.  Given a Profile, implementors are required
- * to provide an array of MarkSet objects, each of which must contain an IArtifactRepository
- * and the IArtifactKeys used by the given Profile.
+ * Any class which declares itself as an extension to the
+ * {@code org.eclipse.equinox.p2.garbagecollector.marksetproviders} extension
+ * point must extend this base class. Given a Profile, implementors are required
+ * to provide an array of MarkSet objects, each of which must contain an
+ * IArtifactRepository and the IArtifactKeys used by the given Profile.
  */
 public abstract class MarkSetProvider {
 

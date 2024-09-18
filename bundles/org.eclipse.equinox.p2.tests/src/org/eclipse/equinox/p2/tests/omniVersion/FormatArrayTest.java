@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.junit.Test;
 
 /**
- * Tests format(<>) - arrays.
+ * Tests format(&lt;&gt;) - arrays.
  */
 public class FormatArrayTest {
 	@Test

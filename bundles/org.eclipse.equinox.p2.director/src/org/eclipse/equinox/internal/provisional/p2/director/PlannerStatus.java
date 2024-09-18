@@ -59,18 +59,23 @@ public class PlannerStatus implements IStatus {
 	}
 
 	/**
-	 * Returns a map of side-effects that will occur as a result of the plan being executed.
-	 * Side-effects of an install may include:
+	 * <p>
+	 * Returns a map of side-effects that will occur as a result of the plan being
+	 * executed. Side-effects of an install may include:
+	 * </p>
 	 * <ul>
-	 * <li>Optional software being installed that will become satisfied once the plan
-	 * is executed.</li>
-	 * <li>Optional software currently in the profile that will be uninstalled as a result
-	 * of the plan being executed. This occurs when the optional software has dependencies
-	 * that are incompatible with the software being installed.
-	 * This includes additional software that will be installed as a result of the change,
-	 * or optional changes and their corresponding explanation.
-	 * @return A map of {@link IInstallableUnit} to {@link IStatus} of the additional side effect
-	 * status, or <code>null</code> if there are no side effects.
+	 * <li>Optional software being installed that will become satisfied once the
+	 * plan is executed.</li>
+	 * <li>Optional software currently in the profile that will be uninstalled as a
+	 * result of the plan being executed. This occurs when the optional software has
+	 * dependencies that are incompatible with the software being installed. This
+	 * includes additional software that will be installed as a result of the
+	 * change, or optional changes and their corresponding explanation.</li>
+	 * </ul>
+	 *
+	 * @return A map of {@link IInstallableUnit} to {@link IStatus} of the
+	 *         additional side effect status, or <code>null</code> if there are no
+	 *         side effects.
 	 */
 	public Map<IInstallableUnit, RequestStatus> getRequestSideEffects() {
 		return requestSideEffects;

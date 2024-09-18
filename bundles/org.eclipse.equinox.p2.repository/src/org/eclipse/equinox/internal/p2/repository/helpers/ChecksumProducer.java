@@ -75,11 +75,11 @@ public class ChecksumProducer {
 	}
 
 	/**
-	 * @param file should not be <code>null</code>
-	 * @param algorithm {@link java.security.MessageDigest#getInstance(String)}
+	 * @param file         should not be <code>null</code>
+	 * @param algorithm    {@link java.security.MessageDigest#getInstance(String)}
 	 * @param providerName {@link Provider#getName()}
 	 * @return checksum of the file
-	 * @see {@link java.security.MessageDigest#getInstance(String, Provider)}
+	 * @see java.security.MessageDigest#getInstance(String, Provider)
 	 */
 	public static String produce(File file, String algorithm, String providerName) throws IOException, NoSuchAlgorithmException, NoSuchProviderException {
 		MessageDigest messageDigest = getMessageDigest(algorithm, providerName);

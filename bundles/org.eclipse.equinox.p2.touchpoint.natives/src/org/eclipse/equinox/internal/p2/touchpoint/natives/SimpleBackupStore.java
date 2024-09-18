@@ -730,7 +730,7 @@ public class SimpleBackupStore implements IBackupStore {
 	 * E.g. \\Host\C$\file becomes __\Host\C$\file /users/test/file becomes
 	 * _/users/test/file C:/file becomes C/file
 	 *
-	 * @param file a source file that needs to be backed up
+	 * @param path a source file that needs to be backed up
 	 * 
 	 * @return a file to which the original content can be backed up
 	 */
@@ -800,7 +800,7 @@ public class SimpleBackupStore implements IBackupStore {
 	 * 
 	 * Exposed for testing purposes.
 	 * 
-	 * @param path
+	 * @param path the path to back up
 	 * 
 	 * @return a path next to the original where the original will be moved, rather
 	 *         than will be moved
@@ -816,7 +816,7 @@ public class SimpleBackupStore implements IBackupStore {
 	 * 
 	 * Exposed for testing purposes.
 	 * 
-	 * @param path
+	 * @param buPath the backup path
 	 * 
 	 * @return a source path
 	 */

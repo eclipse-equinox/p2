@@ -82,7 +82,8 @@ public class ProductFileTest {
 	}
 
 	/**
-	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getProperties()}.
+	 * Test method for
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getConfigProperties()}.
 	 */
 	@Test
 	public void testGetConfigurationProperties() {
@@ -96,7 +97,7 @@ public class ProductFileTest {
 
 	/**
 	 * Test method for
-	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getBundles(boolean)}.
+	 * {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getBundles()}.
 	 */
 	@Test
 	public void testGetBundles() {
