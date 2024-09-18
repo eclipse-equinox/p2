@@ -26,7 +26,7 @@ import org.osgi.framework.ServiceReference;
 
 /**
  * Provides {@link IProvisioningAgent} instances for tests. Use as JUnit 4
- * {@link Rule}.
+ * {@code Rule}.
  */
 public final class TestAgentProvider extends ExternalResource {
 	private final TemporaryFolder tempManager;
@@ -51,7 +51,7 @@ public final class TestAgentProvider extends ExternalResource {
 
 	/**
 	 * Returns an instance of an {@link IProvisioningAgent}. If this class is used
-	 * as a JUnit method {@link Rule}, a separate instance is returned per test
+	 * as a JUnit method {@code Rule}, a separate instance is returned per test
 	 * method.
 	 */
 	public IProvisioningAgent getAgent() throws ProvisionException {

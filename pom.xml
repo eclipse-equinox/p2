@@ -140,6 +140,13 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+         <excludePackageNames>${javadoc.excludePackageNames}</excludePackageNames>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

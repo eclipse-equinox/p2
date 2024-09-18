@@ -29,7 +29,8 @@ public interface ILog {
 
 	/**
 	 *
-	 * @deprecated Use {@link ILog#printOut()} or {@link ILog#printErr()}
+	 * @deprecated Use {@link ILog#printOut(String)} or
+	 *             {@link ILog#printErr(String)}
 	 */
 	@Deprecated
 	default void log(String message) {
@@ -37,7 +38,7 @@ public interface ILog {
 	}
 
 	/**
-	 * Notify that logging is completed & cleanup resources
+	 * Notify that logging is completed &amp; cleanup resources
 	 */
 	void close();
 

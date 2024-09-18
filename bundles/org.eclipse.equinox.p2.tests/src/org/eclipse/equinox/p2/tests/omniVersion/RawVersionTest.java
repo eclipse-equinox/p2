@@ -708,7 +708,8 @@ public class RawVersionTest extends VersionTesting {
 	}
 
 	/**
-	 * Tests that: 1p-M < 1.0.0 < 1.0.0p0 == 1p0 < 1.1 < 1.1.1 < 1p1 == 1.1p1 < 1pM
+	 * Tests that:
+	 * {@code 1p-M < 1.0.0 < 1.0.0p0 == 1p0 < 1.1 < 1.1.1 < 1p1 == 1.1p1 < 1pM}
 	 */
 	@Test
 	public void testPadOrder() {

@@ -22,9 +22,13 @@ public class ChecksumHelper {
 	public static final String MD5 = "md5"; //$NON-NLS-1$
 
 	/**
-	 * @param property either {@link IArtifactDescriptor#ARTIFACT_CHECKSUM} or {@link IArtifactDescriptor#DOWNLOAD_CHECKSUM}
-	 * @return (mutable) map of <algorithm,checksum>
-	 * @throws IllegalArgumentException if checksum property neither {@link IArtifactDescriptor#ARTIFACT_CHECKSUM} nor {@link IArtifactDescriptor#DOWNLOAD_CHECKSUM}
+	 * @param property either {@link IArtifactDescriptor#ARTIFACT_CHECKSUM} or
+	 *                 {@link IArtifactDescriptor#DOWNLOAD_CHECKSUM}
+	 * @return (mutable) map of &lt;algorithm,checksum&gt;
+	 * @throws IllegalArgumentException if checksum property neither
+	 *                                  {@link IArtifactDescriptor#ARTIFACT_CHECKSUM}
+	 *                                  nor
+	 *                                  {@link IArtifactDescriptor#DOWNLOAD_CHECKSUM}
 	 */
 	static public Map<String, String> getChecksums(IArtifactDescriptor descriptor, String property) throws IllegalArgumentException {
 		if (!IArtifactDescriptor.ARTIFACT_CHECKSUM.equals(property) && !IArtifactDescriptor.DOWNLOAD_CHECKSUM.equals(property))

@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.p2.discovery.model.*;
 
 /**
  * Connector Discovery extension point reader, for extension points of type
- * <tt>org.eclipse.mylyn.discovery.core.connectorDiscovery</tt>
+ * {@code org.eclipse.mylyn.discovery.core.connectorDiscovery}
  * 
  * @author David Green
  */

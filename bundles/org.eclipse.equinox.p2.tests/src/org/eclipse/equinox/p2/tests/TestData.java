@@ -144,11 +144,13 @@ public class TestData {
 	}
 
 	/**
-	 * Asserts that the file bytes in <code>fileList</code> are contained in <code>input2</code>
-	 * by matching the entry name with the root's path + fileList path.
+	 * Asserts that the file bytes in <code>fileList</code> are contained in
+	 * <code>input2</code> by matching the entry name with the root's path +
+	 * fileList path.
 	 *
-	 * @param fileMap a map of files to verify in <code>input2</code> keyed by relative paths
-	 * i.e. Map<String filePath, File fileBytes>
+	 * @param fileMap a map of files to verify in <code>input2</code> keyed by
+	 *                relative paths i.e.,
+	 *                {@code Map<String filePath, File fileBytes>}
 	 */
 	public static void assertContains(Map<String, Object[]> fileMap, ZipInputStream input2, boolean compareContent) throws IOException {
 		Map<String, Object[]> jar2 = getEntries(input2);

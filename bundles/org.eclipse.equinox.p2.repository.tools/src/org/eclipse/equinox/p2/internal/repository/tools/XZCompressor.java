@@ -14,7 +14,8 @@
 package org.eclipse.equinox.p2.internal.repository.tools;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import org.eclipse.equinox.internal.p2.metadata.repository.Messages;
@@ -25,11 +26,11 @@ import org.tukaani.xz.*;
  * A class taking care of creating the XZ'ed version of a repository. It takes
  * as input the folder where a p2 repository is stored and produces the new
  * files in this folder.
- * 
+ *
  * The files expected in to be found as input are content.xml or content.jar, or
  * artifacts.xml or artifacts.jar. Note that the tool does not require both the
  * a metadata repository and an artifact repository. The output will be
- * <fileName>.xml.xz, and a p2.index
+ * {@code <fileName>.xml.xz}, and a {@code p2.index}.
  */
 public class XZCompressor {
 	private static final String CONTENT_XML_XZ = "content.xml.xz"; //$NON-NLS-1$

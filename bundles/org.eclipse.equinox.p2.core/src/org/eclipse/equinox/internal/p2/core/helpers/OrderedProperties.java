@@ -55,14 +55,13 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 	/**
 	 * Set the property value.
 	 * <p>
-	 * If a property with the key already exists, the previous
-	 * value is replaced. Otherwise a new property is added at
-	 * the end collection.
+	 * If a property with the key already exists, the previous value is replaced.
+	 * Otherwise a new property is added at the end collection.
 	 *
 	 * @param key   must not be null
 	 * @param value must not be null
-	 * @return previous value associated with specified key, or <tt>null</tt>
-	 *	       if there was no mapping for key.
+	 * @return previous value associated with specified key, or {@code null} if
+	 *         there was no mapping for key.
 	 */
 	public Object setProperty(String key, String value) {
 		init();

@@ -281,31 +281,36 @@ public class AuthorityChecker {
 	}
 
 	/**
+	 * <p>
 	 * Returns a list of URIs representing the hierarchical chain, starting from the
 	 * root authority, to the given location. The location will always be present as
 	 * the last element in the list. The first element represents the root
 	 * authority.
+	 * </p>
 	 *
 	 * <ul>
-	 * <li>file:/C:/folder/file</li>
+	 * <li>file:/C:/folder/file
 	 * <ul>
 	 * <li>file:/</li>
 	 * <li>file:/C:/</li>
 	 * <li>file:/C:/folder/</li>
 	 * </ul>
-	 * <li>https://host/folder/file</li>
+	 * </li>
+	 * <li>https://host/folder/file
 	 * <ul>
 	 * <li>https://host</li>
 	 * <li>https://host/folder/</li>
 	 * <li>https://host/folder/file</li>
 	 * </ul>
-	 * <li>jar:https://host/folder/file.jar!/path</li>
+	 * </li>
+	 * <li>jar:https://host/folder/file.jar!/path
 	 * <ul>
 	 * <li>https://host</li>
 	 * <li>https://host/folder/</li>
 	 * <li>https://host/folder/file.jar</li>
 	 * <li>jar:https://host/folder/file.jar!/path</li>
 	 * </ul>
+	 * </li>
 	 * </ul>
 	 *
 	 * @param location an arbitrary location.

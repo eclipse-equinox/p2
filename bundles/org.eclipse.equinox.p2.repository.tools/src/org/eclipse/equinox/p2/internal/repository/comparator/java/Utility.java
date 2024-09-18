@@ -398,16 +398,17 @@ public class Utility {
 	}
 
 	/**
-	 * Scans the given string for a type bound signature starting at the given
-	 * index and returns the index of the last character.
+	 * Scans the given string for a type bound signature starting at the given index
+	 * and returns the index of the last character.
+	 *
 	 * <pre>
 	 * TypeBoundSignature:
 	 *     <b>[-+]</b> TypeSignature <b>;</b>
-	 *     <b>*</b></b>
+	 *     <b>*</b>
 	 * </pre>
 	 *
 	 * @param string the signature string
-	 * @param start the 0-based character index of the first character
+	 * @param start  the 0-based character index of the first character
 	 * @return the 0-based character index of the last character
 	 * @exception IllegalArgumentException if this is not a type variable signature
 	 */

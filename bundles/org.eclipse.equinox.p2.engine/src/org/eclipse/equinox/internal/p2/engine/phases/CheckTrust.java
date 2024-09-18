@@ -35,9 +35,8 @@ public class CheckTrust extends InstallableUnitPhase {
 
 	/**
 	 * Parameter used to populate/get artifacts to check trust. The value for this
-	 * property is <code>Map&lt;IArtifactDescriptor, File></code>.
-	 *
-	 * @see org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.CheckTrustAction
+	 * property is <code>Map&lt;IArtifactDescriptor, File></code>. It is used by
+	 * {@code see org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.CheckTrustAction}.
 	 */
 	public static final String PARM_ARTIFACTS = "artifacts"; //$NON-NLS-1$
 

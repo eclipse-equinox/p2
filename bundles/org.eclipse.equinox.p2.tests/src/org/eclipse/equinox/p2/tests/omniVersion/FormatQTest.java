@@ -26,9 +26,9 @@ import org.junit.Test;
  * where the quote is determined by the first character of the string segment.
  * The quote must be a non alphanumeric character, and the string must be
  * delimited by the same character except brackets and parenthesises (i.e. (),
- * {}, [], <>) which are handled as pairs, thus 'q' matches "<andrea-doria>" and
- * produces a single string segment with the text 'andrea-doria'. A non-quoted
- * sequence of characters are not matched by 'q'.
+ * {}, [], &lt;&gt;) which are handled as pairs, thus 'q' matches
+ * "&lt;andrea-doria&gt;" and produces a single string segment with the text
+ * 'andrea-doria'. A non-quoted sequence of characters are not matched by 'q'.
  */
 public class FormatQTest {
 	@Test

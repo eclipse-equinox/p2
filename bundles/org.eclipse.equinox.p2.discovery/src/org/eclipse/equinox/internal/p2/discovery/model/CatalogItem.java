@@ -108,8 +108,7 @@ public class CatalogItem extends AbstractCatalogItem {
 	/**
 	 * support selection
 	 * 
-	 * @param selected
-	 *            true if the item is selected, otherwise false
+	 * @param selected true if the item is selected, otherwise false
 	 */
 	public void setSelected(boolean selected) {
 		this.selected = selected;
@@ -127,8 +126,8 @@ public class CatalogItem extends AbstractCatalogItem {
 	/**
 	 * indicate if this connector is available
 	 * 
-	 * @param available
-	 *            true if available, false if not, or null if availability is unknown
+	 * @param available true if available, false if not, or null if availability is
+	 *                  unknown
 	 */
 	public void setAvailable(Boolean available) {
 		if (available != this.available || (available != null && !available.equals(this.available))) {
@@ -155,8 +154,8 @@ public class CatalogItem extends AbstractCatalogItem {
 	}
 
 	/**
-	 * the name of the connector including the name of the organization that produces the repository if appropriate, for
-	 * example 'Mozilla Bugzilla'.
+	 * the name of the connector including the name of the organization that
+	 * produces the repository if appropriate, for example 'Mozilla Bugzilla'.
 	 */
 	public String getName() {
 		return name;
@@ -178,7 +177,8 @@ public class CatalogItem extends AbstractCatalogItem {
 	}
 
 	/**
-	 * The short name of the license, for example 'EPL 1.0', 'GPL 2.0', or 'Commercial'.
+	 * The short name of the license, for example 'EPL 1.0', 'GPL 2.0', or
+	 * 'Commercial'.
 	 */
 	public String getLicense() {
 		return license;
@@ -189,10 +189,9 @@ public class CatalogItem extends AbstractCatalogItem {
 	}
 
 	/**
-	 * A description of the connector. Plug-ins should provide a description, especially if the description is not
-	 * self-evident from the @name and
-	 * 
-	 * @organization.
+	 * A description of the connector. Plug-ins should provide a description,
+	 * especially if the description is not self-evident from the @name and
+	 * organization.
 	 */
 	public String getDescription() {
 		return description;
@@ -244,7 +243,7 @@ public class CatalogItem extends AbstractCatalogItem {
 	}
 
 	/**
-	 * E.g., "(& (osgi.os=macosx) (osgi.ws=carbon))"
+	 * E.g., "(&amp; (osgi.os=macosx) (osgi.ws=carbon))"
 	 */
 	public String getPlatformFilter() {
 		return platformFilter;

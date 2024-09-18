@@ -189,18 +189,20 @@ public abstract class Transport {
 	 * behavior:
 	 * </p>
 	 * <ul>
-	 * <li>p2.httpRule</li>
+	 * <li>p2.httpRule
 	 * <ul>
 	 * <li>redirect http:// -&gt; https://</li>
 	 * <li>allow http:// -&gt; http://</li>
 	 * <li>block http:// -&gt; CoreException</li>
 	 * </ul>
-	 * <li>p2.ftpRule</li>
+	 * </li>
+	 * <li>p2.ftpRule
 	 * <ul>
 	 * <li>redirect ftp:// -&gt; ftps://</li>
 	 * <li>allow ftp:// -&gt; ftp://</li>
 	 * <li>block ftp:// -&gt; CoreException</li>
 	 * </ul>
+	 * </li>
 	 * </ul>
 	 *
 	 * @param location an arbitrary location.

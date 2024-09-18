@@ -13,21 +13,54 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
-import java.util.*;
-import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.*;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.Map;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.metadata.expression.SimplePattern;
 import org.osgi.framework.Filter;
 
 /**
- * <p>A class that performs &quot;matching&quot; The actual algorithm used for
- * performing the match varies depending on the types of the items to match.</p>
- * <p>The following things can be matched:</p>
- * <table border="1" cellpadding="3">
- * <tr><th>LHS</th><th>RHS</th><th>Implemented as</th></tr>
- * <tr><td>{@link String}</td><td>{@link SimplePattern}</td><td>rhs.isMatch(lhs)</td></tr>
- * <tr><td>{@link String}</td><td>{@link LDAPApproximation}</td><td>rhs.isMatch(lhs)</td></tr>
- * <tr><td>&lt;any&gt;</td><td>{@link Class}</td><td>rhs.isInstance(lhs)</td></tr>
- * <tr><td>{@link Class}</td><td>{@link Class}</td><td>rhs.isAssignableFrom(lhs)</td></tr>
+ * <p>
+ * A class that performs &quot;matching&quot; The actual algorithm used for
+ * performing the match varies depending on the types of the items to match.
+ * </p>
+ * <p>
+ * The following things can be matched:
+ * </p>
+ * <table style="border: 1px solid; border-collapse: collapse;">
+ * <tr>
+ * <th style="border: 1px solid; padding: 3px;">LHS</th>
+ * <th style="border: 1px solid; padding: 3px;">RHS</th>
+ * <th style="border: 1px solid; padding: 3px;">Implemented as</th>
+ * </tr>
+ * <tr>
+ * <td style="border: 1px solid; padding: 3px;">{@link String}</td>
+ * <td style="border: 1px solid; padding: 3px;">{@link SimplePattern}</td>
+ * <td style="border: 1px solid; padding: 3px;">rhs.isMatch(lhs)</td>
+ * </tr>
+ * <tr>
+ * <td style="border: 1px solid; padding: 3px;">{@link String}</td>
+ * <td style="border: 1px solid; padding: 3px;">{@link LDAPApproximation}</td>
+ * <td style="border: 1px solid; padding: 3px;">rhs.isMatch(lhs)</td>
+ * </tr>
+ * <tr>
+ * <td style="border: 1px solid; padding: 3px;">&lt;any&gt;</td>
+ * <td style="border: 1px solid; padding: 3px;">{@link Class}</td>
+ * <td style="border: 1px solid; padding: 3px;">rhs.isInstance(lhs)</td>
+ * </tr>
+ * <tr>
+ * <td style="border: 1px solid; padding: 3px;">{@link Class}</td>
+ * <td style="border: 1px solid; padding: 3px;">{@link Class}</td>
+ * <td style="border: 1px solid; padding: 3px;">rhs.isAssignableFrom(lhs)</td>
+ * </tr>
  * </table>
  */
 public class Matches extends Binary {
@@ -40,7 +73,7 @@ public class Matches extends Binary {
 		return Boolean.valueOf(match(lhs.evaluate(context), rhs.evaluate(context)));
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected boolean match(Object lval, Object rval) {
 		if (lval == null || rval == null)
 			return false;
@@ -64,9 +97,11 @@ public class Matches extends Binary {
 			return ((LDAPFilter) rval).isMatch(MemberProvider.create(lval, true));
 		} else if (rval instanceof Filter) {
 			if (lval instanceof IInstallableUnit)
-				return Boolean.valueOf(((Filter) rval).match(new Hashtable<>(((IInstallableUnit) lval).getProperties())));
+				return Boolean
+						.valueOf(((Filter) rval).match(new Hashtable<>(((IInstallableUnit) lval).getProperties())));
 			// TODO Below we use raw types for simplicity;
-			// we could convert to Dictionary<String, ?> but that is work and the filter impl
+			// we could convert to Dictionary<String, ?> but that is work and the filter
+			// impl
 			// must still handle (and ignore) non String keys.
 			if (lval instanceof Dictionary<?, ?>)
 				return Boolean.valueOf(((Filter) rval).match((Dictionary<String, ?>) lval));
@@ -90,7 +125,8 @@ public class Matches extends Binary {
 			Class<?> rclass = (Class<?>) rval;
 			return lval instanceof Class<?> ? rclass.isAssignableFrom((Class<?>) lval) : rclass.isInstance(lval);
 		}
-		throw new IllegalArgumentException("Cannot match a " + lval.getClass().getName() + " with a " + rval.getClass().getName()); //$NON-NLS-1$//$NON-NLS-2$
+		throw new IllegalArgumentException(
+				"Cannot match a " + lval.getClass().getName() + " with a " + rval.getClass().getName()); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	@Override
@@ -148,7 +184,8 @@ public class Matches extends Binary {
 		int countryStart = uscore + 1;
 		uscore = lval.indexOf('_', countryStart);
 		return uscore < 0 ? equals(lval, rval.getCountry(), countryStart, lval.length()) //
-				: equals(lval, rval.getCountry(), countryStart, uscore) && equals(lval, rval.getVariant(), uscore + 1, lval.length());
+				: equals(lval, rval.getCountry(), countryStart, uscore)
+						&& equals(lval, rval.getVariant(), uscore + 1, lval.length());
 	}
 
 }

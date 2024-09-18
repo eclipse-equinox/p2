@@ -422,7 +422,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 * Computes the mapping of features to categories as defined in the site.xml, if
 	 * available. Returns an empty map if there is not site.xml, or no categories.
 	 * 
-	 * @return A map of SiteFeature -> Set<SiteCategory>.
+	 * @return A map of {@code SiteFeature -> Set<SiteCategory>}.
 	 */
 	protected Map<SiteFeature, Set<SiteCategory>> getFeatureToCategoryMappings(IPublisherInfo publisherInfo) {
 		HashMap<SiteFeature, Set<SiteCategory>> mappings = new HashMap<>();
@@ -454,7 +454,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 * Computes the mapping of bundles to categories as defined in the site.xml, if
 	 * available. Returns an empty map if there is not site.xml, or no categories.
 	 * 
-	 * @return A map of SiteBundle -> Set<SiteCategory>.
+	 * @return A map of {@code SiteBundle -> Set<SiteCategory>}.
 	 */
 	protected Map<SiteBundle, Set<SiteCategory>> getBundleToCategoryMappings(IPublisherInfo publisherInfo) {
 		HashMap<SiteBundle, Set<SiteCategory>> mappings = new HashMap<>();
@@ -745,7 +745,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	}
 
 	protected Transport getTransport(IPublisherInfo publisherInfo) {
-		IRepository repo = publisherInfo.getMetadataRepository();
+		IRepository<?> repo = publisherInfo.getMetadataRepository();
 		if (repo == null)
 			repo = publisherInfo.getArtifactRepository();
 		if (repo == null)

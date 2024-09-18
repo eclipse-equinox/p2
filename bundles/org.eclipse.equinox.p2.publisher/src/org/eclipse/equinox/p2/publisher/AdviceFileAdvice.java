@@ -52,17 +52,22 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	private boolean containsAdvice = false;
 
 	/**
-	 * Creates advice for an advice file at the given location. If <tt>basePath</tt>
-	 * is a directory, then <tt>adviceFilePath</tt> is appended to this location to
-	 * obtain the location of the advice file. If <tt>basePath</tt> is a file, then
-	 * <tt>adviceFilePath</tt> is used to
-	 * @param id The symbolic id of the installable unit this advice applies to
-	 * @param version The version of the installable unit this advice applies to
-	 * @param basePath The root location of the the advice file. This is either the location of
-	 * the jar containing the advice, or a directory containing the advice file
-	 * @param adviceFilePath The location of the advice file within the base path. This is
-	 * either the path of a jar entry, or the path of the advice file within the directory
-	 * specified by the base path.
+	 * Creates advice for an advice file at the given location. If {@code basePath}
+	 * is a directory, then {@code adviceFilePath} is appended to this location to
+	 * obtain the location of the advice file. If {@code basePath} is a file, then
+	 * {@code adviceFilePath} is used to
+	 *
+	 * @param id             The symbolic id of the installable unit this advice
+	 *                       applies to
+	 * @param version        The version of the installable unit this advice applies
+	 *                       to
+	 * @param basePath       The root location of the the advice file. This is
+	 *                       either the location of the jar containing the advice,
+	 *                       or a directory containing the advice file
+	 * @param adviceFilePath The location of the advice file within the base path.
+	 *                       This is either the path of a jar entry, or the path of
+	 *                       the advice file within the directory specified by the
+	 *                       base path.
 	 */
 	public AdviceFileAdvice(String id, Version version, IPath basePath, IPath adviceFilePath) {
 		Assert.isNotNull(id);

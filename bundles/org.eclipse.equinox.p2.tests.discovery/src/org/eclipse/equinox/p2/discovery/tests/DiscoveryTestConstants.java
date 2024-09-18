@@ -20,10 +20,11 @@ package org.eclipse.equinox.p2.discovery.tests;
 public abstract class DiscoveryTestConstants {
 
 	/**
-	 * The URL of the mylyn discovery directory, may be overridden using the system property
-	 * <tt>mylyn.discovery.directory</tt>.
+	 * The URL of the mylyn discovery directory, may be overridden using the system
+	 * property {@code mylyn.discovery.directory}.
 	 */
-	public static final String DISCOVERY_URL = System.getProperty("mylyn.discovery.directory", "http://www.eclipse.org/mylyn/discovery/directory-3.3.xml"); //$NON-NLS-1$ //$NON-NLS-2$
+	public static final String DISCOVERY_URL = System.getProperty("mylyn.discovery.directory", //$NON-NLS-1$
+			"http://www.eclipse.org/mylyn/discovery/directory-3.3.xml"); //$NON-NLS-1$
 
 	private DiscoveryTestConstants() {
 		// don't allow clients to instantiate

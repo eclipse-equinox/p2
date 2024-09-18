@@ -35,13 +35,13 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * Mirror support class for repositories. This class implements
- * mirror support equivalent to the mirroring of update manager sites. A repository
- * optionally provides a mirror URL via the {@link IRepository#PROP_MIRRORS_URL} key.
- * The contents of the file at this URL is expected to be an XML document
- * containing a list of <mirror> elements. The mirrors are assumed to be already
- * sorted geographically with closer mirrors first.
- * <br><br>
+ * Mirror support class for repositories. This class implements mirror support
+ * equivalent to the mirroring of update manager sites. A repository optionally
+ * provides a mirror URL via the {@link IRepository#PROP_MIRRORS_URL} key. The
+ * contents of the file at this URL is expected to be an XML document containing
+ * a list of &lt;mirror&gt; elements. The mirrors are assumed to be already
+ * sorted geographically with closer mirrors first. <br>
+ * <br>
  * Always use {@link MirrorSelector.MirrorInfoComparator} for comparison.
  */
 public class MirrorSelector {

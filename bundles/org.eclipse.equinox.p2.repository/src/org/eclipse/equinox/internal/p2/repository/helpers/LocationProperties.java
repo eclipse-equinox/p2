@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2010, 2015 EclipseSource and others.
  *
  * This
@@ -24,21 +24,28 @@ import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.p2.metadata.Version;
 
 /**
- * A representation of Location Properties.  Location properties are specified at a repository
- * location in an index.p2 file as a series of properties.  To create this object, use the
- * {@link LocationProperties#create(InputStream)} method. This method is guaranteed never to
- * return null, however, if the location properties file does not exist, or it cannot be read,
- * or it is improperly formated, isValid will return {@link LocationProperties#exists()} will 
- * return false.
- * 
- * Version 1 specifies the following 2 properties
- * version=1                                 <-- Required
- * metadata.repository.factory.order =       <-- Optional
- * artifact.repository.factory.order =       <-- Optional
- * md5.hash.<factoryID> =                    <-- Optional
- * 
- * Where repository.factory.order is a comma separated list of strings 
+ * <p>
+ * A representation of Location Properties. Location properties are specified at
+ * a repository location in an index.p2 file as a series of properties. To
+ * create this object, use the {@link LocationProperties#create(InputStream)}
+ * method. This method is guaranteed never to return null, however, if the
+ * location properties file does not exist, or it cannot be read, or it is
+ * improperly formated, isValid will return {@link LocationProperties#exists()}
+ * will return false.
+ * </p>
+ * <p>
+ * Version 1 specifies the following properties
+ * </p>
+ * <ul>
+ * <li>version=1 &lt;-- Required</li>
+ * <li>metadata.repository.factory.order = &lt;-- Optional</li>
+ * <li>artifact.repository.factory.order = &lt;-- Optional</li>
+ * <li>md5.hash.&lt;factoryID&gt; = &lt;-- Optional</li>
+ * </ul>
+ * <p>
+ * Where repository.factory.order is a comma separated list of strings
  * representing repository suffix filters.
+ * </p>
  */
 public class LocationProperties {
 
@@ -63,7 +70,7 @@ public class LocationProperties {
 	 * Creates a LocationProperties Object from an input stream. If the LocationProperties
 	 * could be created, it is returned.  If it could not be created, an empty LocationProperties
 	 * object is returned.  To check if the location properties file exists, call {@link LocationProperties#exists()};
-	 * 
+	 *
 	 * @param stream The input stream from which to read the properties from
 	 * @return LocationPropreties if the stream represents a valid set of Location Properties
 	 */
@@ -104,7 +111,7 @@ public class LocationProperties {
 	}
 
 	/**
-	 * Returns true if the location properties exist, could be read, and conforms to a proper version.  
+	 * Returns true if the location properties exist, could be read, and conforms to a proper version.
 	 * Returns false otherwise.
 	 */
 	public boolean exists() {
@@ -112,9 +119,9 @@ public class LocationProperties {
 	}
 
 	/**
-	 * Returns the Version of the location properties file.  This method is guaranteed 
+	 * Returns the Version of the location properties file.  This method is guaranteed
 	 * to return a value for all location property files >= to Version 1.0
-	 * 
+	 *
 	 * @return The Version of this set of location properties
 	 */
 	public Version getVersion() {
@@ -125,9 +132,9 @@ public class LocationProperties {
 	 * Returns the metadata FactoryID search order of location properties file.  This method is
 	 * guaranteed to return a value for all location property files >= to Version 1.0
 	 * For all other Versions, this method will return an empty string array
-	 * 
+	 *
 	 * If {@link #END} is specified, then all other repositories should be ignored.
-	 * 
+	 *
 	 * @return The Metadata FactoryID Search Order
 	 */
 	public String[] getMetadataFactorySearchOrder() {
@@ -138,9 +145,9 @@ public class LocationProperties {
 	 * Returns the artifact FactoryID search order of location properties file.  This method is
 	 * guaranteed to return a value for all location property files >= to Version 1.0
 	 * For all other Versions, this method will return an empty string array
-	 * 
+	 *
 	 * If {@link #END} is specified, then all other repositories should be ignored.
-	 * 
+	 *
 	 * @return The Artifact FactoryID Search Order
 	 */
 	public String[] getArtifactFactorySearchOrder() {
@@ -183,7 +190,7 @@ public class LocationProperties {
 	}
 
 	/**
-	 * @param key 
+	 * @param key
 	 */
 	private void initHashMD5Hash(String key, String value) {
 		// Empty for now
