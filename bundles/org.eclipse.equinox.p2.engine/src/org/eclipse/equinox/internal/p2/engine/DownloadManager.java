@@ -16,6 +16,7 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.net.URI;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
@@ -34,25 +35,29 @@ public class DownloadManager {
 	ArrayList<IArtifactRequest> requestsToProcess = new ArrayList<>();
 	private IProvisioningAgent agent = null;
 
-	/**
-	 * This Comparator sorts the repositories such that local repositories are first.
-	 * TODO: This is copied from the ProvisioningContext class. Can we combine them?
-	 * See https://bugs.eclipse.org/335153.
-	 */
-	private static final Comparator<IArtifactRepository> LOCAL_FIRST_COMPARATOR = new Comparator<>() {
-		private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
 
-		@Override
-		public int compare(IArtifactRepository arg0, IArtifactRepository arg1) {
-			String protocol0 = arg0.getLocation().getScheme();
-			String protocol1 = arg1.getLocation().getScheme();
-			if (FILE_PROTOCOL.equals(protocol0) && !FILE_PROTOCOL.equals(protocol1))
-				return -1;
-			if (!FILE_PROTOCOL.equals(protocol0) && FILE_PROTOCOL.equals(protocol1))
-				return 1;
-			return 0;
+	/**
+	 * This comparator sorts the repositories such that local repositories are first
+	 */
+	private static final Comparator<IArtifactRepository> LOCAL_FIRST_COMPARATOR = (arg0, arg1) -> DownloadManager.LOCAL_FIRST_URI_COMPARATOR.compare(arg0.getLocation(), arg1.getLocation());
+
+	/**
+	 * A pattern that will recognize a local URI also of the form jar:file:.
+	 */
+	private static final Pattern LOCAL_URI_PATTERN = Pattern.compile("^(file:|jar:file:)", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$
+
+	/**
+	 * This comparator sorts the repository URIs such that local URIs are first.
+	 */
+	public static final Comparator<URI> LOCAL_FIRST_URI_COMPARATOR = (arg0, arg1) -> {
+		boolean isLocal0 = LOCAL_URI_PATTERN.matcher(arg0.toString()).find();
+		boolean isLocal1 = LOCAL_URI_PATTERN.matcher(arg1.toString()).find();
+		if (isLocal0 != isLocal1) {
+			return isLocal0 ? -1 : 1;
 		}
+		return 0;
 	};
+
 	private Set<IInstallableUnit> ius;
 
 	public DownloadManager(ProvisioningContext context, IProvisioningAgent agent) {

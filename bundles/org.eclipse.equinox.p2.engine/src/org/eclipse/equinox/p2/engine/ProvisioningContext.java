@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.DebugHelper;
+import org.eclipse.equinox.internal.p2.engine.DownloadManager;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -51,8 +52,6 @@ public class ProvisioningContext {
 	private Set<URI> failedArtifactRepositories = new HashSet<>();
 	private Set<URI> failedMetadataRepositories = new HashSet<>();
 
-	private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
-
 	class ArtifactRepositoryQueryable implements IQueryable<IArtifactRepository> {
 		List<IArtifactRepository> repositories;
 
@@ -70,20 +69,6 @@ public class ProvisioningContext {
 			return repositories.contains(element);
 		}
 	}
-
-	/**
-	 * This Comparator sorts the repositories such that local repositories are first
-	 */
-	private static final Comparator<URI> LOCAL_FIRST_COMPARATOR = (arg0, arg1) -> {
-		String protocol0 = arg0.getScheme();
-		String protocol1 = arg1.getScheme();
-
-		if (FILE_PROTOCOL.equals(protocol0) && !FILE_PROTOCOL.equals(protocol1))
-			return -1;
-		if (!FILE_PROTOCOL.equals(protocol0) && FILE_PROTOCOL.equals(protocol1))
-			return 1;
-		return 0;
-	};
 
 	/**
 	 * Instructs the provisioning context to follow metadata repository references when
@@ -183,7 +168,7 @@ public class ProvisioningContext {
 	private List<IArtifactRepository> getLoadedArtifactRepositories(IProgressMonitor monitor) {
 		IArtifactRepositoryManager repoManager = agent.getService(IArtifactRepositoryManager.class);
 		URI[] repositories = artifactRepositories == null ? repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL) : artifactRepositories;
-		Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);
+		Arrays.sort(repositories, DownloadManager.LOCAL_FIRST_URI_COMPARATOR);
 
 		List<IArtifactRepository> repos = new ArrayList<>();
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length + 1);
