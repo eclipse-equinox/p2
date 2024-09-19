@@ -32,6 +32,7 @@
     <qualifier>-SNAPSHOT</qualifier>
     <!-- disabled for now, should be enabled later! -->
     <addMavenDescriptor>false</addMavenDescriptor>
+    <failOnJavadocErrors>true</failOnJavadocErrors>
   </properties>
 
   <!-- 
