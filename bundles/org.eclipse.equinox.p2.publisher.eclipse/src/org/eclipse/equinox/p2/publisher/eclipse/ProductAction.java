@@ -233,9 +233,8 @@ public class ProductAction extends AbstractPublisherAction {
 		for (IVersionedId element : elements) {
 			Version elementVersion = element.getVersion();
 			if (elementVersion == null || Version.emptyVersion.equals(elementVersion)) {
-				Iterator<IVersionAdvice> advice = versionAdvice.iterator();
-				while (advice.hasNext()) {
-					elementVersion = advice.next().getVersion(namespace, element.getId());
+				for (IVersionAdvice advice : versionAdvice) {
+					elementVersion = advice.getVersion(namespace, element.getId());
 					break;
 				}
 			}
