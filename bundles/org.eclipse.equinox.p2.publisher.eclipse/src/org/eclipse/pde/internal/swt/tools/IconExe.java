@@ -179,8 +179,7 @@ public class IconExe {
 				raf.close();
 				return Collections.emptyList();
 			}
-			Iterator<IconResInfo> originalIconsIterator = iconInfo.iterator();
-			while (originalIconsIterator.hasNext()) {
+			for (Iterator<IconResInfo> originalIconsIterator = iconInfo.iterator(); originalIconsIterator.hasNext();) {
 				IconResInfo iconToReplace = originalIconsIterator.next();
 				for (ImageData iconToWrite : Arrays.asList(icons)) {
 					if (iconToWrite == null)

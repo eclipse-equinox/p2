@@ -14,17 +14,11 @@
  *******************************************************************************/
 package org.eclipse.pde.internal.publishing;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Dictionary;
-import java.util.Enumeration;
-
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.BundleException;
@@ -32,34 +26,13 @@ import org.osgi.framework.BundleException;
 public final class Utils {
 
 	static public void copy(File source, File destination) throws IOException {
-		InputStream in = null;
-		OutputStream out = null;
-		try {
-			in = new BufferedInputStream(new FileInputStream(source));
-			out = new BufferedOutputStream(new FileOutputStream(destination));
-			final byte[] buffer = new byte[8192];
-			while (true) {
-				int bytesRead = -1;
-				bytesRead = in.read(buffer);
-				if (bytesRead == -1)
-					break;
-				out.write(buffer, 0, bytesRead);
-			}
-		} finally {
-			try {
-				if (in != null)
-					in.close();
-			} finally {
-				if (out != null)
-					out.close();
-			}
-		}
+		Files.copy(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
 	}
 
-	public static boolean guessUnpack(BundleDescription bundle, String[] classpath) {
-		if (bundle == null)
+	public static boolean guessUnpack(BundleDescription bundle, List<String> classpath) {
+		if (bundle == null) {
 			return true;
-
+		}
 		@SuppressWarnings("unchecked")
 		Dictionary<String, String> properties = (Dictionary<String, String>) bundle.getUserObject();
 		String shape = null;
@@ -68,39 +41,26 @@ public final class Utils {
 		}
 
 		// launcher fragments are a special case, they have no bundle-classpath
-		if (bundle.getHost() != null && bundle.getName().startsWith(Constants.BUNDLE_EQUINOX_LAUNCHER))
+		if (bundle.getHost() != null && bundle.getName().startsWith(Constants.BUNDLE_EQUINOX_LAUNCHER)) {
 			return true;
-
-		if (new File(bundle.getLocation()).isFile())
-			return false;
-
-		if (classpath.length == 0)
-			return false;
-
-		for (String classpath1 : classpath) {
-			if (classpath1.equals(".")) { //$NON-NLS-1$
-				return false;
-			}
 		}
-		return true;
+		if (new File(bundle.getLocation()).isFile()) {
+			return false;
+		}
+		return !classpath.isEmpty() && classpath.stream().noneMatch("."::equals); //$NON-NLS-1$
 	}
 
-	public static String[] getBundleClasspath(Dictionary<String, String> manifest) {
+	public static List<String> getBundleClasspath(Dictionary<String, String> manifest) {
 		String fullClasspath = getBundleManifestHeader(manifest, Constants.BUNDLE_CLASSPATH);
-		String[] result = new String[0];
 		try {
 			if (fullClasspath != null) {
-				ManifestElement[] classpathEntries;
-				classpathEntries = ManifestElement.parseHeader(Constants.BUNDLE_CLASSPATH, fullClasspath);
-				result = new String[classpathEntries.length];
-				for (int i = 0; i < classpathEntries.length; i++) {
-					result[i] = classpathEntries[i].getValue();
-				}
+				return Arrays.stream(ManifestElement.parseHeader(Constants.BUNDLE_CLASSPATH,
+						fullClasspath)).map(ManifestElement::getValue).toList();
 			}
 		} catch (BundleException e) {
 			//Ignore
 		}
-		return result;
+		return List.of();
 	}
 
 	/**
