@@ -16,6 +16,7 @@
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import org.eclipse.core.runtime.*;
@@ -95,7 +96,7 @@ public class RawMirrorRequest extends MirrorRequest {
 			if (steps.isEmpty()) {
 				LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
 						NLS.bind(Messages.noDigestAlgorithmToVerifyDownload, artifactDescriptor.getArtifactKey(),
-								artifactDescriptor.getRepository().getLocation())));
+								getLocation(artifactDescriptor))));
 			}
 			ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
 			// TODO should probably be using createAndLink here
@@ -104,5 +105,17 @@ public class RawMirrorRequest extends MirrorRequest {
 		}
 		subMon.setWorkRemaining(1);
 		return getSourceRepository().getRawArtifact(artifactDescriptor, destination, subMon.split(1));
+	}
+
+	private String getLocation(IArtifactDescriptor artifactDescriptor) {
+		IArtifactRepository repository = artifactDescriptor.getRepository();
+		if (repository == null) {
+			return "<unkown repository>"; //$NON-NLS-1$
+		}
+		URI loc = repository.getLocation();
+		if (loc == null) {
+			return "<unkown location>"; //$NON-NLS-1$
+		}
+		return loc.toASCIIString();
 	}
 }
