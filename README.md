@@ -24,3 +24,6 @@ To build and run the unit test, use the following command:
 
 See [CONTRIBUTING.md](https://github.com/eclipse-equinox/.github/blob/main/CONTRIBUTING.md)
 
+[![Create Eclipse Development Environment for Equinox P2](https://download.eclipse.org/oomph/www/setups/svg/P2.svg)](
+https://www.eclipse.org/setups/installer/?url=https://raw.githubusercontent.com/eclipse-equinox/p2/master/releng/org.eclipse.equinox.p2.setup/EquinoxP2Configuration.setup&show=true
+"Click to open Eclipse-Installer Auto Launch or drag into your running installer")
