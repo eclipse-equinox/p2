@@ -14,15 +14,18 @@ pipeline {
 	}
 	stages {
 		stage('Build') {
+			environment {
+				MAVEN_OPTS ='-XX:+PrintFlagsFinal -Xmx2g'
+			}
 			steps {
-				wrap([$class: 'Xvnc', useXauthority: true]) {
+				xvnc(useXauthority: true) {
 					sh """
 					mvn clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
 						-Pbree-libs -Papi-check -Pjavadoc \
 						-Dcompare-version-with-baselines.skip=false \
 						-Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true \
 						-Dproject.build.sourceEncoding=UTF-8 \
-						-T1C
+						-T 1C
 					"""
 				}
 			}
