@@ -26,6 +26,7 @@ public class BundleInfo {
 	public static final String EMPTY_VERSION = "0.0.0"; //$NON-NLS-1$
 	public static final int NO_LEVEL = -1;
 	public static final int NO_BUNDLEID = -1;
+	// Dummy change
 
 	private String symbolicName = null;
 	private String version = EMPTY_VERSION;
