@@ -6,11 +6,6 @@
 		<initializer class="org.eclipse.equinox.internal.p2.ui.sdk.scheduler.PreferenceInitializer"/>
 	</extension>
    <extension
-         point="org.eclipse.ui.startup">
-      <startup class="org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdateScheduler">
-      </startup>
-   </extension>
-   <extension
          point="org.eclipse.ui.preferencePages">
           <page
             name="%automaticUpdatesPrefPage"
