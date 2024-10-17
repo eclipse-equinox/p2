@@ -157,11 +157,11 @@ public class VersionRange implements Serializable {
 		} else {
 			fmt = VersionFormat.OSGI_FORMAT;
 		}
-		String minStr;
-		String maxStr;
+		final String minStr;
+		final String maxStr;
 		StringBuilder sb = new StringBuilder();
 		if (c == '[' || c == '(') {
-			includeMin = (c == '[');
+			boolean isClosedBound = c == '[';
 			pos = copyEscaped(versionRange, ++pos, ",)]", sb); //$NON-NLS-1$
 			if (pos >= top) {
 				throw new IllegalArgumentException(NLS.bind(Messages.premature_EOS_0, versionRange));
@@ -171,6 +171,7 @@ public class VersionRange implements Serializable {
 				throw new IllegalArgumentException(NLS.bind(Messages.missing_comma_in_range_0, versionRange));
 			}
 			minStr = sb.toString();
+			includeMin = isClosedBound || minStr.isEmpty();
 			sb.setLength(0);
 			pos = copyEscaped(versionRange, pos, ")]", sb); //$NON-NLS-1$
 			if (pos >= top) {
@@ -179,7 +180,7 @@ public class VersionRange implements Serializable {
 			maxStr = sb.toString();
 
 			c = versionRange.charAt(pos++);
-			includeMax = (c == ']');
+			includeMax = c == ']' || maxStr.isEmpty();
 		} else {
 			StringBuilder sbMin = new StringBuilder();
 			pos = copyEscaped(versionRange, pos, rawPrefix ? "/" : null, sbMin); //$NON-NLS-1$
@@ -248,9 +249,11 @@ public class VersionRange implements Serializable {
 					}
 				}
 			}
-			minVersion = VersionFormat.parseRaw(minStr, fmt, origMin);
+			minVersion = minStr.isEmpty() ? Version.emptyVersion : VersionFormat.parseRaw(minStr, fmt, origMin);
 			if (maxStr != null) {
-				if (maxStr.equals(minStr)) {
+				if (maxStr.isEmpty()) {
+					maxVersion = Version.MAX_VERSION;
+				} else if (maxStr.equals(minStr)) {
 					maxVersion = minVersion;
 				} else {
 					maxVersion = VersionFormat.parseRaw(maxStr, fmt, origMax);
@@ -262,9 +265,11 @@ public class VersionRange implements Serializable {
 			if (fmt == null) {
 				fmt = VersionFormat.OSGI_FORMAT;
 			}
-			minVersion = fmt.parse(minStr);
+			minVersion = minStr.isEmpty() ? Version.emptyVersion : fmt.parse(minStr);
 			if (maxStr != null) {
-				if (maxStr.equals(minStr)) {
+				if (maxStr.isEmpty()) {
+					maxVersion = Version.MAX_VERSION;
+				} else if (maxStr.equals(minStr)) {
 					maxVersion = minVersion;
 				} else {
 					maxVersion = fmt.parse(maxStr);

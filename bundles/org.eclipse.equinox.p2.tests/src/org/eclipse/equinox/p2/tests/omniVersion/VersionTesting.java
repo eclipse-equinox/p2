@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2024 Cloudsmith Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -33,6 +33,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
  * Base class for version testing. Adds useful assert methods.
  */
 public class VersionTesting {
+
 	/**
 	 * Asserts that the versionString version is included in the range.
 	 */
@@ -45,6 +46,15 @@ public class VersionTesting {
 	 */
 	public void assertNotIncludedInRange(String message, VersionRange range, String versionString) {
 		assertFalse(message, range.isIncluded(Version.parseVersion(versionString)));
+	}
+
+	public void assertBounds(String rangeSpecification, boolean includeMin, Version lowerBound, Version upperBound,
+			boolean includeMax) {
+		VersionRange range = new VersionRange(rangeSpecification);
+		assertEquals(includeMin, range.getIncludeMinimum());
+		assertEquals(includeMax, range.getIncludeMaximum());
+		assertEquals(lowerBound, range.getMinimum());
+		assertEquals(upperBound, range.getMaximum());
 	}
 
 	/**
