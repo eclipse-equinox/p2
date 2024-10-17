@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2024 Cloudsmith Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,6 +27,10 @@ import org.junit.Test;
  * Tests ranges of versions specified with osgi (default) version format.
  */
 public class OSGiRangeTest extends VersionTesting {
+
+	private static Version ONE = Version.parseVersion("1");
+	private static Version TWO = Version.parseVersion("2");
+
 	@Test
 	public void testSingleVersionRange() {
 		VersionRange range;
@@ -98,6 +102,35 @@ public class OSGiRangeTest extends VersionTesting {
 		assertEquals("[1.0.0.abcdef,2.0.0.abcdef)", v.toString());
 		v = new VersionRange("(1.0.0.abcdef,2.0.0.abcdef)");
 		assertEquals("(1.0.0.abcdef,2.0.0.abcdef)", v.toString());
+	}
+
+	@Test
+	public void testEmptyRange() {
+		assertBounds("", true, Version.emptyVersion, Version.MAX_VERSION, true);
+	}
+
+	@Test
+	public void testExplicitLowerAndUpperBound() {
+		assertBounds("[1,2)", true, ONE, TWO, false);
+		assertBounds("[1,2]", true, ONE, TWO, true);
+	}
+
+	@Test
+	public void testNoLowerBound() {
+		assertBounds("(,1)", true, Version.emptyVersion, ONE, false);
+		assertBounds("[,1)", true, Version.emptyVersion, ONE, false);
+	}
+
+	@Test
+	public void testNoUpperBound() {
+		assertBounds("[1,)", true, ONE, Version.MAX_VERSION, true);
+		assertBounds("[1,]", true, ONE, Version.MAX_VERSION, true);
+	}
+
+	@Test
+	public void testNoLowerAndUpperBound() {
+		assertBounds("(,)", true, Version.emptyVersion, Version.MAX_VERSION, true);
+		assertBounds("[,]", true, Version.emptyVersion, Version.MAX_VERSION, true);
 	}
 
 	/**

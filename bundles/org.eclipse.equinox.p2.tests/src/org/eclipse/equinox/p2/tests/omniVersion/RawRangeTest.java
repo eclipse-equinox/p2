@@ -25,6 +25,10 @@ import org.junit.Test;
  * Tests version ranges specified using raw.
  */
 public class RawRangeTest extends VersionTesting {
+
+	private static Version ONE = Version.parseVersion("raw:1");
+	private static Version TWO = Version.parseVersion("raw:2");
+
 	@Test
 	public void testEmptyRange() {
 		VersionRange range = new VersionRange("raw:''");
@@ -110,6 +114,30 @@ public class RawRangeTest extends VersionTesting {
 		assertIncludedInRange("1.3", upperBound, "raw:1.9.9.'x'");
 		assertNotIncludedInRange("1.4", upperBound, "raw:2.0");
 		assertNotIncludedInRange("1.5", upperBound, "raw:2.1");
+	}
+
+	@Test
+	public void testExplicitLowerAndUpperBound() {
+		assertBounds("raw:[1,2)", true, ONE, TWO, false);
+		assertBounds("raw:[1,2]", true, ONE, TWO, true);
+	}
+
+	@Test
+	public void testNoLowerBound() {
+		assertBounds("raw:(,1)", true, Version.emptyVersion, ONE, false);
+		assertBounds("raw:[,1)", true, Version.emptyVersion, ONE, false);
+	}
+
+	@Test
+	public void testNoUpperBound() {
+		assertBounds("raw:[1,)", true, ONE, Version.MAX_VERSION, true);
+		assertBounds("raw:[1,]", true, ONE, Version.MAX_VERSION, true);
+	}
+
+	@Test
+	public void testNoLowerAndUpperBound() {
+		assertBounds("raw:(,)", true, Version.emptyVersion, Version.MAX_VERSION, true);
+		assertBounds("raw:[,]", true, Version.emptyVersion, Version.MAX_VERSION, true);
 	}
 
 	@Test
