@@ -16,6 +16,7 @@ package org.eclipse.equinox.p2.metadata;
 
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
+import java.util.Objects;
 import java.util.WeakHashMap;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
@@ -77,11 +78,10 @@ public class VersionRange implements Serializable {
 	 */
 	public VersionRange(Version minVersion, boolean includeMin, Version maxVersion, boolean includeMax) {
 		if (minVersion == null) {
+			minVersion = Version.emptyVersion;
 			if (maxVersion == null) {
-				minVersion = Version.emptyVersion;
 				maxVersion = Version.MAX_VERSION;
-			} else
-				minVersion = Version.emptyVersion;
+			}
 		} else {
 			if (maxVersion == null)
 				maxVersion = Version.MAX_VERSION;
@@ -419,21 +419,14 @@ public class VersionRange implements Serializable {
 
 	@Override
 	public boolean equals(Object object) {
-		if (!(object instanceof VersionRange))
-			return false;
-		VersionRange vr = (VersionRange) object;
-		return includeMin == vr.includeMin && includeMax == vr.includeMax && minVersion.equals(vr.getMinimum()) && maxVersion.equals(vr.getMaximum());
+		return object instanceof VersionRange vr //
+				&& includeMin == vr.includeMin && includeMax == vr.includeMax //
+				&& minVersion.equals(vr.getMinimum()) && maxVersion.equals(vr.getMaximum());
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + maxVersion.hashCode();
-		result = prime * result + minVersion.hashCode();
-		result = prime * result + (includeMax ? 1231 : 1237);
-		result = prime * result + (includeMin ? 1231 : 1237);
-		return result;
+		return Objects.hash(maxVersion, minVersion, includeMax, includeMin);
 	}
 
 	@Override
