@@ -40,6 +40,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
+import org.eclipse.equinox.p2.publisher.eclipse.statefactory.StateObjectFactoryImpl;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -766,7 +767,8 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static BundleDescription createBundleDescription(Dictionary<String, String> enhancedManifest,
 			File bundleLocation) {
 		try {
-			BundleDescription descriptor = StateObjectFactory.defaultFactory.createBundleDescription(null,
+			;
+			BundleDescription descriptor = new StateObjectFactoryImpl().createBundleDescription(null,
 					enhancedManifest, bundleLocation == null ? null : bundleLocation.getAbsolutePath(), 1); // TODO Do
 																											// we need
 																											// to have a
