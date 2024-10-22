@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -82,7 +82,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 
 	private void resetCache(IArtifactRepository repository) {
 		repository.setProperty(PROP_SITE_CHECKSUM, "0"); //$NON-NLS-1$
-		repository.removeAll();
+		repository.removeAll(new NullProgressMonitor());
 	}
 
 	public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) {
@@ -110,7 +110,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 		repository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 		if (updateSite.getSite().getMirrorsURI() != null)
 			repository.setProperty(IRepository.PROP_MIRRORS_URL, updateSite.getSite().getMirrorsURI());
-		repository.removeAll();
+		repository.removeAll(new NullProgressMonitor());
 		generateArtifactDescriptors(updateSite, repository, monitor);
 	}
 
@@ -151,6 +151,6 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 			}
 		}
 		IArtifactDescriptor[] descriptors = allSiteArtifacts.toArray(new IArtifactDescriptor[allSiteArtifacts.size()]);
-		repository.addDescriptors(descriptors);
+		repository.addDescriptors(descriptors, monitor);
 	}
 }
