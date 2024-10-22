@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 Code 9 and others.
+ * Copyright (c) 2008, 2024 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
