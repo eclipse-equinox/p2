@@ -14,6 +14,7 @@ package org.eclipse.equinox.internal.p2.transport.ecf;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ecf.core.*;
@@ -34,21 +35,21 @@ import org.eclipse.osgi.util.NLS;
  * ECF). If such support is added, this class is easily modified.
  */
 public class FileInfoReader extends Job implements IRemoteFileSystemListener {
-	private Exception exception;
-	private IProgressMonitor theMonitor;
+	private volatile Exception exception;
+	private volatile IProgressMonitor theMonitor;
 	private final int connectionRetryCount;
 	private final long connectionRetryDelay;
 	private final IConnectContext connectContext;
-	final Boolean[] barrier = new Boolean[1];
-	private IRemoteFile[] remoteFiles;
-	private IRemoteFileSystemRequest browseRequest;
+	private final AtomicBoolean barrierReached = new AtomicBoolean();
+	private volatile IRemoteFile[] remoteFiles;
+	private volatile IRemoteFileSystemRequest browseRequest;
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		synchronized (barrier) {
-			while (barrier[0] == null) {
+		synchronized (barrierReached) {
+			while (!barrierReached.get()) {
 				try {
-					barrier.wait(1000);
+					barrierReached.wait(1000);
 					if (theMonitor.isCanceled() && browseRequest != null)
 						browseRequest.cancel();
 				} catch (InterruptedException e) {
@@ -60,14 +61,13 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	}
 
 	/**
-	 * Waits until request is processed (barrier[0] is non null).
-	 * This is a bit of a hack, as it would be better if the ECFBrowser worked in similar fashion to
-	 * file transfer were a custom job can be supplied.
-	 * TODO: log an issue for ECF.
+	 * Waits until request is processed (barrierReached.get()). This is a bit of a
+	 * hack, as it would be better if the ECFBrowser worked in similar fashion to
+	 * file transfer were a custom job can be supplied. TODO: log an issue for ECF.
 	 */
 	private void waitOnSelf() {
 		schedule();
-		while (barrier[0] == null) {
+		while (!barrierReached.get()) {
 			boolean logged = false;
 			try {
 				join();
@@ -84,7 +84,6 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	 */
 	public FileInfoReader(IConnectContext aConnectContext) {
 		super(Messages.repo_loading); // job label - TODO: this is a bad label
-		barrier[0] = null;
 		// Hide this job.
 		setSystem(true);
 		setUser(false);
@@ -136,23 +135,24 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	public void handleRemoteFileEvent(IRemoteFileSystemEvent event) {
 		exception = event.getException();
 		if (exception != null) {
-			synchronized (barrier) {
-				barrier[0] = Boolean.TRUE;
-				barrier.notify();
+			synchronized (barrierReached) {
+				barrierReached.set(true);
+				barrierReached.notifyAll();
 			}
 		} else if (event instanceof IRemoteFileSystemBrowseEvent) {
 			IRemoteFileSystemBrowseEvent fsbe = (IRemoteFileSystemBrowseEvent) event;
 			remoteFiles = fsbe.getRemoteFiles();
 			if (theMonitor != null)
 				theMonitor.worked(1);
-			synchronized (barrier) {
-				barrier[0] = Boolean.TRUE;
-				barrier.notify();
+			synchronized (barrierReached) {
+				barrierReached.set(true);
+				barrierReached.notifyAll();
 			}
 		} else {
-			synchronized (barrier) {
-				barrier[0] = Boolean.FALSE; // ended by unknown reason
-				barrier.notify();
+			synchronized (barrierReached) {
+				// ended by unknown reason, but ended
+				barrierReached.set(true);
+				barrierReached.notifyAll();
 			}
 		}
 	}
