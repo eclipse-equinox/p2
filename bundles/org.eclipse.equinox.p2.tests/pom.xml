@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.eclipse.platform</groupId>
 		<artifactId>rt.equinox.p2</artifactId>
-		<version>${releaseVersion}${qualifier}</version>
+		<version>4.34.0-SNAPSHOT</version>
 		<relativePath>../../</relativePath>
 	</parent>
 
