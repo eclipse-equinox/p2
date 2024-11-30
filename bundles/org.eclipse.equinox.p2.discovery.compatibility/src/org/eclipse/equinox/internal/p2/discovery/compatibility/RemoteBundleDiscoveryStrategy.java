@@ -55,125 +55,121 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 
 		final int totalTicks = 100000;
 		final int ticksTenPercent = totalTicks / 10;
-		monitor.beginTask(Messages.RemoteBundleDiscoveryStrategy_task_remote_discovery, totalTicks);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, Messages.RemoteBundleDiscoveryStrategy_task_remote_discovery, totalTicks);
+		File registryCacheFolder;
 		try {
-			File registryCacheFolder;
-			try {
-				if (temporaryStorage != null && temporaryStorage.exists()) {
-					delete(temporaryStorage);
-				}
-				temporaryStorage = File.createTempFile(RemoteBundleDiscoveryStrategy.class.getSimpleName(), ".tmp"); //$NON-NLS-1$
-				temporaryStorage.delete();
-				if (!temporaryStorage.mkdirs()) {
-					throw new IOException();
-				}
-				registryCacheFolder = new File(temporaryStorage, ".rcache"); //$NON-NLS-1$
-				if (!registryCacheFolder.mkdirs()) {
-					throw new IOException();
-				}
-			} catch (IOException e) {
-				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.RemoteBundleDiscoveryStrategy_io_failure_temp_storage, e));
+			if (temporaryStorage != null && temporaryStorage.exists()) {
+				delete(temporaryStorage);
 			}
-			if (monitor.isCanceled()) {
-				return;
+			temporaryStorage = File.createTempFile(RemoteBundleDiscoveryStrategy.class.getSimpleName(), ".tmp"); //$NON-NLS-1$
+			temporaryStorage.delete();
+			if (!temporaryStorage.mkdirs()) {
+				throw new IOException();
 			}
+			registryCacheFolder = new File(temporaryStorage, ".rcache"); //$NON-NLS-1$
+			if (!registryCacheFolder.mkdirs()) {
+				throw new IOException();
+			}
+		} catch (IOException e) {
+			throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.RemoteBundleDiscoveryStrategy_io_failure_temp_storage, e));
+		}
+		if (subMonitor.isCanceled()) {
+			return;
+		}
 
-			Directory directory;
-			try {
-				final Directory[] temp = new Directory[1];
-				TransportUtil.readResource(new URI(directoryUrl), reader -> {
-					DirectoryParser parser = new DirectoryParser();
-					temp[0] = parser.parse(reader);
-				}, SubMonitor.convert(monitor, ticksTenPercent));
-				directory = temp[0];
-				if (directory == null) {
-					throw new IllegalStateException();
-				}
-			} catch (UnknownHostException e) {
-				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.RemoteBundleDiscoveryStrategy_unknown_host_discovery_directory, e.getMessage()), e));
-			} catch (URISyntaxException e) {
-				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.RemoteBundleDiscoveryStrategy_Invalid_source_specified_Error, directoryUrl), e));
-			} catch (IOException e) {
-				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.RemoteBundleDiscoveryStrategy_io_failure_discovery_directory, e));
+		Directory directory;
+		try {
+			final Directory[] temp = new Directory[1];
+			TransportUtil.readResource(new URI(directoryUrl), reader -> {
+				DirectoryParser parser = new DirectoryParser();
+				temp[0] = parser.parse(reader);
+			}, subMonitor.newChild(ticksTenPercent));
+			directory = temp[0];
+			if (directory == null) {
+				throw new IllegalStateException();
 			}
-			if (monitor.isCanceled()) {
-				return;
-			}
-			if (directory.getEntries().isEmpty()) {
-				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.RemoteBundleDiscoveryStrategy_empty_directory));
-			}
+		} catch (UnknownHostException e) {
+			throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.RemoteBundleDiscoveryStrategy_unknown_host_discovery_directory, e.getMessage()), e));
+		} catch (URISyntaxException e) {
+			throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.RemoteBundleDiscoveryStrategy_Invalid_source_specified_Error, directoryUrl), e));
+		} catch (IOException e) {
+			throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.RemoteBundleDiscoveryStrategy_io_failure_discovery_directory, e));
+		}
+		if (subMonitor.isCanceled()) {
+			return;
+		}
+		if (directory.getEntries().isEmpty()) {
+			throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.RemoteBundleDiscoveryStrategy_empty_directory));
+		}
 
-			Map<File, Directory.Entry> bundleFileToDirectoryEntry = new HashMap<>();
+		Map<File, Directory.Entry> bundleFileToDirectoryEntry = new HashMap<>();
 
-			ExecutorService executorService = createExecutorService(directory.getEntries().size());
-			try {
-				List<Future<DownloadBundleJob>> futures = new ArrayList<>();
-				// submit jobs
-				for (Directory.Entry entry : directory.getEntries()) {
-					futures.add(executorService.submit(new DownloadBundleJob(entry, monitor)));
-				}
-				int futureSize = ticksTenPercent * 4 / directory.getEntries().size();
-				// collect job results
-				for (Future<DownloadBundleJob> job : futures) {
-					try {
-						DownloadBundleJob bundleJob;
-						for (;;) {
-							try {
-								bundleJob = job.get(1L, TimeUnit.SECONDS);
-								break;
-							} catch (TimeoutException e) {
-								if (monitor.isCanceled()) {
-									return;
-								}
+		ExecutorService executorService = createExecutorService(directory.getEntries().size());
+		try {
+			List<Future<DownloadBundleJob>> futures = new ArrayList<>();
+			// submit jobs
+			for (Directory.Entry entry : directory.getEntries()) {
+				futures.add(executorService.submit(new DownloadBundleJob(entry, subMonitor)));
+			}
+			int futureSize = ticksTenPercent * 4 / directory.getEntries().size();
+			// collect job results
+			for (Future<DownloadBundleJob> job : futures) {
+				try {
+					DownloadBundleJob bundleJob;
+					for (;;) {
+						try {
+							bundleJob = job.get(1L, TimeUnit.SECONDS);
+							break;
+						} catch (TimeoutException e) {
+							if (subMonitor.isCanceled()) {
+								return;
 							}
 						}
-						if (bundleJob.file != null) {
-							bundleFileToDirectoryEntry.put(bundleJob.file, bundleJob.entry);
-						}
-						monitor.worked(futureSize);
-					} catch (ExecutionException e) {
-						Throwable cause = e.getCause();
-						if (cause instanceof OperationCanceledException) {
-							monitor.setCanceled(true);
-							return;
-						}
-						IStatus status;
-						if (cause instanceof CoreException) {
-							status = ((CoreException) cause).getStatus();
-						} else {
-							status = new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.RemoteBundleDiscoveryStrategy_unexpectedError, cause);
-						}
-						// log errors but continue on
-						LogHelper.log(status);
-					} catch (InterruptedException e) {
-						monitor.setCanceled(true);
+					}
+					if (bundleJob.file != null) {
+						bundleFileToDirectoryEntry.put(bundleJob.file, bundleJob.entry);
+					}
+					subMonitor.worked(futureSize);
+				} catch (ExecutionException e) {
+					Throwable cause = e.getCause();
+					if (cause instanceof OperationCanceledException) {
+						subMonitor.setCanceled(true);
 						return;
 					}
-				}
-			} finally {
-				executorService.shutdownNow();
-			}
-
-			try {
-				registryStrategy = new DiscoveryRegistryStrategy(new File[] {registryCacheFolder}, new boolean[] {false}, this);
-				registryStrategy.setBundles(bundleFileToDirectoryEntry);
-				IExtensionRegistry extensionRegistry = new ExtensionRegistry(registryStrategy, this, this);
-				try {
-					IExtensionPoint extensionPoint = extensionRegistry.getExtensionPoint(ConnectorDiscoveryExtensionReader.EXTENSION_POINT_ID);
-					if (extensionPoint != null) {
-						IExtension[] extensions = extensionPoint.getExtensions();
-						if (extensions.length > 0) {
-							processExtensions(SubMonitor.convert(monitor, ticksTenPercent * 3), extensions);
-						}
+					IStatus status;
+					if (cause instanceof CoreException) {
+						status = ((CoreException) cause).getStatus();
+					} else {
+						status = new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.RemoteBundleDiscoveryStrategy_unexpectedError, cause);
 					}
-				} finally {
-					extensionRegistry.stop(this);
+					// log errors but continue on
+					LogHelper.log(status);
+				} catch (InterruptedException e) {
+					subMonitor.setCanceled(true);
+					return;
 				}
-			} finally {
-				registryStrategy = null;
 			}
 		} finally {
-			monitor.done();
+			executorService.shutdownNow();
+		}
+
+		try {
+			registryStrategy = new DiscoveryRegistryStrategy(new File[] {registryCacheFolder}, new boolean[] {false}, this);
+			registryStrategy.setBundles(bundleFileToDirectoryEntry);
+			IExtensionRegistry extensionRegistry = new ExtensionRegistry(registryStrategy, this, this);
+			try {
+				IExtensionPoint extensionPoint = extensionRegistry.getExtensionPoint(ConnectorDiscoveryExtensionReader.EXTENSION_POINT_ID);
+				if (extensionPoint != null) {
+					IExtension[] extensions = extensionPoint.getExtensions();
+					if (extensions.length > 0) {
+						processExtensions(subMonitor.newChild(ticksTenPercent * 3), extensions);
+					}
+				}
+			} finally {
+				extensionRegistry.stop(this);
+			}
+		} finally {
+			registryStrategy = null;
 		}
 	}
 

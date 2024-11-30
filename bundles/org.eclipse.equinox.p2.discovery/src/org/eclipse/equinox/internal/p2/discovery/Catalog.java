@@ -73,28 +73,24 @@ public class Catalog {
 
 		final int totalTicks = 100000;
 		final int discoveryTicks = totalTicks - (totalTicks / 10);
-		monitor.beginTask(Messages.Catalog_task_discovering_connectors, totalTicks);
-		try {
-			for (AbstractDiscoveryStrategy discoveryStrategy : discoveryStrategies) {
-				if (monitor.isCanceled()) {
-					status.add(Status.CANCEL_STATUS);
-					break;
-				}
-				discoveryStrategy.setCategories(newCategories);
-				discoveryStrategy.setItems(newItems);
-				discoveryStrategy.setCertifications(newCertifications);
-				discoveryStrategy.setTags(newTags);
-				try {
-					discoveryStrategy.performDiscovery(SubMonitor.convert(monitor, discoveryTicks / discoveryStrategies.size()));
-				} catch (CoreException e) {
-					status.add(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.Catalog_Strategy_failed_Error, discoveryStrategy.getClass().getSimpleName()), e));
-				}
+		SubMonitor subMonitor = SubMonitor.convert(monitor, Messages.Catalog_task_discovering_connectors, totalTicks);
+		for (AbstractDiscoveryStrategy discoveryStrategy : discoveryStrategies) {
+			if (subMonitor.isCanceled()) {
+				status.add(Status.CANCEL_STATUS);
+				break;
 			}
-
-			update(newCategories, newItems, newCertifications, newTags);
-		} finally {
-			monitor.done();
+			discoveryStrategy.setCategories(newCategories);
+			discoveryStrategy.setItems(newItems);
+			discoveryStrategy.setCertifications(newCertifications);
+			discoveryStrategy.setTags(newTags);
+			try {
+				discoveryStrategy.performDiscovery(subMonitor.newChild(discoveryTicks / discoveryStrategies.size()));
+			} catch (CoreException e) {
+				status.add(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.Catalog_Strategy_failed_Error, discoveryStrategy.getClass().getSimpleName()), e));
+			}
 		}
+
+		update(newCategories, newItems, newCertifications, newTags);
 		return status;
 	}
 

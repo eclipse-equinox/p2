@@ -42,13 +42,11 @@ public class BundleDiscoveryStrategy extends AbstractDiscoveryStrategy {
 		}
 		IExtensionPoint extensionPoint = getExtensionRegistry().getExtensionPoint(ConnectorDiscoveryExtensionReader.EXTENSION_POINT_ID);
 		IExtension[] extensions = extensionPoint.getExtensions();
-		monitor.beginTask(Messages.BundleDiscoveryStrategy_task_loading_local_extensions, extensions.length == 0 ? 1 : extensions.length);
-		try {
-			if (extensions.length > 0) {
-				processExtensions(SubMonitor.convert(monitor, extensions.length), extensions);
-			}
-		} finally {
-			monitor.done();
+		SubMonitor subMonitor = SubMonitor.convert(monitor,
+				Messages.BundleDiscoveryStrategy_task_loading_local_extensions,
+				extensions.length == 0 ? 1 : extensions.length);
+		if (extensions.length > 0) {
+			processExtensions(subMonitor.newChild(extensions.length), extensions);
 		}
 	}
 

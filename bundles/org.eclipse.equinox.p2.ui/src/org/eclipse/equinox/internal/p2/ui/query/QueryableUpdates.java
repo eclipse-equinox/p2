@@ -43,24 +43,21 @@ public class QueryableUpdates implements IQueryable<IInstallableUnit> {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		int totalWork = 2000;
-		monitor.beginTask(ProvUIMessages.QueryableUpdates_UpdateListProgress, totalWork);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, ProvUIMessages.QueryableUpdates_UpdateListProgress,
+				totalWork);
 		IPlanner planner = ui.getSession().getProvisioningAgent().getService(IPlanner.class);
 		try {
 			Set<IInstallableUnit> allUpdates = new HashSet<>();
 			for (IInstallableUnit unit : iusToUpdate) {
-				if (monitor.isCanceled())
-					return Collector.emptyCollector();
 				IQueryResult<IInstallableUnit> updates = planner.updatesFor(unit,
 						new ProvisioningContext(ui.getSession().getProvisioningAgent()),
-						SubMonitor.convert(monitor, totalWork / 2 / iusToUpdate.length));
+						subMonitor.split(totalWork / 2 / iusToUpdate.length));
 				allUpdates.addAll(updates.toUnmodifiableSet());
 			}
 			return query.perform(allUpdates.iterator());
 		} catch (OperationCanceledException e) {
 			// Nothing more to do, return result
 			return Collector.emptyCollector();
-		} finally {
-			monitor.done();
 		}
 	}
 }
