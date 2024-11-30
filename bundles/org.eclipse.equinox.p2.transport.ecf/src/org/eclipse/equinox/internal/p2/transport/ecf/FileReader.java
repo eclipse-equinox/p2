@@ -47,7 +47,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	 */
 	static class SuppressBlockedMonitor extends ProgressMonitorWrapper {
 		public SuppressBlockedMonitor(IProgressMonitor monitor, int ticks) {
-			super(SubMonitor.convert(monitor, ticks));
+			super(monitor.slice(ticks));
 		}
 
 		@Override
