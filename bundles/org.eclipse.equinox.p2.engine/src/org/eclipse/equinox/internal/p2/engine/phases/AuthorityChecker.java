@@ -16,6 +16,7 @@ import java.net.http.*;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.security.cert.Certificate;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.p2.core.*;
@@ -52,6 +54,10 @@ public class AuthorityChecker {
 	private static final Pattern HIERARCHICAL_URI_PATTERN = Pattern
 			.compile("((?:[^/:]+):(?://[^/]+|///|/)?)([^?#]*)([#?].*)?"); //$NON-NLS-1$
 
+	private final int requestTimeoutMillis;
+
+	private final int maxRequestRetries;
+
 	private final IProvisioningAgent agent;
 	private final ProvisioningContext context;
 	private final IProfile profile;
@@ -75,6 +81,9 @@ public class AuthorityChecker {
 		this.ius = ius;
 		this.artifacts = artifacts;
 		this.profile = profile;
+		requestTimeoutMillis = agent.getIntProperty("org.eclipse.equinox.p2.engine.certificateRequestTimeout", 5000);//$NON-NLS-1$
+		maxRequestRetries = agent.getIntProperty("org.eclipse.equinox.p2.engine.certificateRequestRetries", //$NON-NLS-1$
+				3);
 	}
 
 	IStatus start(IProgressMonitor monitor) {
@@ -235,7 +244,7 @@ public class AuthorityChecker {
 		return filteredAuthorities;
 	}
 
-	public static Map<URI, List<Certificate>> getCertificates(Collection<? extends URI> uris,
+	public Map<URI, List<Certificate>> getCertificates(Collection<? extends URI> uris,
 			IProgressMonitor monitor) {
 		var certificates = new TreeMap<URI, List<Certificate>>();
 		var authorities = new TreeMap<URI, List<Certificate>>();
@@ -247,13 +256,14 @@ public class AuthorityChecker {
 		return certificates;
 	}
 
-	public static void gatherCertificates(Map<URI, List<Certificate>> authorities, IProgressMonitor montior) {
+	public void gatherCertificates(Map<URI, List<Certificate>> authorities, IProgressMonitor montior) {
 		var client = HttpClient.newBuilder().build();
 		var requests = authorities.keySet().stream().collect(Collectors.toMap(Function.identity(), uri -> {
 			try {
-				return Optional.of(client.sendAsync(
-						HttpRequest.newBuilder().uri(uri).method("HEAD", BodyPublishers.noBody()).build(), //$NON-NLS-1$
-						BodyHandlers.ofString()));
+				var request = HttpRequest.newBuilder().uri(uri).timeout(Duration.ofMillis(requestTimeoutMillis))
+						.method("HEAD", BodyPublishers.noBody()) //$NON-NLS-1$
+						.build();
+				return Optional.of(sendHttpRequestOrRetry(client, request, maxRequestRetries));
 			} catch (RuntimeException ex) {
 				return Optional.<CompletableFuture<HttpResponse<String>>>ofNullable(null);
 			}
@@ -270,14 +280,27 @@ public class AuthorityChecker {
 							var peerCertificates = sslSession.getPeerCertificates();
 							entry.getValue().addAll(Arrays.asList(peerCertificates));
 						} catch (SSLPeerUnverifiedException e) {
-							//$FALL-THROUGH$
+							LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID,
+									Messages.AuthorityChecker_GatherCertificatesFailure, e));
 						}
 					});
-				} catch (RuntimeException | InterruptedException | ExecutionException e) {
-					//$FALL-THROUGH$
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				} catch (RuntimeException | ExecutionException e) {
+					LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID,
+							Messages.AuthorityChecker_GatherCertificatesFailure, e));
 				}
 			});
 		}
+	}
+
+	private static CompletableFuture<HttpResponse<String>> sendHttpRequestOrRetry(HttpClient client,
+			HttpRequest request, int retriesLeft) {
+		var future = client.sendAsync(request, BodyHandlers.ofString());
+		if (retriesLeft > 1) {
+			future = future.exceptionallyComposeAsync(e -> sendHttpRequestOrRetry(client, request, retriesLeft - 1));
+		}
+		return future;
 	}
 
 	/**

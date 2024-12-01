@@ -115,7 +115,7 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 					}
 				});
 
-				var certificates = AuthorityChecker.getCertificates(uris, monitor);
+				var certificates = authorityChecker.getCertificates(uris, monitor);
 				authorityCertificates.putAll(certificates);
 
 				if (!parent.isDisposed()) {
