@@ -165,4 +165,32 @@ public interface IProvisioningAgent {
 		return Boolean.parseBoolean(getProperty(key, Boolean.toString(defaultValue)));
 	}
 
+	/**
+	 * Returns an agent bound property as an int, the default implementation
+	 * delegates to {@link IProvisioningAgent#getIntProperty(String, int)} with
+	 * <code>0</code> as the default.
+	 *
+	 * @since 2.13
+	 */
+	default int getIntProperty(String key) {
+		return getIntProperty(key, 0);
+	}
+
+	/**
+	 * Returns an agent bound property as an int, the default implementation
+	 * delegates to {@link IProvisioningAgent#getProperty(String)} with the given
+	 * default as a String and parses the result as by
+	 * {@link Boolean#parseBoolean(String)}.
+	 *
+	 * @since 2.13
+	 */
+	default int getIntProperty(String key, int defaultValue) {
+		String propertyValue = getProperty(key, Integer.toString(defaultValue));
+		try {
+			return Integer.parseInt(propertyValue);
+		} catch (NumberFormatException e) {
+			return defaultValue;
+		}
+	}
+
 }

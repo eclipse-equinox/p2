@@ -25,6 +25,7 @@ public class Messages extends NLS {
 	public static String ActionManager_Required_Touchpoint_Not_Found;
 
 	public static String AuthorityChecker_UntrustedAuthorities;
+	public static String AuthorityChecker_GatherCertificatesFailure;
 
 	public static String actions_not_found;
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.engine.messages"; //$NON-NLS-1$
