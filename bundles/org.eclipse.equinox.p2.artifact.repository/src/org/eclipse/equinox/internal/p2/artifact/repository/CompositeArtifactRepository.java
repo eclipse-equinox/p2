@@ -146,7 +146,6 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		SubMonitor sub = SubMonitor.convert(monitor);
 		URI absolute = URIUtil.makeAbsolute(childURI, getLocation());
 		if (childrenURIs.contains(childURI) || childrenURIs.contains(absolute)) {
-			sub.done();
 			return;
 		}
 		childrenURIs.add(childURI);
