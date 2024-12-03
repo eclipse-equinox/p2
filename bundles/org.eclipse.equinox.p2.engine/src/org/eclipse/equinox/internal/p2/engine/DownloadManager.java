@@ -96,25 +96,23 @@ public class DownloadManager {
 	}
 
 	/*
-	 * Start the downloads. Return a status message indicating success or failure of the overall operation
+	 * Start the downloads. Return a status message indicating success or failure of
+	 * the overall operation
 	 */
 	public IStatus start(IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, Messages.download_artifact, 1000);
-		try {
-			if (requestsToProcess.isEmpty())
-				return Status.OK_STATUS;
+		if (requestsToProcess.isEmpty())
+			return Status.OK_STATUS;
 
-			if (provContext == null)
-				provContext = new ProvisioningContext(agent);
+		if (provContext == null)
+			provContext = new ProvisioningContext(agent);
 
-			IArtifactRepository[] repositories = getArtifactRepositories(subMonitor);
-			if (repositories.length == 0)
-				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository, new Exception(Collect.NO_ARTIFACT_REPOSITORIES_AVAILABLE));
-			fetch(repositories, subMonitor.newChild(500));
-			return overallStatus(monitor, repositories);
-		} finally {
-			subMonitor.done();
-		}
+		IArtifactRepository[] repositories = getArtifactRepositories(subMonitor);
+		if (repositories.length == 0)
+			return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository,
+					new Exception(Collect.NO_ARTIFACT_REPOSITORIES_AVAILABLE));
+		fetch(repositories, subMonitor.newChild(500));
+		return overallStatus(monitor, repositories);
 	}
 
 	/**
