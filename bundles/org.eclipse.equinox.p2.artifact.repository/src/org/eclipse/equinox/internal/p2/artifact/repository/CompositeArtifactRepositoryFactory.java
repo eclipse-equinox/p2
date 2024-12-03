@@ -133,9 +133,6 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 		} catch (IOException e) {
 			String msg = NLS.bind(Messages.io_failedRead, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
-		} finally {
-			if (monitor != null)
-				monitor.done();
 		}
 	}
 
