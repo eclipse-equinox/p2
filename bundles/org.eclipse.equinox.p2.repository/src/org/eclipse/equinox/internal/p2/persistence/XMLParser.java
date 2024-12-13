@@ -30,6 +30,13 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 
+	// Java 24 and onward restricts the number of entities that may appear in an XML
+	// document. This limit in too restrictive for p2 XML metadata where a large
+	// update site can easily have 500,000 or more entities.
+	//
+	// https://docs.oracle.com/en/java/javase/17/docs/api/java.xml/module-summary.html#IN_ISFPtable
+	private static final int MAX_ENTITIES = 0;
+
 	// Get the root object that is being parsed.
 	protected abstract Object getRootObject();
 
@@ -87,6 +94,18 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		SAXParser theParser = factory.newSAXParser();
 		if (theParser == null) {
 			throw new SAXException(Messages.XMLParser_No_SAX_Parser);
+		}
+		try {
+			theParser.setProperty("jdk.xml.totalEntitySizeLimit", //$NON-NLS-1$
+					Integer.getInteger("jdk.xml.totalEntitySizeLimit", MAX_ENTITIES)); //$NON-NLS-1$
+		} catch (SAXException se) {
+			// Maybe not supported.
+		}
+		try {
+			theParser.setProperty("jdk.xml.maxGeneralEntitySizeLimit", //$NON-NLS-1$
+					Integer.getInteger("jdk.xml.maxGeneralEntitySizeLimit", MAX_ENTITIES)); //$NON-NLS-1$
+		} catch (SAXException se) {
+			// Maybe not supported.
 		}
 		xmlReader = theParser.getXMLReader();
 		return theParser;
