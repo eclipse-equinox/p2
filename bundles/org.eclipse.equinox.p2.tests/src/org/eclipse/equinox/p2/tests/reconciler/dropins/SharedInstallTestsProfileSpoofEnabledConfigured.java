@@ -19,6 +19,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
@@ -26,6 +28,15 @@ import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
 public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInstallTestsProfileSpoofEnabled {
 
 	private File extensions;
+
+	public static Test suite() {
+		TestSuite suite = new ReconcilerTestSuite();
+		suite.setName(SharedInstallTestsProfileSpoofEnabledConfigured.class.getName());
+		suite.addTest(new SharedInstallTestsProfileSpoofEnabledConfigured("testBasicStartup"));
+		suite.addTest(new SharedInstallTestsProfileSpoofEnabledConfigured("testReadOnlyDropinsStartup"));
+		suite.addTest(new SharedInstallTestsProfileSpoofEnabledConfigured("testUserDropinsStartup"));
+		return suite;
+	}
 
 	/*
 	 * Constructor for the class.
