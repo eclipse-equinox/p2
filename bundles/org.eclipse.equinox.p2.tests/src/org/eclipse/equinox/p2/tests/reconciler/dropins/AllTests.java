@@ -1,27 +1,29 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2013 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat, Inc. - Fragment support added.
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.eclipse.equinox.p2.tests.sharedinstall.AbstractSharedInstallTest;
 
 /**
  * To run the reconciler tests, you must perform some manual setup steps:
  * 1) Download the platform runtime binary zip (latest build or the one you want to test).
  * 2) Set the following system property to the file system path of the binary zip. For example:
- * 
+ *
  * -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=c:/tmp/eclipse-platform-3.4-win32.zip
  */
 public class AllTests extends TestCase {
@@ -34,7 +36,7 @@ public class AllTests extends TestCase {
 		suite.addTest(SharedInstallTests.suite());
 		suite.addTest(SharedInstallTestsProfileSpoofEnabled.suite());
 		if (!AbstractSharedInstallTest.WINDOWS) {
-			suite.addTest(SharedInstallTestsProfileSpoofEnabledConfigured.suite());
+			suite.addTestSuite(SharedInstallTestsProfileSpoofEnabledConfigured.class);
 		}
 		suite.addTest(Bug362692.suite());
 		return suite;
