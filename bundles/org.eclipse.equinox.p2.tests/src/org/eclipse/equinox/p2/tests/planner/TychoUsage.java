@@ -29,13 +29,15 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class TychoUsage extends AbstractProvisioningTest {
 
+	private static final String SIMREL_REPO = "https://download.eclipse.org/releases/2024-12";
+	private static final String EMF_SDK_VERSION = "2.40.0.v20241018-1213";
 	private IInstallableUnit topLevelIU;
-	private IProfile profile;
 
 	private void setupTopLevelIU() {
 		IRequirement[] reqPlatform1 = new IRequirement[1];
 		reqPlatform1[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
-				"org.eclipse.emf.sdk.feature.group", new VersionRange("[2.27.0.v20210816-1137, 2.27.0.v20210816-1137]"),
+				"org.eclipse.emf.sdk.feature.group",
+				new VersionRange("[" + EMF_SDK_VERSION + "," + EMF_SDK_VERSION + "]"),
 				null, false, false, true);
 		Map<String, String> p = new HashMap<>();
 		topLevelIU = createIU("topLevelIU", Version.create("1.0.0"), null, reqPlatform1, new IProvidedCapability[0], p, null, null, true);
@@ -48,20 +50,18 @@ public class TychoUsage extends AbstractProvisioningTest {
 	}
 
 	public void testEquivalentP2Call() throws ProvisionException, URISyntaxException {
-		loadMetadataRepository(URIUtil.fromString("https://download.eclipse.org/releases/2021-09"));
-		profile = createProfile("TestProfile." + getName());
+		loadMetadataRepository(URIUtil.fromString(SIMREL_REPO));
+		IProfile profile = createProfile("TestProfile." + getName());
 		IProfileChangeRequest pcr = getPlanner(getAgent()).createChangeRequest(profile);
 		pcr.add(topLevelIU);
-		System.out.println(System.currentTimeMillis());
 		assertResolve(pcr, getPlanner(getAgent()));
-		System.out.println(System.currentTimeMillis());
 	}
 
 	public void testTychoUsage() throws ProvisionException, URISyntaxException {
 		IMetadataRepository repo = loadMetadataRepository(
-				URIUtil.fromString("https://download.eclipse.org/releases/2021-09"));
+				URIUtil.fromString(SIMREL_REPO));
 		IInstallableUnit newRoot1 = repo.query(
-				QueryUtil.createIUQuery("org.eclipse.emf.sdk.feature.group", Version.create("2.27.0.v20210816-1137")),
+				QueryUtil.createIUQuery("org.eclipse.emf.sdk.feature.group", Version.create(EMF_SDK_VERSION)),
 				new NullProgressMonitor()).iterator().next();
 		Collection<IInstallableUnit> newRoots = new ArrayList<>();
 		newRoots.add(newRoot1);
