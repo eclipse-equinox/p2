@@ -55,8 +55,30 @@ public class DownloadJob extends Job {
 			}
 			if (masterMonitor.isCanceled())
 				return Status.CANCEL_STATUS;
+
+			// Ensure that the master monitor is updated with tasks and subtasks.
+			IProgressMonitor monitor = new SlicedProgressMonitor(masterMonitor, 1) {
+				@Override
+				public void beginTask(String name, int totalWork) {
+					super.beginTask(name, totalWork);
+					setTaskName(name);
+				}
+
+				@Override
+				public void setTaskName(String name) {
+					super.setTaskName(name);
+					masterMonitor.setTaskName(name);
+				}
+
+				@Override
+				public void subTask(String name) {
+					super.subTask(name);
+					masterMonitor.subTask(name);
+				}
+			};
+
 			// process the actual request
-			SubMonitor subMonitor = SubMonitor.convert(masterMonitor.slice(1), 1);
+			SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
 			IStatus status = repository.getArtifact(request, subMonitor);
 			if (!status.isOK()) {
 				synchronized (overallStatus) {
