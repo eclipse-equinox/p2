@@ -914,11 +914,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			}
 		} else {
 			// initialize the various jobs needed to process the get artifact requests
-			monitor.beginTask(NLS.bind(Messages.sar_downloading, Integer.toString(requests.length)), requests.length);
+			SubMonitor subMonitor = SubMonitor.convert(monitor,
+					NLS.bind(Messages.sar_downloading, Integer.toString(requests.length)), requests.length);
 			try {
 				DownloadJob jobs[] = new DownloadJob[numberOfJobs];
 				for (int i = 0; i < numberOfJobs; i++) {
-					jobs[i] = new DownloadJob(Messages.sar_downloadJobName + i, this, requestsPending, monitor,
+					jobs[i] = new DownloadJob(Messages.sar_downloadJobName + i, this, requestsPending, subMonitor,
 							overallStatus);
 					jobs[i].schedule();
 				}
@@ -929,7 +930,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 					//ignore
 				}
 			} finally {
-				monitor.done();
+				subMonitor.done();
 			}
 		}
 

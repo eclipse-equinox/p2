@@ -15,6 +15,8 @@
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
 import java.util.LinkedList;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
@@ -24,11 +26,11 @@ public class DownloadJob extends Job {
 
 	private final LinkedList<IArtifactRequest> requestsPending;
 	private final SimpleArtifactRepository repository;
-	private final IProgressMonitor masterMonitor;
+	private final SubMonitor masterMonitor;
 	private final MultiStatus overallStatus;
 
 	DownloadJob(String name, SimpleArtifactRepository repository, LinkedList<IArtifactRequest> requestsPending,
-			IProgressMonitor masterMonitor, MultiStatus overallStatus) {
+			SubMonitor masterMonitor, MultiStatus overallStatus) {
 		super(name);
 		setSystem(true);
 		this.repository = repository;
@@ -56,8 +58,7 @@ public class DownloadJob extends Job {
 			if (masterMonitor.isCanceled())
 				return Status.CANCEL_STATUS;
 			// process the actual request
-			SubMonitor subMonitor = SubMonitor.convert(masterMonitor.slice(1), 1);
-			IStatus status = repository.getArtifact(request, subMonitor);
+			IStatus status = repository.getArtifact(request, new ThreadSafeProgressMonitor(1));
 			if (!status.isOK()) {
 				synchronized (overallStatus) {
 					overallStatus.add(status);
@@ -67,5 +68,76 @@ public class DownloadJob extends Job {
 
 		jobMonitor.done();
 		return Status.OK_STATUS;
+	}
+
+	/**
+	 * Wrapper around the general {@link IProgressMonitor} to make it thread safe.
+	 * All methods are wrapped within a {@link ReentrantLock} to ensure that only
+	 * one {@link Thread} can notify the {@link #masterMonitor}.
+	 */
+	private class ThreadSafeProgressMonitor implements IProgressMonitor {
+		private static final ReentrantLock LOCK = new ReentrantLock();
+		private final IProgressMonitor monitor;
+
+		private ThreadSafeProgressMonitor(int ticks) {
+			this.monitor = masterMonitor.newChild(1);
+		}
+
+		@Override
+		public void worked(int ticks) {
+			threadSafe(() -> monitor.worked(ticks));
+		}
+
+		@Override
+		public void internalWorked(double ticks) {
+			threadSafe(() -> monitor.internalWorked(ticks));
+		}
+
+		@Override
+		public void beginTask(String name, int totalWork) {
+			threadSafe(() -> monitor.beginTask(name, totalWork));
+		}
+
+		@Override
+		public void done() {
+			threadSafe(() -> monitor.done());
+		}
+
+		@Override
+		public void setCanceled(boolean value) {
+			threadSafe(() -> monitor.setCanceled(value));
+		}
+
+		@Override
+		public void setTaskName(String name) {
+			threadSafe(() -> monitor.setTaskName(name));
+		}
+
+		@Override
+		public void subTask(String name) {
+			threadSafe(() -> monitor.subTask(name));
+
+		}
+
+		@Override
+		public boolean isCanceled() {
+			return threadSafe(() -> monitor.isCanceled());
+		}
+
+		private void threadSafe(Runnable runnable) {
+			threadSafe(() -> {
+				runnable.run();
+				return null;
+			});
+		}
+
+		private <T> T threadSafe(Supplier<T> supplier) {
+			LOCK.lock();
+			try {
+				return supplier.get();
+			} finally {
+				LOCK.unlock();
+			}
+		}
 	}
 }
