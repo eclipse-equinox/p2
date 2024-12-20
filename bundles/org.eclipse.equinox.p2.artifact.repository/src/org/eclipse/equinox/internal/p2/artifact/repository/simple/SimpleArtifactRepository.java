@@ -24,6 +24,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
@@ -887,15 +889,16 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	@Override
-	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
-		monitor = IProgressMonitor.nullSafe(monitor);
+	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor unsafeMonitor) {
+		IProgressMonitor monitor = IProgressMonitor.nullSafe(unsafeMonitor);
 		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
 			load(new NullProgressMonitor());
 		}
 		if (monitor.isCanceled())
 			return Status.CANCEL_STATUS;
 
-		final MultiStatus overallStatus = new MultiStatus(Activator.ID, IStatus.OK, NLS.bind(Messages.message_problemReadingArtifact, getLocation()), null);
+		final MultiStatus overallStatus = new MultiStatus(Activator.ID, IStatus.OK,
+				NLS.bind(Messages.message_problemReadingArtifact, getLocation()), null);
 		LinkedList<IArtifactRequest> requestsPending = new LinkedList<>(Arrays.asList(requests));
 
 		int numberOfJobs = Math.min(requests.length, getMaximumThreads());
@@ -903,11 +906,13 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 			try {
 				for (IArtifactRequest request : requests) {
-					if (monitor.isCanceled())
+					if (monitor.isCanceled()) {
 						return Status.CANCEL_STATUS;
+					}
 					IStatus result = getArtifact(request, subMonitor.newChild(1));
-					if (!result.isOK())
+					if (!result.isOK()) {
 						overallStatus.add(result);
+					}
 				}
 			} finally {
 				subMonitor.done();
@@ -917,28 +922,49 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			monitor.beginTask(NLS.bind(Messages.sar_downloading, Integer.toString(requests.length)), requests.length);
 			try {
 				DownloadJob jobs[] = new DownloadJob[numberOfJobs];
+				List<IStatus> jobStatus = new CopyOnWriteArrayList<>();
+				Consumer<IStatus> resultConsumer = result -> {
+					synchronized (monitor) {
+						monitor.worked(1);
+					}
+					if (!result.isOK()) {
+						jobStatus.add(result);
+					}
+				};
+				Consumer<String> messageConsumer = jobMsg -> {
+					synchronized (monitor) {
+						// last message wins
+						monitor.subTask(jobMsg);
+					}
+				};
 				for (int i = 0; i < numberOfJobs; i++) {
-					jobs[i] = new DownloadJob(Messages.sar_downloadJobName + i, this, requestsPending, monitor,
-							overallStatus);
+					jobs[i] = new DownloadJob(Messages.sar_downloadJobName + i, this, requestsPending, resultConsumer,
+							messageConsumer);
 					jobs[i].schedule();
 				}
 				// wait for all the jobs to complete
 				try {
 					Job.getJobManager().join(DownloadJob.FAMILY, null);
 				} catch (InterruptedException e) {
-					//ignore
+					// ignore
 				}
+				overallStatus.addAll(overallStatus);
 			} finally {
 				monitor.done();
 			}
 		}
 
-		if (monitor.isCanceled())
+		if (monitor.isCanceled()) {
 			return Status.CANCEL_STATUS;
-		else if (overallStatus.isOK())
+		} else if (overallStatus.isOK()) {
 			return Status.OK_STATUS;
-		else
+		} else {
+			IStatus[] children = overallStatus.getChildren();
+			if (children.length == 1) {
+				return children[0];
+			}
 			return overallStatus;
+		}
 	}
 
 	public synchronized IArtifactDescriptor getCompleteArtifactDescriptor(IArtifactKey key) {

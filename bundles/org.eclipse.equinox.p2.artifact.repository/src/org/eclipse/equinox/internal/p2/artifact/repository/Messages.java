@@ -18,6 +18,9 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.artifact.repository.messages"; //$NON-NLS-1$
 
+	public static String DownloadJob_initial;
+	public static String DownloadJob_current_artifact;
+
 	public static String artifact_not_found;
 	public static String available_already_in;
 	public static String no_location;
