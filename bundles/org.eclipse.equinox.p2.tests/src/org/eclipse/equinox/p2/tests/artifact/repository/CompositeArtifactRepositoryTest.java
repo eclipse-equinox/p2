@@ -595,7 +595,8 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testGetArtifactsWithErrorInChild() throws Exception {
-		repositoryURI = getTestData("1", "/testData/artifactRepo/composite/errorInChild").toURI();
+		File testData = getTestData("1", "/testData/artifactRepo/composite/errorInChild");
+		repositoryURI = testData.toURI();
 		IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(repositoryURI, null);
 
 		IArtifactRequest[] requests = new IArtifactRequest[] {new ArtifactRequest(new ArtifactKey("osgi.bundle", "plugin", Version.parseVersion("1.0.0")), null) {
@@ -611,8 +612,10 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertThat(status, is(statusWithMessageWhich(containsString("while reading artifacts from child repositories"))));
 
 		// bug 391400: status should point to repository with problem
-		String brokenChildURI = repositoryURI.toString() + "child";
-		assertThat(Arrays.asList(status.getChildren()), hasItem(statusWithMessageWhich(containsString(brokenChildURI))));
+		assertThat(Arrays.asList(status.getChildren()),
+				hasItem(statusWithMessageWhich(containsString("An error occurred copying file"))));
+		assertThat(Arrays.asList(status.getChildren()),
+				hasItem(statusWithMessageWhich(containsString(testData.getAbsolutePath()))));
 	}
 
 	public void testLoadingRepositoryRemote() {
