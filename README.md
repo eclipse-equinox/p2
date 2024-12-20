@@ -2,7 +2,7 @@
 
 ## Overview
 
-p2 provides an extensible provisioning platform for Eclipse components and Eclpise based applications. 
+p2 provides an extensible provisioning platform for Eclipse components and Eclipse-based applications. 
 
 It including a state of the art dependency resolver based on SAT4J, a mechanism to perform transactional state changes, an extensible set of actions.
 
