@@ -18,6 +18,7 @@ import java.io.*;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.ReproducibleHelper;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
@@ -285,7 +286,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 		try {
 			try {
 				out = new FileOutputStream(file);
-				args.store(out, null);
+				ReproducibleHelper.storeProperties(args, out, null);
 			} finally {
 				if (out != null)
 					out.close();

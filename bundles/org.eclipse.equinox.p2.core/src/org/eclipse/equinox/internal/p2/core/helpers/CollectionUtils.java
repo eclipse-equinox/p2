@@ -242,6 +242,6 @@ public class CollectionUtils {
 	public static void storeProperties(Map<String, String> properties, OutputStream stream, String comment) throws IOException {
 		Properties props = new Properties();
 		props.putAll(properties);
-		props.store(stream, comment);
+		ReproducibleHelper.storeProperties(props, stream, comment);
 	}
 }

@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
+import org.eclipse.equinox.internal.p2.core.helpers.ReproducibleHelper;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.simpleconfigurator.SimpleConfiguratorImpl;
@@ -463,7 +464,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			try {
 				File outputFile = new File(outputFolder, SimpleConfiguratorImpl.BASE_TIMESTAMP_FILE_BUNDLESINFO);
 				os = new BufferedOutputStream(new FileOutputStream(outputFile));
-				timestampToPersist.store(os, "Written by " + this.getClass()); //$NON-NLS-1$
+				ReproducibleHelper.storeProperties(timestampToPersist, os, "Written by " + this.getClass()); //$NON-NLS-1$
 			} finally {
 				if (os != null)
 					os.close();

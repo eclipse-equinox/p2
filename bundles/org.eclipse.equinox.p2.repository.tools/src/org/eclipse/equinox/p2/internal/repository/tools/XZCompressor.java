@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import org.eclipse.equinox.internal.p2.core.helpers.ReproducibleHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.Messages;
 import org.eclipse.osgi.util.NLS;
 import org.tukaani.xz.*;
@@ -165,8 +166,7 @@ public class XZCompressor {
 		}
 		p2Index.setProperty("version", "1"); //$NON-NLS-1$//$NON-NLS-2$
 		try (OutputStream output = new FileOutputStream(new File(repoFolder, "p2.index"));) { //$NON-NLS-1$
-			// $NON-NLS-1$
-			p2Index.store(output, null);
+			ReproducibleHelper.storeProperties(p2Index, output, null);
 		}
 	}
 }

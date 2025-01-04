@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
+import org.eclipse.equinox.internal.p2.core.helpers.ReproducibleHelper;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
@@ -544,7 +545,7 @@ public class EquinoxFwConfigFileParser {
 	private void saveProperties(File outputFile, Properties configProps) throws IOException {
 		String header = "This configuration file was written by: " + this.getClass().getName(); //$NON-NLS-1$
 		try (FileOutputStream out = new FileOutputStream(outputFile)) {
-			configProps.store(out, header);
+			ReproducibleHelper.storeProperties(configProps, out, header);
 			Log.info(NLS.bind(Messages.log_propertiesSaved, outputFile));
 		}
 	}

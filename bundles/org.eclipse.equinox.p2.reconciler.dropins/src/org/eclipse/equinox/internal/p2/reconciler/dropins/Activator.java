@@ -196,7 +196,7 @@ public class Activator implements BundleActivator {
 				try (OutputStream os = new BufferedOutputStream(new FileOutputStream(configIni))) {
 					String externalForm = PathUtil.makeRelative(parentConfiguration.toURL().toExternalForm(), getOSGiInstallArea()).replace('\\', '/');
 					props.put("osgi.sharedConfiguration.area", externalForm); //$NON-NLS-1$
-					props.store(os, "Linked configuration"); //$NON-NLS-1$
+					ReproducibleHelper.storeProperties(props, os, "Linked configuration"); //$NON-NLS-1$
 				}
 			} catch (IOException e) {
 				LogHelper.log(new Status(IStatus.ERROR, ID, "Unable to create linked configuration location.", e)); //$NON-NLS-1$
@@ -410,7 +410,7 @@ public class Activator implements BundleActivator {
 		trace("Writing out timestamps to file : " + file.getAbsolutePath()); //$NON-NLS-1$
 		file.delete();
 		try (OutputStream output = new BufferedOutputStream(new FileOutputStream(file))) {
-			timestamps.store(output, null);
+			ReproducibleHelper.storeProperties(timestamps, output, null);
 			if (Tracing.DEBUG_RECONCILER) {
 				for (Object key : timestamps.keySet()) {
 					Object value = timestamps.get(key);

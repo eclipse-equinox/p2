@@ -19,6 +19,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.equinox.internal.p2.core.helpers.ReproducibleHelper;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.CheckAndPromptNativePackage;
 import org.eclipse.equinox.p2.core.*;
@@ -124,7 +125,8 @@ public class NativePackageExtractionApplication implements IApplication {
 
 	private void persistInformation() throws CoreException {
 		try (BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(resultFile))) {
-			extractedData.store(os, "Data extracted from eclipse located at " + installation); //$NON-NLS-1$
+			ReproducibleHelper.storeProperties(extractedData, os,
+					"Data extracted from eclipse located at " + installation); //$NON-NLS-1$
 		} catch (IOException e) {
 			throw new CoreException(new Status(IStatus.ERROR, Activator.ID,
 					Messages.NativePackageExtractionApplication_PersistencePb + resultFile.getAbsolutePath(), e));

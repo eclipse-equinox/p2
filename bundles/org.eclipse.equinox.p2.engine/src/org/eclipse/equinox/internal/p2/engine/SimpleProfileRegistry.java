@@ -1059,7 +1059,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		Properties prunedProperties = properties;
 		try (OutputStream output = new BufferedOutputStream(new FileOutputStream(file));) {
 			prunedProperties = pruneStateProperties(id, properties);
-			prunedProperties.store(output, null);
+			ReproducibleHelper.storeProperties(prunedProperties, output, null);
 			output.flush();
 		} catch (IOException e) {
 			return new Status(IStatus.ERROR, EngineActivator.ID, Messages.SimpleProfileRegistry_States_Error_Writing_File, e);
