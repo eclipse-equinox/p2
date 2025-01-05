@@ -7,19 +7,23 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.spi.AgentServiceName;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * Service factory providing {@link IArtifactRepositoryManager} instances.
  */
+@Component(service = IAgentServiceFactory.class, name = "org.eclipse.equinox.p2.artifact.repository")
+@AgentServiceName(IArtifactRepositoryManager.class)
 public class ArtifactRepositoryComponent implements IAgentServiceFactory {
 
 	@Override
