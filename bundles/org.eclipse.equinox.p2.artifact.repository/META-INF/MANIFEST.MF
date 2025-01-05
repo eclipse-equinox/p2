@@ -69,7 +69,8 @@ Import-Package: javax.xml.parsers,
  org.osgi.service.prefs;version="1.1.1",
  org.w3c.dom,
  org.xml.sax;resolution:=optional
-Service-Component: OSGI-INF/repositoryManager.xml
+Service-Component: OSGI-INF/org.eclipse.equinox.internal.p2.artifact.repository.DefaultArtifactManagerServiceFactory.xml,
+ OSGI-INF/repositoryManager.xml
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.eclipse.equinox.p2.artifact.repository
