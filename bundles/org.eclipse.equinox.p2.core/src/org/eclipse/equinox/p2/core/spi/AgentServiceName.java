@@ -23,14 +23,14 @@ import org.osgi.service.component.annotations.ComponentPropertyType;
 /**
  * This component property type can be used to annotate a declarative service
  * component that provides an {@link IAgentServiceFactory} to provides the
- * required {@link IAgentServiceFactory#PROP_CREATED_SERVICE_NAME}.
+ * required {@link IAgentServiceFactory#PROP_AGENT_SERVICE_NAME}.
  *
  * @since 2.13
  */
 @Retention(CLASS)
 @Target(TYPE)
 @ComponentPropertyType
-public @interface AgentServicename {
+public @interface AgentServiceName {
 
 	public static final String PREFIX_ = "p2."; //$NON-NLS-1$
 

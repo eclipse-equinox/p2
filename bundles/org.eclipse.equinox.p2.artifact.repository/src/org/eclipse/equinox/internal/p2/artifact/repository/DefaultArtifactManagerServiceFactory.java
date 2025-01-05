@@ -18,7 +18,7 @@ import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.spi.AgentServicename;
+import org.eclipse.equinox.p2.core.spi.AgentServiceName;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.osgi.service.component.annotations.Component;
@@ -28,7 +28,7 @@ import org.osgi.service.component.annotations.Component;
  * the transport.
  */
 @Component(service = IAgentServiceFactory.class)
-@AgentServicename(ArtifactManager.class)
+@AgentServiceName(ArtifactManager.class)
 public class DefaultArtifactManagerServiceFactory implements IAgentServiceFactory {
 
 	@Override
