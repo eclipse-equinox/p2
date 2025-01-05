@@ -25,12 +25,24 @@ public interface IAgentServiceFactory {
 	/**
 	 * The service name for the factory service.
 	 */
-	public static final String SERVICE_NAME = IAgentServiceFactory.class.getName();
+	String SERVICE_NAME = IAgentServiceFactory.class.getName();
 
 	/**
-	 * The service property specifying the name of the service created by this factory.
+	 * The service property specifying the name of the service created by this
+	 * factory.
+	 *
+	 * @deprecated use {@link #PROP_AGENT_SERVICE_NAME} instead
 	 */
-	public static final String PROP_CREATED_SERVICE_NAME = "p2.agent.servicename"; //$NON-NLS-1$
+	@Deprecated()
+	String PROP_CREATED_SERVICE_NAME = "p2.agent.servicename"; //$NON-NLS-1$
+
+	/**
+	 * The service property specifying the name of the service created by this
+	 * factory.
+	 *
+	 * @since 2.13
+	 */
+	String PROP_AGENT_SERVICE_NAME = "p2.agent.service.name"; //$NON-NLS-1$
 
 	/**
 	 * Instantiates a service instance for the given provisioning agent.
@@ -38,5 +50,5 @@ public interface IAgentServiceFactory {
 	 * @param agent The agent this service will belong to
 	 * @return The created service
 	 */
-	public Object createService(IProvisioningAgent agent);
+	Object createService(IProvisioningAgent agent);
 }
