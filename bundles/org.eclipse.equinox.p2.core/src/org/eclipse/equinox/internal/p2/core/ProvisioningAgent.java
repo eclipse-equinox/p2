@@ -55,7 +55,9 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 			//attempt to get factory service from service registry
 			Collection<ServiceReference<IAgentServiceFactory>> refs;
 			try {
-				refs = context.getServiceReferences(IAgentServiceFactory.class, "(" + IAgentServiceFactory.PROP_CREATED_SERVICE_NAME + '=' + serviceName + ')'); //$NON-NLS-1$
+				refs = context.getServiceReferences(IAgentServiceFactory.class,
+						String.format("(|(%s=%s)(p2.agent.servicename=%s))", //$NON-NLS-1$ use old property as fallback
+								IAgentServiceFactory.PROP_AGENT_SERVICE_NAME, serviceName, serviceName));
 			} catch (InvalidSyntaxException e) {
 				e.printStackTrace();
 				return null;
@@ -171,7 +173,7 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 	public void removedService(ServiceReference<IAgentServiceFactory> reference, Object factoryService) {
 		if (stopped)
 			return;
-		String serviceName = (String) reference.getProperty(IAgentServiceFactory.PROP_CREATED_SERVICE_NAME);
+		String serviceName = getAgentServiceName(reference);
 		if (serviceName == null)
 			return;
 		Object registered = agentServices.get(serviceName);
@@ -184,6 +186,15 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 			if (toRemove != null)
 				toRemove.close();
 		}
+	}
+
+	private String getAgentServiceName(ServiceReference<IAgentServiceFactory> reference) {
+		Object property = reference.getProperty(IAgentServiceFactory.PROP_AGENT_SERVICE_NAME);
+		if (property instanceof String s) {
+			return s;
+		}
+		// backward compatibility
+		return (String) reference.getProperty("p2.agent.servicename"); //$NON-NLS-1$
 	}
 
 }
