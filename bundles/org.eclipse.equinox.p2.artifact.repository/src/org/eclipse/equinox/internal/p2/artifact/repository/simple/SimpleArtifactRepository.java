@@ -724,7 +724,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (SimpleArtifactRepositoryFactory.PROTOCOL_FILE.equals(mirrorLocation.getScheme()))
 			result = copyFileToStream(new File(mirrorLocation), destination, monitor);
 		else
-			result = getTransport().downloadArtifact(mirrorLocation, destination, descriptor, monitor);
+			result = getArtifactManger().getArtifact(mirrorLocation, destination, descriptor, monitor);
 		if (mirrors != null)
 			mirrors.reportResult(mirrorLocation.toString(), result);
 		if (result.isOK() || result.getSeverity() == IStatus.CANCEL)
@@ -1140,6 +1140,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	private Transport getTransport() {
 		return getProvisioningAgent().getService(Transport.class);
+	}
+
+	private ArtifactManager getArtifactManger() {
+		IProvisioningAgent agent = getProvisioningAgent();
+		return Objects.requireNonNull(agent.getService(ArtifactManager.class),
+				"No ArtifactManager present in p2 agent " + agent); //$NON-NLS-1$
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
