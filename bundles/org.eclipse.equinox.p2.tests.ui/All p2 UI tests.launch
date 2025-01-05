@@ -379,12 +379,6 @@
         <setEntry value="org.eclipse.equinox.p2.discovery.compatibility@default:default"/>
         <setEntry value="org.eclipse.equinox.p2.discovery@default:default"/>
         <setEntry value="org.eclipse.equinox.p2.engine@default:default"/>
-        <setEntry value="org.eclipse.equinox.p2.examples.rcp.cloud@default:default"/>
-        <setEntry value="org.eclipse.equinox.p2.examples.rcp.discovery@default:default"/>
-        <setEntry value="org.eclipse.equinox.p2.examples.rcp.prestartupdate@default:default"/>
-        <setEntry value="org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility@default:default"/>
-        <setEntry value="org.eclipse.equinox.p2.examples.rcp.sdknoautoupdates@default:default"/>
-        <setEntry value="org.eclipse.equinox.p2.examples.rcp.sdkui@default:default"/>
         <setEntry value="org.eclipse.equinox.p2.extensionlocation@default:default"/>
         <setEntry value="org.eclipse.equinox.p2.garbagecollector@default:default"/>
         <setEntry value="org.eclipse.equinox.p2.installer@default:default"/>

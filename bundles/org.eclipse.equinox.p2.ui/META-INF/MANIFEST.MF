@@ -19,7 +19,6 @@ Export-Package: org.eclipse.equinox.internal.p2.ui;
  org.eclipse.equinox.internal.p2.ui.dialogs;
   x-friends:="org.eclipse.equinox.p2.ui.admin,
    org.eclipse.equinox.p2.ui.sdk.scheduler,
-   org.eclipse.equinox.p2.examples.rcp.discovery,
    org.eclipse.equinox.p2.ui.sdk,
    org.eclipse.pde.ui,
    org.eclipse.equinox.p2.ui.importexport",

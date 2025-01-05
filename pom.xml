@@ -99,7 +99,6 @@
   <modules>
     <module>bundles</module>
     <module>features</module>
-    <module>examples</module>
   </modules>
 
   <build>
