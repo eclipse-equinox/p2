@@ -33,9 +33,8 @@ import org.eclipse.osgi.util.NLS;
  * from ECF (there is currently no way to wait on a BrowseRequest job, as this is internal to
  * ECF). If such support is added, this class is easily modified.
  */
-public class FileInfoReader extends Job implements IRemoteFileSystemListener {
+class FileInfoReader {
 	private Exception exception;
-	private IProgressMonitor theMonitor;
 	private final int connectionRetryCount;
 	private final long connectionRetryDelay;
 	private final IConnectContext connectContext;
@@ -43,37 +42,23 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	private IRemoteFile[] remoteFiles;
 	private IRemoteFileSystemRequest browseRequest;
 
-	@Override
-	protected IStatus run(IProgressMonitor monitor) {
+	/**
+	 * Waits until request is processed (barrier[0] is non null).
+	 */
+	private void waitOnSelf(IProgressMonitor monitor) {
 		synchronized (barrier) {
 			while (barrier[0] == null) {
 				try {
 					barrier.wait(1000);
-					if (theMonitor.isCanceled() && browseRequest != null)
+					if (monitor.isCanceled() && browseRequest != null) {
 						browseRequest.cancel();
+					}
 				} catch (InterruptedException e) {
-					//ignore
+					Thread.currentThread().interrupt();
+					LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
+							"Unexpected interrupt while waiting on ECF browse request", e)); //$NON-NLS-1$
+					return;
 				}
-			}
-		}
-		return Status.OK_STATUS;
-	}
-
-	/**
-	 * Waits until request is processed (barrier[0] is non null).
-	 * This is a bit of a hack, as it would be better if the ECFBrowser worked in similar fashion to
-	 * file transfer were a custom job can be supplied.
-	 * TODO: log an issue for ECF.
-	 */
-	private void waitOnSelf() {
-		schedule();
-		while (barrier[0] == null) {
-			boolean logged = false;
-			try {
-				join();
-			} catch (InterruptedException e) {
-				if (!logged)
-					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Unexpected interrupt while waiting on ECF browse request", e)); //$NON-NLS-1$
 			}
 		}
 	}
@@ -83,11 +68,6 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	 * attempt.
 	 */
 	FileInfoReader(IConnectContext aConnectContext) {
-		super(Messages.repo_loading); // job label - TODO: this is a bad label
-		barrier[0] = null;
-		// Hide this job.
-		setSystem(true);
-		setUser(false);
 		connectionRetryCount = RepositoryPreferences.getConnectionRetryCount();
 		connectionRetryDelay = RepositoryPreferences.getConnectionMsRetryDelay();
 		connectContext = aConnectContext;
@@ -107,7 +87,7 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 			monitor.beginTask(location.toString(), 1);
 		try {
 			sendBrowseRequest(location, monitor);
-			waitOnSelf();
+			waitOnSelf(monitor);
 			// throw any exception received in a callback
 			checkException(location, connectionRetryCount);
 
@@ -134,27 +114,26 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 		return file.getInfo().getLastModified();
 	}
 
-	@Override
-	public void handleRemoteFileEvent(IRemoteFileSystemEvent event) {
+	private void handleRemoteFileEvent(IRemoteFileSystemEvent event, IProgressMonitor monitor) {
 		exception = event.getException();
 		if (exception != null) {
 			synchronized (barrier) {
 				barrier[0] = Boolean.TRUE;
-				barrier.notify();
+				barrier.notifyAll();
 			}
 		} else if (event instanceof IRemoteFileSystemBrowseEvent) {
 			IRemoteFileSystemBrowseEvent fsbe = (IRemoteFileSystemBrowseEvent) event;
 			remoteFiles = fsbe.getRemoteFiles();
-			if (theMonitor != null)
-				theMonitor.worked(1);
+			if (monitor != null)
+				monitor.worked(1);
 			synchronized (barrier) {
 				barrier[0] = Boolean.TRUE;
-				barrier.notify();
+				barrier.notifyAll();
 			}
 		} else {
 			synchronized (barrier) {
 				barrier[0] = Boolean.FALSE; // ended by unknown reason
-				barrier.notify();
+				barrier.notifyAll();
 			}
 		}
 	}
@@ -176,14 +155,13 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 		adapter.setConnectContextForAuthentication(connectContext);
 
 		this.exception = null;
-		this.theMonitor = monitor;
 		for (int retryCount = 0;; retryCount++) {
 			if (monitor != null && monitor.isCanceled())
 				throw new OperationCanceledException();
 
 			try {
 				IFileID fileID = FileIDFactory.getDefault().createFileID(adapter.getBrowseNamespace(), uri.toString());
-				browseRequest = adapter.sendBrowseRequest(fileID, this);
+				browseRequest = adapter.sendBrowseRequest(fileID, e -> handleRemoteFileEvent(e, monitor));
 			} catch (RemoteFileSystemException e) {
 				exception = e;
 			} catch (FileCreateException e) {
