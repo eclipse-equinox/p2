@@ -39,7 +39,7 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	private final int connectionRetryCount;
 	private final long connectionRetryDelay;
 	private final IConnectContext connectContext;
-	final Boolean[] barrier = new Boolean[1];
+	private final Boolean[] barrier = new Boolean[1];
 	private IRemoteFile[] remoteFiles;
 	private IRemoteFileSystemRequest browseRequest;
 
@@ -82,7 +82,7 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	 * Create a new FileInfoReader that will retry failed connection attempts and sleep some amount of time between each
 	 * attempt.
 	 */
-	public FileInfoReader(IConnectContext aConnectContext) {
+	FileInfoReader(IConnectContext aConnectContext) {
 		super(Messages.repo_loading); // job label - TODO: this is a bad label
 		barrier[0] = null;
 		// Hide this job.
@@ -101,7 +101,8 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 	 * @throws AuthenticationFailedException 
 	 * @throws JREHttpClientRequiredException 
 	 */
-	public IRemoteFile[] getRemoteFiles(URI location, IProgressMonitor monitor) throws AuthenticationFailedException, FileNotFoundException, CoreException, JREHttpClientRequiredException {
+	private IRemoteFile[] getRemoteFiles(URI location, IProgressMonitor monitor)
+			throws AuthenticationFailedException, FileNotFoundException, CoreException, JREHttpClientRequiredException {
 		if (monitor != null)
 			monitor.beginTask(location.toString(), 1);
 		try {
@@ -119,13 +120,14 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 
 	}
 
-	public IRemoteFile getRemoteFile(URI location, IProgressMonitor monitor) throws AuthenticationFailedException, FileNotFoundException, CoreException, JREHttpClientRequiredException {
+	private IRemoteFile getRemoteFile(URI location, IProgressMonitor monitor)
+			throws AuthenticationFailedException, FileNotFoundException, CoreException, JREHttpClientRequiredException {
 
 		getRemoteFiles(location, monitor);
 		return remoteFiles != null && remoteFiles.length > 0 ? remoteFiles[0] : null;
 	}
 
-	public long getLastModified(URI location, IProgressMonitor monitor) throws AuthenticationFailedException, FileNotFoundException, CoreException, JREHttpClientRequiredException {
+	long getLastModified(URI location, IProgressMonitor monitor) throws AuthenticationFailedException, FileNotFoundException, CoreException, JREHttpClientRequiredException {
 		IRemoteFile file = getRemoteFile(location, monitor);
 		if (file == null)
 			throw new FileNotFoundException(location.toString());
@@ -157,7 +159,8 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 		}
 	}
 
-	protected void sendBrowseRequest(URI uri, IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
+	private void sendBrowseRequest(URI uri, IProgressMonitor monitor)
+			throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
 		IContainer container;
 		try {
 			container = ContainerFactory.getDefault().createContainer();
@@ -189,10 +192,6 @@ public class FileInfoReader extends Job implements IRemoteFileSystemListener {
 			if (checkException(uri, retryCount))
 				break;
 		}
-	}
-
-	protected Exception getException() {
-		return exception;
 	}
 
 	/**
