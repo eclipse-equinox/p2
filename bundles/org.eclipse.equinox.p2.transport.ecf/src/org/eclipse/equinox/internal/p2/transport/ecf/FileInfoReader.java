@@ -14,6 +14,8 @@ package org.eclipse.equinox.internal.p2.transport.ecf;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ecf.core.*;
@@ -39,7 +41,6 @@ class FileInfoReader {
 	private final long connectionRetryDelay;
 	private final IConnectContext connectContext;
 	private final Boolean[] barrier = new Boolean[1];
-	private IRemoteFile[] remoteFiles;
 	private IRemoteFileSystemRequest browseRequest;
 
 	/**
@@ -73,48 +74,31 @@ class FileInfoReader {
 		connectContext = aConnectContext;
 	}
 
-	/**
-	 * Get the requested information.
-	 * @return IRemoteFile[] or null if there was an error.
-	 * @throws CoreException 
-	 * @throws FileNotFoundException 
-	 * @throws AuthenticationFailedException 
-	 * @throws JREHttpClientRequiredException 
-	 */
-	private IRemoteFile[] getRemoteFiles(URI location, IProgressMonitor monitor)
+	long getLastModified(URI location, IProgressMonitor monitor)
 			throws AuthenticationFailedException, FileNotFoundException, CoreException, JREHttpClientRequiredException {
-		if (monitor != null)
+		if (monitor != null) {
 			monitor.beginTask(location.toString(), 1);
+		}
 		try {
-			sendBrowseRequest(location, monitor);
+			AtomicReference<IRemoteFile> remote = new AtomicReference<>();
+			sendBrowseRequest(location, remote::set, monitor);
 			waitOnSelf(monitor);
 			// throw any exception received in a callback
 			checkException(location, connectionRetryCount);
-
-			return remoteFiles;
+			IRemoteFile file = remote.get();
+			if (file == null) {
+				throw new FileNotFoundException(location.toString());
+			}
+			return file.getInfo().getLastModified();
 		} finally {
 			if (monitor != null) {
 				monitor.done();
 			}
 		}
-
 	}
 
-	private IRemoteFile getRemoteFile(URI location, IProgressMonitor monitor)
-			throws AuthenticationFailedException, FileNotFoundException, CoreException, JREHttpClientRequiredException {
-
-		getRemoteFiles(location, monitor);
-		return remoteFiles != null && remoteFiles.length > 0 ? remoteFiles[0] : null;
-	}
-
-	long getLastModified(URI location, IProgressMonitor monitor) throws AuthenticationFailedException, FileNotFoundException, CoreException, JREHttpClientRequiredException {
-		IRemoteFile file = getRemoteFile(location, monitor);
-		if (file == null)
-			throw new FileNotFoundException(location.toString());
-		return file.getInfo().getLastModified();
-	}
-
-	private void handleRemoteFileEvent(IRemoteFileSystemEvent event, IProgressMonitor monitor) {
+	private void handleRemoteFileEvent(IRemoteFileSystemEvent event, IProgressMonitor monitor,
+			Consumer<IRemoteFile> remoteFileConsumer) {
 		exception = event.getException();
 		if (exception != null) {
 			synchronized (barrier) {
@@ -123,9 +107,13 @@ class FileInfoReader {
 			}
 		} else if (event instanceof IRemoteFileSystemBrowseEvent) {
 			IRemoteFileSystemBrowseEvent fsbe = (IRemoteFileSystemBrowseEvent) event;
-			remoteFiles = fsbe.getRemoteFiles();
-			if (monitor != null)
+			IRemoteFile[] remoteFiles = fsbe.getRemoteFiles();
+			if (remoteFiles != null && remoteFiles.length > 0) {
+				remoteFileConsumer.accept(remoteFiles[0]);
+			}
+			if (monitor != null) {
 				monitor.worked(1);
+			}
 			synchronized (barrier) {
 				barrier[0] = Boolean.TRUE;
 				barrier.notifyAll();
@@ -138,7 +126,7 @@ class FileInfoReader {
 		}
 	}
 
-	private void sendBrowseRequest(URI uri, IProgressMonitor monitor)
+	private void sendBrowseRequest(URI uri, Consumer<IRemoteFile> remoteFileConsumer, IProgressMonitor monitor)
 			throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
 		IContainer container;
 		try {
@@ -161,7 +149,8 @@ class FileInfoReader {
 
 			try {
 				IFileID fileID = FileIDFactory.getDefault().createFileID(adapter.getBrowseNamespace(), uri.toString());
-				browseRequest = adapter.sendBrowseRequest(fileID, e -> handleRemoteFileEvent(e, monitor));
+				browseRequest = adapter.sendBrowseRequest(fileID,
+						e -> handleRemoteFileEvent(e, monitor, remoteFileConsumer));
 			} catch (RemoteFileSystemException e) {
 				exception = e;
 			} catch (FileCreateException e) {
