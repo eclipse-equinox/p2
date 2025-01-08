@@ -24,7 +24,6 @@ import org.eclipse.ecf.core.*;
 import org.eclipse.ecf.core.security.IConnectContext;
 import org.eclipse.ecf.filetransfer.*;
 import org.eclipse.ecf.filetransfer.events.IRemoteFileSystemBrowseEvent;
-import org.eclipse.ecf.filetransfer.events.IRemoteFileSystemEvent;
 import org.eclipse.ecf.filetransfer.identity.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.*;
@@ -38,7 +37,6 @@ import org.eclipse.osgi.util.NLS;
  * ECF). If such support is added, this class is easily modified.
  */
 class FileInfoReader {
-	private Exception exception;
 	private final int connectionRetryCount;
 	private final long connectionRetryDelay;
 	private final IConnectContext connectContext;
@@ -61,8 +59,6 @@ class FileInfoReader {
 		try {
 			AtomicReference<IRemoteFile> remote = new AtomicReference<>();
 			sendBrowseRequest(location, remote::set, IProgressMonitor.nullSafe(monitor));
-			// throw any exception received in a callback
-			checkException(location, connectionRetryCount);
 			IRemoteFile file = remote.get();
 			if (file == null) {
 				throw new FileNotFoundException(location.toString());
@@ -72,25 +68,6 @@ class FileInfoReader {
 			if (monitor != null) {
 				monitor.done();
 			}
-		}
-	}
-
-	private void handleRemoteFileEvent(IRemoteFileSystemEvent event, IProgressMonitor monitor,
-			Consumer<IRemoteFile> remoteFileConsumer, CountDownLatch latch) {
-		Exception e = event.getException();
-		if (e != null) {
-			exception = e;
-			latch.countDown();
-		} else if (event instanceof IRemoteFileSystemBrowseEvent) {
-			IRemoteFileSystemBrowseEvent fsbe = (IRemoteFileSystemBrowseEvent) event;
-			IRemoteFile[] remoteFiles = fsbe.getRemoteFiles();
-			if (remoteFiles != null && remoteFiles.length > 0) {
-				remoteFileConsumer.accept(remoteFiles[0]);
-			}
-			monitor.worked(1);
-			latch.countDown();
-		} else {
-			latch.countDown();
 		}
 	}
 
@@ -107,40 +84,56 @@ class FileInfoReader {
 		if (adapter == null) {
 			throw RepositoryStatusHelper.fromMessage(Messages.ecf_configuration_error);
 		}
-
 		adapter.setConnectContextForAuthentication(connectContext);
-
-		this.exception = null;
-		for (int retryCount = 0;; retryCount++) {
-			if (monitor.isCanceled())
+		CoreException summary = new CoreException(Status.error("All download attempts failed")); //$NON-NLS-1$
+		for (int retryCount = 0; retryCount < connectionRetryCount; retryCount++) {
+			if (monitor.isCanceled()) {
 				throw new OperationCanceledException();
-
+			}
+			Exception exception = null;
 			try {
+				AtomicReference<Exception> callbackException = new AtomicReference<>();
 				IFileID fileID = FileIDFactory.getDefault().createFileID(adapter.getBrowseNamespace(), uri.toString());
 				CountDownLatch latch = new CountDownLatch(1);
 				IRemoteFileSystemRequest browseRequest = adapter.sendBrowseRequest(fileID,
-						e -> handleRemoteFileEvent(e, monitor, remoteFileConsumer, latch));
+						event -> {
+							Exception e = event.getException();
+							if (e != null) {
+								callbackException.set(e);
+								latch.countDown();
+							} else if (event instanceof IRemoteFileSystemBrowseEvent) {
+								IRemoteFileSystemBrowseEvent fsbe = (IRemoteFileSystemBrowseEvent) event;
+								IRemoteFile[] remoteFiles = fsbe.getRemoteFiles();
+								if (remoteFiles != null && remoteFiles.length > 0) {
+									remoteFileConsumer.accept(remoteFiles[0]);
+								}
+								monitor.worked(1);
+								latch.countDown();
+							} else {
+								latch.countDown();
+							}
+						});
 				while (!latch.await(1, TimeUnit.SECONDS)) {
 					if (monitor.isCanceled()) {
 						browseRequest.cancel();
 						throw new OperationCanceledException();
 					}
 				}
-			} catch (RemoteFileSystemException e) {
-				exception = e;
-			} catch (FileCreateException e) {
+				exception = callbackException.get();
+			} catch (RemoteFileSystemException | FileCreateException e) {
 				exception = e;
 			} catch (InterruptedException e) {
-				exception = e;
 				Thread.currentThread().interrupt();
 				LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
 						"Unexpected interrupt while waiting on ECF browse request", e)); //$NON-NLS-1$
+				throw new OperationCanceledException();
+			}
+			if (checkException(uri, retryCount, exception)) {
 				return;
 			}
-			if (checkException(uri, retryCount)) {
-				return;
-			}
+			summary.addSuppressed(exception);
 		}
+		throw summary;
 	}
 
 	/**
@@ -152,7 +145,8 @@ class FileInfoReader {
 	 * @return true if the exception is an IOException and attemptCounter < connectionRetryCount, false otherwise
 	 * @throws JREHttpClientRequiredException 
 	 */
-	private boolean checkException(URI uri, int attemptCounter) throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
+	private boolean checkException(URI uri, int attemptCounter, Exception exception)
+			throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
 		// note that 'exception' could have been captured in a callback
 		if (exception != null) {
 			// check if HTTP client needs to be changed
@@ -168,18 +162,16 @@ class FileInfoReader {
 			if (t instanceof CoreException)
 				throw RepositoryStatusHelper.unwindCoreException((CoreException) t);
 
-			if (t instanceof IOException && attemptCounter < connectionRetryCount) {
+			if (t instanceof IOException && attemptCounter < connectionRetryCount - 1) {
 				// TODO: Retry only certain exceptions or filter out
 				// some exceptions not worth retrying
 				//
-				exception = null;
 				try {
 					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.connection_to_0_failed_on_1_retry_attempt_2, new String[] {uri.toString(), t.getMessage(), String.valueOf(attemptCounter)}), t));
-
 					Thread.sleep(connectionRetryDelay);
 					return false;
 				} catch (InterruptedException e) {
-					/* ignore */
+					Thread.currentThread().interrupt();
 				}
 			}
 			throw RepositoryStatusHelper.wrap(exception);
