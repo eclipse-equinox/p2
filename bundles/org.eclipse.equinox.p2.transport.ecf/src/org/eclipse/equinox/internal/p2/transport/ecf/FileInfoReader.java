@@ -14,6 +14,8 @@ package org.eclipse.equinox.internal.p2.transport.ecf;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import org.eclipse.core.runtime.*;
@@ -40,29 +42,6 @@ class FileInfoReader {
 	private final int connectionRetryCount;
 	private final long connectionRetryDelay;
 	private final IConnectContext connectContext;
-	private final Boolean[] barrier = new Boolean[1];
-	private IRemoteFileSystemRequest browseRequest;
-
-	/**
-	 * Waits until request is processed (barrier[0] is non null).
-	 */
-	private void waitOnSelf(IProgressMonitor monitor) {
-		synchronized (barrier) {
-			while (barrier[0] == null) {
-				try {
-					barrier.wait(1000);
-					if (monitor.isCanceled() && browseRequest != null) {
-						browseRequest.cancel();
-					}
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-					LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
-							"Unexpected interrupt while waiting on ECF browse request", e)); //$NON-NLS-1$
-					return;
-				}
-			}
-		}
-	}
 
 	/**
 	 * Create a new FileInfoReader that will retry failed connection attempts and sleep some amount of time between each
@@ -81,8 +60,7 @@ class FileInfoReader {
 		}
 		try {
 			AtomicReference<IRemoteFile> remote = new AtomicReference<>();
-			sendBrowseRequest(location, remote::set, monitor);
-			waitOnSelf(monitor);
+			sendBrowseRequest(location, remote::set, IProgressMonitor.nullSafe(monitor));
 			// throw any exception received in a callback
 			checkException(location, connectionRetryCount);
 			IRemoteFile file = remote.get();
@@ -98,31 +76,21 @@ class FileInfoReader {
 	}
 
 	private void handleRemoteFileEvent(IRemoteFileSystemEvent event, IProgressMonitor monitor,
-			Consumer<IRemoteFile> remoteFileConsumer) {
-		exception = event.getException();
-		if (exception != null) {
-			synchronized (barrier) {
-				barrier[0] = Boolean.TRUE;
-				barrier.notifyAll();
-			}
+			Consumer<IRemoteFile> remoteFileConsumer, CountDownLatch latch) {
+		Exception e = event.getException();
+		if (e != null) {
+			exception = e;
+			latch.countDown();
 		} else if (event instanceof IRemoteFileSystemBrowseEvent) {
 			IRemoteFileSystemBrowseEvent fsbe = (IRemoteFileSystemBrowseEvent) event;
 			IRemoteFile[] remoteFiles = fsbe.getRemoteFiles();
 			if (remoteFiles != null && remoteFiles.length > 0) {
 				remoteFileConsumer.accept(remoteFiles[0]);
 			}
-			if (monitor != null) {
-				monitor.worked(1);
-			}
-			synchronized (barrier) {
-				barrier[0] = Boolean.TRUE;
-				barrier.notifyAll();
-			}
+			monitor.worked(1);
+			latch.countDown();
 		} else {
-			synchronized (barrier) {
-				barrier[0] = Boolean.FALSE; // ended by unknown reason
-				barrier.notifyAll();
-			}
+			latch.countDown();
 		}
 	}
 
@@ -144,20 +112,34 @@ class FileInfoReader {
 
 		this.exception = null;
 		for (int retryCount = 0;; retryCount++) {
-			if (monitor != null && monitor.isCanceled())
+			if (monitor.isCanceled())
 				throw new OperationCanceledException();
 
 			try {
 				IFileID fileID = FileIDFactory.getDefault().createFileID(adapter.getBrowseNamespace(), uri.toString());
-				browseRequest = adapter.sendBrowseRequest(fileID,
-						e -> handleRemoteFileEvent(e, monitor, remoteFileConsumer));
+				CountDownLatch latch = new CountDownLatch(1);
+				IRemoteFileSystemRequest browseRequest = adapter.sendBrowseRequest(fileID,
+						e -> handleRemoteFileEvent(e, monitor, remoteFileConsumer, latch));
+				while (!latch.await(1, TimeUnit.SECONDS)) {
+					if (monitor.isCanceled()) {
+						browseRequest.cancel();
+						throw new OperationCanceledException();
+					}
+				}
 			} catch (RemoteFileSystemException e) {
 				exception = e;
 			} catch (FileCreateException e) {
 				exception = e;
+			} catch (InterruptedException e) {
+				exception = e;
+				Thread.currentThread().interrupt();
+				LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
+						"Unexpected interrupt while waiting on ECF browse request", e)); //$NON-NLS-1$
+				return;
 			}
-			if (checkException(uri, retryCount))
-				break;
+			if (checkException(uri, retryCount)) {
+				return;
+			}
 		}
 	}
 
