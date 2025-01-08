@@ -17,8 +17,8 @@ package org.eclipse.equinox.internal.p2.ui.discovery.util;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import org.eclipse.core.text.StringMatcher;
 import org.eclipse.jface.viewers.*;
-import org.eclipse.ui.internal.misc.TextMatcher;
 
 /**
  * A filter used in conjunction with <code>FilteredTree</code>. In order to
@@ -53,7 +53,7 @@ public class PatternFilter extends ViewerFilter {
 	/**
 	 * The string pattern matcher used for this pattern filter.
 	 */
-	private TextMatcher matcher;
+	private StringMatcher matcher;
 
 	private boolean useEarlyReturnIfMatcherIsNull = true;
 
@@ -167,7 +167,7 @@ public class PatternFilter extends ViewerFilter {
 			if (includeLeadingWildcard) {
 				pattern = "*" + pattern; //$NON-NLS-1$
 			}
-			matcher = new TextMatcher(pattern, true, false);
+			matcher = new StringMatcher(pattern.trim(), true, false);
 		}
 	}
 
@@ -190,7 +190,7 @@ public class PatternFilter extends ViewerFilter {
 		if (matcher == null) {
 			return true;
 		}
-		return matcher.match(string);
+		return matcher.matchWords(string);
 	}
 
 	/**
