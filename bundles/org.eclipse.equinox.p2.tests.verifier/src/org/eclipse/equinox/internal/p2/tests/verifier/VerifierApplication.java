@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 IBM Corporation and others.
+ * Copyright (c) 2009, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,6 +17,7 @@ package org.eclipse.equinox.internal.p2.tests.verifier;
 
 import java.io.*;
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
@@ -124,7 +125,7 @@ public class VerifierApplication implements IApplication {
 	 */
 	private Properties readProperties(File file) throws IOException {
 		Properties result = new Properties();
-		try (InputStream input = new BufferedInputStream(new FileInputStream(file))) {
+		try (BufferedReader input = Files.newBufferedReader(file.toPath())) {
 			result.load(input);
 			return result;
 		}

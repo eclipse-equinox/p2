@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2025 WindRiver Corporation and others.
  *
  * This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,6 +17,7 @@ package org.eclipse.equinox.p2.tests.importexport;
 import static org.junit.Assert.assertThrows;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.IStatus;
@@ -67,7 +68,7 @@ public class ImportExportTests extends AbstractProvisioningTest {
 	public void testLoadP2f() throws IOException {
 		File p2fFile = getTestData("Error load test file.", "testData/importexport/test.p2f");
 
-		try (InputStream input = new FileInputStream(p2fFile)) {
+		try (InputStream input = Files.newInputStream(p2fFile.toPath())) {
 			List<IUDetail> iuDetails = importexportService.importP2F(input);
 			assertEquals("Should load two features from the p2f file.", 2, iuDetails.size());
 			int counter = 0;
@@ -88,7 +89,7 @@ public class ImportExportTests extends AbstractProvisioningTest {
 	public void testLoadUnknownP2f() throws IOException {
 		File p2fFile = getTestData("Error load test file.", "testData/importexport/unknownformat.p2f");
 
-		try (InputStream input = new FileInputStream(p2fFile)) {
+		try (InputStream input = Files.newInputStream(p2fFile.toPath())) {
 			List<IUDetail> iuDetails = importexportService.importP2F(input);
 			assertEquals("Should not load any detail.", 0, iuDetails.size());
 		}
@@ -97,7 +98,7 @@ public class ImportExportTests extends AbstractProvisioningTest {
 	public void testIncompatibleP2f() throws IOException {
 		File p2fFile = getTestData("Error load test file.", "testData/importexport/incompatible.p2f");
 
-		try (InputStream input = new FileInputStream(p2fFile)) {
+		try (InputStream input = Files.newInputStream(p2fFile.toPath())) {
 			assertThrows("Didn't complain the given file is not supported by current version.",
 					VersionIncompatibleException.class, () -> importexportService.importP2F(input));
 		}
@@ -112,7 +113,7 @@ public class ImportExportTests extends AbstractProvisioningTest {
 			IMetadataRepository repo = metaManager.loadRepository(localRepoFile.toURI(), null);
 			assertNotNull("Fail to load local repo", repo);
 			IInstallableUnit iu = createIU("A", Version.create("1.0.0"));
-			try (OutputStream output = new FileOutputStream(testFile)) {
+			try (OutputStream output = Files.newOutputStream(testFile.toPath())) {
 				IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] { iu }, false, null);
 				assertFalse("Not expected return result.", status.isOK());
 				assertTrue("Should be a multiple status", status.isMultiStatus());
@@ -137,7 +138,7 @@ public class ImportExportTests extends AbstractProvisioningTest {
 			IMetadataRepository repo = metaManager.loadRepository(localRepoFile.toURI(), null);
 			assertNotNull("Fail to load local repo", repo);
 			IInstallableUnit iu = createIU("A", Version.create("1.0.0"));
-			try (OutputStream output = new FileOutputStream(testFile)) {
+			try (OutputStream output = Files.newOutputStream(testFile.toPath())) {
 				IStatus status = importexportService.exportP2F(output, new IInstallableUnit[] { iu }, true, null);
 				assertTrue(status.isOK());
 			}
