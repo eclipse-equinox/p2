@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,13 +16,19 @@ package org.eclipse.equinox.p2.tests.director;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
- * Tests {@link IPlanner#getProvisioningPlan(ProfileChangeRequest, ProvisioningContext, org.eclipse.core.runtime.IProgressMonitor)}
+ * Tests
+ * {@link IPlanner#getProvisioningPlan(org.eclipse.equinox.p2.planner.IProfileChangeRequest, ProvisioningContext, org.eclipse.core.runtime.IProgressMonitor)}
  * involving replacing an IU with a different version.
  */
 public class ReplacePlanTest extends AbstractProvisioningTest {
