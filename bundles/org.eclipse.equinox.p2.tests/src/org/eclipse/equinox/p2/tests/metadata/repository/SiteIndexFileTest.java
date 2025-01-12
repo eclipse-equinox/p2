@@ -19,11 +19,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -194,7 +194,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 	 */
 	public void testBadIndex1() throws Exception {
 		File indexFile = TestData.getFile("metadataRepo/indexfiles", "badIndex.p2");
-		InputStream inputStream = new FileInputStream(indexFile);
+		InputStream inputStream = Files.newInputStream(indexFile.toPath());
 
 		PrintStream out = System.out;
 		LocationProperties locationProperties = null;
@@ -213,7 +213,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 	 */
 	public void testBadIndex2() throws Exception {
 		File indexFile = TestData.getFile("metadataRepo/indexfiles", "badIndex2.p2");
-		InputStream inputStream = new FileInputStream(indexFile);
+		InputStream inputStream = Files.newInputStream(indexFile.toPath());
 		LocationProperties locationProperties = LocationProperties.create(inputStream);
 		assertNotNull(locationProperties);
 		assertFalse(locationProperties.exists());
@@ -224,7 +224,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 	 */
 	public void testSimpleIndexV1() throws Exception {
 		File indexFile = TestData.getFile("metadataRepo/indexfiles", "simpleIndexV1.p2");
-		InputStream inputStream = new FileInputStream(indexFile);
+		InputStream inputStream = Files.newInputStream(indexFile.toPath());
 		LocationProperties locationProperties = LocationProperties.create(inputStream);
 		assertNotNull("1.0", locationProperties);
 		assertEquals("1.1", Version.createOSGi(1, 0, 0), locationProperties.getVersion());
@@ -236,7 +236,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 	 */
 	public void testSimpleIndex2V1() throws Exception {
 		File indexFile = TestData.getFile("metadataRepo/indexfiles", "simpleIndex2_V1.p2");
-		InputStream inputStream = new FileInputStream(indexFile);
+		InputStream inputStream = Files.newInputStream(indexFile.toPath());
 		LocationProperties locationProperties = LocationProperties.create(inputStream);
 		assertNotNull("1.0", locationProperties);
 		assertEquals("1.1", Version.createOSGi(1, 0, 0), locationProperties.getVersion());
@@ -248,7 +248,7 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 	 */
 	public void testSimpleIndex3V1() throws Exception {
 		File indexFile = TestData.getFile("metadataRepo/indexfiles", "simpleIndex3_V1.p2");
-		InputStream inputStream = new FileInputStream(indexFile);
+		InputStream inputStream = Files.newInputStream(indexFile.toPath());
 		LocationProperties locationProperties = LocationProperties.create(inputStream);
 		assertNotNull("1.0", locationProperties);
 		assertEquals("1.1", Version.createOSGi(1, 0, 0), locationProperties.getVersion());

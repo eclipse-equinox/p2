@@ -17,10 +17,9 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.mockito.Mockito.when;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,7 +28,6 @@ import java.util.zip.ZipInputStream;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -183,13 +181,11 @@ public class RootFilesActionTest extends ActionTest {
 
 	private Map<String, Object[]> addEntry(Map<String, Object[]> map, String fileEntry) {
 		try {
-			ByteArrayOutputStream content = new ByteArrayOutputStream();
 			File contentBytes = new File(root, fileEntry);
-			FileUtils.copyStream(new FileInputStream(contentBytes), false, content, true);
 			boolean includeRootInEntry = ((testArg & INCLUDES_ROOT) > 0);
 			String entry = includeRootInEntry ? new File(fileEntry).getPath() : new File(fileEntry).getName();
 			entry = IPath.fromOSString(entry).toString();
-			map.put(entry, new Object[] {contentBytes, content.toByteArray()});
+			map.put(entry, new Object[] { contentBytes, Files.readAllBytes(contentBytes.toPath()) });
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

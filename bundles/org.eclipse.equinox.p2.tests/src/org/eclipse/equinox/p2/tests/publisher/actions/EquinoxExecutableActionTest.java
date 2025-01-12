@@ -16,6 +16,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -24,11 +25,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -38,7 +39,6 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -83,7 +83,8 @@ public class EquinoxExecutableActionTest extends ActionTest {
 
 	public void testMacCocoa() throws Exception {
 		File icon = File.createTempFile(EXECUTABLE_NAME, ".icns");
-		FileUtils.copyStream(new FileInputStream(new File(MAC_EXEC, "eclipse.app/Contents/Resources/eclipse.icns")), true, new FileOutputStream(icon), true);
+		Files.copy(new File(MAC_EXEC, "eclipse.app/Contents/Resources/eclipse.icns").toPath(), icon.toPath(),
+				REPLACE_EXISTING);
 
 		expectedExecutablesContents = new String[] {"Info.plist", "MacOS/" + EXECUTABLE_NAME, "MacOS/" + EXECUTABLE_NAME + ".ini", "Resources/" + icon.getName()};
 		testExecutableAction("macCocoa", "macosx", macConfigCocoa, MAC_EXEC, icon); //$NON-NLS-1$//$NON-NLS-2$
@@ -94,7 +95,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 
 	public void testWin() throws Exception {
 		File icon = File.createTempFile(EXECUTABLE_NAME, ".ico");
-		FileUtils.copyStream(new FileInputStream(new File(WIN_EXEC, "eclipse.ico")), true, new FileOutputStream(icon), true);
+		Files.copy(new File(WIN_EXEC, "eclipse.ico").toPath(), icon.toPath(), REPLACE_EXISTING);
 
 		// FIXME: is there any way to test that the .ico has been replaced?
 		expectedExecutablesContents = new String[] {EXECUTABLE_NAME + ".exe"};
@@ -106,7 +107,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 
 	public void testLinux() throws Exception {
 		File icon = File.createTempFile(EXECUTABLE_NAME, ".xpm");
-		FileUtils.copyStream(new FileInputStream(new File(LINUX_EXEC, "eclipse.xpm")), true, new FileOutputStream(icon), true);
+		Files.copy(new File(LINUX_EXEC, "eclipse.xpm").toPath(), icon.toPath(), REPLACE_EXISTING);
 
 		expectedExecutablesContents = new String[] {EXECUTABLE_NAME, "icon.xpm"};
 		testExecutableAction("linux", "linux", linuxConfig, LINUX_EXEC, icon); //$NON-NLS-1$//$NON-NLS-2$
@@ -213,7 +214,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	private void checkExecutableContents(IArtifactKey key) throws IOException {
 		File file = File.createTempFile("exec", ".zip");
 
-		try (FileOutputStream fos = new FileOutputStream(file)) {
+		try (OutputStream fos = Files.newOutputStream(file.toPath())) {
 			IArtifactDescriptor ad = artifactRepository.createArtifactDescriptor(key);
 			IStatus result = artifactRepository.getArtifact(ad, fos, new NullProgressMonitor());
 			assertTrue("executable not published?", result.isOK());

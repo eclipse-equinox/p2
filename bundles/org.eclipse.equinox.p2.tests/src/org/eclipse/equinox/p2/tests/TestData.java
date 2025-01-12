@@ -17,7 +17,6 @@ package org.eclipse.equinox.p2.tests;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,14 +79,6 @@ public class TestData {
 		File temp = (i == -1) ? File.createTempFile(testDataName + PREFIX_SEPERATOR, ".tmp") : File.createTempFile(testDataName.substring(0, i) + PREFIX_SEPERATOR, testDataName.substring(i));
 		temp.deleteOnExit();
 		return temp;
-	}
-
-	/**
-	 * Assert equality of files.
-	 */
-	public static void assertEquals(File expected, File actual) throws IOException {
-		Assert.assertEquals("Files have different lengths.", expected.length(), actual.length());
-		TestData.assertEquals(new BufferedInputStream(new FileInputStream(expected)), new BufferedInputStream(new FileInputStream(actual)));
 	}
 
 	/**

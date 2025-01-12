@@ -16,9 +16,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashMap;
 import org.eclipse.core.runtime.IStatus;
@@ -31,7 +32,7 @@ public class ProduceChecksumTest {
 	public void testChecksums() throws IOException {
 		File tempFile = File.createTempFile("testArtifact", ".tmp");
 		tempFile.deleteOnExit();
-		try (FileOutputStream fout = new FileOutputStream(tempFile);
+		try (OutputStream fout = Files.newOutputStream(tempFile.toPath());
 				InputStream resource = getClass().getResourceAsStream("testArtifact")) {
 			resource.transferTo(fout);
 		}

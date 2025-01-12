@@ -15,11 +15,23 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.sharedinstall;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.*;
-import java.util.*;
+import java.nio.file.attribute.AclEntry;
+import java.nio.file.attribute.AclEntryFlag;
+import java.nio.file.attribute.AclEntryPermission;
+import java.nio.file.attribute.AclEntryType;
+import java.nio.file.attribute.AclFileAttributeView;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.p2.tests.reconciler.dropins.AbstractReconcilerTest;
@@ -70,7 +82,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 
 	protected void assertProfileStatePropertiesHasValue(File profileFolder, String value) {
 		try {
-			Properties p = loadProperties(new File(profileFolder, "state.properties"));
+			Properties p = loadProperties(new File(profileFolder, "state.properties").toPath());
 			Collection<Object> values = p.values();
 			for (Object v : values) {
 				if (((String) v).contains(value)) {
@@ -90,7 +102,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 
 	protected void assertProfileStatePropertiesHasKey(File profileFolder, String key) {
 		try {
-			Properties p = loadProperties(new File(profileFolder, "state.properties"));
+			Properties p = loadProperties(new File(profileFolder, "state.properties").toPath());
 			Set<Object> keys = p.keySet();
 			for (Object k : keys) {
 				if (((String) k).contains(key)) {
@@ -251,9 +263,9 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		}
 	}
 
-	public static Properties loadProperties(File inputFile) throws FileNotFoundException, IOException {
+	public static Properties loadProperties(Path inputFile) throws FileNotFoundException, IOException {
 		Properties props = new Properties();
-		try (InputStream is = new FileInputStream(inputFile)) {
+		try (InputStream is = Files.newInputStream(inputFile)) {
 			props.load(is);
 		}
 		return props;
@@ -300,7 +312,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		Properties newProps = new Properties();
 		newProps.put("id", id);
 		newProps.put("version", version);
-		try (OutputStream os = new FileOutputStream(eclipseProductFile)) {
+		try (BufferedWriter os = Files.newBufferedWriter(eclipseProductFile.toPath())) {
 			newProps.store(os, "file generated for tests " + getName());
 		} catch (IOException e) {
 			fail("Failing setting up the .eclipseproduct file at:" + eclipseProductFile.getAbsolutePath());

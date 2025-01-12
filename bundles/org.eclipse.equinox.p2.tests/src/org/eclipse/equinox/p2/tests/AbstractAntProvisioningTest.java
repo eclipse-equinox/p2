@@ -14,8 +14,9 @@
 package org.eclipse.equinox.p2.tests;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -171,7 +172,7 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 	 * Write the build script to disk
 	 */
 	private void writeBuildScript() throws Exception {
-		try (FileOutputStream outputStream = new FileOutputStream(buildScript);) {
+		try (OutputStream outputStream = Files.newOutputStream(buildScript.toPath());) {
 			XMLWriter writer = new XMLWriter(outputStream, null);
 			writeElement(writer, root);
 			writer.flush();

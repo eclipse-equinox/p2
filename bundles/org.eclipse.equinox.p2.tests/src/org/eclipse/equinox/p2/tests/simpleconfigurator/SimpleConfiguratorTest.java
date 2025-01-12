@@ -17,7 +17,6 @@
 package org.eclipse.equinox.p2.tests.simpleconfigurator;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -65,7 +64,7 @@ public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 		File f = new File(userConfiguration.getParent(), SimpleConfiguratorImpl.BASE_TIMESTAMP_FILE_BUNDLESINFO);
 		Properties p = new Properties();
 		p.put(SimpleConfiguratorImpl.KEY_BUNDLESINFO_TIMESTAMP, "" + timestamp);
-		p.store(new FileOutputStream(f), "");
+		p.store(Files.newOutputStream(f.toPath()), "");
 	}
 
 	@Override

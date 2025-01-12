@@ -14,10 +14,10 @@
 package org.eclipse.equinox.p2.tests.repository;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.Date;
 import java.util.EventObject;
 import org.eclipse.core.runtime.CoreException;
@@ -220,13 +220,13 @@ public class FileReaderTest2 extends AbstractProvisioningTest {
 		getEventBus().addListener(listener);
 		try {
 			tmpFile1.createNewFile();
-			try (OutputStream out1 = new FileOutputStream(tmpFile1)) {
+			try (OutputStream out1 = Files.newOutputStream(tmpFile1.toPath())) {
 				FileReader readerWithoutPausing = new FileReader(null, null);
 				readerWithoutPausing.readInto(URI.create(testRemoteFileURL), out1, null);
 				assertNotNull(readerWithoutPausing.getResult());
 				assertTrue(readerWithoutPausing.getResult().isOK());
 				tmpFile.createNewFile();
-				try (OutputStream out = new FileOutputStream(tmpFile)) {
+				try (OutputStream out = Files.newOutputStream(tmpFile.toPath())) {
 					FileReader reader = pauseJob.getReader();
 					reader.readInto(URI.create(testRemoteFileURL), out, monitor);
 					assertNotNull(reader.getResult());

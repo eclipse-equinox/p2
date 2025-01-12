@@ -20,8 +20,8 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -143,7 +143,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 				try {
 					ByteArrayOutputStream content = new ByteArrayOutputStream();
 					File contentBytes = file;
-					FileUtils.copyStream(new FileInputStream(contentBytes), false, content, true);
+					FileUtils.copyStream(Files.newInputStream(contentBytes.toPath()), false, content, true);
 					IPath entryPath = IPath.fromOSString(file.getAbsolutePath());
 					entryPath = entryPath.removeFirstSegments(root.matchingFirstSegments(entryPath));
 					entryPath = entryPath.setDevice(null);

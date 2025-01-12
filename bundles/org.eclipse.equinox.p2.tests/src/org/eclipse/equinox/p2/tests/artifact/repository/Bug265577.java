@@ -13,12 +13,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.Files;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
@@ -73,7 +72,7 @@ public class Bug265577 extends AbstractProvisioningTest {
 	}
 
 	// Tests the response to a feature folder inside a jar
-	public void testZippedRepoWithFolderFeature() {
+	public void testZippedRepoWithFolderFeature() throws IOException {
 		IQueryResult<IInstallableUnit> queryResult = metadataRepo.query(QueryUtil.createIUQuery("Field_Assist_Example.feature.jar"), null);
 		IInstallableUnit[] ius = queryResult.toArray(IInstallableUnit.class);
 		IArtifactKey key = (ius[0].getArtifacts()).iterator().next();
@@ -84,11 +83,8 @@ public class Bug265577 extends AbstractProvisioningTest {
 		desc.setProperty("artifact.folder", String.valueOf(true));
 
 		IStatus status = null;
-		try {
-			OutputStream destination = new BufferedOutputStream(new FileOutputStream(new File(getTempFolder(), "FieldAssist")));
+		try (OutputStream destination = Files.newOutputStream(new File(getTempFolder(), "FieldAssist").toPath())) {
 			status = artifactRepo.getArtifact(desc, destination, new NullProgressMonitor());
-		} catch (FileNotFoundException e) {
-			fail(e.getMessage());
 		}
 
 		if (status.isOK())
@@ -97,7 +93,7 @@ public class Bug265577 extends AbstractProvisioningTest {
 	}
 
 	// Test to retrieve a file from a zipped metadata & artifact repository
-	public void testZippedRepo() {
+	public void testZippedRepo() throws IOException {
 		IQueryResult<IInstallableUnit> queryResult = metadataRepo.query(QueryUtil.createIUQuery("valid.feature.jar"), null);
 		IInstallableUnit[] ius = queryResult.toArray(IInstallableUnit.class);
 		IArtifactKey key = (ius[0].getArtifacts()).iterator().next();
@@ -106,11 +102,8 @@ public class Bug265577 extends AbstractProvisioningTest {
 		IArtifactDescriptor desc = descriptors[0];
 
 		IStatus status = null;
-		try {
-			OutputStream destination = new BufferedOutputStream(new FileOutputStream(new File(getTempFolder(), "valid")));
+		try (OutputStream destination = Files.newOutputStream(new File(getTempFolder(), "valid").toPath())) {
 			status = artifactRepo.getArtifact(desc, destination, new NullProgressMonitor());
-		} catch (FileNotFoundException e) {
-			fail(e.getMessage());
 		}
 
 		assertTrue(status.getMessage(), status.isOK());

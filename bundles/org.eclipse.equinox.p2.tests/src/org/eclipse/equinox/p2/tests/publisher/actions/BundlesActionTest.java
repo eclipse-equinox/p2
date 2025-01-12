@@ -28,7 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -216,7 +216,7 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals(1, descriptors.length);
 
 		try (ZipInputStream actual = artifactRepository.getZipInputStream(descriptors[0]);
-				ZipInputStream expected = new ZipInputStream(new FileInputStream(TEST_FILE2))) {
+				ZipInputStream expected = new ZipInputStream(Files.newInputStream(TEST_FILE2.toPath()))) {
 			TestData.assertEquals(expected, actual);
 		}
 

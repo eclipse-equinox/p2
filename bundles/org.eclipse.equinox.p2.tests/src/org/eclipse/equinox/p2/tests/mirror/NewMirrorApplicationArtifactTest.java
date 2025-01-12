@@ -17,12 +17,12 @@ package org.eclipse.equinox.p2.tests.mirror;
 import static org.junit.Assert.assertNotEquals;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -985,7 +985,8 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	public void testIgnoreErrorsArgument() {
 		// Error prints to stderr, redirect that to a file
 		destRepoLocation.mkdir();
-		try (PrintStream newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")))) {
+		try (PrintStream newErr = new PrintStream(
+				Files.newOutputStream(new File(destRepoLocation, "sys.err").toPath()))) {
 			PrintStream oldErr = System.err;
 			try {
 				System.setErr(newErr);
@@ -996,7 +997,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 				System.setErr(oldErr);
 			}
 
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			fail("Error redirecting outputs", e);
 		}
 		assertEquals("Verifying correct number of Keys", 2, getArtifactKeyCount(destRepoLocation.toURI()));
@@ -1277,8 +1278,10 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 
 		//Comparator prints to stdout, redirect that to a file
 		destRepoLocation.mkdir();
-		try (PrintStream newOut = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.out")));
-				PrintStream newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")))) {
+		try (PrintStream newOut = new PrintStream(
+				Files.newOutputStream(new File(destRepoLocation, "sys.out").toPath()));
+				PrintStream newErr = new PrintStream(
+						Files.newOutputStream(new File(destRepoLocation, "sys.err").toPath()))) {
 			PrintStream oldOut = System.out;
 			PrintStream oldErr = System.err;
 			try {
@@ -1315,7 +1318,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 				System.setOut(oldOut);
 				System.setErr(oldErr);
 			}
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			fail("Error redirecting output", e);
 		}
 
