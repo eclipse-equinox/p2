@@ -23,13 +23,13 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -996,11 +996,10 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	/*
 	 * Test a retry request by the composite repository
 	 */
-	public void testRetryRequest() {
+	public void testRetryRequest() throws IOException, ProvisionException, URISyntaxException {
 		URI childLocation = getTestData("Loading test data", "testData/artifactRepo/missingArtifact").toURI();
 		File destination = new File(getTempFolder(), getUniqueString());
-		try (OutputStream out = new FileOutputStream(destination)) {
-
+		try (OutputStream out = Files.newOutputStream(destination.toPath())) {
 			CompositeArtifactRepository repository = createRepository(new URI("memory:/in/memory"), "in memory test");
 
 			IArtifactRepository childOne = getArtifactRepositoryManager().loadRepository(childLocation, null);
@@ -1022,8 +1021,6 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			status = repository.getArtifact(descriptor, out, new NullProgressMonitor());
 			assertFalse(status.isOK());
 			assertFalse("Requesting retry with no available children", IArtifactRepository.CODE_RETRY == status.getCode());
-		} catch (Exception e) {
-			fail("Exception occurred", e);
 		} finally {
 			getArtifactRepositoryManager().removeRepository(childLocation);
 			if (destination != null)
@@ -1102,7 +1099,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	/*
 	 * Test a child returning different bytes
 	 */
-	public void testFailedDownload() {
+	public void testFailedDownload() throws IOException, URISyntaxException {
 		final byte[] contents = "Hello".getBytes();
 		class BadSite extends TestArtifactRepository {
 			File location = new File(getTempFolder(), getUniqueString());
@@ -1126,7 +1123,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			@Override
 			public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
 				try {
-					return new FileOutputStream(location);
+					return Files.newOutputStream(location.toPath());
 				} catch (Exception e) {
 					fail("Failed to open stream", e);
 					return null;
@@ -1137,7 +1134,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		BadSite dest = null;
 		CompositeArtifactRepository source = null;
 		File destination = new File(getTempFolder(), getUniqueString());
-		try (OutputStream out = new FileOutputStream(destination)) {
+		try (OutputStream out = Files.newOutputStream(destination.toPath())) {
 
 			source = createRepository(new URI("memory:/in/memory"), "in memory test");
 			IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "missingSize.asdf", Version.create("1.5.1.v200803061910")));
@@ -1167,8 +1164,6 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			assertTrue(status.isOK());
 			// Contents should be equal
 			assertEquals(contents.length, dest.location.length());
-		} catch (Exception e) {
-			fail("Exception occurred", e);
 		} finally {
 			if (source != null)
 				getArtifactRepositoryManager().removeRepository(source.getLocation());

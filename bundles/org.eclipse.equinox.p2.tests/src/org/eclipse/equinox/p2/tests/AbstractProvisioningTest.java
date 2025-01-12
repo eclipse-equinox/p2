@@ -14,23 +14,19 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -250,12 +246,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			}
 			return;
 		}
-		try (InputStream input = new BufferedInputStream(new FileInputStream(source)); OutputStream output = new BufferedOutputStream(new FileOutputStream(target));) {
-
-			byte[] buffer = new byte[8192];
-			int bytesRead = 0;
-			while ((bytesRead = input.read(buffer)) != -1)
-				output.write(buffer, 0, bytesRead);
+		try (InputStream input = Files.newInputStream(source.toPath());
+				OutputStream output = Files.newOutputStream(target.toPath())) {
+			input.transferTo(output);
 		} catch (IOException e) {
 			fail(message, e);
 		}
@@ -741,14 +734,12 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	public static void writeBuffer(File outputFile, CharSequence buffer) throws IOException {
 		outputFile.getParentFile().mkdirs();
-		try (FileOutputStream stream = new FileOutputStream(outputFile)) {
-			stream.write(buffer.toString().getBytes());
-		}
+		Files.write(outputFile.toPath(), buffer.toString().getBytes());
 	}
 
 	public static void writeProperties(File outputFile, Properties properties) throws IOException {
 		outputFile.getParentFile().mkdirs();
-		try (FileOutputStream stream = new FileOutputStream(outputFile)) {
+		try (OutputStream stream = Files.newOutputStream(outputFile.toPath())) {
 			properties.store(stream, "");
 		}
 	}
@@ -1130,7 +1121,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Asserts that the first line of text in f equals the content.
 	 */
 	public static void assertFileContent(String message, File f, String content) {
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(f)))) {
+		try (BufferedReader reader = Files.newBufferedReader(f.toPath())) {
 			String line = reader.readLine();
 			assertEquals(message, content, line);
 		} catch (FileNotFoundException e) {

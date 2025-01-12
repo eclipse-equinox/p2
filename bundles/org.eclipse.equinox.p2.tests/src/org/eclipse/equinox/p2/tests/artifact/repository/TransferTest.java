@@ -14,11 +14,12 @@
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Files;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -29,16 +30,15 @@ public class TransferTest extends AbstractProvisioningTest {
 
 	public void testGZFileAreNotUnzipped() throws Exception {
 		File f = File.createTempFile("TransferTest", "pack.gz");
-		try (FileOutputStream fos = new FileOutputStream(f)) {
+		try (OutputStream fos = Files.newOutputStream(f.toPath())) {
 			Platform.getBundle("org.eclipse.ecf.provider.filetransfer").start();
 			final URI toDownload = new URI(
 					"https://download.eclipse.org/eclipse/updates/4.11/R-4.11-201903070500/plugins/javax.servlet.jsp_2.2.0.v201112011158.jar.pack.gz");
 			IStatus s = getTransport().download(toDownload, fos, new NullProgressMonitor());
 			assertOK("2.0", s);
 			int httpSize = -1;
-			URL u;
 			try {
-				u = toDownload.toURL();
+				URL u = toDownload.toURL();
 				HttpURLConnection c = (HttpURLConnection) u.openConnection();
 				httpSize = c.getContentLength();
 			} catch (IOException e1) {

@@ -26,11 +26,10 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,7 +37,6 @@ import java.util.Map;
 import java.util.zip.ZipInputStream;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -240,14 +238,12 @@ public class JREActionTest extends ActionTest {
 
 	private void verifyArtifactRepository(IArtifactKey key, File JRELocation, final String fileName) throws IOException {
 		assertTrue(artifactRepository.contains(key));
-		ByteArrayOutputStream content = new ByteArrayOutputStream();
 		FileFilter fileFilter = file -> file.getName().endsWith(fileName);
 		File[] contentBytes = JRELocation.listFiles(fileFilter);
-		FileUtils.copyStream(new FileInputStream(contentBytes[0]), false, content, true);
 		ZipInputStream zipInputStream = artifactRepository.getZipInputStream(key);
 
 		Map<String, Object[]> fileMap = new HashMap<>();
-		fileMap.put(fileName, new Object[] {contentBytes[0], content.toByteArray()});
+		fileMap.put(fileName, new Object[] { contentBytes[0], Files.readAllBytes(contentBytes[0].toPath()) });
 		TestData.assertContains(fileMap, zipInputStream, true);
 	}
 

@@ -13,8 +13,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import org.osgi.framework.Version;
 
 /*
@@ -231,9 +238,7 @@ public class GenerateTestData {
 		if (parent == null)
 			throw new RuntimeException("Unable to write to: " + location.getAbsolutePath() + "due to null parent.");
 		parent.mkdirs();
-		try (OutputStream output = new BufferedOutputStream(new FileOutputStream(location))) {
-			output.write(data.getBytes());
-		}
+		Files.write(location.toPath(), data.getBytes());
 	}
 
 	// Return a random bundle from the collection of already produced ones.

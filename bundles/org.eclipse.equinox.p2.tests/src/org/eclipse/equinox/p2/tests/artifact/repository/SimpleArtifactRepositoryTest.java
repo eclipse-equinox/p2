@@ -17,7 +17,6 @@
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
@@ -25,6 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -213,7 +213,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		TestStep errStep = new TestStep(new Status(IStatus.ERROR, "plugin", "Error Step Message"));
 		TestStep warnStep = new TestStep(new Status(IStatus.WARNING, "plugin", "Warning Step Message"));
 		TestStep okStep = new TestStep(Status.OK_STATUS);
-		try (OutputStream out = new FileOutputStream(repositoryFile)) {
+		try (OutputStream out = Files.newOutputStream(repositoryFile.toPath())) {
 			(new ProcessingStepHandler()).link(new ProcessingStep[] { okStep, errStep, warnStep }, out,
 					new NullProgressMonitor());
 			IStatus status = repo.getRawArtifact(descriptor, okStep, new NullProgressMonitor());
@@ -228,7 +228,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		warnStep = new TestStep(new Status(IStatus.WARNING, "plugin", "Warning Step Message"));
 		TestStep warnStep2 = new TestStep(new Status(IStatus.WARNING, "plugin", "2 - Warning Step Message"));
 		okStep = new TestStep(Status.OK_STATUS);
-		try (OutputStream out = new FileOutputStream(repositoryFile)) {
+		try (OutputStream out = Files.newOutputStream(repositoryFile.toPath())) {
 			(new ProcessingStepHandler()).link(new ProcessingStep[] { okStep, warnStep, errStep, warnStep2 }, out,
 					new NullProgressMonitor());
 			IStatus status = repo.getRawArtifact(descriptor, okStep, new NullProgressMonitor());

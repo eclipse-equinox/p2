@@ -15,19 +15,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -181,12 +176,12 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		PrintStream err = System.err;
 		try {
 			outputFile.getParentFile().mkdirs();
-			try (PrintStream fileStream = new PrintStream(new FileOutputStream(outputFile))) {
+			try (PrintStream fileStream = new PrintStream(Files.newOutputStream(outputFile.toPath()))) {
 				System.setErr(fileStream);
 				System.setOut(fileStream);
 				return run(message, commandArray);
 			}
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			return -1;
 		} finally {
 			System.setOut(out);
@@ -337,8 +332,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		file.getParentFile().mkdirs();
 		Properties properties = new Properties();
 		properties.put("path", extensionLocation);
-		try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(file));) {
-			properties.store(stream, null);
+		try (BufferedWriter writer = Files.newBufferedWriter(file.toPath())) {
+			properties.store(writer, null);
 		} catch (IOException e) {
 			fail(message, e);
 		}
@@ -409,7 +404,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 
 	public BundleInfo[] loadBundlesInfo(File location) throws IOException {
 		SimpleConfiguratorManipulator manipulator = new SimpleConfiguratorManipulatorImpl();
-		try (InputStream input = new BufferedInputStream(new FileInputStream(location));) {
+		try (InputStream input = Files.newInputStream(location.toPath())) {
 			return manipulator.loadConfiguration(input, new File(output, "eclipse").toURI());
 		}
 	}
@@ -825,7 +820,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 						return;
 					archiveAndRepositoryProperties = new Properties();
 					try {
-						try (InputStream is = new BufferedInputStream(new FileInputStream(propertiesFile))) {
+						try (InputStream is = Files.newInputStream(propertiesFile.toPath())) {
 							archiveAndRepositoryProperties.load(is);
 						}
 					} catch (IOException e) {

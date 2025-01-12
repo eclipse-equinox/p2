@@ -18,13 +18,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -44,7 +43,7 @@ public class StandaloneSerializationTest {
 	@Test
 	public void testNothingToWrite() throws IOException {
 		File f = File.createTempFile(name.getMethodName(), "iu");
-		try (OutputStream os = new FileOutputStream(f)) {
+		try (OutputStream os = Files.newOutputStream(f.toPath())) {
 			new IUSerializer(os).write(Collections.emptyList());
 		}
 		assertTrue(f.length() > 0);
@@ -55,18 +54,16 @@ public class StandaloneSerializationTest {
 	public void testNoContent() throws IOException {
 		// Write file w/o content
 		File f = File.createTempFile(name.getMethodName(), "iu");
-		try (OutputStream os = new FileOutputStream(f)) {
+		try (OutputStream os = Files.newOutputStream(f.toPath())) {
 			new IUSerializer(os).write(Collections.emptyList());
 		}
 
 		// Read file written
 		boolean exceptionRaised = false;
-		try (InputStream is = new FileInputStream(f)) {
+		try (InputStream is = Files.newInputStream(f.toPath())) {
 			Collection<IInstallableUnit> ius = new IUDeserializer().read(is);
 			assertEquals(0, ius.size());
-		} catch (FileNotFoundException e) {
-			fail("problem writing: " + e.getCause().getMessage());
-		} catch (UnsupportedEncodingException e) {
+		} catch (FileNotFoundException | UnsupportedEncodingException e) {
 			fail("problem writing: " + e.getCause().getMessage());
 		} catch (IOException e) {
 			exceptionRaised = true;
@@ -90,11 +87,11 @@ public class StandaloneSerializationTest {
 		ius.add(MetadataFactory.createInstallableUnit(iu2));
 
 		File f = File.createTempFile(name.getMethodName(), "iu");
-		try (OutputStream os = new FileOutputStream(f)) {
+		try (OutputStream os = Files.newOutputStream(f.toPath())) {
 			new IUSerializer(os).write(ius);
 		}
 
-		try (InputStream is = new FileInputStream(f)) {
+		try (InputStream is = Files.newInputStream(f.toPath())) {
 			assertEquals(2, new IUDeserializer().read(is).size());
 		} finally {
 			f.delete();

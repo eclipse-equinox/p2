@@ -14,9 +14,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.simpleconfigurator;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -26,7 +32,9 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.embeddedequinox.EmbeddedEquinox;
-import org.osgi.framework.*;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 
 public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisioningTest {
 	static String BUNDLE_JAR_DIRECTORY = "simpleConfiguratorTest/bundlesTxt2";
@@ -145,9 +153,8 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 			String value = null;
 			if (bundleFile.isDirectory()) {
 				File m = new File(bundleFile, "META-INF/MANIFEST.MF");
-				try (InputStream os = new FileInputStream(m)) {
-					Manifest mf;
-					mf = new Manifest(os);
+				try (InputStream os = Files.newInputStream(m.toPath())) {
+					Manifest mf = new Manifest(os);
 					value = mf.getMainAttributes().getValue(entry);
 				}
 			} else {

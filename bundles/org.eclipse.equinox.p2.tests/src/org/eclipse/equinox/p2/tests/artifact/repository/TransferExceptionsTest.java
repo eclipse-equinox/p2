@@ -13,10 +13,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import org.eclipse.core.runtime.*;
+import java.nio.file.Files;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.BundleException;
 
@@ -25,19 +30,10 @@ import org.osgi.framework.BundleException;
  */
 public class TransferExceptionsTest extends AbstractProvisioningTest {
 
-	public void testErrorMessages() {
-		FileOutputStream fos = null;
-		File f = null;
-		try {
-			f = File.createTempFile("TransferTest", "dummy.txt");
-			fos = new FileOutputStream(f);
+	public void testErrorMessages() throws IOException, BundleException, URISyntaxException {
+		File f = File.createTempFile("TransferTest", "dummy.txt");
+		try (OutputStream fos = Files.newOutputStream(f.toPath())) {
 			Platform.getBundle("org.eclipse.ecf.provider.filetransfer").start();
-		} catch (IOException e) {
-			fail("1.0", e);
-		} catch (BundleException e) {
-			fail("1.5", e);
-		}
-		try {
 			IStatus s = getTransport().download(new URI("bogus!bogus"), fos, new NullProgressMonitor());
 			assertNotOK(s);
 			printStatus("1", s);
@@ -56,11 +52,10 @@ public class TransferExceptionsTest extends AbstractProvisioningTest {
 			s = getTransport().download(new URI("http://bogus.nowhere"), fos, new NullProgressMonitor());
 			assertNotOK(s);
 			printStatus("6", s);
-			s = getTransport().download(new URI("http://www.eclipse.org/AFileThatDoesNotExist.foo"), fos, new NullProgressMonitor());
+			s = getTransport().download(new URI("http://www.eclipse.org/AFileThatDoesNotExist.foo"), fos,
+					new NullProgressMonitor());
 			assertNotOK(s);
 			printStatus("7", s);
-		} catch (URISyntaxException e) {
-			fail("URI syntax exception where none was expected: " + e.getMessage());
 		}
 	}
 

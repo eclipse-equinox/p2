@@ -15,7 +15,6 @@
 package org.eclipse.equinox.p2.tests.core;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Enumeration;
@@ -94,7 +93,7 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 
 	public void testUnzipEscapeZipRoot() throws IOException {
 		File badZip = TestActivator.getContext().getDataFile(getName() + ".zip");
-		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(badZip))) {
+		try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(badZip.toPath()))) {
 			zos.putNextEntry(new ZipEntry("../../escapeRoot.txt"));
 			zos.write("test data".getBytes());
 			zos.closeEntry();
@@ -117,7 +116,7 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 
 	public void testBug266844zip() throws IOException {
 		File zip = TestActivator.getContext().getDataFile(getName() + ".zip");
-		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+		try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(zip.toPath()))) {
 			zos.putNextEntry(new ZipEntry("./"));
 			zos.putNextEntry(new ZipEntry("./content.txt"));
 			zos.write("test data".getBytes());
@@ -135,7 +134,7 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 
 	public void testBug266844tar() throws IOException {
 		File tar = TestActivator.getContext().getDataFile(getName() + ".tar.gz");
-		try (TarOutputStream tos = new TarOutputStream(new FileOutputStream(tar))) {
+		try (TarOutputStream tos = new TarOutputStream(Files.newOutputStream(tar.toPath()))) {
 			tos.putNextEntry(new TarEntry("./"));
 			TarEntry entry = new TarEntry("./content.txt");
 			entry.setSize(9);
