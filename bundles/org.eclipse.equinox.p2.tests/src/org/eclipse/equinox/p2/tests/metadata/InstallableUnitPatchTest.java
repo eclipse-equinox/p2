@@ -28,7 +28,8 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
  */
 public class InstallableUnitPatchTest extends AbstractProvisioningTest {
 	/**
-	 * Tests for {@link org.eclipse.equinox.p2.metadata.IInstallableUnit#satisfies(org.eclipse.equinox.internal.p2.metadata.RequiredCapability)}.
+	 * Tests for
+	 * {@link org.eclipse.equinox.p2.metadata.IInstallableUnit#satisfies(IRequirement)}.
 	 */
 	public void testLifeCycleRequirement() {
 

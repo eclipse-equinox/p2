@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 public class InstallableUnitTest extends AbstractProvisioningTest {
 	/**
 	 * Tests for
-	 * {@link org.eclipse.equinox.p2.metadata.IInstallableUnit#satisfies(org.eclipse.equinox.internal.p2.metadata.RequiredCapability)}.
+	 * {@link org.eclipse.equinox.p2.metadata.IInstallableUnit#satisfies(org.eclipse.equinox.p2.metadata.IRequirement)}.
 	 */
 	public void testSatisfies() {
 		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("testNamespace", "name", Version.createOSGi(1, 0, 0))};
