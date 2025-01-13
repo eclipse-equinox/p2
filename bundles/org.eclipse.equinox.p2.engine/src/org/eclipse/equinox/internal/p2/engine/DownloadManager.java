@@ -172,6 +172,7 @@ public class DownloadManager {
 		for (IArtifactRequest request : requestsToProcess) {
 			IStatus failed = request.getResult();
 			if (failed != null && !failed.isOK()) {
+				result.add(failed);
 				IArtifactKey key = request.getArtifactKey();
 				IInstallableUnit unit = getUnit(key);
 				if (unit != null) {
@@ -181,9 +182,7 @@ public class DownloadManager {
 									Arrays.stream(repositories).map(repo -> repo.getLocation()).filter(Objects::nonNull)
 											.map(URI::toString).collect(Collectors.joining(System.lineSeparator(),
 													System.lineSeparator(), "")) }))); //$NON-NLS-1$
-					continue;
 				}
-				result.add(failed);
 			}
 		}
 		return result;
