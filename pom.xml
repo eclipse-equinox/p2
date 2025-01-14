@@ -147,6 +147,21 @@
          <excludePackageNames>${javadoc.excludePackageNames}</excludePackageNames>
         </configuration>
       </plugin>
+       <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-apitools-plugin</artifactId>
+                <version>${tycho.version}</version>
+                <executions>
+                    <execution>
+                        <id>verify</id>
+                        <configuration>
+                             <apiToolsRepository>
+                                 <url>https://download.eclipse.org/eclipse/updates/4.35-I-builds/</url>
+                             </apiToolsRepository>
+                        </configuration>
+                    </execution>
+                </executions>
+              </plugin>
     </plugins>
   </build>
 
