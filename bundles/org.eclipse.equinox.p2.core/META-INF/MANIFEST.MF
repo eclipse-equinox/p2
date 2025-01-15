@@ -63,8 +63,8 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.updatesite,
    org.eclipse.equinox.p2.director.app,
    org.eclipse.equinox.p2.transport.ecf",
- org.eclipse.equinox.p2.core;version="2.12.0";uses:="org.eclipse.core.runtime",
- org.eclipse.equinox.p2.core.spi;version="2.1.0";uses:="org.eclipse.equinox.p2.core"
+ org.eclipse.equinox.p2.core;version="2.13.0";uses:="org.eclipse.core.runtime",
+ org.eclipse.equinox.p2.core.spi;version="2.2.0";uses:="org.eclipse.equinox.p2.core"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Service-Component: 
@@ -73,8 +73,6 @@ Service-Component:
 Import-Package: org.bouncycastle.bcpg;version="1.65.0",
  org.bouncycastle.openpgp;version="1.65.0",
  org.eclipse.core.runtime;common=split;version="[3.5.0,4.0.0)",
- org.eclipse.equinox.p2.core;version="[2.12.0,2.13.0)";resolution:=optional,
- org.eclipse.equinox.p2.core.spi;version="[2.1.0,2.2.0)";resolution:=optional,
  org.eclipse.osgi.framework.eventmgr;version="1.2.0",
  org.eclipse.osgi.framework.log;version="1.0.0",
  org.eclipse.osgi.service.debug;version="1.0.0",
