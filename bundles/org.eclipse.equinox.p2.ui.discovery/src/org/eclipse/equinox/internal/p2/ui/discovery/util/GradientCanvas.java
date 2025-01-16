@@ -55,7 +55,7 @@ public class GradientCanvas extends Canvas {
 
 	private GradientInfo gradientInfo;
 
-	private class GradientInfo {
+	private static class GradientInfo {
 		Color[] gradientColors;
 
 		int[] percents;
