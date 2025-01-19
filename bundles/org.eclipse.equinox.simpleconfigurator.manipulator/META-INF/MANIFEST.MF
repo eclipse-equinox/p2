@@ -12,7 +12,7 @@ Import-Package: org.eclipse.equinox.frameworkadmin;version="[2.0.0,3.0.0)",
  org.eclipse.equinox.internal.provisional.frameworkadmin,
  org.eclipse.equinox.internal.simpleconfigurator,
  org.eclipse.equinox.internal.simpleconfigurator.utils,
- org.osgi.framework;version="1.3.0"
+ org.osgi.framework;version="[1.6.0,2)"
 Bundle-Vendor: %providerName
 Export-Package: org.eclipse.equinox.internal.simpleconfigurator.manipulator;x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse",
  org.eclipse.equinox.simpleconfigurator.manipulator;version="2.0.0"
