@@ -516,6 +516,27 @@ public class BundlesActionTest extends ActionTest {
 		assertThat(ius.size(), is(1));
 	}
 
+	public void testPackageAttributes() throws Exception {
+		File testData = new File(TestActivator.getTestDataFolder(), "pkgAttributes");
+		IInstallableUnit iu = BundlesAction.createBundleIU(BundlesAction.createBundleDescription(testData), null,
+				new PublisherInfo());
+		IProvidedCapability capability = iu.getProvidedCapabilities().stream()
+				.filter(provided -> provided.getNamespace().equals(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE))
+				.findFirst().orElseThrow(() -> new AssertionError("no package found!"));
+		Map<String, Object> properties = capability.getProperties();
+		assertEquals(String.valueOf(properties), "org.eclipse.core.runtime",
+				properties.get(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE));
+		assertEquals(String.valueOf(properties), "split",
+				properties.get(BundlesAction.PACKAGE_ATTRIBUTE_PROPERTY_PREFIX + "common"));
+		Object object = properties.get(BundlesAction.PACKAGE_DIRECTIVE_PROPERTY_PREFIX + "mandatory");
+		if (object instanceof List<?> list) {
+			assertTrue(list.contains("common"));
+		} else {
+			fail("Not a list: " + object);
+		}
+
+	}
+
 	public void testMultiRequired() throws Exception {
 		File testData = new File(TestActivator.getTestDataFolder(), "requireMultiple");
 		IInstallableUnit iu = BundlesAction.createBundleIU(BundlesAction.createBundleDescription(testData), null,

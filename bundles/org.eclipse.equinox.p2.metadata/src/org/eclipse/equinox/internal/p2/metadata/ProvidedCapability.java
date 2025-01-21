@@ -16,12 +16,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.stream.Stream;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -40,6 +40,9 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 	public static final String MEMBER_VERSION = "version"; //$NON-NLS-1$
 	/** Used for fast access from P2 queries to the {@link #getProperties} method */
 	public static final String MEMBER_PROPERTIES = "properties"; //$NON-NLS-1$
+
+	private static final Collection<Class<?>> SUPPORTED_CLASSES = List.of(Version.class, String.class, Long.class,
+			Integer.class, Short.class, Byte.class, Double.class, Float.class, Boolean.class, Character.class);
 
 	private final String namespace;
 	private final Map<String, Object> properties;
@@ -150,11 +153,25 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 	}
 
 	private void assertValidScalarType(String key, Object scalar) {
-		Class<?> clazz = scalar.getClass();
-		Stream<Class<?>> supportedClasses = Stream.of(Version.class, String.class, Long.class, Integer.class,
-				Short.class, Byte.class, Double.class, Float.class, Boolean.class, Character.class);
-		if (supportedClasses.noneMatch(t -> t.isAssignableFrom(clazz))) {
+		if (!isValidScalarType(scalar)) {
 			throw new IllegalArgumentException(String.format("Invalid type %s of property %s", scalar.getClass(), key)); //$NON-NLS-1$
 		}
+	}
+
+	private static boolean isValidScalarType(Object scalar) {
+		Class<?> clazz = scalar.getClass();
+		return SUPPORTED_CLASSES.stream().anyMatch(t -> t.isAssignableFrom(clazz));
+	}
+
+	public static boolean isValidValueType(Object prop) {
+		if (prop instanceof List<?>) {
+			for (Object listItem : (List<?>) prop) {
+				if (!isValidScalarType(listItem)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return isValidScalarType(prop);
 	}
 }
