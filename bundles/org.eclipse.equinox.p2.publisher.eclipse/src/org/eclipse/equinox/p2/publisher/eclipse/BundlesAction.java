@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.bundledescription.BundleDescriptionBuilder;
@@ -119,6 +120,18 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static final String DIR = "dir"; //$NON-NLS-1$
 	public static final String JAR = "jar"; //$NON-NLS-1$
 	public static final String BUNDLE_SHAPE = "Eclipse-BundleShape"; //$NON-NLS-1$
+
+	/**
+	 * Attribute used to store an attribute on an exported package
+	 */
+	public static final String PACKAGE_ATTRIBUTE_PROPERTY_PREFIX = PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE
+			+ ".attribute."; //$NON-NLS-1$
+
+	/**
+	 * Attribute used to store an directive on an exported package
+	 */
+	public static final String PACKAGE_DIRECTIVE_PROPERTY_PREFIX = PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE
+			+ ".directive."; //$NON-NLS-1$
 
 	/**
 	 * Manifest header directive for specifying how optional runtime requirements
@@ -256,9 +269,15 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// Process exported packages
 		for (ExportPackageDescription packageExport : bd.getExportPackages()) {
-			providedCapabilities
-					.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE,
-							packageExport.getName(), PublisherHelper.fromOSGiVersion(packageExport.getVersion())));
+			Map<String, Object> map = new LinkedHashMap<>();
+			map.put(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, packageExport.getName());
+			map.put(IProvidedCapability.PROPERTY_VERSION, PublisherHelper.fromOSGiVersion(packageExport.getVersion()));
+			propagateProperties(packageExport.getAttributes(), map,
+					PACKAGE_ATTRIBUTE_PROPERTY_PREFIX);
+			propagateProperties(packageExport.getDirectives(), map, PACKAGE_DIRECTIVE_PROPERTY_PREFIX);
+			IProvidedCapability capability = MetadataFactory
+					.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, map);
+			providedCapabilities.add(capability);
 		}
 
 		// Process generic capabilities
@@ -1151,4 +1170,29 @@ public class BundlesAction extends AbstractPublisherAction {
 		finalStatus.add(new Status(IStatus.ERROR, Activator.ID,
 				NLS.bind(Messages.exception_errorPublishingBundle, bundleLocation, t.getMessage()), t));
 	}
+
+	private void propagateProperties(Map<String, Object> source, Map<String, Object> target, String prefix) {
+		if (source == null) {
+			return;
+		}
+		for (Entry<String, Object> entry : source.entrySet()) {
+			String key = entry.getKey();
+			if (key.startsWith("x-")) { //$NON-NLS-1$
+				// not a standard directive / attribute if we want those we should only allow
+				// special known ones!
+				continue;
+			}
+			String prop = prefix + key;
+			Object value = entry.getValue();
+			if (value instanceof Object[] array) {
+				List<Object> list = List.of(array);
+				if (ProvidedCapability.isValidValueType(list)) {
+					target.put(prop, list);
+				}
+			} else if (ProvidedCapability.isValidValueType(value)) {
+				target.put(prop, value);
+			}
+		}
+	}
+
 }

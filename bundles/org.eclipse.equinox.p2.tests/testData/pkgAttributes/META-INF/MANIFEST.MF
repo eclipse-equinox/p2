@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: pkg.attr
+Bundle-SymbolicName: pkg.attr
+Bundle-Version: 1.0.0
+Export-Package: org.eclipse.core.runtime;common=split;version="3.7.0";mandatory:=common
