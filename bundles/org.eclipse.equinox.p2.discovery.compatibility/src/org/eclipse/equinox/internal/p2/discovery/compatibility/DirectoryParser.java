@@ -64,7 +64,7 @@ public class DirectoryParser {
 		return contentHandler.directory;
 	}
 
-	private class DirectoryContentHandler implements ContentHandler {
+	private static class DirectoryContentHandler implements ContentHandler {
 
 		Directory directory;
 
