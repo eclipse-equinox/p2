@@ -30,7 +30,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 	private static final String ATTRIBUTE_TYPE = "type"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_VERSION = "version"; //$NON-NLS-1$
 
-	private class TouchpointEntry {
+	private static class TouchpointEntry {
 
 		private IConfigurationElement element;
 		private boolean createdExtension = false;
