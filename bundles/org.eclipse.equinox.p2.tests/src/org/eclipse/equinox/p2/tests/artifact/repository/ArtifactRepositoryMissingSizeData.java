@@ -102,7 +102,7 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		}
 	}
 
-	private class SPhaseSet extends PhaseSet {
+	private static class SPhaseSet extends PhaseSet {
 		public SPhaseSet(Phase set) {
 			super(new Phase[] {set});
 		}

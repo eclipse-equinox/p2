@@ -751,7 +751,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		delete(destinationRepo);
 	}
 
-	private final class DummyCertificate extends Certificate {
+	private static final class DummyCertificate extends Certificate {
 		private final String identity;
 
 		DummyCertificate(String identity) {
