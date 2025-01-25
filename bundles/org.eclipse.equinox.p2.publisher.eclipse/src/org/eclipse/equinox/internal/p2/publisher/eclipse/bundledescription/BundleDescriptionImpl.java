@@ -459,7 +459,7 @@ final class BundleDescriptionImpl extends BaseDescriptionImpl implements BundleD
 			lazyData = new LazyData();
 	}
 
-	final class LazyData {
+	static final class LazyData {
 		String location;
 		String platformFilter;
 
