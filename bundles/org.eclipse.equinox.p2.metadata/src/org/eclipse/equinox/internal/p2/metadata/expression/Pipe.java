@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 
 public class Pipe extends NAry {
 
-	private class NoIndexProvider implements IIndexProvider<Object> {
+	private static class NoIndexProvider implements IIndexProvider<Object> {
 		private final IIndexProvider<?> indexProvider;
 		private Everything<Object> everything;
 
