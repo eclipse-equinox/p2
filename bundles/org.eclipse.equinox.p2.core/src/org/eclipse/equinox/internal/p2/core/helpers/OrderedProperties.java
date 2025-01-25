@@ -177,7 +177,7 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 		return sb.toString();
 	}
 
-	private class StringsEnum implements Enumeration<String> {
+	private static class StringsEnum implements Enumeration<String> {
 
 		private final Iterator<String> iterator;
 
