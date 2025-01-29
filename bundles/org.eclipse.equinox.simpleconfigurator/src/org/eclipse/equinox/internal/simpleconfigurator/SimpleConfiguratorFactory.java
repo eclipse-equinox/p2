@@ -16,7 +16,7 @@ package org.eclipse.equinox.internal.simpleconfigurator;
 import org.osgi.framework.*;
 
 public class SimpleConfiguratorFactory implements ServiceFactory<Object> {
-	private BundleContext context;
+	private final BundleContext context;
 
 	public SimpleConfiguratorFactory(BundleContext context) {
 		this.context = context;

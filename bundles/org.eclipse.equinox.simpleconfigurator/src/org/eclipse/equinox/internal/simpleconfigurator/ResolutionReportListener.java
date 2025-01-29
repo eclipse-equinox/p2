@@ -23,7 +23,7 @@ import org.osgi.framework.wiring.*;
 
 class ResolutionReportListener implements ResolverHookFactory, ResolverHook, ResolutionReport.Listener {
 
-	private List<ResolutionReport> reports = new CopyOnWriteArrayList<>();
+	private final List<ResolutionReport> reports = new CopyOnWriteArrayList<>();
 
 	@Override
 	public ResolverHook begin(Collection<BundleRevision> triggers) {

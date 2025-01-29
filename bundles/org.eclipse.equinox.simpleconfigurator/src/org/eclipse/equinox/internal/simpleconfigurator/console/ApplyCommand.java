@@ -25,9 +25,9 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 public class ApplyCommand {
 
-	private URL configURL;
-	private CommandInterpreter interpreter;
-	private BundleContext context;
+	private final URL configURL;
+	private final CommandInterpreter interpreter;
+	private final BundleContext context;
 
 	public ApplyCommand(CommandInterpreter interpreter, BundleContext context, URL configURL) {
 		this.interpreter = interpreter;

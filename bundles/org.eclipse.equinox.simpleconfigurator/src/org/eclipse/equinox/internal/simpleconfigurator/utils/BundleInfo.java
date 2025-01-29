@@ -23,7 +23,7 @@ public class BundleInfo {
 
 	private String symbolicName = null;
 	private String version = null;
-	private URI location;
+	private final URI location;
 	private URI baseLocation;
 
 	private boolean markedAsStarted = false;
