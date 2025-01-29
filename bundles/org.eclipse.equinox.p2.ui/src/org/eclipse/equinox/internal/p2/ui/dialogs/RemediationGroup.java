@@ -61,7 +61,7 @@ public class RemediationGroup {
 	private IUDetailsGroup iuDetailsGroup;
 
 	HashMap<String, String[]> CONSTRAINTS;
-	private WizardPage containerPage;
+	private final WizardPage containerPage;
 
 	public class RemedyContentProvider implements ITreeContentProvider {
 

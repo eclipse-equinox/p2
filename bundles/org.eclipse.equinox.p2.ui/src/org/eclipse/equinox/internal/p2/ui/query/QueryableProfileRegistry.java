@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  */
 public class QueryableProfileRegistry implements IQueryable<IProfile> {
 
-	private ProvisioningUI ui;
+	private final ProvisioningUI ui;
 
 	public QueryableProfileRegistry(ProvisioningUI ui) {
 		this.ui = ui;

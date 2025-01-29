@@ -32,7 +32,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 
-	private Object parent;
+	private final Object parent;
 
 	public ProvElement(Object parent) {
 		this.parent = parent;

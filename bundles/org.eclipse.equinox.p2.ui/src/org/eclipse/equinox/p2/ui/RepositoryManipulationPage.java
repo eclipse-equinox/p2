@@ -112,8 +112,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	Job filterJob;
 	Button addButton, removeButton, editButton, refreshButton, disableButton, exportButton;
 
-	private Map<MetadataRepositoryElement, URI> originalURICache = new HashMap<>(2);
-	private Map<MetadataRepositoryElement, String> originalNameCache = new HashMap<>(2);
+	private final Map<MetadataRepositoryElement, URI> originalURICache = new HashMap<>(2);
+	private final Map<MetadataRepositoryElement, String> originalNameCache = new HashMap<>(2);
 
 	class CachedMetadataRepositories extends MetadataRepositories {
 		private Hashtable<String, MetadataRepositoryElement> cachedElements;

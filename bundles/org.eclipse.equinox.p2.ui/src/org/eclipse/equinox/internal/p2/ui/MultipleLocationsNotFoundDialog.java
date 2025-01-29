@@ -29,9 +29,9 @@ import org.eclipse.ui.PlatformUI;
 
 public class MultipleLocationsNotFoundDialog implements Runnable {
 
-	private RepositoryTracker repositoryTracker;
-	private ProvisioningUI ui;
-	private URI[] locations;
+	private final RepositoryTracker repositoryTracker;
+	private final ProvisioningUI ui;
+	private final URI[] locations;
 
 	public MultipleLocationsNotFoundDialog(RepositoryTracker repositoryTracker, ProvisioningUI ui, URI[] locations) {
 		this.repositoryTracker = repositoryTracker;

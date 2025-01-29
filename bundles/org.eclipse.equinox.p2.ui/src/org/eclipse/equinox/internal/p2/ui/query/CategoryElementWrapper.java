@@ -32,7 +32,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 public class CategoryElementWrapper extends QueriedElementWrapper {
 
 	// Used to track nested categories
-	private Set<String> referredIUs = new HashSet<>();
+	private final Set<String> referredIUs = new HashSet<>();
 
 	public CategoryElementWrapper(IQueryable<?> queryable, Object parent) {
 		super(queryable, parent);

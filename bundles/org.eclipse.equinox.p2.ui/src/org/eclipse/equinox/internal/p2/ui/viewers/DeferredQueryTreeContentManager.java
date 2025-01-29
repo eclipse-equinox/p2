@@ -53,7 +53,7 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 
 	Object elementRequested;
 	ListenerList<IDeferredQueryTreeListener> listeners;
-	private AbstractTreeViewer treeViewer;
+	private final AbstractTreeViewer treeViewer;
 
 	public DeferredQueryTreeContentManager(AbstractTreeViewer viewer) {
 		super(viewer);

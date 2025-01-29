@@ -29,8 +29,8 @@ import org.eclipse.equinox.p2.query.IQueryable;
  */
 public class RollbackProfileElement extends RemoteQueriedElement {
 
-	private String profileId;
-	private long timestamp;
+	private final String profileId;
+	private final long timestamp;
 	private IProfile snapshot;
 	private boolean isCurrent = false;
 	private String profileTag;

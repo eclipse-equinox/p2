@@ -24,8 +24,8 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  */
 public class Updates extends QueriedElement {
 
-	private String profileId;
-	private IInstallableUnit[] iusToBeUpdated;
+	private final String profileId;
+	private final IInstallableUnit[] iusToBeUpdated;
 
 	public Updates(String profileId) {
 		this(profileId, null);

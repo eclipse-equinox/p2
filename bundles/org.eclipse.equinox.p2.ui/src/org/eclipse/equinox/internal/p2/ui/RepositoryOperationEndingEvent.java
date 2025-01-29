@@ -29,13 +29,13 @@ public class RepositoryOperationEndingEvent extends EventObject {
 	/**
 	 * A repository event describing the nature of the operation.
 	 */
-	private RepositoryEvent event;
+	private final RepositoryEvent event;
 
 	/**
 	 * A boolean indicating whether the UI should be updated in response
 	 * to this event.
 	 */
-	private boolean update;
+	private final boolean update;
 
 	/**
 	 * Construct a new instance of this event.

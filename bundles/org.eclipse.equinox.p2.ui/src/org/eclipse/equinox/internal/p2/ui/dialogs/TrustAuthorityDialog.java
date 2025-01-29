@@ -793,8 +793,8 @@ public class TrustAuthorityDialog extends SelectionDialog {
 	}
 
 	private static class IULabelProvider extends ColumnLabelProvider {
-		private Function<IInstallableUnit, String> labelProvider;
-		private Function<IInstallableUnit, Font> fontProvider;
+		private final Function<IInstallableUnit, String> labelProvider;
+		private final Function<IInstallableUnit, Font> fontProvider;
 
 		public IULabelProvider(Function<IInstallableUnit, String> labelProvider,
 				Function<IInstallableUnit, Font> fontProvider) {

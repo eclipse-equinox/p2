@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 public abstract class RootElement extends RemoteQueriedElement {
 
 	private IUViewQueryContext queryContext;
-	private ProvisioningUI ui;
+	private final ProvisioningUI ui;
 
 	public RootElement(ProvisioningUI ui) {
 		this(null, ProvUI.getQueryContext(ui.getPolicy()), ui);

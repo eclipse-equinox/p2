@@ -38,10 +38,10 @@ import org.eclipse.swt.widgets.*;
  */
 public abstract class StructuredIUGroup {
 
-	private FontMetrics fm;
+	private final FontMetrics fm;
 	protected StructuredViewer viewer;
 	private Composite composite;
-	private ProvisioningUI ui;
+	private final ProvisioningUI ui;
 	private IUColumnConfig[] columnConfig;
 
 	/**

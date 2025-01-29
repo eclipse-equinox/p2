@@ -26,7 +26,7 @@ import org.eclipse.swt.widgets.Shell;
  * @since 3.5
  */
 public class ProvisioningWizardDialog extends WizardDialog {
-	private ProvisioningOperationWizard wizard;
+	private final ProvisioningOperationWizard wizard;
 
 	public ProvisioningWizardDialog(Shell parent, ProvisioningOperationWizard wizard) {
 		super(parent, wizard);

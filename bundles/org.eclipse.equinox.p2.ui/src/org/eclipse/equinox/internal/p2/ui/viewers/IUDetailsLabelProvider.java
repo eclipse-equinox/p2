@@ -39,7 +39,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	final static int PRIMARY_COLUMN = 0;
 	final static String BLANK = ""; //$NON-NLS-1$
 	private String toolTipProperty = null;
-	private FilteredTree filteredTree;
+	private final FilteredTree filteredTree;
 	private boolean useBoldFont = false;
 	private boolean showingId = false;
 

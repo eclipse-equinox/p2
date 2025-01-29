@@ -34,7 +34,7 @@ import org.eclipse.osgi.util.NLS;
  * the query is performed over the repositories themselves.
  */
 public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
-	private ProvisioningSession session;
+	private final ProvisioningSession session;
 	protected boolean includeDisabledRepos;
 	protected RepositoryTracker tracker;
 	protected int repositoryFlags;

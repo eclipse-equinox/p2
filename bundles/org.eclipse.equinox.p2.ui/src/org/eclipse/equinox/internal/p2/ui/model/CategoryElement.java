@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
  */
 public class CategoryElement extends RemoteQueriedElement implements IIUElement {
 
-	private ArrayList<IInstallableUnit> ius = new ArrayList<>(1);
+	private final ArrayList<IInstallableUnit> ius = new ArrayList<>(1);
 	private Collection<IRequirement> requirements;
 	private Object[] cache = null;
 

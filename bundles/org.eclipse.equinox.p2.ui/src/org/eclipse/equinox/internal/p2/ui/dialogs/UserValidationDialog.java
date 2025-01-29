@@ -35,12 +35,12 @@ public class UserValidationDialog extends Dialog {
 
 	private Button saveButton;
 
-	private String titleMessage;
-	private Image titleImage;
+	private final String titleMessage;
+	private final Image titleImage;
 
-	private String message;
+	private final String message;
 
-	private int dialogImageType;
+	private final int dialogImageType;
 
 	/**
 	 * Creates a new validation dialog that prompts the user for login credentials.

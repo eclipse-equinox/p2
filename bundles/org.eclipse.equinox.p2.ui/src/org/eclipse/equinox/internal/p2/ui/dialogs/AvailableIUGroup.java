@@ -77,7 +77,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	// unnecessary accesses of children that cause problems with the deferred
 	// tree.
 	AvailableIUPatternFilter filter;
-	private boolean useBold = false;
+	private final boolean useBold = false;
 	private IUDetailsLabelProvider labelProvider;
 	private int repoFlags;
 	Display display;

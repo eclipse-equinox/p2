@@ -21,8 +21,8 @@ import org.eclipse.ui.PlatformUI;
 
 abstract class ProvisioningWizardPage extends WizardPage implements ICopyable {
 
-	private ProvisioningUI ui;
-	private ProvisioningOperationWizard wizard;
+	private final ProvisioningUI ui;
+	private final ProvisioningOperationWizard wizard;
 
 	protected ProvisioningWizardPage(String pageName, ProvisioningUI ui, ProvisioningOperationWizard wizard) {
 		super(pageName);
