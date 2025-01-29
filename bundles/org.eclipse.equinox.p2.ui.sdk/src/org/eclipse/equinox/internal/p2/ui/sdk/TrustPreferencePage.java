@@ -80,7 +80,7 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 	private TableViewer authorityViewer;
 	private AuthorityChecker authorityChecker;
 	private Set<URI> trustedAuthorities;
-	private ConcurrentHashMap<URI, List<Certificate>> authorityCertificates = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<URI, List<Certificate>> authorityCertificates = new ConcurrentHashMap<>();
 	private Job authorityCertificatesJob;
 	private Transport transport;
 	private Map<String, ProtocolRule> protocolRules;
@@ -801,8 +801,8 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 	}
 
 	private static class PGPOrX509ColumnLabelProvider extends ColumnLabelProvider {
-		private Function<PGPPublicKey, String> pgpMap;
-		private Function<X509Certificate, String> x509map;
+		private final Function<PGPPublicKey, String> pgpMap;
+		private final Function<X509Certificate, String> x509map;
 
 		public PGPOrX509ColumnLabelProvider(Function<PGPPublicKey, String> pgpMap,
 				Function<X509Certificate, String> x509map) {

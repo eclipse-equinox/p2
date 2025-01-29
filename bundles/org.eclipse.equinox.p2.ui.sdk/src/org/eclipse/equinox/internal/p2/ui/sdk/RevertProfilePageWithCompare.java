@@ -125,8 +125,8 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 
 	private class ProfileCompareEditorInput extends CompareEditorInput {
 		private Object root;
-		private ProvElementNode l;
-		private ProvElementNode r;
+		private final ProvElementNode l;
+		private final ProvElementNode r;
 
 		public ProfileCompareEditorInput(RollbackProfileElement[] rpe) {
 			super(new CompareConfiguration());
@@ -160,8 +160,8 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 	}
 
 	private class ProvElementNode implements IStructureComparator, ITypedElement, IStreamContentAccessor {
-		private ProvElement pe;
-		private IInstallableUnit iu;
+		private final ProvElement pe;
+		private final IInstallableUnit iu;
 		final static String BLANK = ""; //$NON-NLS-1$
 		private String id = BLANK;
 
