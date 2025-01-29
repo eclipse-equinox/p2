@@ -27,7 +27,7 @@ import org.osgi.framework.BundleException;
 public class Bug196525 extends AbstractFwkAdminTest {
 	private File installFolder = null;
 	private File configurationFolder = null;
-	private String launcherName = "eclipse";
+	private final String launcherName = "eclipse";
 	private File bundleTXT;
 	private File configINI;
 

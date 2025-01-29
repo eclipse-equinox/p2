@@ -28,7 +28,7 @@ import org.osgi.framework.BundleException;
 
 public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {
 	private Manipulator defaultManipulator = null;
-	private String workArea = OSGiVersionChange.class.getName();
+	private final String workArea = OSGiVersionChange.class.getName();
 
 
 	@Override @Before
