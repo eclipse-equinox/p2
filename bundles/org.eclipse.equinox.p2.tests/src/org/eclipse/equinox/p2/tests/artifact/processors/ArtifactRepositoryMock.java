@@ -26,7 +26,7 @@ import org.eclipse.equinox.p2.tests.TestActivator;
  */
 public class ArtifactRepositoryMock implements InvocationHandler {
 
-	private String artifactResource;
+	private final String artifactResource;
 
 	public static IArtifactRepository getMock(String artifactResource) {
 		return (IArtifactRepository) Proxy.newProxyInstance(IArtifactRepository.class.getClassLoader(), new Class[] {IArtifactRepository.class}, new ArtifactRepositoryMock(artifactResource));

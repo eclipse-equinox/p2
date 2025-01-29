@@ -17,7 +17,7 @@ package org.eclipse.equinox.p2.tests;
 import java.io.OutputStream;
 
 public class StringBufferStream extends OutputStream {
-	private StringBuilder buffer;
+	private final StringBuilder buffer;
 
 	public StringBufferStream() {
 		this.buffer = new StringBuilder();

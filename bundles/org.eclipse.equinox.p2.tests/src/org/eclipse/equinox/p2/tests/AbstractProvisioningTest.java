@@ -142,7 +142,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Tracks the metadata repositories created by this test instance. The repositories
 	 * will be removed automatically at the end of the test.
 	 */
-	private List<IMetadataRepository> metadataRepos = new ArrayList<>();
+	private final List<IMetadataRepository> metadataRepos = new ArrayList<>();
 	/**
 	 * Tracks the profile ids created by this test instance. The profiles
 	 * will be removed automatically at the end of the test.

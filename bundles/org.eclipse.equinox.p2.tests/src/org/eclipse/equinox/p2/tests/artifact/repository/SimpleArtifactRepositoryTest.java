@@ -263,8 +263,8 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 
 	private static class TestDescriptor implements IArtifactDescriptor {
 		private static final IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[0];
-		private IArtifactKey artifactKey;
-		private Map<String, String> properties = new HashMap<>();
+		private final IArtifactKey artifactKey;
+		private final Map<String, String> properties = new HashMap<>();
 
 		public TestDescriptor(IArtifactKey key) {
 			this.artifactKey = key;

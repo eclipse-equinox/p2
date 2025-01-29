@@ -55,12 +55,12 @@ public class RootFilesActionTest extends ActionTest {
 	protected IArtifactRepository artifactRepository;
 	protected String idArg = "sdk"; //$NON-NLS-1$
 	protected Version versionArg = Version.create("3.4.0.i0305"); //$NON-NLS-1$
-	private File root = new File(TestActivator.getTestDataFolder(), "RootFilesActionTest/eclipse"); //$NON-NLS-1$
+	private final File root = new File(TestActivator.getTestDataFolder(), "RootFilesActionTest/eclipse"); //$NON-NLS-1$
 	private File[] includedFiles;
 	private File[] excludedFiles;
 	private Collection<IRootFilesAdvice> adviceCollection;
-	private String FILE1 = "level1/level2/file1.jar"; //$NON-NLS-1$
-	private String FILE2 = "level1/level2/level3/file1.jar"; //$NON-NLS-1$
+	private final String FILE1 = "level1/level2/file1.jar"; //$NON-NLS-1$
+	private final String FILE2 = "level1/level2/level3/file1.jar"; //$NON-NLS-1$
 	private int testArg;
 
 	public void testAll() throws Exception {

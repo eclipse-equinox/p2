@@ -63,11 +63,11 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class JREActionTest extends ActionTest {
 
-	private File J14 = new File(TestActivator.getTestDataFolder(), "JREActionTest/1.4/"); //$NON-NLS-1$
-	private File J15 = new File(TestActivator.getTestDataFolder(), "JREActionTest/1.5/"); //$NON-NLS-1$
-	private File J16 = new File(TestActivator.getTestDataFolder(), "JREActionTest/1.6/"); //$NON-NLS-1$
-	private File jreWithPackageVersionsFolder = new File(TestActivator.getTestDataFolder(), "JREActionTest/packageVersions/"); //$NON-NLS-1$
-	private File jreWithPackageVersionsProfile = new File(TestActivator.getTestDataFolder(), "JREActionTest/packageVersions/test-1.0.0.profile"); //$NON-NLS-1$
+	private final File J14 = new File(TestActivator.getTestDataFolder(), "JREActionTest/1.4/"); //$NON-NLS-1$
+	private final File J15 = new File(TestActivator.getTestDataFolder(), "JREActionTest/1.5/"); //$NON-NLS-1$
+	private final File J16 = new File(TestActivator.getTestDataFolder(), "JREActionTest/1.6/"); //$NON-NLS-1$
+	private final File jreWithPackageVersionsFolder = new File(TestActivator.getTestDataFolder(), "JREActionTest/packageVersions/"); //$NON-NLS-1$
+	private final File jreWithPackageVersionsProfile = new File(TestActivator.getTestDataFolder(), "JREActionTest/packageVersions/test-1.0.0.profile"); //$NON-NLS-1$
 
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository(getAgent());
 	protected TestMetadataRepository metadataRepository;

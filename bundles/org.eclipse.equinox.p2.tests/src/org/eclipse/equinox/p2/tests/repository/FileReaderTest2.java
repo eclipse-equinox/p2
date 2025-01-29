@@ -40,7 +40,7 @@ public class FileReaderTest2 extends AbstractProvisioningTest {
 
 	abstract class PauseJob extends Job {
 
-		private FileReader reader;
+		private final FileReader reader;
 
 		public PauseJob(String name, FileReader reader) {
 			super(name);

@@ -19,8 +19,8 @@ import junit.framework.*;
 
 public class ReconcilerTestSuite extends TestSuite {
 
-	private Test INITIALIZE;
-	private Test CLEANUP;
+	private final Test INITIALIZE;
+	private final Test CLEANUP;
 	private String propertyToPlatformArchive;
 
 	public ReconcilerTestSuite() {
