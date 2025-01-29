@@ -32,11 +32,11 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 public class CachingArtifactRepository implements IFileArtifactRepository {
 
 	private static final String NULL = ""; //$NON-NLS-1$
-	private IArtifactRepository innerRepo;
-	private Set<IArtifactDescriptor> descriptorsToAdd = new HashSet<>();
-	private Map<IArtifactKey, List<IArtifactDescriptor>> artifactMap = new HashMap<>();
-	private Set<IArtifactDescriptor> descriptorsToRemove = new HashSet<>();
-	private Map<String, String> propertyChanges = new HashMap<>();
+	private final IArtifactRepository innerRepo;
+	private final Set<IArtifactDescriptor> descriptorsToAdd = new HashSet<>();
+	private final Map<IArtifactKey, List<IArtifactDescriptor>> artifactMap = new HashMap<>();
+	private final Set<IArtifactDescriptor> descriptorsToRemove = new HashSet<>();
+	private final Map<String, String> propertyChanges = new HashMap<>();
 
 	protected CachingArtifactRepository(IArtifactRepository innerRepo) {
 		this.innerRepo = innerRepo;

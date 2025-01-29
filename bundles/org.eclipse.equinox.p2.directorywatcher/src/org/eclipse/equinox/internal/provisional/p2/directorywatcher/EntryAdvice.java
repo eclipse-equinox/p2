@@ -32,8 +32,8 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
  * only one entry at a time and that entry is the the only entry being published.  
  */
 public class EntryAdvice implements IPropertyAdvice {
-	private Map<String, String> metadataProps = new HashMap<>();
-	private Map<String, String> artifactProps = new HashMap<>();
+	private final Map<String, String> metadataProps = new HashMap<>();
+	private final Map<String, String> artifactProps = new HashMap<>();
 
 	@Override
 	public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
