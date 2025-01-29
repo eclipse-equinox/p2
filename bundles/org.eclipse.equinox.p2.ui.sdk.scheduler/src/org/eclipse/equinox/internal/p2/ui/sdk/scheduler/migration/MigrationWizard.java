@@ -50,7 +50,7 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 	private IProfile toImportFrom;
 	Collection<IInstallableUnit> unitsToMigrate;
 	private URI[] reposToMigrate;
-	private List<URI> addedRepos = new ArrayList<>();
+	private final List<URI> addedRepos = new ArrayList<>();
 	private boolean firstTime = false;
 
 	public MigrationWizard() {

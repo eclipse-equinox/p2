@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Shell;
  * @since 3.5
  */
 public class MigrationWizardDialog extends WizardDialog {
-	private ProvisioningOperationWizard wizard;
+	private final ProvisioningOperationWizard wizard;
 
 	public MigrationWizardDialog(Shell parent, ProvisioningOperationWizard wizard) {
 		super(parent, wizard);

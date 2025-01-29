@@ -192,7 +192,7 @@ public class PreviousConfigurationFinder {
 
 	}
 
-	private File currentConfig;
+	private final File currentConfig;
 
 	public PreviousConfigurationFinder(File currentConfiguration) {
 		currentConfig = currentConfiguration;

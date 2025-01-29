@@ -81,8 +81,8 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 															// not installed in current profile.
 	private IProfile toImportFrom = null;
 	// private File instancePath = null;
-	private URI[] metaURIs = null;
-	private URI[] artiURIs = null;
+	private final URI[] metaURIs = null;
+	private final URI[] artiURIs = null;
 
 	/**
 	 * {@link DelayedFilterCheckboxTree} has a timing bug to prevent restoring the
