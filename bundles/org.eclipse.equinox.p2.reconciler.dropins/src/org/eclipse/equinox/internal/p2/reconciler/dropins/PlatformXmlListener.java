@@ -40,7 +40,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 
 	private static final String PLATFORM_XML = "platform.xml"; //$NON-NLS-1$
 	private boolean changed = false;
-	private File root;
+	private final File root;
 	private long lastModified = -1l;
 	private Set<IMetadataRepository> configRepositories;
 
