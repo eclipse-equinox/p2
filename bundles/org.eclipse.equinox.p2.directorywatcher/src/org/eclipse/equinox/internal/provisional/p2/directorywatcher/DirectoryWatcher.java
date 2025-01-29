@@ -66,7 +66,7 @@ public class DirectoryWatcher {
 	final File[] directories;
 
 	long poll = 2000;
-	private Set<DirectoryChangeListener> listeners = new HashSet<>();
+	private final Set<DirectoryChangeListener> listeners = new HashSet<>();
 	private HashSet<File> scannedFiles = new HashSet<>();
 	private HashSet<File> removals;
 	private Set<File> pendingDeletions;

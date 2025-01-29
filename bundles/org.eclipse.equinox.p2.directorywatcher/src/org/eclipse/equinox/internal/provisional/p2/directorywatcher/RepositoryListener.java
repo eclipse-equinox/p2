@@ -49,7 +49,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	private final Map<File, Long> currentFiles = new HashMap<>();
 	private final Collection<File> polledSeenFiles = new HashSet<>();
 
-	private EntryAdvice advice = new EntryAdvice();
+	private final EntryAdvice advice = new EntryAdvice();
 	private PublisherInfo info;
 	private IPublisherResult iusToAdd;
 	private IPublisherResult iusToChange;
