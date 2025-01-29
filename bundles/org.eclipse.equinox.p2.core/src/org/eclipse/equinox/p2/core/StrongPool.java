@@ -27,7 +27,7 @@ import java.util.Map;
  * @since 2.1
  */
 public class StrongPool<T> implements IPool<T> {
-	private Map<T, T> pool = new HashMap<>();
+	private final Map<T, T> pool = new HashMap<>();
 
 	@Override
 	public T add(T newObject) {
