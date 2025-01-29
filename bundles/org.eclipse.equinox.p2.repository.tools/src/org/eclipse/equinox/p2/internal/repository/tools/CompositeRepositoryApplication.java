@@ -29,8 +29,8 @@ import org.eclipse.osgi.util.NLS;
 
 public class CompositeRepositoryApplication extends AbstractApplication {
 
-	private List<RepositoryDescriptor> childrenToAdd = new ArrayList<>();
-	private List<RepositoryDescriptor> childrenToRemove = new ArrayList<>();
+	private final List<RepositoryDescriptor> childrenToAdd = new ArrayList<>();
+	private final List<RepositoryDescriptor> childrenToRemove = new ArrayList<>();
 	private boolean removeAllChildren = false;
 	private boolean failOnExists = false;
 	private String comparatorID = null;

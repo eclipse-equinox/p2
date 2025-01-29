@@ -16,17 +16,17 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 import java.util.Arrays;
 
 public class FieldInfo extends ClassFileStruct {
-	private int accessFlags;
-	private int attributeBytes;
+	private final int accessFlags;
+	private final int attributeBytes;
 	private ClassFileAttribute[] attributes;
-	private int attributesCount;
+	private final int attributesCount;
 	private ConstantValueAttribute constantValueAttribute;
-	private char[] descriptor;
-	private int descriptorIndex;
+	private final char[] descriptor;
+	private final int descriptorIndex;
 	private boolean isDeprecated;
 	private boolean isSynthetic;
-	private char[] name;
-	private int nameIndex;
+	private final char[] name;
+	private final int nameIndex;
 
 	/*
 	 * @param classFileBytes byte[]

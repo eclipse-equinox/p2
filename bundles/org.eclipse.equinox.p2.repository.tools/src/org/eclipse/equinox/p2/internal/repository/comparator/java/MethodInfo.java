@@ -16,18 +16,18 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 import java.util.Arrays;
 
 public class MethodInfo extends ClassFileStruct {
-	private int accessFlags;
-	private int attributeBytes;
+	private final int accessFlags;
+	private final int attributeBytes;
 	private ClassFileAttribute[] attributes;
-	private int attributesCount;
+	private final int attributesCount;
 	private CodeAttribute codeAttribute;
-	private char[] descriptor;
-	private int descriptorIndex;
+	private final char[] descriptor;
+	private final int descriptorIndex;
 	private ExceptionAttribute exceptionAttribute;
 	private boolean isDeprecated;
 	private boolean isSynthetic;
-	private char[] name;
-	private int nameIndex;
+	private final char[] name;
+	private final int nameIndex;
 
 	/*
 	 * @param classFileBytes byte[]

@@ -15,8 +15,8 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 
 public class SourceFileAttribute extends ClassFileAttribute {
 
-	private int sourceFileIndex;
-	private char[] sourceFileName;
+	private final int sourceFileIndex;
+	private final char[] sourceFileName;
 
 	/**
 	 * Constructor for SourceFileAttribute.

@@ -27,11 +27,11 @@ public class DefaultBytecodeVisitor {
 	private static final int T_INT = 10;
 	private static final int T_LONG = 11;
 
-	private StringBuffer buffer;
-	private String lineSeparator;
-	private int tabNumber;
-	private int digitNumberForPC;
-	private int mode;
+	private final StringBuffer buffer;
+	private final String lineSeparator;
+	private final int tabNumber;
+	private final int digitNumberForPC;
+	private final int mode;
 
 	public DefaultBytecodeVisitor(CodeAttribute codeAttribute, char[] methodDescriptor, boolean isStatic, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		this.buffer = buffer;

@@ -42,7 +42,7 @@ public class XZCompressor {
 
 	private String repoFolder;
 	private boolean preserveOriginalFile = true;
-	private ArrayList<File> filesToDelete = new ArrayList<>();
+	private final ArrayList<File> filesToDelete = new ArrayList<>();
 
 	public String getRepoFolder() {
 		return repoFolder;

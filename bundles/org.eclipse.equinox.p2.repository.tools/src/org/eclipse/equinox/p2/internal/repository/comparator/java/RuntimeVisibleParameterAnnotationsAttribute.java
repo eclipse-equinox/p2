@@ -16,7 +16,7 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 public class RuntimeVisibleParameterAnnotationsAttribute extends ClassFileAttribute {
 
 	private static final ParameterAnnotation[] NO_ENTRIES = new ParameterAnnotation[0];
-	private int parametersNumber;
+	private final int parametersNumber;
 	private ParameterAnnotation[] parameterAnnotations;
 
 	/**

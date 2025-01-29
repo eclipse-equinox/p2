@@ -14,7 +14,7 @@
 package org.eclipse.equinox.p2.internal.repository.comparator.java;
 
 public class ExceptionAttribute extends ClassFileAttribute {
-	private int exceptionsNumber;
+	private final int exceptionsNumber;
 	private char[][] exceptionNames;
 	private int[] exceptionIndexes;
 

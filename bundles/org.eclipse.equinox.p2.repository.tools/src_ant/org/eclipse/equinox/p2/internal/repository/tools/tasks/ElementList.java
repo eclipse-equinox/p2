@@ -20,7 +20,7 @@ import org.apache.tools.ant.types.DataType;
 
 public class ElementList<T> extends DataType {
 
-	private List<T> elements = new ArrayList<>();
+	private final List<T> elements = new ArrayList<>();
 
 	public void addConfigured(T element) {
 		elements.add(element);

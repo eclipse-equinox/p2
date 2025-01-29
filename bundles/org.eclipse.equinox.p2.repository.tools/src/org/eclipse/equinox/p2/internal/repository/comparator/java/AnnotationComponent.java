@@ -15,9 +15,9 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 
 public class AnnotationComponent extends ClassFileStruct {
 
-	private int componentNameIndex;
+	private final int componentNameIndex;
 	private char[] componentName;
-	private AnnotationComponentValue componentValue;
+	private final AnnotationComponentValue componentValue;
 	private int readOffset;
 
 	public AnnotationComponent(byte[] classFileBytes, ConstantPool constantPool, int offset) throws ClassFormatException {

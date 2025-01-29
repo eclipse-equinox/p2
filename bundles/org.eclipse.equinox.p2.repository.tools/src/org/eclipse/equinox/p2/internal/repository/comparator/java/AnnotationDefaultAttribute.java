@@ -15,7 +15,7 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 
 public class AnnotationDefaultAttribute extends ClassFileAttribute {
 
-	private AnnotationComponentValue memberValue;
+	private final AnnotationComponentValue memberValue;
 
 	/**
 	 * Constructor for AnnotationDefaultAttribute.

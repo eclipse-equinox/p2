@@ -15,9 +15,9 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 
 public class ClassFileAttribute extends ClassFileStruct {
 	public static final ClassFileAttribute[] NO_ATTRIBUTES = new ClassFileAttribute[0];
-	private long attributeLength;
-	private int attributeNameIndex;
-	private char[] attributeName;
+	private final long attributeLength;
+	private final int attributeNameIndex;
+	private final char[] attributeName;
 
 	public ClassFileAttribute(byte[] classFileBytes, ConstantPool constantPool, int offset) throws ClassFormatException {
 		this.attributeNameIndex = u2At(classFileBytes, 0, offset);

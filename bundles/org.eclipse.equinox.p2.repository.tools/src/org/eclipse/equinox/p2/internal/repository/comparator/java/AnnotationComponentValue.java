@@ -94,7 +94,7 @@ public class AnnotationComponentValue extends ClassFileStruct {
 	private char[] enumConstantName;
 
 	private int readOffset;
-	private int tag;
+	private final int tag;
 	private int valuesNumber;
 
 	public AnnotationComponentValue(byte[] classFileBytes, ConstantPool constantPool, int offset) throws ClassFormatException {

@@ -37,7 +37,7 @@ import org.eclipse.osgi.util.NLS;
 public class JarComparator implements IArtifactComparator {
 
 	private static class FeatureEntryWrapper {
-		private FeatureEntry entry;
+		private final FeatureEntry entry;
 
 		public FeatureEntryWrapper(FeatureEntry entry) {
 			this.entry = entry;

@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 
 public class DestinationRepository extends DataType {
 
-	private RepositoryDescriptor descriptor = new RepositoryDescriptor();
+	private final RepositoryDescriptor descriptor = new RepositoryDescriptor();
 
 	public void setCompressed(boolean compress) {
 		descriptor.setCompressed(compress);

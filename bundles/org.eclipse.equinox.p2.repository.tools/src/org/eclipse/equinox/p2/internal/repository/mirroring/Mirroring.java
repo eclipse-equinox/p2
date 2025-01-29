@@ -36,10 +36,10 @@ import org.eclipse.osgi.util.NLS;
  * A utility class that performs mirroring of artifacts between repositories.
  */
 public class Mirroring {
-	private IArtifactRepository source;
-	private IArtifactRepository destination;
+	private final IArtifactRepository source;
+	private final IArtifactRepository destination;
 	private IArtifactRepository baseline;
-	private boolean raw;
+	private final boolean raw;
 	private boolean compare = false;
 	private boolean validate = false;
 	private IArtifactComparator comparator;

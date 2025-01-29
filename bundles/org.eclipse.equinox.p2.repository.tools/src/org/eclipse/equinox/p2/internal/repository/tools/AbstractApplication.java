@@ -40,7 +40,7 @@ public abstract class AbstractApplication {
 	protected List<URI> artifactReposToRemove = new ArrayList<>();
 	protected List<URI> metadataReposToRemove = new ArrayList<>();
 	protected List<IInstallableUnit> sourceIUs = new ArrayList<>();
-	private List<RepositoryDescriptor> destinationRepos = new ArrayList<>();
+	private final List<RepositoryDescriptor> destinationRepos = new ArrayList<>();
 
 	protected IArtifactRepository destinationArtifactRepository = null;
 	protected IMetadataRepository destinationMetadataRepository = null;
