@@ -25,12 +25,12 @@ public class MarkSet {
 	/**
 	 * The root set for repo.  This is the set of keys that currently map to an artifact in repo.
 	 */
-	private IArtifactKey[] keys;
+	private final IArtifactKey[] keys;
 
 	/**
 	 * The ArtifactRepository for which a root set is being stored.
 	 */
-	private IArtifactRepository repo;
+	private final IArtifactRepository repo;
 
 	public MarkSet(IArtifactKey[] inKeys, IArtifactRepository inRepo) {
 		Assert.isNotNull(inKeys);
