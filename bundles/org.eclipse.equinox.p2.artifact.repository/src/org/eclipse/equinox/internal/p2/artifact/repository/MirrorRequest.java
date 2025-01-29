@@ -76,7 +76,7 @@ public class MirrorRequest extends ArtifactRequest {
 	/**
 	 * The additional parameters for downloading statistics
 	 */
-	private String downloadStatsParamters;
+	private final String downloadStatsParamters;
 
 	protected final IArtifactRepository target;
 

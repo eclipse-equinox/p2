@@ -37,7 +37,7 @@ public class DefaultArtifactManagerServiceFactory implements IAgentServiceFactor
 	}
 
 	private static final class DefaultArtifactManager implements ArtifactManager {
-		private IProvisioningAgent agent;
+		private final IProvisioningAgent agent;
 
 		public DefaultArtifactManager(IProvisioningAgent agent) {
 			this.agent = agent;

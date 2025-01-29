@@ -22,11 +22,11 @@ public class MirrorEvent extends EventObject {
 
 	private static final long serialVersionUID = -2958057566692590943L;
 
-	private IStatus downloadStatus;
+	private final IStatus downloadStatus;
 
-	private IArtifactRepository repository;
+	private final IArtifactRepository repository;
 
-	private IArtifactDescriptor descriptor;
+	private final IArtifactDescriptor descriptor;
 
 	public MirrorEvent(IArtifactRepository repo, IArtifactDescriptor descriptor, IStatus downloadStatus) {
 		super(descriptor);

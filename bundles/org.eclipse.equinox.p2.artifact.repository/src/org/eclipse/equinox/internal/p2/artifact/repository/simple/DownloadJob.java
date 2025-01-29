@@ -30,9 +30,9 @@ public class DownloadJob extends Job {
 	private final LinkedList<IArtifactRequest> requestsPending;
 	private final SimpleArtifactRepository repository;
 
-	private Consumer<IStatus> resultConsumer;
+	private final Consumer<IStatus> resultConsumer;
 
-	private Consumer<String> messageConsumer;
+	private final Consumer<String> messageConsumer;
 
 	DownloadJob(String name, SimpleArtifactRepository repository, LinkedList<IArtifactRequest> requestsPending,
 			Consumer<IStatus> resultConsumer, Consumer<String> messageConsumer) {

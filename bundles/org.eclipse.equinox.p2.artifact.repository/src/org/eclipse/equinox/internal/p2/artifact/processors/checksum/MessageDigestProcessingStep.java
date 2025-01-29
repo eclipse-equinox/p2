@@ -26,7 +26,7 @@ public abstract class MessageDigestProcessingStep extends ProcessingStep {
 
 	protected MessageDigest messageDigest;
 	private static final int BUFFER_SIZE = 16 * 1024;
-	private ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+	private final ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
 
 	@Override
 	public final void write(int b) throws IOException {
