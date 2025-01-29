@@ -17,7 +17,7 @@ package org.eclipse.equinox.internal.p2.core.helpers;
  * Copied from org.eclipse.ui.internal.wizards.datatransfer.TarEntry.
  */
 public class TarEntry implements Cloneable {
-	private String name;
+	private final String name;
 	private long mode, time, size;
 	private int type;
 	int filepos;

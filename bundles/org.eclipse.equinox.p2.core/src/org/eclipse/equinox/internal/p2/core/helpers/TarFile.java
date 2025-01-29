@@ -22,7 +22,7 @@ import java.util.zip.GZIPInputStream;
  * Copied from org.eclipse.ui.internal.wizards.datatransfer.TarFile.
  */
 public class TarFile implements Closeable {
-	private File file;
+	private final File file;
 	private TarInputStream entryEnumerationStream;
 	private TarInputStream entryStream;
 	private InputStream internalEntryStream;

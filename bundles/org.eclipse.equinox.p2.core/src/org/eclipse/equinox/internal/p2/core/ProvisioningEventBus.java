@@ -27,9 +27,9 @@ import org.eclipse.osgi.framework.eventmgr.*;
 public class ProvisioningEventBus implements EventDispatcher<ProvisioningListener, ProvisioningListener, EventObject>, IProvisioningEventBus, IAgentService {
 	private final CopyOnWriteIdentityMap<ProvisioningListener, ProvisioningListener> syncListeners = new CopyOnWriteIdentityMap<>();
 	private final CopyOnWriteIdentityMap<ProvisioningListener, ProvisioningListener> asyncListeners = new CopyOnWriteIdentityMap<>();
-	private EventManager eventManager = new EventManager("Provisioning Event Dispatcher"); //$NON-NLS-1$
+	private final EventManager eventManager = new EventManager("Provisioning Event Dispatcher"); //$NON-NLS-1$
 
-	private Object dispatchEventLock = new Object();
+	private final Object dispatchEventLock = new Object();
 	/* @GuardedBy("dispatchEventLock") */
 	private boolean closed = false;
 	/* @GuardedBy("dispatchEventLock") */

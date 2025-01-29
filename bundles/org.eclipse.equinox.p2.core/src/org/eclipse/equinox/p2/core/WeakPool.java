@@ -27,7 +27,7 @@ import java.util.WeakHashMap;
  * @since 2.1
  */
 public class WeakPool<T> implements IPool<T> {
-	private Map<T, WeakReference<T>> pool = new WeakHashMap<>();
+	private final Map<T, WeakReference<T>> pool = new WeakHashMap<>();
 
 	@Override
 	public T add(T newObject) {
