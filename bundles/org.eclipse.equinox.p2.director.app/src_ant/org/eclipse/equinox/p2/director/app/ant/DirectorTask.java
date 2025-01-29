@@ -52,7 +52,7 @@ public class DirectorTask extends Task implements ILog {
 	private String extraArguments;
 	private File destination, bundlePool, agentLocation;
 	private URI metadataRepository, artifactRepository;
-	private List<IUDescription> ius = new ArrayList<>();
+	private final List<IUDescription> ius = new ArrayList<>();
 	private String outputProperty;
 	private StringBuffer outputBuffer = null;
 	private File logFile = null;

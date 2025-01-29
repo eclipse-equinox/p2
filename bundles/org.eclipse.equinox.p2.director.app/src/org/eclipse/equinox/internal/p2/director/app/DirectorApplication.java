@@ -249,7 +249,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	class LocationQueryable implements IQueryable<IInstallableUnit> {
-		private URI location;
+		private final URI location;
 
 		public LocationQueryable(URI location) {
 			this.location = location;

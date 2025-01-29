@@ -33,8 +33,8 @@ public class IUListFormatter {
 	private static final String PREFIX = "${"; //$NON-NLS-1$
 	private static final String LINE_SEP = System.lineSeparator();
 
-	private String formatString;
-	private Collection<String> properties;
+	private final String formatString;
+	private final Collection<String> properties;
 
 	public IUListFormatter(String formatString) {
 		this.formatString = formatString;
