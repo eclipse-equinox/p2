@@ -35,7 +35,7 @@ public class TouchpointData implements ITouchpointData {
 	 * of keys supported is up to the touchpoint that will process these
 	 * instructions. This map is never null.
 	 */
-	private Map<String, ITouchpointInstruction> instructions;
+	private final Map<String, ITouchpointInstruction> instructions;
 
 	@Override
 	public int hashCode() {

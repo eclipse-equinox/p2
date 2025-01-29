@@ -31,7 +31,7 @@ public class Copyright implements ICopyright {
 	/**
 	 * The <code>location</code> is the location of a document containing a copyright notice.
 	 */
-	private URI location;
+	private final URI location;
 
 	/**
 	 * Creates a new copyright. The body must contain the full text of the copyright.
