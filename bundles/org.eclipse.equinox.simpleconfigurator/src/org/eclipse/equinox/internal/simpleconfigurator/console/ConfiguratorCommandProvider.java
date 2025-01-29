@@ -23,7 +23,7 @@ import org.osgi.framework.BundleContext;
 public class ConfiguratorCommandProvider implements CommandProvider {
 	public static final String NEW_LINE = "\r\n"; //$NON-NLS-1$
 
-	private BundleContext context;
+	private final BundleContext context;
 
 	public ConfiguratorCommandProvider(BundleContext context) {
 		this.context = context;

@@ -46,7 +46,7 @@ class ConfigApplier {
 
 	private final Bundle callingBundle;
 	private final URI baseLocation;
-	private boolean deepRefresh;
+	private final boolean deepRefresh;
 	private int maxRefreshTry;
 
 	ConfigApplier(BundleContext context, Bundle callingBundle) {

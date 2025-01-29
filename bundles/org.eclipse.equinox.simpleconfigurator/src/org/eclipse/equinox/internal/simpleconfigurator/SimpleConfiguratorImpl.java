@@ -44,9 +44,9 @@ public class SimpleConfiguratorImpl implements Configurator {
 	private static URL configurationURL = null;
 	private static Object configurationLock = new Object();
 
-	private BundleContext context;
+	private final BundleContext context;
 	private ConfigApplier configApplier;
-	private Bundle bundle;
+	private final Bundle bundle;
 
 	//for change detection in the base when running in shared install mode
 	private static final long NO_TIMESTAMP = -1;
