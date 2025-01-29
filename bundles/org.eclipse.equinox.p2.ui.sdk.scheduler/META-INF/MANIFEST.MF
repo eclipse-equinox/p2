@@ -8,24 +8,23 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.equinox.internal.p2.ui.sdk.scheduler;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;x-internal:=true
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.equinox.p2.updatechecker,
  org.eclipse.equinox.p2.ui,
- org.eclipse.equinox.p2.repository;bundle-version="2.3.0"
+ org.eclipse.equinox.p2.repository;bundle-version="2.3.0",
+ org.eclipse.e4.ui.workbench;bundle-version="[1.15.0,2.0.0)",
+ org.eclipse.ui.workbench;bundle-version="[3.131.0,4.0.0)",
+ org.eclipse.jface;bundle-version="[3.33.0,4.0.0)"
+Service-Component: OSGI-INF/org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdateScheduler.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.engine,
- org.eclipse.equinox.internal.p2.engine.phases,
  org.eclipse.equinox.internal.p2.garbagecollector,
  org.eclipse.equinox.internal.p2.metadata.query,
  org.eclipse.equinox.internal.p2.touchpoint.eclipse;version="2.0.0",
  org.eclipse.equinox.internal.p2.ui,
- org.eclipse.equinox.internal.p2.ui.actions,
- org.eclipse.equinox.internal.p2.ui.query,
  org.eclipse.equinox.internal.provisional.p2.core.eventbus,
- org.eclipse.equinox.internal.provisional.p2.repository,
  org.eclipse.equinox.internal.provisional.p2.updatechecker,
  org.eclipse.equinox.p2.core;version="[2.12.0,3.0.0)",
  org.eclipse.equinox.p2.engine;version="[2.0.0,3.0.0)",
@@ -34,8 +33,8 @@ Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.p2.operations;version="[2.0.0,3.0.0)",
  org.eclipse.equinox.p2.query;version="[2.0.0,3.0.0)",
  org.eclipse.equinox.p2.ui;version="[2.0.0,3.0.0)",
- org.eclipse.osgi.service.resolver;version="1.1.0",
  org.eclipse.osgi.util;version="1.1.0",
  org.osgi.framework;version="1.6.0",
- org.osgi.service.packageadmin;version="1.2.0"
+ org.osgi.service.event;version="[1.4.0,2.0.0)",
+ org.osgi.service.event.propertytypes;version="[1.4.0,2.0.0)"
 Automatic-Module-Name: org.eclipse.equinox.p2.ui.sdk.scheduler
