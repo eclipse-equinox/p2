@@ -132,7 +132,7 @@ public abstract class ProvisioningJob extends Job {
 	 */
 	public static final int RESTART_ONLY = 3;
 
-	private ProvisioningSession session;
+	private final ProvisioningSession session;
 	private IProgressMonitor additionalMonitor;
 
 	/**

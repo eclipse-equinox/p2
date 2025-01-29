@@ -34,8 +34,8 @@ public class Remedy {
 	private ProfileChangeRequest request;
 	private int beingInstalledRelaxedWeight;
 	private int installationRelaxedWeight;
-	private IProfileChangeRequest originalRequest;
-	private List<RemedyIUDetail> iusDetails;
+	private final IProfileChangeRequest originalRequest;
+	private final List<RemedyIUDetail> iusDetails;
 
 	public List<RemedyIUDetail> getIusDetails() {
 		return iusDetails;

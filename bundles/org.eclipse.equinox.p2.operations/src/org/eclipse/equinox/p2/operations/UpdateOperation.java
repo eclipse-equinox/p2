@@ -70,7 +70,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	public static final int STATUS_NOTHING_TO_UPDATE = IStatusCodes.NOTHING_TO_UPDATE;
 
 	private Collection<IInstallableUnit> iusToUpdate;
-	private HashMap<IInstallableUnit, List<Update>> possibleUpdatesByIU = new HashMap<>();
+	private final HashMap<IInstallableUnit, List<Update>> possibleUpdatesByIU = new HashMap<>();
 	private List<Update> defaultUpdates;
 
 	/**
