@@ -15,9 +15,9 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 
 public class ConstantPool extends ClassFileStruct {
 
-	private int constantPoolCount;
-	private int[] constantPoolOffset;
-	private byte[] classFileBytes;
+	private final int constantPoolCount;
+	private final int[] constantPoolOffset;
+	private final byte[] classFileBytes;
 
 	ConstantPool(byte[] reference, int[] constantPoolOffset) {
 		this.constantPoolCount = constantPoolOffset.length;

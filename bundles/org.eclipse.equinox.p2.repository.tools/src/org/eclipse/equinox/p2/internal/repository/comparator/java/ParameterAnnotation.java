@@ -17,7 +17,7 @@ public class ParameterAnnotation extends ClassFileStruct {
 
 	private static final Annotation[] NO_ENTRIES = new Annotation[0];
 
-	private int annotationsNumber;
+	private final int annotationsNumber;
 	private Annotation[] annotations;
 	private int readOffset;
 

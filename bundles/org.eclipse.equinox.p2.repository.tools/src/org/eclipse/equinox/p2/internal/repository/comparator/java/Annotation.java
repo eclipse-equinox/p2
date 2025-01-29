@@ -17,9 +17,9 @@ public class Annotation extends ClassFileStruct {
 
 	private static final AnnotationComponent[] NO_ENTRIES = new AnnotationComponent[0];
 
-	private int typeIndex;
+	private final int typeIndex;
 	private char[] typeName;
-	private int componentsNumber;
+	private final int componentsNumber;
 	private AnnotationComponent[] components;
 	private int readOffset;
 

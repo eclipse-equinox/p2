@@ -24,7 +24,7 @@ public class AntMirrorLog implements IArtifactMirrorLog {
 
 	private boolean consoleMessage = false;
 	private Method log;
-	private Object task;
+	private final Object task;
 
 	public AntMirrorLog(Object task) throws NoSuchMethodException {
 		this.task = task;

@@ -16,16 +16,16 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 public class CodeAttribute extends ClassFileAttribute {
 	private static final ExceptionTableEntry[] NO_EXCEPTION_TABLE = new ExceptionTableEntry[0];
 	private ClassFileAttribute[] attributes;
-	private int attributesCount;
+	private final int attributesCount;
 	private byte[] bytecodes;
-	private byte[] classFileBytes;
-	private long codeLength;
-	private int codeOffset;
-	private ConstantPool constantPool;
+	private final byte[] classFileBytes;
+	private final long codeLength;
+	private final int codeOffset;
+	private final ConstantPool constantPool;
 	private ExceptionTableEntry[] exceptionTableEntries;
-	private int exceptionTableLength;
-	private int maxLocals;
-	private int maxStack;
+	private final int exceptionTableLength;
+	private final int maxLocals;
+	private final int maxStack;
 
 	CodeAttribute(byte[] classFileBytes, ConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);

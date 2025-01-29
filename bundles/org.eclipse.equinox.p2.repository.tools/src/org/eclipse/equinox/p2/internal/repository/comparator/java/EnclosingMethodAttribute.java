@@ -15,13 +15,13 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 
 public class EnclosingMethodAttribute extends ClassFileAttribute {
 
-	private int enclosingClassIndex;
-	private char[] enclosingClassName;
+	private final int enclosingClassIndex;
+	private final char[] enclosingClassName;
 	private int methodDescriptorIndex;
 	private char[] methodDescriptor;
 	private int methodNameIndex;
 	private char[] methodName;
-	private int methodNameAndTypeIndex;
+	private final int methodNameAndTypeIndex;
 
 	EnclosingMethodAttribute(byte[] classFileBytes, ConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);

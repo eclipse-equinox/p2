@@ -17,7 +17,7 @@ public class RuntimeInvisibleParameterAnnotationsAttribute extends ClassFileAttr
 
 	private static final ParameterAnnotation[] NO_ENTRIES = new ParameterAnnotation[0];
 	private ParameterAnnotation[] parameterAnnotations;
-	private int parametersNumber;
+	private final int parametersNumber;
 
 	/**
 	 * Constructor for RuntimeVisibleParameterAnnotations.

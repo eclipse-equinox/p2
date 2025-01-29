@@ -16,7 +16,7 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 public class RuntimeInvisibleAnnotationsAttribute extends ClassFileAttribute {
 
 	private static final Annotation[] NO_ENTRIES = new Annotation[0];
-	private int annotationsNumber;
+	private final int annotationsNumber;
 	private Annotation[] annotations;
 
 	/**

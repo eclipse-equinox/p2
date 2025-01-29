@@ -15,10 +15,10 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 
 public class ExceptionTableEntry extends ClassFileStruct {
 
-	private int startPC;
-	private int endPC;
-	private int handlerPC;
-	private int catchTypeIndex;
+	private final int startPC;
+	private final int endPC;
+	private final int handlerPC;
+	private final int catchTypeIndex;
 	private char[] catchType;
 
 	ExceptionTableEntry(byte[] classFileBytes, ConstantPool constantPool, int offset) throws ClassFormatException {

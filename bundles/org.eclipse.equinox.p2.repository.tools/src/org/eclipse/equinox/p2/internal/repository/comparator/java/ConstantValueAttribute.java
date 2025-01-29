@@ -15,8 +15,8 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 
 public class ConstantValueAttribute extends ClassFileAttribute {
 
-	private int constantValueIndex;
-	private ConstantPoolEntry constantPoolEntry;
+	private final int constantValueIndex;
+	private final ConstantPoolEntry constantPoolEntry;
 
 	ConstantValueAttribute(byte[] classFileBytes, ConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);

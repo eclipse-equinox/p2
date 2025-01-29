@@ -15,8 +15,8 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 
 public class SignatureAttribute extends ClassFileAttribute {
 
-	private int signatureIndex;
-	private char[] signature;
+	private final int signatureIndex;
+	private final char[] signature;
 
 	SignatureAttribute(byte[] classFileBytes, ConstantPool constantPool, int offset) throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);

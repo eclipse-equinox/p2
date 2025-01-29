@@ -16,7 +16,7 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 public class InnerClassesAttribute extends ClassFileAttribute {
 	private static final InnerClassesAttributeEntry[] NO_ENTRIES = new InnerClassesAttributeEntry[0];
 
-	private int numberOfClasses;
+	private final int numberOfClasses;
 	private InnerClassesAttributeEntry[] entries;
 
 	/**
