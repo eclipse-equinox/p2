@@ -52,11 +52,11 @@ public final class PGPSignatureVerifier extends ProcessingStep {
 
 	private IArtifactDescriptor sourceDescriptor;
 
-	private Map<PGPSignature, List<PGPContentVerifier>> signaturesToVerify = new LinkedHashMap<>();
+	private final Map<PGPSignature, List<PGPContentVerifier>> signaturesToVerify = new LinkedHashMap<>();
 
-	private Map<PGPContentVerifier, PGPPublicKey> verifierKeys = new LinkedHashMap<>();
+	private final Map<PGPContentVerifier, PGPPublicKey> verifierKeys = new LinkedHashMap<>();
 
-	private List<OutputStream> signatureVerifiers = new ArrayList<>();
+	private final List<OutputStream> signatureVerifiers = new ArrayList<>();
 
 	public PGPSignatureVerifier() {
 		super();

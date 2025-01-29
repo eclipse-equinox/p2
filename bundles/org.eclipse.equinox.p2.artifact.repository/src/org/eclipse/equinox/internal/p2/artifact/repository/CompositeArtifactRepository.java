@@ -47,10 +47,10 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 
 	// keep a list of the child URIs. they can be absolute or relative. they may or may not point
 	// to a valid reachable repo
-	private List<URI> childrenURIs = new ArrayList<>();
+	private final List<URI> childrenURIs = new ArrayList<>();
 	// keep a list of the repositories that we have successfully loaded
-	private List<ChildInfo> loadedRepos = new ArrayList<>();
-	private IArtifactRepositoryManager manager;
+	private final List<ChildInfo> loadedRepos = new ArrayList<>();
+	private final IArtifactRepositoryManager manager;
 	private boolean disableSave;
 
 	/**

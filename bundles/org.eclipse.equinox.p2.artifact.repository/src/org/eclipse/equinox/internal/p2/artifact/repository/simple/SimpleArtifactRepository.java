@@ -111,9 +111,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public class ArtifactOutputStream extends OutputStream implements IStateful, IAdaptable {
 		private boolean closed;
 		private long count = 0;
-		private IArtifactDescriptor descriptor;
-		private OutputStream destination;
-		private File file;
+		private final IArtifactDescriptor descriptor;
+		private final OutputStream destination;
+		private final File file;
 		private IStatus status = Status.OK_STATUS;
 		private OutputStream firstLink;
 
@@ -265,7 +265,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	static final private Integer REPOSITORY_VERSION = 1;
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	protected Set<SimpleArtifactDescriptor> artifactDescriptors = new HashSet<>();
-	private Set<SimpleArtifactDescriptor> addedDescriptors = new HashSet<>();
+	private final Set<SimpleArtifactDescriptor> addedDescriptors = new HashSet<>();
 	/**
 	 * Map<IArtifactKey,List<IArtifactDescriptor>> containing the index of artifacts in the repository.
 	 */
