@@ -21,12 +21,12 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.IQueryable;
 
 public class PermissiveSlicer extends Slicer {
-	private boolean includeOptionalDependencies; //Cause optional dependencies not be followed as part of the
-	private boolean everythingGreedy;
-	private boolean considerFilter;
-	private boolean considerOnlyStrictDependency;
-	private boolean evalFilterTo;
-	private boolean onlyFilteredRequirements;
+	private final boolean includeOptionalDependencies; //Cause optional dependencies not be followed as part of the
+	private final boolean everythingGreedy;
+	private final boolean considerFilter;
+	private final boolean considerOnlyStrictDependency;
+	private final boolean evalFilterTo;
+	private final boolean onlyFilteredRequirements;
 
 	public PermissiveSlicer(IQueryable<IInstallableUnit> input, Map<String, String> context, boolean includeOptionalDependencies, boolean everythingGreedy, boolean evalFilterTo, boolean considerOnlyStrictDependency, boolean onlyFilteredRequirements) {
 		super(input, context, true);

@@ -25,11 +25,11 @@ import org.sat4j.pb.tools.WeightedObject;
 
 public class OptimizationFunction {
 
-	private IQueryable<IInstallableUnit> picker;
-	private IInstallableUnit selectionContext;
+	private final IQueryable<IInstallableUnit> picker;
+	private final IInstallableUnit selectionContext;
 	protected Map<String, Map<Version, IInstallableUnit>> slice; //The IUs that have been considered to be part of the problem
-	private IQueryable<IInstallableUnit> lastState;
-	private List<AbstractVariable> optionalRequirementVariable;
+	private final IQueryable<IInstallableUnit> lastState;
+	private final List<AbstractVariable> optionalRequirementVariable;
 
 	public OptimizationFunction(IQueryable<IInstallableUnit> lastState, List<AbstractVariable> abstractVariables, List<AbstractVariable> optionalRequirementVariable, IQueryable<IInstallableUnit> picker, IInstallableUnit selectionContext, Map<String, Map<Version, IInstallableUnit>> slice) {
 		this.lastState = lastState;

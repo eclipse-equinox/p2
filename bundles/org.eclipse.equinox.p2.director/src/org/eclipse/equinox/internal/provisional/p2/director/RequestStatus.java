@@ -31,12 +31,12 @@ public class RequestStatus extends Status {
 	public static final byte ADDED = 0;
 	public static final byte REMOVED = 1;
 
-	private byte initialRequestType;
-	private IInstallableUnit iu;
+	private final byte initialRequestType;
+	private final IInstallableUnit iu;
 	private Set<Explanation> explanation;
 	private Explanation detailedExplanation;
-	private Set<IInstallableUnit> conflictingRootIUs;
-	private Set<IInstallableUnit> conflictingInstalledIUs;
+	private final Set<IInstallableUnit> conflictingRootIUs;
+	private final Set<IInstallableUnit> conflictingInstalledIUs;
 
 	public RequestStatus(IInstallableUnit iu, byte initialRequesType, int severity, Set<Explanation> explanation) {
 		super(severity, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.RequestStatus_message, iu));
