@@ -52,7 +52,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 	public static final String SHARED_BUNDLES_INFO = CONFIG_FOLDER + File.separatorChar + CONFIGURATOR_FOLDER
 			+ File.separatorChar + CONFIG_LIST;
 
-	private Set<Manipulator> manipulators = new HashSet<>();
+	private final Set<Manipulator> manipulators = new HashSet<>();
 
 	/**
 	 * Return the ConfiguratorConfigFile which is determined by the parameters set
