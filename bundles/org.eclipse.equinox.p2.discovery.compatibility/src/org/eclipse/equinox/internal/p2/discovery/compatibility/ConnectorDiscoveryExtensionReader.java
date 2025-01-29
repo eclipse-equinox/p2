@@ -51,7 +51,7 @@ public class ConnectorDiscoveryExtensionReader {
 
 	public static final Tag[] DEFAULT_TAGS = new Tag[] { DOCUMENT, TASK, VCS };
 
-	private Map<String, Tag> tagById = new HashMap<>();
+	private final Map<String, Tag> tagById = new HashMap<>();
 
 	public ConnectorDiscoveryExtensionReader() {
 		// constructor
