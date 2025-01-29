@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.publisher.IPublisherResult;
  */
 public class RootIUAdvice extends AbstractAdvice implements IRootIUAdvice {
 
-	private Collection<? extends Object> children;
+	private final Collection<? extends Object> children;
 
 	public RootIUAdvice(Collection<? extends Object> children) {
 		this.children = children;

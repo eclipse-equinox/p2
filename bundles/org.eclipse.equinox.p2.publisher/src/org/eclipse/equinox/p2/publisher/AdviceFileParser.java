@@ -74,19 +74,19 @@ public class AdviceFileParser {
 	public static final VersionRange VERSION_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true,
 			Version.createOSGi(2, 0, 0), false);
 
-	private Map<String, String> adviceProperties = new HashMap<>();
-	private List<IProvidedCapability> adviceProvides = new ArrayList<>();
-	private List<IRequirement> adviceRequires = new ArrayList<>();
-	private List<IRequirement> adviceMetaRequires = new ArrayList<>();
+	private final Map<String, String> adviceProperties = new HashMap<>();
+	private final List<IProvidedCapability> adviceProvides = new ArrayList<>();
+	private final List<IRequirement> adviceRequires = new ArrayList<>();
+	private final List<IRequirement> adviceMetaRequires = new ArrayList<>();
 	private IUpdateDescriptor adviceUpdateDescriptor = null;
-	private Map<String, ITouchpointInstruction> adviceInstructions = new HashMap<>();
-	private List<InstallableUnitDescription> adviceOtherIUs = new ArrayList<>();
+	private final Map<String, ITouchpointInstruction> adviceInstructions = new HashMap<>();
+	private final List<InstallableUnitDescription> adviceOtherIUs = new ArrayList<>();
 
 	private final Map<String, String> advice;
 	private Iterator<String> keysIterator;
 	private String current;
-	private String hostId;
-	private Version hostVersion;
+	private final String hostId;
+	private final Version hostVersion;
 
 	public AdviceFileParser(String id, Version version, Map<String, String> advice) {
 		this.hostId = id;

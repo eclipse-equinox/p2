@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.query.*;
  */
 public class QueryableFilterAdvice implements IFilterAdvice {
 
-	private IQueryable<IInstallableUnit> queryable;
+	private final IQueryable<IInstallableUnit> queryable;
 
 	public QueryableFilterAdvice(IQueryable<IInstallableUnit> queryable) {
 		this.queryable = queryable;

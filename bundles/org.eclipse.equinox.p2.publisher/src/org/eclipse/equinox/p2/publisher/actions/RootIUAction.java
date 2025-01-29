@@ -34,9 +34,9 @@ import org.eclipse.osgi.util.NLS;
  */
 public class RootIUAction extends AbstractPublisherAction {
 
-	private Version version;
-	private String id;
-	private String name;
+	private final Version version;
+	private final String id;
+	private final String name;
 	private Collection<IVersionAdvice> versionAdvice;
 
 	public RootIUAction(String id, Version version, String name) {

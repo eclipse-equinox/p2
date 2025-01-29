@@ -20,8 +20,8 @@ import org.eclipse.equinox.p2.publisher.*;
 
 public class MergeResultsAction extends AbstractPublisherAction {
 
-	private IPublisherAction[] actions;
-	private int mode;
+	private final IPublisherAction[] actions;
+	private final int mode;
 
 	public MergeResultsAction(IPublisherAction[] actions, int mode) {
 		this.actions = actions;

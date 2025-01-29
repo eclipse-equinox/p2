@@ -21,7 +21,7 @@ import java.util.*;
 public class FileSetDescriptor {
 	private final String key;
 	private String configSpec = null;
-	private HashSet<File> fileset = new HashSet<>();
+	private final HashSet<File> fileset = new HashSet<>();
 	private final ArrayList<String[]> permissions = new ArrayList<>();
 	private String links = ""; //$NON-NLS-1$
 

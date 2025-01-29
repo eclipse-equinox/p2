@@ -28,7 +28,7 @@ public class PublisherInfo implements IPublisherInfo {
 	private IMetadataRepository contextMetadataRepository;
 	private IArtifactRepository contextArtifactRepository;
 	private String[] configurations = new String[0];
-	private List<IPublisherAdvice> adviceList = new ArrayList<>(11);
+	private final List<IPublisherAdvice> adviceList = new ArrayList<>(11);
 
 	@Override
 	public void addAdvice(IPublisherAdvice advice) {

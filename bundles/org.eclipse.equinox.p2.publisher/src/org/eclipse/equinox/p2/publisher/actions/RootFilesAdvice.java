@@ -18,10 +18,10 @@ import java.io.File;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 
 public class RootFilesAdvice extends AbstractAdvice implements IRootFilesAdvice {
-	private File root;
-	private File[] excludedFiles;
-	private File[] includedFiles;
-	private String configSpec;
+	private final File root;
+	private final File[] excludedFiles;
+	private final File[] includedFiles;
+	private final String configSpec;
 
 	public RootFilesAdvice(File root, File[] includedFiles, File[] excludedFiles, String configSpec) {
 		this.root = root;
