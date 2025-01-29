@@ -32,7 +32,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 
 	private static class TouchpointEntry {
 
-		private IConfigurationElement element;
+		private final IConfigurationElement element;
 		private boolean createdExtension = false;
 		private Touchpoint touchpoint = null;
 

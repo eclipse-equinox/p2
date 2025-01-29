@@ -33,7 +33,7 @@ public class InstructionParser {
 	}
 
 	private static final String VERSION_EQUALS = "version="; //$NON-NLS-1$
-	private ActionManager actionManager;
+	private final ActionManager actionManager;
 
 	public InstructionParser(ActionManager actionManager) {
 		Assert.isNotNull(actionManager);

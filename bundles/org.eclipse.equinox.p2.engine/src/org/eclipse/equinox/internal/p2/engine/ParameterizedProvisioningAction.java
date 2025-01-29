@@ -20,12 +20,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.engine.spi.*;
 
 public class ParameterizedProvisioningAction extends ProvisioningAction {
-	private ProvisioningAction action;
-	private Map<String, String> actionParameters;
+	private final ProvisioningAction action;
+	private final Map<String, String> actionParameters;
 	//ActualParameter is used to keep values to which variables have been resolved.
 	//This is especially useful when undoing in the presence of variables that change (e.g. lastResult) 
-	private Map<String, Object> actualParameters;
-	private String actionText;
+	private final Map<String, Object> actualParameters;
+	private final String actionText;
 
 	public ParameterizedProvisioningAction(ProvisioningAction action, Map<String, String> actionParameters, String actionText) {
 		if (action == null || actionParameters == null)

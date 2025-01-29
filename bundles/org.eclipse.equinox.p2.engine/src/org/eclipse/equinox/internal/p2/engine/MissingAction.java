@@ -25,8 +25,8 @@ import org.eclipse.osgi.util.NLS;
  */
 public class MissingAction extends ProvisioningAction {
 
-	private String actionId;
-	private VersionRange versionRange;
+	private final String actionId;
+	private final VersionRange versionRange;
 
 	public MissingAction(String actionId, VersionRange versionRange) {
 		this.actionId = actionId;

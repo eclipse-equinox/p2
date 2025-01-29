@@ -35,9 +35,9 @@ public final class ProfileScope implements IScopeContext {
 	 */
 	public static final String SCOPE = "profile"; //$NON-NLS-1$
 
-	private String profileId;
+	private final String profileId;
 
-	private IAgentLocation location;
+	private final IAgentLocation location;
 
 	/**
 	 * Creates and returns a profile scope for the given profile id and agent.

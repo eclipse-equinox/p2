@@ -42,7 +42,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	public static final String TYPE = "org.eclipse.equinox.p2.engine.repo.metadataRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = 1;
 	private IProfile profile;
-	private HashSet<IRepositoryReference> repositories = new HashSet<>();
+	private final HashSet<IRepositoryReference> repositories = new HashSet<>();
 
 	public ProfileMetadataRepository(IProvisioningAgent agent, URI location, IProgressMonitor monitor) throws ProvisionException {
 		super(agent, location.toString(), TYPE, VERSION.toString(), location, null, null, null);

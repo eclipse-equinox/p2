@@ -40,12 +40,12 @@ public class CollectEvent extends EventObject {
 	 */
 	public static final int TYPE_REPOSITORY_END = 4;
 
-	private IArtifactRepository artifactRepo;
-	private IArtifactRequest[] requests;
+	private final IArtifactRepository artifactRepo;
+	private final IArtifactRequest[] requests;
 
-	private ProvisioningContext context;
+	private final ProvisioningContext context;
 
-	private int type;
+	private final int type;
 
 	public CollectEvent(int type, IArtifactRepository artifactRepo, ProvisioningContext context, IArtifactRequest[] requests) {
 		super(requests);

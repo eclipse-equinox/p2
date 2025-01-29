@@ -22,7 +22,7 @@ package org.eclipse.equinox.p2.engine.spi;
  */
 public class Value<T> {
 	public static final Value<Object> NO_VALUE = new Value<>(null);
-	private T value;
+	private final T value;
 	private Class<T> clazz;
 
 	public Value(T val) {

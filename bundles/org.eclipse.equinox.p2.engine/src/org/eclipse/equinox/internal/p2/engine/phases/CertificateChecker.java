@@ -76,7 +76,7 @@ public class CertificateChecker {
 	private final PGPPublicKeyService keyService;
 
 	// Lazily loading
-	private Supplier<PGPPublicKeyStore> trustedKeys = new Supplier<>() {
+	private final Supplier<PGPPublicKeyStore> trustedKeys = new Supplier<>() {
 		private PGPPublicKeyStore cache = null;
 
 		public PGPPublicKeyStore get() {
@@ -90,7 +90,7 @@ public class CertificateChecker {
 
 	// Lazily loading in case we ever add an extension point for registering
 	// certificates.
-	private Supplier<Collection<? extends Certificate>> additionalTrustedCertificates = new Supplier<>() {
+	private final Supplier<Collection<? extends Certificate>> additionalTrustedCertificates = new Supplier<>() {
 		private Collection<? extends Certificate> cache = null;
 
 		public Collection<? extends Certificate> get() {

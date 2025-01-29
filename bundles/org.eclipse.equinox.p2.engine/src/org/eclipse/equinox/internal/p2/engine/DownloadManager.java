@@ -58,7 +58,7 @@ public class DownloadManager {
 		return 0;
 	};
 
-	private Set<IInstallableUnit> ius;
+	private final Set<IInstallableUnit> ius;
 
 	public DownloadManager(ProvisioningContext context, IProvisioningAgent agent) {
 		this(context, Set.of(), agent);

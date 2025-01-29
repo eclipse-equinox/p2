@@ -64,14 +64,14 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	 * Reference to Map of String(Profile id)->Profile.
 	 */
 	private SoftReference<Map<String, Profile>> profiles;
-	private Map<String, ProfileLock> profileLocks = new HashMap<>();
+	private final Map<String, ProfileLock> profileLocks = new HashMap<>();
 
 	private String self;
 
 	//Whether the registry should update the self profile when the registry is restored
-	private boolean updateSelfProfile;
+	private final boolean updateSelfProfile;
 
-	private File store;
+	private final File store;
 
 	ISurrogateProfileHandler surrogateProfileHandler;
 
@@ -977,10 +977,10 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	// Class representing a particular instance of a profile's state properties.
 	// Can be used for caching.
 	class ProfileStateProperties {
-		private String id;
-		private File file;
-		private long timestamp;
-		private Properties properties;
+		private final String id;
+		private final File file;
+		private final long timestamp;
+		private final Properties properties;
 
 		ProfileStateProperties(String id, File file, Properties properties) {
 			this.id = id;

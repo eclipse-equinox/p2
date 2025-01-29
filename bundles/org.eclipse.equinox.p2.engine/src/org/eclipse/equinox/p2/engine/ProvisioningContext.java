@@ -39,18 +39,18 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
  * @since 2.0
  */
 public class ProvisioningContext {
-	private IProvisioningAgent agent;
+	private final IProvisioningAgent agent;
 	private URI[] artifactRepositories; //artifact repositories to consult
 	private final List<IInstallableUnit> extraIUs = Collections.synchronizedList(new ArrayList<>());
 	private URI[] metadataRepositories; //metadata repositories to consult
 	private final Map<String, String> properties = new HashMap<>();
 	private Map<String, URI> referencedArtifactRepositories = null;
-	private Map<URI, IArtifactRepository> loadedArtifactRepositories = new HashMap<>();
-	private Map<URI, IMetadataRepository> loadedMetadataRepositories = new HashMap<>();
+	private final Map<URI, IArtifactRepository> loadedArtifactRepositories = new HashMap<>();
+	private final Map<URI, IMetadataRepository> loadedMetadataRepositories = new HashMap<>();
 	private Map<URI, IMetadataRepository> allLoadedMetadataRepositories;
 	private Map<URI, IArtifactRepository> allLoadedArtifactRepositories;
-	private Set<URI> failedArtifactRepositories = new HashSet<>();
-	private Set<URI> failedMetadataRepositories = new HashSet<>();
+	private final Set<URI> failedArtifactRepositories = new HashSet<>();
+	private final Set<URI> failedMetadataRepositories = new HashSet<>();
 
 	class ArtifactRepositoryQueryable implements IQueryable<IArtifactRepository> {
 		List<IArtifactRepository> repositories;
