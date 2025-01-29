@@ -50,8 +50,8 @@ public class NativeTouchpoint extends Touchpoint {
 		}
 	}
 
-	private List<NativePackageToInstallInfo> packagesToInstall = new ArrayList<>();
-	private Properties installCommandsProperties = new Properties();
+	private final List<NativePackageToInstallInfo> packagesToInstall = new ArrayList<>();
+	private final Properties installCommandsProperties = new Properties();
 
 	private IProvisioningAgent agent;
 	private String distro;
