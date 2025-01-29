@@ -23,7 +23,7 @@ public class Feature {
 	private String id;
 	private String url;
 	private String version;
-	private Site site;
+	private final Site site;
 	private String pluginIdentifier;
 	private String pluginVersion;
 	private String application;

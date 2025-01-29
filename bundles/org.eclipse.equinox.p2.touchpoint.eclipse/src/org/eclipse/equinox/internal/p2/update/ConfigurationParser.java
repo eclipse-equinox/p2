@@ -32,7 +32,7 @@ import org.xml.sax.SAXException;
  */
 public class ConfigurationParser implements ConfigurationConstants {
 	static final String PLATFORM_BASE = "platform:/base/"; //$NON-NLS-1$
-	private URL osgiInstallArea;
+	private final URL osgiInstallArea;
 
 	/*
 	 * Parse the given file handle which points to a platform.xml file and a

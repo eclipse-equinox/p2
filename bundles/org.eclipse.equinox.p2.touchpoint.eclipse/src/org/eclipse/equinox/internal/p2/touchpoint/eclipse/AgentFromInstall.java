@@ -26,14 +26,14 @@ import org.eclipse.equinox.p2.core.*;
  */
 public class AgentFromInstall {
 	// Input
-	private File configurationFolder;
-	private File installFolder;
-	private IProvisioningAgentProvider agentProvider;
+	private final File configurationFolder;
+	private final File installFolder;
+	private final IProvisioningAgentProvider agentProvider;
 
 	// Figured out
 	private String profileId;
 	private String p2DataAreaURI;
-	private String userSpecifiedProfileId;
+	private final String userSpecifiedProfileId;
 
 	private AgentFromInstall(IProvisioningAgentProvider agentProvider, File installFolder, File configurationFolder,
 			String profileId) {

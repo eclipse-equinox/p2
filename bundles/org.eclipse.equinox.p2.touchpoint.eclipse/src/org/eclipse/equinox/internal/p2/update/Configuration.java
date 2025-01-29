@@ -31,7 +31,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
  */
 public class Configuration {
 
-	private List<Site> sites = new ArrayList<>();
+	private final List<Site> sites = new ArrayList<>();
 	String date;
 	boolean transientProperty;
 	String version;
