@@ -32,9 +32,9 @@ public class ConfigData {
 	private int beginningFwStartLevel = BundleInfo.NO_LEVEL;
 	private int initialBundleStartLevel = BundleInfo.NO_LEVEL;
 	// List of BundleInfo
-	private LinkedHashSet<BundleInfo> bundlesList = new LinkedHashSet<>();
+	private final LinkedHashSet<BundleInfo> bundlesList = new LinkedHashSet<>();
 
-	private Properties properties = new Properties();
+	private final Properties properties = new Properties();
 
 	public ConfigData(String fwName, String fwVersion, String launcherName, String launcherVersion) {
 		this.fwName = fwName;

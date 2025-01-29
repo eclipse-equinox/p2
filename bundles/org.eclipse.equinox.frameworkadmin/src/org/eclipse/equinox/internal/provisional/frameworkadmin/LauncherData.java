@@ -28,8 +28,8 @@ import java.util.*;
 public class LauncherData {
 	private File fwPersistentDataLocation = null;
 	private File jvm = null;
-	private List<String> jvmArgs = new LinkedList<>();
-	private List<String> programArgs = new LinkedList<>();
+	private final List<String> jvmArgs = new LinkedList<>();
+	private final List<String> programArgs = new LinkedList<>();
 
 	private boolean clean;
 	private File fwConfigLocation;
@@ -39,10 +39,10 @@ public class LauncherData {
 	private File launcher = null;
 	private File launcherConfigLocation = null;
 
-	private String fwName;
-	private String fwVersion;
-	private String launcherName;
-	private String launcherVersion;
+	private final String fwName;
+	private final String fwVersion;
+	private final String launcherName;
+	private final String launcherVersion;
 	private String os;
 
 	public LauncherData(String fwName, String fwVersion, String launcherName, String launcherVersion) {
