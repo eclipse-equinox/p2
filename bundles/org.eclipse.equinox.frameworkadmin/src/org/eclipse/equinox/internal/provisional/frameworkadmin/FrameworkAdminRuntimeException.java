@@ -21,7 +21,7 @@ public class FrameworkAdminRuntimeException extends RuntimeException {
 	public static final String UNSUPPORTED_OPERATION = "This implementation doesn't support this method."; //$NON-NLS-1$
 
 	private final String reason;
-	private Throwable cause;
+	private final Throwable cause;
 
 	public FrameworkAdminRuntimeException(String message, String reason) {
 		super(message);
