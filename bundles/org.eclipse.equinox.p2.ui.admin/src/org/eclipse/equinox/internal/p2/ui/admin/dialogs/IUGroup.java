@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Composite;
 public abstract class IUGroup {
 
 	protected Object iuElement;
-	private Composite composite;
+	private final Composite composite;
 
 	protected IUGroup(final Composite parent, Object iu, ModifyListener listener) {
 		this.iuElement = iu;

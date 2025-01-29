@@ -32,7 +32,7 @@ public class AddProfileDialog extends StatusDialog {
 
 	private ProfileGroup profileGroup;
 	private Button okButton;
-	private String[] knownProfileIds;
+	private final String[] knownProfileIds;
 	private String addedProfileId;
 
 	public AddProfileDialog(Shell parentShell, String[] knownProfiles) {
