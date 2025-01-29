@@ -42,7 +42,7 @@ import org.eclipse.osgi.util.NLS;
 public class InstallUpdateProductOperation implements IInstallOperation {
 
 	private IArtifactRepositoryManager artifactRepoMan;
-	private IProvisioningAgent agent;
+	private final IProvisioningAgent agent;
 	private IDirector director;
 	private final InstallDescription installDescription;
 	private boolean isInstall = true;
