@@ -22,8 +22,8 @@ import org.eclipse.equinox.p2.metadata.Version;
  * and a version.
  */
 public class TouchpointType implements ITouchpointType {
-	private String id;//never null
-	private Version version;//never null
+	private final String id;//never null
+	private final Version version;//never null
 
 	public TouchpointType(String id, Version aVersion) {
 		this.id = id;

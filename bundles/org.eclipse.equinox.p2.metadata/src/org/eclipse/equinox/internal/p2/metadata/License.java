@@ -38,7 +38,7 @@ public class License implements ILicense {
 	/**
 	 * The <code>location</code> is the URL of the license.
 	 */
-	private URI location;
+	private final URI location;
 
 	/**
 	 * The <code>digest</code> is the cached message digest of the normalized body

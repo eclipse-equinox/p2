@@ -201,7 +201,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 
 		private List<Expression> parts;
 
-		private int op;
+		private final int op;
 
 		Compacter(Expression base, int op) {
 			this.base = base;

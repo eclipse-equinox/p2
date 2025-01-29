@@ -20,11 +20,11 @@ import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 
 public class UpdateDescriptor implements IUpdateDescriptor {
-	private Collection<IMatchExpression<IInstallableUnit>> descriptors;
+	private final Collection<IMatchExpression<IInstallableUnit>> descriptors;
 
-	private String description;
-	private int severity;
-	private URI location;
+	private final String description;
+	private final int severity;
+	private final URI location;
 
 	public UpdateDescriptor(Collection<IMatchExpression<IInstallableUnit>> descriptors, int severity, String description, URI location) {
 		this.descriptors = descriptors;

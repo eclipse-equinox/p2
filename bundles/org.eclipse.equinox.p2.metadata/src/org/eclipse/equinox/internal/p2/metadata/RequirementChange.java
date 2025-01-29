@@ -16,8 +16,8 @@ package org.eclipse.equinox.internal.p2.metadata;
 import org.eclipse.equinox.p2.metadata.IRequirementChange;
 
 public class RequirementChange implements IRequirementChange {
-	private IRequiredCapability applyOn;
-	private IRequiredCapability newValue;
+	private final IRequiredCapability applyOn;
+	private final IRequiredCapability newValue;
 
 	public RequirementChange(IRequiredCapability applyOn2, IRequiredCapability newValue2) {
 		if (applyOn2 == null && newValue2 == null)
