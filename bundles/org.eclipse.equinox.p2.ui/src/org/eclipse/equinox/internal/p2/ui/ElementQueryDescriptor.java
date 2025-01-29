@@ -27,10 +27,10 @@ import org.eclipse.equinox.p2.query.*;
  */
 public class ElementQueryDescriptor {
 
-	private IQuery<Object> query;
-	private Collector<Object> collector;
-	private IQueryable<Object> queryable;
-	private ElementWrapper wrapper;
+	private final IQuery<Object> query;
+	private final Collector<Object> collector;
+	private final IQueryable<Object> queryable;
+	private final ElementWrapper wrapper;
 
 	/**
 	 * Creates an ElementQueryDescriptor to represent a Query, its collector the queryable

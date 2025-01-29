@@ -21,7 +21,7 @@ import org.eclipse.jface.viewers.ViewerComparator;
 public class IUComparator extends ViewerComparator {
 	public static final int IU_NAME = 0;
 	public static final int IU_ID = 1;
-	private int key;
+	private final int key;
 	private boolean showingId = false;
 
 	public IUComparator(int sortKey) {

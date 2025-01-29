@@ -80,12 +80,12 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	public static final QualifiedName ACCUMULATE_LOAD_ERRORS = new QualifiedName(ProvUIActivator.PLUGIN_ID,
 			"ACCUMULATE_LOAD_ERRORS"); //$NON-NLS-1$
 
-	private List<IMetadataRepository> repoCache = new ArrayList<>();
-	private RepositoryTracker tracker;
+	private final List<IMetadataRepository> repoCache = new ArrayList<>();
+	private final RepositoryTracker tracker;
 	private MultiStatus accumulatedStatus;
 	private LoadFailureAccumulator loadFailureAccumulator;
-	private URI[] locations;
-	private ProvisioningUI ui;
+	private final URI[] locations;
+	private final ProvisioningUI ui;
 
 	/**
 	 * Create a job that loads the metadata repositories known by the specified

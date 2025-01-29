@@ -33,7 +33,7 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 	private Object currentInput;
 	private HashMap<Object, Object> alreadyQueried = new HashMap<>();
 	private HashSet<Object> queryCompleted = new HashSet<>();
-	private ListenerList<IInputChangeListener> listeners = new ListenerList<>();
+	private final ListenerList<IInputChangeListener> listeners = new ListenerList<>();
 	private boolean synchronous = false;
 	private IDeferredQueryTreeListener onFetchingActionListener;
 

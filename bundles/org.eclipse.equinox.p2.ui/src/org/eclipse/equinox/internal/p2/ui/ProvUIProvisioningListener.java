@@ -37,7 +37,7 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 
 	int eventTypes = 0;
 	String name;
-	private ProvisioningOperationRunner runner;
+	private final ProvisioningOperationRunner runner;
 
 	public ProvUIProvisioningListener(String name, int eventTypes, ProvisioningOperationRunner runner) {
 		this.name = name;

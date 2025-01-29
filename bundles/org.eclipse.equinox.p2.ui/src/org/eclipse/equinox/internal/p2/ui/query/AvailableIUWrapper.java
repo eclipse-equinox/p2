@@ -34,7 +34,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
  */
 public class AvailableIUWrapper extends QueriedElementWrapper {
 
-	private boolean makeCategories;
+	private final boolean makeCategories;
 	private IProfile profile;
 	private boolean hideInstalledIUs = false;
 	private boolean drillDownChild = false;

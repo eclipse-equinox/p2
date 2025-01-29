@@ -36,7 +36,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 public class QueryProvider {
 
-	private ProvisioningUI ui;
+	private final ProvisioningUI ui;
 
 	public static final int METADATA_REPOS = 1;
 	public static final int ARTIFACT_REPOS = 2;

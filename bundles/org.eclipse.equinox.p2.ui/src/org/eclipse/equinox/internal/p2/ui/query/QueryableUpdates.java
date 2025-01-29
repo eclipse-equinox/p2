@@ -30,7 +30,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  */
 public class QueryableUpdates implements IQueryable<IInstallableUnit> {
 
-	private IInstallableUnit[] iusToUpdate;
+	private final IInstallableUnit[] iusToUpdate;
 	ProvisioningUI ui;
 
 	public QueryableUpdates(ProvisioningUI ui, IInstallableUnit[] iusToUpdate) {

@@ -33,9 +33,9 @@ import org.eclipse.ui.PlatformUI;
 
 public class LocationNotFoundDialog implements Runnable {
 
-	private RepositoryTracker repositoryTracker;
-	private ProvisioningUI ui;
-	private URI location;
+	private final RepositoryTracker repositoryTracker;
+	private final ProvisioningUI ui;
+	private final URI location;
 
 	public LocationNotFoundDialog(RepositoryTracker repositoryTracker, ProvisioningUI ui, URI location) {
 		this.repositoryTracker = repositoryTracker;

@@ -60,10 +60,10 @@ public class ProvisioningUI {
 		return ProvUIActivator.getDefault().getProvisioningUI();
 	}
 
-	private Policy policy;
-	private ProvisioningSession session;
+	private final Policy policy;
+	private final ProvisioningSession session;
 	private String profileId;
-	private ProvisioningOperationRunner runner;
+	private final ProvisioningOperationRunner runner;
 
 	/**
 	 * Creates a new instance of the provisioning user interface.

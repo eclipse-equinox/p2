@@ -150,7 +150,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	SashForm sashForm;
 	private IInstallableUnit[] originalIUs;
 	HashMap<ILicense, List<IInstallableUnit>> licensesToIUs; // License -> IU Name
-	private LicenseManager manager;
+	private final LicenseManager manager;
 	IUColumnConfig nameColumn;
 	IUColumnConfig versionColumn;
 

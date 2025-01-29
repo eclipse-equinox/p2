@@ -73,7 +73,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 	private static class TagEditingSuport extends EditingSupport {
 
-		private ProvisioningUI ui;
+		private final ProvisioningUI ui;
 
 		public TagEditingSuport(TableViewer viewer, ProvisioningUI ui) {
 			super(viewer);

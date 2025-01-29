@@ -44,9 +44,9 @@ public class IUDetailsGroup {
 	private StyledText detailsArea;
 	private GridData gd;
 	private Link propLink;
-	private ISelectionProvider selectionProvider;
-	private int widthHint;
-	private boolean scrollable;
+	private final ISelectionProvider selectionProvider;
+	private final int widthHint;
+	private final boolean scrollable;
 	private String lastText;
 
 	public IUDetailsGroup(Composite parent, ISelectionProvider selectionProvider, int widthHint, boolean scrollable) {

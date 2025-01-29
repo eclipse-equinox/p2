@@ -19,8 +19,8 @@ import org.eclipse.equinox.p2.operations.RemedyIUDetail;
 
 public class RemedyElementCategory {
 
-	private String name;
-	private List<RemedyIUDetail> elements;
+	private final String name;
+	private final List<RemedyIUDetail> elements;
 
 	public RemedyElementCategory(String name) {
 		this.name = name;
