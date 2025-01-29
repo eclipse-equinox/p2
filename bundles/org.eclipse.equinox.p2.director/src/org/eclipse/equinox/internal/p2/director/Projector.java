@@ -57,33 +57,33 @@ public class Projector {
 	private static final int DEFAULT_SOLVER_TIMEOUT = 10000;
 	static boolean DEBUG = Tracing.DEBUG_PLANNER_PROJECTOR;
 	private static boolean DEBUG_ENCODING = Tracing.DEBUG_PLANNER_PROJECTOR_ENCODING;
-	private IQueryable<IInstallableUnit> picker;
+	private final IQueryable<IInstallableUnit> picker;
 	private QueryableArray patches;
 
-	private List<AbstractVariable> allOptionalAbstractRequirements;
-	private List<AbstractVariable> abstractVariables;
+	private final List<AbstractVariable> allOptionalAbstractRequirements;
+	private final List<AbstractVariable> abstractVariables;
 
-	private Map<String, Map<Version, IInstallableUnit>> slice; //The IUs that have been considered to be part of the problem
+	private final Map<String, Map<Version, IInstallableUnit>> slice; //The IUs that have been considered to be part of the problem
 
-	private IInstallableUnit selectionContext;
+	private final IInstallableUnit selectionContext;
 
 	DependencyHelper<Object, Explanation> dependencyHelper;
 	private Collection<IInstallableUnit> solution;
-	private Collection<Object> assumptions;
+	private final Collection<Object> assumptions;
 
 	private MultiStatus result;
 
 	private Collection<IInstallableUnit> alreadyInstalledIUs;
 	private IQueryable<IInstallableUnit> lastState;
 
-	private boolean considerMetaRequirements;
+	private final boolean considerMetaRequirements;
 	private IInstallableUnit entryPoint;
-	private Map<IInstallableUnitFragment, Set<IInstallableUnit>> fragments = new HashMap<>();
+	private final Map<IInstallableUnitFragment, Set<IInstallableUnit>> fragments = new HashMap<>();
 
 	//Non greedy things
-	private Set<IInstallableUnit> nonGreedyIUs; //All the IUs that would satisfy non greedy dependencies
-	private Map<IInstallableUnit, AbstractVariable> nonGreedyVariables = new HashMap<>();
-	private Map<AbstractVariable, List<Object>> nonGreedyProvider = new HashMap<>(); //Keeps track of all the "object" that provide an IU that is non greedly requested
+	private final Set<IInstallableUnit> nonGreedyIUs; //All the IUs that would satisfy non greedy dependencies
+	private final Map<IInstallableUnit, AbstractVariable> nonGreedyVariables = new HashMap<>();
+	private final Map<AbstractVariable, List<Object>> nonGreedyProvider = new HashMap<>(); //Keeps track of all the "object" that provide an IU that is non greedly requested
 
 	private boolean emptyBecauseFiltered;
 	private boolean userDefinedFunction;

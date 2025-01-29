@@ -973,7 +973,7 @@ public class SimplePlanner implements IPlanner {
 
 	// helper class to trick the resolver to believe that everything is optional
 	private static class EverythingOptionalProfile implements IProfile {
-		private IProfile profile;
+		private final IProfile profile;
 
 		public EverythingOptionalProfile(IProfile p) {
 			profile = p;

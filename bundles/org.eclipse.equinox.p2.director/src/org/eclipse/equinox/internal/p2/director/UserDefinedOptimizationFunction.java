@@ -24,9 +24,9 @@ import org.sat4j.pb.tools.*;
 import org.sat4j.specs.ContradictionException;
 
 public class UserDefinedOptimizationFunction extends OptimizationFunction {
-	private Collection<IInstallableUnit> alreadyExistingRoots;
-	private SteppedTimeoutLexicoHelper<Object, Explanation> dependencyHelper;
-	private IQueryable<IInstallableUnit> picker;
+	private final Collection<IInstallableUnit> alreadyExistingRoots;
+	private final SteppedTimeoutLexicoHelper<Object, Explanation> dependencyHelper;
+	private final IQueryable<IInstallableUnit> picker;
 
 	public UserDefinedOptimizationFunction(IQueryable<IInstallableUnit> lastState, List<AbstractVariable> abstractVariables, List<AbstractVariable> optionalVariables, IQueryable<IInstallableUnit> picker, IInstallableUnit selectionContext, Map<String, Map<Version, IInstallableUnit>> slice, DependencyHelper<Object, Explanation> dependencyHelper, Collection<IInstallableUnit> alreadyInstalledIUs) {
 		super(lastState, abstractVariables, optionalVariables, picker, selectionContext, slice);

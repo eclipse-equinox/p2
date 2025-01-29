@@ -28,8 +28,8 @@ import org.eclipse.osgi.util.NLS;
 public class SimpleDirector implements IDirector {
 	static final int PlanWork = 10;
 	static final int EngineWork = 100;
-	private IEngine engine;
-	private IPlanner planner;
+	private final IEngine engine;
+	private final IPlanner planner;
 
 	public SimpleDirector(IEngine engine, IPlanner planner) {
 		if (engine == null)
