@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.engine.IProfileEvent;
 public class ProfileEvent extends EventObject implements IProfileEvent {
 	private static final long serialVersionUID = 3082402920617281765L;
 
-	private int reason;
+	private final int reason;
 
 	public ProfileEvent(String profileId, int reason) {
 		super(profileId);

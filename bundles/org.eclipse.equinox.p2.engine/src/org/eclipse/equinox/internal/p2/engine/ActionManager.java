@@ -38,7 +38,7 @@ public class ActionManager implements IRegistryChangeListener {
 	public static final String SERVICE_NAME = ActionManager.class.getName();
 
 	private HashMap<String, IConfigurationElement> actionMap;
-	private TouchpointManager touchpointManager;
+	private final TouchpointManager touchpointManager;
 
 	public ActionManager() {
 		this.touchpointManager = new TouchpointManager();

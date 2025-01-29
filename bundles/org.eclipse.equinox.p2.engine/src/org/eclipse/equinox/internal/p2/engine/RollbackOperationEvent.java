@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.IStatus;
 public class RollbackOperationEvent extends TransactionEvent {
 
 	private static final long serialVersionUID = -2076492953949691215L;
-	private IStatus cause;
+	private final IStatus cause;
 
 	public RollbackOperationEvent(IProfile profile, PhaseSet phaseSet, Operand[] operands, IEngine engine, IStatus cause) {
 		super(profile, phaseSet, operands, engine);

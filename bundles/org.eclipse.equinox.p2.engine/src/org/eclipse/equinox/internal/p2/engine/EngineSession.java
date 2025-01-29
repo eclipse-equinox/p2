@@ -39,7 +39,7 @@ public class EngineSession {
 		}
 	}
 
-	private List<Object[]> phaseActionRecordsPairs = new ArrayList<>();
+	private final List<Object[]> phaseActionRecordsPairs = new ArrayList<>();
 
 	private Phase currentPhase;
 	boolean currentPhaseActive;
@@ -47,13 +47,13 @@ public class EngineSession {
 	private List<ActionsRecord> currentActionRecords;
 	private ActionsRecord currentRecord;
 
-	private IProfile profile;
+	private final IProfile profile;
 
-	private ProvisioningContext context;
+	private final ProvisioningContext context;
 
 	private final HashMap<String, Object> sessionServices = new HashMap<>();
 
-	private Set<Touchpoint> touchpoints = new HashSet<>();
+	private final Set<Touchpoint> touchpoints = new HashSet<>();
 
 	private final IProvisioningAgent agent;
 

@@ -85,7 +85,7 @@ public class ProvisioningPlan implements IProvisioningPlan {
 	}
 
 	private class QueryablePlan implements IQueryable<IInstallableUnit> {
-		private boolean addition;
+		private final boolean addition;
 
 		public QueryablePlan(boolean add) {
 			this.addition = add;

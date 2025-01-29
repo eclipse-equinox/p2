@@ -31,14 +31,14 @@ public class InstallableUnitEvent extends EventObject {
 	public static final int CONFIGURE = 3;
 	private static final long serialVersionUID = 3318712818811459886L;
 
-	private String phaseId;
-	private boolean prePhase;
+	private final String phaseId;
+	private final boolean prePhase;
 
-	private IProfile profile;
-	private IInstallableUnit iu;
-	private Touchpoint touchpoint;
-	private IStatus result;
-	private int type;
+	private final IProfile profile;
+	private final IInstallableUnit iu;
+	private final Touchpoint touchpoint;
+	private final IStatus result;
+	private final int type;
 
 	public InstallableUnitEvent(String phaseId, boolean prePhase, IProfile profile, IInstallableUnit iu, int type, Touchpoint touchpoint) {
 		this(phaseId, prePhase, profile, iu, type, touchpoint, null);

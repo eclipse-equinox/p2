@@ -68,9 +68,9 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 	/**
 	 * This storage is to be used by the touchpoints to store data.
 	 */
-	private OrderedProperties storage = new OrderedProperties();
+	private final OrderedProperties storage = new OrderedProperties();
 
-	private IUMap ius = new IUMap();
+	private final IUMap ius = new IUMap();
 	final Map<IInstallableUnit, OrderedProperties> iuProperties = new HashMap<>();
 	private boolean changed = false;
 

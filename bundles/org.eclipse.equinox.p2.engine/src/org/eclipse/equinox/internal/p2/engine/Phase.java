@@ -46,9 +46,9 @@ public abstract class Phase {
 	protected int mainPerformWork = 10000;
 	protected int postPerformWork = 1000;
 	private Map<String, Object> operandParameters = null;
-	private Map<String, Object> phaseParameters = new HashMap<>();
-	private Map<Touchpoint, Map<String, Object>> touchpointToTouchpointPhaseParameters = new HashMap<>();
-	private Map<Touchpoint, Map<String, Object>> touchpointToTouchpointOperandParameters = new HashMap<>();
+	private final Map<String, Object> phaseParameters = new HashMap<>();
+	private final Map<Touchpoint, Map<String, Object>> touchpointToTouchpointPhaseParameters = new HashMap<>();
+	private final Map<Touchpoint, Map<String, Object>> touchpointToTouchpointOperandParameters = new HashMap<>();
 	ActionManager actionManager; // injected from phaseset
 	protected boolean isPaused = false;
 

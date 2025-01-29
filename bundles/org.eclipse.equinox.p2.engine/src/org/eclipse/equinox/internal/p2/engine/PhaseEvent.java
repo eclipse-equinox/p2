@@ -22,11 +22,11 @@ public class PhaseEvent extends EventObject {
 	public static final int TYPE_START = 1;
 	public static final int TYPE_END = 2;
 
-	private int type;
+	private final int type;
 
-	private String phaseId;
+	private final String phaseId;
 
-	private Operand[] operands;
+	private final Operand[] operands;
 
 	public PhaseEvent(String phaseId, Operand[] operands, int type) {
 		super(operands);

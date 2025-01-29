@@ -26,7 +26,7 @@ import org.eclipse.equinox.p2.engine.*;
 public class Engine implements IEngine {
 
 	private static final String ENGINE = "engine"; //$NON-NLS-1$
-	private IProvisioningAgent agent;
+	private final IProvisioningAgent agent;
 
 	public Engine(IProvisioningAgent agent) {
 		this.agent = agent;
