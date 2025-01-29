@@ -115,7 +115,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	protected IFileTransferConnectStartEvent connectEvent;
 	private Job cancelJob;
 	private boolean monitorStarted;
-	private IProvisioningAgent agent;
+	private final IProvisioningAgent agent;
 	private boolean isPause = false;
 	private boolean hasPaused = false;
 	private IFileTransferPausable pasuable = null;
@@ -563,7 +563,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 
 	private static class DownloadRange implements IFileRangeSpecification {
 
-		private long startPosition;
+		private final long startPosition;
 
 		public DownloadRange(long startPos) {
 			startPosition = startPos;
