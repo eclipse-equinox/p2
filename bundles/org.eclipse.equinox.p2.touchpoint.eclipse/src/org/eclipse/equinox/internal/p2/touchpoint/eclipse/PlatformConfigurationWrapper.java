@@ -35,9 +35,9 @@ public class PlatformConfigurationWrapper {
 
 	private Configuration configuration = null;
 	private Site poolSite = null;
-	private File configFile;
-	private URI poolURI;
-	private Manipulator manipulator;
+	private final File configFile;
+	private final URI poolURI;
+	private final Manipulator manipulator;
 
 	private static String FEATURES = "features/"; //$NON-NLS-1$
 

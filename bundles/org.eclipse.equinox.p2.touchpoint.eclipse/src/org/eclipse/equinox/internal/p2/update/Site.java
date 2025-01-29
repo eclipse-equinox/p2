@@ -30,7 +30,7 @@ public class Site {
 	private boolean updateable = true;
 	private String url;
 	private String linkFile;
-	private Collection<Feature> features = new HashSet<>();
+	private final Collection<Feature> features = new HashSet<>();
 	private List<String> list = new ArrayList<>();
 
 	public void addFeature(Feature feature) {

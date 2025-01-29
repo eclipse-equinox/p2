@@ -28,9 +28,9 @@ import org.osgi.framework.FrameworkUtil;
 //This class deals with source bundles and how their addition to the source.info
 public class SourceManipulator {
 	private Set<BundleInfo> sourceBundles;
-	private IProfile profile;
+	private final IProfile profile;
 	boolean changed = false;
-	private SimpleConfiguratorManipulatorImpl manipulator;
+	private final SimpleConfiguratorManipulatorImpl manipulator;
 
 	public SourceManipulator(IProfile profile) {
 		this.profile = profile;
