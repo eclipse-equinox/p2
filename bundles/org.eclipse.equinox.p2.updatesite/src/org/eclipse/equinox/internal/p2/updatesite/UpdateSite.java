@@ -45,10 +45,10 @@ public class UpdateSite {
 	private static final int RETRY_COUNT = 2;
 	private static final String DOT_XML = ".xml"; //$NON-NLS-1$
 	private static final String SITE = "site"; //$NON-NLS-1$
-	private String checksum;
-	private URI location;
-	private URI rootLocation;
-	private SiteModel site;
+	private final String checksum;
+	private final URI location;
+	private final URI rootLocation;
+	private final SiteModel site;
 
 	/*
 	 * Some variables for caching.
@@ -61,7 +61,7 @@ public class UpdateSite {
 	private Map<String, Feature> featureCache = new HashMap<>();
 	// map of String (bundleID_featureVersion) to BundleDescriptr
 	private Map<String, BundleDescription> bundleCache = new HashMap<>();
-	private Transport transport;
+	private final Transport transport;
 
 	/*
 	 * Return a URI based on the given URI, which points to a site.xml file.
