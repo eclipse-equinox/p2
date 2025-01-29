@@ -46,7 +46,7 @@ public class UpdateChecker implements IUpdateChecker {
 	/**
 	 * Map of IUpdateListener->UpdateCheckThread.
 	 */
-	private HashMap<IUpdateListener, UpdateCheckThread> checkers = new HashMap<>();
+	private final HashMap<IUpdateListener, UpdateCheckThread> checkers = new HashMap<>();
 
 	private final IProvisioningAgent agent;
 	IProfileRegistry profileRegistry;
@@ -58,7 +58,7 @@ public class UpdateChecker implements IUpdateChecker {
 		IUpdateListener listener;
 		String profileId;
 		IQuery<IInstallableUnit> query;
-		private IntSupplier repositoryFlags;
+		private final IntSupplier repositoryFlags;
 
 		UpdateCheckThread(String profileId, IQuery<IInstallableUnit> query, long delay, long poll,
 				IntSupplier repositoryFlags,
