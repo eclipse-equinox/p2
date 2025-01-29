@@ -122,12 +122,12 @@ public class SimpleBackupStore implements IBackupStore {
 	 */
 	private final Path buStoreRoot;
 
-	private String buInPlaceSuffix;
+	private final String buInPlaceSuffix;
 
 	/**
 	 * Backup files that sit next to the original rather than in the backup store.
 	 */
-	private List<Path> buInPlace;
+	private final List<Path> buInPlace;
 
 	/**
 	 * Counter of how many files where backed up. Used as a simple check mechanism

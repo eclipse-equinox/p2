@@ -55,11 +55,11 @@ public class NativePackageExtractionApplication implements IApplication {
 	private String profileId;
 
 	// Data collected by the application
-	private Properties extractedData = new Properties();
+	private final Properties extractedData = new Properties();
 
-	private Properties installCommandsProperties = new Properties();
+	private final Properties installCommandsProperties = new Properties();
 
-	private boolean stackTrace = false;
+	private final boolean stackTrace = false;
 
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
