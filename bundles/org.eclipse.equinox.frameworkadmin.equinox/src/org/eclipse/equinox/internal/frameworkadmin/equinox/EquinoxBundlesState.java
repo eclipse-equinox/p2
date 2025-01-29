@@ -223,13 +223,13 @@ public class EquinoxBundlesState implements BundlesState {
 	/**
 	 * Map of URI->BundleDescription, where the key is the bundle location.
 	 */
-	private HashMap<URI, BundleDescription> locationStateIndex = new HashMap<>();
+	private final HashMap<URI, BundleDescription> locationStateIndex = new HashMap<>();
 
 	/**
 	 * Map of String->BundleDescription, where the key is the bundle name and
 	 * version as defined by the {@link #getKey(BundleDescription)} method.
 	 */
-	private HashMap<String, BundleDescription> nameVersionStateIndex = new HashMap<>();
+	private final HashMap<String, BundleDescription> nameVersionStateIndex = new HashMap<>();
 	private final PlatformAdmin platformAdmin;
 
 	/**
