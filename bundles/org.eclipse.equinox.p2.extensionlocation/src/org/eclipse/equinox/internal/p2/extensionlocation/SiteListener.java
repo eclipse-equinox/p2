@@ -41,10 +41,10 @@ public class SiteListener extends DirectoryChangeListener {
 	public static final Object INITIALIZING = "initializing"; //$NON-NLS-1$
 	public static final Object INITIALIZED = "initialized"; //$NON-NLS-1$
 
-	private String policy;
-	private String[] list;
-	private String siteLocation;
-	private DirectoryChangeListener delegate;
+	private final String policy;
+	private final String[] list;
+	private final String siteLocation;
+	private final DirectoryChangeListener delegate;
 	private String[] managedFiles;
 	private String[] toBeRemoved;
 
