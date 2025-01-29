@@ -28,9 +28,9 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public class RootFilesAction extends AbstractPublisherAction {
-	private String idBase;
-	private Version version;
-	private String flavor;
+	private final String idBase;
+	private final Version version;
+	private final String flavor;
 	private boolean createParent = true;
 
 	/**

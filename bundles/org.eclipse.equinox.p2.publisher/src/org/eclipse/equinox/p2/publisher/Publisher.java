@@ -33,8 +33,8 @@ public class Publisher {
 	static final public String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 	private static final long SERVICE_TIMEOUT = 5000;
 
-	private IPublisherInfo info;
-	private IPublisherResult results;
+	private final IPublisherInfo info;
+	private final IPublisherResult results;
 
 	/**
 	 * Returns a metadata repository that corresponds to the given settings. If a

@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.query.IQuery;
 
 public class RootIUResultFilterAdvice extends AbstractAdvice implements IRootIUAdvice {
-	private IQuery<IInstallableUnit> query;
+	private final IQuery<IInstallableUnit> query;
 
 	public RootIUResultFilterAdvice(IQuery<IInstallableUnit> query) {
 		this.query = query;
