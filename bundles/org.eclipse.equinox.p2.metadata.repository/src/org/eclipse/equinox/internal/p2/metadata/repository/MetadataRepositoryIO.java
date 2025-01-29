@@ -258,7 +258,7 @@ public class MetadataRepositoryIO {
 
 			private AbstractMetadataRepository repository = null;
 
-			private RepositoryState state = new RepositoryState();
+			private final RepositoryState state = new RepositoryState();
 
 			public RepositoryHandler() {
 				super();
