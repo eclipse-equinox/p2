@@ -44,7 +44,7 @@ import org.osgi.framework.FrameworkUtil;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class ProvisioningSession {
-	private IProvisioningAgent agent;
+	private final IProvisioningAgent agent;
 
 	Set<Job> scheduledJobs = Collections.synchronizedSet(new HashSet<>());
 

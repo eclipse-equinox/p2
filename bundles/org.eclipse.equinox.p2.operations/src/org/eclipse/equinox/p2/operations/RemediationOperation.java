@@ -44,7 +44,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 	private Remedy bestSolutionChangingTheRequest;
 	private Remedy bestSolutionChangingWhatIsInstalled;
 	private Remedy currentRemedy;
-	private RemedyConfig[] remedyConfigs;
+	private final RemedyConfig[] remedyConfigs;
 
 	public RemedyConfig[] getRemedyConfigs() {
 		return remedyConfigs;
@@ -59,7 +59,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 		request = currentRemedy == null ? null : currentRemedy.getRequest();
 	}
 
-	private IProfileChangeRequest originalRequest;
+	private final IProfileChangeRequest originalRequest;
 
 	public RemediationOperation(ProvisioningSession session, IProfileChangeRequest iProfileChangeRequest) {
 		this(session, iProfileChangeRequest, RemedyConfig.getAllRemedyConfigs());

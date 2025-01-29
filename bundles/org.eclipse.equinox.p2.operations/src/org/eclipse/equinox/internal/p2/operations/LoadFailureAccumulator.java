@@ -28,9 +28,9 @@ import org.eclipse.equinox.p2.operations.RepositoryTracker;
  */
 public final class LoadFailureAccumulator {
 
-	private RepositoryTracker repositoryTracker;
+	private final RepositoryTracker repositoryTracker;
 	private int loadFailuresNotCausedByBadRepoLocation;
-	private List<LoadFailure> loadFailuresCausedByBadRepoLocation;
+	private final List<LoadFailure> loadFailuresCausedByBadRepoLocation;
 
 	public LoadFailureAccumulator(RepositoryTracker repositoryTracker) {
 		this.repositoryTracker = repositoryTracker;

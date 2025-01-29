@@ -37,7 +37,7 @@ public class RemedyIUDetail {
 	private Version installedVersion;
 	private Version requestedVersion;
 	private Version beingInstalledVersion;
-	private IInstallableUnit iu;
+	private final IInstallableUnit iu;
 
 	public RemedyIUDetail(IInstallableUnit iu) {
 		this.iu = iu;

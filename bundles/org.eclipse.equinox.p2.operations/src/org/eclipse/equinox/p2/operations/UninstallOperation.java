@@ -44,7 +44,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  */
 public class UninstallOperation extends ProfileChangeOperation {
 
-	private Collection<IInstallableUnit> toUninstall;
+	private final Collection<IInstallableUnit> toUninstall;
 
 	/**
 	 * Create an uninstall operation on the specified provisioning session that uninstalls

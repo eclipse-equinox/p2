@@ -40,7 +40,7 @@ public class RequestFlexer {
 	private boolean allowPartialInstall = false;
 
 	private boolean ensureProductPresence = true;
-	private boolean honorSharedSettings = true;
+	private final boolean honorSharedSettings = true;
 
 	private ProvisioningContext provisioningContext;
 
