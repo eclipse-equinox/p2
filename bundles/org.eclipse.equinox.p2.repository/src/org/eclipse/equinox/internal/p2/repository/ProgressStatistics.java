@@ -69,7 +69,7 @@ public class ProgressStatistics {
 
 	private int m_reportInterval;
 
-	private SortedMap<Long, Long> m_recentSpeedMap;
+	private final SortedMap<Long, Long> m_recentSpeedMap;
 
 	private long m_recentSpeedMapKey;
 

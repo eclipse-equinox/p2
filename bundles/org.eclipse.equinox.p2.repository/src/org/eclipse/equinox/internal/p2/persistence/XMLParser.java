@@ -407,7 +407,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	 */
 	protected class PropertiesHandler extends AbstractHandler {
 
-		private OrderedProperties properties;
+		private final OrderedProperties properties;
 
 		public PropertiesHandler(ContentHandler parentHandler, Attributes attributes) {
 			super(parentHandler, PROPERTIES_ELEMENT);

@@ -38,7 +38,7 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 	private CompositeRepositoryState theState;
 
 	protected class ChildrenHandler extends AbstractHandler {
-		private ArrayList<URI> children;
+		private final ArrayList<URI> children;
 
 		public ChildrenHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, CHILDREN_ELEMENT);

@@ -60,7 +60,7 @@ public class LocationProperties {
 	private Version version = Version.createOSGi(0, 0, 0); // Version 1
 	private String[] metadataSearchOrder = new String[0]; // Version 1
 	private String[] artifactSearchOrder = new String[0]; // Version 1
-	private Map<String, Boolean> md5Hashes = null; // Version 1
+	private final Map<String, Boolean> md5Hashes = null; // Version 1
 
 	public static LocationProperties createEmptyIndexFile() {
 		return new LocationProperties();

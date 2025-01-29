@@ -19,7 +19,7 @@ import java.util.EventObject;
 public class DownloadProgressEvent extends EventObject {
 
 	private static final long serialVersionUID = -7880532297074721824L;
-	private ProgressStatistics stat;
+	private final ProgressStatistics stat;
 
 	public DownloadProgressEvent(ProgressStatistics stat) {
 		super(stat);
