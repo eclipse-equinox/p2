@@ -22,8 +22,8 @@ import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 
 public class BundlePoolFilteredListener extends DirectoryChangeListener {
 
-	private DirectoryChangeListener delegate;
-	private Set<File> bundlePoolFiles = new HashSet<>();
+	private final DirectoryChangeListener delegate;
+	private final Set<File> bundlePoolFiles = new HashSet<>();
 
 	public BundlePoolFilteredListener(DirectoryChangeListener listener) {
 		delegate = listener;
