@@ -511,7 +511,7 @@ public class DefaultPGPPublicKeyService extends PGPPublicKeyService {
 	}
 
 	private static abstract class LocalKeyCache {
-		private Path cache;
+		private final Path cache;
 		private FileTime lastModifiedTime;
 		private List<PGPPublicKey> keys;
 

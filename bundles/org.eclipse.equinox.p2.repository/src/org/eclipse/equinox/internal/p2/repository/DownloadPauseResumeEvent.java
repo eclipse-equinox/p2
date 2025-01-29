@@ -27,7 +27,7 @@ public class DownloadPauseResumeEvent extends EventObject {
 	 */
 	public static final int TYPE_RESUME = 2;
 
-	private int type;
+	private final int type;
 
 	public DownloadPauseResumeEvent(int type) {
 		super(type);

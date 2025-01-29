@@ -27,9 +27,9 @@ public interface IInstallableUnitUIServices {
 	 * Trust information returned from an authority trust request.
 	 */
 	class TrustAuthorityInfo {
-		private Collection<URI> trustedAuthorities;
-		private boolean save;
-		private boolean trustAlways;
+		private final Collection<URI> trustedAuthorities;
+		private final boolean save;
+		private final boolean trustAlways;
 
 		/**
 		 * @param trustedAuthorities the trusted authority URIs.
