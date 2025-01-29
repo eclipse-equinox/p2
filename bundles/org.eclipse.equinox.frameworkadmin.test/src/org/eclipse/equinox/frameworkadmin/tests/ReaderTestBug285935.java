@@ -23,7 +23,7 @@ import org.osgi.framework.BundleException;
 
 public class ReaderTestBug285935 extends AbstractFwkAdminTest {
 	private File installFolder = null;
-	private String launcherName = "eclipse";
+	private final String launcherName = "eclipse";
 
 	@Test
 	public void testConfigContent() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
