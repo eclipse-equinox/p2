@@ -21,12 +21,12 @@ import org.eclipse.equinox.internal.p2.jarprocessor.ZipProcessor;
 
 public class JarProcessor {
 
-	private List<IProcessStep> steps = new ArrayList<>();
+	private final List<IProcessStep> steps = new ArrayList<>();
 	private String workingDirectory = ""; //$NON-NLS-1$
 	private int depth = -1;
 	private boolean verbose = false;
 	private boolean processAll = false;
-	private LinkedList<Properties> containingInfs = new LinkedList<>();
+	private final LinkedList<Properties> containingInfs = new LinkedList<>();
 
 	public String getWorkingDirectory() {
 		return workingDirectory;
