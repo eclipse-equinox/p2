@@ -44,7 +44,7 @@ public class ReducedCUDFParser {
 	private static final boolean TIMING = true; //TO SET TO FALSE FOR COMPETITION
 	private InstallableUnitDescription currentIU = null;
 	//	private ProfileChangeRequest currentRequest = null;
-	private List<IInstallableUnit> allIUs = new ArrayList<>();
+	private final List<IInstallableUnit> allIUs = new ArrayList<>();
 	//	private QueryableArray query = null;
 
 	class Tuple {

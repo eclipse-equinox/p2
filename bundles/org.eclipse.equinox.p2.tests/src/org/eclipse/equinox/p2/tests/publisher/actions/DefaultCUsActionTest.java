@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.DefaultCUsAction;
 
 public class DefaultCUsActionTest extends ActionTest {
 
-	private Version version = Version.create("1.0.0"); //$NON-NLS-1$
+	private final Version version = Version.create("1.0.0"); //$NON-NLS-1$
 
 	public void testAll() throws Exception {
 		testAction = new DefaultCUsAction(publisherInfo, flavorArg, 4 /*start level*/, true /*start*/);

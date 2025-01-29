@@ -74,11 +74,11 @@ public class FeaturesActionTest extends ActionTest {
 	private static File root = new File(TestActivator.getTestDataFolder().toString(), "FeaturesActionTest"); //$NON-NLS-1$
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository(getAgent());
 	protected TestMetadataRepository metadataRepository;
-	private Version fooVersion = Version.create("1.0.0"); //$NON-NLS-1$
-	private Version barVersion = Version.create("1.1.1"); //$NON-NLS-1$
-	private String BAR = "bar"; //$NON-NLS-1$
-	private String FOO = "foo"; //$NON-NLS-1$
-	private ArgumentCaptor<ITouchpointAdvice> capture = ArgumentCaptor.forClass(ITouchpointAdvice.class);
+	private final Version fooVersion = Version.create("1.0.0"); //$NON-NLS-1$
+	private final Version barVersion = Version.create("1.1.1"); //$NON-NLS-1$
+	private final String BAR = "bar"; //$NON-NLS-1$
+	private final String FOO = "foo"; //$NON-NLS-1$
+	private final ArgumentCaptor<ITouchpointAdvice> capture = ArgumentCaptor.forClass(ITouchpointAdvice.class);
 
 	@Override
 	public void setUp() throws Exception {

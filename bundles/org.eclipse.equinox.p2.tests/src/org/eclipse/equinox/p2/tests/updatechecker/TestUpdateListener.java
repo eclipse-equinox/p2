@@ -24,7 +24,7 @@ import org.junit.Assert;
 public class TestUpdateListener implements IUpdateListener {
 	private static final long MAX_WAIT = 5000;
 
-	private UpdateEvent expectedEvent;
+	private final UpdateEvent expectedEvent;
 
 	int expectedCount = 0;
 	int unexpectedCount = 0;

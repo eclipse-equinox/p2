@@ -428,8 +428,8 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	class SPITouchpointInstruction implements ITouchpointInstruction {
 
-		private String body;
-		private String importAttribute;
+		private final String body;
+		private final String importAttribute;
 
 		public SPITouchpointInstruction(String body, String importAttribute) {
 			this.body = body;
@@ -471,8 +471,8 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	class SPITouchpointType implements ITouchpointType {
 
-		private String id;
-		private Version version;
+		private final String id;
+		private final Version version;
 
 		public SPITouchpointType(String id, Version version) {
 			this.id = id;
@@ -504,8 +504,8 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	class SPIRequirementChange implements IRequirementChange {
 
-		private IRequiredCapability applyOn;
-		private IRequiredCapability newValue;
+		private final IRequiredCapability applyOn;
+		private final IRequiredCapability newValue;
 
 		public SPIRequirementChange(IRequiredCapability applyOn2, IRequiredCapability newValue2) {
 			if (applyOn2 == null && newValue2 == null)
@@ -615,8 +615,8 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	class SPILicense implements ILicense {
 
-		private String body;
-		private URI location;
+		private final String body;
+		private final URI location;
 		private String uuid;
 
 		public SPILicense(String body, URI location) {

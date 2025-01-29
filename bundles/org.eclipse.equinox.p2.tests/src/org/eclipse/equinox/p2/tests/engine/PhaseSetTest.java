@@ -247,7 +247,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 		final int threhold = 3;
 		class ResumeJob extends Job {
 
-			private PauseJob pauseJob;
+			private final PauseJob pauseJob;
 			private int count = 0;
 
 			public ResumeJob(String name, PauseJob pauseJob) {

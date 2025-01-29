@@ -36,8 +36,8 @@ import org.mockito.Mockito;
  */
 public class ProductActionTestMac extends ActionTest {
 
-	private File executablesFeatureLocation = null;
-	private String source = "";
+	private final File executablesFeatureLocation = null;
+	private final String source = "";
 
 	@Override
 	public void setUp() throws Exception {

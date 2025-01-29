@@ -186,8 +186,8 @@ public class TimeoutTest extends ServerBasedTestCase {
 	}
 
 	public static class MonitorCancelation implements Runnable {
-		private IProgressMonitor theMonitor;
-		private long theDelay;
+		private final IProgressMonitor theMonitor;
+		private final long theDelay;
 
 		MonitorCancelation(IProgressMonitor monitor, long delay) {
 			theMonitor = monitor;

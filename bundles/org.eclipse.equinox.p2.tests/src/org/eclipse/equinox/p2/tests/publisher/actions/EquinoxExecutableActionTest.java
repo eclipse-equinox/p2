@@ -65,12 +65,12 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	private static final File LINUX_EXEC = new File(TestActivator.getTestDataFolder(), "EquinoxExecutableActionTest/linux/"); //$NON-NLS-1$
 	private static final File WIN_EXEC = new File(TestActivator.getTestDataFolder(), "EquinoxExecutableActionTest/win/"); //$NON-NLS-1$
 	private final String EXECUTABLE_NAME = "LauncherName"; //$NON-NLS-1$
-	private String macConfigCocoa = "cocoa.macosx.x86"; //$NON-NLS-1$
-	private String winConfig = "win32.win32.x86_64"; //$NON-NLS-1$
-	private String linuxConfig = "linux.gtk.x86_64"; //$NON-NLS-1$
+	private final String macConfigCocoa = "cocoa.macosx.x86"; //$NON-NLS-1$
+	private final String winConfig = "win32.win32.x86_64"; //$NON-NLS-1$
+	private final String linuxConfig = "linux.gtk.x86_64"; //$NON-NLS-1$
 	private ExecutablesDescriptor executablesDescriptor;
 	private IArtifactRepository artifactRepository;
-	private Version version = Version.create("1.2.3"); //$NON-NLS-1$
+	private final Version version = Version.create("1.2.3"); //$NON-NLS-1$
 	private String id;
 	private String[] expectedExecutablesContents;
 

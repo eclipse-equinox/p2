@@ -55,8 +55,8 @@ public class RootIUActionTest extends ActionTest {
 	protected static String iu_B = "iuB"; //$NON-NLS-1$
 
 	private IMetadataRepository metadataRepository;
-	private String rootIU = "sdk"; //$NON-NLS-1$
-	private Version versionArg = Version.create("3.4.0.i0305"); //$NON-NLS-1$
+	private final String rootIU = "sdk"; //$NON-NLS-1$
+	private final Version versionArg = Version.create("3.4.0.i0305"); //$NON-NLS-1$
 	private Collection<IRootIUAdvice> rootIUAdviceCollection;
 
 	public void testNullAdvice() throws Exception {

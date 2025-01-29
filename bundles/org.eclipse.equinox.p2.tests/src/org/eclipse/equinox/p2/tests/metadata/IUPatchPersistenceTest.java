@@ -206,7 +206,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 			private InstallableUnitHandler iuHandler = null;
 
 			private InstallableUnit iu = null;
-			private List<InstallableUnitDescription> singleton = new ArrayList<>(1);
+			private final List<InstallableUnitDescription> singleton = new ArrayList<>(1);
 
 			public TestHandler() {
 				super();

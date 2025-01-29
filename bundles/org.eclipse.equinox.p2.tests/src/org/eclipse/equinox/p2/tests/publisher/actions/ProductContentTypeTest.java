@@ -45,8 +45,8 @@ public class ProductContentTypeTest extends ActionTest {
 
 	private List<IInstallableUnit> requiredUnits;
 	private List<IInstallableUnit> additionalPublishedUnits;
-	private IInstallableUnit featureIU = createIU("TestFeature.feature.group");
-	private IInstallableUnit bundleIU = createIU("TestBundle");
+	private final IInstallableUnit featureIU = createIU("TestFeature.feature.group");
+	private final IInstallableUnit bundleIU = createIU("TestBundle");
 
 	@Override public void setUp() throws Exception {
 		setupPublisherResult();

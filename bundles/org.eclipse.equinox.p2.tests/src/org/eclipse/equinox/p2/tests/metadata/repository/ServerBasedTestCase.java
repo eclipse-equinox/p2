@@ -67,7 +67,7 @@ public class ServerBasedTestCase extends TestCase {
 	}
 
 	private class ProtectedRunner implements Protectable {
-		private TestResult result;
+		private final TestResult result;
 
 		ProtectedRunner(TestResult result) {
 			this.result = result;

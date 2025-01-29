@@ -30,7 +30,7 @@ public class EmbeddedEquinox {
 	private final String[] frameworkArgs;
 	private Class<?> eclipseStarterClazz;
 	private BundleContext context;
-	private URL[] frameworkClassPath;
+	private final URL[] frameworkClassPath;
 
 	public EmbeddedEquinox(Map<String, String> frameworkProperties, String[] frameworkArgs, URL[] frameworkClassPath) {
 		this.frameworkProperties = frameworkProperties;

@@ -38,17 +38,17 @@ import org.eclipse.osgi.util.NLS;
 
 public class TestArtifactRepository implements IArtifactRepository {
 	private static String provider = null;
-	private HashMap<IArtifactDescriptor, byte[]> repo;
+	private final HashMap<IArtifactDescriptor, byte[]> repo;
 	private String name;
 	private String description;
-	private String version = "1.0.0"; //$NON-NLS-1$
+	private final String version = "1.0.0"; //$NON-NLS-1$
 	protected Map<String, String> properties = new OrderedProperties();
 
 	public class ArtifactOutputStream extends OutputStream implements IStateful {
 		private boolean closed;
 		private long count = 0;
-		private IArtifactDescriptor descriptor;
-		private OutputStream destination;
+		private final IArtifactDescriptor descriptor;
+		private final OutputStream destination;
 		private IStatus status = Status.OK_STATUS;
 		private OutputStream firstLink;
 

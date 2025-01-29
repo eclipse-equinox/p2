@@ -28,7 +28,7 @@ public class TestRepositoryListener implements SynchronousProvisioningListener {
 	public boolean lastEnablement;
 	public int lastKind;
 	public int lastRepoType;
-	private URI repoLocation;
+	private final URI repoLocation;
 	private boolean wasCalled;
 
 	public TestRepositoryListener(URI location) {

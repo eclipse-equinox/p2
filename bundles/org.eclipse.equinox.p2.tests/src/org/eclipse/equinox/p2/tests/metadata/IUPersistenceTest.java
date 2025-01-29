@@ -77,7 +77,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 			private InstallableUnit iu = null;
 
 			private InstallableUnitHandler iuHandler = null;
-			private List<InstallableUnitDescription> singleton = new ArrayList<>(1);
+			private final List<InstallableUnitDescription> singleton = new ArrayList<>(1);
 
 			public TestHandler() {
 				super();
