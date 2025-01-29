@@ -50,8 +50,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	private static final String DROPIN_METADATA_REPOSITORIES = "dropin.metadataRepositories"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
 	private final IProvisioningAgent agent;
-	private List<IMetadataRepository> metadataRepositories = new ArrayList<>();
-	private List<IArtifactRepository> artifactRepositories = new ArrayList<>();
+	private final List<IMetadataRepository> metadataRepositories = new ArrayList<>();
+	private final List<IArtifactRepository> artifactRepositories = new ArrayList<>();
 
 	static class LinkedRepository {
 		LinkedRepository(File location) {
@@ -77,7 +77,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 			this.optional = optional;
 		}
 
-		private File location;
+		private final File location;
 		private boolean optional = false;
 	}
 
