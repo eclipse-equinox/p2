@@ -33,8 +33,8 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 	public static final String TYPE = "org.eclipse.equinox.p2.updatesite.metadataRepository"; //$NON-NLS-1$
 	public static final String VERSION = Integer.toString(1);
 
-	private URI location;
-	private IMetadataRepository delegate;
+	private final URI location;
+	private final IMetadataRepository delegate;
 
 	public UpdateSiteMetadataRepository(URI location, IMetadataRepository repository) {
 		this.location = location;

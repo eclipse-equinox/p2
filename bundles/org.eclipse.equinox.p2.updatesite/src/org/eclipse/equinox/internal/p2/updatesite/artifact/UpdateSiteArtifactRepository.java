@@ -32,8 +32,8 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 	public static final String TYPE = "org.eclipse.equinox.p2.updatesite.artifactRepository"; //$NON-NLS-1$
 	public static final String VERSION = Integer.toString(1);
 
-	private URI location;
-	private IArtifactRepository delegate;
+	private final URI location;
+	private final IArtifactRepository delegate;
 
 	public UpdateSiteArtifactRepository(URI location, IArtifactRepository repository) {
 		this.location = location;

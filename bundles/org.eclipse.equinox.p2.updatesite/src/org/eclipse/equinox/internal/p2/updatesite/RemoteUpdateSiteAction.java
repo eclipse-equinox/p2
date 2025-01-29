@@ -27,7 +27,7 @@ import org.eclipse.osgi.util.NLS;
  * IUs generated for the bundles are "partial" as the bundles themselves are not downloaded.
  */
 public class RemoteUpdateSiteAction implements IPublisherAction {
-	private UpdateSite updateSite;
+	private final UpdateSite updateSite;
 	private final String categoryQualifier;
 
 	/**
