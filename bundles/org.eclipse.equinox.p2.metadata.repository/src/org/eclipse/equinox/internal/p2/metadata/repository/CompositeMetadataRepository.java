@@ -52,11 +52,11 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 
 	// keep a list of the child URIs. they can be absolute or relative. they may or may not point
 	// to a valid reachable repo
-	private List<URI> childrenURIs = new ArrayList<>();
+	private final List<URI> childrenURIs = new ArrayList<>();
 	// keep a list of the repositories that we have successfully loaded
-	private List<IMetadataRepository> loadedRepos = new ArrayList<>();
-	private IMetadataRepositoryManager manager;
-	private IPool<IInstallableUnit> iuPool = new WeakPool<>();
+	private final List<IMetadataRepository> loadedRepos = new ArrayList<>();
+	private final IMetadataRepositoryManager manager;
+	private final IPool<IInstallableUnit> iuPool = new WeakPool<>();
 
 	/**
 	 * Create a Composite repository in memory.

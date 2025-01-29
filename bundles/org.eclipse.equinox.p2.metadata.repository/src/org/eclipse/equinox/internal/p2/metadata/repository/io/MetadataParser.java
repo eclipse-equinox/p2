@@ -58,7 +58,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class RepositoryReferencesHandler extends AbstractMetadataHandler {
-		private HashSet<IRepositoryReference> references;
+		private final HashSet<IRepositoryReference> references;
 
 		public RepositoryReferencesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, REPOSITORY_REFERENCES_ELEMENT);
@@ -101,7 +101,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class InstallableUnitsHandler extends AbstractMetadataHandler {
-		private ArrayList<InstallableUnitDescription> units;
+		private final ArrayList<InstallableUnitDescription> units;
 
 		public InstallableUnitsHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, INSTALLABLE_UNITS_ELEMENT);
@@ -347,7 +347,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class ApplicabilityScopesHandler extends AbstractMetadataHandler {
-		private List<IRequirement[]> scopes;
+		private final List<IRequirement[]> scopes;
 
 		public ApplicabilityScopesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, APPLICABILITY_SCOPE);
@@ -370,7 +370,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 	protected class ApplicabilityScopeHandler extends AbstractHandler {
 		private RequirementsHandler children;
-		private List<IRequirement[]> scopes;
+		private final List<IRequirement[]> scopes;
 
 		public ApplicabilityScopeHandler(AbstractHandler parentHandler, Attributes attributes, List<IRequirement[]> scopes) {
 			super(parentHandler, APPLY_ON);
@@ -395,7 +395,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class RequirementsChangeHandler extends AbstractMetadataHandler {
-		private List<IRequirementChange> requirementChanges;
+		private final List<IRequirementChange> requirementChanges;
 
 		public RequirementsChangeHandler(InstallableUnitHandler parentHandler, Attributes attributes) {
 			super(parentHandler, REQUIREMENT_CHANGES);
@@ -417,9 +417,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class RequirementChangeHandler extends AbstractHandler {
-		private List<IRequirement> from;
-		private List<IRequirement> to;
-		private List<IRequirementChange> requirementChanges;
+		private final List<IRequirement> from;
+		private final List<IRequirement> to;
+		private final List<IRequirementChange> requirementChanges;
 
 		public RequirementChangeHandler(AbstractHandler parentHandler, Attributes attributes, List<IRequirementChange> requirementChanges) {
 			super(parentHandler, REQUIREMENT_CHANGE);
@@ -449,7 +449,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class RequirementChangeEltHandler extends AbstractHandler {
-		private List<IRequirement> requirement;
+		private final List<IRequirement> requirement;
 
 		public RequirementChangeEltHandler(AbstractHandler parentHandler, String parentId, Attributes attributes, List<IRequirement> from) {
 			super(parentHandler, parentId);
@@ -468,7 +468,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class LifeCycleHandler extends AbstractHandler {
-		private List<IRequirement> lifeCycleRequirement;
+		private final List<IRequirement> lifeCycleRequirement;
 
 		public LifeCycleHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, LIFECYCLE);
@@ -492,7 +492,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class ProvidedCapabilitiesHandler extends AbstractMetadataHandler {
-		private List<IProvidedCapability> providedCapabilities;
+		private final List<IProvidedCapability> providedCapabilities;
 
 		public ProvidedCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, PROVIDED_CAPABILITIES_ELEMENT);
@@ -514,12 +514,12 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class ProvidedCapabilityHandler extends AbstractHandler {
-		private String namespace;
-		private String name;
-		private Version version;
+		private final String namespace;
+		private final String name;
+		private final Version version;
 		private ProvidedCapabilityPropertiesHandler propertiesHandler;
 
-		private List<IProvidedCapability> capabilities;
+		private final List<IProvidedCapability> capabilities;
 
 		public ProvidedCapabilityHandler(AbstractHandler parentHandler, Attributes attributes, List<IProvidedCapability> capabilities) {
 			super(parentHandler, PROVIDED_CAPABILITY_ELEMENT);
@@ -558,7 +558,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class ProvidedCapabilityPropertiesHandler extends AbstractMetadataHandler {
-		private Map<String, Object> properties;
+		private final Map<String, Object> properties;
 
 		public ProvidedCapabilityPropertiesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, PROPERTIES_ELEMENT);
@@ -656,7 +656,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class HostRequiredCapabilitiesHandler extends AbstractMetadataHandler {
-		private List<IRequirement> requiredCapabilities;
+		private final List<IRequirement> requiredCapabilities;
 
 		public HostRequiredCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, HOST_REQUIREMENTS_ELEMENT);
@@ -678,7 +678,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class MetaRequiredCapabilitiesHandler extends AbstractMetadataHandler {
-		private List<IRequirement> requiredCapabilities;
+		private final List<IRequirement> requiredCapabilities;
 
 		public MetaRequiredCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, META_REQUIREMENTS_ELEMENT);
@@ -700,7 +700,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class RequirementsHandler extends AbstractMetadataHandler {
-		private List<IRequirement> requirements;
+		private final List<IRequirement> requirements;
 
 		public RequirementsHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, REQUIREMENTS_ELEMENT);
@@ -728,7 +728,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class RequirementHandler extends AbstractHandler {
-		private List<IRequirement> capabilities;
+		private final List<IRequirement> capabilities;
 
 		// Expression based requirement
 		private String match;
@@ -828,13 +828,13 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class RequirementPropertiesHandler extends AbstractHandler {
-		private List<IRequirement> requirements;
+		private final List<IRequirement> requirements;
 
-		private String namespace;
-		private String match;
-		private int min;
-		private int max;
-		private boolean greedy;
+		private final String namespace;
+		private final String match;
+		private final int min;
+		private final int max;
+		private final boolean greedy;
 
 		private TextHandler filterHandler;
 		private TextHandler descriptionHandler;
@@ -906,7 +906,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 	protected class ArtifactsHandler extends AbstractHandler {
 
-		private List<IArtifactKey> artifacts;
+		private final List<IArtifactKey> artifacts;
 
 		public ArtifactsHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, ARTIFACT_KEYS_ELEMENT);
@@ -1104,7 +1104,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		// Note this handler is set up to handle multiple license elements, but for now
 		// the API for IInstallableUnit only reflects one.
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=216911
-		private List<ILicense> licenses;
+		private final List<ILicense> licenses;
 
 		public LicensesHandler(ContentHandler parentHandler, Attributes attributes) {
 			super(parentHandler, LICENSES_ELEMENT);
