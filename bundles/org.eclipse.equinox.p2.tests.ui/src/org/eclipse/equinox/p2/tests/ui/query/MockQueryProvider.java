@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  * A fake query provider for unit testing.
  */
 public class MockQueryProvider extends QueryProvider {
-	private IQuery<?> query;
+	private final IQuery<?> query;
 
 	public MockQueryProvider(IQuery<?> query, ProvisioningUI ui) {
 		super(ui);
