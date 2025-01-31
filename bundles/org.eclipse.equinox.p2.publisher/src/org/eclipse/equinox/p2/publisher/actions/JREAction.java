@@ -464,50 +464,25 @@ public class JREAction extends AbstractPublisherAction {
 	private Map<String, String> loadProfile(File profileFile) {
 		if (profileFile == null || !profileFile.exists())
 			return null;
-
-		try {
-			InputStream stream = new BufferedInputStream(new FileInputStream(profileFile));
-			Map<String, String> properties = loadProfile(stream);
+		try (InputStream stream = new FileInputStream(profileFile);) {
+			Map<String, String> properties = CollectionUtils.loadProperties(stream);
 			if (properties != null)
 				properties.put(PROFILE_LOCATION, profileFile.getAbsolutePath());
 			return properties;
-		} catch (FileNotFoundException e) {
-			//null
+		} catch (IOException e) {
+			return null;
 		}
-		return null;
 	}
 
 	private Map<String, String> loadProfile(URL profileURL) {
-		if (profileURL == null)
+		if (profileURL == null) {
 			return null;
-
-		try {
-			InputStream stream = profileURL.openStream();
-			return loadProfile(stream);
+		}
+		try (InputStream stream = profileURL.openStream();) {
+			return CollectionUtils.loadProperties(stream);
 		} catch (IOException e) {
-			//null
+			return null;
 		}
-		return null;
-	}
-
-	/**
-	 * Always closes the stream when done
-	 */
-	private Map<String, String> loadProfile(InputStream stream) {
-		if (stream != null) {
-			try {
-				return CollectionUtils.loadProperties(stream);
-			} catch (IOException e) {
-				return null;
-			} finally {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					// error
-				}
-			}
-		}
-		return null;
 	}
 
 	public static IInstallableUnit createJREIU() {

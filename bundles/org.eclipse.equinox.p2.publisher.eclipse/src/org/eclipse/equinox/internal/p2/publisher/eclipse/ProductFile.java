@@ -245,15 +245,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 			parserFactory.setNamespaceAware(true);
 			parser = parserFactory.newSAXParser();
-			InputStream in = new BufferedInputStream(new FileInputStream(location));
-			try {
+			try (InputStream in = new BufferedInputStream(new FileInputStream(location));) {
 				parser.parse(new InputSource(in), this);
-			} finally {
-				try {
-					in.close();
-				} catch (IOException e) {
-					// ignore exception on close (as it was done by Utils.close() before)
-				}
 			}
 		} catch (ParserConfigurationException e) {
 			throw new CoreException(new Status(IStatus.ERROR, PI_PDEBUILD, EXCEPTION_PRODUCT_FORMAT, NLS.bind(Messages.exception_productParse, location), e));

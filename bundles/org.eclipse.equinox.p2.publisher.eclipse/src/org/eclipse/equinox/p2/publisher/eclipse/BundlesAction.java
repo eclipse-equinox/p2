@@ -872,35 +872,24 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	public static Dictionary<String, String> basicLoadManifest(File bundleLocation)
 			throws IOException, BundleException {
-		InputStream manifestStream = null;
-		ZipFile jarFile = null;
-		if ("jar".equalsIgnoreCase(IPath.fromOSString(bundleLocation.getName()).getFileExtension()) && bundleLocation.isFile()) { //$NON-NLS-1$
-			jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
-			ZipEntry manifestEntry = jarFile.getEntry(JarFile.MANIFEST_NAME);
-			if (manifestEntry != null) {
-				manifestStream = jarFile.getInputStream(manifestEntry);
+		if ("jar".equalsIgnoreCase(IPath.fromOSString(bundleLocation.getName()).getFileExtension()) //$NON-NLS-1$
+				&& bundleLocation.isFile()) {
+			try (ZipFile jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);) {
+				ZipEntry manifestEntry = jarFile.getEntry(JarFile.MANIFEST_NAME);
+				if (manifestEntry != null) {
+					InputStream manifestStream = jarFile.getInputStream(manifestEntry);
+					return parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(manifestStream);
+				}
 			}
 		} else {
 			File manifestFile = new File(bundleLocation, JarFile.MANIFEST_NAME);
 			if (manifestFile.exists()) {
-				manifestStream = new BufferedInputStream(new FileInputStream(manifestFile));
+				try (InputStream manifestStream = new FileInputStream(manifestFile);) {
+					return parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(manifestStream);
+				}
 			}
 		}
-		try {
-			if (manifestStream != null) {
-				return parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(manifestStream);
-			}
-		} finally {
-			try {
-				if (jarFile != null)
-					jarFile.close();
-			} catch (IOException e2) {
-				// Ignore
-			}
-		}
-
 		return null;
-
 	}
 
 	private static Dictionary<String, String> parseBundleManifestIntoModifyableDictionaryWithCaseInsensitiveKeys(

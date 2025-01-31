@@ -14,11 +14,12 @@
 package org.eclipse.equinox.spi.p2.publisher;
 
 import java.io.*;
-import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 
 /**
@@ -124,26 +125,22 @@ public final class LocalizationHelper {
 
 	// Load a property set from given root and file with the given name
 	private static Map<String, String> loadProperties(File root, String propertyFilename) throws IOException {
-		InputStream propertyStream = null;
-		try {
-			try {
-				if (root.isDirectory())
-					propertyStream = new FileInputStream(new File(root, propertyFilename));
-				else {
-					URLConnection connection = new URL("jar:" + root.toURL().toExternalForm() + "!/" + propertyFilename) //$NON-NLS-1$ //$NON-NLS-2$
-							.openConnection();
-					connection.setUseCaches(false);
-					propertyStream = connection.getInputStream();
-				}
-			} catch (FileNotFoundException e) {
-				// if there is no messages file then just return;
-				return Collections.emptyMap();
-			}
+		try (InputStream propertyStream = openStream(root, propertyFilename);) {
 			return CollectionUtils.loadProperties(propertyStream);
-		} finally {
-			if (propertyStream != null)
-				propertyStream.close();
+		} catch (FileNotFoundException e) {
+			// if there is no messages file then just return;
+			return Collections.emptyMap();
 		}
+	}
+
+	private static InputStream openStream(File root, String entryName) throws IOException {
+		if (root.isDirectory()) {
+			return new FileInputStream(new File(root, entryName));
+		}
+		IPath jarEntry = IPath.fromOSString(entryName);
+		URLConnection connection = URIUtil.toJarURI(root.toURI(), jarEntry).toURL().openConnection();
+		connection.setUseCaches(false);
+		return connection.getInputStream();
 	}
 
 	// Given a list of keys and the corresponding localized property set,
@@ -161,8 +158,7 @@ public final class LocalizationHelper {
 	}
 
 	public static String[] getLocalizationFiles(File localizationDir, final String filenamePrefix) {
-		return localizationDir
-				.list((directory, filename) -> (getLocaleString(filename, filenamePrefix) != null ? true : false));
+		return localizationDir.list((directory, filename) -> getLocaleString(filename, filenamePrefix) != null);
 	}
 
 	private LocalizationHelper() {
