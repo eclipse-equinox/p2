@@ -169,14 +169,12 @@ public class IconExe {
 			Consumer<String> errorMessageConsumer)
 			throws FileNotFoundException, IOException {
 		Collection<IconResInfo> iconInfo;
-		try (RandomAccessFile raf = new RandomAccessFile(launcherFile, "rw") //$NON-NLS-1$
-				) {
+		try (RandomAccessFile raf = new RandomAccessFile(launcherFile, "rw")) { //$NON-NLS-1$
 			iconInfo = getIcons(raf);
 			// Display an error if  no icons found in target executable.
 			if (iconInfo.isEmpty()) {
 				errorMessageConsumer
 						.accept(MessageFormat.format("no icons detected in {0}.", launcherFile.getAbsolutePath())); //$NON-NLS-1$
-				raf.close();
 				return Collections.emptyList();
 			}
 			for (Iterator<IconResInfo> originalIconsIterator = iconInfo.iterator(); originalIconsIterator.hasNext();) {
