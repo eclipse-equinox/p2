@@ -201,6 +201,30 @@ public class BundlesAction extends AbstractPublisherAction {
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 
+	/**
+	 * Attempts to read the given file (or folder) as a bundle and creates an
+	 * {@link IInstallableUnit} describing it.
+	 * 
+	 * @param file the file to read as a bundle
+	 * @return an {@link Optional} describing the result, if anything goes wrong an
+	 *         empty optional is returned
+	 */
+	public static Optional<IInstallableUnit> createBundleIU(File file) {
+		try {
+			BundleDescription bundleDescription = BundlesAction.createBundleDescription(file);
+			if (bundleDescription != null) {
+				IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(),
+						bundleDescription.getVersion().toString());
+				PublisherInfo publisherInfo = new PublisherInfo();
+				publisherInfo.setArtifactOptions(IPublisherInfo.A_INDEX);
+				return Optional.ofNullable(BundlesAction.createBundleIU(bundleDescription, key, publisherInfo));
+			}
+		} catch (BundleException | IOException | RuntimeException e) {
+			return Optional.empty();
+		}
+		return Optional.empty();
+	}
+
 	public static IInstallableUnit createBundleIU(BundleDescription bd, IArtifactKey key, IPublisherInfo info) {
 		return new BundlesAction(new BundleDescription[] { bd }).doCreateBundleIU(bd, key, info);
 	}
