@@ -125,7 +125,7 @@ public class MirrorRequestTest2 extends AbstractTestServerClientCase {
 		}
 
 		@Override
-		public String getProperty(String key) {
+		public synchronized String getProperty(String key) {
 			return getProperties().get(key);
 		}
 
