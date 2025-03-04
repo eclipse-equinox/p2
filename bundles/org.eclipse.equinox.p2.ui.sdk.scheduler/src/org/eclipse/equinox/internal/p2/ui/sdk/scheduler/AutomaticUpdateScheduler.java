@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.Random;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.e4.ui.workbench.UIEvents;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
 import org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration.MigrationSupport;
@@ -33,16 +34,21 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.IStartup;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 
 /**
  * This plug-in is loaded on startup to register with the update checker.
  *
  * @since 3.5
  */
-public class AutomaticUpdateScheduler implements IStartup {
+@Component(service = EventHandler.class)
+@EventTopics(UIEvents.UILifeCycle.APP_STARTUP_COMPLETE)
+public class AutomaticUpdateScheduler implements EventHandler {
 	public static final String MIGRATION_DIALOG_SHOWN = "migrationDialogShown"; //$NON-NLS-1$
 
 	public static final String P_FUZZY_RECURRENCE = "fuzzy_recurrence"; //$NON-NLS-1$
@@ -57,7 +63,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 	private IUpdateChecker checker;
 
 	@Override
-	public void earlyStartup() {
+	public void handleEvent(Event event) {
 		AutomaticUpdatePlugin.getDefault().setScheduler(this);
 
 		Job updateJob = new Job("Update Job") { //$NON-NLS-1$
