@@ -33,9 +33,10 @@ public class SimpleBundlesState implements BundlesState {
 	 * Check if the specified FrameworkAdmin is available.
 	 */
 	public static void checkAvailability(FrameworkAdmin fwAdmin) throws FrameworkAdminRuntimeException {
-		if (!fwAdmin.isActive())
+		if (!fwAdmin.isActive()) {
 			throw new FrameworkAdminRuntimeException("FrameworkAdmin creates this object is no more available.", //$NON-NLS-1$
 					FrameworkAdminRuntimeException.FRAMEWORKADMIN_UNAVAILABLE);
+		}
 	}
 
 	/**
@@ -43,8 +44,9 @@ public class SimpleBundlesState implements BundlesState {
 	 * @return File of fwJar to be used.
 	 */
 	static File getFwJar(LauncherData launcherData) {
-		if (launcherData.getFwJar() != null)
+		if (launcherData.getFwJar() != null) {
 			return launcherData.getFwJar();
+		}
 		return null;
 	}
 
@@ -100,9 +102,10 @@ public class SimpleBundlesState implements BundlesState {
 
 	@Override
 	public BundleInfo[] getExpectedState() throws FrameworkAdminRuntimeException {
-		if (!fwAdmin.isActive())
+		if (!fwAdmin.isActive()) {
 			throw new FrameworkAdminRuntimeException("FrameworkAdmin creates this object is no more available.", //$NON-NLS-1$
 					FrameworkAdminRuntimeException.FRAMEWORKADMIN_UNAVAILABLE);
+		}
 		return Utils.getBundleInfosFromList(this.bundleInfosList);
 	}
 
@@ -117,13 +120,15 @@ public class SimpleBundlesState implements BundlesState {
 	public BundleInfo[] getPrerequisteBundles(BundleInfo bInfo) {
 		URI location = bInfo.getLocation();
 		final String requiredBundles = Utils.getManifestMainAttributes(location, Constants.REQUIRE_BUNDLE);
-		if (requiredBundles == null)
+		if (requiredBundles == null) {
 			return new BundleInfo[] { this.getSystemBundle() };
+		}
 
 		String[] clauses = Utils.getClauses(requiredBundles);
 		List<String> list = new LinkedList<>();
-		for (String clause : clauses)
+		for (String clause : clauses) {
 			list.add(Utils.getPathFromClause(clause));
+		}
 
 		List<BundleInfo> ret = new LinkedList<>();
 		ret.add(this.getSystemBundle());
@@ -131,8 +136,9 @@ public class SimpleBundlesState implements BundlesState {
 			URI currentLocation = currentBInfo.getLocation();
 			String currentSymbolicName = Utils.getManifestMainAttributes(currentLocation,
 					Constants.BUNDLE_SYMBOLICNAME);
-			if (currentSymbolicName == null)
+			if (currentSymbolicName == null) {
 				continue;
+			}
 			currentSymbolicName = Utils.getPathFromClause(currentSymbolicName);
 			for (String symbolicName : list) {
 				if (symbolicName.equals(currentSymbolicName)) {
@@ -154,8 +160,9 @@ public class SimpleBundlesState implements BundlesState {
 				String bundleName = Utils.getManifestMainAttributes(location, Constants.BUNDLE_NAME);
 				if (systemBundleName.equals(bundleName)) {
 					String bundleVendor = Utils.getManifestMainAttributes(location, Constants.BUNDLE_VENDOR);
-					if (systemBundleVendor.equals(bundleVendor))
+					if (systemBundleVendor.equals(bundleVendor)) {
 						return bInfo;
+					}
 				}
 			}
 			return null;
@@ -164,8 +171,9 @@ public class SimpleBundlesState implements BundlesState {
 			URI location = bInfo.getLocation();
 			String symbolicName = Utils.getManifestMainAttributes(location, Constants.BUNDLE_SYMBOLICNAME);
 			symbolicName = Utils.getPathFromClause(symbolicName);
-			if (this.systemBundleSymbolicName.equals(symbolicName))
+			if (this.systemBundleSymbolicName.equals(symbolicName)) {
 				return bInfo;
+			}
 		}
 		return null;
 	}
@@ -174,33 +182,39 @@ public class SimpleBundlesState implements BundlesState {
 	@SuppressWarnings("unchecked")
 	public BundleInfo[] getSystemFragmentedBundles() {
 		BundleInfo systemBInfo = this.getSystemBundle();
-		if (systemBInfo == null)
+		if (systemBInfo == null) {
 			return NULL_BUNDLEINFOS;
+		}
 
 		@SuppressWarnings("rawtypes")
 		List list = new LinkedList();
 		for (BundleInfo bInfo : this.bundleInfosList) {
 			URI location = bInfo.getLocation();
 			String manifestVersion = Utils.getManifestMainAttributes(location, Constants.BUNDLE_MANIFESTVERSION);
-			if (manifestVersion == null)
+			if (manifestVersion == null) {
 				continue;
-			if (manifestVersion.equals("1") || manifestVersion.equals("1.0")) //$NON-NLS-1$//$NON-NLS-2$
+			}
+			if (manifestVersion.equals("1") || manifestVersion.equals("1.0")) { //$NON-NLS-1$//$NON-NLS-2$
 				continue;
+			}
 
 			String fragmentHost = Utils.getManifestMainAttributes(location, Constants.FRAGMENT_HOST);
-			if (fragmentHost == null)
+			if (fragmentHost == null) {
 				continue;
+			}
 			int index = fragmentHost.indexOf(";"); //$NON-NLS-1$
-			if (index == -1)
+			if (index == -1) {
 				continue;
+			}
 			String symbolicName = fragmentHost.substring(0, index).trim();
 			String parameter = fragmentHost.substring(index + 1).trim();
 			// TODO What to do ,in case of alias name of system bundle is not used ?
-			if (symbolicName.equals(Constants.SYSTEM_BUNDLE_SYMBOLICNAME))
+			if (symbolicName.equals(Constants.SYSTEM_BUNDLE_SYMBOLICNAME)) {
 				if (parameter.equals(Constants.EXTENSION_DIRECTIVE + ":=" + Constants.EXTENSION_FRAMEWORK)) { //$NON-NLS-1$
 					list.add(location);
 					break;
 				}
+			}
 		}
 		return Utils.getBundleInfosFromList(list);
 	}
@@ -218,13 +232,15 @@ public class SimpleBundlesState implements BundlesState {
 		ConfigData configData = manipulator.getConfigData();
 		File fwJar = getFwJar(launcherData);
 
-		if (fwJar == null)
+		if (fwJar == null) {
 			throw new IllegalStateException("launcherData.getLauncherConfigFile() == null && fwJar is not set."); //$NON-NLS-1$
 		// No fw persistent data location is taken into consideration.
+		}
 
 		BundleInfo[] bInfos = configData.getBundles();
-		for (BundleInfo bInfo : bInfos)
+		for (BundleInfo bInfo : bInfos) {
 			this.installBundle(bInfo);
+		}
 
 		if (getSystemBundle() == null) {
 			BundleInfo sysBInfo = new BundleInfo(launcherData.getFwJar().toURI(), 0, true);
@@ -256,11 +272,12 @@ public class SimpleBundlesState implements BundlesState {
 			Dictionary<String, String> manifest = Utils.getOSGiManifest(location);
 			String symbolicName = manifest.get(Constants.BUNDLE_SYMBOLICNAME);
 			String version = manifest.get(Constants.BUNDLE_VERSION);
-			if (newSymbolicName != null && newVersion != null)
+			if (newSymbolicName != null && newVersion != null) {
 				if (newSymbolicName.equals(symbolicName) && newVersion.equals(version)) {
 					found = true;
 					break;
 				}
+			}
 		}
 		if (!found) {
 			this.bundleInfosList.add(bInfo);
@@ -328,8 +345,9 @@ public class SimpleBundlesState implements BundlesState {
 				break;
 			}
 		}
-		if (index != -1)
+		if (index != -1) {
 			this.bundleInfosList.remove(index);
+		}
 	}
 
 }

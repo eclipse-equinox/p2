@@ -44,10 +44,11 @@ public class Utils {
 	 */
 	public static Properties appendProperties(Properties to, Properties from) {
 		if (from != null) {
-			if (to == null)
+			if (to == null) {
 				to = new Properties();
 			// printoutProperties(System.out, "to", to);
 			// printoutProperties(System.out, "from", from);
+			}
 
 			for (Enumeration<Object> enumeration = from.keys(); enumeration.hasMoreElements();) {
 				String key = (String) enumeration.nextElement();
@@ -75,37 +76,42 @@ public class Utils {
 				} else {
 					// we have a directory-based bundle
 					File bundleManifestFile = new File(bundleLocation, JarFile.MANIFEST_NAME);
-					if (bundleManifestFile.exists())
+					if (bundleManifestFile.exists()) {
 						manifestStream = new BufferedInputStream(
 								new FileInputStream(new File(bundleLocation, JarFile.MANIFEST_NAME)));
+					}
 				}
 			} catch (IOException e) {
 				// ignore
 			}
 			// we were unable to get an OSGi manifest file so try and convert an old-style
 			// manifest
-			if (manifestStream == null)
+			if (manifestStream == null) {
 				return null;
+			}
 
 			try {
 				Map<String, String> manifest = ManifestElement.parseBundleManifest(manifestStream, null);
 				// add this check to handle the case were we read a non-OSGi manifest
-				if (manifest.get(Constants.BUNDLE_SYMBOLICNAME) == null)
+				if (manifest.get(Constants.BUNDLE_SYMBOLICNAME) == null) {
 					return null;
+				}
 				return manifestToProperties(manifest);
 			} catch (IOException | BundleException ioe) {
 				return null;
 			}
 		} finally {
 			try {
-				if (manifestStream != null)
+				if (manifestStream != null) {
 					manifestStream.close();
+				}
 			} catch (IOException e1) {
 				// Ignore
 			}
 			try {
-				if (jarFile != null)
+				if (jarFile != null) {
 					jarFile.close();
+				}
 			} catch (IOException e2) {
 				// Ignore
 			}
@@ -113,35 +119,45 @@ public class Utils {
 	}
 
 	public static void checkAbsoluteDir(File file, String dirName) throws IllegalArgumentException {
-		if (file == null)
+		if (file == null) {
 			throw new IllegalArgumentException(dirName + " is null"); //$NON-NLS-1$
-		if (!file.isAbsolute())
+		}
+		if (!file.isAbsolute()) {
 			throw new IllegalArgumentException(dirName + " is not absolute path. file=" + file.getAbsolutePath()); //$NON-NLS-1$
-		if (!file.isDirectory())
+		}
+		if (!file.isDirectory()) {
 			throw new IllegalArgumentException(dirName + " is not directory. file=" + file.getAbsolutePath()); //$NON-NLS-1$
+		}
 	}
 
 	public static void checkAbsoluteFile(File file, String dirName) {// throws ManipulatorException {
-		if (file == null)
+		if (file == null) {
 			throw new IllegalArgumentException(dirName + " is null"); //$NON-NLS-1$
-		if (!file.isAbsolute())
+		}
+		if (!file.isAbsolute()) {
 			throw new IllegalArgumentException(dirName + " is not absolute path. file=" + file.getAbsolutePath()); //$NON-NLS-1$
-		if (file.isDirectory())
+		}
+		if (file.isDirectory()) {
 			throw new IllegalArgumentException(dirName + " is not file but directory"); //$NON-NLS-1$
+		}
 	}
 
 	public static URL checkFullUrl(URL url, String urlName) throws IllegalArgumentException {// throws
 																								// ManipulatorException
 																								// {
-		if (url == null)
+		if (url == null) {
 			throw new IllegalArgumentException(urlName + " is null"); //$NON-NLS-1$
-		if (!url.getProtocol().endsWith("file")) //$NON-NLS-1$
+		}
+		if (!url.getProtocol().endsWith("file")) { //$NON-NLS-1$
 			return url;
+		}
 		File file = new File(url.getFile());
-		if (!file.isAbsolute())
+		if (!file.isAbsolute()) {
 			throw new IllegalArgumentException(urlName + "(" + url + ") does not have absolute path"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (file.getAbsolutePath().startsWith(PATH_SEP))
+		}
+		if (file.getAbsolutePath().startsWith(PATH_SEP)) {
 			return url;
+		}
 		try {
 			return getUrl("file", null, PATH_SEP + file.getAbsolutePath()); //$NON-NLS-1$
 		} catch (MalformedURLException e) {
@@ -152,16 +168,19 @@ public class Utils {
 
 	public static boolean createParentDir(File file) {
 		File parent = file.getParentFile();
-		if (parent == null)
+		if (parent == null) {
 			return false;
-		if (parent.exists())
+		}
+		if (parent.exists()) {
 			return true;
+		}
 		return parent.mkdirs();
 	}
 
 	public static BundleInfo[] getBundleInfosFromList(List<BundleInfo> list) {
-		if (list == null)
+		if (list == null) {
 			return new BundleInfo[0];
+		}
 		BundleInfo[] ret = new BundleInfo[list.size()];
 		list.toArray(ret);
 		return ret;
@@ -184,17 +203,20 @@ public class Utils {
 
 	public static String getManifestMainAttributes(URI location, String name) {
 		Dictionary<String, String> manifest = Utils.getOSGiManifest(location);
-		if (manifest == null)
+		if (manifest == null) {
 			throw new RuntimeException("Unable to locate bundle manifest: " + location); //$NON-NLS-1$
+		}
 		return manifest.get(name);
 	}
 
 	public static Dictionary<String, String> getOSGiManifest(URI location) {
-		if (location == null)
+		if (location == null) {
 			return null;
+		}
 		// if we have a file-based URL that doesn't end in ".jar" then...
-		if (FILE_SCHEME.equals(location.getScheme()))
+		if (FILE_SCHEME.equals(location.getScheme())) {
 			return basicLoadManifest(URIUtil.toFile(location));
+		}
 
 		try {
 			URL url = new URL("jar:" + location.toString() + "!/"); //$NON-NLS-1$//$NON-NLS-2$
@@ -202,8 +224,9 @@ public class Utils {
 
 			try (ZipFile jar = jarConnection.getJarFile()) {
 				ZipEntry entry = jar.getEntry(JarFile.MANIFEST_NAME);
-				if (entry == null)
+				if (entry == null) {
 					return null;
+				}
 
 				Map<String, String> manifest = ManifestElement.parseBundleManifest(jar.getInputStream(entry), null);
 				// if we have a JAR'd bundle that has a non-OSGi manifest file (like
@@ -225,10 +248,12 @@ public class Utils {
 	}
 
 	public static String getPathFromClause(String clause) {
-		if (clause == null)
+		if (clause == null) {
 			return null;
-		if (clause.indexOf(";") != -1) //$NON-NLS-1$
+		}
+		if (clause.indexOf(";") != -1) { //$NON-NLS-1$
 			clause = clause.substring(0, clause.indexOf(";")); //$NON-NLS-1$
+		}
 		return clause.trim();
 	}
 
@@ -240,21 +265,26 @@ public class Utils {
 		String[] targetTokens = Utils.getTokens(targetPath, PATH_SEP);
 		String[] fromTokens = Utils.getTokens(fromPath, PATH_SEP);
 		int index = -1;
-		for (int i = 0; i < fromTokens.length; i++)
-			if (fromTokens[i].equals(targetTokens[i]))
+		for (int i = 0; i < fromTokens.length; i++) {
+			if (fromTokens[i].equals(targetTokens[i])) {
 				index = i;
-			else
+			} else {
 				break;
+			}
+		}
 
 		StringBuilder sb = new StringBuilder();
-		for (int i = index + 1; i < fromTokens.length; i++)
+		for (int i = index + 1; i < fromTokens.length; i++) {
 			sb.append(".." + PATH_SEP); //$NON-NLS-1$
+		}
 
-		for (int i = index + 1; i < targetTokens.length; i++)
-			if (i != targetTokens.length - 1)
+		for (int i = index + 1; i < targetTokens.length; i++) {
+			if (i != targetTokens.length - 1) {
 				sb.append(targetTokens[i] + PATH_SEP);
-			else
+			} else {
 				sb.append(targetTokens[i]);
+			}
+		}
 		return sb.toString();
 	}
 
@@ -271,10 +301,11 @@ public class Utils {
 		String date = df.format(new Date());
 		String filename = file.getName();
 		int index = filename.lastIndexOf("."); //$NON-NLS-1$
-		if (index != -1)
+		if (index != -1) {
 			filename = filename.substring(0, index) + "." + date + "." + filename.substring(index + 1); //$NON-NLS-1$ //$NON-NLS-2$
-		else
+		} else {
 			filename = filename + "." + date; //$NON-NLS-1$
+		}
 		File dest = new File(file.getParentFile(), filename);
 		return dest;
 	}
@@ -352,8 +383,9 @@ public class Utils {
 	}
 
 	public static String replaceAll(String st, String oldSt, String newSt) {
-		if (oldSt.equals(newSt))
+		if (oldSt.equals(newSt)) {
 			return st;
+		}
 		int index = -1;
 		while ((index = st.indexOf(oldSt)) != -1) {
 			st = st.substring(0, index) + newSt + st.substring(index + oldSt.length());
@@ -374,8 +406,9 @@ public class Utils {
 		SortedMap<Integer, List<BundleInfo>> bslToList = new TreeMap<>();
 		for (BundleInfo bInfo : bInfos) {
 			Integer sL = Integer.valueOf(bInfo.getStartLevel());
-			if (sL.intValue() == BundleInfo.NO_LEVEL)
+			if (sL.intValue() == BundleInfo.NO_LEVEL) {
 				sL = Integer.valueOf(initialBSL);
+			}
 			List<BundleInfo> list = bslToList.get(sL);
 			if (list == null) {
 				list = new LinkedList<>();

@@ -53,8 +53,9 @@ public class ConfigData {
 	}
 
 	public BundleInfo[] getBundles() {
-		if (bundlesList.size() == 0)
+		if (bundlesList.size() == 0) {
 			return new BundleInfo[0];
+		}
 		BundleInfo[] ret = new BundleInfo[bundlesList.size()];
 		bundlesList.toArray(ret);
 		return ret;
@@ -99,8 +100,9 @@ public class ConfigData {
 	}
 
 	public boolean removeBundle(BundleInfo bundleInfo) {
-		if (bundleInfo == null)
+		if (bundleInfo == null) {
 			throw new IllegalArgumentException("Bundle info can't be null:" + bundleInfo); //$NON-NLS-1$
+		}
 		return bundlesList.remove(bundleInfo);
 	}
 
@@ -110,16 +112,19 @@ public class ConfigData {
 
 	public void setBundles(BundleInfo[] bundleInfos) {
 		bundlesList.clear();
-		if (bundleInfos != null)
-			for (BundleInfo bundleInfo : bundleInfos)
+		if (bundleInfos != null) {
+			for (BundleInfo bundleInfo : bundleInfos) {
 				bundlesList.add(bundleInfo);
+			}
+		}
 	}
 
 	public void setProperty(String key, String value) {
-		if (value == null)
+		if (value == null) {
 			properties.remove(key);
-		else
+		} else {
 			properties.setProperty(key, value);
+		}
 	}
 
 	public void appendProperties(Properties props) {
@@ -146,9 +151,9 @@ public class ConfigData {
 		sb.append("launcherVersion=" + launcherVersion + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append("beginningFwStartLevel=" + beginningFwStartLevel + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append("initialBundleStartLevel=" + initialBundleStartLevel + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (this.bundlesList.size() == 0)
+		if (this.bundlesList.size() == 0) {
 			sb.append("bundlesList=null\n"); //$NON-NLS-1$
-		else {
+		} else {
 			sb.append("bundlesList=\n"); //$NON-NLS-1$
 			int i = 0;
 			for (BundleInfo bundleInfo : bundlesList) {
@@ -169,11 +174,13 @@ public class ConfigData {
 			for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
 				String key = (String) enumeration.nextElement();
 				String value = props.getProperty(key);
-				if (value == null || value.equals("")) //$NON-NLS-1$
+				if (value == null || value.equals("")) { //$NON-NLS-1$
 					continue;
+				}
 				sb.append("\t{" + key + " ,\t" + value + "}\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
-		} else
+		} else {
 			sb.append("empty\n"); //$NON-NLS-1$
+		}
 	}
 }
