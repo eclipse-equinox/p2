@@ -258,8 +258,9 @@ public class SimplePlanner implements IPlanner {
 				.getInstallableUnitProfilePropertiesToAdd();
 		for (Map.Entry<IInstallableUnit, Map<String, String>> entry : allIUPropertyChanges.entrySet()) {
 			IInstallableUnit iu = entry.getKey();
-			if (!toState.contains(iu))
+			if (!toState.contains(iu)) {
 				continue;
+			}
 			for (Map.Entry<String, String> entry2 : entry.getValue().entrySet()) {
 				plan.setInstallableUnitProfileProperty(iu, entry2.getKey(), entry2.getValue());
 			}
@@ -290,8 +291,9 @@ public class SimplePlanner implements IPlanner {
 			IProfileChangeRequest profileChangeRequest = FormerState.generateProfileDeltaChangeRequest(currentProfile,
 					targetProfile);
 			ProvisioningContext context = new ProvisioningContext(agent);
-			if (context.getProperty(INCLUDE_PROFILE_IUS) == null)
+			if (context.getProperty(INCLUDE_PROFILE_IUS) == null) {
 				context.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
+			}
 			context.setExtraInstallableUnits(Arrays.asList(
 					targetProfile.available(QueryUtil.createIUAnyQuery(), null).toArray(IInstallableUnit.class)));
 			return getProvisioningPlan(profileChangeRequest, context, sub.newChild(ExpandWork / 2));
@@ -308,8 +310,9 @@ public class SimplePlanner implements IPlanner {
 	public static Map<String, String> createSelectionContext(Map<String, String> properties) {
 		HashMap<String, String> result = new HashMap<>(properties);
 		String environments = properties.get(IProfile.PROP_ENVIRONMENTS);
-		if (environments == null)
+		if (environments == null) {
 			return result;
+		}
 		for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) { //$NON-NLS-1$
 			String entry = tokenizer.nextToken();
 			int i = entry.indexOf('=');
@@ -344,8 +347,9 @@ public class SimplePlanner implements IPlanner {
 		for (IInstallableUnit iu : matches) {
 			String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
 			IInstallableUnit currentIU = resultsMap.get(key);
-			if (currentIU == null || hasHigherFidelity(iu, currentIU))
+			if (currentIU == null || hasHigherFidelity(iu, currentIU)) {
 				resultsMap.put(key, iu);
+			}
 		}
 		sub.done();
 		return resultsMap.values();
@@ -564,8 +568,9 @@ public class SimplePlanner implements IPlanner {
 		for (IRequirement requirement : allMetaRequirements) {
 			if (oldProfile
 					.query(QueryUtil.createLimitQuery(QueryUtil.createMatchQuery(requirement.getMatches()), 1), null)
-					.isEmpty())
+					.isEmpty()) {
 				return allMetaRequirements;
+			}
 		}
 		return null;
 	}
@@ -605,8 +610,9 @@ public class SimplePlanner implements IPlanner {
 			IProfile installerProfile = ((IProvisioningAgent) agent
 					.getService(IProvisioningAgent.INSTALLER_AGENT)).getService(IProfileRegistry.class)
 							.getProfile((String) agent.getService(IProvisioningAgent.INSTALLER_PROFILEID));
-			if (installerProfile == null)
+			if (installerProfile == null) {
 				return initialPlan;
+			}
 
 			// The target and the installer are in the same agent / profile registry
 			if (haveSameLocation(agent, (IProvisioningAgent) agent.getService(IProvisioningAgent.INSTALLER_AGENT))) {
@@ -640,14 +646,17 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	private boolean haveSameLocation(IProvisioningAgent agent1, IProvisioningAgent agent2) {
-		if (agent1 == null || agent2 == null)
+		if (agent1 == null || agent2 == null) {
 			return false;
-		if (agent1 == agent2)
+		}
+		if (agent1 == agent2) {
 			return true;
+		}
 		IAgentLocation thisLocation = agent1.getService(IAgentLocation.class);
 		IAgentLocation otherLocation = agent2.getService(IAgentLocation.class);
-		if (thisLocation == null || otherLocation == null || (thisLocation == null && otherLocation == null))
+		if (thisLocation == null || otherLocation == null || (thisLocation == null && otherLocation == null)) {
 			return false;
+		}
 		return thisLocation.getRootLocation().equals(otherLocation.getRootLocation());
 	}
 
@@ -664,8 +673,9 @@ public class SimplePlanner implements IPlanner {
 
 		Collection<IRequirement> metaRequirements = areMetaRequirementsSatisfied(installerProfile, expectedState,
 				initialPlan);
-		if (metaRequirements == null)
+		if (metaRequirements == null) {
 			return initialPlan;
+		}
 
 		IInstallableUnit actionsIU = createIUForMetaRequirements(targetedProfile, metaRequirements);
 		IInstallableUnit previousActionsIU = getPreviousIUForMetaRequirements(installerProfile,
@@ -673,8 +683,9 @@ public class SimplePlanner implements IPlanner {
 
 		ProfileChangeRequest agentRequest = new ProfileChangeRequest(installerProfile);
 		agentRequest.add(actionsIU);
-		if (previousActionsIU != null)
+		if (previousActionsIU != null) {
 			agentRequest.remove(previousActionsIU);
+		}
 		Object externalInstallerPlan = getSolutionFor(agentRequest, initialContext, sub.split(10));
 		if (externalInstallerPlan instanceof IProvisioningPlan provPlan
 				&& provPlan.getStatus().getSeverity() == ERROR) {
@@ -704,8 +715,9 @@ public class SimplePlanner implements IPlanner {
 		Collection<IRequirement> metaRequirements = initialRequest.getRemovals().isEmpty()
 				? areMetaRequirementsSatisfied(profile, expectedState, initialPlan)
 				: extractMetaRequirements(expectedState, initialPlan);
-		if (metaRequirements == null || metaRequirements.isEmpty())
+		if (metaRequirements == null || metaRequirements.isEmpty()) {
 			return initialPlan;
+		}
 
 		// Let's compute a plan that satisfy all the metaRequirements. We limit
 		// ourselves to only the IUs that were part of the previous solution.
@@ -728,8 +740,9 @@ public class SimplePlanner implements IPlanner {
 			}
 		});
 
-		if (previousMetaRequirementIU != null)
+		if (previousMetaRequirementIU != null) {
 			agentRequest.remove(previousMetaRequirementIU);
+		}
 		agentRequest.add(metaRequirementIU);
 
 		ProvisioningContext agentCtx = new ProvisioningContext(agent);
@@ -820,8 +833,9 @@ public class SimplePlanner implements IPlanner {
 
 	private IInstallableUnit getPreviousIUForMetaRequirements(IProfile profile, String iuId, IProgressMonitor monitor) {
 		IQueryResult<IInstallableUnit> c = profile.query(QueryUtil.createIUQuery(iuId), monitor);
-		if (c.isEmpty())
+		if (c.isEmpty()) {
 			return null;
+		}
 		return c.iterator().next();
 	}
 
@@ -870,9 +884,10 @@ public class SimplePlanner implements IPlanner {
 
 		for (Map.Entry<IInstallableUnit, List<String>> object : profileChangeRequest
 				.getInstallableUnitProfilePropertiesToRemove().entrySet()) {
-			if (object.getValue().contains(INCLUSION_RULES))
+			if (object.getValue().contains(INCLUSION_RULES)) {
 				profileChangeRequest.setInstallableUnitProfileProperty(object.getKey(), INCLUSION_RULES,
 						ProfileInclusionRules.createStrictInclusionRule(object.getKey()));
+			}
 		}
 		// Remove the iu properties associated to the ius removed and the iu properties
 		// being removed as well
@@ -923,8 +938,9 @@ public class SimplePlanner implements IPlanner {
 		}
 
 		// Now add any other requirement that we need to see satisfied
-		if (profileChangeRequest.getExtraRequirements() != null)
+		if (profileChangeRequest.getExtraRequirements() != null) {
 			gatheredRequirements.addAll(profileChangeRequest.getExtraRequirements());
+		}
 		IInstallableUnit[] existingRoots = profileChangeRequest.getProfile()
 				.query(new IUProfilePropertyQuery(INCLUSION_RULES, IUProfilePropertyQuery.ANY), null)
 				.toArray(IInstallableUnit.class);
@@ -932,8 +948,9 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	private IRequirement createRequirement(IInstallableUnit iu, String rule) {
-		if (rule == null)
+		if (rule == null) {
 			return null;
+		}
 		if (rule.equals(ProfileInclusionRules.createStrictInclusionRule(iu))) {
 			return createStrictRequirement(iu);
 		}
@@ -964,8 +981,9 @@ public class SimplePlanner implements IPlanner {
 		for (IInstallableUnit iu : matches) {
 			String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
 			IInstallableUnit currentIU = resultsMap.get(key);
-			if (currentIU == null || hasHigherFidelity(iu, currentIU))
+			if (currentIU == null || hasHigherFidelity(iu, currentIU)) {
 				resultsMap.put(key, iu);
+			}
 		}
 		sub.done();
 		return new CollectionResult<>(resultsMap.values());
@@ -991,8 +1009,9 @@ public class SimplePlanner implements IPlanner {
 
 		@Override
 		public String getInstallableUnitProperty(IInstallableUnit iu, String key) {
-			if (INCLUSION_RULES.equals(key))
+			if (INCLUSION_RULES.equals(key)) {
 				return ProfileInclusionRules.createOptionalInclusionRule(iu);
+			}
 			return profile.getInstallableUnitProperty(iu, key);
 		}
 
