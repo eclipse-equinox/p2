@@ -42,19 +42,22 @@ public class EclipseLauncherImpl {
 		SimpleBundlesState.checkAvailability(fwAdmin);
 		Log.debug(this, "launch(Manipulator , File )", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		LauncherData launcherData = manipulator.getLauncherData();
-		if (launcherData.getLauncher() == null)
+		if (launcherData.getLauncher() == null) {
 			return launchInMemory(manipulator, cwd);
+		}
 		return launchByLauncher(manipulator, cwd);
 	}
 
 	private Process launchByLauncher(Manipulator manipulator, File cwd) throws IOException {
 		LauncherData launcherData = manipulator.getLauncherData();
 
-		if (launcherData.getLauncher() == null)
+		if (launcherData.getLauncher() == null) {
 			throw new IllegalStateException(Messages.exception_launcherLocationNotSet);
+		}
 		String[] cmdarray = new String[] { launcherData.getLauncher().getAbsolutePath() };
-		if (cwd == null)
+		if (cwd == null) {
 			cwd = launcherData.getLauncher().getParentFile();
+		}
 		Process process = Runtime.getRuntime().exec(cmdarray, null, cwd);
 		Log.debug("\t" + getStringOfCmd(cmdarray)); //$NON-NLS-1$
 		return process;
@@ -66,14 +69,17 @@ public class EclipseLauncherImpl {
 		Utils.checkAbsoluteDir(cwd, "cwd"); //$NON-NLS-1$
 
 		List<String> cmdList = new LinkedList<>();
-		if (launcherData.getJvm() != null)
+		if (launcherData.getJvm() != null) {
 			cmdList.add(launcherData.getJvm().getAbsolutePath());
-		else
+		} else {
 			cmdList.add("java"); //$NON-NLS-1$
+		}
 
-		if (launcherData.getJvmArgs() != null)
-			for (int i = 0; i < launcherData.getJvmArgs().length; i++)
+		if (launcherData.getJvmArgs() != null) {
+			for (int i = 0; i < launcherData.getJvmArgs().length; i++) {
 				cmdList.add(launcherData.getJvmArgs()[i]);
+			}
+		}
 
 		cmdList.add("-jar"); //$NON-NLS-1$
 		cmdList.add(Utils.getRelativePath(launcherData.getFwJar(), cwd));
@@ -82,8 +88,9 @@ public class EclipseLauncherImpl {
 		cmdList.add(EquinoxConstants.OPTION_CONFIGURATION);
 		cmdList.add(Utils.getRelativePath(launcherData.getFwPersistentDataLocation(), cwd));
 
-		if (launcherData.isClean())
+		if (launcherData.isClean()) {
 			cmdList.add(EquinoxConstants.OPTION_CLEAN);
+		}
 
 		String[] cmdarray = new String[cmdList.size()];
 		cmdList.toArray(cmdarray);

@@ -31,24 +31,28 @@ public class ParserUtils {
 	private static final String LAUNCHER_DIR = "@launcher.dir"; //$NON-NLS-1$
 
 	public static File getOSGiInstallArea(List<String> programArgs, Properties properties, LauncherData launcherData) {
-		if (launcherData == null)
+		if (launcherData == null) {
 			return null;
+		}
 
 		URI base = null;
-		if (launcherData.getLauncher() != null)
+		if (launcherData.getLauncher() != null) {
 			base = launcherData.getLauncher().getParentFile().toURI();
-		else if (launcherData.getHome() != null)
+		} else if (launcherData.getHome() != null) {
 			base = launcherData.getHome().toURI();
+		}
 		File result = getOSGiInstallArea(programArgs, properties, launcherData.getLauncher(), base);
-		if (result != null)
+		if (result != null) {
 			return result;
+		}
 
 		if (launcherData.getHome() != null) {
 			return launcherData.getHome();
 		}
 
-		if (launcherData.getFwJar() != null)
+		if (launcherData.getFwJar() != null) {
 			return fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath());
+		}
 
 		File launcherFile = launcherData.getLauncher();
 		if (launcherFile != null) {
@@ -74,8 +78,9 @@ public class ParserUtils {
 			// Search the file system using the default location
 			URI location = FileUtils.getEclipsePluginFullLocation(EquinoxConstants.FW_SYMBOLIC_NAME,
 					new File(URIUtil.toFile(launcherFolder), EquinoxConstants.PLUGINS_DIR));
-			if (location != null)
+			if (location != null) {
 				return location;
+			}
 			return null;
 		}
 		try {
@@ -89,20 +94,25 @@ public class ParserUtils {
 	// This method should only be used to determine the osgi install area when
 	// reading the eclipse.ini
 	public static File getOSGiInstallArea(List<String> args, Properties properties, File launcherFile, URI base) {
-		if (args == null)
+		if (args == null) {
 			return null;
+		}
 		String install = getValueForArgument(EquinoxConstants.OPTION_INSTALL, args);
-		if (install == null && properties != null)
+		if (install == null && properties != null) {
 			install = properties.getProperty("osgi.install.area"); //$NON-NLS-1$
+		}
 
 		if (install != null) {
-			if (install.startsWith(FILE_PROTOCOL))
+			if (install.startsWith(FILE_PROTOCOL)) {
 				install = install.substring(FILE_PROTOCOL.length() + 1);
-			if (install.startsWith(LAUNCHER_DIR))
+			}
+			if (install.startsWith(LAUNCHER_DIR)) {
 				install = install.replace(LAUNCHER_DIR, launcherFile.getParent().toString());
+			}
 			File installFile = new File(install);
-			if (installFile.isAbsolute())
+			if (installFile.isAbsolute()) {
 				return installFile;
+			}
 			return URIUtil.toFile(URIUtil.makeAbsolute(installFile.toURI(), base));
 		}
 
@@ -118,8 +128,9 @@ public class ParserUtils {
 			}
 
 			File osgiInstallArea = fromOSGiJarToOSGiInstallArea(startup);
-			if (osgiInstallArea.isAbsolute())
+			if (osgiInstallArea.isAbsolute()) {
 				return osgiInstallArea;
+			}
 
 			File baseFile = new File(base);
 			return new File(baseFile, osgiInstallArea.getPath());
@@ -129,17 +140,20 @@ public class ParserUtils {
 
 	public static File fromOSGiJarToOSGiInstallArea(String path) {
 		IPath parentFolder = IPath.fromOSString(path).removeLastSegments(1);
-		if ("plugins".equalsIgnoreCase(parentFolder.lastSegment())) //$NON-NLS-1$
+		if ("plugins".equalsIgnoreCase(parentFolder.lastSegment())) { //$NON-NLS-1$
 			return parentFolder.removeLastSegments(1).toFile();
+		}
 		return parentFolder.toFile();
 	}
 
 	public static boolean isArgumentSet(String arg, List<String> args) {
-		if (arg == null || args == null)
+		if (arg == null || args == null) {
 			return false;
+		}
 		for (String arg2 : args) {
-			if (arg2 == null)
+			if (arg2 == null) {
 				continue;
+			}
 			if ((arg2).equalsIgnoreCase(arg)) {
 				return true;
 			}
@@ -148,16 +162,19 @@ public class ParserUtils {
 	}
 
 	public static String getValueForArgument(String arg, List<String> args) {
-		if (arg == null || args == null)
+		if (arg == null || args == null) {
 			return null;
+		}
 		for (int i = 0; i < args.size(); i++) {
-			if (args.get(i) == null)
+			if (args.get(i) == null) {
 				continue;
+			}
 			if ((args.get(i)).equalsIgnoreCase(arg)) {
 				if (i + 1 < args.size()) {
 					String value = args.get(i + 1);
-					if (value != null && value.length() > 0 && value.charAt(0) != '-')
+					if (value != null && value.length() > 0 && value.charAt(0) != '-') {
 						return value;
+					}
 				}
 			}
 		}
@@ -165,12 +182,14 @@ public class ParserUtils {
 	}
 
 	public static boolean setValueForArgument(String arg, String value, List<String> args) {
-		if (arg == null || args == null)
+		if (arg == null || args == null) {
 			return false;
+		}
 
 		for (int i = 0; i < args.size(); i++) {
-			if (args.get(i) == null)
+			if (args.get(i) == null) {
 				continue;
+			}
 			String currentArg = (args.get(i)).trim();
 			if (currentArg.equalsIgnoreCase(arg)) {
 				if (i + 1 < args.size()) {
@@ -193,11 +212,13 @@ public class ParserUtils {
 	}
 
 	public static boolean removeArgument(String arg, List<String> args) {
-		if (arg == null || args == null)
+		if (arg == null || args == null) {
 			return false;
+		}
 		for (int i = 0; i < args.size(); i++) {
-			if (args.get(i) == null)
+			if (args.get(i) == null) {
 				continue;
+			}
 			String currentArg = (args.get(i)).trim();
 			if (currentArg.equalsIgnoreCase(arg)) {
 				args.set(i, null);

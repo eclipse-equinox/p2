@@ -54,34 +54,38 @@ public class Log {
 		LogService logService = null;
 		String msg = ""; //$NON-NLS-1$
 		if (method == null) {
-			if (obj != null)
+			if (obj != null) {
 				msg = "(" + obj.getClass().getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
-		} else if (obj == null)
+			}
+		} else if (obj == null) {
 			msg = "[" + method + "]" + message; //$NON-NLS-1$ //$NON-NLS-2$
-		else
+		} else {
 			msg = "[" + method + "](" + obj.getClass().getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
 		msg += message;
-		if (logTracker != null)
+		if (logTracker != null) {
 			logService = (LogService) logTracker.getService();
+		}
 
 		if (logService != null) {
 			logService.log(level, msg, e);
 		} else {
 			String levelSt = null;
-			if (level == LogService.LOG_DEBUG)
+			if (level == LogService.LOG_DEBUG) {
 				levelSt = "DEBUG"; //$NON-NLS-1$
-			else if (level == LogService.LOG_INFO)
+			} else if (level == LogService.LOG_INFO) {
 				levelSt = "INFO"; //$NON-NLS-1$
-			else if (level == LogService.LOG_WARNING)
+			} else if (level == LogService.LOG_WARNING) {
 				levelSt = "WARNING"; //$NON-NLS-1$
-			else if (level == LogService.LOG_ERROR) {
+			} else if (level == LogService.LOG_ERROR) {
 				levelSt = "ERROR"; //$NON-NLS-1$
 				useLog = true;
 			}
 			if (useLog) {
 				System.err.println("[" + levelSt + "]" + msg); //$NON-NLS-1$ //$NON-NLS-2$
-				if (e != null)
+				if (e != null) {
 					e.printStackTrace();
+				}
 			}
 		}
 	}

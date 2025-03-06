@@ -39,8 +39,9 @@ public class EclipseLauncherParser {
 			// otherwise use the launcherData to figure it out
 			osgiInstallArea = ParserUtils.getOSGiInstallArea(lines, null, launcherData);
 		}
-		if (osgiInstallArea != null)
+		if (osgiInstallArea != null) {
 			return URIUtil.makeAbsolute(osgiInstallArea.toURI(), base);
+		}
 		return null;
 	}
 
@@ -60,8 +61,9 @@ public class EclipseLauncherParser {
 	}
 
 	void read(File launcherConfigFile, LauncherData launcherData) throws IOException {
-		if (!launcherConfigFile.exists())
+		if (!launcherConfigFile.exists()) {
 			return;
+		}
 
 		List<String> lines = FileUtils.loadFile(launcherConfigFile);
 
@@ -75,8 +77,9 @@ public class EclipseLauncherParser {
 					: launcherFolder;
 		}
 		URI configArea = getConfigurationLocation(lines, osgiInstallArea, launcherData);
-		if (configArea == null)
+		if (configArea == null) {
 			throw new FrameworkAdminRuntimeException(Messages.exception_nullConfigArea, ""); //$NON-NLS-1$
+		}
 		getPersistentDataLocation(lines, osgiInstallArea, configArea, launcherData);
 		getLauncherLibrary(lines, launcherFolder);
 		getJVMArgs(lines, launcherData);
@@ -88,11 +91,13 @@ public class EclipseLauncherParser {
 
 	private void getFrameworkJar(List<String> lines, URI launcherFolder, LauncherData launcherData) {
 		File fwJar = launcherData.getFwJar();
-		if (fwJar != null)
+		if (fwJar != null) {
 			return;
+		}
 		URI location = ParserUtils.getFrameworkJar(lines, launcherFolder);
-		if (location != null)
+		if (location != null) {
 			launcherData.setFwJar(URIUtil.toFile(location));
+		}
 	}
 
 	private void getPersistentDataLocation(List<String> lines, URI osgiInstallArea, URI configArea,
@@ -107,8 +112,9 @@ public class EclipseLauncherParser {
 
 	private void getVM(List<String> lines, URI launcherFolder, LauncherData launcherData) {
 		String vm = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_VM, lines);
-		if (vm == null)
+		if (vm == null) {
 			return;
+		}
 
 		URI VMFullPath;
 		try {
@@ -123,8 +129,9 @@ public class EclipseLauncherParser {
 
 	private void setVM(List<String> lines, File vm, URI launcherFolder, File installHome) {
 		if (vm == null) {
-			if (ParserUtils.getValueForArgument(EquinoxConstants.OPTION_VM, lines) != null)
+			if (ParserUtils.getValueForArgument(EquinoxConstants.OPTION_VM, lines) != null) {
 				return;
+			}
 
 			ParserUtils.removeArgument(EquinoxConstants.OPTION_VM, lines);
 			return;
@@ -167,8 +174,9 @@ public class EclipseLauncherParser {
 		boolean foundVmArgs = false;
 		for (String line : lines) {
 			if (!foundVmArgs) {
-				if (EquinoxConstants.OPTION_VMARGS.equals(line))
+				if (EquinoxConstants.OPTION_VMARGS.equals(line)) {
 					foundVmArgs = true;
+				}
 				continue;
 			}
 			vmargs.add(line);
@@ -180,8 +188,9 @@ public class EclipseLauncherParser {
 
 	private void setJVMArgs(List<String> lines, LauncherData launcherData) {
 		ParserUtils.removeArgument(EquinoxConstants.OPTION_VMARGS, lines);
-		if (launcherData.getJvmArgs() == null || launcherData.getJvmArgs().length == 0)
+		if (launcherData.getJvmArgs() == null || launcherData.getJvmArgs().length == 0) {
 			return;
+		}
 		String[] args = launcherData.getJvmArgs();
 		lines.add(EquinoxConstants.OPTION_VMARGS);
 		for (String arg : args) {
@@ -192,8 +201,9 @@ public class EclipseLauncherParser {
 	private void getProgramArgs(List<String> lines, LauncherData launcherData) {
 		ArrayList<String> args = new ArrayList<>(lines.size());
 		for (String line : lines) {
-			if (EquinoxConstants.OPTION_VMARGS.equals(line))
+			if (EquinoxConstants.OPTION_VMARGS.equals(line)) {
 				break;
+			}
 			args.add(line);
 		}
 		launcherData.setProgramArgs(null);
@@ -202,8 +212,9 @@ public class EclipseLauncherParser {
 
 	private URI getLauncherLibrary(List<String> lines, URI launcherFolder) {
 		String launcherLibrary = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_LAUNCHER_LIBRARY, lines);
-		if (launcherLibrary == null)
+		if (launcherLibrary == null) {
 			return null;
+		}
 		URI result = null;
 		try {
 			result = URIUtil.makeAbsolute(FileUtils.fromPath(launcherLibrary), launcherFolder);
@@ -217,8 +228,9 @@ public class EclipseLauncherParser {
 
 	private void setLauncherLibrary(List<String> lines, URI launcherFolder) {
 		String launcherLibrary = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_LAUNCHER_LIBRARY, lines);
-		if (launcherLibrary == null)
+		if (launcherLibrary == null) {
 			return;
+		}
 
 		try {
 			URI result = URIUtil.makeRelative(FileUtils.fromPath(launcherLibrary), launcherFolder);
@@ -232,12 +244,13 @@ public class EclipseLauncherParser {
 
 	private URI getConfigurationLocation(List<String> lines, URI osgiInstallArea, LauncherData data) {
 		String configuration = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, lines);
-		if (configuration == null)
+		if (configuration == null) {
 			try {
 				return URIUtil.makeAbsolute(new URI(CONFIGURATION_FOLDER), osgiInstallArea);
 			} catch (URISyntaxException e1) {
 				// ignore
 			}
+		}
 
 		URI result = null;
 		try {
@@ -255,8 +268,9 @@ public class EclipseLauncherParser {
 		String result = FileUtils.toPath(URIUtil.makeRelative(data.getFwConfigLocation().toURI(), osgiInstallArea));
 		// We don't write the default
 		if (CONFIGURATION_FOLDER.equals(result)) {
-			if (ParserUtils.getValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, lines) != null)
+			if (ParserUtils.getValueForArgument(EquinoxConstants.OPTION_CONFIGURATION, lines) != null) {
 				ParserUtils.removeArgument(EquinoxConstants.OPTION_CONFIGURATION, lines);
+			}
 			return;
 		}
 
@@ -268,8 +282,9 @@ public class EclipseLauncherParser {
 
 	private URI getStartup(List<String> lines, URI launcherFolder) {
 		String startup = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_STARTUP, lines);
-		if (startup == null)
+		if (startup == null) {
 			return null;
+		}
 
 		URI result = null;
 		try {
@@ -284,8 +299,9 @@ public class EclipseLauncherParser {
 
 	private void setStartup(List<String> lines, URI launcherFolder) {
 		String startup = ParserUtils.getValueForArgument(EquinoxConstants.OPTION_STARTUP, lines);
-		if (startup == null)
+		if (startup == null) {
 			return;
+		}
 
 		try {
 			URI result = URIUtil.makeRelative(FileUtils.fromPath(startup), launcherFolder);
@@ -300,8 +316,9 @@ public class EclipseLauncherParser {
 	void save(EquinoxLauncherData launcherData, boolean backup) throws IOException {
 		File launcherConfigFile = EquinoxManipulatorImpl.getLauncherConfigLocation(launcherData);
 
-		if (launcherConfigFile == null)
+		if (launcherConfigFile == null) {
 			throw new IllegalStateException(Messages.exception_launcherLocationNotSet);
+		}
 		if (!Utils.createParentDir(launcherConfigFile)) {
 			throw new IllegalStateException(Messages.exception_failedToCreateDir);
 		}
@@ -328,21 +345,24 @@ public class EclipseLauncherParser {
 		setJVMArgs(newlines, launcherData);
 
 		// backup file if exists.
-		if (backup)
+		if (backup) {
 			if (launcherConfigFile.exists()) {
 				File dest = Utils.getSimpleDataFormattedFile(launcherConfigFile);
-				if (!launcherConfigFile.renameTo(dest))
+				if (!launcherConfigFile.renameTo(dest)) {
 					throw new IOException(NLS.bind(Messages.exception_failedToRename, launcherConfigFile, dest));
+				}
 				Log.info(this, "save()", NLS.bind(Messages.log_renameSuccessful, launcherConfigFile, dest)); //$NON-NLS-1$
 			}
+		}
 
 		// only write the file if we actually have content
 		if (newlines.size() > 0) {
 			try (BufferedWriter bw = new BufferedWriter(
 					new FileWriter(launcherConfigFile, FileUtils.getNativeCharset()));) {
 				for (String arg : newlines) {
-					if (arg == null)
+					if (arg == null) {
 						continue;
+					}
 					bw.write(arg);
 					bw.newLine();
 				}
@@ -351,8 +371,9 @@ public class EclipseLauncherParser {
 			}
 		}
 		File previousLauncherIni = launcherData.getPreviousLauncherIni();
-		if (previousLauncherIni != null && !previousLauncherIni.equals(launcherConfigFile))
+		if (previousLauncherIni != null && !previousLauncherIni.equals(launcherConfigFile)) {
 			previousLauncherIni.delete();
+		}
 		launcherData.setLauncherConfigLocation(launcherConfigFile);
 	}
 }
