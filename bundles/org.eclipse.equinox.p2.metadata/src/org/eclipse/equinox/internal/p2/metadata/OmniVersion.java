@@ -60,26 +60,31 @@ public class OmniVersion extends BasicVersion {
 		int vtop = vector.size() - 1;
 		Comparable<?> padValue = vector.get(vtop);
 		if (vtop == 0) {
-			if (padValue == null)
+			if (padValue == null) {
 				return (BasicVersion) emptyVersion;
-			if (padValue == VersionVector.MAX_VALUE)
+			}
+			if (padValue == VersionVector.MAX_VALUE) {
 				return (BasicVersion) MAX_VERSION;
+			}
 		}
-		if (vtop == 3 && padValue == null && vector.get(0) == (Integer) 0 && vector.get(1) == (Integer) 0 && vector.get(2) == (Integer) 0)
+		if (vtop == 3 && padValue == null && vector.get(0) == (Integer) 0 && vector.get(1) == (Integer) 0 && vector.get(2) == (Integer) 0) {
 			return (BasicVersion) emptyVersion;
+		}
 
 		return new OmniVersion(vector, format, original);
 	}
 
 	public static Version createMinVersion() {
-		if (minimumVersion == null)
+		if (minimumVersion == null) {
 			minimumVersion = new OmniVersion(Collections.singletonList(null), null, null);
+		}
 		return minimumVersion;
 	}
 
 	public static Version createMaxVersion() {
-		if (maximumVersion == null)
+		if (maximumVersion == null) {
 			maximumVersion = new OmniVersion(Collections.singletonList(VersionVector.MAX_VALUE), null, null);
+		}
 		return maximumVersion;
 	}
 
@@ -87,11 +92,13 @@ public class OmniVersion extends BasicVersion {
 		int vtop = vector.size() - 1;
 		if (vtop > 0) {
 			Comparable<?>[] v = new Comparable<?>[vtop];
-			for (int idx = 0; idx < vtop; ++idx)
+			for (int idx = 0; idx < vtop; ++idx) {
 				v[idx] = vector.get(idx);
+			}
 			this.vector = v;
-		} else
+		} else {
 			this.vector = emptyVector;
+		}
 		this.padValue = vector.get(vtop);
 		this.format = format;
 		this.original = original;
@@ -99,11 +106,13 @@ public class OmniVersion extends BasicVersion {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o == this)
+		if (o == this) {
 			return true;
+		}
 
-		if (!(o instanceof BasicVersion))
+		if (!(o instanceof BasicVersion)) {
 			return false;
+		}
 
 		BasicVersion ov = (BasicVersion) o;
 		return VersionVector.equals(vector, padValue, ov.getVector(), ov.getPad());
@@ -136,17 +145,21 @@ public class OmniVersion extends BasicVersion {
 
 	@Override
 	public String getQualifier() {
-		if (vector.length == 3)
+		if (vector.length == 3) {
 			return VersionVector.MINS_VALUE;
+		}
 
-		if (vector.length != 4)
+		if (vector.length != 4) {
 			throw new UnsupportedOperationException();
+		}
 
 		Comparable<?> qualifier = vector[3];
-		if (qualifier == VersionVector.MAXS_VALUE)
+		if (qualifier == VersionVector.MAXS_VALUE) {
 			return IVersionFormat.DEFAULT_MAX_STRING_TRANSLATION;
-		if (!(qualifier instanceof String))
+		}
+		if (!(qualifier instanceof String)) {
 			throw new UnsupportedOperationException();
+		}
 		return (String) qualifier;
 	}
 
@@ -161,20 +174,24 @@ public class OmniVersion extends BasicVersion {
 	 */
 	@Override
 	public boolean isOSGiCompatible() {
-		if (vector.length < 3 || vector.length > 4)
+		if (vector.length < 3 || vector.length > 4) {
 			return (this == emptyVersion || this == MAX_VERSION);
+		}
 
-		if (getPad() != null)
+		if (getPad() != null) {
 			return false;
+		}
 
 		for (int i = 0; i < 3; ++i) {
 			Object e = vector[i];
-			if (!(e instanceof Integer && ((Integer) e).intValue() >= 0))
+			if (!(e instanceof Integer && ((Integer) e).intValue() >= 0)) {
 				return false;
+			}
 		}
 
-		if (vector.length == 3)
+		if (vector.length == 3) {
 			return true; // No qualifier. Still compatible
+		}
 		return OSGiVersion.isValidOSGiQualifier(vector[3]);
 	}
 
@@ -193,12 +210,14 @@ public class OmniVersion extends BasicVersion {
 				int end = s.length();
 				for (int idx = 0; idx < end; ++idx) {
 					char c = s.charAt(idx);
-					if (c == '\\' || c == '[' || c == '(' || c == ']' || c == ')' || c == ',' || c <= ' ')
+					if (c == '\\' || c == '[' || c == '(' || c == ']' || c == ')' || c == ',' || c <= ' ') {
 						sb.append('\\');
+					}
 					sb.append(c);
 				}
-			} else
+			} else {
 				sb.append(original);
+			}
 		}
 	}
 
@@ -219,15 +238,16 @@ public class OmniVersion extends BasicVersion {
 	 */
 	@Override
 	public void toString(StringBuilder sb) {
-		if (this == emptyVersion)
+		if (this == emptyVersion) {
 			sb.append("0.0.0"); //$NON-NLS-1$
-		else {
+		} else {
 			sb.append(RAW_PREFIX);
 			VersionVector.toString(sb, vector, padValue, false);
 			if (format != null || original != null) {
 				sb.append('/');
-				if (format != null)
+				if (format != null) {
 					format.toString(sb);
+				}
 				if (original != null) {
 					sb.append(':');
 					originalToString(sb, false);
@@ -237,18 +257,20 @@ public class OmniVersion extends BasicVersion {
 	}
 
 	private int getIntElement(int i) {
-		if (!(vector.length > i && vector[i] instanceof Integer))
+		if (!(vector.length > i && vector[i] instanceof Integer)) {
 			throw new UnsupportedOperationException();
+		}
 		return ((Integer) vector[i]).intValue();
 	}
 
 	// Preserve singletons during deserialization
 	private Object readResolve() {
 		Version v = this;
-		if (equals(MAX_VERSION))
+		if (equals(MAX_VERSION)) {
 			v = MAX_VERSION;
-		else if (equals(emptyVersion))
+		} else if (equals(emptyVersion)) {
 			v = emptyVersion;
+		}
 		return v;
 	}
 

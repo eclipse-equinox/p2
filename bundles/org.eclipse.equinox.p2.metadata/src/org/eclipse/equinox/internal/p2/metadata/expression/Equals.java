@@ -60,14 +60,16 @@ final class Equals extends Binary {
 
 	@Override
 	public void toLDAPString(StringBuilder buf) {
-		if (negate)
+		if (negate) {
 			buf.append("(!"); //$NON-NLS-1$
+		}
 		buf.append('(');
 		appendLDAPAttribute(buf);
 		buf.append('=');
 		appendLDAPValue(buf);
 		buf.append(')');
-		if (negate)
+		if (negate) {
 			buf.append(')');
+		}
 	}
 }

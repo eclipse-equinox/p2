@@ -52,14 +52,16 @@ public abstract class MemberProvider implements IMemberProvider {
 					break;
 				}
 			}
-			if (!hasUpperCase)
+			if (!hasUpperCase) {
 				return dictionary;
+			}
 
 			Dictionary<String, Object> lcMap = new Hashtable<>(dictionary.size());
 			for (Enumeration<String> keys = dictionary.keys(); keys.hasMoreElements();) {
 				String key = keys.nextElement();
-				if (lcMap.put(key.toLowerCase(), dictionary.get(key)) != null)
+				if (lcMap.put(key.toLowerCase(), dictionary.get(key)) != null) {
 					throw new IllegalArgumentException("case variants of the same key name: '" + key + '\''); //$NON-NLS-1$
+				}
 			}
 			return lcMap;
 		}
@@ -99,13 +101,15 @@ public abstract class MemberProvider implements IMemberProvider {
 					break;
 				}
 			}
-			if (!hasUpperCase)
+			if (!hasUpperCase) {
 				return map;
+			}
 
 			Map<String, Object> lcMap = new HashMap<>(map.size());
 			for (Entry<String, ?> entry : entrySet) {
-				if (lcMap.put(entry.getKey().toLowerCase(), entry.getValue()) != null)
+				if (lcMap.put(entry.getKey().toLowerCase(), entry.getValue()) != null) {
 					throw new IllegalArgumentException("case variants of the same key name: '" + entry.getKey() + '\''); //$NON-NLS-1$
+				}
 			}
 			return lcMap;
 		}
@@ -135,12 +139,15 @@ public abstract class MemberProvider implements IMemberProvider {
 	 */
 	@SuppressWarnings("unchecked")
 	public static MemberProvider create(Object value, boolean caseInsensitive) {
-		if (value instanceof Map<?, ?>)
+		if (value instanceof Map<?, ?>) {
 			return caseInsensitive ? new CIMapMemberProvider((Map<String, ?>) value) : new MapMemberProvider((Map<String, ?>) value);
-		if (value instanceof Dictionary<?, ?>)
+		}
+		if (value instanceof Dictionary<?, ?>) {
 			return caseInsensitive ? new CIDictionaryMemberProvider((Dictionary<String, ?>) value) : new DictionaryMemberProvider((Dictionary<String, ?>) value);
-		if (value instanceof ServiceReference)
+		}
+		if (value instanceof ServiceReference) {
 			return new ServiceRefMemberProvider((ServiceReference<?>) value);
+		}
 		throw new IllegalArgumentException();
 	}
 

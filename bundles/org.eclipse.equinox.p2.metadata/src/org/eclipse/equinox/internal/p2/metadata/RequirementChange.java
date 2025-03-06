@@ -20,8 +20,9 @@ public class RequirementChange implements IRequirementChange {
 	private final IRequiredCapability newValue;
 
 	public RequirementChange(IRequiredCapability applyOn2, IRequiredCapability newValue2) {
-		if (applyOn2 == null && newValue2 == null)
+		if (applyOn2 == null && newValue2 == null) {
 			throw new IllegalArgumentException();
+		}
 		this.applyOn = applyOn2;
 		this.newValue = newValue2;
 	}
@@ -38,12 +39,15 @@ public class RequirementChange implements IRequirementChange {
 
 	@Override
 	public boolean matches(IRequiredCapability toMatch) {
-		if (!toMatch.getNamespace().equals(applyOn.getNamespace()))
+		if (!toMatch.getNamespace().equals(applyOn.getNamespace())) {
 			return false;
-		if (!toMatch.getName().equals(applyOn.getName()))
+		}
+		if (!toMatch.getName().equals(applyOn.getName())) {
 			return false;
-		if (toMatch.getRange().equals(applyOn.getRange()))
+		}
+		if (toMatch.getRange().equals(applyOn.getRange())) {
 			return true;
+		}
 
 		return toMatch.getRange().intersect(applyOn.getRange()) != null;
 	}
@@ -59,23 +63,30 @@ public class RequirementChange implements IRequirementChange {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof IRequirementChange))
+		}
+		if (!(obj instanceof IRequirementChange)) {
 			return false;
+		}
 		final IRequirementChange other = (IRequirementChange) obj;
 		if (applyOn == null) {
-			if (other.applyOn() != null)
+			if (other.applyOn() != null) {
 				return false;
-		} else if (!applyOn.equals(other.applyOn()))
+			}
+		} else if (!applyOn.equals(other.applyOn())) {
 			return false;
+		}
 		if (newValue == null) {
-			if (other.newValue() != null)
+			if (other.newValue() != null) {
 				return false;
-		} else if (!newValue.equals(other.newValue()))
+			}
+		} else if (!newValue.equals(other.newValue())) {
 			return false;
+		}
 		return true;
 	}
 

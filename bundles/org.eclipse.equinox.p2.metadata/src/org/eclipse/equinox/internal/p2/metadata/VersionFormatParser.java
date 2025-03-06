@@ -47,12 +47,14 @@ class VersionFormatParser {
 			int pos = posHolder[0];
 			int len = maxPos - pos;
 			int minLen = definition.getShortestLength();
-			if (minLen > len)
+			if (minLen > len) {
 				return null;
+			}
 
 			int maxLen = definition.getLongestLength();
-			if (maxLen < len)
+			if (maxLen < len) {
 				len = maxLen;
+			}
 
 			++len;
 			while (--len >= minLen) {
@@ -65,8 +67,9 @@ class VersionFormatParser {
 					}
 				}
 				String identifier = version.substring(pos, last);
-				if (!caseSensitive)
+				if (!caseSensitive) {
 					identifier = identifier.toLowerCase();
+				}
 				int ordinal = definition.getOrdinal(identifier);
 				if (ordinal >= 0) {
 					posHolder[0] = pos + len;
@@ -79,12 +82,15 @@ class VersionFormatParser {
 		void toString(StringBuilder bld) {
 			bld.append('=');
 			definition.toString(bld);
-			if (begins)
+			if (begins) {
 				bld.append('b');
-			if (!caseSensitive)
+			}
+			if (!caseSensitive) {
 				bld.append('i');
-			if (optional)
+			}
+			if (optional) {
 				bld.append('?');
+			}
 			bld.append(';');
 		}
 
@@ -174,8 +180,9 @@ class VersionFormatParser {
 		}
 
 		void toString(StringBuilder sb) {
-			if (!(qualifier == VersionFormatParser.EXACT_ONE_QUALIFIER || (qualifier == VersionFormatParser.ZERO_OR_ONE_QUALIFIER && this.isGroup())))
+			if (!(qualifier == VersionFormatParser.EXACT_ONE_QUALIFIER || (qualifier == VersionFormatParser.ZERO_OR_ONE_QUALIFIER && this.isGroup()))) {
 				qualifier.toString(sb);
+			}
 		}
 	}
 
@@ -195,10 +202,12 @@ class VersionFormatParser {
 
 		@Override
 		public boolean equals(Object o) {
-			if (o == this)
+			if (o == this) {
 				return true;
-			if (!(o instanceof Qualifier))
+			}
+			if (!(o instanceof Qualifier)) {
 				return false;
+			}
 			Qualifier oq = (Qualifier) o;
 			return min == oq.min && max == oq.max;
 		}
@@ -230,9 +239,11 @@ class VersionFormatParser {
 			// Do the required parsing. I.e. iterate this fragment
 			// min number of times.
 			//
-			for (; idx < min; ++idx)
-				if (!fragment.parseOne(segments, version, maxPos, info))
+			for (; idx < min; ++idx) {
+				if (!fragment.parseOne(segments, version, maxPos, info)) {
 					return false;
+				}
+			}
 
 			for (; idx < max; ++idx) {
 				// We are greedy. Continue parsing until we get an exception
@@ -251,8 +262,9 @@ class VersionFormatParser {
 				//
 				if (idx < max) {
 					if (max != Integer.MAX_VALUE) {
-						for (; idx < max; ++idx)
+						for (; idx < max; ++idx) {
 							fragment.setDefaults(segments);
+						}
 					}
 				} else {
 					if (fragment instanceof StringFragment) {
@@ -261,29 +273,33 @@ class VersionFormatParser {
 						Comparable<?> opposite = stringFrag.getOppositeDefaultValue();
 						if (opposite != null) {
 							idx = segments.size() - 1;
-							if (stringFrag.isOppositeTranslation(segments.get(idx)))
+							if (stringFrag.isOppositeTranslation(segments.get(idx))) {
 								segments.set(idx, opposite);
+							}
 						}
 					}
 				}
 
-				if (fragIdx == fragments.length)
+				if (fragIdx == fragments.length) {
 					// We are the last segment
 					//
 					return true;
+				}
 
 				// Try to parse the next segment. If it fails, pop the state of
 				// this segment (or a child thereof) and try again
 				//
-				if (fragments[fragIdx].getQualifier().parse(fragments, fragIdx, segments, version, maxPos, info))
+				if (fragments[fragIdx].getQualifier().parse(fragments, fragIdx, segments, version, maxPos, info)) {
 					return true;
+				}
 
 				// Be less greedy, step back one position and try again.
 				//
-				if (maxParsed <= min)
+				if (maxParsed <= min) {
 					// We have no more states to pop. Tell previous that we failed.
 					//
 					return false;
+				}
 
 				info.popState(segments, fragment);
 				idx = --maxParsed; // segments now have room for one more default value
@@ -308,9 +324,9 @@ class VersionFormatParser {
 						break;
 				}
 			} else if (max == Integer.MAX_VALUE) {
-				if (min == 1)
+				if (min == 1) {
 					sb.append('+');
-				else {
+				} else {
 					sb.append('{');
 					sb.append(min);
 					sb.append(",}"); //$NON-NLS-1$
@@ -330,15 +346,17 @@ class VersionFormatParser {
 		private Object readResolve() {
 			Qualifier q = this;
 			if (min == 0) {
-				if (max == 1)
+				if (max == 1) {
 					q = VersionFormatParser.ZERO_OR_ONE_QUALIFIER;
-				else if (max == Integer.MAX_VALUE)
+				} else if (max == Integer.MAX_VALUE) {
 					q = VersionFormatParser.ZERO_OR_MANY_QUALIFIER;
+				}
 			} else if (min == 1) {
-				if (max == 1)
+				if (max == 1) {
 					q = VersionFormatParser.EXACT_ONE_QUALIFIER;
-				else if (max == Integer.MAX_VALUE)
+				} else if (max == Integer.MAX_VALUE) {
 					q = VersionFormatParser.ONE_OR_MANY_QUALIFIER;
+				}
 			}
 			return q;
 		}
@@ -355,8 +373,9 @@ class VersionFormatParser {
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			maxPos = checkRange(pos, maxPos);
-			if (maxPos < 0)
+			if (maxPos < 0) {
 				return false;
+			}
 
 			char c = version.charAt(pos);
 			if (VersionParser.isDigit(c) && isAllowed(c) && (enumInstruction == null || enumInstruction.isOptional())) {
@@ -366,17 +385,20 @@ class VersionFormatParser {
 				int value = c - '0';
 				while (++pos < maxPos) {
 					c = version.charAt(pos);
-					if (!(VersionParser.isDigit(c) && isAllowed(c)))
+					if (!(VersionParser.isDigit(c) && isAllowed(c))) {
 						break;
+					}
 					value *= 10;
 					value += (c - '0');
 				}
 				int len = pos - start;
-				if (rangeMin > len || len > rangeMax)
+				if (rangeMin > len || len > rangeMax) {
 					return false;
+				}
 
-				if (!isIgnored())
+				if (!isIgnored()) {
 					segments.add(VersionParser.valueOf(value));
+				}
 				info.setPosition(pos);
 				return true;
 			}
@@ -388,33 +410,40 @@ class VersionFormatParser {
 				if (es != null) {
 					pos = posHolder[0];
 					int len = pos - start;
-					if (rangeMin > len || len > rangeMax)
+					if (rangeMin > len || len > rangeMax) {
 						return false;
-					if (!isIgnored())
+					}
+					if (!isIgnored()) {
 						segments.add(es);
+					}
 					info.setPosition(pos);
 					return true;
 				}
-				if (!enumInstruction.isOptional())
+				if (!enumInstruction.isOptional()) {
 					return false;
+				}
 			}
 
-			if (!(VersionParser.isLetter(c) && isAllowed(c)))
+			if (!(VersionParser.isLetter(c) && isAllowed(c))) {
 				return false;
+			}
 
 			// Parse to next non-letter or next delimiter
 			//
 			for (++pos; pos < maxPos; ++pos) {
 				c = version.charAt(pos);
-				if (!(VersionParser.isLetter(c) && isAllowed(c)))
+				if (!(VersionParser.isLetter(c) && isAllowed(c))) {
 					break;
+				}
 			}
 			int len = pos - start;
-			if (rangeMin > len || len > rangeMax)
+			if (rangeMin > len || len > rangeMax) {
 				return false;
+			}
 
-			if (!isIgnored())
+			if (!isIgnored()) {
 				segments.add(version.substring(start, pos));
+			}
 			info.setPosition(pos);
 			return true;
 		}
@@ -445,12 +474,15 @@ class VersionFormatParser {
 		boolean isMatch(String version, int pos) {
 			char c = version.charAt(pos);
 			if (delimChars != null) {
-				for (char delimChar : delimChars)
-					if (c == delimChar)
+				for (char delimChar : delimChars) {
+					if (c == delimChar) {
 						return !inverted;
+					}
+				}
 				return inverted;
-			} else if (VersionParser.isLetterOrDigit(c))
+			} else if (VersionParser.isLetterOrDigit(c)) {
 				return false;
+			}
 
 			return true;
 		}
@@ -470,8 +502,9 @@ class VersionFormatParser {
 		@Override
 		void toString(StringBuilder sb) {
 			sb.append('d');
-			if (delimChars != null)
+			if (delimChars != null) {
 				appendCharacterRange(sb, delimChars, inverted);
+			}
 			super.toString(sb);
 		}
 	}
@@ -479,13 +512,15 @@ class VersionFormatParser {
 	static void appendCharacterRange(StringBuilder sb, char[] range, boolean inverted) {
 		sb.append('=');
 		sb.append('[');
-		if (inverted)
+		if (inverted) {
 			sb.append('^');
+		}
 		int top = range.length;
 		for (int idx = 0; idx < top; ++idx) {
 			char b = range[idx];
-			if (b == '\\' || b == ']' || (b == '-' && idx + 1 < top))
+			if (b == '\\' || b == ']' || (b == '-' && idx + 1 < top)) {
 				sb.append('\\');
+			}
 
 			sb.append(b);
 			int ndx = idx + 1;
@@ -493,16 +528,19 @@ class VersionFormatParser {
 				char c = b;
 				for (; ndx < top; ++ndx) {
 					char n = range[ndx];
-					if (c + 1 != n)
+					if (c + 1 != n) {
 						break;
+					}
 					c = n;
 				}
-				if (ndx <= idx + 3)
+				if (ndx <= idx + 3) {
 					continue;
+				}
 
 				sb.append('-');
-				if (c == '\\' || c == ']' || (c == '-' && idx + 1 < top))
+				if (c == '\\' || c == ']' || (c == '-' && idx + 1 < top)) {
 					sb.append('\\');
+				}
 				sb.append(c);
 				idx = ndx - 1;
 			}
@@ -587,8 +625,9 @@ class VersionFormatParser {
 		@Override
 		void setDefaults(List<Comparable<?>> segments) {
 			Comparable<?> defaultVal = getDefaultValue();
-			if (defaultVal != null)
+			if (defaultVal != null) {
 				segments.add(defaultVal);
+			}
 		}
 
 		@Override
@@ -639,14 +678,16 @@ class VersionFormatParser {
 			if (array) {
 				ArrayList<Comparable<?>> subSegs = new ArrayList<>();
 				boolean success = fragments[0].getQualifier().parse(fragments, 0, subSegs, version, maxPos, info);
-				if (!success || subSegs.isEmpty())
+				if (!success || subSegs.isEmpty()) {
 					return false;
+				}
 
 				Comparable<?> padValue = info.getPadValue();
-				if (padValue != null)
+				if (padValue != null) {
 					info.setPadValue(null); // Prevent outer group from getting this.
-				else
+				} else {
 					padValue = getPadValue();
+				}
 
 				padValue = VersionParser.removeRedundantTrail(segments, padValue);
 				segments.add(new VersionVector(subSegs.toArray(new Comparable[subSegs.size()]), padValue));
@@ -655,8 +696,9 @@ class VersionFormatParser {
 
 			if (fragments[0].getQualifier().parse(fragments, 0, segments, version, maxPos, info)) {
 				Comparable<?> padValue = getPadValue();
-				if (padValue != null)
+				if (padValue != null) {
 					info.setPadValue(padValue);
+				}
 				return true;
 			}
 			return false;
@@ -671,8 +713,9 @@ class VersionFormatParser {
 				super.setDefaults(segments);
 			} else {
 				// Assign defaults for all fragments
-				for (Fragment fragment : fragments)
+				for (Fragment fragment : fragments) {
 					fragment.setDefaults(segments);
+				}
 			}
 		}
 
@@ -680,19 +723,22 @@ class VersionFormatParser {
 		void toString(StringBuilder sb) {
 			if (array) {
 				sb.append('<');
-				for (Fragment fragment : fragments)
+				for (Fragment fragment : fragments) {
 					fragment.toString(sb);
+				}
 				sb.append('>');
 			} else {
 				if (getQualifier() == VersionFormatParser.ZERO_OR_ONE_QUALIFIER) {
 					sb.append('[');
-					for (Fragment fragment : fragments)
+					for (Fragment fragment : fragments) {
 						fragment.toString(sb);
+					}
 					sb.append(']');
 				} else {
 					sb.append('(');
-					for (Fragment fragment : fragments)
+					for (Fragment fragment : fragments) {
 						fragment.toString(sb);
+					}
 					sb.append(')');
 				}
 			}
@@ -713,12 +759,14 @@ class VersionFormatParser {
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			int litLen = string.length();
-			if (pos + litLen > maxPos)
+			if (pos + litLen > maxPos) {
 				return false;
+			}
 
 			for (int idx = 0; idx < litLen; ++idx, ++pos) {
-				if (string.charAt(idx) != version.charAt(pos))
+				if (string.charAt(idx) != version.charAt(pos)) {
 					return false;
+				}
 			}
 			info.setPosition(pos);
 			return true;
@@ -751,8 +799,9 @@ class VersionFormatParser {
 						if (VersionParser.isLetterOrDigit(c)) {
 							sb.append('\\');
 							sb.append(c);
-						} else
+						} else {
 							sb.append(c);
+						}
 				}
 			}
 			super.toString(sb);
@@ -772,8 +821,9 @@ class VersionFormatParser {
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			maxPos = checkRange(pos, maxPos);
-			if (maxPos < 0)
+			if (maxPos < 0) {
 				return false;
+			}
 
 			// Parse to next non-digit
 			//
@@ -788,43 +838,50 @@ class VersionFormatParser {
 					c = version.charAt(++pos);
 				}
 
-				if (!(c >= '0' && c <= '9' && isAllowed(c)))
+				if (!(c >= '0' && c <= '9' && isAllowed(c))) {
 					return false;
+				}
 
 				// Parse to next non-digit
 				//
 				value = c - '0';
 				while (++pos < maxPos) {
 					c = version.charAt(pos);
-					if (!(c >= '0' && c <= '9' && isAllowed(c)))
+					if (!(c >= '0' && c <= '9' && isAllowed(c))) {
 						break;
+					}
 					value *= 10;
 					value += (c - '0');
 				}
-				if (negate)
+				if (negate) {
 					value = -value;
+				}
 			} else {
-				if (c < '0' || c > '9')
+				if (c < '0' || c > '9') {
 					return false;
+				}
 
 				// Parse to next non-digit
 				//
 				value = c - '0';
 				while (++pos < maxPos) {
 					c = version.charAt(pos);
-					if (c < '0' || c > '9')
+					if (c < '0' || c > '9') {
 						break;
+					}
 					value *= 10;
 					value += (c - '0');
 				}
 			}
 
 			int len = pos - start;
-			if (rangeMin > len || len > rangeMax)
+			if (rangeMin > len || len > rangeMax) {
 				return false;
+			}
 
-			if (!isIgnored())
+			if (!isIgnored()) {
 				segments.add(VersionParser.valueOf(value));
+			}
 			info.setPosition(pos);
 			return true;
 		}
@@ -846,16 +903,19 @@ class VersionFormatParser {
 		@Override
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
-			if (pos >= maxPos || version.charAt(pos) != 'p')
+			if (pos >= maxPos || version.charAt(pos) != 'p') {
 				return false;
+			}
 
 			int[] position = new int[] {++pos};
 			Comparable<?> v = VersionParser.parseRawElement(version, position, maxPos);
-			if (v == null)
+			if (v == null) {
 				return false;
+			}
 
-			if (!isIgnored())
+			if (!isIgnored()) {
 				info.setPadValue(v);
+			}
 			info.setPosition(position[0]);
 			return true;
 		}
@@ -877,8 +937,9 @@ class VersionFormatParser {
 		@Override
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
-			if (pos >= maxPos)
+			if (pos >= maxPos) {
 				return false;
+			}
 
 			char endQuote;
 			char quote = version.charAt(pos);
@@ -908,25 +969,30 @@ class VersionFormatParser {
 					endQuote = '[';
 					break;
 				default :
-					if (VersionParser.isLetterOrDigit(quote))
+					if (VersionParser.isLetterOrDigit(quote)) {
 						return false;
+					}
 					endQuote = quote;
 			}
 			int start = ++pos;
 			char c = version.charAt(pos);
-			while (c != endQuote && isAllowed(c) && ++pos < maxPos)
+			while (c != endQuote && isAllowed(c) && ++pos < maxPos) {
 				c = version.charAt(pos);
+			}
 
-			if (c != endQuote || rangeMin > pos - start)
+			if (c != endQuote || rangeMin > pos - start) {
 				// End quote not found
 				return false;
+			}
 
 			int len = pos - start;
-			if (rangeMin > len || len > rangeMax)
+			if (rangeMin > len || len > rangeMax) {
 				return false;
+			}
 
-			if (!isIgnored())
+			if (!isIgnored()) {
 				segments.add(version.substring(start, pos));
+			}
 			info.setPosition(++pos); // Skip quote
 			return true;
 		}
@@ -974,19 +1040,21 @@ class VersionFormatParser {
 		 */
 		int checkRange(int pos, int maxPos) {
 			int check = pos;
-			if (rangeMin == 0)
+			if (rangeMin == 0) {
 				check++; // Verify one character
-			else
+			} else {
 				check += rangeMin;
+			}
 
-			if (check > maxPos)
+			if (check > maxPos) {
 				// Less then min characters left
 				maxPos = -1;
-			else {
+			} else {
 				if (rangeMax != Integer.MAX_VALUE) {
 					check = pos + rangeMax;
-					if (check < maxPos)
+					if (check < maxPos) {
 						maxPos = check;
+					}
 				}
 			}
 			return maxPos;
@@ -996,9 +1064,11 @@ class VersionFormatParser {
 			char[] crs = characters;
 			if (crs != null) {
 				int idx = crs.length;
-				while (--idx >= 0)
-					if (c == crs[idx])
+				while (--idx >= 0) {
+					if (c == crs[idx]) {
 						return !inverted;
+					}
+				}
 				return inverted;
 			}
 			return true;
@@ -1006,22 +1076,25 @@ class VersionFormatParser {
 
 		@Override
 		void toString(StringBuilder sb) {
-			if (characters != null)
+			if (characters != null) {
 				appendCharacterRange(sb, characters, inverted);
+			}
 			if (rangeMin != 0 || rangeMax != Integer.MAX_VALUE) {
 				sb.append('=');
 				sb.append('{');
 				sb.append(rangeMin);
 				if (rangeMin != rangeMax) {
 					sb.append(',');
-					if (rangeMax != Integer.MAX_VALUE)
+					if (rangeMax != Integer.MAX_VALUE) {
 						sb.append(rangeMax);
+					}
 				}
 				sb.append('}');
 				sb.append(';');
 			}
-			if (enumInstruction != null)
+			if (enumInstruction != null) {
 				enumInstruction.toString(sb);
+			}
 			super.toString(sb);
 		}
 	}
@@ -1037,11 +1110,13 @@ class VersionFormatParser {
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int[] position = new int[] {info.getPosition()};
 			Comparable<?> v = VersionParser.parseRawElement(version, position, maxPos);
-			if (v == null)
+			if (v == null) {
 				return false;
+			}
 
-			if (!isIgnored())
+			if (!isIgnored()) {
 				segments.add(v);
+			}
 			info.setPosition(position[0]);
 			return true;
 		}
@@ -1068,13 +1143,16 @@ class VersionFormatParser {
 				otc = instr.oppositeTranslationChar;
 				otr = instr.oppositeTranslationRepeat;
 				if (instr.defaultValue == VersionVector.MINS_VALUE) {
-					if (otc == 0)
+					if (otc == 0) {
 						otc = 'z';
-					if (otr == 0)
+					}
+					if (otr == 0) {
 						otr = 3;
+					}
 				} else if (instr.defaultValue == VersionVector.MAXS_VALUE) {
-					if (otc == 0)
+					if (otc == 0) {
 						otc = '-';
+					}
 					otr = 1;
 				}
 			}
@@ -1092,9 +1170,11 @@ class VersionFormatParser {
 				String str = (String) val;
 				int idx = oppositeTranslationRepeat;
 				if (str.length() == idx) {
-					while (--idx >= 0)
-						if (str.charAt(idx) != oppositeTranslationChar)
+					while (--idx >= 0) {
+						if (str.charAt(idx) != oppositeTranslationChar) {
 							break;
+						}
+					}
 					return idx < 0;
 				}
 			}
@@ -1105,8 +1185,9 @@ class VersionFormatParser {
 		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			maxPos = checkRange(pos, maxPos);
-			if (maxPos < 0)
+			if (maxPos < 0) {
 				return false;
+			}
 
 			int start = pos;
 			if (enumInstruction != null) {
@@ -1115,15 +1196,18 @@ class VersionFormatParser {
 				if (es != null) {
 					pos = posHolder[0];
 					int len = pos - start;
-					if (rangeMin > len || len > rangeMax)
+					if (rangeMin > len || len > rangeMax) {
 						return false;
-					if (!isIgnored())
+					}
+					if (!isIgnored()) {
 						segments.add(es);
+					}
 					info.setPosition(pos);
 					return true;
 				}
-				if (!enumInstruction.isOptional())
+				if (!enumInstruction.isOptional()) {
 					return false;
+				}
 			}
 
 			// Parse to next delimiter or end of string
@@ -1132,35 +1216,40 @@ class VersionFormatParser {
 				if (anyChar) {
 					// Swallow everything that matches the allowed characters
 					for (; pos < maxPos; ++pos) {
-						if (!isAllowed(version.charAt(pos)))
+						if (!isAllowed(version.charAt(pos))) {
 							break;
+						}
 					}
 				} else {
 					// Swallow letters that matches the allowed characters
 					for (; pos < maxPos; ++pos) {
 						char c = version.charAt(pos);
-						if (!(VersionParser.isLetter(c) && isAllowed(c)))
+						if (!(VersionParser.isLetter(c) && isAllowed(c))) {
 							break;
+						}
 					}
 				}
 			} else {
-				if (anyChar)
+				if (anyChar) {
 					// Swallow all characters
 					pos = maxPos;
-				else {
+				} else {
 					// Swallow all letters
 					for (; pos < maxPos; ++pos) {
-						if (!VersionParser.isLetter(version.charAt(pos)))
+						if (!VersionParser.isLetter(version.charAt(pos))) {
 							break;
+						}
 					}
 				}
 			}
 			int len = pos - start;
-			if (len == 0 || rangeMin > len || len > rangeMax)
+			if (len == 0 || rangeMin > len || len > rangeMax) {
 				return false;
+			}
 
-			if (!isIgnored())
+			if (!isIgnored()) {
 				segments.add(version.substring(start, pos));
+			}
 			info.setPosition(pos);
 			return true;
 		}
@@ -1184,15 +1273,17 @@ class VersionFormatParser {
 
 	Fragment compile(String fmt, int pos, int maxPos) throws VersionFormatException {
 		format = fmt;
-		if (start >= maxPos)
+		if (start >= maxPos) {
 			throw new VersionFormatException(Messages.format_is_empty);
+		}
 
 		start = pos;
 		current = pos;
 		eos = maxPos;
 		currentList = new ArrayList<>();
-		while (current < eos)
+		while (current < eos) {
 			parseFragment();
+		}
 
 		Fragment topFrag;
 		switch (currentList.size()) {
@@ -1213,12 +1304,14 @@ class VersionFormatParser {
 	}
 
 	private void assertChar(char expected) throws VersionFormatException {
-		if (current >= eos)
+		if (current >= eos) {
 			throw formatException(NLS.bind(Messages.premature_end_of_format_expected_0, new String(new char[] {expected})));
+		}
 
 		char c = format.charAt(current);
-		if (c != expected)
+		if (c != expected) {
 			throw formatException(c, new String(new char[] {expected}));
+		}
 		++current;
 	}
 
@@ -1242,18 +1335,22 @@ class VersionFormatParser {
 		StringBuilder sb = new StringBuilder();
 		while (current < eos) {
 			char c = format.charAt(current++);
-			if (c == endChar)
+			if (c == endChar) {
 				break;
+			}
 
-			if (c < 32)
+			if (c < 32) {
 				throw illegalControlCharacter(c);
+			}
 
 			if (c == '\\') {
-				if (current == eos)
+				if (current == eos) {
 					throw formatException(Messages.EOS_after_escape);
+				}
 				c = format.charAt(current++);
-				if (c < 32)
+				if (c < 32) {
 					throw illegalControlCharacter(c);
+				}
 			}
 			sb.append(c);
 		}
@@ -1263,8 +1360,9 @@ class VersionFormatParser {
 	private void parseAuto() throws VersionFormatException {
 		VersionFormatParser.Instructions ep = parseProcessing();
 		if (ep != null) {
-			if (ep.padValue != null)
+			if (ep.padValue != null) {
 				throw formatException(Messages.auto_can_not_have_pad_value);
+			}
 		}
 		currentList.add(createAutoFragment(ep, parseQualifier()));
 	}
@@ -1272,11 +1370,13 @@ class VersionFormatParser {
 	private void parseBracketGroup() throws VersionFormatException {
 		List<Fragment> saveList = currentList;
 		currentList = new ArrayList<>();
-		while (current < eos && format.charAt(current) != ']')
+		while (current < eos && format.charAt(current) != ']') {
 			parseFragment();
+		}
 
-		if (current == eos)
+		if (current == eos) {
 			throw formatException(NLS.bind(Messages.premature_end_of_format_expected_0, "]")); //$NON-NLS-1$
+		}
 
 		++current;
 		VersionFormatParser.Instructions ep = parseProcessing();
@@ -1298,10 +1398,11 @@ class VersionFormatParser {
 					}
 					throw formatException(Messages.premature_end_of_format);
 				case '^' :
-					if (sb.length() == 0)
+					if (sb.length() == 0) {
 						ep.inverted = true;
-					else
+					} else {
 						sb.append(c);
+					}
 					continue;
 				case ']' :
 					break outer;
@@ -1315,16 +1416,19 @@ class VersionFormatParser {
 						}
 
 						char rangeStart = sb.charAt(sb.length() - 1);
-						if (rangeEnd < rangeStart)
+						if (rangeEnd < rangeStart) {
 							throw formatException(Messages.negative_character_range);
-						while (++rangeStart <= rangeEnd)
+						}
+						while (++rangeStart <= rangeEnd) {
 							sb.append(rangeStart);
+						}
 						continue;
 					}
 					// Fall through to default
 				default :
-					if (c < 32)
+					if (c < 32) {
 						throw illegalControlCharacter(c);
+					}
 					sb.append(c);
 			}
 		}
@@ -1338,14 +1442,18 @@ class VersionFormatParser {
 	private void parseDelimiter() throws VersionFormatException {
 		VersionFormatParser.Instructions ep = parseProcessing();
 		if (ep != null) {
-			if (ep.rangeMin != 0 || ep.rangeMax != Integer.MAX_VALUE)
+			if (ep.rangeMin != 0 || ep.rangeMax != Integer.MAX_VALUE) {
 				throw formatException(Messages.delimiter_can_not_have_range);
-			if (ep.ignore)
+			}
+			if (ep.ignore) {
 				throw formatException(Messages.delimiter_can_not_be_ignored);
-			if (ep.defaultValue != null)
+			}
+			if (ep.defaultValue != null) {
 				throw formatException(Messages.delimiter_can_not_have_default_value);
-			if (ep.padValue != null)
+			}
+			if (ep.padValue != null) {
 				throw formatException(Messages.delimiter_can_not_have_pad_value);
+			}
 		}
 		currentList.add(createDelimiterFragment(ep, parseQualifier()));
 	}
@@ -1356,29 +1464,34 @@ class VersionFormatParser {
 		ArrayList<String> idents = new ArrayList<>();
 		StringBuilder sb = new StringBuilder();
 		for (;;) {
-			if (current >= eos)
+			if (current >= eos) {
 				throw formatException(Messages.bad_enum_definition);
+			}
 
 			char c = format.charAt(current++);
 			while (c != '}' && c != ',' && c != '=') {
-				if (current >= eos || c <= ' ')
+				if (current >= eos || c <= ' ') {
 					throw formatException(Messages.bad_enum_definition);
+				}
 				if (c == '\\') {
 					c = format.charAt(current++);
-					if (current >= eos)
+					if (current >= eos) {
 						throw formatException(Messages.bad_enum_definition);
+					}
 				}
 				sb.append(c);
 				c = format.charAt(current++);
 			}
 			idents.add(sb.toString());
 			sb.setLength(0);
-			if (c == '=')
+			if (c == '=') {
 				continue;
+			}
 
 			identifiers.add(idents);
-			if (c == '}')
+			if (c == '}') {
 				break;
+			}
 
 			// c must be ',' at this point
 			idents = new ArrayList<>();
@@ -1417,10 +1530,12 @@ class VersionFormatParser {
 			int idx = ids.size();
 			while (--idx >= 0) {
 				String id = ids.get(idx);
-				if (!enumCaseSensitive)
+				if (!enumCaseSensitive) {
 					id = id.toLowerCase();
-				if (!unique.add(id))
+				}
+				if (!unique.add(id)) {
 					throw formatException(Messages.bad_enum_definition);
+				}
 				ids.set(idx, id);
 			}
 		}
@@ -1429,8 +1544,9 @@ class VersionFormatParser {
 	}
 
 	private void parseFragment() throws VersionFormatException {
-		if (current == eos)
+		if (current == eos) {
 			throw formatException(Messages.premature_end_of_format);
+		}
 		char c = format.charAt(current++);
 		switch (c) {
 			case '(' :
@@ -1478,39 +1594,47 @@ class VersionFormatParser {
 		List<Fragment> saveList = currentList;
 		currentList = new ArrayList<>();
 		char expectedEnd = array ? '>' : ')';
-		while (current < eos && format.charAt(current) != expectedEnd)
+		while (current < eos && format.charAt(current) != expectedEnd) {
 			parseFragment();
+		}
 		assertChar(expectedEnd);
 
 		VersionFormatParser.Instructions ep = parseProcessing();
 		if (ep != null) {
-			if (ep.characters != null)
+			if (ep.characters != null) {
 				throw formatException(Messages.array_can_not_have_character_group);
-			if (ep.rangeMax != Integer.MAX_VALUE && ep.padValue != null)
+			}
+			if (ep.rangeMax != Integer.MAX_VALUE && ep.padValue != null) {
 				throw formatException(Messages.cannot_combine_range_upper_bound_with_pad_value);
-			if (ep.enumInstruction != null)
+			}
+			if (ep.enumInstruction != null) {
 				throw formatException(Messages.array_can_not_have_enum);
+			}
 		}
 
-		if (currentList.isEmpty())
+		if (currentList.isEmpty()) {
 			throw formatException(array ? Messages.array_can_not_be_empty : Messages.group_can_not_be_empty);
+		}
 		saveList.add(createGroupFragment(ep, parseQualifier(), currentList.toArray(new Fragment[currentList.size()]), array));
 		currentList = saveList;
 	}
 
 	private int parseIntegerLiteral() throws VersionFormatException {
-		if (current == eos)
+		if (current == eos) {
 			throw formatException(NLS.bind(Messages.premature_end_of_format_expected_0, "<integer>")); //$NON-NLS-1$
+		}
 
 		char c = format.charAt(current);
-		if (!VersionParser.isDigit(c))
+		if (!VersionParser.isDigit(c)) {
 			throw formatException(c, "<integer>"); //$NON-NLS-1$
+		}
 
 		int value = c - '0';
 		while (++current < eos) {
 			c = format.charAt(current);
-			if (!VersionParser.isDigit(c))
+			if (!VersionParser.isDigit(c)) {
 				break;
+			}
 			value *= 10;
 			value += (c - '0');
 		}
@@ -1531,18 +1655,22 @@ class VersionFormatParser {
 			case '*' :
 				throw formatException(c, "<literal>"); //$NON-NLS-1$
 			default :
-				if (VersionParser.isLetterOrDigit(c))
+				if (VersionParser.isLetterOrDigit(c)) {
 					throw formatException(c, "<literal>"); //$NON-NLS-1$
+				}
 
-				if (c < 32)
+				if (c < 32) {
 					throw illegalControlCharacter(c);
+				}
 
 				if (c == '\\') {
-					if (current == eos)
+					if (current == eos) {
 						throw formatException(Messages.EOS_after_escape);
+					}
 					c = format.charAt(current++);
-					if (c < 32)
+					if (c < 32) {
 						throw illegalControlCharacter(c);
+					}
 				}
 				value = new String(new char[] {c});
 		}
@@ -1557,28 +1685,33 @@ class VersionFormatParser {
 		char c = format.charAt(current);
 		if (c == '}') {
 			max = min;
-			if (max == 0)
+			if (max == 0) {
 				throw formatException(Messages.range_max_cannot_be_zero);
+			}
 			++current;
 		} else if (c == ',' && current + 1 < eos) {
 			if (format.charAt(++current) != '}') {
 				max = parseIntegerLiteral();
-				if (max == 0)
+				if (max == 0) {
 					throw formatException(Messages.range_max_cannot_be_zero);
-				if (max < min)
+				}
+				if (max < min) {
 					throw formatException(Messages.range_max_cannot_be_less_then_range_min);
+				}
 			}
 			assertChar('}');
-		} else
+		} else {
 			throw formatException(c, "},"); //$NON-NLS-1$
+		}
 		return new int[] {min, max};
 	}
 
 	private void parseNumber(boolean signed) throws VersionFormatException {
 		VersionFormatParser.Instructions ep = parseProcessing();
 		if (ep != null) {
-			if (ep.padValue != null)
+			if (ep.padValue != null) {
 				throw formatException(Messages.number_can_not_have_pad_value);
+			}
 		}
 		currentList.add(createNumberFragment(ep, parseQualifier(), signed));
 	}
@@ -1588,12 +1721,14 @@ class VersionFormatParser {
 	}
 
 	private VersionFormatParser.Instructions parseProcessing() throws VersionFormatException {
-		if (current >= eos)
+		if (current >= eos) {
 			return null;
+		}
 
 		char c = format.charAt(current);
-		if (c != '=')
+		if (c != '=') {
 			return null;
+		}
 
 		VersionFormatParser.Instructions ep = new VersionFormatParser.Instructions();
 		do {
@@ -1604,77 +1739,92 @@ class VersionFormatParser {
 	}
 
 	private void parseProcessingInstruction(VersionFormatParser.Instructions processing) throws VersionFormatException {
-		if (current == eos)
+		if (current == eos) {
 			throw formatException(Messages.premature_end_of_format);
+		}
 
 		char c = format.charAt(current);
 		switch (c) {
 			case 'p':
 				// =pad(<raw-element>);
 				//
-				if (processing.padValue != null)
+				if (processing.padValue != null) {
 					throw formatException(Messages.pad_defined_more_then_once);
-				if (processing.ignore)
+				}
+				if (processing.ignore) {
 					throw formatException(Messages.cannot_combine_ignore_with_other_instruction);
+				}
 				++current;
 				processing.padValue = parseRawElement();
 				break;
 			case '!':
 				// =ignore;
 				//
-				if (processing.ignore)
+				if (processing.ignore) {
 					throw formatException(Messages.ignore_defined_more_then_once);
-				if (processing.padValue != null || processing.characters != null || processing.rangeMin != 0 || processing.rangeMax != Integer.MAX_VALUE || processing.defaultValue != null)
+				}
+				if (processing.padValue != null || processing.characters != null || processing.rangeMin != 0 || processing.rangeMax != Integer.MAX_VALUE || processing.defaultValue != null) {
 					throw formatException(Messages.cannot_combine_ignore_with_other_instruction);
+				}
 				++current;
 				processing.ignore = true;
 				break;
 			case '[':
 				// =[<character group];
 				//
-				if (processing.characters != null)
+				if (processing.characters != null) {
 					throw formatException(Messages.character_group_defined_more_then_once);
-				if (processing.ignore)
+				}
+				if (processing.ignore) {
 					throw formatException(Messages.cannot_combine_ignore_with_other_instruction);
+				}
 				parseCharacterGroup(processing);
 				break;
 			case '{':
-				if (current + 1 == eos)
+				if (current + 1 == eos) {
 					throw formatException(Messages.premature_end_of_format);
+				}
 				if (VersionParser.isDigit(format.charAt(current + 1))) {
 					// ={min,max};
 					//
-					if (processing.rangeMin != 0 || processing.rangeMax != Integer.MAX_VALUE)
+					if (processing.rangeMin != 0 || processing.rangeMax != Integer.MAX_VALUE) {
 						throw formatException(Messages.range_defined_more_then_once);
-					if (processing.ignore)
+					}
+					if (processing.ignore) {
 						throw formatException(Messages.cannot_combine_ignore_with_other_instruction);
+					}
 					int[] minMax = parseMinMax();
 					processing.rangeMin = minMax[0];
 					processing.rangeMax = minMax[1];
 				} else {
 					// ={enum1,enum2,...};
 					//
-					if (processing.enumInstruction != null)
+					if (processing.enumInstruction != null) {
 						throw formatException(Messages.enum_defined_more_then_once);
+					}
 					parseEnum(processing);
 				}
 				break;
 			default:
 				// =<raw-element>;
-				if (processing.defaultValue != null)
+				if (processing.defaultValue != null) {
 					throw formatException(Messages.default_defined_more_then_once);
-				if (processing.ignore)
+				}
+				if (processing.ignore) {
 					throw formatException(Messages.cannot_combine_ignore_with_other_instruction);
+				}
 				Comparable<?> dflt = parseRawElement();
 				processing.defaultValue = dflt;
 				if (current < eos && format.charAt(current) == '{') {
 					// =m{<translated min char>}
 					// =''{<translated max char>,<max char repeat>}
-					if (++current == eos)
+					if (++current == eos) {
 						throw formatException(Messages.premature_end_of_format);
+					}
 					processing.oppositeTranslationChar = format.charAt(current++);
-					if (current == eos)
+					if (current == eos) {
 						throw formatException(Messages.premature_end_of_format);
+					}
 
 					if (dflt == VersionVector.MINS_VALUE) {
 						processing.oppositeTranslationRepeat = 3;
@@ -1694,8 +1844,9 @@ class VersionFormatParser {
 	}
 
 	private Qualifier parseQualifier() throws VersionFormatException {
-		if (current >= eos)
+		if (current >= eos) {
 			return EXACT_ONE_QUALIFIER;
+		}
 
 		char c = format.charAt(current);
 		if (c == '?') {
@@ -1713,8 +1864,9 @@ class VersionFormatParser {
 			return ONE_OR_MANY_QUALIFIER;
 		}
 
-		if (c != '{')
+		if (c != '{') {
 			return EXACT_ONE_QUALIFIER;
+		}
 
 		int[] minMax = parseMinMax();
 		int min = minMax[0];
@@ -1723,15 +1875,19 @@ class VersionFormatParser {
 		// Use singletons for commonly used ranges
 		//
 		if (min == 0) {
-			if (max == 1)
+			if (max == 1) {
 				return ZERO_OR_ONE_QUALIFIER;
-			if (max == Integer.MAX_VALUE)
+			}
+			if (max == Integer.MAX_VALUE) {
 				return ZERO_OR_MANY_QUALIFIER;
+			}
 		} else if (min == 1) {
-			if (max == 1)
+			if (max == 1) {
 				return EXACT_ONE_QUALIFIER;
-			if (max == Integer.MAX_VALUE)
+			}
+			if (max == Integer.MAX_VALUE) {
 				return ONE_OR_MANY_QUALIFIER;
+			}
 		}
 		return new Qualifier(min, max);
 	}
@@ -1739,8 +1895,9 @@ class VersionFormatParser {
 	private void parseQuotedString() throws VersionFormatException {
 		VersionFormatParser.Instructions ep = parseProcessing();
 		if (ep != null) {
-			if (ep.padValue != null)
+			if (ep.padValue != null) {
 				throw formatException(Messages.string_can_not_have_pad_value);
+			}
 		}
 		currentList.add(createQuotedFragment(ep, parseQualifier()));
 	}
@@ -1748,8 +1905,9 @@ class VersionFormatParser {
 	private void parseRaw() throws VersionFormatException {
 		VersionFormatParser.Instructions ep = parseProcessing();
 		if (ep != null) {
-			if (ep.padValue != null)
+			if (ep.padValue != null) {
 				throw formatException(Messages.raw_element_can_not_have_pad_value);
+			}
 		}
 		currentList.add(createRawFragment(ep, parseQualifier()));
 	}
@@ -1757,8 +1915,9 @@ class VersionFormatParser {
 	private Comparable<?> parseRawElement() throws VersionFormatException {
 		int[] position = new int[] {current};
 		Comparable<?> v = VersionParser.parseRawElement(format, position, eos);
-		if (v == null)
+		if (v == null) {
 			throw new VersionFormatException(NLS.bind(Messages.raw_element_expected_0, format));
+		}
 		current = position[0];
 		return v;
 	}
@@ -1766,8 +1925,9 @@ class VersionFormatParser {
 	private void parseString(boolean unlimited) throws VersionFormatException {
 		VersionFormatParser.Instructions ep = parseProcessing();
 		if (ep != null) {
-			if (ep.padValue != null)
+			if (ep.padValue != null) {
 				throw formatException(Messages.string_can_not_have_pad_value);
+			}
 		}
 		currentList.add(createStringFragment(ep, parseQualifier(), unlimited));
 	}
@@ -1775,8 +1935,9 @@ class VersionFormatParser {
 	static void toStringEscaped(StringBuilder sb, String value, String escapes) {
 		for (int idx = 0; idx < value.length(); ++idx) {
 			char c = value.charAt(idx);
-			if (c == '\\' || escapes.indexOf(c) >= 0)
+			if (c == '\\' || escapes.indexOf(c) >= 0) {
 				sb.append('\\');
+			}
 			sb.append(c);
 		}
 	}

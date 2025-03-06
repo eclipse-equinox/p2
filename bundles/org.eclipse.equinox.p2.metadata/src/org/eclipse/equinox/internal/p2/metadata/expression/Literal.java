@@ -31,12 +31,15 @@ public final class Literal extends Expression {
 	public static final Literal TRUE_CONSTANT = new Literal(Boolean.TRUE);
 
 	public static Literal create(Object value) {
-		if (value == null)
+		if (value == null) {
 			return NULL_CONSTANT;
-		if (value == Boolean.TRUE)
+		}
+		if (value == Boolean.TRUE) {
 			return TRUE_CONSTANT;
-		if (value == Boolean.FALSE)
+		}
+		if (value == Boolean.FALSE) {
 			return FALSE_CONSTANT;
+		}
 		return new Literal(value);
 	}
 
@@ -50,18 +53,22 @@ public final class Literal extends Expression {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
-		if (cmp != 0)
+		if (cmp != 0) {
 			return cmp;
+		}
 
 		Object eValue = ((Literal) e).value;
-		if (value == null)
+		if (value == null) {
 			return eValue == null ? 0 : -1;
+		}
 
-		if (eValue == null)
+		if (eValue == null) {
 			return 1;
+		}
 
-		if (eValue.getClass() == value.getClass())
+		if (eValue.getClass() == value.getClass()) {
 			return ((Comparable) value).compareTo(eValue);
+		}
 
 		return eValue.getClass().getName().compareTo(value.getClass().getName());
 	}
@@ -102,8 +109,9 @@ public final class Literal extends Expression {
 
 	@Override
 	public void toLDAPString(StringBuilder buf) {
-		if (!(value instanceof Filter))
+		if (!(value instanceof Filter)) {
 			throw new UnsupportedOperationException();
+		}
 		buf.append(value.toString());
 	}
 
@@ -113,17 +121,17 @@ public final class Literal extends Expression {
 	}
 
 	private static void appendValue(StringBuilder bld, Object value) {
-		if (value == null)
+		if (value == null) {
 			bld.append("null"); //$NON-NLS-1$
-		else if (value == Boolean.TRUE)
+		} else if (value == Boolean.TRUE) {
 			bld.append("true"); //$NON-NLS-1$
-		else if (value == Boolean.FALSE)
+		} else if (value == Boolean.FALSE) {
 			bld.append("false"); //$NON-NLS-1$
-		else if (value instanceof String)
+		} else if (value instanceof String) {
 			appendQuotedString(bld, (String) value);
-		else if (value instanceof Number)
+		} else if (value instanceof Number) {
 			bld.append(value.toString());
-		else if (value instanceof SimplePattern) {
+		} else if (value instanceof SimplePattern) {
 			appendEscaped(bld, '/', value.toString());
 		} else if (value instanceof Version) {
 			bld.append("version("); //$NON-NLS-1$
@@ -145,10 +153,11 @@ public final class Literal extends Expression {
 			bld.append("set("); //$NON-NLS-1$
 			appendLiteralCollection(bld, (Collection<?>) value);
 			bld.append(')');
-		} else if (value instanceof Collection<?>)
+		} else if (value instanceof Collection<?>) {
 			appendLiteralCollection(bld, (Collection<?>) value);
-		else
+		} else {
 			bld.append(value);
+		}
 
 	}
 
@@ -170,8 +179,9 @@ public final class Literal extends Expression {
 			bld.append('\'');
 			bld.append(str);
 			bld.append('\'');
-		} else
+		} else {
 			appendEscaped(bld, '"', str);
+		}
 	}
 
 	private static void appendEscaped(StringBuilder bld, char delimiter, String str) {
@@ -179,8 +189,9 @@ public final class Literal extends Expression {
 		int top = str.length();
 		for (int idx = 0; idx < top; ++idx) {
 			char c = str.charAt(idx);
-			if (c == delimiter || c == '\\')
+			if (c == delimiter || c == '\\') {
 				bld.append('\\');
+			}
 			bld.append(c);
 		}
 		bld.append(delimiter);

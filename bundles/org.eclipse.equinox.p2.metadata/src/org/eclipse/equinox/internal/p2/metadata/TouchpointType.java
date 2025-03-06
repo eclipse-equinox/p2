@@ -32,12 +32,15 @@ public class TouchpointType implements ITouchpointType {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (super.equals(obj))
+		}
+		if (super.equals(obj)) {
 			return true;
-		if (obj == null || !(obj instanceof ITouchpointType))
+		}
+		if (obj == null || !(obj instanceof ITouchpointType)) {
 			return false;
+		}
 		ITouchpointType other = (ITouchpointType) obj;
 		return id.equals(other.getId()) && version.equals(other.getVersion());
 	}

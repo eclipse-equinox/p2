@@ -39,40 +39,49 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 			bld.append('(');
 			operand.toString(bld, rootVariable);
 			bld.append(')');
-		} else
+		} else {
 			operand.toString(bld, rootVariable);
+		}
 	}
 
 	public static Expression[] assertLength(Expression[] operands, int minLength, int maxLength, String operand) {
-		if (operands == null)
+		if (operands == null) {
 			operands = emptyArray;
-		if (operands.length < minLength)
+		}
+		if (operands.length < minLength) {
 			throw new IllegalArgumentException("Not enough operands for " + operand); //$NON-NLS-1$
-		if (operands.length > maxLength)
+		}
+		if (operands.length > maxLength) {
 			throw new IllegalArgumentException("Too many operands for " + operand); //$NON-NLS-1$
+		}
 		return operands;
 	}
 
 	public static Expression[] assertLength(Expression[] operands, int length, String operand) {
-		if (operands == null)
+		if (operands == null) {
 			operands = emptyArray;
-		if (operands.length < length)
+		}
+		if (operands.length < length) {
 			throw new IllegalArgumentException("Not enough operands for " + operand); //$NON-NLS-1$
+		}
 		return operands;
 	}
 
 	public static int compare(Expression[] arr1, Expression[] arr2) {
 		int max = arr1.length;
-		if (max > arr2.length)
+		if (max > arr2.length) {
 			max = arr2.length;
+		}
 		for (int idx = 0; idx < max; ++idx) {
 			int cmp = arr1[idx].compareTo(arr2[idx]);
-			if (cmp != 0)
+			if (cmp != 0) {
 				return cmp;
+			}
 		}
 		if (max == arr2.length) {
-			if (max < arr1.length)
+			if (max < arr1.length) {
 				return 1;
+			}
 			return 0;
 		}
 		return -1;
@@ -80,19 +89,23 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 
 	public static boolean equals(Expression[] arr1, Expression[] arr2) {
 		int idx = arr1.length;
-		if (idx != arr2.length)
+		if (idx != arr2.length) {
 			return false;
-		while (--idx >= 0)
-			if (!arr1[idx].equals(arr2[idx]))
+		}
+		while (--idx >= 0) {
+			if (!arr1[idx].equals(arr2[idx])) {
 				return false;
+			}
+		}
 		return true;
 	}
 
 	public static int hashCode(Expression[] arr) {
 		int idx = arr.length;
 		int result = 1;
-		while (--idx >= 0)
+		while (--idx >= 0) {
 			result = 31 * result + arr[idx].hashCode();
+		}
 		return result;
 	}
 
@@ -140,10 +153,12 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 
 	@Override
 	public boolean equals(Object e) {
-		if (e == this)
+		if (e == this) {
 			return true;
-		if (e == null || getClass() != e.getClass())
+		}
+		if (e == null || getClass() != e.getClass()) {
 			return false;
+		}
 		return getExpressionType() == ((Expression) e).getExpressionType();
 	}
 
@@ -158,8 +173,9 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object value = evaluate(context);
-		if (!(value instanceof Iterator<?>))
+		if (!(value instanceof Iterator<?>)) {
 			value = RepeatableIterator.create(value);
+		}
 		return (Iterator<?>) value;
 	}
 
@@ -209,8 +225,9 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		}
 
 		Expression getResultingFilter() {
-			if (parts == null)
+			if (parts == null) {
 				return base;
+			}
 
 			int partsOp = op == TYPE_AND ? TYPE_OR : TYPE_AND;
 			return addFilter(base, normalize(parts, partsOp), op);
@@ -219,15 +236,17 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		boolean merge(Expression b) {
 			Expression[] aArr;
 			Expression[] bArr;
-			if (base.getExpressionType() == op)
+			if (base.getExpressionType() == op) {
 				aArr = getFilterImpls(base);
-			else
+			} else {
 				aArr = new Expression[] { base };
+			}
 
-			if (b.getExpressionType() == op)
+			if (b.getExpressionType() == op) {
 				bArr = getFilterImpls(b);
-			else
+			} else {
 				bArr = new Expression[] { b };
+			}
 
 			List<Expression> common = null;
 			List<Expression> onlyA = null;
@@ -241,34 +260,41 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 				for (bidx = 0; bidx < btop; ++bidx) {
 					Expression bf = bArr[bidx];
 					if (af.equals(bf)) {
-						if (common == null)
+						if (common == null) {
 							common = new ArrayList<>();
+						}
 						common.add(af);
 						break;
 					}
 				}
 				if (bidx == btop) {
-					if (onlyA == null)
+					if (onlyA == null) {
 						onlyA = new ArrayList<>();
+					}
 					onlyA.add(af);
 				}
 			}
-			if (common == null)
+			if (common == null) {
 				// Nothing in common
 				return false;
+			}
 
-			if (onlyA == null && parts == null)
+			if (onlyA == null && parts == null) {
 				return true;
+			}
 
 			List<Expression> onlyB = null;
 			for (bidx = 0; bidx < btop; ++bidx) {
 				Expression bf = bArr[bidx];
-				for (aidx = 0; aidx < atop; ++aidx)
-					if (bf.equals(aArr[aidx]))
+				for (aidx = 0; aidx < atop; ++aidx) {
+					if (bf.equals(aArr[aidx])) {
 						break;
+					}
+				}
 				if (aidx == atop) {
-					if (onlyB == null)
+					if (onlyB == null) {
 						onlyB = new ArrayList<>();
+					}
 					onlyB.add(bf);
 				}
 			}
@@ -279,18 +305,21 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 				return true;
 			}
 
-			if (parts == null)
+			if (parts == null) {
 				parts = new ArrayList<>();
+			}
 
 			if (onlyA != null) {
 				base = normalize(common, op);
 				Expression af = normalize(onlyA, op);
-				if (!parts.contains(af))
+				if (!parts.contains(af)) {
 					parts.add(af);
+				}
 			}
 			Expression bf = normalize(onlyB, op);
-			if (!parts.contains(bf))
+			if (!parts.contains(bf)) {
 				parts.add(bf);
+			}
 			return true;
 		}
 	}
@@ -305,8 +334,9 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 
 		@Override
 		public boolean visit(IExpression expression) {
-			if (((Expression) expression).isReferenceTo(variable))
+			if (((Expression) expression).isReferenceTo(variable)) {
 				found = true;
+			}
 			return !found;
 		}
 
@@ -339,10 +369,12 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 					// expression.
 					Matches matches = (Matches) expression;
 					if (matches.lhs == operand) {
-						if (members == null)
+						if (members == null) {
 							members = new ArrayList<>();
-						if (!members.contains(InstallableUnit.MEMBER_PROVIDED_CAPABILITIES))
+						}
+						if (!members.contains(InstallableUnit.MEMBER_PROVIDED_CAPABILITIES)) {
 							members.add(InstallableUnit.MEMBER_PROVIDED_CAPABILITIES);
+						}
 					}
 				}
 
@@ -354,10 +386,12 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 				Member member = (Member) expression;
 				if (member.getOperand() == operand) {
 					String name = member.getName();
-					if (members == null)
+					if (members == null) {
 						members = new ArrayList<>();
-					if (!members.contains(name))
+					}
+					if (!members.contains(name)) {
 						members.add(member.getName());
+					}
 					return false;
 				}
 			}
@@ -370,8 +404,9 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 	}
 
 	static Expression addFilter(Expression base, Expression subFilter, int expressionType) {
-		if (base.equals(subFilter))
+		if (base.equals(subFilter)) {
 			return base;
+		}
 
 		ArrayList<Expression> filters = new ArrayList<>(2);
 		filters.add(base);
@@ -381,45 +416,52 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 
 	static Expression normalize(List<Expression> operands, int op) {
 		int top = operands.size();
-		if (top == 1)
+		if (top == 1) {
 			return operands.get(0);
+		}
 
 		// a | (b | c) becomes a | b | c
 		// a & (b & c) becomes a & b & c
 		//
 		for (int idx = 0; idx < top; ++idx) {
 			Expression f = operands.get(idx);
-			if (f.getExpressionType() != op)
+			if (f.getExpressionType() != op) {
 				continue;
+			}
 
 			operands.remove(idx);
 			--top;
 			for (Expression nf : getFilterImpls(f)) {
-				if (!operands.contains(nf))
+				if (!operands.contains(nf)) {
 					operands.add(nf);
+				}
 			}
 		}
 		top = operands.size();
-		if (top == 1)
+		if (top == 1) {
 			return operands.get(0);
+		}
 
 		operands.sort(null);
 		List<Compacter> splits = new ArrayList<>();
 		int reverseOp = op == TYPE_AND ? TYPE_OR : TYPE_AND;
 
-		for (int idx = 0; idx < top; ++idx)
+		for (int idx = 0; idx < top; ++idx) {
 			merge(splits, operands.get(idx), reverseOp);
+		}
 
 		operands.clear();
 		top = splits.size();
 		for (int idx = 0; idx < top; ++idx) {
 			Expression filter = splits.get(idx).getResultingFilter();
-			if (!operands.contains(filter))
+			if (!operands.contains(filter)) {
 				operands.add(filter);
+			}
 		}
 		top = operands.size();
-		if (top == 1)
+		if (top == 1) {
 			return operands.get(0);
+		}
 
 		operands.sort(null);
 		Expression[] expArray = operands.toArray(new Expression[top]);
@@ -430,50 +472,59 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		int top = splits.size();
 		for (int idx = 0; idx < top; ++idx) {
 			Compacter split = splits.get(idx);
-			if (split.merge(base))
+			if (split.merge(base)) {
 				return;
+			}
 		}
 		splits.add(new Compacter(base, op));
 	}
 
 	static Expression[] getFilterImpls(Expression expression) {
-		if (expression instanceof NAry)
+		if (expression instanceof NAry) {
 			return ((NAry) expression).operands;
+		}
 		throw new IllegalArgumentException();
 	}
 
 	static Set<?> asSet(Object val, boolean forcePrivateCopy) {
-		if (val == null)
+		if (val == null) {
 			throw new IllegalArgumentException("Cannot convert null into an set"); //$NON-NLS-1$
+		}
 
 		if (val instanceof IRepeatableIterator<?>) {
 			Object provider = ((IRepeatableIterator<?>) val).getIteratorProvider();
 			if (!forcePrivateCopy) {
-				if (provider instanceof Set<?>)
+				if (provider instanceof Set<?>) {
 					return (Set<?>) provider;
-				if (provider instanceof IQueryResult<?>)
+				}
+				if (provider instanceof IQueryResult<?>) {
 					return ((IQueryResult<?>) provider).toUnmodifiableSet();
+				}
 			}
 
-			if (provider instanceof Collection<?>)
+			if (provider instanceof Collection<?>) {
 				val = provider;
+			}
 		} else {
 			if (!forcePrivateCopy) {
-				if (val instanceof Set<?>)
+				if (val instanceof Set<?>) {
 					return (Set<?>) val;
-				if (val instanceof IQueryResult<?>)
+				}
+				if (val instanceof IQueryResult<?>) {
 					return ((IQueryResult<?>) val).toUnmodifiableSet();
+				}
 			}
 		}
 
 		HashSet<Object> result;
-		if (val instanceof Collection<?>)
+		if (val instanceof Collection<?>) {
 			result = new HashSet<>((Collection<?>) val);
-		else {
+		} else {
 			result = new HashSet<>();
 			Iterator<?> iterator = RepeatableIterator.create(val);
-			while (iterator.hasNext())
+			while (iterator.hasNext()) {
 				result.add(iterator.next());
+			}
 		}
 		return result;
 	}
@@ -487,8 +538,9 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		@Override
 		public boolean visit(IExpression expression) {
 			if (expression.getExpressionType() == TYPE_MEMBER
-					&& InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(((Member) expression).getName()))
+					&& InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(((Member) expression).getName())) {
 				found = true;
+			}
 			return !found;
 		}
 

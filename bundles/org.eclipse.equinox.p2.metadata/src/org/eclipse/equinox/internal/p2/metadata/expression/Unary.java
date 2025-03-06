@@ -34,8 +34,9 @@ public abstract class Unary extends Expression {
 	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
-		if (cmp == 0)
+		if (cmp == 0) {
 			cmp = operand.compareTo(((Unary) e).operand);
+		}
 		return cmp;
 	}
 

@@ -30,8 +30,9 @@ final class Exists extends CollectionFilter {
 		Variable variable = lambda.getItemVariable();
 		while (itor.hasNext()) {
 			variable.setValue(context, itor.next());
-			if (lambda.evaluate(context) == Boolean.TRUE)
+			if (lambda.evaluate(context) == Boolean.TRUE) {
 				return Boolean.TRUE;
+			}
 		}
 		return Boolean.FALSE;
 	}

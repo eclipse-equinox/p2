@@ -28,17 +28,20 @@ public class Parameter extends Expression {
 	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
-		if (cmp == 0)
+		if (cmp == 0) {
 			cmp = position - ((Parameter) e).position;
+		}
 		return cmp;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (o == this)
+		if (o == this) {
 			return true;
-		if (o == null)
+		}
+		if (o == null) {
 			return false;
+		}
 		return getClass() == o.getClass() && position == ((Parameter) o).position;
 	}
 

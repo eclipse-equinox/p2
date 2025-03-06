@@ -35,17 +35,19 @@ public abstract class VersionParser {
 
 	static Comparable<?> removeRedundantTrail(List<Comparable<?>> segments, Comparable<?> padValue) {
 		Comparable<?> redundantTrail;
-		if (padValue == null)
+		if (padValue == null) {
 			redundantTrail = VersionVector.MIN_VALUE;
-		else {
+		} else {
 			redundantTrail = padValue;
-			if (padValue == VersionVector.MIN_VALUE)
+			if (padValue == VersionVector.MIN_VALUE) {
 				padValue = null;
+			}
 		}
 
 		int idx = segments.size();
-		while (--idx >= 0 && segments.get(idx).equals(redundantTrail))
+		while (--idx >= 0 && segments.get(idx).equals(redundantTrail)) {
 			segments.remove(idx);
+		}
 
 		return padValue;
 	}
@@ -69,8 +71,9 @@ public abstract class VersionParser {
 		// trim leading and trailing whitespace
 		int pos = skipWhite(version, start);
 		maxPos = skipTrailingWhite(version, start, maxPos);
-		if (pos == maxPos)
+		if (pos == maxPos) {
 			return null;
+		}
 
 		List<Comparable<?>> vector = null;
 		VersionFormat fmt = null;
@@ -79,8 +82,9 @@ public abstract class VersionParser {
 			return OSGiVersion.fromVector(VersionFormat.OSGI_FORMAT.parse(version, pos, maxPos));
 		}
 
-		if (!isLetter(c))
+		if (!isLetter(c)) {
 			throw new IllegalArgumentException();
+		}
 
 		if (version.startsWith(Version.RAW_PREFIX, pos)) {
 			VersionFormat rawFmt = VersionFormat.RAW_FORMAT;
@@ -104,8 +108,9 @@ public abstract class VersionParser {
 							if (e == c) {
 								break;
 							}
-							if (e == '\\')
+							if (e == '\\') {
 								++idx;
+							}
 						}
 						// fall through to default
 					default :
@@ -116,17 +121,20 @@ public abstract class VersionParser {
 
 			vector = rawFmt.parse(version, pos, end);
 			pos = end;
-			if (pos == maxPos)
+			if (pos == maxPos) {
 				// This was a pure raw version
 				//
 				return OmniVersion.fromVector(vector, null, null);
+			}
 
-			if (version.charAt(pos) != '/')
+			if (version.charAt(pos) != '/') {
 				throw new IllegalArgumentException(NLS.bind(Messages.expected_slash_after_raw_vector_0, version.substring(start, maxPos)));
+			}
 			++pos;
 
-			if (pos == maxPos)
+			if (pos == maxPos) {
 				throw new IllegalArgumentException(NLS.bind(Messages.expected_orignal_after_slash_0, version.substring(start, maxPos)));
+			}
 		}
 
 		if (version.startsWith("format(", pos)) { //$NON-NLS-1$
@@ -145,21 +153,25 @@ public abstract class VersionParser {
 			if (pos == maxPos) {
 				// This was a raw version with format but no original
 				//
-				if (vector == null)
+				if (vector == null) {
 					throw new IllegalArgumentException(NLS.bind(Messages.only_format_specified_0, version.substring(start, maxPos)));
+				}
 				return fmt == VersionFormat.OSGI_FORMAT ? OSGiVersion.fromVector(vector) : OmniVersion.fromVector(vector, fmt, null);
 			}
 		}
 
-		if (fmt == null && vector == null)
+		if (fmt == null && vector == null) {
 			throw new IllegalArgumentException(NLS.bind(Messages.neither_raw_vector_nor_format_specified_0, version.substring(start, maxPos)));
+		}
 
-		if (version.charAt(pos) != ':')
+		if (version.charAt(pos) != ':') {
 			throw new IllegalArgumentException(NLS.bind(Messages.colon_expected_before_original_version_0, version.substring(start, maxPos)));
+		}
 
 		pos++;
-		if (pos == maxPos)
+		if (pos == maxPos) {
 			throw new IllegalArgumentException(NLS.bind(Messages.expected_orignal_after_colon_0, version.substring(start, maxPos)));
+		}
 
 		if (vector == null) {
 			// Vector and pad must be created by parsing the original
@@ -206,8 +218,9 @@ public abstract class VersionParser {
 						if (e == c) {
 							break;
 						}
-						if (e == '\\')
+						if (e == '\\') {
 							++idx;
+						}
 					}
 					// fall through to default
 				default :
@@ -215,15 +228,17 @@ public abstract class VersionParser {
 			}
 			break;
 		}
-		if (depth != 0)
+		if (depth != 0) {
 			throw new IllegalArgumentException(NLS.bind(Messages.unbalanced_format_parenthesis, string.substring(pos - 1, maxPos)));
+		}
 		return end;
 	}
 
 	static Comparable<?> parseRawElement(String value, int[] position, int maxPos) {
 		int current = position[0];
-		if (current >= maxPos)
+		if (current >= maxPos) {
 			return null;
+		}
 
 		boolean negate = false;
 		char c = value.charAt(current);
@@ -234,45 +249,54 @@ public abstract class VersionParser {
 				StringBuilder sb = new StringBuilder();
 				for (;;) {
 					char q = c;
-					if (++current == maxPos)
+					if (++current == maxPos) {
 						return null;
+					}
 					c = value.charAt(current);
 					while (c != q) {
-						if (c < 32)
+						if (c < 32) {
 							return null;
+						}
 						sb.append(c);
-						if (++current == maxPos)
+						if (++current == maxPos) {
 							return null;
+						}
 						c = value.charAt(current);
 					}
-					if (++current == maxPos)
+					if (++current == maxPos) {
 						break;
+					}
 					c = value.charAt(current);
-					if (c != '\'' && c != '"')
+					if (c != '\'' && c != '"') {
 						break;
+					}
 				}
 				v = sb.length() == 0 ? VersionVector.MINS_VALUE : sb.toString();
 				break;
 			}
 			case '{' : {
-				if (++current == maxPos)
+				if (++current == maxPos) {
 					return null;
+				}
 
 				position[0] = current;
 				v = parseRawEnum(value, position, maxPos);
-				if (v == null)
+				if (v == null) {
 					return null;
+				}
 				current = position[0];
 				break;
 			}
 			case '<' : {
-				if (++current == maxPos)
+				if (++current == maxPos) {
 					return null;
+				}
 
 				position[0] = current;
 				v = parseRawVector(value, position, maxPos);
-				if (v == null)
+				if (v == null) {
 					return null;
+				}
 				current = position[0];
 				break;
 			}
@@ -285,8 +309,9 @@ public abstract class VersionParser {
 				++current;
 				break;
 			case '-' :
-				if (++current >= maxPos)
+				if (++current >= maxPos) {
 					return null;
+				}
 
 				c = value.charAt(current);
 				if (c == 'M') {
@@ -299,11 +324,13 @@ public abstract class VersionParser {
 			default : {
 				if (isDigit(c)) {
 					int start = current++;
-					while (current < maxPos && isDigit(value.charAt(current)))
+					while (current < maxPos && isDigit(value.charAt(current))) {
 						++current;
+					}
 					int val = Integer.parseInt(value.substring(start, current));
-					if (negate)
+					if (negate) {
 						val = -val;
+					}
 					v = valueOf(val);
 					break;
 				}
@@ -316,51 +343,60 @@ public abstract class VersionParser {
 
 	private static Comparable<?> parseRawVector(String value, int[] position, int maxPos) {
 		int pos = position[0];
-		if (pos >= maxPos)
+		if (pos >= maxPos) {
 			return null;
+		}
 
 		char c = value.charAt(pos);
-		if (c == '>')
+		if (c == '>') {
 			return null;
+		}
 
 		ArrayList<Comparable<?>> rawList = new ArrayList<>();
 		boolean padMarkerSeen = (c == 'p');
 		if (padMarkerSeen) {
-			if (++pos >= maxPos)
+			if (++pos >= maxPos) {
 				return null;
+			}
 			position[0] = pos;
 		}
 
 		Comparable<?> pad = null;
 		for (;;) {
 			Comparable<?> elem = parseRawElement(value, position, maxPos);
-			if (elem == null)
+			if (elem == null) {
 				return null;
+			}
 
-			if (padMarkerSeen)
+			if (padMarkerSeen) {
 				pad = elem;
-			else
+			} else {
 				rawList.add(elem);
+			}
 
 			pos = position[0];
-			if (pos >= maxPos)
+			if (pos >= maxPos) {
 				return null;
+			}
 
 			c = value.charAt(pos);
 			position[0] = ++pos;
-			if (c == '>')
+			if (c == '>') {
 				break;
+			}
 
-			if (padMarkerSeen || pos >= maxPos)
+			if (padMarkerSeen || pos >= maxPos) {
 				return null;
+			}
 
 			if (c == 'p') {
 				padMarkerSeen = true;
 				continue;
 			}
 
-			if (c != '.')
+			if (c != '.') {
 				return null;
+			}
 		}
 		pad = removeRedundantTrail(rawList, pad);
 		return new VersionVector(rawList.toArray(new Comparable[rawList.size()]), pad);
@@ -372,47 +408,56 @@ public abstract class VersionParser {
 		int ordinal = -1;
 		StringBuilder sb = new StringBuilder();
 		for (;;) {
-			if (pos >= maxPos)
+			if (pos >= maxPos) {
 				return null;
+			}
 
 			char c = value.charAt(pos++);
 			while (c != '}' && c != ',') {
-				if (pos == maxPos)
+				if (pos == maxPos) {
 					return null;
-				if (c <= ' ')
+				}
+				if (c <= ' ') {
 					return null;
+				}
 				if (c == '\\' || c == '^') {
-					if (c == '^')
+					if (c == '^') {
 						ordinal = identifiers.size();
+					}
 					c = value.charAt(pos++);
-					if (pos == maxPos)
+					if (pos == maxPos) {
 						return null;
+					}
 				}
 				sb.append(c);
 				c = value.charAt(pos++);
 			}
 			identifiers.add(Collections.singletonList(sb.toString()));
-			if (c == '}')
+			if (c == '}') {
 				break;
+			}
 			// c must be ',' at this point
 			sb.setLength(0);
 		}
-		if (ordinal == -1)
+		if (ordinal == -1) {
 			return null;
+		}
 		position[0] = pos;
 		return EnumDefinition.getSegment(identifiers, ordinal);
 	}
 
 	public static int skipWhite(String string, int pos) {
 		int top = string.length();
-		while (pos < top && string.charAt(pos) <= ' ')
+		while (pos < top && string.charAt(pos) <= ' ') {
 			++pos;
+		}
 		return pos;
 	}
 
 	public static int skipTrailingWhite(String string, int start, int end) {
-		while (end > start && string.charAt(end - 1) <= ' ')
+		while (end > start && string.charAt(end - 1) <= ' ') {
 			--end;
+		}
 		return end;
 	}
 }

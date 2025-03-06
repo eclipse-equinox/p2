@@ -64,10 +64,11 @@ public class ExpressionQuery<T> implements IQueryWithIndex<T> {
 	public static <T> Class<? extends T> getElementClass(IQuery<T> query) {
 		@SuppressWarnings("unchecked")
 		Class<? extends T> elementClass = (Class<T>) Object.class;
-		if (query instanceof ExpressionMatchQuery<?>)
+		if (query instanceof ExpressionMatchQuery<?>) {
 			elementClass = ((ExpressionMatchQuery<T>) query).getMatchingClass();
-		else if (query instanceof ExpressionQuery<?>)
+		} else if (query instanceof ExpressionQuery<?>) {
 			elementClass = ((ExpressionQuery<T>) query).getElementClass();
+		}
 		return elementClass;
 	}
 
@@ -77,8 +78,9 @@ public class ExpressionQuery<T> implements IQueryWithIndex<T> {
 		Object[] parameters;
 		if (expr == null) {
 			expr = factory.toExpression(query);
-			if (query instanceof IMatchQuery<?>)
+			if (query instanceof IMatchQuery<?>) {
 				expr = factory.select(ExpressionFactory.EVERYTHING, factory.lambda(ExpressionFactory.THIS, expr));
+			}
 			parameters = new Object[0];
 		} else {
 			if (expr instanceof MatchExpression<?>) {
@@ -89,8 +91,9 @@ public class ExpressionQuery<T> implements IQueryWithIndex<T> {
 				ContextExpression<?> contextExpr = (ContextExpression<?>) expr;
 				parameters = contextExpr.getParameters();
 				expr = contextExpr.operand;
-			} else
+			} else {
 				parameters = new Object[0];
+			}
 		}
 		return factory.contextExpression(expr, parameters);
 	}

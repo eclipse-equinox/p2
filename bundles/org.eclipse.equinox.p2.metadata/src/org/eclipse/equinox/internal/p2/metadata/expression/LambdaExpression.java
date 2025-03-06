@@ -35,8 +35,9 @@ public class LambdaExpression extends Unary {
 	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
-		if (cmp == 0)
+		if (cmp == 0) {
 			cmp = each.compareTo(((LambdaExpression) e).each);
+		}
 		return cmp;
 	}
 

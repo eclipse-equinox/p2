@@ -47,8 +47,9 @@ public class CompoundIterator<T> implements Iterator<T> {
 
 	@Override
 	public T next() {
-		if (!positionNext())
+		if (!positionNext()) {
 			throw new NoSuchElementException();
+		}
 
 		T nxt = nextObject;
 		nextObject = noElement();
@@ -66,12 +67,14 @@ public class CompoundIterator<T> implements Iterator<T> {
 
 	@SuppressWarnings("unchecked")
 	private boolean positionNext() {
-		if (nextObject != NO_ELEMENT)
+		if (nextObject != NO_ELEMENT) {
 			return true;
+		}
 
 		while (currentIterator == null || !currentIterator.hasNext()) {
-			if (!iteratorIterator.hasNext())
+			if (!iteratorIterator.hasNext()) {
 				return false;
+			}
 
 			Object nextItor = iteratorIterator.next();
 			currentIterator = (nextItor instanceof Iterator<?>) ? (Iterator<T>) nextItor : RepeatableIterator.create(nextItor);

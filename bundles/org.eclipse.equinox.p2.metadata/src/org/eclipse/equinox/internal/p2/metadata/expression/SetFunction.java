@@ -25,8 +25,9 @@ public final class SetFunction extends Function {
 	@Override
 	public Object evaluate(IEvaluationContext context) {
 		HashSet<Object> result = new HashSet<>();
-		for (Expression operand : operands)
+		for (Expression operand : operands) {
 			result.add(operand.evaluate(context));
+		}
 		return result;
 	}
 

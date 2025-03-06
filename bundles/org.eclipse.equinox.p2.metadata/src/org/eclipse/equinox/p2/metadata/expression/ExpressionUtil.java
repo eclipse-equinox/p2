@@ -96,8 +96,9 @@ public final class ExpressionUtil {
 	public static String trimmedOrNull(String str) {
 		if (str != null) {
 			str = str.trim();
-			if (str.length() == 0)
+			if (str.length() == 0) {
 				str = null;
+			}
 		}
 		return str;
 	}
@@ -117,8 +118,9 @@ public final class ExpressionUtil {
 	 * @see IExpression#TYPE_NOT_EQUALS
 	 */
 	public static IExpression getLHS(IExpression expression) {
-		if (expression instanceof Binary)
+		if (expression instanceof Binary) {
 			return ((Binary) expression).lhs;
+		}
 		throw new IllegalArgumentException();
 	}
 
@@ -131,10 +133,12 @@ public final class ExpressionUtil {
 	 * @see IExpression#TYPE_VARIABLE
 	 */
 	public static String getName(IExpression expression) {
-		if (expression instanceof Member)
+		if (expression instanceof Member) {
 			return ((Member) expression).getName();
-		if (expression instanceof Variable)
+		}
+		if (expression instanceof Variable) {
 			return ((Variable) expression).getName();
+		}
 		throw new IllegalArgumentException();
 	}
 
@@ -149,8 +153,9 @@ public final class ExpressionUtil {
 	 * @see IExpression#TYPE_NOT
 	 */
 	public static IExpression getOperand(IExpression expression) {
-		if (expression instanceof Unary)
+		if (expression instanceof Unary) {
 			return ((Unary) expression).operand;
+		}
 		throw new IllegalArgumentException();
 	}
 
@@ -163,8 +168,9 @@ public final class ExpressionUtil {
 	 * @see IExpression#TYPE_OR
 	 */
 	public static IExpression[] getOperands(IExpression expression) {
-		if (expression instanceof NAry)
+		if (expression instanceof NAry) {
 			return ((NAry) expression).operands;
+		}
 		throw new IllegalArgumentException();
 	}
 
@@ -183,8 +189,9 @@ public final class ExpressionUtil {
 	 * @see IExpression#TYPE_NOT_EQUALS
 	 */
 	public static IExpression getRHS(IExpression expression) {
-		if (expression instanceof Binary)
+		if (expression instanceof Binary) {
 			return ((Binary) expression).rhs;
+		}
 		throw new IllegalArgumentException();
 	}
 
@@ -196,8 +203,9 @@ public final class ExpressionUtil {
 	 * @see IExpression#TYPE_LITERAL
 	 */
 	public static Object getValue(IExpression expression) {
-		if (expression instanceof Literal)
+		if (expression instanceof Literal) {
 			return ((Literal) expression).value;
+		}
 		throw new IllegalArgumentException();
 	}
 }

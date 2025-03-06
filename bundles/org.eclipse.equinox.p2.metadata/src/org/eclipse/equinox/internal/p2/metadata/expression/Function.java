@@ -41,16 +41,18 @@ public abstract class Function extends NAry {
 
 	@Override
 	public Object evaluate(IEvaluationContext context) {
-		if (instance != null)
+		if (instance != null) {
 			return instance;
+		}
 
 		Expression operand = operands[0];
 		Object arg = operand.evaluate(context);
 		if (assertSingleArgumentClass(arg)) {
 			Object result = createInstance(arg);
-			if (operand instanceof Literal || operand instanceof Parameter)
+			if (operand instanceof Literal || operand instanceof Parameter) {
 				// operand won't change over time so we can cache this instance.
 				instance = result;
+			}
 			return result;
 		}
 		String what = arg == null ? "null" : ("a " + arg.getClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -60,8 +62,9 @@ public abstract class Function extends NAry {
 	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object value = evaluate(context);
-		if (!(value instanceof Iterator<?>))
+		if (!(value instanceof Iterator<?>)) {
 			value = RepeatableIterator.create(value);
+		}
 		return (Iterator<?>) value;
 	}
 

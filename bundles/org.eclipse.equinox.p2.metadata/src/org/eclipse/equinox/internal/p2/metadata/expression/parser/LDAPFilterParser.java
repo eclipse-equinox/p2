@@ -58,16 +58,18 @@ public class LDAPFilterParser {
 
 	public IFilterExpression parse(String filterStr) {
 		IFilterExpression filter = filterCache.get(filterStr);
-		if (filter != null)
+		if (filter != null) {
 			return filter;
+		}
 
 		synchronized (this) {
 			filterString = filterStr;
 			position = 0;
 			try {
 				IExpression expr = parseFilter();
-				if (position != filterString.length())
+				if (position != filterString.length()) {
 					throw syntaxException(Messages.filter_trailing_characters);
+				}
 				filter = factory.filterExpression(expr);
 				filterCache.put(filterStr, filter);
 				return filter;
@@ -80,14 +82,16 @@ public class LDAPFilterParser {
 	private IExpression parseAnd() {
 		skipWhiteSpace();
 		char c = filterString.charAt(position);
-		if (c != '(')
+		if (c != '(') {
 			throw syntaxException(Messages.filter_missing_leftparen);
+		}
 
 		ArrayList<IExpression> operands = new ArrayList<>();
 		while (c == '(') {
 			IExpression child = parseFilter();
-			if (!operands.contains(child))
+			if (!operands.contains(child)) {
 				operands.add(child);
+			}
 			c = filterString.charAt(position);
 		}
 		// int sz = operands.size();
@@ -104,12 +108,14 @@ public class LDAPFilterParser {
 		char c = filterString.charAt(begin);
 		while (!(c == '~' || c == '<' || c == '>' || c == '=' || c == '(' || c == ')')) {
 			position++;
-			if (!Character.isWhitespace(c))
+			if (!Character.isWhitespace(c)) {
 				end = position;
+			}
 			c = filterString.charAt(position);
 		}
-		if (end == begin)
+		if (end == begin) {
 			throw syntaxException(Messages.filter_missing_attr);
+		}
 		return factory.member(self, filterString.substring(begin, end));
 	}
 
@@ -117,16 +123,18 @@ public class LDAPFilterParser {
 		IExpression filter;
 		skipWhiteSpace();
 
-		if (filterString.charAt(position) != '(')
+		if (filterString.charAt(position) != '(') {
 			throw syntaxException(Messages.filter_missing_leftparen);
+		}
 
 		position++;
 		filter = parseFiltercomp();
 
 		skipWhiteSpace();
 
-		if (filterString.charAt(position) != ')')
+		if (filterString.charAt(position) != ')') {
 			throw syntaxException(Messages.filter_missing_rightparen);
+		}
 
 		position++;
 		skipWhiteSpace();
@@ -168,8 +176,9 @@ public class LDAPFilterParser {
 			case '~' :
 			case '>' :
 			case '<' :
-				if (filterString.charAt(position + 1) != '=')
+				if (filterString.charAt(position + 1) != '=') {
 					throw syntaxException(Messages.filter_invalid_operator);
+				}
 				position += 2;
 				int savePos = position;
 				value = parseValue(hasWild);
@@ -196,16 +205,18 @@ public class LDAPFilterParser {
 	private IExpression parseNot() {
 		skipWhiteSpace();
 
-		if (filterString.charAt(position) != '(')
+		if (filterString.charAt(position) != '(') {
 			throw syntaxException(Messages.filter_missing_leftparen);
+		}
 		return factory.not(parseFilter());
 	}
 
 	private IExpression parseOr() {
 		skipWhiteSpace();
 		char c = filterString.charAt(position);
-		if (c != '(')
+		if (c != '(') {
 			throw syntaxException(Messages.filter_missing_leftparen);
+		}
 
 		ArrayList<IExpression> operands = new ArrayList<>();
 		while (c == '(') {
@@ -220,12 +231,13 @@ public class LDAPFilterParser {
 
 	private static int hexValue(char c) {
 		int v;
-		if (c <= '9')
+		if (c <= '9') {
 			v = c - '0';
-		else if (c <= 'F')
+		} else if (c <= 'F') {
 			v = (c - 'A') + 10;
-		else
+		} else {
 			v = (c - 'a') + 10;
+		}
 		return v;
 	}
 
@@ -264,8 +276,9 @@ public class LDAPFilterParser {
 							c = (char) (((hexValue(c) << 4) & 0xf0) | (hexValue(nc) & 0x0f));
 							if (c == '*' && hasWildBin != null) {
 								hasEscapedWild = true;
-								if (hasWildBin[0])
+								if (hasWildBin[0]) {
 									sb.append('\\');
+								}
 							}
 						}
 					}
@@ -277,15 +290,18 @@ public class LDAPFilterParser {
 					break;
 			}
 		}
-		if (sb.length() == 0)
+		if (sb.length() == 0) {
 			throw syntaxException(Messages.filter_missing_value);
+		}
 		return sb.toString();
 	}
 
 	private void skipWhiteSpace() {
-		for (int top = filterString.length(); position < top; ++position)
-			if (!Character.isWhitespace(filterString.charAt(position)))
+		for (int top = filterString.length(); position < top; ++position) {
+			if (!Character.isWhitespace(filterString.charAt(position))) {
 				break;
+			}
+		}
 	}
 
 	protected ExpressionParseException syntaxException(String message) {

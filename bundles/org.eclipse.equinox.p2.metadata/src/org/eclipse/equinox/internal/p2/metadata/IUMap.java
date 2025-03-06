@@ -57,8 +57,9 @@ public class IUMap implements Cloneable {
 
 		@Override
 		public IInstallableUnit next() {
-			if (!positionNext())
+			if (!positionNext()) {
 				throw new NoSuchElementException();
+			}
 
 			IInstallableUnit nxt = nextElement;
 			nextElement = null;
@@ -71,8 +72,9 @@ public class IUMap implements Cloneable {
 		}
 
 		private boolean positionNext() {
-			if (nextElement != null)
+			if (nextElement != null) {
 				return true;
+			}
 
 			if (currentBucket != null) {
 				nextElement = currentBucket[bucketIndex];
@@ -83,13 +85,14 @@ public class IUMap implements Cloneable {
 				return true;
 			}
 
-			if (!unitIterator.hasNext())
+			if (!unitIterator.hasNext()) {
 				return false;
+			}
 
 			Object val = unitIterator.next();
-			if (val instanceof IInstallableUnit)
+			if (val instanceof IInstallableUnit) {
 				nextElement = (IInstallableUnit) val;
-			else {
+			} else {
 				currentBucket = (IInstallableUnit[]) val;
 				nextElement = currentBucket[0];
 				bucketIndex = 1;
@@ -125,10 +128,12 @@ public class IUMap implements Cloneable {
 			// Entry is an array. Add unique
 			IInstallableUnit[] iuArr = (IInstallableUnit[]) matching;
 			int idx = iuArr.length;
-			while (--idx >= 0)
-				if (iuArr[idx].equals(unit))
+			while (--idx >= 0) {
+				if (iuArr[idx].equals(unit)) {
 					// This unit has already been added
 					return;
+				}
+			}
 
 			IInstallableUnit[] iuArrPlus = new IInstallableUnit[iuArr.length + 1];
 			System.arraycopy(iuArr, 0, iuArrPlus, 0, iuArr.length);
@@ -136,8 +141,9 @@ public class IUMap implements Cloneable {
 			units.put(unit.getId(), iuArrPlus);
 		} else {
 			IInstallableUnit old = (IInstallableUnit) matching;
-			if (!old.equals(unit))
+			if (!old.equals(unit)) {
 				units.put(key, new IInstallableUnit[] {old, unit});
+			}
 		}
 	}
 
@@ -177,8 +183,9 @@ public class IUMap implements Cloneable {
 	 */
 	public Collection<IInstallableUnit> getUnits(String id) {
 		Object bucket = units.get(id);
-		if (bucket == null)
+		if (bucket == null) {
 			return Collections.emptyList();
+		}
 		return bucket.getClass().isArray() ? CollectionUtils.unmodifiableList((IInstallableUnit[]) bucket) : Collections.singletonList((IInstallableUnit) bucket);
 	}
 
@@ -193,8 +200,9 @@ public class IUMap implements Cloneable {
 		}
 
 		Collection<IInstallableUnit> idUnits = getUnits(id);
-		if (idUnits.isEmpty())
+		if (idUnits.isEmpty()) {
 			return Collector.emptyCollector();
+		}
 		return version == null ? new CollectionResult<>(idUnits) : QueryUtil.createIUQuery(id, version).perform(idUnits.iterator());
 	}
 
@@ -206,12 +214,14 @@ public class IUMap implements Cloneable {
 	public void remove(IInstallableUnit unit) {
 		String key = unit.getId();
 		Object matching = units.get(key);
-		if (matching == null)
+		if (matching == null) {
 			return;
+		}
 
 		if (matching instanceof IInstallableUnit) {
-			if (matching.equals(unit))
+			if (matching.equals(unit)) {
 				units.remove(key);
+			}
 			return;
 		}
 
@@ -228,10 +238,12 @@ public class IUMap implements Cloneable {
 
 				// Shrink the array
 				IInstallableUnit[] newArray = new IInstallableUnit[array.length - 1];
-				if (idx > 0)
+				if (idx > 0) {
 					System.arraycopy(array, 0, newArray, 0, idx);
-				if (idx + 1 < array.length)
+				}
+				if (idx + 1 < array.length) {
 					System.arraycopy(array, idx + 1, newArray, idx, array.length - (idx + 1));
+				}
 				units.put(key, newArray);
 				break;
 			}
@@ -239,8 +251,9 @@ public class IUMap implements Cloneable {
 	}
 
 	public void removeAll(Collection<IInstallableUnit> toRemove) {
-		for (IInstallableUnit iu : toRemove)
+		for (IInstallableUnit iu : toRemove) {
 			remove(iu);
+		}
 	}
 
 	/**

@@ -51,10 +51,12 @@ public final class LDAPApproximation implements Serializable, Comparable<LDAPApp
 	 * @return <code>true</code> if the value was a match.
 	 */
 	public boolean isMatch(CharSequence value) {
-		if (value == null)
+		if (value == null) {
 			return false;
-		if (approxPattern == null)
+		}
+		if (approxPattern == null) {
 			approxPattern = approxString(pattern);
+		}
 		return approxString(value).equals(approxPattern);
 	}
 

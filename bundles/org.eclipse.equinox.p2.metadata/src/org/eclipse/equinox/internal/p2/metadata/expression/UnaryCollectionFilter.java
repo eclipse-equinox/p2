@@ -37,8 +37,9 @@ abstract class UnaryCollectionFilter extends Unary {
 			Select select = (Select) operand;
 			CollectionFilter.appendProlog(bld, rootVariable, select.operand, getOperator());
 			appendOperand(bld, rootVariable, select.lambda, getPriority());
-		} else
+		} else {
 			CollectionFilter.appendProlog(bld, rootVariable, operand, getOperator());
+		}
 		bld.append(')');
 	}
 

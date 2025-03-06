@@ -30,8 +30,9 @@ public class Variable extends Expression {
 	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
-		if (cmp == 0)
+		if (cmp == 0) {
 			cmp = name.compareTo(((Variable) e).name);
+		}
 		return cmp;
 	}
 
@@ -48,8 +49,9 @@ public class Variable extends Expression {
 	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object value = context.getValue(this);
-		if (value instanceof IRepeatableIterator<?>)
+		if (value instanceof IRepeatableIterator<?>) {
 			return ((IRepeatableIterator<?>) value).getCopy();
+		}
 
 		Iterator<?> itor = RepeatableIterator.create(value);
 		setValue(context, itor);

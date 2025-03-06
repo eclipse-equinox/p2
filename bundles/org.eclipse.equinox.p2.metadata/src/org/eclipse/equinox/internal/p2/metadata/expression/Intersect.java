@@ -36,8 +36,9 @@ final class Intersect extends Binary {
 		Set<Object> retained = new HashSet<>();
 		while (itor.hasNext()) {
 			Object value = itor.next();
-			if (resultSet.contains(value))
+			if (resultSet.contains(value)) {
 				retained.add(value);
+			}
 		}
 		return RepeatableIterator.create(retained);
 	}

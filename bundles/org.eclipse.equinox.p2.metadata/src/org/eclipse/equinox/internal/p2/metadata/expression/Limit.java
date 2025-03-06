@@ -70,10 +70,12 @@ final class Limit extends Binary {
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object rval = rhs.evaluate(context);
 		int limit = -1;
-		if (rval instanceof Integer)
+		if (rval instanceof Integer) {
 			limit = ((Integer) rval).intValue();
-		if (limit < 0)
+		}
+		if (limit < 0) {
 			throw new IllegalArgumentException("limit expression did not evalutate to a positive integer"); //$NON-NLS-1$
+		}
 		return limit == 0 ? Collections.emptySet().iterator() : new CountingIterator<Object>(lhs.evaluateAsIterator(context), limit);
 	}
 

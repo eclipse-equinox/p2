@@ -64,10 +64,12 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 
 	@Override
 	public IExpression and(IExpression... operands) {
-		if (operands.length == 0)
+		if (operands.length == 0) {
 			return Literal.TRUE_CONSTANT;
-		if (operands.length == 1)
+		}
+		if (operands.length == 1) {
 			return operands[0];
+		}
 		return new And(convertArray(operands));
 	}
 
@@ -106,13 +108,15 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 	public <T> IContextExpression<T> contextExpression(IExpression expression, Object... parameters) {
 
 		if (expression instanceof IContextExpression<?>) {
-			if (parameters.length > 0)
+			if (parameters.length > 0) {
 				// Not good.
 				throw new IllegalArgumentException("IContextExpression cannot be parameterized (it already is)"); //$NON-NLS-1$
+			}
 			return (IContextExpression<T>) expression;
 		}
-		if (expression instanceof IMatchExpression<?>)
+		if (expression instanceof IMatchExpression<?>) {
 			throw new IllegalArgumentException("IMatchExpression cannot be turned into a context expression"); //$NON-NLS-1$
+		}
 		return new ContextExpression<>((Expression) expression, parameters);
 	}
 
@@ -159,8 +163,9 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 			throw e;
 		} catch (InvocationTargetException e) {
 			Throwable t = e.getCause();
-			if (t instanceof RuntimeException)
+			if (t instanceof RuntimeException) {
 				throw (RuntimeException) t;
+			}
 			throw new RuntimeException(t);
 		} catch (InstantiationException e) {
 			throw new RuntimeException(e);
@@ -201,8 +206,9 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 
 	@Override
 	public IExpression lambda(IExpression variable, IExpression[] assignments, IExpression body) {
-		if (assignments.length == 0)
+		if (assignments.length == 0) {
 			return lambda(variable, body);
+		}
 		Assignment[] asgns = new Assignment[assignments.length];
 		System.arraycopy(assignments, 0, asgns, 0, assignments.length);
 		return new CurryedLambdaExpression((Variable) variable, asgns, (Expression) body);
@@ -242,29 +248,34 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 	@SuppressWarnings("unchecked")
 	public <T> IMatchExpression<T> matchExpression(IExpression expression, Object... parameters) {
 		if (expression instanceof IMatchExpression<?>) {
-			if (parameters.length > 0)
+			if (parameters.length > 0) {
 				// Not good.
 				throw new IllegalArgumentException("IMatchExpression cannot be parameterized (it already is)"); //$NON-NLS-1$
+			}
 			return (IMatchExpression<T>) expression;
 		}
-		if (expression instanceof IContextExpression<?>)
+		if (expression instanceof IContextExpression<?>) {
 			throw new IllegalArgumentException("IContextExpression cannot be turned into a match expression"); //$NON-NLS-1$
+		}
 		return new MatchExpression<>((Expression) expression, parameters);
 	}
 
 	@Override
 	public IExpression member(IExpression target, String name) {
-		if ("empty".equals(name)) //$NON-NLS-1$
+		if ("empty".equals(name)) { //$NON-NLS-1$
 			return new Member.EmptyMember((Expression) target);
-		if ("length".equals(name)) //$NON-NLS-1$
+		}
+		if ("length".equals(name)) { //$NON-NLS-1$
 			return new Member.LengthMember((Expression) target);
+		}
 		return new Member.DynamicMember((Expression) target, name);
 	}
 
 	@Override
 	public IExpression memberCall(IExpression target, String name, IExpression... args) {
-		if (args.length == 0)
+		if (args.length == 0) {
 			return member(target, name);
+		}
 
 		Expression[] eargs = convertArray(args);
 
@@ -296,18 +307,21 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 			Compare cmp = (Compare) operand;
 			return new Compare(cmp.lhs, cmp.rhs, !cmp.compareLess, !cmp.equalOK);
 		}
-		if (operand instanceof Not)
+		if (operand instanceof Not) {
 			return ((Not) operand).operand;
+		}
 
 		return new Not((Expression) operand);
 	}
 
 	@Override
 	public IExpression or(IExpression... operands) {
-		if (operands.length == 0)
+		if (operands.length == 0) {
 			return Literal.TRUE_CONSTANT;
-		if (operands.length == 1)
+		}
+		if (operands.length == 1) {
 			return operands[0];
+		}
 		return new Or(convertArray(operands));
 	}
 
@@ -349,10 +363,12 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 
 	@Override
 	public IExpression variable(String name) {
-		if (VARIABLE_EVERYTHING.equals(name))
+		if (VARIABLE_EVERYTHING.equals(name)) {
 			return EVERYTHING;
-		if (VARIABLE_THIS.equals(name))
+		}
+		if (VARIABLE_THIS.equals(name)) {
 			return THIS;
+		}
 		return new Variable(name);
 	}
 }

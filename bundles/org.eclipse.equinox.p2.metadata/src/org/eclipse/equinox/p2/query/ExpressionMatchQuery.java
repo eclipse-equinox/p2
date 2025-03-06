@@ -60,35 +60,40 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 
 	@Override
 	public IQueryResult<T> perform(IIndexProvider<T> indexProvider) {
-		if (((MatchExpression<T>) expression).operand == ExpressionUtil.TRUE_EXPRESSION)
+		if (((MatchExpression<T>) expression).operand == ExpressionUtil.TRUE_EXPRESSION) {
 			return new QueryResult<>(RepeatableIterator.create(indexProvider));
+		}
 		Iterator<T> iterator = null;
 		int top = indexedMembers.size();
 		for (int idx = 0; idx < top; ++idx) {
 			IIndex<T> index = indexProvider.getIndex(indexedMembers.get(idx));
 			if (index != null) {
 				iterator = index.getCandidates(context, ExpressionFactory.THIS, expression);
-				if (iterator != null)
+				if (iterator != null) {
 					break;
+				}
 			}
 		}
-		if (iterator == null)
+		if (iterator == null) {
 			iterator = RepeatableIterator.create(indexProvider);
+		}
 		context.setIndexProvider(indexProvider);
 		return perform(iterator);
 	}
 
 	@Override
 	public IQueryResult<T> perform(Iterator<T> iterator) {
-		if (((MatchExpression<T>) expression).operand == ExpressionUtil.TRUE_EXPRESSION)
+		if (((MatchExpression<T>) expression).operand == ExpressionUtil.TRUE_EXPRESSION) {
 			return new QueryResult<>(iterator);
+		}
 
 		HashSet<T> result = null;
 		while (iterator.hasNext()) {
 			T value = iterator.next();
 			if (isMatch(value)) {
-				if (result == null)
+				if (result == null) {
 					result = new HashSet<>();
+				}
 				result.add(value);
 			}
 		}
@@ -97,8 +102,9 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 
 	@Override
 	public boolean isMatch(T candidate) {
-		if (!matchingClass.isInstance(candidate))
+		if (!matchingClass.isInstance(candidate)) {
 			return false;
+		}
 		ExpressionFactory.THIS.setValue(context, candidate);
 		return Boolean.TRUE == expression.evaluate(context);
 	}

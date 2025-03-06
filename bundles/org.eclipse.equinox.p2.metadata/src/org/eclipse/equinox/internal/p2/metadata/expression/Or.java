@@ -27,8 +27,9 @@ final class Or extends NAry {
 	@Override
 	public Object evaluate(IEvaluationContext context) {
 		for (Expression operand : operands) {
-			if (operand.evaluate(context) == Boolean.TRUE)
+			if (operand.evaluate(context) == Boolean.TRUE) {
 				return Boolean.TRUE;
+			}
 		}
 		return Boolean.FALSE;
 	}
@@ -51,8 +52,9 @@ final class Or extends NAry {
 	@Override
 	public void toLDAPString(StringBuilder buf) {
 		buf.append("(|"); //$NON-NLS-1$
-		for (Expression operand : operands)
+		for (Expression operand : operands) {
 			operand.toLDAPString(buf);
+		}
 		buf.append(')');
 	}
 }

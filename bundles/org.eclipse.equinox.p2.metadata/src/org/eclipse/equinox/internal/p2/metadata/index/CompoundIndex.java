@@ -31,18 +31,21 @@ public class CompoundIndex<T> implements IIndex<T> {
 		Set<T> result = null;
 		for (IIndex<T> index : indexes) {
 			Iterator<T> indexResult = index.getCandidates(ctx, variable, booleanExpr);
-			if (indexResult == null)
+			if (indexResult == null) {
 				return null;
+			}
 			if (indexResult.hasNext()) {
-				if (result == null)
+				if (result == null) {
 					result = new HashSet<>();
+				}
 				do {
 					result.add(indexResult.next());
 				} while (indexResult.hasNext());
 			}
 		}
-		if (result == null)
+		if (result == null) {
 			result = Collections.emptySet();
+		}
 		return result.iterator();
 	}
 }

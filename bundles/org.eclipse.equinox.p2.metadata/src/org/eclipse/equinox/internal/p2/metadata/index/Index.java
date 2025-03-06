@@ -30,18 +30,21 @@ public abstract class Index<T> implements IIndex<T> {
 	}
 
 	protected static Object concatenateUnique(Object previous, Object toAdd) {
-		if (previous == null || toAdd == null || toAdd == Boolean.FALSE)
+		if (previous == null || toAdd == null || toAdd == Boolean.FALSE) {
 			return toAdd;
+		}
 
 		if (previous instanceof ArrayList<?>) {
 			@SuppressWarnings("unchecked")
 			ArrayList<Object> prevArr = (ArrayList<Object>) previous;
-			if (!prevArr.contains(toAdd))
+			if (!prevArr.contains(toAdd)) {
 				prevArr.add(toAdd);
+			}
 			return previous;
 		}
-		if (previous.equals(toAdd))
+		if (previous.equals(toAdd)) {
 			return previous;
+		}
 
 		ArrayList<Object> arr = new ArrayList<>();
 		arr.add(previous);
@@ -63,14 +66,16 @@ public abstract class Index<T> implements IIndex<T> {
 				IExpression rhs = eqExpr.rhs;
 				if (isIndexedMember(lhs, variable, memberName)) {
 					Object val = safeEvaluate(ctx, rhs);
-					if (val == null)
+					if (val == null) {
 						return null;
+					}
 					return concatenateUnique(queriedKeys, val);
 				}
 				if (isIndexedMember(rhs, variable, memberName)) {
 					Object val = safeEvaluate(ctx, lhs);
-					if (val == null)
+					if (val == null) {
 						return null;
+					}
 					return concatenateUnique(queriedKeys, val);
 				}
 
@@ -82,9 +87,10 @@ public abstract class Index<T> implements IIndex<T> {
 				for (IExpression expr : ExpressionUtil.getOperands(targetExpr)) {
 					Object test = getQueriedIDs(ctx, variable, memberName, expr, queriedKeys);
 					if (test != null) {
-						if (test == Boolean.FALSE)
+						if (test == Boolean.FALSE) {
 							// Failing exists so the AND will fail altogether
 							return test;
+						}
 
 						// It's safe to break here since an and'ing several queries
 						// for different keys and the same input will yield false anyway.
@@ -97,13 +103,15 @@ public abstract class Index<T> implements IIndex<T> {
 				// OR is OK if all the branches require the queried key
 				for (IExpression expr : ExpressionUtil.getOperands(targetExpr)) {
 					Object test = getQueriedIDs(ctx, variable, memberName, expr, queriedKeys);
-					if (test == null)
+					if (test == null) {
 						// This branch did not require the key so index cannot be used
 						return null;
+					}
 
-					if (test == Boolean.FALSE)
+					if (test == Boolean.FALSE) {
 						// Branch will always fail regardless of input, so just ignore
 						continue;
+					}
 
 					queriedKeys = test;
 				}
@@ -120,11 +128,12 @@ public abstract class Index<T> implements IIndex<T> {
 				} catch (IllegalArgumentException e) {
 					return null;
 				}
-				if (!values.hasNext())
+				if (!values.hasNext()) {
 					// No keys are requested but we know that an exists must
 					// fail at this point. An all will however succeed regardless
 					// of what is used as input.
 					return type == IExpression.TYPE_ALL ? null : Boolean.FALSE;
+				}
 
 				LambdaExpression lambda = cf.lambda;
 				IEvaluationContext lambdaCtx = lambda.prolog(ctx);
@@ -133,9 +142,10 @@ public abstract class Index<T> implements IIndex<T> {
 				do {
 					lambdaVar.setValue(lambdaCtx, values.next());
 					queriedKeys = getQueriedIDs(lambdaCtx, variable, memberName, filterExpr, queriedKeys);
-					if (queriedKeys == null)
+					if (queriedKeys == null) {
 						// No use continuing. The expression does not require the key
 						return null;
+					}
 				} while (values.hasNext());
 				return queriedKeys;
 		}

@@ -26,8 +26,9 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 	}
 
 	public void setHost(Collection<IRequirement> hostRequirements) {
-		if (hostRequirements == null)
+		if (hostRequirements == null) {
 			return;
+		}
 		this.hostRequirements = hostRequirements;
 	}
 

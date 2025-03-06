@@ -39,8 +39,9 @@ class At extends Binary {
 				String name = lm.getName();
 				if (InstallableUnit.MEMBER_TRANSLATED_PROPERTIES == name || InstallableUnit.MEMBER_PROFILE_PROPERTIES == name) {
 					IIndexProvider<?> indexProvider = context.getIndexProvider();
-					if (indexProvider == null)
+					if (indexProvider == null) {
 						throw new UnsupportedOperationException("No managed properties available to QL"); //$NON-NLS-1$
+					}
 					return indexProvider.getManagedProperty(instance, name, rhs.evaluate(context));
 				}
 				if (InstallableUnit.MEMBER_PROPERTIES == name) {
@@ -49,25 +50,31 @@ class At extends Binary {
 				}
 			}
 			lval = lm.invoke(instance);
-		} else
+		} else {
 			lval = lhs.evaluate(context);
-
-		Object rval = rhs.evaluate(context);
-		if (lval == null)
-			throw new IllegalArgumentException("Unable to use [] on null"); //$NON-NLS-1$
-
-		if (lval instanceof Map<?, ?>)
-			return ((Map<?, ?>) lval).get(rval);
-
-		if (rval instanceof Number) {
-			if (lval instanceof List<?>)
-				return ((List<?>) lval).get(((Number) rval).intValue());
-			if (lval != null && lval.getClass().isArray())
-				return ((Object[]) lval)[((Number) rval).intValue()];
 		}
 
-		if (lval instanceof Dictionary<?, ?>)
+		Object rval = rhs.evaluate(context);
+		if (lval == null) {
+			throw new IllegalArgumentException("Unable to use [] on null"); //$NON-NLS-1$
+		}
+
+		if (lval instanceof Map<?, ?>) {
+			return ((Map<?, ?>) lval).get(rval);
+		}
+
+		if (rval instanceof Number) {
+			if (lval instanceof List<?>) {
+				return ((List<?>) lval).get(((Number) rval).intValue());
+			}
+			if (lval != null && lval.getClass().isArray()) {
+				return ((Object[]) lval)[((Number) rval).intValue()];
+			}
+		}
+
+		if (lval instanceof Dictionary<?, ?>) {
 			return ((Dictionary<?, ?>) lval).get(rval);
+		}
 
 		throw new IllegalArgumentException("Unable to use [] on a " + lval.getClass().getName()); //$NON-NLS-1$
 	}
@@ -75,8 +82,9 @@ class At extends Binary {
 	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object value = evaluate(context);
-		if (!(value instanceof Iterator<?>))
+		if (!(value instanceof Iterator<?>)) {
 			value = RepeatableIterator.create(value);
+		}
 		return (Iterator<?>) value;
 	}
 

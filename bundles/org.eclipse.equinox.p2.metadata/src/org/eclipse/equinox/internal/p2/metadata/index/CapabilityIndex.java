@@ -82,9 +82,10 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 				for (IExpression expr : ExpressionUtil.getOperands(requirement)) {
 					Object test = getRequirementIDs(ctx, expr, queriedKeys);
 					if (test != null) {
-						if (test == Boolean.FALSE)
+						if (test == Boolean.FALSE) {
 							// Failing exists so the AND will fail altogether
 							return test;
+						}
 
 						// It's safe to break here since an and'ing several queries
 						// for different keys and the same input will yield false anyway.
@@ -97,13 +98,15 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 				// OR is OK if all the branches require the queried key
 				for (IExpression expr : ExpressionUtil.getOperands(requirement)) {
 					Object test = getRequirementIDs(ctx, expr, queriedKeys);
-					if (test == null)
+					if (test == null) {
 						// This branch did not require the key so index cannot be used
 						return null;
+					}
 
-					if (test == Boolean.FALSE)
+					if (test == Boolean.FALSE) {
 						// Branch will always fail regardless of input, so just ignore
 						continue;
+					}
 
 					queriedKeys = test;
 				}
@@ -122,16 +125,19 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 
 	@Override
 	protected Object getQueriedIDs(IEvaluationContext ctx, IExpression variable, String memberName, IExpression booleanExpr, Object queriedKeys) {
-		if (booleanExpr.getExpressionType() != IExpression.TYPE_MATCHES)
+		if (booleanExpr.getExpressionType() != IExpression.TYPE_MATCHES) {
 			return super.getQueriedIDs(ctx, variable, memberName, booleanExpr, queriedKeys);
+		}
 
 		Matches matches = (Matches) booleanExpr;
-		if (matches.lhs != variable)
+		if (matches.lhs != variable) {
 			return null;
+		}
 
 		Object rhsObj = matches.rhs.evaluate(ctx);
-		if (!(rhsObj instanceof IRequirement))
+		if (!(rhsObj instanceof IRequirement)) {
 			return null;
+		}
 
 		// Let the requirement expression participate in the
 		// index usage query
@@ -216,12 +222,14 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 
 			case IExpression.TYPE_MATCHES :
 				Matches matches = (Matches) expr;
-				if (matches.lhs != variable)
+				if (matches.lhs != variable) {
 					break;
+				}
 
 				Object rhsObj = matches.rhs.evaluate(ctx);
-				if (!(rhsObj instanceof IRequirement))
+				if (!(rhsObj instanceof IRequirement)) {
 					break;
+				}
 
 				// Let the requirement expression participate in the
 				// index usage query
@@ -234,9 +242,10 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 				queriedKeys = null;
 		}
 
-		if (queriedKeys == null)
+		if (queriedKeys == null) {
 			// Index cannot be used.
 			return null;
+		}
 
 		Collection<IInstallableUnit> matchingIUs;
 		if (queriedKeys == Boolean.FALSE) {
@@ -245,27 +254,31 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 			matchingIUs = Collections.emptySet();
 		} else if (queriedKeys instanceof Collection<?>) {
 			matchingIUs = new HashSet<>();
-			for (Object key : (Collection<Object>) queriedKeys)
+			for (Object key : (Collection<Object>) queriedKeys) {
 				collectMatchingIUs(indexMapToUse, (String) key, matchingIUs);
+			}
 		} else {
 			Object v = indexMapToUse.get(queriedKeys);
-			if (v == null)
+			if (v == null) {
 				matchingIUs = Collections.emptySet();
-			else if (v instanceof IInstallableUnit)
+			} else if (v instanceof IInstallableUnit) {
 				matchingIUs = Collections.singleton((IInstallableUnit) v);
-			else
+			} else {
 				matchingIUs = (Collection<IInstallableUnit>) v;
+			}
 		}
 		return matchingIUs.iterator();
 	}
 
 	private static void collectMatchingIUs(Map<String, ?> indexToUse, String name, Collection<IInstallableUnit> collector) {
 		Object v = indexToUse.get(name);
-		if (v == null)
+		if (v == null) {
 			return;
-		if (v instanceof IInstallableUnit)
+		}
+		if (v instanceof IInstallableUnit) {
 			collector.add((IInstallableUnit) v);
-		else
+		} else {
 			collector.addAll((Collection<IInstallableUnit>) v);
+		}
 	}
 }
