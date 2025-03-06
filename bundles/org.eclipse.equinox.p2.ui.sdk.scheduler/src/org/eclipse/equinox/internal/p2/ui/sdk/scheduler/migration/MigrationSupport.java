@@ -53,16 +53,18 @@ public class MigrationSupport {
 	public boolean performMigration(IProvisioningAgent agent, IProfileRegistry registry, IProfile currentProfile) {
 		boolean skipWizard = Boolean.TRUE.toString()
 				.equalsIgnoreCase(System.getProperty(ECLIPSE_P2_SKIP_MIGRATION_WIZARD));
-		if (skipWizard)
+		if (skipWizard) {
 			return false;
+		}
 
 		IProfile previousProfile = null;
 		URI[] reposToMigrate = null;
 		if (!skipFirstTimeMigration() && !configurationSpecifiedManually()
 				&& isFirstTimeRunningThisSharedInstance(agent, registry, currentProfile)) {
 			File searchRoot = getSearchLocation();
-			if (searchRoot == null)
+			if (searchRoot == null) {
 				return false;
+			}
 
 			IProvisioningAgent otherConfigAgent = new PreviousConfigurationFinder(
 					getConfigurationLocation().getParentFile()).findPreviousInstalls(searchRoot, getInstallFolder());
@@ -70,8 +72,9 @@ public class MigrationSupport {
 				return false;
 			}
 			previousProfile = otherConfigAgent.getService(IProfileRegistry.class).getProfile(IProfileRegistry.SELF);
-			if (previousProfile == null)
+			if (previousProfile == null) {
 				return false;
+			}
 
 			reposToMigrate = otherConfigAgent.getService(IMetadataRepositoryManager.class)
 					.getKnownRepositories(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
@@ -79,11 +82,13 @@ public class MigrationSupport {
 			reposToMigrate[reposToMigrate.length - 1] = getURIForProfile(otherConfigAgent, previousProfile);
 		}
 
-		if (previousProfile == null && baseChangedSinceLastPresentationOfWizard(agent, registry, currentProfile))
+		if (previousProfile == null && baseChangedSinceLastPresentationOfWizard(agent, registry, currentProfile)) {
 			previousProfile = findMostRecentReset(registry, currentProfile);
+		}
 
-		if (previousProfile == null)
+		if (previousProfile == null) {
 			return false;
+		}
 
 		Collection<IInstallableUnit> unitsToMigrate = findUnitstoMigrate(previousProfile, currentProfile);
 		if (!unitsToMigrate.isEmpty()) {
@@ -117,8 +122,9 @@ public class MigrationSupport {
 	// The search location is two level up from the configuration location.
 	private File getSearchLocation() {
 		File parent = getConfigurationLocation().getParentFile();
-		if (parent == null)
+		if (parent == null) {
 			return null;
+		}
 		return parent.getParentFile();
 	}
 
@@ -132,8 +138,9 @@ public class MigrationSupport {
 	// Check if the user has explicitly specified -configuration on the command line
 	private boolean configurationSpecifiedManually() {
 		String commandLine = System.getProperty("eclipse.commands"); //$NON-NLS-1$
-		if (commandLine == null)
+		if (commandLine == null) {
 			return false;
+		}
 		return commandLine.contains("-configuration\n"); //$NON-NLS-1$
 	}
 
@@ -148,13 +155,15 @@ public class MigrationSupport {
 				.equals(registry.getProfileStateProperties(currentProfile.getProfileId(), history[0])
 						.get(IProfile.STATE_PROP_SHARED_INSTALL));
 		if (isInitial) {
-			if (getLastMigration() >= history[0])
+			if (getLastMigration() >= history[0]) {
 				return false;
+			}
 			// This detect the case where the user has not done any migration.
 			Map<String, String> sharedRelatedValues = registry.getProfileStateProperties(currentProfile.getProfileId(),
 					IProfile.STATE_PROP_SHARED_INSTALL);
-			if (sharedRelatedValues.containsValue(IProfile.STATE_SHARED_INSTALL_VALUE_NEW))
+			if (sharedRelatedValues.containsValue(IProfile.STATE_SHARED_INSTALL_VALUE_NEW)) {
 				return false;
+			}
 			return true;
 		}
 		return false;
@@ -176,16 +185,18 @@ public class MigrationSupport {
 		// base but not as roots
 		Iterator<IInstallableUnit> previousProfileIterator = previousProfileUnits.iterator();
 		while (previousProfileIterator.hasNext()) {
-			if (!currentProfile.available(QueryUtil.createIUQuery(previousProfileIterator.next()), null).isEmpty())
+			if (!currentProfile.available(QueryUtil.createIUQuery(previousProfileIterator.next()), null).isEmpty()) {
 				previousProfileIterator.remove();
+			}
 		}
 
 		// For the IUs left in the previous profile, look for those that could be
 		// available in the root but as higher versions (they could be root or not)
 		previousProfileIterator = previousProfileUnits.iterator();
 		while (previousProfileIterator.hasNext()) {
-			if (!currentProfile.available(new UpdateQuery(previousProfileIterator.next()), null).isEmpty())
+			if (!currentProfile.available(new UpdateQuery(previousProfileIterator.next()), null).isEmpty()) {
 				previousProfileIterator.remove();
+			}
 		}
 
 		return previousProfileUnits;
@@ -229,15 +240,17 @@ public class MigrationSupport {
 				&& index > 0) {
 			index--;
 		}
-		if (!found)
+		if (!found) {
 			return -1;
+		}
 		return history[index];
 	}
 
 	private IProfile findMostRecentReset(IProfileRegistry registry, IProfile profile) {
 		long ts = findMostRecentResetTimestamp(registry, profile);
-		if (ts == -1)
+		if (ts == -1) {
 			return null;
+		}
 		return registry.getProfile(profile.getProfileId(), ts);
 	}
 

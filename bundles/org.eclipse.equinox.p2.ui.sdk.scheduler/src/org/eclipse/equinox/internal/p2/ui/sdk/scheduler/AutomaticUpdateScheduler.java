@@ -116,8 +116,9 @@ public class AutomaticUpdateScheduler implements IStartup {
 			return;
 		}
 		IProfile profile = registry.getProfile(IProfileRegistry.SELF);
-		if (profile == null)
+		if (profile == null) {
 			return;
+		}
 		collector.runGC(profile);
 	}
 
