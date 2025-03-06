@@ -42,13 +42,15 @@ public class Application implements IApplication {
 		String[] args = (String[]) allArgs.get(IApplicationContext.APPLICATION_ARGS);
 		processArguments(args);
 		// if the user didn't give us a profile id, then use the default SDK one
-		if (profileId == null)
+		if (profileId == null) {
 			profileId = IProfileRegistry.SELF;
+		}
 
 		initializeServices();
 		IProfile profile = getProfile(profileId);
-		if (profile == null)
+		if (profile == null) {
 			throw new IllegalArgumentException("\"" + profileId + "\" is not a valid profile identifier."); //$NON-NLS-1$//$NON-NLS-2$
+		}
 		GarbageCollector gc = agent.getService(GarbageCollector.class);
 		gc.runGC(profile);
 		agent.stop();
@@ -69,17 +71,20 @@ public class Application implements IApplication {
 	 * Iterate over the command-line arguments and pull out the ones which are important to us.
 	 */
 	public void processArguments(String[] args) throws Exception {
-		if (args == null)
+		if (args == null) {
 			return;
+		}
 		for (int i = 0; i < args.length; i++) {
 			String opt = args[i];
 			// check for args with parameters. If we are at the last argument or if the next
 			// one has a '-' as the first character, then we can't have an arg with a parm so continue.
-			if (i == args.length - 1 || args[i + 1].startsWith("-")) //$NON-NLS-1$
+			if (i == args.length - 1 || args[i + 1].startsWith("-")) { //$NON-NLS-1$
 				continue;
+			}
 			String arg = args[++i];
-			if (opt.equalsIgnoreCase("-profile")) //$NON-NLS-1$
+			if (opt.equalsIgnoreCase("-profile")) { //$NON-NLS-1$
 				profileId = arg;
+			}
 		}
 	}
 }

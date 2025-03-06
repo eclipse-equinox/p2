@@ -93,16 +93,18 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 	}
 
 	private void addKeys(Collection<IArtifactKey> keyList, IArtifactKey[] keyArray) {
-		for (IArtifactKey element : keyArray)
+		for (IArtifactKey element : keyArray) {
 			keyList.add(element);
+		}
 	}
 
 	private void contributeMarkSets(IConfigurationElement runAttribute, IProfile profile, boolean addRepositories) {
 		ParameterizedSafeRunnable providerExecutor = new ParameterizedSafeRunnable(runAttribute, profile);
 		SafeRunner.run(providerExecutor);
 		MarkSet[] aProfileMarkSets = providerExecutor.getResult();
-		if (aProfileMarkSets == null || aProfileMarkSets.length == 0 || aProfileMarkSets[0] == null)
+		if (aProfileMarkSets == null || aProfileMarkSets.length == 0 || aProfileMarkSets[0] == null) {
 			return;
+		}
 
 		for (MarkSet aProfileMarkSet : aProfileMarkSets) {
 			if (aProfileMarkSet == null) {
@@ -123,8 +125,9 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 
 	protected boolean getBooleanPreference(String key, boolean defaultValue) {
 		IPreferencesService prefService = GarbageCollectorHelper.getService(IPreferencesService.class);
-		if (prefService == null)
+		if (prefService == null) {
 			return defaultValue;
+		}
 		List<IEclipsePreferences> nodes = new ArrayList<>();
 		// todo we should look in the instance scope as well but have to be careful that the instance location has been set
 		nodes.add(ConfigurationScope.INSTANCE.getNode(GarbageCollectorHelper.ID));
@@ -150,20 +153,23 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 		} else if (o instanceof CommitOperationEvent) {
 			if (uninstallEventProfileId != null) {
 				CommitOperationEvent event = (CommitOperationEvent) o;
-				if (uninstallEventProfileId.equals(event.getProfile().getProfileId()) && getBooleanPreference(GarbageCollectorHelper.GC_ENABLED, true))
+				if (uninstallEventProfileId.equals(event.getProfile().getProfileId()) && getBooleanPreference(GarbageCollectorHelper.GC_ENABLED, true)) {
 					runGC(event.getProfile());
+				}
 				uninstallEventProfileId = null;
 			}
 		} else if (o instanceof RollbackOperationEvent) {
-			if (uninstallEventProfileId != null && uninstallEventProfileId.equals(((RollbackOperationEvent) o).getProfile().getProfileId()))
+			if (uninstallEventProfileId != null && uninstallEventProfileId.equals(((RollbackOperationEvent) o).getProfile().getProfileId())) {
 				uninstallEventProfileId = null;
+			}
 		}
 	}
 
 	public void runGC(IProfile profile) {
 		markSet = new HashMap<>();
-		if (!traverseMainProfile(profile))
+		if (!traverseMainProfile(profile)) {
 			return;
+		}
 
 		//Complete each MarkSet with the MarkSets provided by all of the other registered Profiles
 		traverseRegisteredProfiles();
@@ -175,16 +181,18 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 	@Override
 	public void start() {
 		IProvisioningEventBus eventBus = agent.getService(IProvisioningEventBus.class);
-		if (eventBus == null)
+		if (eventBus == null) {
 			return;
+		}
 		eventBus.addListener(this);
 	}
 
 	@Override
 	public void stop() {
 		IProvisioningEventBus eventBus = agent.getService(IProvisioningEventBus.class);
-		if (eventBus != null)
+		if (eventBus != null) {
 			eventBus.removeListener(this);
+		}
 	}
 
 	private boolean traverseMainProfile(IProfile profile) {
@@ -209,8 +217,9 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 				continue;
 			}
 			IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
-			if (profileRegistry == null)
+			if (profileRegistry == null) {
 				return;
+			}
 			IProfile[] registeredProfiles = profileRegistry.getProfiles();
 			for (IProfile registeredProfile : registeredProfiles) {
 				contributeMarkSets(configElt, registeredProfile, false);

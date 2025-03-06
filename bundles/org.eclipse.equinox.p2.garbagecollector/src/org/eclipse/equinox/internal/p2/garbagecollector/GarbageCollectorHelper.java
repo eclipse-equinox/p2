@@ -24,8 +24,9 @@ public class GarbageCollectorHelper {
 	static <T> T getService(Class<T> clazz) {
 		BundleContext context = FrameworkUtil.getBundle(GarbageCollectorHelper.class).getBundleContext();
 		ServiceReference<T> reference = context.getServiceReference(clazz);
-		if (reference == null)
+		if (reference == null) {
 			return null;
+		}
 		T result = context.getService(reference);
 		context.ungetService(reference);
 		return result;
