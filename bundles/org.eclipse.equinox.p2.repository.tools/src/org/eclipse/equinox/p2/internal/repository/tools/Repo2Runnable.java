@@ -63,16 +63,18 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 
 			IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 			Collection<IArtifactKey> toDownload = installableUnit.getArtifacts();
-			if (toDownload == null)
+			if (toDownload == null) {
 				return Status.OK_STATUS;
+			}
 
 			@SuppressWarnings("unchecked")
 			List<IArtifactRequest> artifactRequests = (List<IArtifactRequest>) parameters.get(NATIVE_ARTIFACTS);
 
 			IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 			String statsParameter = null;
-			if (profile != null)
+			if (profile != null) {
 				statsParameter = profile.getProperty(IProfile.PROP_STATS_PARAMETERS);
+			}
 
 			for (IArtifactKey keyToDownload : toDownload) {
 				IArtifactRequest request = manager.createMirrorRequest(keyToDownload, destinationArtifactRepository, null, null, statsParameter);
@@ -145,8 +147,9 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 		IProfile profile = createProfile();
 		try {
 			IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
-			if (engine == null)
+			if (engine == null) {
 				throw new ProvisionException(Messages.exception_noEngineService);
+			}
 			ProvisioningContext context = new ProvisioningContext(agent);
 			context.setMetadataRepositories(getRepositories(true));
 			context.setArtifactRepositories(getRepositories(false));
@@ -156,8 +159,9 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			}
 			IStatus result = engine.perform(plan, getPhaseSet(), progress.newChild(1));
 			PhaseSet nativeSet = getNativePhase();
-			if (nativeSet != null)
+			if (nativeSet != null) {
 				engine.perform(plan, nativeSet, progress.newChild(1));
+			}
 
 			// publish the metadata to a destination - if requested
 			publishMetadata(progress.newChild(1));
@@ -172,8 +176,9 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 				HashSet<BundleInfo> bundles = new HashSet<>();
 				try {
 					for (IInstallableUnit iu : processedIUs) {
-						if (iu.getId().equals("a.jre"))
+						if (iu.getId().equals("a.jre")) {
 							continue;
+						}
 						Collection<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();
 						for (IProvidedCapability cap : providedCapabilities) {
 							if ("org.eclipse.equinox.p2.eclipse.type".equals(cap.getNamespace())) {
@@ -217,15 +222,17 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	}
 
 	private void setRunnableProperty(IArtifactRepository destinationArtifactRepository) {
-		if (flagAsRunnable)
+		if (flagAsRunnable) {
 			destinationArtifactRepository.setProperty(IArtifactRepository.PROP_RUNNABLE, Boolean.TRUE.toString(), new NullProgressMonitor());
+		}
 	}
 
 	protected URI[] getRepositories(boolean metadata) {
 		List<URI> repos = new ArrayList<>();
 		for (RepositoryDescriptor repo : sourceRepositories) {
-			if (metadata ? repo.isMetadata() : repo.isArtifact())
+			if (metadata ? repo.isMetadata() : repo.isArtifact()) {
 				repos.add(repo.getRepoLocation());
+			}
 		}
 		return repos.toArray(new URI[repos.size()]);
 	}
@@ -248,15 +255,18 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			return;
 		}
 		// get all IUs from the repos
-		if (!hasMetadataSources())
+		if (!hasMetadataSources()) {
 			throw new ProvisionException(Messages.exception_needIUsOrNonEmptyRepo);
+		}
 
 		Iterator<IInstallableUnit> itor = getAllIUs(getCompositeMetadataRepository(), monitor).iterator();
-		while (itor.hasNext())
+		while (itor.hasNext()) {
 			processedIUs.add(itor.next());
+		}
 
-		if (processedIUs.isEmpty())
+		if (processedIUs.isEmpty()) {
 			throw new ProvisionException(Messages.exception_needIUsOrNonEmptyRepo);
+		}
 	}
 
 	/*
@@ -265,8 +275,9 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	 */
 	private void publishMetadata(IProgressMonitor monitor) {
 		// publishing the metadata is optional
-		if (destinationMetadataRepository == null)
+		if (destinationMetadataRepository == null) {
 			return;
+		}
 		destinationMetadataRepository.addInstallableUnits(processedIUs);
 	}
 
@@ -314,8 +325,9 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	 * Iterate over the command-line arguments and prepare the transformer for processing.
 	 */
 	private void processCommandLineArgs(String[] args) throws URISyntaxException {
-		if (args == null)
+		if (args == null) {
 			return;
+		}
 		for (int i = 0; i < args.length; i++) {
 			String option = args[i];
 			String arg = null;
@@ -356,10 +368,12 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	 * to add more if they wish)
 	 */
 	private void validate() throws ProvisionException {
-		if (!hasMetadataSources() && sourceIUs == null)
+		if (!hasMetadataSources() && sourceIUs == null) {
 			throw new ProvisionException(Messages.exception_needIUsOrNonEmptyRepo);
-		if (destinationArtifactRepository == null)
+		}
+		if (destinationArtifactRepository == null) {
 			throw new ProvisionException(Messages.exception_needDestinationRepo);
+		}
 	}
 
 	@Override

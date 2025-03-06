@@ -69,14 +69,16 @@ public class ArtifactComparatorFactory {
 		// handle generic artifact comparators
 		Optional<IArtifactComparator> artifactComparator = findComparatorConfiguration(comparatorID, extensions)
 			.map(ArtifactComparatorFactory::createArtifactComparator);
-		if (artifactComparator.isPresent())
+		if (artifactComparator.isPresent()) {
 			return artifactComparator.get();
+		}
 
 		// handle artifact checksum comparator
 		if (comparatorID != null && comparatorID.startsWith(ArtifactChecksumComparator.COMPARATOR_ID)) {
 			Optional<ArtifactChecksumComparator> checksumComparator = getChecksumComparator(comparatorID);
-			if (checksumComparator.isPresent())
+			if (checksumComparator.isPresent()) {
 				return checksumComparator.get();
+			}
 		}
 
 		if (comparatorID != null) {
@@ -102,8 +104,9 @@ public class ArtifactComparatorFactory {
 	private static IArtifactComparator createArtifactComparator(IConfigurationElement element) {
 		try {
 			Object execExt = element.createExecutableExtension(ATTR_CLASS);
-			if (execExt instanceof IArtifactComparator)
+			if (execExt instanceof IArtifactComparator) {
 				return (IArtifactComparator) execExt;
+			}
 		} catch (Exception e) {
 			//fall through
 		}
@@ -115,13 +118,15 @@ public class ArtifactComparatorFactory {
 
 	private static Optional<ArtifactChecksumComparator> getChecksumComparator(String comparatorId) {
 		boolean hasNoChecksumId = !comparatorId.startsWith(ArtifactChecksumComparator.COMPARATOR_ID.concat(".")); //$NON-NLS-1$
-		if (hasNoChecksumId)
+		if (hasNoChecksumId) {
 			return Optional.empty();
+		}
 
 		String comparatorChecksum = Optional.ofNullable(comparatorId.substring(ArtifactChecksumComparator.COMPARATOR_ID.length() + 1))
 			.orElse(""); //$NON-NLS-1$
-		if (comparatorChecksum.isEmpty())
+		if (comparatorChecksum.isEmpty()) {
 			return Optional.empty();
+		}
 
 		IConfigurationElement[] comparatorConfigurations = ChecksumUtilities.getChecksumComparatorConfigurations();
 		Optional<IConfigurationElement> comparator = Stream.of(comparatorConfigurations)

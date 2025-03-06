@@ -55,17 +55,20 @@ public class Repo2RunnableTask extends AbstractRepositoryTask {
 			prepareSourceRepos();
 			application.initializeRepos(null);
 			List<IInstallableUnit> ius = prepareIUs();
-			if ((ius == null || ius.size() == 0) && !(application.hasArtifactSources() || application.hasMetadataSources()))
+			if ((ius == null || ius.size() == 0) && !(application.hasArtifactSources() || application.hasMetadataSources())) {
 				throw new BuildException(Messages.exception_needIUsOrNonEmptyRepo);
+			}
 			application.setSourceIUs(ius);
 			((Repo2Runnable) application).setFlagAsRunnable(flagAsRunnable);
 			((Repo2Runnable) application).setCreateFragments(createFragments);
 			IStatus result = application.run(null);
-			if (failOnError && result.matches(IStatus.ERROR))
+			if (failOnError && result.matches(IStatus.ERROR)) {
 				throw new ProvisionException(result);
+			}
 		} catch (ProvisionException e) {
-			if (failOnError)
+			if (failOnError) {
 				throw new BuildException(NLS.bind(Messages.Repo2RunnableTask_errorTransforming, null != e.getMessage() ? e.getMessage() : e.toString()), e);
+			}
 			/* else */
 			getProject().log(NLS.bind(Messages.Repo2RunnableTask_errorTransforming, null != e.getMessage() ? e.getMessage() : e.toString()), Project.MSG_WARN);
 			getProject().log(e.getMessage(), Project.MSG_WARN);

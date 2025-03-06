@@ -42,10 +42,11 @@ public class RepositoryAnalyzerApplication implements IApplication {
 		IStatus status = repositoryAnalyzer.analyze(new NullProgressMonitor());
 		IStatus[] children = status.getChildren();
 		long time = (System.currentTimeMillis()) - start;
-		if (status.isOK())
+		if (status.isOK()) {
 			System.out.println("Repository Analyzer Finished succesfuly in " + time + " ms.");
-		else
+		} else {
 			System.out.println("Repository Analyzer Finished in " + time + " ms with status with errors.");
+		}
 		for (IStatus child : children) {
 			if (child.isOK()) {
 				System.out.print("[OK] ");
@@ -66,16 +67,18 @@ public class RepositoryAnalyzerApplication implements IApplication {
 	private void processArguments(String[] args) throws CoreException, URISyntaxException {
 		for (int i = 0; i < args.length; i++) {
 			if ("-m".equals(args[i]) || "-metadataRepository".equals(args[i])) { //$NON-NLS-1$ //$NON-NLS-2$
-				if (i + 1 < args.length)
+				if (i + 1 < args.length) {
 					uri = new URI(args[i + 1]);
+				}
 			}
 		}
 		validateLaunch();
 	}
 
 	private void validateLaunch() throws CoreException {
-		if (uri == null)
+		if (uri == null) {
 			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, "-metadataRepository <metadataURI> must be specified"));
+		}
 	}
 
 	@Override

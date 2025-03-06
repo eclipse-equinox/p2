@@ -55,8 +55,9 @@ public class Activator implements BundleActivator {
 	 * there was a problem.
 	 */
 	public static URI getURI(String spec) {
-		if (spec == null)
+		if (spec == null) {
 			return null;
+		}
 		try {
 			return URIUtil.fromString(spec);
 		} catch (URISyntaxException e) {
@@ -70,8 +71,9 @@ public class Activator implements BundleActivator {
 	 */
 	public static IProvisioningAgent getAgent() throws ProvisionException {
 		IProvisioningAgent agent = ServiceHelper.getService(getBundleContext(), IProvisioningAgent.class);
-		if (agent == null)
+		if (agent == null) {
 			throw new ProvisionException(Messages.no_provisioning_agent);
+		}
 		return agent;
 	}
 
@@ -81,8 +83,9 @@ public class Activator implements BundleActivator {
 	 */
 	public static IArtifactRepositoryManager getArtifactRepositoryManager() throws ProvisionException {
 		IArtifactRepositoryManager manager = getAgent().getService(IArtifactRepositoryManager.class);
-		if (manager == null)
+		if (manager == null) {
 			throw new ProvisionException(Messages.no_artifactRepo_manager);
+		}
 		return manager;
 	}
 
@@ -91,8 +94,9 @@ public class Activator implements BundleActivator {
 	 */
 	static IProfileRegistry getProfileRegistry() throws ProvisionException {
 		IProfileRegistry registry = getAgent().getService(IProfileRegistry.class);
-		if (registry == null)
+		if (registry == null) {
 			throw new ProvisionException(Messages.no_profile_registry);
+		}
 		return registry;
 	}
 
@@ -102,8 +106,9 @@ public class Activator implements BundleActivator {
 	 */
 	public static IMetadataRepositoryManager getMetadataRepositoryManager() throws ProvisionException {
 		IMetadataRepositoryManager manager = getAgent().getService(IMetadataRepositoryManager.class);
-		if (manager == null)
+		if (manager == null) {
 			throw new ProvisionException(Messages.no_metadataRepo_manager);
+		}
 		return manager;
 	}
 }

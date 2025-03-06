@@ -40,8 +40,9 @@ public class MirrorMetadataTask extends Task {
 		destinationRepo.setLocation(destination);
 		destinationRepo.setKind(RepositoryDescriptor.KIND_METADATA);
 		destinationRepo.setFormat(source);
-		if (writeMode != null && writeMode.equals("clean")) //$NON-NLS-1$
+		if (writeMode != null && writeMode.equals("clean")) { //$NON-NLS-1$
 			destinationRepo.setAppend(false);
+		}
 
 		RepositoryDescriptor sourceRepo = new RepositoryDescriptor();
 		sourceRepo.setLocation(source);
@@ -53,8 +54,9 @@ public class MirrorMetadataTask extends Task {
 		app.setReferences(references);
 		try {
 			IStatus result = app.run(null);
-			if (result.getSeverity() != IStatus.OK)
+			if (result.getSeverity() != IStatus.OK) {
 				log(result.getMessage());
+			}
 		} catch (ProvisionException e) {
 			throw new BuildException(e);
 		}

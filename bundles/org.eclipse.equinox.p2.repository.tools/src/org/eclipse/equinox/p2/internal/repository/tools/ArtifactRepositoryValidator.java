@@ -37,8 +37,9 @@ public class ArtifactRepositoryValidator {
 	}
 
 	public IStatus validateRepository(IArtifactRepository repository) {
-		if (repository instanceof CompositeArtifactRepository)
+		if (repository instanceof CompositeArtifactRepository) {
 			return validateComposite((CompositeArtifactRepository) repository);
+		}
 
 		IQueryResult<IArtifactKey> queryResult = repository.query(ArtifactKeyQuery.ALL_KEYS, new NullProgressMonitor());
 		for (IArtifactKey iArtifactKey : queryResult) {
@@ -89,8 +90,9 @@ public class ArtifactRepositoryValidator {
 				// If we assume each repo is internally consistant, we only need to compare one
 				// descriptor from each repo
 				IStatus compareResult = comparator.compare(composite, d1[0], repository, d2[0]);
-				if (!compareResult.isOK())
+				if (!compareResult.isOK()) {
 					return compareResult;
+				}
 			}
 		}
 		return Status.OK_STATUS;

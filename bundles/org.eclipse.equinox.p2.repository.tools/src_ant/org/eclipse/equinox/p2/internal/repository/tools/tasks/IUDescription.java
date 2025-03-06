@@ -42,28 +42,33 @@ public class IUDescription extends DataType {
 	}
 
 	public void setId(String value) {
-		if (value != null && !value.startsWith(ANT_PREFIX))
+		if (value != null && !value.startsWith(ANT_PREFIX)) {
 			this.id = value;
+		}
 	}
 
 	public void setVersion(String value) {
-		if (value != null && !value.startsWith(ANT_PREFIX))
+		if (value != null && !value.startsWith(ANT_PREFIX)) {
 			this.version = value;
+		}
 	}
 
 	public void setQuery(String query) {
-		if (query != null && !query.startsWith(ANT_PREFIX))
+		if (query != null && !query.startsWith(ANT_PREFIX)) {
 			this.queryString = query;
+		}
 	}
 
 	public void setArtifacts(String filter) {
-		if (filter != null && !filter.startsWith(ANT_PREFIX))
+		if (filter != null && !filter.startsWith(ANT_PREFIX)) {
 			this.artifactFilter = filter;
+		}
 	}
 
 	public Filter getArtifactFilter() throws InvalidSyntaxException {
-		if (artifactFilter != null)
+		if (artifactFilter != null) {
 			return Activator.getBundleContext().createFilter(artifactFilter);
+		}
 		return null;
 	}
 
@@ -119,32 +124,38 @@ public class IUDescription extends DataType {
 		}
 
 		IQuery<IInstallableUnit> iuQuery = processQueryString();
-		if (iuQuery != null)
+		if (iuQuery != null) {
 			queries.add(iuQuery);
+		}
 
-		if (queries.size() == 1)
+		if (queries.size() == 1) {
 			return queries.get(0);
+		}
 
 		IQuery<IInstallableUnit> query = QueryUtil.createPipeQuery(queries);
 		return query;
 	}
 
 	private IQuery<IInstallableUnit> processQueryString() {
-		if (queryString == null)
+		if (queryString == null) {
 			return null;
+		}
 		int startIdx = queryString.indexOf('[');
 		int endIdx = queryString.lastIndexOf(']');
-		if (startIdx == -1 || endIdx == -1 || endIdx < startIdx)
+		if (startIdx == -1 || endIdx == -1 || endIdx < startIdx) {
 			return null;
+		}
 		String element = queryString.substring(0, startIdx);
 		Map<String, String> attributes = processQueryAttributes(queryString.substring(startIdx + 1, endIdx));
 		if (element.equals(QUERY_PROPERTY)) {
 			String name = attributes.get(QUERY_NAME);
 			String value = attributes.get(QUERY_VALUE);
-			if (name == null)
+			if (name == null) {
 				return null;
-			if (value == null)
+			}
+			if (value == null) {
 				value = QueryUtil.ANY;
+			}
 			return QueryUtil.createIUPropertyQuery(name, value);
 		}
 
@@ -152,8 +163,9 @@ public class IUDescription extends DataType {
 	}
 
 	private Map<String, String> processQueryAttributes(String attributes) {
-		if (attributes == null || attributes.length() == 0)
+		if (attributes == null || attributes.length() == 0) {
 			return Collections.emptyMap();
+		}
 
 		Map<String, String> result = new HashMap<>();
 		int start = 0;
@@ -162,8 +174,9 @@ public class IUDescription extends DataType {
 			int equals = attributes.indexOf('=', idx);
 			int startQuote = attributes.indexOf('\'', equals);
 			int endQuote = attributes.indexOf('\'', startQuote + 1);
-			if (equals == -1 || startQuote <= equals || endQuote <= startQuote)
+			if (equals == -1 || startQuote <= equals || endQuote <= startQuote) {
 				break;
+			}
 			String key = attributes.substring(idx + 1, equals).trim();
 			String value = attributes.substring(startQuote + 1, endQuote);
 			result.put(key, value);

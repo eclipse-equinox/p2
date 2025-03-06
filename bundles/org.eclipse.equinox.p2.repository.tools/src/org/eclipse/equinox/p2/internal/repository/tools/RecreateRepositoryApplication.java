@@ -88,11 +88,13 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		IArtifactRepository repository = repositoryManager.loadRepository(repoLocation,
 				IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, monitor);
 
-		if (repository == null || !repository.isModifiable())
+		if (repository == null || !repository.isModifiable()) {
 			throw new ProvisionException(
 					NLS.bind(Messages.exception_destinationNotModifiable, repository.getLocation()));
-		if (!(repository instanceof IFileArtifactRepository))
+		}
+		if (!(repository instanceof IFileArtifactRepository)) {
 			throw new ProvisionException(NLS.bind(Messages.exception_notLocalFileRepo, repository.getLocation()));
+		}
 
 		repoName = repository.getName();
 		repoProperties = repository.getProperties();
@@ -114,8 +116,9 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		boolean compressed = Boolean.parseBoolean(repoProperties.get(IRepository.PROP_COMPRESSED));
 		URI realLocation = SimpleArtifactRepository.getActualLocation(repository.getLocation(), compressed);
 		File realFile = URIUtil.toFile(realLocation);
-		if (!realFile.exists() || !realFile.delete())
+		if (!realFile.exists() || !realFile.delete()) {
 			throw new ProvisionException(NLS.bind(Messages.exception_unableToRemoveRepo, realFile.toString()));
+		}
 	}
 
 	private void recreateRepository(IProgressMonitor monitor) throws ProvisionException {
@@ -123,8 +126,9 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 
 		IArtifactRepository repository = manager.createRepository(repoLocation, repoName,
 				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, repoProperties);
-		if (!(repository instanceof IFileArtifactRepository))
+		if (!(repository instanceof IFileArtifactRepository)) {
 			throw new ProvisionException(NLS.bind(Messages.exception_notLocalFileRepo, repository.getLocation()));
+		}
 
 		IFileArtifactRepository simple = (IFileArtifactRepository) repository;
 		for (IArtifactKey key : repoMap.keySet()) {
@@ -144,9 +148,10 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 				Map<String, String> checksums = new HashMap<>();
 				List<String> checksumsToSkip = Collections.emptyList();
 				IStatus status = ChecksumUtilities.calculateChecksums(artifactFile, checksums, checksumsToSkip);
-				if (!status.isOK())
+				if (!status.isOK()) {
 					// TODO handle errors in some way
 					LogHelper.log(status);
+				}
 
 				Map<String, String> checksumsToProperties = ChecksumUtilities
 						.checksumsToProperties(IArtifactDescriptor.DOWNLOAD_CHECKSUM, checksums);

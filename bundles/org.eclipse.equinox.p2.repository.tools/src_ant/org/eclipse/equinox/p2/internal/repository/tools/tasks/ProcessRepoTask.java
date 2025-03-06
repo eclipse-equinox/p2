@@ -80,8 +80,9 @@ public class ProcessRepoTask extends Task {
 			jarProcessor.setStorepass(signing.storepass);
 			jarProcessor.setUnsign(signing.unsign);
 
-			if (signing.alias != null && signing.alias.length() > 0 && !signing.alias.startsWith("${")) //$NON-NLS-1$
+			if (signing.alias != null && signing.alias.length() > 0 && !signing.alias.startsWith("${")) { //$NON-NLS-1$
 				jarProcessor.setSign(true);
+			}
 			jarProcessor.setInputFolder(new File(repository));
 			jarProcessor.setProject(getProject());
 			jarProcessor.execute();
@@ -114,14 +115,16 @@ public class ProcessRepoTask extends Task {
 	}
 
 	public void addConfiguredPlugin(IUDescription iu) {
-		if (jarProcessor == null)
+		if (jarProcessor == null) {
 			jarProcessor = new JarProcessorTask();
+		}
 
 		String path = "plugins/" + iu.getId() + '_' + iu.getVersion(); //$NON-NLS-1$
 		File repo = new File(repository);
 		File plugin = new File(repo, path);
-		if (!plugin.exists())
+		if (!plugin.exists()) {
 			plugin = new File(repo, path + ".jar"); //$NON-NLS-1$
+		}
 
 		if (plugin.exists()) {
 			jarProcessor.addInputFile(plugin);
@@ -129,14 +132,16 @@ public class ProcessRepoTask extends Task {
 	}
 
 	public void addConfiguredFeature(IUDescription iu) {
-		if (jarProcessor == null)
+		if (jarProcessor == null) {
 			jarProcessor = new JarProcessorTask();
+		}
 
 		String path = "features/" + iu.getId() + '_' + iu.getVersion(); //$NON-NLS-1$
 		File repo = new File(repository);
 		File feature = new File(repo, path);
-		if (!feature.exists())
+		if (!feature.exists()) {
 			feature = new File(repo, path + ".jar"); //$NON-NLS-1$
+		}
 
 		if (feature.exists()) {
 			jarProcessor.addInputFile(feature);

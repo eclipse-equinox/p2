@@ -34,8 +34,9 @@ public class UnzipFeatureJarAnalyzer extends IUAnalyzer {
 				boolean found = false;
 				for (ITouchpointData td : touchpointData) {
 					ITouchpointInstruction instruction = td.getInstruction("zipped"); //$NON-NLS-1$
-					if (instruction.getBody().equals("true")) //$NON-NLS-1$
+					if (instruction.getBody().equals("true")) { //$NON-NLS-1$
 						found = true;
+					}
 				}
 				if (!found) {
 					error(iu, "[ERROR] No unzip touchpoint for: " + iu.getId()); //$NON-NLS-1$

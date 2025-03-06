@@ -44,19 +44,23 @@ public class MD5ArtifactComparator implements IArtifactComparator {
 		String sourceMD5 = sourceDescriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5);
 		String destMD5 = destDescriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5);
 
-		if (sourceMD5 == null && destMD5 == null)
+		if (sourceMD5 == null && destMD5 == null) {
 			return new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.info_noMD5Infomation, sourceDescriptor));
+		}
 
-		if (sourceMD5 == null)
+		if (sourceMD5 == null) {
 			return new Status(IStatus.INFO, Activator.ID,
 					NLS.bind(Messages.info_noMD5InRepository, source, sourceDescriptor));
+		}
 
-		if (destMD5 == null)
+		if (destMD5 == null) {
 			return new Status(IStatus.INFO, Activator.ID,
 					NLS.bind(Messages.info_noMD5InRepository, destination, destDescriptor));
+		}
 
-		if (sourceMD5.equals(destMD5))
+		if (sourceMD5.equals(destMD5)) {
 			return Status.OK_STATUS;
+		}
 
 		return new Status(IStatus.WARNING, Activator.ID,
 				NLS.bind(Messages.warning_different_checksum,

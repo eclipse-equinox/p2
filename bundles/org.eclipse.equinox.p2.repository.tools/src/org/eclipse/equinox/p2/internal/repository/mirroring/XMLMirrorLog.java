@@ -45,10 +45,11 @@ public class XMLMirrorLog implements IArtifactMirrorLog {
 		try {
 			outputStream = new FileOutputStream(location);
 			writer = new XMLWriter(outputStream, null);
-			if (root != null)
+			if (root != null) {
 				writer.start(root.toLowerCase());
-			else
+			} else {
 				writer.start(LOG);
+			}
 			writer.attribute(TIME_ATTRIBUTE, new Date());
 		} catch (FileNotFoundException e) {
 			exceptionOccurred(e);
@@ -57,33 +58,38 @@ public class XMLMirrorLog implements IArtifactMirrorLog {
 
 	@Override
 	public void log(IArtifactDescriptor descriptor, IStatus status) {
-		if (status.getSeverity() < minStatus)
+		if (status.getSeverity() < minStatus) {
 			return;
+		}
 		// Start descriptor tag
 		if (writer != null) {
 			writer.start(DESCRIPTOR_ELEMENT);
 			writer.attribute(DESCRIPTOR_ID_ATTRIBUTE, descriptor.getArtifactKey().getId());
 			writer.attribute(DESCRIPTOR_CLASSIFIER_ATTRIBUTE, descriptor.getArtifactKey().getClassifier());
 			writer.attribute(DESCRIPTOR_VERSION_ATTRIBUTE, descriptor.getArtifactKey().getVersion());
-			if (descriptor.getProperties().get(IArtifactDescriptor.FORMAT) != null)
+			if (descriptor.getProperties().get(IArtifactDescriptor.FORMAT) != null) {
 				writer.attribute(DESCRIPTOR_FORMAT_ATTRIBUTE, descriptor.getProperties().get(IArtifactDescriptor.FORMAT));
-			else
+			} else {
 				writer.attribute(DESCRIPTOR_FORMAT_ATTRIBUTE, DEFAULT_FORMAT);
-		} else
+			}
+		} else {
 			// Creation of the XML writer failed, dump results to the console
 			System.out.println(descriptor);
+		}
 
 		log(status);
 
 		// Close descriptor tag
-		if (writer != null)
+		if (writer != null) {
 			writer.end();
+		}
 	}
 
 	@Override
 	public void log(IStatus status) {
-		if (status.getSeverity() < minStatus)
+		if (status.getSeverity() < minStatus) {
 			return;
+		}
 
 		if (writer != null) {
 			// Start status tag
@@ -110,20 +116,23 @@ public class XMLMirrorLog implements IArtifactMirrorLog {
 			}
 			// Set  message attribute
 			writer.attribute(STATUS_MESSAGE_ATTRIBUTE, status.getMessage());
-		} else
+		} else {
 			// Creation of the XML writer failed, dump results to the console
 			System.out.println(status);
+		}
 
 		// Log children statuses
 		IStatus[] nestedStatus = status.getChildren();
-		if (nestedStatus != null)
+		if (nestedStatus != null) {
 			for (IStatus s : nestedStatus) {
 				log(s);
 		}
+		}
 
 		// Close status tag
-		if (writer != null)
+		if (writer != null) {
 			writer.end();
+		}
 	}
 
 	@Override
@@ -135,13 +144,14 @@ public class XMLMirrorLog implements IArtifactMirrorLog {
 				writer.flush();
 			}
 		} finally {
-			if (outputStream != null)
+			if (outputStream != null) {
 				try {
 					// Close output stream
 					outputStream.close();
 				} catch (IOException e) {
 					exceptionOccurred(e);
 				}
+			}
 		}
 	}
 

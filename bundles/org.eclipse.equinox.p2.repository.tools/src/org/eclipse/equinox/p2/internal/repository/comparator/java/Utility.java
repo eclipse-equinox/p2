@@ -42,8 +42,9 @@ public class Utility {
 		InputStream stream = null;
 		try {
 			stream = zip.getInputStream(ze);
-			if (stream == null)
+			if (stream == null) {
 				throw new IOException("Invalid zip entry name : " + ze.getName()); //$NON-NLS-1$
+			}
 			return getInputStreamAsByteArray(stream, (int) ze.getSize());
 		} finally {
 			close(stream);
@@ -51,15 +52,17 @@ public class Utility {
 	}
 
 	public static void close(Object object) {
-		if (object == null)
+		if (object == null) {
 			return;
+		}
 		try {
-			if (object instanceof InputStream)
+			if (object instanceof InputStream) {
 				((InputStream) object).close();
-			else if (object instanceof OutputStream)
+			} else if (object instanceof OutputStream) {
 				((OutputStream) object).close();
-			else if (object instanceof ZipFile)
+			} else if (object instanceof ZipFile) {
 				((ZipFile) object).close();
+			}
 		} catch (IOException e) {
 			//ignore
 		}

@@ -44,8 +44,9 @@ public class SlicingOption extends Task {
 	}
 
 	public void setPlatformFilter(String platformFilter) {
-		if (platformFilter == null || platformFilter.trim().equals("")) //$NON-NLS-1$
+		if (platformFilter == null || platformFilter.trim().equals("")) { //$NON-NLS-1$
 			return;
+		}
 		if (platformFilter.equalsIgnoreCase("true")) { //$NON-NLS-1$
 			options.forceFilterTo(true);
 			return;
@@ -55,8 +56,9 @@ public class SlicingOption extends Task {
 			return;
 		}
 		StringTokenizer tok = new StringTokenizer(platformFilter, ","); //$NON-NLS-1$
-		if (tok.countTokens() != 3)
+		if (tok.countTokens() != 3) {
 			throw new BuildException(NLS.bind(Messages.SlicingOption_invalid_platform, platformFilter));
+		}
 		Map<String, String> filter = options.getFilter();
 		filter.put("osgi.os", tok.nextToken().trim()); //$NON-NLS-1$
 		filter.put("osgi.ws", tok.nextToken().trim()); //$NON-NLS-1$
@@ -75,15 +77,17 @@ public class SlicingOption extends Task {
 	}
 
 	public void setFilter(String filterString) {
-		if (filterString == null || filterString.trim().equals("")) //$NON-NLS-1$
+		if (filterString == null || filterString.trim().equals("")) { //$NON-NLS-1$
 			return;
+		}
 		Map<String, String> filter = options.getFilter();
 		StringTokenizer tok = new StringTokenizer(filterString, ","); //$NON-NLS-1$
 		while (tok.hasMoreTokens()) {
 			String rule = tok.nextToken().trim();
 			int eqIndex = rule.indexOf('=');
-			if (eqIndex == -1)
+			if (eqIndex == -1) {
 				throw new BuildException(NLS.bind(Messages.SlicingOption_invalidFilterFormat, rule));
+			}
 			filter.put(rule.substring(0, eqIndex), rule.substring(eqIndex + 1));
 		}
 		options.setFilter(filter);

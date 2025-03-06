@@ -48,8 +48,9 @@ public class MirrorArtifactsTask extends Task {
 		destinationRepo.setLocation(destination);
 		destinationRepo.setKind(RepositoryDescriptor.KIND_ARTIFACT);
 		destinationRepo.setFormat(source);
-		if (writeMode != null && writeMode.equals("clean")) //$NON-NLS-1$
+		if (writeMode != null && writeMode.equals("clean")) { //$NON-NLS-1$
 			destinationRepo.setAppend(false);
+		}
 
 		RepositoryDescriptor sourceRepo = new RepositoryDescriptor();
 		sourceRepo.setLocation(source);
@@ -65,11 +66,12 @@ public class MirrorArtifactsTask extends Task {
 		app.setComparatorID(comparatorID);
 		app.setBaseline(baseline);
 		app.setReferences(references);
-		if (comparatorLog != null)
+		if (comparatorLog != null) {
 			app.setComparatorLog(comparatorLog);
-		if (mirrorLog != null)
+		}
+		if (mirrorLog != null) {
 			app.setLog(mirrorLog);
-		else {
+		} else {
 			try {
 				app.setLog(new AntMirrorLog(this));
 			} catch (NoSuchMethodException e) {

@@ -38,8 +38,9 @@ public class FileMirrorLog implements IArtifactMirrorLog {
 					log(root + " - " + new Date()); //$NON-NLS-1$
 					hasRoot = true;
 				}
-			} else
+			} else {
 				throw new IOException(Messages.exception_unableToCreateParentDir);
+			}
 		} catch (IOException e) {
 			exceptionOccurred(null, e);
 		}
@@ -72,15 +73,17 @@ public class FileMirrorLog implements IArtifactMirrorLog {
 
 			// Write exception to log if applicable
 			String exceptionMessage = status.getException() != null ? status.getException().getMessage() : null;
-			if (exceptionMessage != null)
+			if (exceptionMessage != null) {
 				log(prefix + exceptionMessage);
+			}
 
 			// Write the children of the status to the log
 			IStatus[] nestedStatus = status.getChildren();
-			if (nestedStatus != null)
+			if (nestedStatus != null) {
 				for (IStatus s : nestedStatus) {
 					log(s, prefix + INDENT);
 				}
+			}
 		}
 	}
 
@@ -100,8 +103,9 @@ public class FileMirrorLog implements IArtifactMirrorLog {
 	@Override
 	public void close() {
 		try {
-			if (out != null)
+			if (out != null) {
 				out.close();
+			}
 		} catch (IOException e) {
 			exceptionOccurred(null, e);
 		}
@@ -117,7 +121,8 @@ public class FileMirrorLog implements IArtifactMirrorLog {
 			System.err.println(Messages.MirrorLog_Console_Log);
 			consoleMessage = true;
 		}
-		if (message != null)
+		if (message != null) {
 			System.out.println(message);
+		}
 	}
 }

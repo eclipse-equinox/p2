@@ -47,15 +47,17 @@ public class AntMirrorLog implements IArtifactMirrorLog {
 		// Log the status message
 		log(status.getMessage(), severity);
 		// Log the exception if applicable
-		if (status.getException() != null)
+		if (status.getException() != null) {
 			log(status.getException().getMessage(), severity);
+		}
 
 		// Log any children of this status
 		IStatus[] nestedStatus = status.getChildren();
-		if (nestedStatus != null)
+		if (nestedStatus != null) {
 			for (IStatus s : nestedStatus) {
 				log(s);
 			}
+		}
 	}
 
 	@Override
@@ -88,8 +90,9 @@ public class AntMirrorLog implements IArtifactMirrorLog {
 			System.err.println(Messages.MirrorLog_Console_Log);
 			consoleMessage = true;
 		}
-		if (message != null)
+		if (message != null) {
 			System.out.println(message);
+		}
 	}
 
 	/**

@@ -37,12 +37,15 @@ public class IUCounting implements IIUAnalyzer {
 	@Override
 	public void analyzeIU(IInstallableUnit iu) {
 		totalIUs++;
-		if (hasProperty(iu, InstallableUnitDescription.PROP_TYPE_FRAGMENT))
+		if (hasProperty(iu, InstallableUnitDescription.PROP_TYPE_FRAGMENT)) {
 			totalFragments++;
-		if (hasProperty(iu, InstallableUnitDescription.PROP_TYPE_GROUP))
+		}
+		if (hasProperty(iu, InstallableUnitDescription.PROP_TYPE_GROUP)) {
 			totalGroups++;
-		if (hasProperty(iu, InstallableUnitDescription.PROP_TYPE_CATEGORY))
+		}
+		if (hasProperty(iu, InstallableUnitDescription.PROP_TYPE_CATEGORY)) {
 			totalCategories++;
+		}
 	}
 
 	@Override

@@ -43,12 +43,15 @@ public class VersionAnalyzer extends IUAnalyzer {
 	}
 
 	private static org.osgi.framework.Version toOSGiVersion(Version version) {
-		if (version == null)
+		if (version == null) {
 			return null;
-		if (version == Version.emptyVersion)
+		}
+		if (version == Version.emptyVersion) {
 			return org.osgi.framework.Version.emptyVersion;
-		if (version == Version.MAX_VERSION)
+		}
+		if (version == Version.MAX_VERSION) {
 			return new org.osgi.framework.Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+		}
 
 		return new org.osgi.framework.Version(version.toString());
 	}

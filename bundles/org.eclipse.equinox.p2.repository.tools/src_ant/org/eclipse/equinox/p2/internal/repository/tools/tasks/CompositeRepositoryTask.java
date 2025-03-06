@@ -113,21 +113,24 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 		RepositoryDescriptor repo = new RepositoryDescriptor();
 		repo.setLocation(childURI);
 
-		if (getTaskName().equals(COMPOSITE_ADD))
+		if (getTaskName().equals(COMPOSITE_ADD)) {
 			((CompositeRepositoryApplication) application).addChild(repo);
-		else if (getTaskName().equals(COMPOSITE_REMOVE))
+		} else if (getTaskName().equals(COMPOSITE_REMOVE)) {
 			((CompositeRepositoryApplication) application).removeChild(repo);
+		}
 	}
 
 	/*  p2.composite.artifact.repository.add */
 	public void setComparatorID(String value) {
-		if (value != null && !value.startsWith(ANT_PREFIX))
+		if (value != null && !value.startsWith(ANT_PREFIX)) {
 			((CompositeRepositoryApplication) application).setComparator(value);
+		}
 	}
 
 	/*  p2.composite.artifact.repository.remove */
 	public void setAllChildren(String value) {
-		if (value != null && !value.startsWith(ANT_PREFIX))
+		if (value != null && !value.startsWith(ANT_PREFIX)) {
 			((CompositeRepositoryApplication) application).setRemoveAll(Boolean.parseBoolean(value));
+		}
 	}
 }

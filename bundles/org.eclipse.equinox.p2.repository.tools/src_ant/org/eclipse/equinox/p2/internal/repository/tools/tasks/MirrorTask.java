@@ -40,23 +40,27 @@ public class MirrorTask extends AbstractRepositoryTask {
 	@Override
 	public void execute() throws BuildException {
 		try {
-			if (mirrorLog != null)
+			if (mirrorLog != null) {
 				((MirrorApplication) application).setLog(mirrorLog);
-			else
+			} else {
 				((MirrorApplication) application).setLog(new AntMirrorLog(this));
+			}
 
 			if (comparator != null) {
 				// Enable comparison
 				((MirrorApplication) application).setCompare(true);
 				// Set baseline location
-				if (comparator.getBaseline() != null)
+				if (comparator.getBaseline() != null) {
 					((MirrorApplication) application).setBaseline(comparator.getBaseline().getDescriptor().getRepoLocation());
+				}
 				// Set comparator to use
-				if (comparator.getComparator() != null)
+				if (comparator.getComparator() != null) {
 					((MirrorApplication) application).setComparatorID(comparator.getComparator());
+				}
 				// Set comparator log
-				if (comparator.getComparatorLog() != null)
+				if (comparator.getComparatorLog() != null) {
 					((MirrorApplication) application).setComparatorLog(comparator.getComparatorLog());
+				}
 				((MirrorApplication) application).setComparatorExclusions(createCompareExclusions());
 			}
 
@@ -65,8 +69,9 @@ public class MirrorTask extends AbstractRepositoryTask {
 			List<IInstallableUnit> ius = prepareIUs();
 			application.setSourceIUs(ius);
 			IStatus result = application.run(null);
-			if (!ignoreErrors && result.matches(IStatus.ERROR))
+			if (!ignoreErrors && result.matches(IStatus.ERROR)) {
 				throw new BuildException(TaskHelper.statusToString(result, IStatus.ERROR, null).toString());
+			}
 		} catch (ProvisionException e) {
 			throw new BuildException(e);
 		} catch (NoSuchMethodException e) {
@@ -76,16 +81,19 @@ public class MirrorTask extends AbstractRepositoryTask {
 	}
 
 	private IQuery<IArtifactDescriptor> createCompareExclusions() {
-		if (comparator == null || comparator.getExcluded() == null)
+		if (comparator == null || comparator.getExcluded() == null) {
 			return null;
+		}
 
 		List<ArtifactDescription> artifacts = comparator.getExcluded();
 		List<IQuery<IArtifactDescriptor>> queries = new ArrayList<>();
-		for (ArtifactDescription artifactDescription : artifacts)
+		for (ArtifactDescription artifactDescription : artifacts) {
 			queries.add(artifactDescription.createDescriptorQuery());
+		}
 
-		if (queries.size() == 1)
+		if (queries.size() == 1) {
 			return queries.get(0);
+		}
 
 		return QueryUtil.createCompoundQuery(queries, false);
 	}
@@ -100,8 +108,9 @@ public class MirrorTask extends AbstractRepositoryTask {
 	 * Set the comparison information
 	 */
 	public ComparatorDescription createComparator() {
-		if (comparator != null)
+		if (comparator != null) {
 			throw new BuildException(Messages.exception_onlyOneComparator);
+		}
 		comparator = new ComparatorDescription();
 		return comparator;
 	}

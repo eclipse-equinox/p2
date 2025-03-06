@@ -57,10 +57,12 @@ public class RepositoryAnalyzer {
 						verifier.analyzeIU(iu);
 					}
 					IStatus postAnalysisResult = verifier.postAnalysis();
-					if (postAnalysisResult == null)
+					if (postAnalysisResult == null) {
 						postAnalysisResult = new Status(IStatus.OK, Activator.ID, analyizerName);
-					if (postAnalysisResult.isOK() && !postAnalysisResult.isMultiStatus())
+					}
+					if (postAnalysisResult.isOK() && !postAnalysisResult.isMultiStatus()) {
 						postAnalysisResult = new Status(IStatus.OK, Activator.ID, analyizerName);
+					}
 					result.add(postAnalysisResult);
 				} catch (CoreException e) {
 					if (e.getCause() instanceof ClassNotFoundException) {
