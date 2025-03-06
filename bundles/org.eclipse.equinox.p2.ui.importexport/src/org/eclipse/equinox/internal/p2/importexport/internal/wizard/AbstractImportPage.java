@@ -83,13 +83,15 @@ public abstract class AbstractImportPage extends AbstractPage {
 				if (compareValue > 0) {
 					hasHigherVersion = true;
 					break;
-				} else if (compareValue == 0)
+				} else if (compareValue == 0) {
 					hasEqualVersion = true;
+				}
 			}
-			if (hasHigherVersion)
+			if (hasHigherVersion) {
 				return NLS.bind(Messages.AbstractImportPage_HigherVersionInstalled, text);
-			else if (hasEqualVersion)
+			} else if (hasEqualVersion) {
 				return NLS.bind(Messages.AbstractImportPage_SameVersionInstalled, text);
+			}
 		}
 		return text;
 	}

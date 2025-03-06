@@ -60,8 +60,9 @@ public class ImportExportImpl implements P2ImportExport {
 	@Override
 	public IStatus exportP2F(OutputStream output, IInstallableUnit[] ius, boolean allowEntriesWithoutRepo,
 			IProgressMonitor monitor) {
-		if (monitor == null)
+		if (monitor == null) {
 			monitor = new NullProgressMonitor();
+		}
 		SubMonitor subMonitor = SubMonitor.convert(monitor, Messages.Replicator_ExportJobName, 1000);
 
 		// Collect repos where the IUs are going to be searched
@@ -85,8 +86,9 @@ public class ImportExportImpl implements P2ImportExport {
 		MultiStatus queryRepoResult = new MultiStatus(Constants.Bundle_ID, 0, null, null);
 		for (IInstallableUnit iu : ius) {
 			List<URI> referredRepos = new ArrayList<>(1);
-			if (sub2.isCanceled())
+			if (sub2.isCanceled()) {
 				throw new OperationCanceledException();
+			}
 			SubMonitor sub3 = sub2.newChild(100);
 			sub3.setWorkRemaining(repos.size() * 100);
 
@@ -95,8 +97,9 @@ public class ImportExportImpl implements P2ImportExport {
 				IQueryResult<IInstallableUnit> result = repo.query(
 						QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, true)),
 						sub3.newChild(100));
-				if (!result.isEmpty())
+				if (!result.isEmpty()) {
 					referredRepos.add(repo.getLocation());
+				}
 			}
 			sub3.setWorkRemaining(1).worked(1);
 
@@ -105,25 +108,27 @@ public class ImportExportImpl implements P2ImportExport {
 				IUDetail iuToExport = new IUDetail(iu, referredRepos);
 				rootsToExport.add(iuToExport);
 			} else {
-				if (isContainedInLocalRepo(iu))
+				if (isContainedInLocalRepo(iu)) {
 					queryRepoResult
 							.add(new Status(IStatus.INFO, Constants.Bundle_ID, IGNORE_LOCAL_REPOSITORY,
 									NLS.bind(Messages.Replicator_InstallFromLocal,
 											iu.getProperty(IInstallableUnit.PROP_NAME, Locale.getDefault().toString())),
 									null));
-				else
+				} else {
 					queryRepoResult
 							.add(new Status(IStatus.WARNING, Constants.Bundle_ID, CANNOT_FIND_REPOSITORY,
 									NLS.bind(Messages.Replicator_NotFoundInRepository,
 											iu.getProperty(IInstallableUnit.PROP_NAME, Locale.getDefault().toString())),
 									null));
+				}
 			}
 		}
 		subMonitor.setWorkRemaining(50);
 		// Serialize
 		IStatus status = exportP2F(output, rootsToExport, subMonitor);
-		if (status.isOK() && queryRepoResult.isOK())
+		if (status.isOK() && queryRepoResult.isOK()) {
 			return status;
+		}
 		return new MultiStatus(Constants.Bundle_ID, 0, new IStatus[] { queryRepoResult, status }, null, null);
 	}
 
@@ -137,8 +142,9 @@ public class ImportExportImpl implements P2ImportExport {
 				if (!repo
 						.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, true)),
 								null)
-						.isEmpty())
+						.isEmpty()) {
 					return true;
+				}
 			} catch (ProvisionException e) {
 				// ignore
 			}
@@ -148,11 +154,13 @@ public class ImportExportImpl implements P2ImportExport {
 
 	@Override
 	public IStatus exportP2F(OutputStream output, List<IUDetail> ius, IProgressMonitor monitor) {
-		if (monitor == null)
+		if (monitor == null) {
 			monitor = new NullProgressMonitor();
+		}
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.Replicator_SaveJobName, 100);
-		if (sub.isCanceled())
+		if (sub.isCanceled()) {
 			throw new OperationCanceledException();
+		}
 		try {
 			P2FWriter writer = new P2FWriter(output, new ProcessingInstruction[] { ProcessingInstruction
 					.makeTargetVersionInstruction(P2FConstants.P2F_ELEMENT, P2FConstants.CURRENT_VERSION) });
