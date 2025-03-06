@@ -91,8 +91,9 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 	@After
 	public void tearDown() throws Exception {
 		super.tearDown();
-		if (installFolder != null)
+		if (installFolder != null) {
 			delete(installFolder);
+		}
 	}
 
 	public File getInstallFolder() {

@@ -100,22 +100,25 @@ public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 
 	@Test
 	public void testMakeRelative_NonWindows() throws MalformedURLException {
-		if (WINDOWS)
+		if (WINDOWS) {
 			return;
+		}
 		URL base = new URL("file:/eclipse/");
 		// data - [0] is the test data and [1] is the expected result
 		String[][] data = new String[][] { //
 				new String[] { "file:/home/eclipse/foo.jar", "file:../home/eclipse/foo.jar" }, //
 				new String[] { "file:///home/eclipse/foo.jar", "file:../home/eclipse/foo.jar" }, //
 		};
-		for (int i = 0; i < data.length; i++)
+		for (int i = 0; i < data.length; i++) {
 			assertEquals("1." + i, data[i][1], EquinoxManipulatorImpl.makeRelative(data[i][0], base));
+		}
 	}
 
 	@Test
 	public void testMakeRelative_Windows() throws MalformedURLException {
-		if (!WINDOWS)
+		if (!WINDOWS) {
 			return;
+		}
 		// platform specific data
 		URL base = new URL("file:/c:/a/eclipse/");
 		// data - [0] is the test data and [1] is the expected result
@@ -128,7 +131,8 @@ public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 				new String[] { "file:/d:/a/eclipse/plugins/bar.jar", "file:/d:/a/eclipse/plugins/bar.jar" }, //
 				new String[] { "file:/c:/x/eclipse/plugins/bar.jar", "file:../../x/eclipse/plugins/bar.jar" }, //
 		};
-		for (int i = 0; i < data.length; i++)
+		for (int i = 0; i < data.length; i++) {
 			assertEquals("2." + i, data[i][1], EquinoxManipulatorImpl.makeRelative(data[i][0], base));
+		}
 	}
 }
