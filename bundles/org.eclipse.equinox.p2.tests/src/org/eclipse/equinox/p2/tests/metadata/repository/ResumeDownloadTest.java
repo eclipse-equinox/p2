@@ -35,8 +35,9 @@ public class ResumeDownloadTest extends AbstractProvisioningTest {
 			throw new RuntimeException("Repository manager could not be loaded");
 		}
 		mgr.removeRepository(repoLoc);
-		if (mgr.contains(repoLoc))
+		if (mgr.contains(repoLoc)) {
 			throw new RuntimeException("Error - An earlier test did not leave a clean state - could not remove repo");
+		}
 	}
 
 	@Override
@@ -144,8 +145,9 @@ public class ResumeDownloadTest extends AbstractProvisioningTest {
 		@Override
 		public void onData(FileReader reader, IIncomingFileTransfer source, IProgressMonitor monitor) {
 			bytesReceived = source.getBytesReceived();
-			if (bytesReceived > 1000)
+			if (bytesReceived > 1000) {
 				monitor.setCanceled(true);
+			}
 		}
 
 		@Override

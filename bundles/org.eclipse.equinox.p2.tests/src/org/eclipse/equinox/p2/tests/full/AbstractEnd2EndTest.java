@@ -87,8 +87,9 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 		Map<String, String> properties = new HashMap<>();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, installFolder);
 		EnvironmentInfo info = ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class);
-		if (info != null)
+		if (info != null) {
 			properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
+		}
 		properties.put("org.eclipse.update.install.features", "true");
 		properties.put(IProfile.PROP_CACHE, installFolder);
 		try {
@@ -164,8 +165,9 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
 		request.addInstallableUnits(new IInstallableUnit[] {toInstall});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
-		if (!s.isOK())
+		if (!s.isOK()) {
 			fail("Installation of the " + source.getId() + " " + source.getVersion() + " failed.");
+		}
 
 		assertProfileContainsAll("Platform source feature", profile2, new IInstallableUnit[] {toInstall});
 		assertTrue(new File(installFolder, "configuration/org.eclipse.equinox.source").exists());
@@ -212,22 +214,25 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 	public IInstallableUnit getIU(String id, Version v) {
 		final IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id, v);
 		Iterator<IInstallableUnit> it = metadataRepoManager.query(query, null).iterator();
-		if (it.hasNext())
+		if (it.hasNext()) {
 			return it.next();
+		}
 		//try the repository location directly - retry because eclipse.org can be flaky
 		Exception failure = null;
 		for (int i = 0; i < 3; i++) {
 			try {
 				IMetadataRepository repo = metadataRepoManager.loadRepository(getRepositoryLocation(), null);
 				it = repo.query(query, null).iterator();
-				if (it.hasNext())
+				if (it.hasNext()) {
 					return it.next();
+				}
 			} catch (ProvisionException e) {
 				failure = e;
 			}
 		}
-		if (failure == null)
+		if (failure == null) {
 			failure = new RuntimeException("IU not found");
+		}
 		fail("Failed to obtain " + id + " version: " + v + " from: " + getRepositoryLocation(), failure);
 		return null;//will never get here
 	}
@@ -257,8 +262,9 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 
 		String FWK_ADMIN_EQ = "org.eclipse.equinox.frameworkadmin.equinox";
 		Bundle b = Platform.getBundle(FWK_ADMIN_EQ);
-		if (b == null)
+		if (b == null) {
 			fail("Bundle: " + FWK_ADMIN_EQ + " is required for this test");
+		}
 		try {
 			b.start();
 		} catch (BundleException e) {
@@ -281,20 +287,23 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 	protected static String getLauncherName(String name, String os) {
 		if (os == null) {
 			EnvironmentInfo info = ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class);
-			if (info != null)
+			if (info != null) {
 				os = info.getOS();
+			}
 		}
 
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32)) {
 			IPath path = IPath.fromOSString(name);
-			if ("exe".equals(path.getFileExtension())) //$NON-NLS-1$
+			if ("exe".equals(path.getFileExtension())) { //$NON-NLS-1$
 				return name;
+			}
 			return name + ".exe"; //$NON-NLS-1$
 		}
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
 			IPath path = IPath.fromOSString(name);
-			if ("app".equals(path.getFileExtension())) //$NON-NLS-1$
+			if ("app".equals(path.getFileExtension())) { //$NON-NLS-1$
 				return name;
+			}
 			StringBuilder buffer = new StringBuilder();
 			buffer.append(name.substring(0, 1).toUpperCase());
 			buffer.append(name.substring(1));

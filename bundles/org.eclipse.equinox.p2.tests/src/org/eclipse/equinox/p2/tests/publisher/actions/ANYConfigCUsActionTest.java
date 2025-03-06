@@ -125,10 +125,12 @@ public class ANYConfigCUsActionTest extends ActionTest {
 
 				assertTrue(iu.getRequirements().size() == 0);
 
-				if (cuType.equals("ini")) //$NON-NLS-1$
+				if (cuType.equals("ini")) { //$NON-NLS-1$
 					verifyLauncherArgs(iu);
-				if (cuType.equals("config")) //$NON-NLS-1$
+				}
+				if (cuType.equals("config")) { //$NON-NLS-1$
 					verifyConfigProperties(iu);
+				}
 				return; //pass
 			}
 		}

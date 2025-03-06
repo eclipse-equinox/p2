@@ -38,11 +38,13 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 	}
 
 	public static boolean isZipped(Collection<ITouchpointData> data) {
-		if (data == null || data.size() == 0)
+		if (data == null || data.size() == 0) {
 			return false;
+		}
 		for (ITouchpointData td : data) {
-			if (td.getInstruction("zipped") != null) //$NON-NLS-1$
+			if (td.getInstruction("zipped") != null) { //$NON-NLS-1$
 				return true;
+			}
 		}
 		return false;
 	}

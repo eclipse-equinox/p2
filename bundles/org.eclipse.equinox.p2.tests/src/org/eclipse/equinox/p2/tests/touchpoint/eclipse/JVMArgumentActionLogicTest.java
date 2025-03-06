@@ -167,16 +167,18 @@ public class JVMArgumentActionLogicTest extends AbstractProvisioningTest {
 		parameters.put(ActionConstants.PARM_JVM_ARG, invalid);
 
 		IStatus result = action.execute(Collections.unmodifiableMap(parameters));
-		if (!result.matches(IStatus.ERROR) && !(result.getException() instanceof IllegalArgumentException))
+		if (!result.matches(IStatus.ERROR) && !(result.getException() instanceof IllegalArgumentException)) {
 			fail("Invalid Action value not caught!");
+		}
 
 		// User has injected an invalid value
 		launcherData.addJvmArg(invalid);
 		parameters.put(ActionConstants.PARM_JVM_ARG, valid);
 
 		result = action.execute(Collections.unmodifiableMap(parameters));
-		if (!result.matches(IStatus.ERROR) && !(result.getException() instanceof IllegalArgumentException))
+		if (!result.matches(IStatus.ERROR) && !(result.getException() instanceof IllegalArgumentException)) {
 			fail("Invalid injected value not caught!");
+		}
 
 		launcherData.removeJvmArg(invalid);
 	}

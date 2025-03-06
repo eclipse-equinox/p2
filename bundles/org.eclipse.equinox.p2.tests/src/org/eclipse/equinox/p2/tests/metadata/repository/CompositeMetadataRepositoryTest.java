@@ -504,8 +504,9 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		IQuery<IInstallableUnit> cQuery = QueryUtil.createLatestQuery(new MatchQuery<IInstallableUnit>() {
 			@Override
 			public boolean isMatch(IInstallableUnit candidate) {
-				if (candidate.getVersion().compareTo(Version.createOSGi(3, 0, 0)) < 0)
+				if (candidate.getVersion().compareTo(Version.createOSGi(3, 0, 0)) < 0) {
 					return true;
+				}
 				return false;
 			}
 		});
@@ -570,8 +571,9 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		//esnure proper type of repository has been created
-		if (!(repo instanceof CompositeMetadataRepository))
+		if (!(repo instanceof CompositeMetadataRepository)) {
 			fail("Repository is not a CompositeMetadataRepository");
+		}
 
 		return (CompositeMetadataRepository) repo;
 	}
@@ -589,9 +591,10 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		for (IInstallableUnit iu1 : set1) {
 			for (IInstallableUnit iu2 : set2) {
-				if (isEqual(iu1, iu2))
+				if (isEqual(iu1, iu2)) {
 					numKeys--;
 				//identical keys has bee found, therefore the number of unique keys is one less than previously thought
+				}
 			}
 		}
 		return numKeys;

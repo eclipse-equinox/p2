@@ -31,8 +31,9 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		super.setUp();
 
 		initialProfile = getProfile(IProfileRegistry.SELF);
-		if (initialProfile != null)
+		if (initialProfile != null) {
 			return;
+		}
 
 		setUpSelfProfile();
 	}

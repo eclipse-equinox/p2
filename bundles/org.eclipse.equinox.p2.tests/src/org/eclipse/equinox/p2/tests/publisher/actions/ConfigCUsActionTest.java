@@ -109,10 +109,12 @@ public class ConfigCUsActionTest extends ActionTest {
 				verifyProvidedCapability(providedCapabilities, flavor + id, id + "." + cuType, version); //$NON-NLS-1$
 				assertTrue(providedCapabilities.size() == 2);
 				assertTrue(iu.getRequirements().size() == 0);
-				if (cuType.equals("ini"))
+				if (cuType.equals("ini")) {
 					verifyLauncherArgs(iu);
-				if (cuType.equals("config"))
+				}
+				if (cuType.equals("config")) {
 					verifyConfigProperties(iu);
+				}
 				return; //pass
 			}
 		}

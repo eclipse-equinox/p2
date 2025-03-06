@@ -29,15 +29,17 @@ public class FailingMetadataRepositoryFactory extends MetadataRepositoryFactory 
 
 	@Override
 	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) throws ProvisionException {
-		if (FAIL)
+		if (FAIL) {
 			throw new RuntimeException("Exception thrown deliberately as part of test");
+		}
 		throw new ProvisionException(new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, ProvisionException.REPOSITORY_NOT_FOUND, "", null));
 	}
 
 	@Override
 	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
-		if (FAIL)
+		if (FAIL) {
 			throw new RuntimeException("Exception thrown deliberately as part of test");
+		}
 		throw new ProvisionException(new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, ProvisionException.REPOSITORY_NOT_FOUND, "", null));
 	}
 

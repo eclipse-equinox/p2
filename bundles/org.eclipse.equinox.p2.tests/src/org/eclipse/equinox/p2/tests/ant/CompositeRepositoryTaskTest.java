@@ -91,10 +91,12 @@ public class CompositeRepositoryTaskTest extends AbstractAntProvisioningTest {
 		addTask(modify);
 		runAntTask();
 
-		if (getArtifactRepositoryManager().contains(compositeSite))
+		if (getArtifactRepositoryManager().contains(compositeSite)) {
 			getArtifactRepositoryManager().removeRepository(compositeSite);
-		if (getMetadataRepositoryManager().contains(compositeSite))
+		}
+		if (getMetadataRepositoryManager().contains(compositeSite)) {
 			getMetadataRepositoryManager().removeRepository(compositeSite);
+		}
 
 		ICompositeRepository artifact = null;
 		ICompositeRepository metadata = null;
@@ -290,8 +292,9 @@ public class CompositeRepositoryTaskTest extends AbstractAntProvisioningTest {
 		} catch (CoreException e) {
 			exception = rootCause(e);
 		}
-		if (!exception.getMessage().contains("exists"))
+		if (!exception.getMessage().contains("exists")) {
 			fail("Unexpected exception: ", exception);
+		}
 	}
 
 	/*
@@ -437,8 +440,9 @@ public class CompositeRepositoryTaskTest extends AbstractAntProvisioningTest {
 				// This is a success
 			}
 		}
-		if (exception == null)
+		if (exception == null) {
 			fail("No exception thrown");
+		}
 	}
 
 	/*
@@ -446,14 +450,18 @@ public class CompositeRepositoryTaskTest extends AbstractAntProvisioningTest {
 	 */
 	protected ICompositeRepository getCompositeRepository(String type) {
 		try {
-			if (null == type) fail("No type specified"); else switch (type) {
-				case TYPE_ARTIFACT:
-					return (ICompositeRepository) getArtifactRepositoryManager().loadRepository(compositeSite, null);
-				case TYPE_METADATA:
-					return (ICompositeRepository) getMetadataRepositoryManager().loadRepository(compositeSite, null);
-				default:
-					fail("No type specified");
-					break;
+			if (null == type) {
+				fail("No type specified");
+			} else {
+				switch (type) {
+					case TYPE_ARTIFACT:
+						return (ICompositeRepository) getArtifactRepositoryManager().loadRepository(compositeSite, null);
+					case TYPE_METADATA:
+						return (ICompositeRepository) getMetadataRepositoryManager().loadRepository(compositeSite, null);
+					default:
+						fail("No type specified");
+						break;
+				}
 			}
 		} catch (ProvisionException e) {
 			fail("Failed to load repository", e);

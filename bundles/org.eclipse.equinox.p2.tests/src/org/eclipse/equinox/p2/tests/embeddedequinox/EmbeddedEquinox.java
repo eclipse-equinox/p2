@@ -52,8 +52,9 @@ public class EmbeddedEquinox {
 			Method runMethod = eclipseStarterClazz.getMethod("startup", String[].class, Runnable.class); //$NON-NLS-1$
 			context = (BundleContext) runMethod.invoke(null, frameworkArgs, null);
 		} catch (Throwable t) {
-			if (t instanceof RuntimeException)
+			if (t instanceof RuntimeException) {
 				throw (RuntimeException) t;
+			}
 			throw new RuntimeException(t);
 		}
 		return context;
@@ -65,8 +66,9 @@ public class EmbeddedEquinox {
 			shutdownMethod.invoke((Object[]) null);
 
 		} catch (Throwable t) {
-			if (t instanceof RuntimeException)
+			if (t instanceof RuntimeException) {
 				throw (RuntimeException) t;
+			}
 			throw new RuntimeException(t);
 		}
 	}
@@ -81,25 +83,28 @@ public class EmbeddedEquinox {
 
 		@Override
 		protected Class<?> findClass(String name) throws ClassNotFoundException {
-			if (name.startsWith("org.osgi.framework.") || name.startsWith("org.osgi.resource."))
+			if (name.startsWith("org.osgi.framework.") || name.startsWith("org.osgi.resource.")) {
 				// TODO this should call findClass; but then have to use reflection!!
 				return embeddedBundleLoader.loadClass(name);
+			}
 			return super.findClass(name);
 		}
 
 		@Override
 		public URL findResource(String name) {
-			if (name.startsWith("org/osgi/framework/") || name.startsWith("org/osgi/resource/"))
+			if (name.startsWith("org/osgi/framework/") || name.startsWith("org/osgi/resource/")) {
 				// TODO this should call findResource; but then have to use reflection!!
 				return embeddedBundleLoader.getResource(name);
+			}
 			return super.findResource(name);
 		}
 
 		@Override
 		public Enumeration<URL> findResources(String name) throws IOException {
-			if (name.startsWith("org/osgi/framework/") || name.startsWith("org/osgi/resource/"))
+			if (name.startsWith("org/osgi/framework/") || name.startsWith("org/osgi/resource/")) {
 				// TODO this should call findResources; but then have to use reflection!!
 				return embeddedBundleLoader.getResources(name);
+			}
 			return super.findResources(name);
 		}
 

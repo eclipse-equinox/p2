@@ -160,8 +160,9 @@ public class StatsTest extends AbstractTestServerClientCase {
 		try (BufferedReader statsResult = new BufferedReader(new InputStreamReader(transport.stream(statsURL, null)))) {
 			String line = statsResult.readLine();
 			while (line != null) {
-				if (line.startsWith(checkpoint))
+				if (line.startsWith(checkpoint)) {
 					return;
+				}
 				line = statsResult.readLine();
 			}
 			fail("Didn't get expected stats result.");

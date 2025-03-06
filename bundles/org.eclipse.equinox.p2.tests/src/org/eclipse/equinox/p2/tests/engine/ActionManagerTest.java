@@ -64,19 +64,23 @@ public class ActionManagerTest extends AbstractProvisioningTest {
 		int maxTries = 20;
 		int current = 0;
 		while (true) {
-			if (null != manager.getAction("dummy.touchpointAndAction.dummy", new VersionRange("1.0.0")))
+			if (null != manager.getAction("dummy.touchpointAndAction.dummy", new VersionRange("1.0.0"))) {
 				break;
-			if (++current == maxTries)
+			}
+			if (++current == maxTries) {
 				fail("dummy action not added");
+			}
 			Thread.sleep(100);
 		}
 		bundle.uninstall();
 		current = 0;
 		while (true) {
-			if (null == manager.getAction("dummy.touchpointAndAction.dummy", new VersionRange("1.0.0")))
+			if (null == manager.getAction("dummy.touchpointAndAction.dummy", new VersionRange("1.0.0"))) {
 				break;
-			if (++current == maxTries)
+			}
+			if (++current == maxTries) {
 				fail("dummy action not removed");
+			}
 			Thread.sleep(100);
 		}
 	}

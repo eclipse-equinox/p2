@@ -275,14 +275,16 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 	}
 
 	private static void assertExists(String message, File archive, String entry) {
-		if (!archive.exists())
+		if (!archive.exists()) {
 			fail(message + " file does not exist.");
+		}
 		try (ZipFile zip = new ZipFile(archive)) {
 			boolean found = false;
 			for (Enumeration<? extends ZipEntry> e = zip.entries(); !found && e.hasMoreElements();) {
 				ZipEntry zipEntry = e.nextElement();
-				if (entry.equals(zipEntry.getName()))
+				if (entry.equals(zipEntry.getName())) {
 					found = true;
+				}
 			}
 			assertTrue(message, found);
 		} catch (IOException e) {

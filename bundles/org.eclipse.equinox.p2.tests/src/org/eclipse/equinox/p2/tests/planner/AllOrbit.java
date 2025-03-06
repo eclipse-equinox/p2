@@ -51,8 +51,9 @@ public class AllOrbit extends AbstractProvisioningTest {
 		IQueryResult<IInstallableUnit> allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
 		req1.addInstallableUnits(allIUs.toArray(IInstallableUnit.class));
 		for (IInstallableUnit iu : allIUs) {
-			if (!iu.getId().equals("javax.wsdl"))
+			if (!iu.getId().equals("javax.wsdl")) {
 				req1.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
+			}
 		}
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());

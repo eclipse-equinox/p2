@@ -93,8 +93,9 @@ public class MirrorApplicationTest {
 	private IInstallableUnit getUnitFromSourceRepo(String id) throws Exception {
 		IMetadataRepository repository = agentProvider.getService(IMetadataRepositoryManager.class).loadRepository(sourceRepoLocation.toURI(), null);
 		IQueryResult<IInstallableUnit> queryResult = repository.query(QueryUtil.createIUQuery(id), null);
-		if (queryResult.isEmpty())
+		if (queryResult.isEmpty()) {
 			throw new AssertionFailedError("No unit with ID '" + id + "' found in repository " + sourceRepoLocation);
+		}
 		return queryResult.iterator().next();
 	}
 
@@ -129,8 +130,9 @@ public class MirrorApplicationTest {
 	private static RepositoryDescriptor createRepositoryDescriptor(URI location, Boolean append) {
 		RepositoryDescriptor descriptor = new RepositoryDescriptor();
 		descriptor.setLocation(location);
-		if (append != null)
+		if (append != null) {
 			descriptor.setAppend(append);
+		}
 		return descriptor;
 	}
 

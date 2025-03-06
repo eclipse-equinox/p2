@@ -52,8 +52,9 @@ public class Bug265577 extends AbstractProvisioningTest {
 		engine = getAgent().getService(IEngine.class);
 		// Load repositories
 		File repoLocation = getTestData("Repository location", "/testData/bug265577/zipRepo.zip");
-		if (repoLocation == null)
+		if (repoLocation == null) {
 			fail("unable to load test data");
+		}
 		URI location = URIUtil.toJarURI(repoLocation.toURI(), null);
 		initializeArtifactRepo(location);
 		initializeMetadataRepo(location);
@@ -87,8 +88,9 @@ public class Bug265577 extends AbstractProvisioningTest {
 			status = artifactRepo.getArtifact(desc, destination, new NullProgressMonitor());
 		}
 
-		if (status.isOK())
+		if (status.isOK()) {
 			fail("OK Status on download");
+		}
 		assertTrue(status.getMessage().equals(getJarFolderMessage(key)));
 	}
 

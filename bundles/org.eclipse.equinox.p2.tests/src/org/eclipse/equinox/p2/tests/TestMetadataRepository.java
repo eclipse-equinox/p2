@@ -99,8 +99,9 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	@Override
 	public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		boolean modified = false;
-		for (IInstallableUnit iu : installableUnits)
+		for (IInstallableUnit iu : installableUnits) {
 			modified |= units.remove(iu);
+		}
 		return modified;
 	}
 

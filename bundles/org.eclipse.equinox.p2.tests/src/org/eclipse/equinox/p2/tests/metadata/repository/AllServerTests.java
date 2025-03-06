@@ -76,27 +76,31 @@ public class AllServerTests extends TestCase {
 
 	private static Bundle getBundle(PackageAdmin packageAdmin, String symbolicName) {
 		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
-		if (bundles == null)
+		if (bundles == null) {
 			return null;
+		}
 		for (Bundle bundle : bundles) {
-			if ((bundle.getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0)
+			if ((bundle.getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
 				return bundle;
+			}
 		}
 		return null;
 	}
 
 	private static boolean startTransient(PackageAdmin packageAdmin, String bundleName) throws BundleException {
 		Bundle bundle = getBundle(packageAdmin, bundleName);
-		if (bundle == null)
+		if (bundle == null) {
 			return false;
+		}
 		bundle.start(Bundle.START_TRANSIENT);
 		return true;
 	}
 
 	private static void stopTransient(PackageAdmin packageAdmin, String bundleName) throws BundleException {
 		Bundle bundle = getBundle(packageAdmin, bundleName);
-		if (bundle != null)
+		if (bundle != null) {
 			bundle.stop(Bundle.STOP_TRANSIENT);
+		}
 	}
 
 	private static int obtainFreePort() throws IOException {
@@ -118,8 +122,9 @@ public class AllServerTests extends TestCase {
 		System.setProperty(PROP_TESTSERVER_PORT, Integer.toString(obtainFreePort()));
 
 		// Now start them again (with our property settings)
-		if (!startTransient(pkgAdmin, BUNDLE_EQUINOX_HTTP))
+		if (!startTransient(pkgAdmin, BUNDLE_EQUINOX_HTTP)) {
 			throw new IllegalStateException("Unable to start bundle " + BUNDLE_EQUINOX_HTTP);
+		}
 
 		// We must ensure that our IServiceUI service wins because the SDK registers one declaratively
 		Hashtable<String, Integer> properties = new Hashtable<>(1);
@@ -154,11 +159,13 @@ public class AllServerTests extends TestCase {
 	 */
 	public static synchronized void checkTearDown() throws Exception {
 		setUpCounter--;
-		if (setUpCounter < 0)
+		if (setUpCounter < 0) {
 			throw new IllegalStateException("Unbalanced setup/teardown");
+		}
 
-		if (setUpCounter == 0)
+		if (setUpCounter == 0) {
 			oneTimeTearDown();
+		}
 		return;
 	}
 
@@ -170,15 +177,17 @@ public class AllServerTests extends TestCase {
 
 		@Override
 		public AuthenticationInfo getUsernamePassword(String location) {
-			if (hookedAuthDialog != null)
+			if (hookedAuthDialog != null) {
 				return hookedAuthDialog.getUsernamePassword(location);
+			}
 			return null;
 		}
 
 		@Override
 		public AuthenticationInfo getUsernamePassword(String location, AuthenticationInfo previousInfo) {
-			if (hookedAuthDialog != null)
+			if (hookedAuthDialog != null) {
 				return hookedAuthDialog.getUsernamePassword(location, previousInfo);
+			}
 			return null;
 		}
 

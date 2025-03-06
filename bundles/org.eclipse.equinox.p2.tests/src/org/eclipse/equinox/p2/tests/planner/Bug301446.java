@@ -62,23 +62,26 @@ public class Bug301446 extends AbstractPlannerTest {
 		// this is the plan that we expect - highest version only
 		Operand[] operands = ((ProvisioningPlan) actualPlan).getOperands();
 		for (Operand o : operands) {
-			if (!(o instanceof InstallableUnitOperand))
+			if (!(o instanceof InstallableUnitOperand)) {
 				continue;
+			}
 			IInstallableUnit iu = ((InstallableUnitOperand) o).second();
 			if (iu == null) {
 				// we are un-installing an IU, is it interesting?
 				iu = ((InstallableUnitOperand) o).first();
 				Version expected = EXPECTED_VERSIONS.get(iu.getId());
-				if (expected == null)
+				if (expected == null) {
 					continue;
+				}
 				Version actual = iu.getVersion();
 				assertFalse("Removing IU: " + iu.getId() + " Version: " + expected, actual.equals(expected));
 				continue;
 			}
 			// we are installing an IU
 			Version expected = EXPECTED_VERSIONS.get(iu.getId());
-			if (expected == null)
+			if (expected == null) {
 				continue;
+			}
 			Version actual = iu.getVersion();
 			assertTrue("Adding IU: " + iu.getId() + " Actual: " + actual + " Expected: " + expected, actual.equals(expected));
 		}

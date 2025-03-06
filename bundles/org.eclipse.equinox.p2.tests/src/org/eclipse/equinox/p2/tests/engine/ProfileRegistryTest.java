@@ -578,10 +578,11 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 			IInstallableUnit engineIU = createEclipseIU("org.eclipse.equinox.p2.engine", Version.create("55.2"));
 			final String[] values = new String[] {"", "blort", null, EngineActivator.PROFILE_FORMAT_UNCOMPRESSED};
 			for (String currentValue : values) {
-				if (currentValue == null)
+				if (currentValue == null) {
 					System.getProperties().remove(EngineActivator.PROP_PROFILE_FORMAT);
-				else
+				} else {
 					System.getProperties().put(EngineActivator.PROP_PROFILE_FORMAT, currentValue);
+				}
 				File folder = getTempFolder();
 				folder.mkdirs();
 				SimpleProfileRegistry profileRegistry = new SimpleProfileRegistry(getAgent(), folder, null, false);
@@ -605,10 +606,11 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 				}
 				File profileFolder = new File(folder, getName() + ".profile");
 				profileFolder.listFiles((FileFilter) pathname -> {
-					if (pathname.getName().endsWith(".profile"))
+					if (pathname.getName().endsWith(".profile")) {
 						assertEquals("2.0." + currentValue, EngineActivator.PROFILE_FORMAT_UNCOMPRESSED, currentValue);
-					else if (pathname.getName().endsWith(".profile.gz"))
+					} else if (pathname.getName().endsWith(".profile.gz")) {
 						assertFalse("2.1." + currentValue, EngineActivator.PROFILE_FORMAT_UNCOMPRESSED.equals(currentValue));
+					}
 					return false;
 				});
 			}

@@ -55,8 +55,9 @@ public class ReducedCUDFParser {
 		Tuple(String line) {
 			String[] tuple = new String[3];
 			int i = 0;
-			for (StringTokenizer iter = new StringTokenizer(line, " \t"); iter.hasMoreTokens(); i++)
+			for (StringTokenizer iter = new StringTokenizer(line, " \t"); iter.hasMoreTokens(); i++) {
 				tuple[i] = iter.nextToken().trim();
+			}
 			name = tuple[0];
 			operator = tuple[1];
 			version = tuple[2];
@@ -157,17 +158,18 @@ public class ReducedCUDFParser {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			if (reader != null)
+			if (reader != null) {
 				try {
 					reader.close();
 				} catch (IOException e) {
 					// ignore
 				}
+			}
 		}
-		if (TIMING)
+		if (TIMING) {
 			//			Log.println("Time to parse:" + (System.currentTimeMillis() - start));
-			if (DEBUG)
-				for (IInstallableUnit iu : allIUs)
+			if (DEBUG) {
+				for (IInstallableUnit iu : allIUs) {
 					debug((InstallableUnit) iu);
 		//		if (FORCE_QUERY) {
 		//			if (query == null)
@@ -177,6 +179,9 @@ public class ReducedCUDFParser {
 		//		}
 		//		debug(currentRequest);
 		//		return currentRequest;
+				}
+			}
+		}
 	}
 
 	//	private void handleSumProperty(String line, String sumProperty) {
@@ -223,13 +228,16 @@ public class ReducedCUDFParser {
 	 * add it to our collected list of all converted IUs from the file.
 	 */
 	private void validateAndAddIU() {
-		if (currentIU == null)
+		if (currentIU == null) {
 			return;
+		}
 		// For a package stanza, the id and version are the only mandatory elements
-		if (currentIU.getId() == null)
+		if (currentIU.getId() == null) {
 			throw new IllegalStateException("Malformed \'package\' stanza. No package element found.");
-		if (currentIU.getVersion() == null)
+		}
+		if (currentIU.getVersion() == null) {
 			throw new IllegalStateException("Malformed \'package\' stanza. Package " + currentIU.getId() + " does not have a version.");
+		}
 		if (currentIU.getProvidedCapabilities().size() == 0) {
 			currentIU.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, currentIU.getId(), currentIU.getVersion()), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, currentIU.getId(), currentIU.getVersion())});
 		}
@@ -406,20 +414,23 @@ public class ReducedCUDFParser {
 				subtoken = subTokenizer.nextToken().trim();
 				// FIXME should be handled differently in depends and conflicts.
 				if ("true!".equals(subtoken)) {
-					if (dependency)
+					if (dependency) {
 						continue;
+					}
 					throw new RuntimeException("Cannot have true! in a conflict!!!!!");
 				}
 				if ("false!".equals(subtoken)) {
-					if (!dependency)
+					if (!dependency) {
 						continue;
+					}
 					throw new RuntimeException("Cannot have false! in a dependency!!!!!");
 				}
 				Object o = createRequire(subtoken, expandNotEquals, optional);
-				if (o instanceof IRequiredCapability)
+				if (o instanceof IRequiredCapability) {
 					ands.add(o);
-				else
+				} else {
 					ands.addAll((Collection) o);
+				}
 				continue;
 			}
 
@@ -439,19 +450,22 @@ public class ReducedCUDFParser {
 		StringTokenizer expressionTokens = new StringTokenizer(nextToken.trim(), ">=!<", true);
 		int tokenCount = expressionTokens.countTokens();
 
-		if (tokenCount == 1) // a
+		if (tokenCount == 1) { // a
 			return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, expressionTokens.nextToken().trim(), VersionRange.emptyRange, null, optional, false, true);
+		}
 
-		if (tokenCount == 3) // a > 2, a < 2, a = 2
+		if (tokenCount == 3) { // a > 2, a < 2, a = 2
 			return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, expressionTokens.nextToken().trim(), createRange3(expressionTokens.nextToken(), expressionTokens.nextToken()), null, optional, false, true);
+		}
 
 		if (tokenCount == 4) { //a >= 2, a <=2, a != 2
 			String id = expressionTokens.nextToken().trim();
 			String signFirstChar = expressionTokens.nextToken();
 			expressionTokens.nextToken();//skip second char of the sign
 			String version = expressionTokens.nextToken().trim();
-			if (!("!".equals(signFirstChar))) // a >= 2 a <= 2
+			if (!("!".equals(signFirstChar))) { // a >= 2 a <= 2
 				return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, createRange4(signFirstChar, version), null, optional, false, true);
+			}
 
 			//			//a != 2 TODO To uncomment
 			//			if (expandNotEquals) {
@@ -468,21 +482,26 @@ public class ReducedCUDFParser {
 	private VersionRange createRange3(String sign, String versionAsString) {
 		int version = Integer.decode(cudfPosintToInt(versionAsString)).intValue();
 		sign = sign.trim();
-		if (">".equals(sign))
+		if (">".equals(sign)) {
 			return new VersionRange(Version.createOSGi(version, 0, 0), false, Version.MAX_VERSION, false);
-		if ("<".equals(sign))
+		}
+		if ("<".equals(sign)) {
 			return new VersionRange(Version.emptyVersion, false, Version.createOSGi(version, 0, 0), false);
-		if ("=".equals(sign))
+		}
+		if ("=".equals(sign)) {
 			return new VersionRange(Version.createOSGi(version, 0, 0), true, Version.createOSGi(version, 0, 0), true);
+		}
 		throw new IllegalArgumentException(sign);
 	}
 
 	private VersionRange createRange4(String sign, String versionAsString) {
 		int version = Integer.decode(cudfPosintToInt(versionAsString)).intValue();
-		if (">".equals(sign)) //THIS IS FOR >=
+		if (">".equals(sign)) { //THIS IS FOR >=
 			return new VersionRange(Version.createOSGi(version, 0, 0), true, Version.MAX_VERSION, false);
-		if ("<".equals(sign)) //THIS IS FOR <=
+		}
+		if ("<".equals(sign)) { //THIS IS FOR <=
 			return new VersionRange(Version.emptyVersion, false, Version.createOSGi(version, 0, 0), true);
+		}
 		return null;
 	}
 

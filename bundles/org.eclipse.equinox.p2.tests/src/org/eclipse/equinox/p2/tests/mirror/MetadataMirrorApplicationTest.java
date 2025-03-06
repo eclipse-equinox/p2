@@ -923,8 +923,9 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 			fail("Could not create repository");
 		}
 		//ensure proper type of repository has been created
-		if (!(repo instanceof CompositeMetadataRepository))
+		if (!(repo instanceof CompositeMetadataRepository)) {
 			fail("Repository is not a CompositeMetadataRepository");
+		}
 		//Populate source
 		File child1 = getTestData("1", "/testData/mirror/mirrorSourceRepo1 with space");
 		File child2 = getTestData("2", "/testData/mirror/mirrorSourceRepo2");

@@ -52,8 +52,9 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
-		if (!exe.exists())
+		if (!exe.exists()) {
 			exe = new File(root, "java");
+		}
 
 		String configuration = new File(userBase, "configuration").getAbsolutePath();
 		String command[];
@@ -116,8 +117,9 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 
 	@Override
 	public void testReadOnlyDropinsStartup() throws IOException {
-		if (Platform.OS.isMac())
+		if (Platform.OS.isMac()) {
 			return;
+		}
 
 		assertInitialized();
 		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
@@ -182,8 +184,9 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 
 	@Override
 	public void testUserDropinsStartup() throws IOException {
-		if (Platform.OS.isMac())
+		if (Platform.OS.isMac()) {
 			return;
+		}
 
 		assertInitialized();
 		assertDoesNotExistInBundlesInfo("0.1", "myBundle");

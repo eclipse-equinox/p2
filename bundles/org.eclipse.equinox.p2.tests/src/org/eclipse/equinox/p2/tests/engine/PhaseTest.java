@@ -117,12 +117,14 @@ public class PhaseTest extends AbstractProvisioningTest {
 		protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 			IInstallableUnit unit = operand.second();
 			List<ProvisioningAction> parsedActions = getActions(unit, phaseId);
-			if (parsedActions != null)
+			if (parsedActions != null) {
 				return parsedActions;
+			}
 
 			ITouchpointType type = unit.getTouchpointType();
-			if (type == null || type == ITouchpointType.NONE)
+			if (type == null || type == ITouchpointType.NONE) {
 				return null;
+			}
 
 			String actionId = getActionManager().getTouchpointQualifiedActionId(phaseId, type);
 			ProvisioningAction action = getActionManager().getAction(actionId, null);
@@ -357,10 +359,12 @@ public class PhaseTest extends AbstractProvisioningTest {
 			@Override
 			protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 				List<ProvisioningAction> actions = super.getActions(operand);
-				if (actions != null)
+				if (actions != null) {
 					progress++;
-				if (progress > THREHOLD)
+				}
+				if (progress > THREHOLD) {
 					isCancelled = true;
+				}
 				return actions;
 			}
 		}
@@ -368,15 +372,17 @@ public class PhaseTest extends AbstractProvisioningTest {
 		PhaseSet phaseSet = new TestPhaseSet(new Phase[] {collect});
 		IProfile profile = createProfile("PhaseTest");
 		IProvisioningPlan plan = engine.createPlan(profile, null);
-		for (IInstallableUnit iu : ius)
+		for (IInstallableUnit iu : ius) {
 			plan.addInstallableUnit(iu);
+		}
 		class TestListener implements ProvisioningListener {
 			boolean collectEvent = false;
 
 			@Override
 			public void notify(EventObject o) {
-				if (o instanceof CollectEvent)
+				if (o instanceof CollectEvent) {
 					collectEvent = true;
+				}
 			}
 
 		}

@@ -40,13 +40,15 @@ public class PerformanceTest {
 		String[] strings = createStrings();
 
 		long start = System.currentTimeMillis();
-		for (int idx = 0; idx < 100; ++idx)
+		for (int idx = 0; idx < 100; ++idx) {
 			osgiVersionCreateFromString(strings);
+		}
 		long osgiTime = System.currentTimeMillis() - start;
 
 		start = System.currentTimeMillis();
-		for (int idx = 0; idx < 100; ++idx)
+		for (int idx = 0; idx < 100; ++idx) {
 			omniVersionCreateFromString(strings);
+		}
 		long omniTime = System.currentTimeMillis() - start;
 		outputResult("String creation", 100 * MUL * MUL * MUL, osgiTime, omniTime);
 		// System.out.printf("String creation: osgi=%d, omni=%d, factor=%.2f\n", osgiTime, omniTime, factor(omniTime, osgiTime));
@@ -59,13 +61,15 @@ public class PerformanceTest {
 		org.osgi.framework.Version.emptyVersion.compareTo(org.osgi.framework.Version.emptyVersion);
 
 		long start = System.currentTimeMillis();
-		for (int idx = 0; idx < 100; ++idx)
+		for (int idx = 0; idx < 100; ++idx) {
 			osgiVersionCreate();
+		}
 		long osgiTime = System.currentTimeMillis() - start;
 
 		start = System.currentTimeMillis();
-		for (int idx = 0; idx < 100; ++idx)
+		for (int idx = 0; idx < 100; ++idx) {
 			omniVersionCreate();
+		}
 		long omniTime = System.currentTimeMillis() - start;
 		outputResult("Creation", 100 * MUL * MUL * MUL, osgiTime, omniTime);
 
@@ -114,13 +118,15 @@ public class PerformanceTest {
 		org.osgi.framework.Version osgiVersions[] = createOsgiVersions();
 
 		long start = System.currentTimeMillis();
-		for (int idx = 0; idx < 100; ++idx)
+		for (int idx = 0; idx < 100; ++idx) {
 			osgiVersionToString(osgiVersions);
+		}
 		long osgiTime = System.currentTimeMillis() - start;
 
 		start = System.currentTimeMillis();
-		for (int idx = 0; idx < 100; ++idx)
+		for (int idx = 0; idx < 100; ++idx) {
 			omniVersionToString(omniVersions);
+		}
 		long omniTime = System.currentTimeMillis() - start;
 		long units = 100 * MUL * MUL * MUL;
 		outputResult("To String", units, osgiTime, omniTime);
@@ -129,69 +135,91 @@ public class PerformanceTest {
 	}
 	public static void osgiVersionToString(org.osgi.framework.Version versions[]) {
 		// compare every version against all other versions
-		for (int i = 0; i < MUL * MUL * MUL; i++)
+		for (int i = 0; i < MUL * MUL * MUL; i++) {
 			versions[i].toString();
+		}
 	}
 	public static void omniVersionToString(Version versions[]) {
 		// compare every version against all other versions
-		for (int i = 0; i < MUL * MUL * MUL; i++)
+		for (int i = 0; i < MUL * MUL * MUL; i++) {
 			versions[i].toString();
+		}
 	}
 	public static void omniVersionCreate() {
-		for (int i = 0; i < MUL; i++)
-			for (int j = 0; j < MUL; j++)
-				for (int k = 0; k < MUL; k++)
+		for (int i = 0; i < MUL; i++) {
+			for (int j = 0; j < MUL; j++) {
+				for (int k = 0; k < MUL; k++) {
 					Version.createOSGi(i, j, k, qualifierTemplate);
+				}
+			}
+		}
 	}
 	public static void omniVersionCompare(Version versions[]) {
 		//compare every version against all other versions
-		for (int i = 0; i < MUL * MUL * MUL; i++)
-			for (int j = 0; j < MUL * MUL * MUL; j++)
+		for (int i = 0; i < MUL * MUL * MUL; i++) {
+			for (int j = 0; j < MUL * MUL * MUL; j++) {
 				versions[i].compareTo(versions[j]);
+			}
+		}
 	}
 
 	public static void omniVersionEquals(Version versions[]) {
 		//compare every version against all other versions
-		for (int i = 0; i < MUL * MUL * MUL; i++)
-			for (int j = 0; j < MUL * MUL * MUL; j++)
+		for (int i = 0; i < MUL * MUL * MUL; i++) {
+			for (int j = 0; j < MUL * MUL * MUL; j++) {
 				versions[i].equals(versions[j]);
+			}
+		}
 	}
 
 	public static void omniVersionCreateFromString(String[] strings) {
 		int x = 0;
-		for (int i = 0; i < MUL; i++)
-			for (int j = 0; j < MUL; j++)
-				for (int k = 0; k < MUL; k++)
+		for (int i = 0; i < MUL; i++) {
+			for (int j = 0; j < MUL; j++) {
+				for (int k = 0; k < MUL; k++) {
 					Version.create(strings[x++]);
+				}
+			}
+		}
 	}
 
 	public static void osgiVersionCompare(org.osgi.framework.Version versions[]) {
 		// compare every version against all other versions
-		for (int i = 0; i < MUL * MUL * MUL; i++)
-			for (int j = 0; j < MUL * MUL * MUL; j++)
+		for (int i = 0; i < MUL * MUL * MUL; i++) {
+			for (int j = 0; j < MUL * MUL * MUL; j++) {
 				versions[i].compareTo(versions[j]);
+			}
+		}
 	}
 
 	public static void osgiVersionEquals(org.osgi.framework.Version versions[]) {
 		// compare every version against all other versions
-		for (int i = 0; i < MUL * MUL * MUL; i++)
-			for (int j = 0; j < MUL * MUL * MUL; j++)
+		for (int i = 0; i < MUL * MUL * MUL; i++) {
+			for (int j = 0; j < MUL * MUL * MUL; j++) {
 				versions[i].equals(versions[j]);
+			}
+		}
 	}
 
 	public static void osgiVersionCreate() {
-		for (int i = 0; i < MUL; i++)
-			for (int j = 0; j < MUL; j++)
-				for (int k = 0; k < MUL; k++)
+		for (int i = 0; i < MUL; i++) {
+			for (int j = 0; j < MUL; j++) {
+				for (int k = 0; k < MUL; k++) {
 					new org.osgi.framework.Version(i, j, k, qualifierTemplate);
+				}
+			}
+		}
 	}
 
 	public static void osgiVersionCreateFromString(String[] strings) {
 		int x = 0;
-		for (int i = 0; i < MUL; i++)
-			for (int j = 0; j < MUL; j++)
-				for (int k = 0; k < MUL; k++)
+		for (int i = 0; i < MUL; i++) {
+			for (int j = 0; j < MUL; j++) {
+				for (int k = 0; k < MUL; k++) {
 					org.osgi.framework.Version.parseVersion(strings[x++]);
+				}
+			}
+		}
 	}
 
 	/**
@@ -201,10 +229,13 @@ public class PerformanceTest {
 	private static Version[] createOmniVersions() {
 		Version versions[] = new Version[MUL * MUL * MUL];
 		int x = 0;
-		for (int i = 0; i < MUL; i++)
-			for (int j = 0; j < MUL; j++)
-				for (int k = 0; k < MUL; k++)
+		for (int i = 0; i < MUL; i++) {
+			for (int j = 0; j < MUL; j++) {
+				for (int k = 0; k < MUL; k++) {
 					versions[x++] = Version.createOSGi(i, j, k, qualifierTemplate.substring(0, k + 1));
+				}
+			}
+		}
 		return versions;
 	}
 
@@ -215,10 +246,13 @@ public class PerformanceTest {
 	private static org.osgi.framework.Version[] createOsgiVersions() {
 		org.osgi.framework.Version versions[] = new org.osgi.framework.Version[MUL * MUL * MUL];
 		int x = 0;
-		for (int i = 0; i < MUL; i++)
-			for (int j = 0; j < MUL; j++)
-				for (int k = 0; k < MUL; k++)
+		for (int i = 0; i < MUL; i++) {
+			for (int j = 0; j < MUL; j++) {
+				for (int k = 0; k < MUL; k++) {
 					versions[x++] = new org.osgi.framework.Version(i, j, k, qualifierTemplate.substring(0, k + 1));
+				}
+			}
+		}
 		return versions;
 	}
 
@@ -230,8 +264,8 @@ public class PerformanceTest {
 		String[] strings = new String[MUL * MUL * MUL];
 		StringBuilder buf = new StringBuilder(100);
 		int x = 0;
-		for (int i = 0; i < MUL; i++)
-			for (int j = 0; j < MUL; j++)
+		for (int i = 0; i < MUL; i++) {
+			for (int j = 0; j < MUL; j++) {
 				for (int k = 0; k < MUL; k++) {
 					buf.setLength(0);
 					buf.append(i);
@@ -243,6 +277,8 @@ public class PerformanceTest {
 					buf.append(qualifierTemplate.substring(0, k + 1));
 					strings[x++] = buf.toString();
 				}
+			}
+		}
 		return strings;
 	}
 

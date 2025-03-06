@@ -250,8 +250,9 @@ public class RootIUActionTest extends ActionTest {
 			query = new MatchQuery<>() {
 				@Override
 				public boolean isMatch(IInstallableUnit candidate) {
-					if (candidate.getId().equals(iu_A))
+					if (candidate.getId().equals(iu_A)) {
 						return true;
+					}
 					return false;
 				}
 			};
@@ -261,8 +262,9 @@ public class RootIUActionTest extends ActionTest {
 			query = new MatchQuery<>() {
 				@Override
 				public boolean isMatch(IInstallableUnit candidate) {
-					if (candidate.getId().equals(iu_B))
+					if (candidate.getId().equals(iu_B)) {
 						return true;
+					}
 					return false;
 				}
 			};
@@ -288,8 +290,9 @@ public class RootIUActionTest extends ActionTest {
 		assertTrue(iu != null);
 		assertTrue(iu.getVersion().equals(versionArg));
 		Collection<IRequirement> required = iu.getRequirements();
-		if ((testSpec & EMPTY) > 0)
+		if ((testSpec & EMPTY) > 0) {
 			assertEquals(required.size(), 0);
+		}
 		String confirmedIUs = ""; //$NON-NLS-1$
 		int numConfirmed = 0;
 
@@ -307,17 +310,19 @@ public class RootIUActionTest extends ActionTest {
 			debug("Not all required ius present / accounted for."); //$NON-NLS-1$
 			fail();
 		}
-		if (confirmedIUs.length() > 0)
+		if (confirmedIUs.length() > 0) {
 			debug("Confirmed \t\t " + confirmedIUs); //$NON-NLS-1$
-		else
+		} else {
 			debug("Confirmed \t\t  Empty"); //$NON-NLS-1$
+		}
 	}
 
 	private boolean contains(Collection<IRequirement> required, String iu) {
 		for (IRequirement requirement : required) {
 			IRequiredCapability req = (IRequiredCapability) requirement;
-			if (req.getName().equalsIgnoreCase(iu))
+			if (req.getName().equalsIgnoreCase(iu)) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -349,10 +354,12 @@ public class RootIUActionTest extends ActionTest {
 
 	public void setupAdvice(int testSpec) {
 		Collection<Object> publishIUs = new ArrayList<>();
-		if ((testSpec & CONTAINS_A) > 0)
+		if ((testSpec & CONTAINS_A) > 0) {
 			publishIUs.add(iu_A);
-		if ((testSpec & CONTAINS_B) > 0)
+		}
+		if ((testSpec & CONTAINS_B) > 0) {
 			publishIUs.add(iu_B);
+		}
 		rootIUAdviceCollection = new ArrayList<>();
 		rootIUAdviceCollection.add(new RootIUAdvice(publishIUs));
 	}
@@ -392,13 +399,16 @@ public class RootIUActionTest extends ActionTest {
 	}
 
 	private String toArgString(int testSpec) {
-		if (testSpec == EMPTY)
+		if (testSpec == EMPTY) {
 			return " Empty"; //$NON-NLS-1$
+		}
 		String result = " "; //$NON-NLS-1$
-		if ((testSpec & CONTAINS_A) > 0)
+		if ((testSpec & CONTAINS_A) > 0) {
 			result += iu_A;
-		if ((testSpec & CONTAINS_B) > 0)
+		}
+		if ((testSpec & CONTAINS_B) > 0) {
 			result += " " + iu_B; //$NON-NLS-1$
+		}
 		return result;
 	}
 }

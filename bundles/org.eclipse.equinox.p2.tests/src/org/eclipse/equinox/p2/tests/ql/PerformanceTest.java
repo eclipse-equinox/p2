@@ -49,8 +49,9 @@ public class PerformanceTest extends AbstractProvisioningTest {
 	public void testParserPerformance() throws Exception {
 		IExpressionParser parser = ExpressionUtil.getParser();
 		long start = System.currentTimeMillis();
-		for (int i = 0; i < 50000; i++)
+		for (int i = 0; i < 50000; i++) {
 			parser.parse("providedCapabilities.exists(x | x.name == foo)");
+		}
 		System.out.println("Parse of 50000 expressions took: " + (System.currentTimeMillis() - start) + " milliseconds");
 	}
 
@@ -132,9 +133,11 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IQuery<IInstallableUnit> matchQuery = new MatchQuery<>() {
 			@Override
 			public boolean isMatch(IInstallableUnit candidate) {
-				for (IProvidedCapability capability : candidate.getProvidedCapabilities())
-					if ("org.eclipse.equinox.p2.iu".equals(capability.getNamespace()) && "org.eclipse.core.resources".equals(capability.getName()))
+				for (IProvidedCapability capability : candidate.getProvidedCapabilities()) {
+					if ("org.eclipse.equinox.p2.iu".equals(capability.getNamespace()) && "org.eclipse.core.resources".equals(capability.getName())) {
 						return true;
+					}
+				}
 				return false;
 			}
 		};
@@ -200,8 +203,9 @@ public class PerformanceTest extends AbstractProvisioningTest {
 			for (int idx = 0; idx < 80; ++idx) {
 				int sz = 0;
 				for (IInstallableUnit candidate : repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())) {
-					if (candidate.getId().startsWith("org.eclipse."))
+					if (candidate.getId().startsWith("org.eclipse.")) {
 						sz++;
+					}
 				}
 				assertEquals(sz, 3240);
 			}

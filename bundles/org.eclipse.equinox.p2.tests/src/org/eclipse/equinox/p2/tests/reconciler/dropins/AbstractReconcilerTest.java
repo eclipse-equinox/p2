@@ -137,8 +137,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		File exe = new File(output, getExeFolder() + "eclipse.exe");
 		if (!exe.exists()) {
 			exe = new File(output, getExeFolder() + "eclipse");
-			if (!exe.exists())
+			if (!exe.exists()) {
 				fail("Executable file: " + exe.getAbsolutePath() + "(or .exe) not found after extracting: " + platform.getAbsolutePath() + " to: " + output);
+			}
 			if (!exe.canExecute()) {
 				// Try first to set --x--x--x, then --x------ if we can't do the former
 				if (!exe.setExecutable(true, false) || !exe.setExecutable(true, true)) {
@@ -225,24 +226,30 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 */
 	public static File getInstallLocation() {
 		Location installLocation = ServiceHelper.getService(TestActivator.getContext(), Location.class, Location.INSTALL_FILTER);
-		if (installLocation == null || !installLocation.isSet())
+		if (installLocation == null || !installLocation.isSet()) {
 			return null;
+		}
 		URL url = installLocation.getURL();
-		if (url == null)
+		if (url == null) {
 			return null;
+		}
 		return URLUtil.toFile(url);
 	}
 
 	private String getValueFor(String property) {
-		if (property == null)
+		if (property == null) {
 			return null;
+		}
 		String result = TestActivator.getContext().getProperty(property);
-		if (result == null && archiveAndRepositoryProperties == null)
+		if (result == null && archiveAndRepositoryProperties == null) {
 			return null;
-		if (result == null)
+		}
+		if (result == null) {
 			archiveAndRepositoryProperties.getProperty(property);
-		if (result == null)
+		}
+		if (result == null) {
 			result = archiveAndRepositoryProperties.getProperty(property + '.' + Platform.getOS());
+		}
 		return result;
 	}
 
@@ -271,8 +278,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			// the releng test framework copies the zip so let's look for it...
 			// it will be a sibling of the eclipse/ folder that we are running
 			File installLocation = getInstallLocation();
-			if (Platform.getWS().equals(Platform.WS_COCOA))
+			if (Platform.getWS().equals(Platform.WS_COCOA)) {
 				installLocation = installLocation.getParentFile().getParentFile();
+			}
 
 			if (installLocation != null) {
 				// parent will be "eclipse" and the parent's parent will be "eclipse-testing"
@@ -284,8 +292,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 							String name = pathname.getName();
 							return name.startsWith("eclipse-platform-");
 						});
-						if (children != null && children.length == 1)
+						if (children != null && children.length == 1) {
 							file = children[0];
+						}
 					}
 				}
 			}
@@ -317,8 +326,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * If the file handle points to a directory, then do a deep copy.
 	 */
 	public void add(String message, String target, File file) {
-		if (!(target.startsWith("dropins") || target.startsWith("plugins") || target.startsWith("features")))
+		if (!(target.startsWith("dropins") || target.startsWith("plugins") || target.startsWith("features"))) {
 			fail("Destination folder for resource copying should be either dropins, plugins or features.");
+		}
 		File destinationParent = new File(output, getRootFolder() + target);
 		destinationParent.mkdirs();
 		copy(message, file, new File(destinationParent, file.getName()));
@@ -358,12 +368,14 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Remove the given filename from the given folder.
 	 */
 	public boolean remove(String message, String target, String filename) {
-		if (!(target.startsWith("dropins") || target.startsWith("plugins") || target.startsWith("features")))
+		if (!(target.startsWith("dropins") || target.startsWith("plugins") || target.startsWith("features"))) {
 			fail("Target folder for resource deletion should be either dropins, plugins or features.");
+		}
 		File folder = new File(output, getRootFolder() + target);
 		File targetFile = new File(folder, filename);
-		if (!targetFile.exists())
+		if (!targetFile.exists()) {
 			return false;
+		}
 		return delete(targetFile);
 	}
 
@@ -423,12 +435,15 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		BundleInfo[] infos = loadBundlesInfo(bundlesInfo);
 		for (int i = 0; infos != null && i < infos.length; i++) {
 			BundleInfo info = infos[i];
-			if (!bundleId.equals(info.getSymbolicName()))
+			if (!bundleId.equals(info.getSymbolicName())) {
 				continue;
-			if (version != null && !version.equals(info.getVersion()))
+			}
+			if (version != null && !version.equals(info.getVersion())) {
 				continue;
-			if (location == null)
+			}
+			if (location == null) {
 				return true;
+			}
 			return info.getLocation().toString().contains(location);
 		}
 		return false;
@@ -445,8 +460,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		List<String> args = new ArrayList<>();
 		args.add("-application");
 		args.add("org.eclipse.equinox.p2.reconciler.application");
-		if (clean)
+		if (clean) {
 			args.add("-clean");
+		}
 		runEclipse(message, args.toArray(new String[args.size()]));
 	}
 
@@ -500,8 +516,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	public void cleanup() throws Exception {
 		// rm -rf eclipse sub-dir
 		boolean leaveDirty = Boolean.parseBoolean(TestActivator.getContext().getProperty("p2.tests.doNotClean"));
-		if (leaveDirty)
+		if (leaveDirty) {
 			return;
+		}
 		for (File next : toRemove) {
 			delete(next);
 		}
@@ -582,10 +599,11 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		result.setEnabled(enabled);
 		result.setUpdateable(updateable);
 		result.setUrl(uri);
-		if (plugins != null)
+		if (plugins != null) {
 			for (String plugin : plugins) {
 				result.addPlugin(plugin);
 			}
+		}
 		return result;
 	}
 
@@ -594,8 +612,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * is parent directory)
 	 */
 	public void copyBundle(String bundlename, File source, File destination) throws IOException {
-		if (destination == null)
+		if (destination == null) {
 			destination = output;
+		}
 		destination = new File(destination, "eclipse/plugins");
 		if (source == null) {
 			Bundle bundle = TestActivator.getBundle(bundlename);
@@ -603,13 +622,15 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 				throw new IOException("Could not find: " + bundlename);
 			}
 			String location = bundle.getLocation();
-			if (location.startsWith("reference:"))
+			if (location.startsWith("reference:")) {
 				location = location.substring("reference:".length());
+			}
 			source = new File(FileLocator.toFileURL(new URL(location)).getFile());
 		}
 		destination = new File(destination, source.getName());
-		if (destination.exists())
+		if (destination.exists()) {
 			return;
+		}
 		FileUtils.copy(source, destination, new File(""), false);
 		// if the target of the copy doesn't exist, then signal an error
 		assertTrue("Unable to copy " + source + " to " + destination, destination.exists());
@@ -628,10 +649,11 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			Feature[] features = site.getFeatures();
 			for (int i = 0; features != null && i < features.length; i++) {
 				if (id.equals(features[i].getId())) {
-					if (version == null)
+					if (version == null) {
 						found = true;
-					else if (version.equals(features[i].getVersion()))
+					} else if (version.equals(features[i].getVersion())) {
 						found = true;
+					}
 				}
 			}
 		}
@@ -678,21 +700,24 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
-		if (!exe.exists())
+		if (!exe.exists()) {
 			exe = new File(root, "java");
+		}
 		assertTrue("Java executable not found in: " + exe.getAbsolutePath(), exe.exists());
 		List<String> command = new ArrayList<>();
 		Collections.addAll(command, (new File(location == null ? output : location, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath());
 		Collections.addAll(command, args);
 		Collections.addAll(command, "-vmArgs", "-Dosgi.checkConfiguration=true", "-Dosgi.dataAreaRequiresExplicitInit=false");
 		// command-line if you want to run and allow a remote debugger to connect
-		if (debug)
+		if (debug) {
 			Collections.addAll(command, "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787");
+		}
 		int result = run(message, command.toArray(new String[command.size()]));
 		// 13 means that we wrote something out in the log file.
 		// so try and parse it and fail via that message if we can.
-		if (result == 13)
+		if (result == 13) {
 			parseExitdata(message);
+		}
 		return result;
 	}
 
@@ -703,20 +728,25 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	protected void parseExitdata(String message) {
 		// if the exit data contains a message telling us the location of the log file, then get it
 		String data = TestActivator.getContext().getProperty("eclipse.exitdata");
-		if (data == null)
+		if (data == null) {
 			return;
+		}
 		String log = null;
 		// big hack but for now assume the log file path is the last segment of the error message
-		for (StringTokenizer tokenizer = new StringTokenizer(data); tokenizer.hasMoreTokens();)
+		for (StringTokenizer tokenizer = new StringTokenizer(data); tokenizer.hasMoreTokens();) {
 			log = tokenizer.nextToken();
-		if (log == null)
+		}
+		if (log == null) {
 			return;
+		}
 		// remove trailing "."
-		if (log.endsWith("."))
+		if (log.endsWith(".")) {
 			log = log.substring(0, log.length() - 1);
+		}
 		String errors = read(log);
-		if (errors == null)
+		if (errors == null) {
 			return;
+		}
 		// fail using the text from the log file
 		assertOK(message, new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, errors));
 	}
@@ -724,8 +754,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	// Fully read the file pointed to by the given path
 	private String read(String path) {
 		File file = new File(path);
-		if (!file.exists())
+		if (!file.exists()) {
 			return null;
+		}
 		StringBuilder buffer = new StringBuilder();
 		try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 			for (String line = reader.readLine(); line != null; line = reader.readLine()) {
@@ -762,15 +793,17 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	}
 
 	public int runVerifierBundle(File destination) {
-		if (destination == null)
+		if (destination == null) {
 			destination = output;
+		}
 		String message = "Running the verifier bundle at: " + destination;
 		return runEclipse(message, destination, new String[] {"-application", "org.eclipse.equinox.p2.tests.verifier.application", "-consoleLog"});
 	}
 
 	public int installAndRunVerifierBundle(File destination) {
-		if (destination == null)
+		if (destination == null) {
 			destination = output;
+		}
 		try {
 			copyBundle(VERIFIER_BUNDLE_ID, null, destination);
 		} catch (IOException e) {
@@ -782,8 +815,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	}
 
 	public int installAndRunVerifierBundle35(File destination) {
-		if (destination == null)
+		if (destination == null) {
 			destination = output;
+		}
 		try {
 			copyBundle(VERIFIER_BUNDLE_ID, getTestData(VERIFIER_BUNDLE_ID + "3.5", "testData/VerifierBundle35/org.eclipse.equinox.p2.tests.verifier_1.0.0.jar"), destination);
 		} catch (IOException e) {
@@ -795,16 +829,19 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	}
 
 	private void deleteVerifierBundle(File destination) {
-		if (destination == null)
+		if (destination == null) {
 			destination = output;
+		}
 		destination = new File(destination, getRootFolder() + "plugins");
 		File[] verifierBundle = destination.listFiles((FilenameFilter) (dir, name) -> {
-			if (name.startsWith(VERIFIER_BUNDLE_ID))
+			if (name.startsWith(VERIFIER_BUNDLE_ID)) {
 				return true;
+			}
 			return false;
 		});
-		if (verifierBundle != null && verifierBundle.length > 0)
+		if (verifierBundle != null && verifierBundle.length > 0) {
 			verifierBundle[0].delete();
+		}
 	}
 
 	private static void loadPlatformZipPropertiesFromFile() {
@@ -816,8 +853,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 				parent = parent.getParentFile();
 				if (parent != null) {
 					File propertiesFile = new File(parent, "equinoxp2tests.properties");
-					if (!propertiesFile.exists())
+					if (!propertiesFile.exists()) {
 						return;
+					}
 					archiveAndRepositoryProperties = new Properties();
 					try {
 						try (InputStream is = Files.newInputStream(propertiesFile.toPath())) {
@@ -833,15 +871,17 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 
 	static protected String getRootFolder() {
 		String eclipseFolder = "eclipse/";
-		if (Platform.getWS().equals(Platform.WS_COCOA))
+		if (Platform.getWS().equals(Platform.WS_COCOA)) {
 			eclipseFolder = "Eclipse.app/Contents/Eclipse/";
+		}
 		return eclipseFolder;
 	}
 
 	static protected String getExeFolder() {
 		String eclipseFolder = "eclipse/";
-		if (Platform.getWS().equals(Platform.WS_COCOA))
+		if (Platform.getWS().equals(Platform.WS_COCOA)) {
 			eclipseFolder = "Eclipse.app/Contents/MacOS/";
+		}
 		return eclipseFolder;
 	}
 }

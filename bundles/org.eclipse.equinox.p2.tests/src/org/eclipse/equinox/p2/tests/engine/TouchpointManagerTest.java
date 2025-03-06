@@ -61,19 +61,23 @@ public class TouchpointManagerTest extends AbstractProvisioningTest {
 		int maxTries = 20;
 		int current = 0;
 		while (true) {
-			if (null != manager.getTouchpoint("dummy", "1.0.0"))
+			if (null != manager.getTouchpoint("dummy", "1.0.0")) {
 				break;
-			if (++current == maxTries)
+			}
+			if (++current == maxTries) {
 				fail("dummy touchpoint not added");
+			}
 			Thread.sleep(100);
 		}
 		bundle.uninstall();
 		current = 0;
 		while (true) {
-			if (null == manager.getTouchpoint("dummy", "1.0.0"))
+			if (null == manager.getTouchpoint("dummy", "1.0.0")) {
 				break;
-			if (++current == maxTries)
+			}
+			if (++current == maxTries) {
 				fail("dummy touchpoint not removed");
+			}
 			Thread.sleep(100);
 		}
 	}

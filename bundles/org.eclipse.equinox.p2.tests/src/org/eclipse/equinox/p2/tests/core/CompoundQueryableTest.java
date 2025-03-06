@@ -128,8 +128,9 @@ public class CompoundQueryableTest {
 		@Override
 		public boolean isMatch(Integer candidate) {
 			int x = candidate.intValue();
-			if (x % 2 == 0)
+			if (x % 2 == 0) {
 				return true;
+			}
 			return false;
 		}
 	};
@@ -138,8 +139,9 @@ public class CompoundQueryableTest {
 		@Override
 		public boolean isMatch(Integer candidate) {
 			int x = candidate.intValue();
-			if (x % 4 == 0)
+			if (x % 4 == 0) {
 				return true;
+			}
 			return false;
 		}
 	};
@@ -167,11 +169,13 @@ public class CompoundQueryableTest {
 			int greatest = Integer.MIN_VALUE;
 			while (iterator.hasNext()) {
 				int item = iterator.next().intValue();
-				if (item > greatest)
+				if (item > greatest) {
 					greatest = item;
+				}
 			}
-			if (greatest == Integer.MIN_VALUE)
+			if (greatest == Integer.MIN_VALUE) {
 				return result;
+			}
 			result.accept(greatest);
 			return result;
 		}

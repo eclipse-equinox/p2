@@ -75,8 +75,9 @@ public class AggregateQueryTest {
 				Collector result = new Collector();
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
-					if (!o.equals("3"))
+					if (!o.equals("3")) {
 						result.accept(o);
+					}
 				}
 				return result;
 			}
@@ -128,8 +129,9 @@ public class AggregateQueryTest {
 
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
-					if (!o.equals("3"))
+					if (!o.equals("3")) {
 						result.accept(o);
+					}
 				}
 				return result;
 			}
@@ -151,8 +153,9 @@ public class AggregateQueryTest {
 		IQuery<String> ABC = new MatchQuery<>() {
 			@Override
 			public boolean isMatch(String candidate) {
-				if (candidate.equals("A") || candidate.equals("B") || candidate.equals("C"))
+				if (candidate.equals("A") || candidate.equals("B") || candidate.equals("C")) {
 					return true;
+				}
 				return false;
 			}
 		};
@@ -160,8 +163,9 @@ public class AggregateQueryTest {
 		IQuery<String> BCDE = new MatchQuery<>() {
 			@Override
 			public boolean isMatch(String candidate) {
-				if (candidate.equals("B") || candidate.equals("C") || candidate.equals("D") || candidate.equals("E"))
+				if (candidate.equals("B") || candidate.equals("C") || candidate.equals("D") || candidate.equals("E")) {
 					return true;
+				}
 				return false;
 			}
 		};
@@ -181,8 +185,9 @@ public class AggregateQueryTest {
 				Collector result = new Collector();
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
-					if (o.equals("A") || o.equals("B") || o.equals("C"))
+					if (o.equals("A") || o.equals("B") || o.equals("C")) {
 						result.accept(o);
+					}
 				}
 				return result;
 			}
@@ -194,8 +199,9 @@ public class AggregateQueryTest {
 				Collector result = new Collector();
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
-					if (o.equals("B") || o.equals("C") || o.equals("D") || o.equals("E"))
+					if (o.equals("B") || o.equals("C") || o.equals("D") || o.equals("E")) {
 						result.accept(o);
+					}
 				}
 				return result;
 			}
@@ -213,8 +219,9 @@ public class AggregateQueryTest {
 		IQuery<String> ABC = new MatchQuery<>() {
 			@Override
 			public boolean isMatch(String candidate) {
-				if (candidate.equals("A") || candidate.equals("B") || candidate.equals("C"))
+				if (candidate.equals("A") || candidate.equals("B") || candidate.equals("C")) {
 					return true;
+				}
 				return false;
 			}
 		};
@@ -222,8 +229,9 @@ public class AggregateQueryTest {
 		IQuery<String> BCDE = new MatchQuery<>() {
 			@Override
 			public boolean isMatch(String candidate) {
-				if (candidate.equals("B") || candidate.equals("C") || candidate.equals("D") || candidate.equals("E"))
+				if (candidate.equals("B") || candidate.equals("C") || candidate.equals("D") || candidate.equals("E")) {
 					return true;
+				}
 				return false;
 			}
 		};
@@ -246,8 +254,9 @@ public class AggregateQueryTest {
 				Collector result = new Collector();
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
-					if (o.equals("A") || o.equals("B") || o.equals("C"))
+					if (o.equals("A") || o.equals("B") || o.equals("C")) {
 						result.accept(o);
+					}
 				}
 				return result;
 			}
@@ -259,8 +268,9 @@ public class AggregateQueryTest {
 				Collector result = new Collector();
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
-					if (o.equals("B") || o.equals("C") || o.equals("D") || o.equals("E"))
+					if (o.equals("B") || o.equals("C") || o.equals("D") || o.equals("E")) {
 						result.accept(o);
+					}
 				}
 				return result;
 			}

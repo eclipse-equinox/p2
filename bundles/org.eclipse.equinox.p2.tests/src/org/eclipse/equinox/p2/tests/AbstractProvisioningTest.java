@@ -154,8 +154,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	public static void assertEmptyProfile(IProfile profile) {
 		assertNotNull("The profile should not be null", profile);
-		if (getInstallableUnits(profile).hasNext())
+		if (getInstallableUnits(profile).hasNext()) {
 			fail("The profile should be empty,profileId=" + profile);
+		}
 	}
 
 	protected static void assertNotIUs(IInstallableUnit[] ius, Iterator<IInstallableUnit> installableUnits) {
@@ -183,14 +184,16 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected static void assertOK(String message, IStatus status) {
-		if (status.isOK())
+		if (status.isOK()) {
 			return;
+		}
 
 		// print out the children if we have any
 		IStatus children[] = status.getChildren();
 		for (IStatus child : children) {
-			if (!child.isOK())
+			if (!child.isOK()) {
 				new CoreException(child).printStackTrace();
+			}
 		}
 
 		fail(message + ' ' + status.getMessage(), status.getException());
@@ -203,11 +206,13 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		HashSet<IInstallableUnit> expected = new HashSet<>(Arrays.asList(expectedUnits));
 		for (Iterator<IInstallableUnit> it = getInstallableUnits(profile); it.hasNext();) {
 			IInstallableUnit actual = it.next();
-			if (!expected.remove(actual))
+			if (!expected.remove(actual)) {
 				fail(message + " profile " + profile.getProfileId() + " contained an unexpected unit: " + actual);
+			}
 		}
-		if (!expected.isEmpty())
+		if (!expected.isEmpty()) {
 			fail(message + " profile " + profile.getProfileId() + " did not contain expected units: " + expected);
+		}
 	}
 
 	/**
@@ -219,8 +224,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			IInstallableUnit actual = it.next();
 			expected.remove(actual);
 		}
-		if (!expected.isEmpty())
+		if (!expected.isEmpty()) {
 			fail(message + " profile " + profile2.getProfileId() + " did not contain expected units: " + expected);
+		}
 	}
 
 	public static void copy(String message, File source, File target) {
@@ -233,13 +239,16 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * - if we have a directory then merge
 	 */
 	public static void copy(String message, File source, File target, FileFilter filter) {
-		if (!source.exists())
+		if (!source.exists()) {
 			return;
+		}
 		if (source.isDirectory()) {
-			if (target.exists() && target.isFile())
+			if (target.exists() && target.isFile()) {
 				target.delete();
-			if (!target.exists())
+			}
+			if (!target.exists()) {
 				target.mkdirs();
+			}
 			File[] children = source.listFiles(filter);
 			for (File child : children) {
 				copy(message, child, new File(target, child.getName()));
@@ -260,19 +269,23 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	public static void move(String message, File source, File target, FileFilter filter) {
 		// no work to do
-		if (!source.exists())
+		if (!source.exists()) {
 			return;
+		}
 
 		// short circuit... if a basic rename just works then there is less work to do
-		if (filter == null && source.renameTo(target))
+		if (filter == null && source.renameTo(target)) {
 			return;
+		}
 
 		// folder move
 		if (source.isDirectory()) {
-			if (target.exists() && target.isFile())
+			if (target.exists() && target.isFile()) {
 				target.delete();
-			if (!target.exists())
+			}
+			if (!target.exists()) {
 				target.mkdirs();
+			}
 			File[] children = source.listFiles(filter);
 			for (File child : children) {
 				move(message, child, new File(target, child.getName()), filter);
@@ -281,17 +294,20 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 
 		// delete destination folder if there is one. we are copying a file
-		if (target.isDirectory())
+		if (target.isDirectory()) {
 			delete(target);
+		}
 
 		// both source and target are files at this point
-		if (source.renameTo(target))
+		if (source.renameTo(target)) {
 			return;
+		}
 
 		// if the rename didn't work then try a copy/delete
 		copy(message, source, target);
-		if (target.exists())
+		if (target.exists()) {
 			delete(source);
+		}
 	}
 
 	/**
@@ -500,8 +516,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		iu.setCapabilities(provides);
 		iu.setRequirements(required);
 		iu.setTouchpointType(tpType);
-		if (tpData != null)
+		if (tpData != null) {
 			iu.addTouchpointData(tpData);
+		}
 		iu.setSingleton(singleton);
 		iu.setUpdateDescriptor(update);
 		iu.setRequirementChanges(reqChanges);
@@ -528,12 +545,14 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		iu.setCapabilities(provides);
 		iu.setRequirements(required);
 		iu.setTouchpointType(tpType);
-		if (tpData != null)
+		if (tpData != null) {
 			iu.addTouchpointData(tpData);
+		}
 		iu.setSingleton(singleton);
 		iu.setUpdateDescriptor(update);
-		if (metaRequirements == null)
+		if (metaRequirements == null) {
 			metaRequirements = NO_REQUIRES;
+		}
 		iu.setMetaRequirements(metaRequirements);
 		return MetadataFactory.createInstallableUnit(iu);
 	}
@@ -557,8 +576,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		fragment.setProperty(org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		fragment.setRequirements(required);
 		fragment.setTouchpointType(tpType);
-		if (tpData != null)
+		if (tpData != null) {
 			fragment.addTouchpointData(tpData);
+		}
 		if (host != null) {
 			VersionRange hostRange = new VersionRange(host.getVersion(), true, host.getVersion(), true);
 			fragment.setHost(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, host.getId(), hostRange, null, false, false)});
@@ -571,8 +591,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		List<IProvidedCapability> capabilities = new ArrayList<>(desc.getProvidedCapabilities());
 		for (int i = 0; i < capabilities.size(); i++) {
 			IProvidedCapability pc = capabilities.get(i);
-			if (desc.getVersion().equals(pc.getVersion()))
+			if (desc.getVersion().equals(pc.getVersion())) {
 				capabilities.set(i, MetadataFactory.createProvidedCapability(pc.getNamespace(), pc.getName(), newVersion));
+			}
 		}
 		desc.setVersion(newVersion);
 		desc.setCapabilities(capabilities.toArray(new IProvidedCapability[capabilities.size()]));
@@ -646,8 +667,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static boolean delete(File file) {
-		if (!file.exists())
+		if (!file.exists()) {
 			return true;
+		}
 		if (file.isDirectory()) {
 			file.setWritable(true);
 			file.setReadable(true);
@@ -669,16 +691,19 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * 	Compare two 2-dimensional arrays of strings for equality
 	 */
 	protected static boolean equal(String[][] tuples0, String[][] tuples1) {
-		if (tuples0.length != tuples1.length)
+		if (tuples0.length != tuples1.length) {
 			return false;
+		}
 		for (int i = 0; i < tuples0.length; i++) {
 			String[] tuple0 = tuples0[i];
 			String[] tuple1 = tuples1[i];
-			if (tuple0.length != tuple1.length)
+			if (tuple0.length != tuple1.length) {
 				return false;
+			}
 			for (int j = 0; j < tuple0.length; j++) {
-				if (!tuple0[j].equals(tuple1[j]))
+				if (!tuple0[j].equals(tuple1[j])) {
 					return false;
+				}
 			}
 		}
 		return true;
@@ -693,15 +718,18 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (e instanceof CoreException) {
 			IStatus status = ((CoreException) e).getStatus();
 			//if the status does not have an exception, print the stack for this one
-			if (status.getException() == null)
+			if (status.getException() == null) {
 				e.printStackTrace();
+			}
 			write(status, 0, System.err);
 		} else {
-			if (e != null)
+			if (e != null) {
 				e.printStackTrace();
+			}
 		}
-		if (e != null)
+		if (e != null) {
 			message = message + ": " + e;
+		}
 		fail(message);
 	}
 
@@ -724,12 +752,13 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	private static void indent(OutputStream output, int indent) {
-		for (int i = 0; i < indent; i++)
+		for (int i = 0; i < indent; i++) {
 			try {
 				output.write("\t".getBytes());
 			} catch (IOException e) {
 				// ignore
 			}
+		}
 	}
 
 	public static void writeBuffer(File outputFile, CharSequence buffer) throws IOException {
@@ -753,8 +782,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		Iterator itor = queryResult.iterator();
 		HashSet uniqueTracker = new HashSet();
 		while (itor.hasNext()) {
-			if (uniqueTracker.add(itor.next()))
+			if (uniqueTracker.add(itor.next())) {
 				++cnt;
+			}
 		}
 		return cnt;
 	}
@@ -919,8 +949,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		IQueryResult queryResult = repository.query(QueryUtil.createIUQuery(name), null);
 
 		IInstallableUnit unit = null;
-		if (!queryResult.isEmpty())
+		if (!queryResult.isEmpty()) {
 			unit = (IInstallableUnit) queryResult.iterator().next();
+		}
 
 		return unit;
 	}
@@ -948,8 +979,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			testFolder = new File(instance, name);
 		}
 
-		if (testFolder.exists())
+		if (testFolder.exists()) {
 			delete(testFolder);
+		}
 		testFolder.mkdirs();
 		return testFolder;
 	}
@@ -998,16 +1030,19 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Look up and return a file handle to the given entry in the bundle.
 	 */
 	public static File getTestData(String message, String entry) {
-		if (entry == null)
+		if (entry == null) {
 			fail(message + " entry is null.");
+		}
 		URL base = TestActivator.getContext().getBundle().getEntry(entry);
-		if (base == null)
+		if (base == null) {
 			fail(message + " entry not found in bundle: " + entry);
+		}
 		try {
 			String osPath = IPath.fromOSString(FileLocator.toFileURL(base).getPath()).toOSString();
 			File result = new File(osPath);
-			if (!result.getCanonicalPath().equals(result.getPath()))
+			if (!result.getCanonicalPath().equals(result.getPath())) {
 				fail(message + " result path: " + result.getPath() + " does not match canonical path: " + result.getCanonicalFile().getPath());
+			}
 			return result;
 		} catch (IOException e) {
 			fail(message, e);
@@ -1017,18 +1052,21 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected static void assertInstallOperand(IProvisioningPlan plan, IInstallableUnit iu) {
-		if (plan.getAdditions().query(QueryUtil.createIUQuery(iu), null).isEmpty())
+		if (plan.getAdditions().query(QueryUtil.createIUQuery(iu), null).isEmpty()) {
 			fail("Can't find " + iu + " in the plan");
+		}
 	}
 
 	protected static void assertUninstallOperand(IProvisioningPlan plan, IInstallableUnit iu) {
-		if (plan.getRemovals().query(QueryUtil.createIUQuery(iu), null).isEmpty())
+		if (plan.getRemovals().query(QueryUtil.createIUQuery(iu), null).isEmpty()) {
 			fail("Can't find " + iu + " in the plan");
+		}
 	}
 
 	protected static void assertNoOperand(IProvisioningPlan plan, IInstallableUnit iu) {
-		if (!(plan.getRemovals().query(QueryUtil.createIUQuery(iu), null).isEmpty() && plan.getAdditions().query(QueryUtil.createIUQuery(iu), null).isEmpty()))
+		if (!(plan.getRemovals().query(QueryUtil.createIUQuery(iu), null).isEmpty() && plan.getAdditions().query(QueryUtil.createIUQuery(iu), null).isEmpty())) {
 			fail(iu + " should not be present in this plan.");
+		}
 	}
 
 	@Override
@@ -1076,8 +1114,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected IStatus install(IProfileChangeRequest req, IPlanner planner, IEngine engine) {
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
-		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
+		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL) {
 			return plan.getStatus();
+		}
 		return engine.perform(plan, null);
 	}
 
@@ -1096,14 +1135,18 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			return;
 		}
 		// otherwise use this method and check that the arrays are equal in any order
-		if (expected == null && actual == null)
+		if (expected == null && actual == null) {
 			return;
-		if (expected == actual)
+		}
+		if (expected == actual) {
 			return;
-		if (expected == null || actual == null)
+		}
+		if (expected == null || actual == null) {
 			assertTrue(message + ".1", false);
-		if (expected.length != actual.length)
+		}
+		if (expected.length != actual.length) {
 			assertTrue(message + ".2", false);
+		}
 		boolean[] found = new boolean[expected.length];
 		for (Object expectedelement : expected) {
 			for (int j = 0; j < expected.length; j++) {
@@ -1112,9 +1155,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				}
 			}
 		}
-		for (int i = 0; i < found.length; i++)
-			if (!found[i])
+		for (int i = 0; i < found.length; i++) {
+			if (!found[i]) {
 				assertTrue(message + ".3." + i, false);
+			}
+		}
 	}
 
 	/**
@@ -1138,18 +1183,21 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected static void assertEquals(String message, IInstallableUnit iu1, IInstallableUnit iu2) throws AssertionFailedError {
-		if (iu1 == iu2)
+		if (iu1 == iu2) {
 			return;
+		}
 		if (iu1 == null || iu2 == null) {
 			fail(message);
 		}
 
-		if (!iu1.equals(iu2))
+		if (!iu1.equals(iu2)) {
 			fail(message + " " + iu1 + " is not equal to " + iu2);
+		}
 
 		if (QueryUtil.isFragment(iu1)) {
-			if (!QueryUtil.isFragment(iu2))
+			if (!QueryUtil.isFragment(iu2)) {
 				fail(message + " " + iu1 + " is not a fragment.");
+			}
 			try {
 				assertEquals(message, ((IInstallableUnitFragment) iu1).getHost(), ((IInstallableUnitFragment) iu2).getHost());
 			} catch (AssertionFailedError failure) {
@@ -1160,8 +1208,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 
 		if (iu1.isSingleton()) {
-			if (!iu2.isSingleton())
+			if (!iu2.isSingleton()) {
 				fail(message + " " + iu2 + " is not a singleton.");
+			}
 		} else if (iu2.isSingleton()) {
 			fail(message + " " + iu2 + " is a singleton.");
 		}
@@ -1177,8 +1226,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		assertEquals(message, iu1.getUpdateDescriptor(), iu2.getUpdateDescriptor());
 		assertEquals(message, iu1.getFilter(), iu2.getFilter());
 
-		if (iu1.isResolved() && iu2.isResolved())
+		if (iu1.isResolved() && iu2.isResolved()) {
 			assertEquals(message, iu1.getFragments(), iu2.getFragments());
+		}
 	}
 
 	/*
@@ -1198,8 +1248,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			}
 		}
 
-		if (map.size() > 0)
+		if (map.size() > 0) {
 			fail(message + " Unexpected fragment '" + map.entrySet().iterator().next() + "'");
+		}
 	}
 
 	/*
@@ -1207,10 +1258,12 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * objects are considered to be equal.
 	 */
 	protected static void assertEquals(String message, IUpdateDescriptor desc1, IUpdateDescriptor desc2) throws AssertionFailedError {
-		if (desc1 == desc2)
+		if (desc1 == desc2) {
 			return;
-		if (desc1 == null || desc2 == null)
+		}
+		if (desc1 == null || desc2 == null) {
 			fail();
+		}
 
 		try {
 			assertEquals(message, desc1.getIUsBeingUpdated(), desc2.getIUsBeingUpdated());
@@ -1219,10 +1272,12 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 			String d1 = desc1.getDescription();
 			String d2 = desc2.getDescription();
-			if (d1 == null)
+			if (d1 == null) {
 				d1 = "";
-			if (d2 == null)
+			}
+			if (d2 == null) {
 				d2 = "";
+			}
 			assertEquals(message, d1, d2);
 		} catch (AssertionFailedError e) {
 			fail(message + " Unequal Update Descriptors: " + e.getMessage());
@@ -1254,16 +1309,18 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				fail(message + " Expected IU " + ius1unit + " not found.");
 			}
 		}
-		if (set.size() > 0)
+		if (set.size() > 0) {
 			fail(message + " Unexpected IU " + set.first() + ".");
+		}
 	}
 
 	/*
 	 * Compare 2 copyright objects and fail if they are not considered equal.
 	 */
 	protected static void assertEquals(String message, ICopyright cpyrt1, ICopyright cpyrt2) {
-		if (cpyrt1 == cpyrt2)
+		if (cpyrt1 == cpyrt2) {
 			return;
+		}
 		if (cpyrt1 == null || cpyrt2 == null) {
 			fail(message);
 		}
@@ -1278,9 +1335,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected static void assertContains(String message, IArtifactRepository sourceRepo, IArtifactRepository destinationRepo) {
 		for (IArtifactKey key : sourceRepo.query(ArtifactKeyQuery.ALL_KEYS, null)) {
 			IArtifactDescriptor[] destinationDescriptors = destinationRepo.getArtifactDescriptors(key);
-			if (destinationDescriptors == null || destinationDescriptors.length == 0)
+			if (destinationDescriptors == null || destinationDescriptors.length == 0) {
 				fail(message + ": unmatched key: " + key.toString());
 			//this implicitly verifies the keys are present
+			}
 
 			IArtifactDescriptor[] sourceDescriptors = sourceRepo.getArtifactDescriptors(key);
 
@@ -1340,14 +1398,16 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	public static void assertContains(String message, Iterator result, Iterator mustHave) {
 		HashSet repoSet = new HashSet();
-		while (mustHave.hasNext())
+		while (mustHave.hasNext()) {
 			repoSet.add(mustHave.next());
+		}
 		assertContains(message, result, repoSet);
 	}
 
 	public static void assertContains(String message, Iterator result, Collection mustHave) {
-		while (result.hasNext())
+		while (result.hasNext()) {
 			assertTrue(message, mustHave.contains(result.next()));
+		}
 	}
 
 	public static void assertContains(IQueryResult result, Object value) {
@@ -1364,17 +1424,21 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	public static void assertContains(String message, IQueryResult result, Object value) {
 		Iterator itor = result.iterator();
-		while (itor.hasNext())
-			if (itor.next().equals(value))
+		while (itor.hasNext()) {
+			if (itor.next().equals(value)) {
 				return;
+			}
+		}
 		fail(message);
 	}
 
 	public static void assertNotContains(String message, IQueryResult result, Object value) {
 		Iterator itor = result.iterator();
-		while (itor.hasNext())
-			if (itor.next().equals(value))
+		while (itor.hasNext()) {
+			if (itor.next().equals(value)) {
 				fail(message);
+			}
+		}
 	}
 
 	public static void assertContains(String message, Collection fromIUs, Iterator fromRepo) {
@@ -1410,10 +1474,12 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * A special assert is needed as the time stamp is expected to change
 	 */
 	protected static void assertRepositoryProperties(String message, Map expected, Map actual) {
-		if (expected == null && actual == null)
+		if (expected == null && actual == null) {
 			return;
-		if (expected == null || actual == null)
+		}
+		if (expected == null || actual == null) {
 			fail(message);
+		}
 		for (Object expectedelement : expected.keySet()) {
 			assertTrue(message, actual.containsKey(expectedelement)); //Ensure the key exists
 			if (!expectedelement.equals("p2.timestamp")) {
@@ -1438,8 +1504,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				for (String part : parts) {
 					found = found && line.contains(part);
 				}
-				if (found)
+				if (found) {
 					return;
+				}
 			}
 		}
 		assertTrue(false);
@@ -1550,8 +1617,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
 				selfField.setAccessible(true);
 				previousSelfValue = selfField.get(profileRegistry);
-				if (previousSelfValue == null)
+				if (previousSelfValue == null) {
 					selfField.set(profileRegistry, "agent");
+				}
 			} catch (Throwable t) {
 				fail();
 			}
@@ -1572,8 +1640,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
 				selfField.setAccessible(true);
 				Object self = selfField.get(profileRegistry);
-				if (self.equals("agent"))
+				if (self.equals("agent")) {
 					selfField.set(profileRegistry, previousSelfValue);
+				}
 			} catch (Throwable t) {
 				// ignore as we still want to continue tidying up
 			}
@@ -1589,8 +1658,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public void assertNoContents(File file, String[] lines) {
-		if (!file.exists())
+		if (!file.exists()) {
 			fail("File: " + file.toString() + " can't be found.");
+		}
 		int idx = 0;
 		try {
 			try (BufferedReader reader = new BufferedReader(new FileReader(file));) {
@@ -1609,16 +1679,18 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public void assertContents(File file, String[] lines) {
-		if (!file.exists())
+		if (!file.exists()) {
 			fail("File: " + file.toString() + " can't be found.");
+		}
 		int idx = 0;
 		try {
 			try (BufferedReader reader = new BufferedReader(new FileReader(file));) {
 				while (reader.ready()) {
 					String line = reader.readLine();
 					if (line.contains(lines[idx])) {
-						if (++idx >= lines.length)
+						if (++idx >= lines.length) {
 							return;
+						}
 					}
 				}
 			}
@@ -1635,19 +1707,23 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			IArtifactDescriptor[] expectedDescriptors = expected.getArtifactDescriptors(key);
 			IArtifactDescriptor[] actualDescriptors = actual.getArtifactDescriptors(key);
 
-			if (expectedDescriptors == null || actualDescriptors == null)
-				if (!(expectedDescriptors == null && actualDescriptors == null))
+			if (expectedDescriptors == null || actualDescriptors == null) {
+				if (!(expectedDescriptors == null && actualDescriptors == null)) {
 					fail(message + " missing key " + key);
+				}
+			}
 
 			top: for (IArtifactDescriptor expectedDescriptor : expectedDescriptors) {
 				for (IArtifactDescriptor actualDescriptor : actualDescriptors) {
 					if (Arrays.equals(expectedDescriptor.getProcessingSteps(), actualDescriptor.getProcessingSteps())) {
 						File expectedFile = expected.getArtifactFile(expectedDescriptor);
 						File actualFile = actual.getArtifactFile(actualDescriptor);
-						if (expectedFile == null || actualFile == null)
+						if (expectedFile == null || actualFile == null) {
 							fail(message + " descriptor mismatch");
-						if (!(expectedFile.exists() && actualFile.exists()))
+						}
+						if (!(expectedFile.exists() && actualFile.exists())) {
 							fail(message + " file does not exist");
+						}
 						if ("jar".equals(IPath.fromOSString(expectedFile.getName()).getFileExtension())) {
 							//compare jar contents
 							assertEqualJars(expectedFile, actualFile);

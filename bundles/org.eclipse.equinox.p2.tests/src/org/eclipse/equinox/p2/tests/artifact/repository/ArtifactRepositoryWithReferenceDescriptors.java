@@ -62,14 +62,16 @@ public class ArtifactRepositoryWithReferenceDescriptors extends AbstractProvisio
 
 	public void testOldStyleReference() {
 		IStatus s = repo.getArtifact(descriptor1, new ByteArrayOutputStream(500), new NullProgressMonitor());
-		if (!s.isOK())
+		if (!s.isOK()) {
 			fail("1.0 Can not find artifact for the given descriptor. Status" + s.toString());
+		}
 	}
 
 	public void testNewStyleReference() {
 		IStatus s = repo.getArtifact(descriptor2, new ByteArrayOutputStream(500), new NullProgressMonitor());
-		if (!s.isOK())
+		if (!s.isOK()) {
 			fail("1.1 Can not find artifact for the given descriptor. Status" + s.toString());
+		}
 	}
 
 }

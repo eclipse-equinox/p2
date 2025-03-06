@@ -65,8 +65,9 @@ public class BaseChangeExtendedConflicts extends BaseChange {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
-		if (!exe.exists())
+		if (!exe.exists()) {
 			exe = new File(root, "java");
+		}
 		assertTrue("Java executable not found in: " + exe.getAbsolutePath(), exe.exists());
 		List<String> command = new ArrayList<>();
 		Collections.addAll(command, (new File(location == null ? output : location, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath());
@@ -82,13 +83,15 @@ public class BaseChangeExtendedConflicts extends BaseChange {
 		}
 
 		// command-line if you want to run and allow a remote debugger to connect
-		if (debug)
+		if (debug) {
 			Collections.addAll(command, "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000");
+		}
 		int result = run(message, command.toArray(new String[command.size()]));
 		// 13 means that we wrote something out in the log file.
 		// so try and parse it and fail via that message if we can.
-		if (result == 13)
+		if (result == 13) {
 			parseExitdata(message);
+		}
 		return result;
 	}
 

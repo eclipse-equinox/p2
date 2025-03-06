@@ -46,23 +46,29 @@ public class StringHelperTest {
 		String[] strings = new String[5];
 		StringBuilder inputBld = new StringBuilder();
 		for (int idx = 0; idx < 5; ++idx) {
-			if (idx > 0)
+			if (idx > 0) {
 				inputBld.append(',');
-			for (int c = 11; c > idx * 2; --c)
+			}
+			for (int c = 11; c > idx * 2; --c) {
 				inputBld.append((char) ('a' + c));
+			}
 			strings[idx] = inputBld.toString();
 		}
 
 		long ts = System.currentTimeMillis();
-		for (int cnt = 0; cnt < 1000000; ++cnt)
-			for (int idx = 0; idx < 5; ++idx)
+		for (int cnt = 0; cnt < 1000000; ++cnt) {
+			for (int idx = 0; idx < 5; ++idx) {
 				AbstractPublisherAction.getArrayFromString(strings[idx], ",");
+			}
+		}
 		long apaTime = System.currentTimeMillis() - ts;
 
 		ts = System.currentTimeMillis();
-		for (int cnt = 0; cnt < 1000000; ++cnt)
-			for (int idx = 0; idx < 5; ++idx)
+		for (int cnt = 0; cnt < 1000000; ++cnt) {
+			for (int idx = 0; idx < 5; ++idx) {
 				StringHelper.getArrayFromString(strings[idx], ',');
+			}
+		}
 		long shTime = System.currentTimeMillis() - ts;
 		System.out.println("Ratio: " + (double) shTime / (double) apaTime);
 	}

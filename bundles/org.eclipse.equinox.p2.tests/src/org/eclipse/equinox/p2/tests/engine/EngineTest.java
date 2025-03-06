@@ -244,9 +244,11 @@ public class EngineTest extends AbstractProvisioningTest {
 		set = PhaseSetFactory.createDefaultPhaseSetExcluding(new String[] {PhaseSetFactory.PHASE_CHECK_TRUST});
 		final String[] phases = set.getPhaseIds();
 		assertEquals("4.0", 6, phases.length);
-		for (int i = 0; i < phases.length; i++)
-			if (phases[i].equals(PhaseSetFactory.PHASE_CHECK_TRUST))
+		for (int i = 0; i < phases.length; i++) {
+			if (phases[i].equals(PhaseSetFactory.PHASE_CHECK_TRUST)) {
 				fail("4.1." + i);
+			}
+		}
 
 	}
 

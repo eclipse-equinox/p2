@@ -34,18 +34,20 @@ public class TestUpdateListener implements IUpdateListener {
 	}
 
 	public boolean matches(Object o) {
-		if (!(o instanceof UpdateEvent))
+		if (!(o instanceof UpdateEvent)) {
 			return false;
+		}
 		UpdateEvent actual = (UpdateEvent) o;
 		return Arrays.equals(expectedEvent.getIUs().toArray(), actual.getIUs().toArray()) && expectedEvent.getProfileId().equals(actual.getProfileId());
 	}
 
 	@Override
 	public void updatesAvailable(UpdateEvent event) {
-		if (matches(event))
+		if (matches(event)) {
 			expectedCount++;
-		else
+		} else {
 			unexpectedCount++;
+		}
 	}
 
 	/**

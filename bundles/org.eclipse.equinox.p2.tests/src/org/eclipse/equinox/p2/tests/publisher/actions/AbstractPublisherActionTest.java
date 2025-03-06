@@ -76,24 +76,27 @@ public final class AbstractPublisherActionTest extends AbstractProvisioningTest 
 
 		@Override
 		public IProvidedCapability[] getProvidedCapabilities(InstallableUnitDescription iu) {
-			if (providedCapability == null)
+			if (providedCapability == null) {
 				return null;
+			}
 
 			return new IProvidedCapability[] {providedCapability};
 		}
 
 		@Override
 		public IRequirement[] getRequiredCapabilities(InstallableUnitDescription iu) {
-			if (requiredCapability == null)
+			if (requiredCapability == null) {
 				return null;
+			}
 
 			return new IRequirement[] {requiredCapability};
 		}
 
 		@Override
 		public IRequirement[] getMetaRequiredCapabilities(InstallableUnitDescription iu) {
-			if (metaRequiredCapability == null)
+			if (metaRequiredCapability == null) {
 				return null;
+			}
 
 			return new IRequirement[] {metaRequiredCapability};
 		}

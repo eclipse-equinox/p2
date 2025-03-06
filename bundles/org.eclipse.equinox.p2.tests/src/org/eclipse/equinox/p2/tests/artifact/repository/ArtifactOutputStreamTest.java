@@ -155,8 +155,9 @@ public class ArtifactOutputStreamTest extends AbstractProvisioningTest {
 
 		@Override
 		public void write(int b) {
-			if (baos != null)
+			if (baos != null) {
 				baos.write(b);
+			}
 		}
 	}
 }

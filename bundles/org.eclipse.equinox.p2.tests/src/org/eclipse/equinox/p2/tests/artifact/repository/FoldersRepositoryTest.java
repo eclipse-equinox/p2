@@ -53,8 +53,9 @@ public class FoldersRepositoryTest {
 	@After
 	public void tearDown() throws Exception {
 		manager = null;
-		if (testRepo != null)
+		if (testRepo != null) {
 			AbstractProvisioningTest.delete(testRepo);
+		}
 	}
 
 	@Test
@@ -79,15 +80,17 @@ public class FoldersRepositoryTest {
 		IProgressMonitor monitor = new NullProgressMonitor();
 		for (File file : fileList) {
 			String fileName = file.getName();
-			if (fileName.endsWith(".jar"))
+			if (fileName.endsWith(".jar")) {
 				fileName = fileName.substring(0, fileName.length() - 4);
+			}
 			String identifier = fileName.substring(0, fileName.indexOf('_'));
 			String version = fileName.substring(fileName.indexOf('_') + 1);
 
 			ArtifactKey key = new ArtifactKey("osgi.bundle", identifier, Version.create(version));
 			ArtifactDescriptor descriptor = new ArtifactDescriptor(key);
-			if (file.isDirectory())
+			if (file.isDirectory()) {
 				descriptor.setProperty("artifact.folder", "true");
+			}
 
 			repo.addDescriptor(descriptor, monitor);
 		}

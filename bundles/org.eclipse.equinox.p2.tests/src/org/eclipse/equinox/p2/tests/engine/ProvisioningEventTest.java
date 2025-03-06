@@ -107,8 +107,9 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 				} else if (o instanceof MirrorEvent) {
 					mirrorEevent = true;
 					System.out.println(((MirrorEvent) o).getDownloadStatus());
-				} else if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent)
+				} else if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent) {
 					latch.countDown();
+				}
 			}
 		}
 		final ProvTestListener listener = new ProvTestListener();
@@ -155,15 +156,19 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 				if (o instanceof PhaseEvent) {
 					PhaseEvent event = (PhaseEvent) o;
 					if (event.getType() == PhaseEvent.TYPE_START) {
-						if (!phaseStartEventToBePublised.remove(event.getPhaseId()))
+						if (!phaseStartEventToBePublised.remove(event.getPhaseId())) {
 							publishUnWantedPhaseEvent = event.getPhaseId();
+						}
 					} else if (event.getType() == PhaseEvent.TYPE_END) {
-						if (!phaseEndEventToBePublised.remove(event.getPhaseId()))
+						if (!phaseEndEventToBePublised.remove(event.getPhaseId())) {
 							publishUnWantedPhaseEvent = event.getPhaseId();
-					} else
+						}
+					} else {
 						publishUnWantedPhaseType = event.getType();
-				} else if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent)
+					}
+				} else if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent) {
 					latch.countDown();
+				}
 			}
 		}
 		final ProvTestListener listener = new ProvTestListener();
@@ -207,18 +212,21 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 				if (o instanceof InstallableUnitEvent) {
 					InstallableUnitEvent event = (InstallableUnitEvent) o;
 					if (event.getPhase().equals(PhaseSetFactory.PHASE_CONFIGURE) && event.isConfigure() && event.getInstallableUnit().getId().equals(iuId)) {
-						if (event.isPre())
+						if (event.isPre()) {
 							preConfigureEvent++;
-						else if (event.isPost())
+						} else if (event.isPost()) {
 							postConfigureEvent++;
+						}
 					} else if (event.getPhase().equals(PhaseSetFactory.PHASE_UNCONFIGURE) && event.isUnConfigure() && event.getInstallableUnit().getId().equals(iuId)) {
-						if (event.isPre())
+						if (event.isPre()) {
 							preUnConfigureEvent++;
-						else if (event.isPost())
+						} else if (event.isPost()) {
 							postUnConfigureEvent++;
+						}
 					}
-				} else if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent)
+				} else if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent) {
 					latch.countDown();
+				}
 			}
 		}
 		final ProvTestListener listener = new ProvTestListener();
@@ -270,8 +278,9 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 		@Override
 		public IStatus execute(Map<String, Object> parameters) {
 			int a = 1;
-			if (a == 1)
+			if (a == 1) {
 				throw new NullPointerException("no reason");
+			}
 			return null;
 		}
 
@@ -298,26 +307,29 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 				if (o instanceof InstallableUnitEvent) {
 					InstallableUnitEvent event = (InstallableUnitEvent) o;
 					if (event.getPhase().equals(PhaseSetFactory.PHASE_CONFIGURE) && event.getInstallableUnit().getId().equals(iuId)) {
-						if (event.isConfigure() && event.isPre())
+						if (event.isConfigure() && event.isPre()) {
 							preConfigureEvent++;
-						else if (event.isConfigure() && event.isPost())
+						} else if (event.isConfigure() && event.isPost()) {
 							postConfigureEvent++;
-						else if (event.isUnConfigure() && event.isPre())
+						} else if (event.isUnConfigure() && event.isPre()) {
 							preUnConfigureEventForUndo++;
-						else if (event.isUnConfigure() && event.isPost())
+						} else if (event.isUnConfigure() && event.isPost()) {
 							postUnConfigureEventForUndo++;
+						}
 					} else if (event.getPhase().equals(PhaseSetFactory.PHASE_CONFIGURE) && event.getInstallableUnit().getId().equals(failureIU)) {
 						if (event.isConfigure() && event.isPre()) {
 							preConfigureEvent++;
-						} else if (event.isConfigure() && event.isPost())
+						} else if (event.isConfigure() && event.isPost()) {
 							postConfigureEvent++;
-						else if (event.isUnConfigure() && event.isPre())
+						} else if (event.isUnConfigure() && event.isPre()) {
 							preUnConfigureEventForUndo++;
-						else if (event.isUnConfigure() && event.isPost())
+						} else if (event.isUnConfigure() && event.isPost()) {
 							postUnConfigureEventForUndo++;
+						}
 					}
-				} else if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent)
+				} else if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent) {
 					latch.countDown();
+				}
 			}
 		}
 		final ProvTestListener listener = new ProvTestListener();

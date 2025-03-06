@@ -74,8 +74,9 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		assertTrue("Missing artifacts.jar", new File(f, "artifacts.jar").exists());
 		assertTrue("Missing fragment.info", new File(f, "fragment.info").exists());
 		try (BufferedReader br = new BufferedReader(new FileReader(new File(f, "fragment.info")))) {
-			while (br.ready())
+			while (br.ready()) {
 				System.out.println(br.readLine());
+			}
 		}
 	}
 
@@ -149,10 +150,11 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 			for (IArtifactDescriptor desc : descriptors) {
 				// Features should be unzipped, others should not be.
 				boolean isFolder = desc.getProperty("artifact.folder") != null ? Boolean.valueOf(desc.getProperty("artifact.folder")) : false;
-				if (key.getClassifier().equals(""))
+				if (key.getClassifier().equals("")) {
 					assertTrue(desc + " is not a folder", isFolder);
-				else
+				} else {
 					assertFalse(desc + " is a folder", isFolder);
+				}
 				// Artifacts should not be packed
 				assertTrue("Artifact is still packed", !IArtifactDescriptor.FORMAT_PACKED.equals(desc.getProperty(IArtifactDescriptor.FORMAT)));
 			}

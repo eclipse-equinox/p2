@@ -54,8 +54,9 @@ public class PatchTestOptional extends AbstractProvisioningTest {
 		planner = createPlanner();
 		engine = createEngine();
 
-		if (!install(profile1, new IInstallableUnit[] {p2Feature}, true, planner, engine).isOK())
+		if (!install(profile1, new IInstallableUnit[] {p2Feature}, true, planner, engine).isOK()) {
 			fail("Setup failed");
+		}
 	}
 
 	public void testInstallPatchSettingAnOptionalDependency() {

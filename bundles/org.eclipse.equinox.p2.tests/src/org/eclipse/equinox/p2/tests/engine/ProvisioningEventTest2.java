@@ -57,8 +57,9 @@ public class ProvisioningEventTest2 extends AbstractTestServerClientCase {
 			public void notify(EventObject o) {
 				if (o instanceof DownloadProgressEvent) {
 					notifiedDownloadProgressEvent = true;
-				} else if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent)
+				} else if (o instanceof CommitOperationEvent || o instanceof RollbackOperationEvent) {
 					latch.countDown();
+				}
 			}
 		}
 		DownloadProvisiongEventListener provListener = new DownloadProvisiongEventListener();

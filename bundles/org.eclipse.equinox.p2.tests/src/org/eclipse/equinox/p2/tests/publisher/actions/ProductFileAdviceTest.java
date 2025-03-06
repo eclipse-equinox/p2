@@ -99,8 +99,9 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 			} else if (bundles[i].getSymbolicName().equals("org.eclipse.swt.win32.win32.x86")) {
 				assertEquals(-1, bundles[i].getStartLevel());
 				assertEquals(false, bundles[i].isMarkedAsStarted());
-			} else
+			} else {
 				fail("unknown bundle: " + bundles[i].getSymbolicName());
+			}
 		}
 
 		bundles = productFileAdvice2.getBundles();
@@ -109,8 +110,9 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 			if (bundles[i].getSymbolicName().equals("org.eclipse.core.commands")) {
 				assertTrue("2.1", bundles[i].getStartLevel() == 2);
 				assertTrue("2.2", bundles[i].isMarkedAsStarted() == false);
-			} else
+			} else {
 				fail("unknown bundle: " + bundles[i].getSymbolicName());
+			}
 		}
 	}
 
@@ -128,8 +130,9 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 			} else if (bundles[i].getSymbolicName().equals("org.eclipse.core.runtime")) {
 				assertTrue("1.1", bundles[i].getStartLevel() == 2);
 				assertTrue("1.2", bundles[i].isMarkedAsStarted() == true);
-			} else
+			} else {
 				fail("unknown bundle: " + bundles[i].getSymbolicName());
+			}
 		}
 	}
 
@@ -147,8 +150,9 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 			} else if (bundles[i].getSymbolicName().equals("org.eclipse.core.runtime")) {
 				assertTrue("1.1", bundles[i].getStartLevel() == 2);
 				assertTrue("1.2", bundles[i].isMarkedAsStarted() == true);
-			} else
+			} else {
 				fail("unknown bundle: " + bundles[i].getSymbolicName());
+			}
 		}
 	}
 

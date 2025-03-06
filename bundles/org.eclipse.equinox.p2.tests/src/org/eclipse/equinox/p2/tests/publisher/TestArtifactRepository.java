@@ -59,14 +59,16 @@ public class TestArtifactRepository implements IArtifactRepository {
 
 		@Override
 		public void close() throws IOException {
-			if (closed)
+			if (closed) {
 				return;
+			}
 			try {
 				destination.close();
 				closed = true;
 			} catch (IOException e) {
-				if (getStatus().isOK())
+				if (getStatus().isOK()) {
 					throw e;
+				}
 				// if the stream has already been e.g. canceled, we can return -
 				// the status is already set correctly
 				return;
@@ -175,8 +177,9 @@ public class TestArtifactRepository implements IArtifactRepository {
 	@Override
 	public synchronized boolean contains(IArtifactKey key) {
 		for (IArtifactDescriptor descriptor : repo.keySet()) {
-			if (descriptor.getArtifactKey().equals(key))
+			if (descriptor.getArtifactKey().equals(key)) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -185,8 +188,9 @@ public class TestArtifactRepository implements IArtifactRepository {
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		try {
 			byte[] repoContents = repo.get(descriptor);
-			if (repoContents == null)
+			if (repoContents == null) {
 				return new Status(IStatus.ERROR, "test", "no such artifact");
+			}
 			destination.write(repoContents);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -199,8 +203,9 @@ public class TestArtifactRepository implements IArtifactRepository {
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 		Set<IArtifactDescriptor> result = new HashSet<>();
 		for (IArtifactDescriptor descriptor : repo.keySet()) {
-			if (descriptor.getArtifactKey().equals(key))
+			if (descriptor.getArtifactKey().equals(key)) {
 				result.add(descriptor);
+			}
 		}
 		return result.toArray(new IArtifactDescriptor[0]);
 	}
@@ -240,8 +245,9 @@ public class TestArtifactRepository implements IArtifactRepository {
 	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
 		ArrayList<IArtifactDescriptor> removeList = new ArrayList<>();
 		for (IArtifactDescriptor descriptor : repo.keySet()) {
-			if (descriptor.getArtifactKey().equals(key))
+			if (descriptor.getArtifactKey().equals(key)) {
 				removeList.add(descriptor);
+			}
 		}
 		for (int i = 0; i < repo.size(); i++) {
 			repo.remove(removeList.get(i));
@@ -256,8 +262,9 @@ public class TestArtifactRepository implements IArtifactRepository {
 
 	@Override
 	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
-		for (IArtifactDescriptor descriptor : descriptors)
+		for (IArtifactDescriptor descriptor : descriptors) {
 			removeDescriptor(descriptor);
+		}
 	}
 
 	@Override
@@ -268,8 +275,9 @@ public class TestArtifactRepository implements IArtifactRepository {
 
 	@Override
 	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
-		for (IArtifactKey key : keys)
+		for (IArtifactKey key : keys) {
 			removeDescriptor(key);
+		}
 	}
 
 	@Override
@@ -369,8 +377,9 @@ public class TestArtifactRepository implements IArtifactRepository {
 	public ZipInputStream getZipInputStream(IArtifactKey key) {
 		//get first descriptor with key
 		IArtifactDescriptor[] descriptor = getArtifactDescriptors(key);
-		if (descriptor == null || descriptor.length == 0 || descriptor[0] == null)
+		if (descriptor == null || descriptor.length == 0 || descriptor[0] == null) {
 			return null;
+		}
 		return new ZipInputStream(getRawInputStream(descriptor[0]));
 	}
 
@@ -403,8 +412,9 @@ public class TestArtifactRepository implements IArtifactRepository {
 
 	@Override
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
-		if (monitor != null && monitor.isCanceled())
+		if (monitor != null && monitor.isCanceled()) {
 			return Collector.emptyCollector();
+		}
 
 		Collector<IArtifactKey> collector = new Collector<>();
 		for (IArtifactDescriptor descriptor : repo.keySet()) {

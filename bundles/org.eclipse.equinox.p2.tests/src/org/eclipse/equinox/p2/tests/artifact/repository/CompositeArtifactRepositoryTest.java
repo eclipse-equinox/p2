@@ -109,10 +109,12 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 				artifactFilePresent = false;
 			}
 		}
-		if (!jarFilePresent)
+		if (!jarFilePresent) {
 			fail("Repository should create JAR for compositeArtifacts.xml");
-		if (artifactFilePresent)
+		}
+		if (artifactFilePresent) {
 			fail("Repository should not create compositeArtifacts.xml");
+		}
 	}
 
 	public void testVerifyUncompressedRepositoryCreation() {
@@ -129,10 +131,12 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 				artifactFilePresent = true;
 			}
 		}
-		if (jarFilePresent)
+		if (jarFilePresent) {
 			fail("Repository should not create JAR for compositeArtifacts.xml");
-		if (!artifactFilePresent)
+		}
+		if (!artifactFilePresent) {
 			fail("Repository should create compositeArtifacts.xml");
+		}
 	}
 
 	public void testAddDescriptor() {
@@ -472,8 +476,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		((ArtifactDescriptor) newDescriptor).addProperties(properties);
 		try {
 			try (OutputStream repositoryStream = destinationRepo.getOutputStream(newDescriptor);) {
-				if (repositoryStream == null)
+				if (repositoryStream == null) {
 					fail("Error while obtaining OutputStream");
+				}
 				compRepo.getArtifact(descriptors[0], repositoryStream, new NullProgressMonitor());
 			}
 		} catch (ProvisionException e) {
@@ -492,8 +497,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		IArtifactDescriptor[] srcDescriptors = repo.getArtifactDescriptors(key);
-		if (srcDescriptors == null)
+		if (srcDescriptors == null) {
 			fail("Error finding descriptors for validation");
+		}
 
 		boolean found = false;
 		for (int j = 0; j < srcDescriptors.length && !found; j++) {
@@ -501,17 +507,20 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			if (srcDescriptors[j].equals(descriptors[0])) {
 				File srcFile = ((SimpleArtifactRepository) repo).getArtifactFile(srcDescriptors[j]);
 				File destFile = ((SimpleArtifactRepository) destinationRepo).getArtifactFile(descriptors[0]);
-				if (srcFile == null || destFile == null)
+				if (srcFile == null || destFile == null) {
 					fail("Unable to retreive files from repositories");
-				if (!(srcFile.exists() && destFile.exists()))
+				}
+				if (!(srcFile.exists() && destFile.exists())) {
 					fail("File does not exist on disk");
+				}
 				assertTrue(srcFile.length() == destFile.length());
 				found = true;
 			}
 		}
 
-		if (!found)
+		if (!found) {
 			fail("Matching descriptor was nto found in source");
+		}
 	}
 
 	public void testGetArtifactsFromRequests() {
@@ -578,19 +587,23 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		//verify the file from repo1
 		File repo1File = ((SimpleArtifactRepository) repo1).getArtifactFile(descriptors1[0]);
 		File destFile1 = ((SimpleArtifactRepository) destinationRepo).getArtifactFile(descriptors1[0]);
-		if (repo1File == null || destFile1 == null)
+		if (repo1File == null || destFile1 == null) {
 			fail("Unable to retreive files from repositories");
-		if (!(repo1File.exists() && destFile1.exists()))
+		}
+		if (!(repo1File.exists() && destFile1.exists())) {
 			fail("File does not exist on disk");
+		}
 		assertTrue(repo1File.length() == destFile1.length());
 
 		//verify the file from repo2
 		File repo2File = ((SimpleArtifactRepository) repo2).getArtifactFile(descriptors2[0]);
 		File destFile2 = ((SimpleArtifactRepository) destinationRepo).getArtifactFile(descriptors2[0]);
-		if (repo2File == null || destFile2 == null)
+		if (repo2File == null || destFile2 == null) {
 			fail("Unable to retreive files from repositories");
-		if (!(repo2File.exists() && destFile2.exists()))
+		}
+		if (!(repo2File.exists() && destFile2.exists())) {
 			fail("File does not exist on disk");
+		}
 		assertTrue(repo2File.length() == destFile2.length());
 	}
 
@@ -896,8 +909,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		//ensure proper type of repository has been created
-		if (!(repo instanceof CompositeArtifactRepository))
+		if (!(repo instanceof CompositeArtifactRepository)) {
 			fail("Repository is not a CompositeArtifactRepository");
+		}
 
 		return (CompositeArtifactRepository) repo;
 	}
@@ -1023,8 +1037,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			assertFalse("Requesting retry with no available children", IArtifactRepository.CODE_RETRY == status.getCode());
 		} finally {
 			getArtifactRepositoryManager().removeRepository(childLocation);
-			if (destination != null)
+			if (destination != null) {
 				delete(destination.getParentFile());
+			}
 		}
 	}
 
@@ -1042,8 +1057,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 			@Override
 			public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream out, IProgressMonitor monitor) {
-				if (++downloadAttempts == 1)
+				if (++downloadAttempts == 1) {
 					return new MultiStatus(Activator.ID, CODE_RETRY, new IStatus[] {new Status(IStatus.ERROR, "Test", "Test - Download interrupted")}, "Retry another mirror", null);
+				}
 				return Status.OK_STATUS;
 			}
 
@@ -1079,10 +1095,12 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		} catch (Exception e) {
 			fail("Exception", e);
 		} finally {
-			if (source != null)
+			if (source != null) {
 				getArtifactRepositoryManager().removeRepository(source.getLocation());
-			if (child != null)
+			}
+			if (child != null) {
 				getArtifactRepositoryManager().removeRepository(child.getLocation());
+			}
 			if (destination != null) {
 				getArtifactRepositoryManager().removeRepository(destination.getLocation());
 				delete(new File(destination.getLocation()));
@@ -1165,16 +1183,19 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			// Contents should be equal
 			assertEquals(contents.length, dest.location.length());
 		} finally {
-			if (source != null)
+			if (source != null) {
 				getArtifactRepositoryManager().removeRepository(source.getLocation());
-			if (childOne != null)
+			}
+			if (childOne != null) {
 				getArtifactRepositoryManager().removeRepository(childOne.getLocation());
+			}
 			if (dest != null) {
 				getArtifactRepositoryManager().removeRepository(dest.getLocation());
 				delete(dest.location.getParentFile());
 			}
-			if (destination != null)
+			if (destination != null) {
 				delete(destination.getParentFile());
+			}
 		}
 	}
 
@@ -1205,12 +1226,15 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		} catch (Exception e) {
 			fail(e.getMessage(), e);
 		} finally {
-			if (source != null)
+			if (source != null) {
 				getArtifactRepositoryManager().removeRepository(source.getLocation());
-			if (childOne != null)
+			}
+			if (childOne != null) {
 				getArtifactRepositoryManager().removeRepository(childOne.getLocation());
-			if (childTwo != null)
+			}
+			if (childTwo != null) {
 				getArtifactRepositoryManager().removeRepository(childTwo.getLocation());
+			}
 		}
 	}
 
@@ -1241,12 +1265,15 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		} catch (Exception e) {
 			fail(e.getMessage(), e);
 		} finally {
-			if (source != null)
+			if (source != null) {
 				getArtifactRepositoryManager().removeRepository(source.getLocation());
-			if (childOne != null)
+			}
+			if (childOne != null) {
 				getArtifactRepositoryManager().removeRepository(childOne.getLocation());
-			if (childTwo != null)
+			}
+			if (childTwo != null) {
 				getArtifactRepositoryManager().removeRepository(childTwo.getLocation());
+			}
 		}
 	}
 
@@ -1278,12 +1305,15 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		} catch (Exception e) {
 			fail(e.getMessage(), e);
 		} finally {
-			if (source != null)
+			if (source != null) {
 				getArtifactRepositoryManager().removeRepository(source.getLocation());
-			if (childOne != null)
+			}
+			if (childOne != null) {
 				getArtifactRepositoryManager().removeRepository(childOne.getLocation());
-			if (childTwo != null)
+			}
+			if (childTwo != null) {
 				getArtifactRepositoryManager().removeRepository(childTwo.getLocation());
+			}
 		}
 	}
 
@@ -1318,12 +1348,15 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		} catch (Exception e) {
 			fail(e.getMessage(), e);
 		} finally {
-			if (source != null)
+			if (source != null) {
 				getArtifactRepositoryManager().removeRepository(source.getLocation());
-			if (childOne != null)
+			}
+			if (childOne != null) {
 				getArtifactRepositoryManager().removeRepository(childOne.getLocation());
-			if (childTwo != null)
+			}
+			if (childTwo != null) {
 				getArtifactRepositoryManager().removeRepository(childTwo.getLocation());
+			}
 		}
 	}
 
@@ -1339,8 +1372,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 			Class<?> childInfo = null;
 			for (int i = 0; i < classes.length && childInfo == null; i++) {
-				if (classes[i].getName().equals("org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository$ChildInfo"))
+				if (classes[i].getName().equals("org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository$ChildInfo")) {
 					childInfo = classes[i];
+				}
 			}
 			assertTrue("Unable to locate inner class ChildInfo", childInfo != null);
 

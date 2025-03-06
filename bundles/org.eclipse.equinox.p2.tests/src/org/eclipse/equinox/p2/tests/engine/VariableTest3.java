@@ -76,8 +76,9 @@ public class VariableTest3 extends AbstractProvisioningTest {
 
 		@Override
 		public Value<Object> getResult() {
-			if (Value.NO_VALUE == result)
+			if (Value.NO_VALUE == result) {
 				return Value.NO_VALUE;
+			}
 			return new Value<>(result);
 		}
 

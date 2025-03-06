@@ -61,17 +61,19 @@ public class VersionTesting {
 	 * A strict assertion of order. asserts that b &gt; a, a &lt; b, a !=b, b != a
 	 */
 	public static void assertOrder(Object a, Object b) {
-		if (!(a instanceof Comparable && b instanceof Comparable))
+		if (!(a instanceof Comparable && b instanceof Comparable)) {
 			fail("can not assert order on non Comparable instances");
+		}
 		// fully test comparison
-		if (((Comparable) a).compareTo(b) > 0)
+		if (((Comparable) a).compareTo(b) > 0) {
 			fail("a > b");
-		else if (((Comparable) b).compareTo(a) < 0)
+		} else if (((Comparable) b).compareTo(a) < 0) {
 			fail("b < a");
-		else if (((Comparable) b).compareTo(a) == 0)
+		} else if (((Comparable) b).compareTo(a) == 0) {
 			fail("b == a");
-		else if (((Comparable) a).compareTo(b) == 0)
+		} else if (((Comparable) a).compareTo(b) == 0) {
 			fail("a == b");
+		}
 
 		assertTrue(true);
 	}

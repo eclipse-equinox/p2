@@ -64,8 +64,9 @@ public class RollbackTest extends AbstractProvisioningTest {
 
 		try {
 			IMetadataRepository rollbackRepo = getRollbackRepository();
-			if (rollbackRepo != null)
+			if (rollbackRepo != null) {
 				rollbackRepo.removeAll();
+			}
 		} catch (ProvisionException e) {
 			return;
 		}

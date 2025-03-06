@@ -82,8 +82,9 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 	private void assertSocketTimeout(IStatus status, Exception e) {
 		Throwable ex = status.getException();
 		String msg = e == null ? "" : e.getMessage();
-		if (ex instanceof CoreException)
+		if (ex instanceof CoreException) {
 			msg = ((CoreException) ex).getStatus().getMessage();
+		}
 
 		// Print for human inspection
 		System.out.print(String.format("%s e-message: [%s], detail:[%s]\n", //
@@ -158,8 +159,9 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 			IStatus status = e.getStatus();
 			Throwable ex = status.getException();
 			String msg = e.getMessage();
-			if (ex instanceof CoreException)
+			if (ex instanceof CoreException) {
 				msg = ((CoreException) ex).getStatus().getMessage();
+			}
 
 			// Print for human inspection
 			System.out.print(String.format("%s e-message: [%s], detail:[%s]\n", //

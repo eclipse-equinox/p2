@@ -89,8 +89,9 @@ public class TestLicenseConsistency extends AbstractProvisioningTest {
 	private void checkLicenses(ILicense platformLicense, IQueryResult<IInstallableUnit> allFeatures, List<IInstallableUnit> goodLicense, List<IInstallableUnit> badLicense, List<IInstallableUnit> noLicense, List<IInstallableUnit> extraLicense) {
 		for (IInstallableUnit feature : allFeatures.toUnmodifiableSet()) {
 			//ignore groups that are not features
-			if (!feature.getId().endsWith(".feature.group"))
+			if (!feature.getId().endsWith(".feature.group")) {
 				continue;
+			}
 			Collection<ILicense> licenses = feature.getLicenses(null);
 			if (licenses.isEmpty()) {
 				noLicense.add(feature);

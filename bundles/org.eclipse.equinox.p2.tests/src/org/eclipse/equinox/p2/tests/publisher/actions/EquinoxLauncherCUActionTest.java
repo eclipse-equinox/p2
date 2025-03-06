@@ -57,8 +57,9 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 	protected IInstallableUnit mockIU(String id, Version version, boolean fragment) {
 		IInstallableUnit result = mock(IInstallableUnit.class);
 		when(result.getId()).thenReturn(id);
-		if (version == null)
+		if (version == null) {
 			version = Version.emptyVersion;
+		}
 		when(result.getVersion()).thenReturn(version);
 		when(result.getFilter()).thenReturn(null);
 		return result;

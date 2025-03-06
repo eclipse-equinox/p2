@@ -38,8 +38,9 @@ public class ArtifactRepositoryMock implements InvocationHandler {
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		if (!method.getName().equals("getArtifact"))
+		if (!method.getName().equals("getArtifact")) {
 			throw new RuntimeException("Unexpected usage!");
+		}
 
 		return getArtifact((IArtifactDescriptor) args[0], (OutputStream) args[1], (IProgressMonitor) args[2]);
 	}

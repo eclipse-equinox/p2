@@ -219,8 +219,9 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 		this.lockAcquired = false;
 		Thread t1 = new Thread(() -> status1 = repo1.executeBatch(monitor -> {
 			try {
-				if (lockAcquired)
+				if (lockAcquired) {
 					throw new RuntimeException("Lock already acquired");
+				}
 				lockAcquired = true;
 				try {
 					Thread.sleep(1000);
@@ -235,8 +236,9 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 
 		Thread t2 = new Thread(() -> status2 = repo2.executeBatch(monitor -> {
 			try {
-				if (lockAcquired)
+				if (lockAcquired) {
 					throw new RuntimeException("Lock already acquired");
+				}
 				lockAcquired = true;
 				try {
 					Thread.sleep(1000);
@@ -252,8 +254,9 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 		t1.join();
 		t2.join();
 
-		if (!status1.isOK() || !status2.isOK())
+		if (!status1.isOK() || !status2.isOK()) {
 			fail("Test failed, a lock acquired simultaneously by both execute batch operations");
+		}
 	}
 
 	/**

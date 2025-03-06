@@ -195,8 +195,9 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (CoreException e) {
 			exception = e;
 		}
-		if (exception == null)
+		if (exception == null) {
 			fail("No Exception was thrown");
+		}
 
 		assertEquals("Unexpected message", NLS.bind(org.eclipse.equinox.p2.internal.repository.tools.Messages.AbstractRepositoryTask_unableToFind, iu), rootCause(exception).getMessage());
 	}
@@ -214,10 +215,12 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (CoreException e) {
 			exception = e;
 		}
-		if (exception == null)
+		if (exception == null) {
 			fail("No exception thrown");
-		if (!(rootCause(exception) instanceof ProvisionException && rootCause(exception).getMessage().equals(org.eclipse.equinox.p2.internal.repository.tools.Messages.MirrorApplication_metadataDestinationNoSource)))
+		}
+		if (!(rootCause(exception) instanceof ProvisionException && rootCause(exception).getMessage().equals(org.eclipse.equinox.p2.internal.repository.tools.Messages.MirrorApplication_metadataDestinationNoSource))) {
 			fail("Exception is of an unexpected type or message", rootCause(exception));
+		}
 	}
 
 	/*
@@ -233,10 +236,12 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (CoreException e) {
 			exception = e;
 		}
-		if (exception == null)
+		if (exception == null) {
 			fail("No exception thrown");
-		if (!(rootCause(exception) instanceof ProvisionException) && rootCause(exception).getMessage().contains(org.eclipse.equinox.p2.internal.repository.tools.Messages.MirrorApplication_artifactDestinationNoSource))
+		}
+		if (!(rootCause(exception) instanceof ProvisionException) && rootCause(exception).getMessage().contains(org.eclipse.equinox.p2.internal.repository.tools.Messages.MirrorApplication_artifactDestinationNoSource)) {
 			fail("Exception is of an unexpected type or message", rootCause(exception));
+		}
 	}
 
 	/*
@@ -275,11 +280,13 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (Exception e) {
 			exception = e;
 		}
-		if (exception == null)
+		if (exception == null) {
 			fail("No Exception thrown");
+		}
 
-		while (exception.getCause() != null && !(exception instanceof ProvisionException))
+		while (exception.getCause() != null && !(exception instanceof ProvisionException)) {
 			exception = exception.getCause();
+		}
 		assertEquals("Unexpected error", NLS
 				.bind(org.eclipse.equinox.p2.internal.repository.tools.Messages.exception_invalidDestination, location),
 				exception.getMessage());
@@ -301,11 +308,13 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 			} catch (Exception e) {
 				exception = e;
 			}
-			if (exception == null)
+			if (exception == null) {
 				fail("No Exception thrown");
+			}
 
-			while (exception.getCause() != null && !(exception instanceof ProvisionException))
+			while (exception.getCause() != null && !(exception instanceof ProvisionException)) {
 				exception = exception.getCause();
+			}
 			assertEquals("Unexpected error", NLS.bind("No repository found at {0}.", location), exception.getMessage());
 		} finally {
 			delete(new File(location));
@@ -328,11 +337,13 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (Exception e) {
 			exception = e;
 		}
-		if (exception == null)
+		if (exception == null) {
 			fail("No Exception thrown");
+		}
 
-		while (exception.getCause() != null && !(exception instanceof ProvisionException))
+		while (exception.getCause() != null && !(exception instanceof ProvisionException)) {
 			exception = exception.getCause();
+		}
 		assertTrue("Expecting a CoreException", exception instanceof CoreException);
 		assertEquals("Unexpected error code.", ProvisionException.REPOSITORY_NOT_FOUND, ((CoreException) exception).getStatus().getCode());
 	}
@@ -805,18 +816,24 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 	protected AntTaskElement createSlicingOption(Boolean includeOptional, Boolean includeNonGreedy, Boolean followStrict, Boolean includeFeatures, String platformFilter, String filter) {
 		AntTaskElement slicing = new AntTaskElement("slicingoptions");
-		if (followStrict != null)
+		if (followStrict != null) {
 			slicing.addAttribute("followstrict", followStrict.toString());
-		if (includeFeatures != null)
+		}
+		if (includeFeatures != null) {
 			slicing.addAttribute("includefeatures", includeFeatures.toString());
-		if (includeNonGreedy != null)
+		}
+		if (includeNonGreedy != null) {
 			slicing.addAttribute("includenongreedy", includeNonGreedy.toString());
-		if (includeOptional != null)
+		}
+		if (includeOptional != null) {
 			slicing.addAttribute("includeoptional", includeOptional.toString());
-		if (platformFilter != null)
+		}
+		if (platformFilter != null) {
 			slicing.addAttribute("platformfilter", platformFilter);
-		if (filter != null)
+		}
+		if (filter != null) {
 			slicing.addAttribute("filter", filter);
+		}
 		return slicing;
 	}
 
@@ -842,8 +859,9 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	 */
 	protected int getArtifactKeyCount(IQueryResult<IInstallableUnit> ius) {
 		int count = 0;
-		for (IInstallableUnit iu : ius)
+		for (IInstallableUnit iu : ius) {
 			count += iu.getArtifacts().size();
+		}
 		return count;
 	}
 
@@ -885,10 +903,12 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	 */
 	protected AntTaskElement createSourceElement(URI artifact, URI metadata) {
 		AntTaskElement source = new AntTaskElement("source");
-		if (artifact != null)
+		if (artifact != null) {
 			source.addElement(getRepositoryElement(artifact, AbstractAntProvisioningTest.TYPE_ARTIFACT));
-		if (metadata != null)
+		}
+		if (metadata != null) {
 			source.addElement(getRepositoryElement(metadata, AbstractAntProvisioningTest.TYPE_METADATA));
+		}
 		return source;
 	}
 }

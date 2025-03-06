@@ -44,8 +44,9 @@ public class Bug365124 extends AbstractPlannerTest {
 		IProvisioningPlan plan = planner.getProvisioningPlan(actualChangeRequest, null, new NullProgressMonitor());
 		Operand[] operands = ((ProvisioningPlan) plan).getOperands();
 		for (Operand operand : operands) {
-			if (operand instanceof InstallableUnitOperand)
+			if (operand instanceof InstallableUnitOperand) {
 				fail("1.0: " + operand);
+			}
 		}
 	}
 

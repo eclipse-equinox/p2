@@ -135,8 +135,9 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 		pause = new PauseJob("pause") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				if (!phaseSet.pause())
+				if (!phaseSet.pause()) {
 					return new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, "pause() failed.");
+				}
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
@@ -147,8 +148,9 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 					@Override
 					protected IStatus run(IProgressMonitor monitor1) {
 						pause.setPause(false);
-						if (!phaseSet.resume())
+						if (!phaseSet.resume()) {
 							return new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, "resume() failed.");
+						}
 						return Status.OK_STATUS;
 					}
 				};
@@ -173,8 +175,9 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 				if (o instanceof BeginOperationEvent) {
 					canStart = true;
 				}
-				if (o instanceof RepositoryEvent || o instanceof ProfileEvent)
+				if (o instanceof RepositoryEvent || o instanceof ProfileEvent) {
 					return;
+				}
 				if (canStart && o instanceof DownloadProgressEvent) {
 					// make sure to pause downloading after it has started
 					pauseJob.schedule();
@@ -258,26 +261,30 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				pauseJob.setPause(false);
-				if (!phaseSet.resume())
+				if (!phaseSet.resume()) {
 					return new Status(IStatus.INFO, TestActivator.PI_PROV_TESTS, "resume() failed.");
-				if (count++ < threhold)
+				}
+				if (count++ < threhold) {
 					pauseJob.schedule(10000);
+				}
 				return Status.OK_STATUS;
 			}
 		}
 		pause = new PauseJob("pause") {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				if (!phaseSet.pause())
+				if (!phaseSet.pause()) {
 					return new Status(IStatus.INFO, TestActivator.PI_PROV_TESTS, "pause() failed.");
+				}
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 				setPause(true);
-				if (resume == null)
+				if (resume == null) {
 					resume = new ResumeJob("resume", this);
+				}
 				resume.schedule(10000);
 				return Status.OK_STATUS;
 			}
@@ -295,8 +302,9 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 
 			@Override
 			public void notify(EventObject o) {
-				if (o instanceof DownloadProgressEvent)
+				if (o instanceof DownloadProgressEvent) {
 					hasDownloadEvent = true;
+				}
 			}
 
 		}
@@ -314,8 +322,9 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 							e1.printStackTrace();
 						}
 					}
-					if (!phaseSet.pause())
+					if (!phaseSet.pause()) {
 						return new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, "pause() failed.");
+					}
 					try {
 						Thread.sleep(5000);
 					} catch (InterruptedException e) {

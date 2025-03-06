@@ -35,8 +35,9 @@ public class SmokeTestSAT4J extends AbstractProvisioningTest {
 		FileReader fr = null;
 		fr = new FileReader(problemFile);
 		IProblem problem = reader.parseInstance(fr);
-		if (problem.isSatisfiable())
+		if (problem.isSatisfiable()) {
 			return problem;
+		}
 		return null;
 	}
 

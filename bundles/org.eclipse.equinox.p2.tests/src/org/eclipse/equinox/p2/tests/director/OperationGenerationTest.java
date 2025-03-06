@@ -375,11 +375,13 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 
 	private void assertContainsInstallableUnitOperand(String message, List<Operand> operands, InstallableUnitOperand operand) {
 		for (Operand op : operands) {
-			if (!(op instanceof InstallableUnitOperand))
+			if (!(op instanceof InstallableUnitOperand)) {
 				continue;
+			}
 			InstallableUnitOperand cmp = (InstallableUnitOperand) op;
-			if (cmp.first() != null && cmp.first().equals(operand.first()) && cmp.second() != null && cmp.second().equals(operand.second()))
+			if (cmp.first() != null && cmp.first().equals(operand.first()) && cmp.second() != null && cmp.second().equals(operand.second())) {
 				return;
+			}
 		}
 		fail(message);
 	}
@@ -506,8 +508,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 
 	public void assertContainsConfigurationChange(String message, List<Operand> operands) {
 		for (Operand operand : operands) {
-			if (!(operand instanceof InstallableUnitOperand))
+			if (!(operand instanceof InstallableUnitOperand)) {
 				continue;
+			}
 			InstallableUnitOperand op = (InstallableUnitOperand) operand;
 			if (op.first() != null && op.first().equals(op.second())) {
 				return;

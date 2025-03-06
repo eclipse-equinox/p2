@@ -68,14 +68,16 @@ public class DirectorTest extends AbstractProvisioningTest {
 		IProfile p = null;
 		if (doUninstall) {
 			p = profileRegistry.getProfile(installFolder);
-			if (p == null)
+			if (p == null) {
 				throw new RuntimeException("Uninstalling from a nonexistent profile");
+			}
 		} else {
 			Map<String, String> properties = new HashMap<>();
 			properties.put(IProfile.PROP_INSTALL_FOLDER, installFolder);
 			EnvironmentInfo info = ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class);
-			if (info != null)
+			if (info != null) {
 				properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
+			}
 
 			p = createProfile(installFolder, properties);
 		}
@@ -85,17 +87,19 @@ public class DirectorTest extends AbstractProvisioningTest {
 		if (!allJobs.isEmpty()) {
 			allRoots[0] = allJobs.iterator().next();
 			ProfileChangeRequest request = new ProfileChangeRequest(p);
-			if (!doUninstall)
+			if (!doUninstall) {
 				request.addInstallableUnits(allRoots);
-			else
+			} else {
 				request.removeInstallableUnits(allRoots);
+			}
 			operationStatus = director.provision(request, null, null);
 		} else {
 			operationStatus = new Status(IStatus.INFO, "org.eclipse.equinox.internal.provisional.p2.director.test", "The installable unit '" + System.getProperty("eclipse.p2.autoInstall") + "' has not been found");
 		}
 
-		if (!operationStatus.isOK())
+		if (!operationStatus.isOK()) {
 			fail("The installation has failed");
+		}
 
 		IInstallableUnit[] result = p.query(QueryUtil.createIUQuery(allRoots[0].getId(), VersionRange.emptyRange), null).toArray(IInstallableUnit.class);
 		assertEquals(result.length, (!doUninstall ? 1 : 0));
