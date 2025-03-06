@@ -63,11 +63,13 @@ public class Activator implements BundleActivator {
 
 	public boolean enableArtifactLocking() {
 		String property = getContext().getProperty(ENABLE_ARTIFACT_LOCKING);
-		if (property == null || property.length() == 0)
+		if (property == null || property.length() == 0) {
 			return false; // return false by default;
+		}
 		Boolean valueOf = Boolean.valueOf(property);
-		if (valueOf != null)
+		if (valueOf != null) {
 			return valueOf.booleanValue();
+		}
 		return false;
 	}
 
@@ -95,8 +97,9 @@ public class Activator implements BundleActivator {
 	 * at the parent chain if necessary.
 	 */
 	private boolean isReadOnly(File file) {
-		if (file == null)
+		if (file == null) {
 			return true; // If we've reached the root, then return true
+		}
 
 		if (file.exists()) {
 			return !Files.isWritable(file.toPath());

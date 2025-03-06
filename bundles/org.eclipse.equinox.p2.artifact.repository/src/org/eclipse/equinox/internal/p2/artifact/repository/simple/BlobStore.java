@@ -44,15 +44,17 @@ public class BlobStore {
 		Assert.isNotNull(store);
 		this.store = store;
 		fileBased = "file".equalsIgnoreCase(store.getScheme()); //$NON-NLS-1$
-		if (fileBased)
+		if (fileBased) {
 			Assert.isTrue(!URIUtil.toFile(store).isFile());
+		}
 		Assert.isTrue(limit == 256 || limit == 128 || limit == 64 || limit == 32 || limit == 16 || limit == 8 || limit == 4 || limit == 2 || limit == 1);
 		mask = (byte) (limit - 1);
 	}
 
 	public OutputStream getOutputStream(byte[] uuid) throws IOException {
-		if (!fileBased)
+		if (!fileBased) {
 			return null;
+		}
 		new File(folderFor(uuid)).mkdir();
 		return new FileOutputStream(URIUtil.toFile(fileFor(uuid)));
 	}
@@ -62,12 +64,14 @@ public class BlobStore {
 	 */
 	private void appendByteString(StringBuilder buffer, byte value) {
 		String hexString;
-		if (value < 0)
+		if (value < 0) {
 			hexString = Integer.toHexString(256 + value);
-		else
+		} else {
 			hexString = Integer.toHexString(value);
-		if (hexString.length() == 1)
+		}
+		if (hexString.length() == 1) {
 			buffer.append("0"); //$NON-NLS-1$
+		}
 		buffer.append(hexString);
 	}
 
@@ -78,8 +82,9 @@ public class BlobStore {
 	 */
 	private String bytesToHexString(byte[] b) {
 		StringBuilder buffer = new StringBuilder();
-		for (byte element : b)
+		for (byte element : b) {
 			appendByteString(buffer, element);
+		}
 		return buffer.toString();
 	}
 
@@ -88,16 +93,18 @@ public class BlobStore {
 	 */
 	public void deleteBlob(byte[] uuid) {
 		Assert.isNotNull(uuid);
-		if (fileBased)
+		if (fileBased) {
 			new File(fileFor(uuid)).delete();
+		}
 	}
 
 	/**
 	 * Delete all of the blobs in the given set.
 	 */
 	public void deleteBlobs(Set<byte[]> set) {
-		for (byte[] blob : set)
+		for (byte[] blob : set) {
 			deleteBlob(blob);
+		}
 	}
 
 	public URI fileFor(byte[] uuid) {
@@ -123,8 +130,9 @@ public class BlobStore {
 	 */
 	protected byte hashUUIDbytes(byte[] uuid) {
 		byte hash = 0;
-		for (byte element : uuid)
+		for (byte element : uuid) {
 			hash ^= randomArray[element + 128]; // +128 makes sure the index is >0
+		}
 		return hash;
 	}
 }

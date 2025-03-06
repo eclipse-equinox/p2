@@ -73,8 +73,9 @@ public class MirrorSelector {
 		public MirrorInfo(String location, int initialRank) {
 			this.initialRank = initialRank;
 			this.locationString = location;
-			if (!locationString.endsWith("/")) //$NON-NLS-1$
+			if (!locationString.endsWith("/")) { //$NON-NLS-1$
 				locationString = locationString + "/"; //$NON-NLS-1$
+			}
 			failureCount = 0;
 			totalFailureCount = 0;
 			bytesPerSecond = DownloadStatus.UNKNOWN_RATE;
@@ -86,8 +87,9 @@ public class MirrorSelector {
 		}
 
 		public synchronized void decrementFailureCount() {
-			if (failureCount > 0)
+			if (failureCount > 0) {
 				failureCount--;
+			}
 		}
 
 		public synchronized void incrementFailureCount() {
@@ -105,12 +107,14 @@ public class MirrorSelector {
 
 		public synchronized void setBytesPerSecond(long newValue) {
 			// Any non-positive value is treated as an unknown rate
-			if (newValue <= 0)
+			if (newValue <= 0) {
 				newValue = DownloadStatus.UNKNOWN_RATE;
+			}
 
-			if (newValue > 0)
+			if (newValue > 0) {
 				// Back in commission
 				failureCount = 0;
+			}
 			bytesPerSecond = newValue;
 		}
 
@@ -153,8 +157,9 @@ public class MirrorSelector {
 				this.baseURI = new URI(base);
 			} else {
 				URI repositoryLocation = repository.getLocation();
-				if (repositoryLocation != null)
+				if (repositoryLocation != null) {
 					this.baseURI = repositoryLocation;
+				}
 			}
 		} catch (URISyntaxException e) {
 			log("Error initializing mirrors for: " + repository.getLocation(), e); //$NON-NLS-1$
@@ -263,8 +268,9 @@ public class MirrorSelector {
 		try {
 			mirrorsURL = enrichWithClientLocation(mirrorsURL);
 			Document document = getMirrorsDocument(mirrorsURL, monitor);
-			if (document == null)
+			if (document == null) {
 				return null;
+			}
 			return buildMirrorInfos(document);
 		} catch (OperationCanceledException e) {
 			return null;
@@ -316,11 +322,13 @@ public class MirrorSelector {
 
 	private String enrichWithClientLocation(String baseURL) {
 		String countryCode = Activator.getContext().getProperty("eclipse.p2.countryCode"); //$NON-NLS-1$
-		if (countryCode == null || countryCode.trim().length() == 0)
+		if (countryCode == null || countryCode.trim().length() == 0) {
 			countryCode = Locale.getDefault().getCountry().toLowerCase();
+		}
 		String timeZone = Activator.getContext().getProperty("eclipse.p2.timeZone"); //$NON-NLS-1$
-		if (timeZone == null || timeZone.trim().length() == 0)
+		if (timeZone == null || timeZone.trim().length() == 0) {
 			timeZone = Integer.toString(new GregorianCalendar().get(Calendar.ZONE_OFFSET) / (60 * 60 * 1000));
+		}
 
 		if (baseURL.indexOf('?') != -1) {
 			baseURL = baseURL + '&';
@@ -337,17 +345,21 @@ public class MirrorSelector {
 	 */
 	public synchronized URI getMirrorLocation(URI inputLocation, IProgressMonitor monitor) {
 		Assert.isNotNull(inputLocation);
-		if (baseURI == null)
+		if (baseURI == null) {
 			return inputLocation;
+		}
 		URI relativeLocation = baseURI.relativize(inputLocation);
 		//if we failed to relativize the location, we can't select a mirror
-		if (relativeLocation == null || relativeLocation.isAbsolute())
+		if (relativeLocation == null || relativeLocation.isAbsolute()) {
 			return inputLocation;
+		}
 		MirrorInfo selectedMirror = selectMirror(monitor);
-		if (selectedMirror == null)
+		if (selectedMirror == null) {
 			return inputLocation;
-		if (Tracing.DEBUG_MIRRORS)
+		}
+		if (Tracing.DEBUG_MIRRORS) {
 			Tracing.debug("Selected mirror for artifact " + inputLocation + ": " + selectedMirror); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		try {
 			return new URI(selectedMirror.locationString + relativeLocation.getPath());
 		} catch (URISyntaxException e) {
@@ -361,11 +373,13 @@ public class MirrorSelector {
 	 * they could not be computed.
 	 */
 	private void initMirrors(IProgressMonitor monitor) {
-		if (mirrors != null)
+		if (mirrors != null) {
 			return;
+		}
 		String mirrorsURL = repository.getProperties().get(IRepository.PROP_MIRRORS_URL);
-		if (mirrorsURL != null)
+		if (mirrorsURL != null) {
 			mirrors = computeMirrors(mirrorsURL, monitor);
+		}
 	}
 
 	private MirrorInfoComparator getComparator() {
@@ -387,8 +401,9 @@ public class MirrorSelector {
 	 * Reports the result of a mirror download
 	 */
 	public synchronized void reportResult(String toDownload, IStatus result) {
-		if (mirrors == null)
+		if (mirrors == null) {
 			return;
+		}
 		for (MirrorInfo mirror : mirrors) {
 			if (toDownload.startsWith(mirror.locationString)) {
 				if (!result.isOK() && result.getSeverity() != IStatus.CANCEL) {
@@ -396,23 +411,26 @@ public class MirrorSelector {
 					// Some artifacts are not found on any mirror. When that's the case,
 					// the best mirrors will be the first to receive that kind of punishment.
 					//
-					if (result.getException() instanceof FileNotFoundException)
+					if (result.getException() instanceof FileNotFoundException) {
 						mirror.incrementFileNotFoundCount();
-					else
+					} else {
 						mirror.incrementFailureCount();
+					}
 				}
 				if (result instanceof DownloadStatus) {
 					long oldRate = mirror.bytesPerSecond;
 					long newRate = ((DownloadStatus) result).getTransferRate();
 					//average old and new rate so one slow download doesn't ruin the mirror's reputation
 					if (newRate > 0) {
-						if (oldRate > 0)
+						if (oldRate > 0) {
 							newRate = (oldRate + newRate) / 2;
+						}
 						mirror.setBytesPerSecond(newRate);
 					}
 				}
-				if (Tracing.DEBUG_MIRRORS)
+				if (Tracing.DEBUG_MIRRORS) {
 					Tracing.debug("Updated mirror " + mirror); //$NON-NLS-1$
+				}
 				return;
 			}
 		}
@@ -424,8 +442,9 @@ public class MirrorSelector {
 	 */
 	public synchronized boolean hasValidMirror() {
 		// return true if there is a mirror and it doesn't have multiple failures.
-		if (mirrors == null || mirrors.length == 0)
+		if (mirrors == null || mirrors.length == 0) {
 			return false;
+		}
 		Arrays.sort(mirrors, getComparator());
 		return mirrors[0].failureCount < 2;
 	}
@@ -437,13 +456,14 @@ public class MirrorSelector {
 	private MirrorInfo selectMirror(IProgressMonitor monitor) {
 		initMirrors(monitor);
 		final int mirrorCount;
-		if (mirrors == null || (mirrorCount = mirrors.length) == 0)
+		if (mirrors == null || (mirrorCount = mirrors.length) == 0) {
 			return null;
+		}
 
 		MirrorInfo selected;
-		if (mirrorCount == 1)
+		if (mirrorCount == 1) {
 			selected = mirrors[0];
-		else {
+		} else {
 			Arrays.sort(mirrors, getComparator());
 			for (;;) {
 				//this is a function that randomly selects a mirror based on a logarithmic
@@ -454,22 +474,25 @@ public class MirrorSelector {
 				//if the first digit is most significant, mirror 0 is selected, if the second is most significant, mirror 1 is selected, etc
 				int highestMirror = min(15, mirrorCount);
 				int result = (int) (Math.log(random.nextInt(1 << highestMirror) + 1) / LOG2);
-				if (result >= highestMirror || result < 0)
+				if (result >= highestMirror || result < 0) {
 					result = highestMirror - 1;
+				}
 
 				int mirrorIndex = highestMirror - 1 - result;
 				selected = mirrors[mirrorIndex];
 
 				// Only choose a mirror from the best 50% of the top 15 of all mirrors
-				if (mirrorIndex <= (mirrorCount * 0.5d))
+				if (mirrorIndex <= (mirrorCount * 0.5d)) {
 					// This is good enough
 					break;
+				}
 			}
 		}
 
 		//for now, don't tolerate mirrors with multiple failures
-		if (selected.failureCount > 1)
+		if (selected.failureCount > 1) {
 			return null;
+		}
 		return selected;
 	}
 

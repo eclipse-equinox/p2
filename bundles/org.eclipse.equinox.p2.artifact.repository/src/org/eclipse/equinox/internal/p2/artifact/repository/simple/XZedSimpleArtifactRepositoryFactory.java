@@ -53,15 +53,17 @@ public class XZedSimpleArtifactRepositoryFactory extends ArtifactRepositoryFacto
 		if (PROTOCOL_FILE.equals(xzLocation.getScheme())) {
 			//look for a compressed local file
 			localFile = URIUtil.toFile(xzLocation);
-			if (localFile.exists())
+			if (localFile.exists()) {
 				return localFile;
+			}
 			String msg = NLS.bind(Messages.io_failedRead, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
 		// file is not local, create a cache of the repository metadata
 		CacheManager cache = getAgent().getService(CacheManager.class);
-		if (cache == null)
+		if (cache == null) {
 			throw new IllegalArgumentException("Cache manager service not available"); //$NON-NLS-1$
+		}
 		localFile = cache.createCacheFromFile(URIUtil.append(location, REPOSITORY_FILENAME), monitor);
 		if (localFile == null) {
 			// there is no remote file in either form - this should not really happen as
@@ -93,8 +95,9 @@ public class XZedSimpleArtifactRepositoryFactory extends ArtifactRepositoryFacto
 				//parse the repository descriptor file
 				sub.setWorkRemaining(100);
 				SimpleArtifactRepository result = (SimpleArtifactRepository) new SimpleArtifactRepositoryIO(getAgent()).read(localFile.toURI(), descriptorStream, sub.newChild(100), acquireLock);
-				if (result != null && (flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0 && !result.isModifiable())
+				if (result != null && (flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0 && !result.isModifiable()) {
 					return null;
+				}
 				result.initializeAfterLoad(location);
 				if (Tracing.DEBUG_METADATA_PARSING) {
 					time += System.currentTimeMillis();
@@ -112,8 +115,9 @@ public class XZedSimpleArtifactRepositoryFactory extends ArtifactRepositoryFacto
 			String msg = NLS.bind(Messages.io_failedRead, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
 		} finally {
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.done();
+			}
 		}
 	}
 
@@ -121,8 +125,9 @@ public class XZedSimpleArtifactRepositoryFactory extends ArtifactRepositoryFacto
 	 * Closes a stream, ignoring any secondary exceptions
 	 */
 	private void safeClose(InputStream stream) {
-		if (stream == null)
+		if (stream == null) {
 			return;
+		}
 		try {
 			stream.close();
 		} catch (IOException e) {

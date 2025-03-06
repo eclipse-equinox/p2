@@ -38,8 +38,9 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 
 	private IArtifactRepositoryManager getManager() {
-		if (getAgent() != null)
+		if (getAgent() != null) {
 			return getAgent().getService(IArtifactRepositoryManager.class);
+		}
 		return null;
 	}
 
@@ -55,19 +56,22 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 		if (PROTOCOL_FILE.equals(xmlLocation.getScheme())) {
 			//look for a compressed local file
 			localFile = URIUtil.toFile(jarLocation);
-			if (localFile.exists())
+			if (localFile.exists()) {
 				return localFile;
+			}
 			//look for an uncompressed local file
 			localFile = URIUtil.toFile(xmlLocation);
-			if (localFile.exists())
+			if (localFile.exists()) {
 				return localFile;
+			}
 			String msg = NLS.bind(Messages.io_failedRead, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
 		//file is not local, create a cache of the repository metadata
 		CacheManager cache = getAgent().getService(CacheManager.class);
-		if (cache == null)
+		if (cache == null) {
 			throw new IllegalArgumentException("Cache manager service not available"); //$NON-NLS-1$
+		}
 		localFile = cache.createCache(location, CompositeArtifactRepository.CONTENT_FILENAME, monitor);
 		if (localFile == null) {
 			//there is no remote file in either form
@@ -89,8 +93,9 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 		SubMonitor sub = SubMonitor.convert(monitor, 400);
 		try {
 			//non local repos are not modifiable
-			if (!PROTOCOL_FILE.equals(location.getScheme()) && (flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0)
+			if (!PROTOCOL_FILE.equals(location.getScheme()) && (flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0) {
 				return null;
+			}
 
 			File localFile = getLocalFile(location, sub.newChild(100));
 			InputStream inStream = new BufferedInputStream(new FileInputStream(localFile));
@@ -106,16 +111,18 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 					}
 
 					//there is a jar but the entry is missing or invalid, so treat this as an invalid repository
-					if (jarEntry == null)
+					if (jarEntry == null) {
 						throw new IOException(NLS.bind(Messages.io_invalidLocation, location.getPath()));
+					}
 				}
 				//parse the repository descriptor file
 				sub.setWorkRemaining(300);
 				InputStream descriptorStream = jarStream != null ? jarStream : inStream;
 				CompositeRepositoryIO io = new CompositeRepositoryIO();
 				CompositeRepositoryState resultState = io.read(localFile.toURL(), descriptorStream, CompositeArtifactRepository.PI_REPOSITORY_TYPE, sub.newChild(100));
-				if (resultState.getLocation() == null)
+				if (resultState.getLocation() == null) {
 					resultState.setLocation(location);
+				}
 				// Spending half the time in creating the repo is due to the loading of the children that happens during that period
 				CompositeArtifactRepository result = new CompositeArtifactRepository(getManager(), resultState, sub.newChild(200));
 				if (Tracing.DEBUG_METADATA_PARSING) {
@@ -145,8 +152,9 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 	 * Closes a stream, ignoring any secondary exceptions
 	 */
 	private void safeClose(InputStream stream) {
-		if (stream == null)
+		if (stream == null) {
 			return;
+		}
 		try {
 			stream.close();
 		} catch (IOException e) {

@@ -75,8 +75,9 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 			Map<String, String> properties, IExtension extension) throws ProvisionException {
 		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension,
 				EL_FACTORY);
-		if (factory == null)
+		if (factory == null) {
 			return null;
+		}
 		factory.setAgent(agent);
 		return factory.create(location, name, type, properties);
 	}
@@ -86,8 +87,9 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 			throws ProvisionException {
 		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension,
 				EL_FACTORY);
-		if (factory == null)
+		if (factory == null) {
 			return null;
+		}
 		factory.setAgent(agent);
 		return factory.load(location, flags, monitor);
 	}
@@ -149,9 +151,10 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 		// TODO while recreating, we may want to have proxies on repo instead of the
 		// real repo object to limit what is activated.
 		IAgentLocation location = getAgent().getService(IAgentLocation.class);
-		if (location == null)
+		if (location == null) {
 			// TODO should do something here since we are failing to restore.
 			return;
+		}
 		URI cacheLocation = URIUtil.append(location.getDataArea("org.eclipse.equinox.p2.core"), "cache/"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		try {
@@ -159,9 +162,10 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 			return;
 		} catch (ProvisionException e) {
 			// log but still continue and try to create a new one
-			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND) {
 				LogHelper.log(
 						new Status(IStatus.ERROR, Activator.ID, "Error occurred while loading download cache.", e)); //$NON-NLS-1$
+			}
 		}
 		try {
 			Map<String, String> properties = new HashMap<>(1);

@@ -138,17 +138,19 @@ public class MirrorRequest extends ArtifactRequest {
 			IArtifactDescriptor[] descriptors = source.getArtifactDescriptors(getArtifactKey());
 			if (descriptors.length > 0) {
 				for (IArtifactDescriptor descriptor2 : descriptors) {
-					if (descriptor2.getProperty(IArtifactDescriptor.FORMAT) == null)
+					if (descriptor2.getProperty(IArtifactDescriptor.FORMAT) == null) {
 						canonical = descriptor2;
-					else if (ProcessingStepHandler.canProcess(descriptor2))
+					} else if (ProcessingStepHandler.canProcess(descriptor2)) {
 						optimized = descriptor2;
+					}
 				}
 				boolean chooseCanonical = source.getLocation().getScheme().equals("file"); //$NON-NLS-1$
 				// If the source repo is local then look for a canonical descriptor so we don't waste processing time.
 				descriptor = chooseCanonical ? canonical : optimized;
 				// if the descriptor is still null then we could not find our first choice of format so switch the logic.
-				if (descriptor == null)
+				if (descriptor == null) {
 					descriptor = !chooseCanonical ? canonical : optimized;
+				}
 			}
 		}
 
@@ -205,10 +207,11 @@ public class MirrorRequest extends ArtifactRequest {
 		IStatus canonicalStatus = transfer(getDestinationDescriptor(canonical, true), canonical, subMonitor.split(1));
 		// To prevent the optimized transfer status severity from dominating the canonical, only merge
 		// if the canonical severity is equal to or higher than the optimized transfer severity.
-		if (canonicalStatus.getSeverity() < status.getSeverity())
+		if (canonicalStatus.getSeverity() < status.getSeverity()) {
 			setResult(canonicalStatus);
-		else
+		} else {
 			setResult(new MultiStatus(Activator.ID, canonicalStatus.getCode() != 0 ? canonicalStatus.getCode() : status.getCode(), new IStatus[] {status, canonicalStatus}, Messages.MirrorRequest_multipleDownloadProblems, null));
+		}
 	}
 
 	private IArtifactDescriptor getDestinationDescriptor(IArtifactDescriptor sourceDescriptor, boolean isCanonical) {
@@ -222,10 +225,12 @@ public class MirrorRequest extends ArtifactRequest {
 		//		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, null);
 		//		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, null);
 		//		destinationDescriptor.setProperty(IArtifactDescriptor.FORMAT, null);
-		if (targetDescriptorProperties != null && destinationDescriptor instanceof ArtifactDescriptor)
+		if (targetDescriptorProperties != null && destinationDescriptor instanceof ArtifactDescriptor) {
 			((ArtifactDescriptor) destinationDescriptor).addProperties(targetDescriptorProperties);
-		if (targetRepositoryProperties != null && destinationDescriptor instanceof SimpleArtifactDescriptor)
+		}
+		if (targetRepositoryProperties != null && destinationDescriptor instanceof SimpleArtifactDescriptor) {
 			((SimpleArtifactDescriptor) destinationDescriptor).addRepositoryProperties(targetRepositoryProperties);
+		}
 		return destinationDescriptor;
 	}
 
@@ -253,8 +258,9 @@ public class MirrorRequest extends ArtifactRequest {
 			}
 		} while (lastResult.getSeverity() == IStatus.ERROR && lastResult.getCode() == IArtifactRepository.CODE_RETRY && counter++ < MAX_RETRY_REQUEST);
 		IProvisioningEventBus bus = getEventBus();
-		if (bus != null)
+		if (bus != null) {
 			bus.publishEvent(new MirrorEvent(source, sourceDescriptor, lastResult.isOK() ? lastResult : (allResults.getChildren().length <= 1 ? lastResult : allResults)));
+		}
 		if (lastResult.isOK()) {
 			collectStats(sourceDescriptor, monitor);
 			return lastResult;
@@ -284,11 +290,13 @@ public class MirrorRequest extends ArtifactRequest {
 			return;
 		}
 		final String statsProperty = sourceDescriptor.getProperty(PROP_DOWNLOAD_STATS);
-		if (statsProperty == null)
+		if (statsProperty == null) {
 			return;
+		}
 		String statsRoot = sourceDescriptor.getRepository().getProperties().get(PROP_STATS_URI);
-		if (statsRoot == null)
+		if (statsRoot == null) {
 			return;
+		}
 		URI statsURI;
 		try {
 			statsURI = URIUtil.append(new URI(statsRoot), statsProperty);
@@ -343,8 +351,9 @@ public class MirrorRequest extends ArtifactRequest {
 			} catch (IOException e) {
 				if (priorException == null) // don't mask a formerly thrown Exception/Error
 				{
-					if (status != null && status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY)
+					if (status != null && status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY) {
 						return new MultiStatus(Activator.ID, status.getCode(), new IStatus[] {status}, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
+					}
 					return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
 				}
 				// otherwise it is already thrown
@@ -363,19 +372,23 @@ public class MirrorRequest extends ArtifactRequest {
 	 * @return root cause
 	 */
 	private static IStatus extractRootCause(IStatus status) {
-		if (status == null)
+		if (status == null) {
 			return null;
-		if (!status.isMultiStatus())
+		}
+		if (!status.isMultiStatus()) {
 			return constraintStatus(status);
+		}
 
 		IStatus[] children = ((MultiStatus) status).getChildren();
-		if (children == null)
+		if (children == null) {
 			return constraintStatus(status);
+		}
 
 		for (IStatus element : children) {
 			IStatus deeper = extractRootCause(element);
-			if (deeper != null)
+			if (deeper != null) {
 				return deeper;
+			}
 		}
 
 		return constraintStatus(status);

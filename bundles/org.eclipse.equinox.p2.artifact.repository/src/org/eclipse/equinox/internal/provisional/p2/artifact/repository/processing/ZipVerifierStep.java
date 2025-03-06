@@ -26,8 +26,9 @@ public class ZipVerifierStep extends ProcessingStep {
 	@Override
 	public void write(int b) throws IOException {
 		getDestination().write(b);
-		if (valid > 3)
+		if (valid > 3) {
 			return;
+		}
 		if (valid == -1) {
 			return;
 		}

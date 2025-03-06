@@ -91,19 +91,22 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 	 */
 	public UniversalUniqueIdentifier(byte[] byteValue) {
 		fBits = new byte[BYTES_SIZE];
-		if (byteValue.length >= BYTES_SIZE)
+		if (byteValue.length >= BYTES_SIZE) {
 			System.arraycopy(byteValue, 0, fBits, 0, BYTES_SIZE);
+		}
 	}
 
 	private void appendByteString(StringBuilder buffer, byte value) {
 		String hexString;
 
-		if (value < 0)
+		if (value < 0) {
 			hexString = Integer.toHexString(256 + value);
-		else
+		} else {
 			hexString = Integer.toHexString(value);
-		if (hexString.length() == 1)
+		}
+		if (hexString.length() == 1) {
 			buffer.append("0"); //$NON-NLS-1$
+		}
 		buffer.append(hexString);
 	}
 
@@ -130,9 +133,11 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 	}
 
 	public static int compareTime(byte[] fBits1, byte[] fBits2) {
-		for (int i = TIME_FIELD_STOP; i >= 0; i--)
-			if (fBits1[i] != fBits2[i])
+		for (int i = TIME_FIELD_STOP; i >= 0; i--) {
+			if (fBits1[i] != fBits2[i]) {
 				return (0xFF & fBits1[i]) - (0xFF & fBits2[i]);
+			}
+		}
 		return 0;
 	}
 
@@ -156,19 +161,24 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!(obj instanceof UniversalUniqueIdentifier))
+		}
+		if (!(obj instanceof UniversalUniqueIdentifier)) {
 			return false;
+		}
 
 		byte[] other = ((UniversalUniqueIdentifier) obj).fBits;
-		if (fBits == other)
+		if (fBits == other) {
 			return true;
-		if (fBits.length != other.length)
+		}
+		if (fBits.length != other.length) {
 			return false;
+		}
 		for (int i = 0; i < fBits.length; i++) {
-			if (fBits[i] != other[i])
+			if (fBits[i] != other[i]) {
 				return false;
+			}
 		}
 		return true;
 	}
@@ -184,8 +194,9 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 
 	private static int nextClockSequence() {
 
-		if (fgClockSequence == -1)
+		if (fgClockSequence == -1) {
 			fgClockSequence = (int) (fgRandomNumberGenerator.nextDouble() * MAX_CLOCK_SEQUENCE);
+		}
 
 		fgClockSequence = (fgClockSequence + 1) % MAX_CLOCK_SEQUENCE;
 
@@ -201,16 +212,19 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 
 		if (timestampComparison == 0) {
 			if (fgClockAdjustment == MAX_CLOCK_ADJUSTMENT) {
-				while (timestamp.compareTo(fgPreviousClockValue) == 0)
+				while (timestamp.compareTo(fgPreviousClockValue) == 0) {
 					timestamp = clockValueNow();
+				}
 				timestamp = nextTimestamp();
-			} else
+			} else {
 				fgClockAdjustment++;
+			}
 		} else {
 			fgClockAdjustment = 0;
 
-			if (timestampComparison < 0)
+			if (timestampComparison < 0) {
 				nextClockSequence();
+			}
 		}
 
 		return timestamp;
@@ -226,8 +240,9 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 
 	protected void setNode(byte[] bytes) {
 
-		for (int index = 0; index < NODE_ADDRESS_BYTE_SIZE; index++)
+		for (int index = 0; index < NODE_ADDRESS_BYTE_SIZE; index++) {
 			fBits[index + NODE_ADDRESS_START] = bytes[index];
+		}
 	}
 
 	private void setTimestamp(BigInteger timestamp) {
@@ -274,8 +289,9 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 			fgClockAdjustment = 0;
 			nextClockSequence();
 			timestamp = clockValueNow();
-		} else
+		} else {
 			timestamp = nextTimestamp();
+		}
 
 		fgPreviousClockValue = timestamp;
 		return fgClockAdjustment == 0 ? timestamp : timestamp.add(BigInteger.valueOf(fgClockAdjustment));
@@ -296,8 +312,9 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 	@Override
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
-		for (byte bit : fBits)
+		for (byte bit : fBits) {
 			appendByteString(buffer, bit);
+		}
 		return buffer.toString();
 	}
 
@@ -306,8 +323,9 @@ public class UniversalUniqueIdentifier implements java.io.Serializable {
 
 		for (int i = 0; i < fBits.length; i++) {
 			result += fBits[i];
-			if (i < fBits.length + 1)
+			if (i < fBits.length + 1) {
 				result += ","; //$NON-NLS-1$
+			}
 		}
 		return result + "}"; //$NON-NLS-1$
 	}

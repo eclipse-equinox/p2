@@ -105,8 +105,9 @@ public class SimpleArtifactRepositoryIO {
 						result = repositoryParser.getStatus();
 					}
 				} finally {
-					if (lock)
+					if (lock) {
 						unlock(location);
+					}
 				}
 
 				switch (result.getSeverity()) {
@@ -119,12 +120,14 @@ public class SimpleArtifactRepositoryIO {
 						LogHelper.log(result);
 				}
 				SimpleArtifactRepository repository = repositoryParser.getRepository();
-				if (repository == null)
+				if (repository == null) {
 					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, Messages.io_parseError, null));
+				}
 				return repository;
 			} finally {
-				if (bufferedInput != null)
+				if (bufferedInput != null) {
 					bufferedInput.close();
+				}
 			}
 		} catch (IOException ioe) {
 			String msg = NLS.bind(Messages.io_failedRead, location);
@@ -133,8 +136,9 @@ public class SimpleArtifactRepositoryIO {
 	}
 
 	private synchronized boolean canLock(URI repositoryLocation) {
-		if (!URIUtil.isFileURI(repositoryLocation))
+		if (!URIUtil.isFileURI(repositoryLocation)) {
 			return false;
+		}
 
 		try {
 			lockLocation = getLockLocation(repositoryLocation);
@@ -145,31 +149,36 @@ public class SimpleArtifactRepositoryIO {
 	}
 
 	private synchronized boolean lock(URI repositoryLocation, boolean wait, IProgressMonitor monitor) throws IOException {
-		if (!Activator.getInstance().enableArtifactLocking())
+		if (!Activator.getInstance().enableArtifactLocking()) {
 			return true; // Don't use locking
+		}
 
 		lockLocation = getLockLocation(repositoryLocation);
 		boolean locked = lockLocation.lock();
-		if (locked || !wait)
+		if (locked || !wait) {
 			return locked;
+		}
 
 		//Someone else must have the directory locked
 		while (true) {
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return false;
+			}
 			try {
 				Thread.sleep(200); // 5x per second
 			} catch (InterruptedException e) {/*ignore*/
 			}
 			locked = lockLocation.lock();
-			if (locked)
+			if (locked) {
 				return true;
+			}
 		}
 	}
 
 	private void unlock(URI repositoryLocation) {
-		if (!Activator.getInstance().enableArtifactLocking())
+		if (!Activator.getInstance().enableArtifactLocking()) {
 			return;
+		}
 
 		if (lockLocation != null) {
 			lockLocation.release();
