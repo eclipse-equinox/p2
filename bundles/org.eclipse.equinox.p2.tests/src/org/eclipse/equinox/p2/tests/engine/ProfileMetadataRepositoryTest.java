@@ -157,10 +157,12 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		int maxTries = 20;
 		int current = 0;
 		while (true) {
-			if (manager.contains(tempFolder.toURI()) && manager.contains(defaultAgenRepositoryDirectory.toURI()))
+			if (manager.contains(tempFolder.toURI()) && manager.contains(defaultAgenRepositoryDirectory.toURI())) {
 				break;
-			if (++current == maxTries)
+			}
+			if (++current == maxTries) {
 				fail("profile artifact repos not added");
+			}
 			Thread.sleep(100);
 		}
 	}

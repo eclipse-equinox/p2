@@ -50,8 +50,9 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
-		if (!exe.exists())
+		if (!exe.exists()) {
 			exe = new File(root, "java");
+		}
 
 		String configuration = new File(userBase, "configuration").getAbsolutePath();
 		String[] command = new String[] {(new File(output, getExeFolder() + "/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
@@ -112,8 +113,9 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 	}
 
 	public void testReadOnlyDropinsStartup() throws IOException {
-		if (Platform.getOS().equals(Platform.OS_MACOSX))
+		if (Platform.getOS().equals(Platform.OS_MACOSX)) {
 			return;
+		}
 
 		assertInitialized();
 		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
@@ -149,8 +151,9 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 	}
 
 	public void testUserDropinsStartup() throws IOException {
-		if (Platform.getOS().equals(Platform.OS_MACOSX))
+		if (Platform.getOS().equals(Platform.OS_MACOSX)) {
 			return;
+		}
 
 		assertInitialized();
 		assertDoesNotExistInBundlesInfo("0.1", "myBundle");

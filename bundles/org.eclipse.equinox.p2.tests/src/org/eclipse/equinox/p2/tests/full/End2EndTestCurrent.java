@@ -87,8 +87,9 @@ public class End2EndTestCurrent extends AbstractEnd2EndTest {
 			fail("Problem loading repository: " + getRepositoryLocation(), e);
 		}
 		IQueryResult<IInstallableUnit> result = repo.query(QueryUtil.createIUQuery(id), getMonitor());
-		if (result.isEmpty())
+		if (result.isEmpty()) {
 			fail("Unable to load iu: \'" + id + "\' from repository: " + getRepositoryLocation());
+		}
 		return result.iterator().next();
 	}
 

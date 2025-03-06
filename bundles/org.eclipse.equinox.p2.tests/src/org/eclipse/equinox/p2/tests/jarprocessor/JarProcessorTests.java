@@ -28,8 +28,9 @@ import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessor;
 public class JarProcessorTests extends AbstractProvisioningTest {
 
 	public void testVerifyStep() throws Exception {
-		if (!VerifyStep.canVerify())
+		if (!VerifyStep.canVerify()) {
 			return;
+		}
 
 		// run verify on
 		File workingDir = getTestFolder("testVerifyStep");
@@ -48,9 +49,11 @@ public class JarProcessorTests extends AbstractProvisioningTest {
 
 				FileFilter filter = pathname -> {
 					String name = pathname.getName();
-					if (pathname.isFile() && name.endsWith(".jar"))
-						if ((!name.contains("source")) && name.startsWith("org.eclipse.equinox.p2"))
+					if (pathname.isFile() && name.endsWith(".jar")) {
+						if ((!name.contains("source")) && name.startsWith("org.eclipse.equinox.p2")) {
 							return true;
+						}
+					}
 					return false;
 				};
 				for (String filename : input) {

@@ -126,8 +126,9 @@ public class ResolvedIUInPCR extends AbstractProvisioningTest {
 
 	private boolean identityContains(Collection<IInstallableUnit> ius, IInstallableUnit match) {
 		for (IInstallableUnit iu : ius) {
-			if (iu == match)
+			if (iu == match) {
 				return true;
+			}
 		}
 		return false;
 	}

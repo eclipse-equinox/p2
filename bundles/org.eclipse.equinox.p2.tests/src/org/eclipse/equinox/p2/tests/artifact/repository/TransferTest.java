@@ -58,8 +58,9 @@ public class TransferTest extends AbstractProvisioningTest {
 				assertTrue("5.0", httpSize == -1 ? true : (httpSize == f.length()));
 			}
 		} finally {
-			if (f != null)
+			if (f != null) {
 				f.delete();
+			}
 		}
 	}
 }

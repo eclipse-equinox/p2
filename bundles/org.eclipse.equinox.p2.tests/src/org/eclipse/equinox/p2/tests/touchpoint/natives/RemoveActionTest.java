@@ -76,16 +76,18 @@ public class RemoveActionTest extends AbstractProvisioningTest {
 
 		action.undo(parameters);
 		IBackupStore store = (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP);
-		if (store != null)
+		if (store != null) {
 			try {
 				store.restore();
 			} catch (IOException e) {
 				fail("Restore of backup failed");
 			}
+		}
 		assertTrue("Test folder was not restored from backup", testFolder.exists());
 		assertFileContent("Should contain AA", testFile, "AA");
-		if (store != null)
+		if (store != null) {
 			store.discard();
+		}
 	}
 
 	public void testExecuteMultipleRemovesOnTheSameDir() {

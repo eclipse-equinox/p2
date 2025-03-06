@@ -322,8 +322,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public ITouchpointType getTouchpointType() {
-			if (this.touchpointType == null)
+			if (this.touchpointType == null) {
 				return ITouchpointType.NONE;
+			}
 			return this.touchpointType;
 		}
 
@@ -363,8 +364,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public int compareTo(IInstallableUnit other) {
-			if (getId().compareTo(other.getId()) == 0)
+			if (getId().compareTo(other.getId()) == 0) {
 				return (getVersion().compareTo(other.getVersion()));
+			}
 			return getId().compareTo(other.getId());
 		}
 
@@ -410,18 +412,23 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
-			if (obj == null)
+			}
+			if (obj == null) {
 				return false;
-			if (!(obj instanceof ITouchpointData))
+			}
+			if (!(obj instanceof ITouchpointData)) {
 				return false;
+			}
 			final ITouchpointData other = (ITouchpointData) obj;
 			if (instructions == null) {
-				if (other.getInstructions() != null)
+				if (other.getInstructions() != null) {
 					return false;
-			} else if (!instructions.equals(other.getInstructions()))
+				}
+			} else if (!instructions.equals(other.getInstructions())) {
 				return false;
+			}
 			return true;
 		}
 	}
@@ -448,23 +455,30 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
-			if (obj == null)
+			}
+			if (obj == null) {
 				return false;
-			if (!(obj instanceof ITouchpointInstruction))
+			}
+			if (!(obj instanceof ITouchpointInstruction)) {
 				return false;
+			}
 			ITouchpointInstruction other = (ITouchpointInstruction) obj;
 			if (body == null) {
-				if (other.getBody() != null)
+				if (other.getBody() != null) {
 					return false;
-			} else if (!body.equals(other.getBody()))
+				}
+			} else if (!body.equals(other.getBody())) {
 				return false;
+			}
 			if (importAttribute == null) {
-				if (other.getImportAttribute() != null)
+				if (other.getImportAttribute() != null) {
 					return false;
-			} else if (!importAttribute.equals(other.getImportAttribute()))
+				}
+			} else if (!importAttribute.equals(other.getImportAttribute())) {
 				return false;
+			}
 			return true;
 		}
 	}
@@ -491,12 +505,15 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
-			if (super.equals(obj))
+			}
+			if (super.equals(obj)) {
 				return true;
-			if (obj == null || !(obj instanceof ITouchpointType))
+			}
+			if (obj == null || !(obj instanceof ITouchpointType)) {
 				return false;
+			}
 			ITouchpointType other = (ITouchpointType) obj;
 			return id.equals(other.getId()) && version.equals(other.getVersion());
 		}
@@ -508,8 +525,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		private final IRequiredCapability newValue;
 
 		public SPIRequirementChange(IRequiredCapability applyOn2, IRequiredCapability newValue2) {
-			if (applyOn2 == null && newValue2 == null)
+			if (applyOn2 == null && newValue2 == null) {
 				throw new IllegalArgumentException();
+			}
 			this.applyOn = applyOn2;
 			this.newValue = newValue2;
 		}
@@ -526,12 +544,15 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public boolean matches(IRequiredCapability toMatch) {
-			if (!toMatch.getNamespace().equals(applyOn.getNamespace()))
+			if (!toMatch.getNamespace().equals(applyOn.getNamespace())) {
 				return false;
-			if (!toMatch.getName().equals(applyOn.getName()))
+			}
+			if (!toMatch.getName().equals(applyOn.getName())) {
 				return false;
-			if (toMatch.getRange().equals(applyOn.getRange()))
+			}
+			if (toMatch.getRange().equals(applyOn.getRange())) {
 				return true;
+			}
 
 			return intersect(toMatch.getRange(), applyOn.getRange()) == null ? false : true;
 		}
@@ -567,12 +588,13 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			}
 
 			int resultRangeComparison = resultMin.compareTo(resultMax);
-			if (resultRangeComparison < 0)
+			if (resultRangeComparison < 0) {
 				return new VersionRange(resultMin, resultMinIncluded, resultMax, resultMaxIncluded);
-			else if (resultRangeComparison == 0 && resultMinIncluded == resultMaxIncluded)
+			} else if (resultRangeComparison == 0 && resultMinIncluded == resultMaxIncluded) {
 				return new VersionRange(resultMin, resultMinIncluded, resultMax, resultMaxIncluded);
-			else
+			} else {
 				return null;
+			}
 		}
 
 		@Override
@@ -586,23 +608,30 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
-			if (obj == null)
+			}
+			if (obj == null) {
 				return false;
-			if (!(obj instanceof IRequirementChange))
+			}
+			if (!(obj instanceof IRequirementChange)) {
 				return false;
+			}
 			final IRequirementChange other = (IRequirementChange) obj;
 			if (applyOn == null) {
-				if (other.applyOn() != null)
+				if (other.applyOn() != null) {
 					return false;
-			} else if (!applyOn.equals(other.applyOn()))
+				}
+			} else if (!applyOn.equals(other.applyOn())) {
 				return false;
+			}
 			if (newValue == null) {
-				if (other.newValue() != null)
+				if (other.newValue() != null) {
 					return false;
-			} else if (!newValue.equals(other.newValue()))
+				}
+			} else if (!newValue.equals(other.newValue())) {
 				return false;
+			}
 			return true;
 		}
 
@@ -631,8 +660,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public String getUUID() {
-			if (uuid == null)
+			if (uuid == null) {
 				uuid = this.calculateLicenseDigest().toString(16);
+			}
 			return uuid;
 		}
 
@@ -643,14 +673,17 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (obj == this)
+			if (obj == this) {
 				return true;
-			if (obj == null)
+			}
+			if (obj == null) {
 				return false;
+			}
 			if (obj instanceof ILicense) {
 				ILicense other = (ILicense) obj;
-				if (other.getUUID().equals(getUUID()))
+				if (other.getUUID().equals(getUUID())) {
 					return true;
+				}
 			}
 			return false;
 		}
@@ -679,10 +712,12 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 					foundWhitespace = true;
 					c = text.charAt(++i);
 				}
-				if (foundWhitespace)
+				if (foundWhitespace) {
 					result.append(' ');
-				if (i < length)
+				}
+				if (i < length) {
 					result.append(c);
+				}
 			}
 			return result.toString();
 		}

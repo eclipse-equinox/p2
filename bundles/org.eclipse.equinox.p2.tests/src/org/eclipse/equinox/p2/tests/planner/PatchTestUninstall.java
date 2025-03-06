@@ -62,8 +62,9 @@ public class PatchTestUninstall extends AbstractProvisioningTest {
 		planner = createPlanner();
 		engine = createEngine();
 
-		if (!install(profile1, new IInstallableUnit[] {p2Feature, pp1, pp2}, true, planner, engine).isOK())
+		if (!install(profile1, new IInstallableUnit[] {p2Feature, pp1, pp2}, true, planner, engine).isOK()) {
 			fail("Setup failed");
+		}
 
 		assertProfileContainsAll("Profile setup incorrectly", profile1, new IInstallableUnit[] {p2Feature, p1b, p2b, pp1, pp2});
 	}

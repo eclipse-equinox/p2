@@ -74,8 +74,9 @@ public class GeneratorTests extends AbstractProvisioningTest {
 				System.setOut(out);
 				System.setErr(err);
 			}
-			if (result instanceof Exception)
+			if (result instanceof Exception) {
 				throw (Exception) result;
+			}
 			return result;
 		}
 	}

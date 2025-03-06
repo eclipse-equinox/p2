@@ -57,14 +57,17 @@ public class PatchFailingToInstall extends AbstractProvisioningTest {
 		planner = createPlanner();
 		engine = createEngine();
 
-		if (!install(profile1, new IInstallableUnit[] {p2Feature}, true, planner, engine).isOK())
+		if (!install(profile1, new IInstallableUnit[] {p2Feature}, true, planner, engine).isOK()) {
 			fail("Setup failed");
+		}
 
-		if (install(profile1, new IInstallableUnit[] {pp1}, false, planner, engine).getSeverity() == IStatus.ERROR)
+		if (install(profile1, new IInstallableUnit[] {pp1}, false, planner, engine).getSeverity() == IStatus.ERROR) {
 			fail("Setup failed while installing patch");
+		}
 
-		if (install(profile1, new IInstallableUnit[] {pp2}, true, planner, engine).getSeverity() == IStatus.ERROR)
+		if (install(profile1, new IInstallableUnit[] {pp2}, true, planner, engine).getSeverity() == IStatus.ERROR) {
 			fail("Setup failed while installing patch");
+		}
 
 		fail("this should likely fail since the scope does not match anything");
 		assertProfileContainsAll("Profile setup incorrectly", profile1, new IInstallableUnit[] {p2Feature, p1, p2, pp1, pp2});

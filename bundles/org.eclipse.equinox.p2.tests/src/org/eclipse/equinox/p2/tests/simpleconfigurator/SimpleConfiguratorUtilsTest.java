@@ -51,14 +51,16 @@ public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 		String absoluteBundleLocation = "reference:" + canonicalFileURLString;
 
 		for (int i = 0; i < line.length; i++) {
-			if (line[i].indexOf('\\') != -1 && !WINDOWS)
+			if (line[i].indexOf('\\') != -1 && !WINDOWS) {
 				continue;
+			}
 			BundleInfo info = SimpleConfiguratorUtils.parseBundleInfoLine(line[i], baseURI);
 			assertEquals("[" + i + "]", canonicalInfo, info);
-			if (info.getLocation().isAbsolute())
+			if (info.getLocation().isAbsolute()) {
 				assertEquals("[" + i + "]", absoluteBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
-			else
+			} else {
 				assertEquals("[" + i + "]", relativeBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
+			}
 		}
 	}
 
@@ -83,14 +85,16 @@ public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 		String absoluteBundleLocation = "reference:" + canonicalFile.toURL().toExternalForm();
 
 		for (int i = 0; i < line.length; i++) {
-			if (line[i].indexOf('\\') != -1 && !WINDOWS)
+			if (line[i].indexOf('\\') != -1 && !WINDOWS) {
 				continue;
+			}
 			BundleInfo info = SimpleConfiguratorUtils.parseBundleInfoLine(line[i], baseURI);
 			assertEquals("[" + i + "]", canonicalInfo, info);
-			if (info.getLocation().isAbsolute())
+			if (info.getLocation().isAbsolute()) {
 				assertEquals("[" + i + "]", absoluteBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
-			else
+			} else {
 				assertEquals("[" + i + "]", relativeBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
+			}
 		}
 	}
 
@@ -115,21 +119,24 @@ public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 		String absoluteBundleLocation = "reference:" + canonicalFile.toURL().toExternalForm();
 
 		for (int i = 0; i < line.length; i++) {
-			if (line[i].indexOf('\\') != -1 && !WINDOWS)
+			if (line[i].indexOf('\\') != -1 && !WINDOWS) {
 				continue;
+			}
 			BundleInfo info = SimpleConfiguratorUtils.parseBundleInfoLine(line[i], baseURI);
 			assertEquals("[" + i + "]", canonicalInfo, info);
-			if (info.getLocation().isAbsolute())
+			if (info.getLocation().isAbsolute()) {
 				assertEquals("[" + i + "]", absoluteBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
-			else
+			} else {
 				assertEquals("[" + i + "]", relativeBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
+			}
 		}
 	}
 
 	public void testParseUNCBundleInfo() throws MalformedURLException {
 
-		if (!WINDOWS)
+		if (!WINDOWS) {
 			return;
+		}
 
 		File baseFile = new File("\\\\127.0.0.1\\somefolder\\");
 		URI baseURI = baseFile.toURI();
@@ -152,10 +159,11 @@ public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 		for (int i = 0; i < line.length; i++) {
 			BundleInfo info = SimpleConfiguratorUtils.parseBundleInfoLine(line[i], baseURI);
 			assertEquals("[" + i + "]", canonicalInfo, info);
-			if (info.getLocation().isAbsolute())
+			if (info.getLocation().isAbsolute()) {
 				assertEquals("[" + i + "]", absoluteBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
-			else
+			} else {
 				assertEquals("[" + i + "]", relativeBundleLocation, SimpleConfiguratorUtils.getBundleLocation(info, true));
+			}
 		}
 	}
 

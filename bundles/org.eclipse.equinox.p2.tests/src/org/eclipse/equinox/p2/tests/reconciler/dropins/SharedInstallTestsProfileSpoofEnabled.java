@@ -41,8 +41,9 @@ public class SharedInstallTestsProfileSpoofEnabled extends SharedInstallTests {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
-		if (!exe.exists())
+		if (!exe.exists()) {
 			exe = new File(root, "java");
+		}
 
 		String configuration = new File(userBase, "configuration").getAbsolutePath();
 		String[] command = new String[] {(new File(output, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-debug", "-consolelog", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Dp2.simpleconfigurator.extensions=true"};

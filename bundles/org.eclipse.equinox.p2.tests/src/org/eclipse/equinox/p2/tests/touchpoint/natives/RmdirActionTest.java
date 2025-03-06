@@ -58,15 +58,17 @@ public class RmdirActionTest extends AbstractProvisioningTest {
 
 		action.undo(parameters);
 		IBackupStore store = (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP);
-		if (store != null)
+		if (store != null) {
 			try {
 				store.restore();
 			} catch (IOException e) {
 				fail("Restore of backup failed");
 			}
+		}
 		assertTrue(testFolder.exists());
-		if (store != null)
+		if (store != null) {
 			store.discard();
+		}
 
 		// cleanup
 		testFolder.delete();

@@ -83,8 +83,9 @@ public class Bug362692 extends AbstractPlannerTest {
 				already = true;
 			}
 		}
-		if (!already)
+		if (!already) {
 			System.out.println("Already installed: None!");
+		}
 		validate(expected, toAdd);
 
 		// mimic a product "-clean" and re-install everything which is already in the profile.
@@ -99,8 +100,9 @@ public class Bug362692 extends AbstractPlannerTest {
 		IProfileChangeRequest actualChangeRequest = createProfileChangeRequest(toAdd, null, null);
 		IProvisioningPlan plan = planner.getProvisioningPlan(actualChangeRequest, context, new NullProgressMonitor());
 		Collection<InstallableUnitOperand> compressedPlan = compress(plan);
-		if (compressedPlan.isEmpty())
+		if (compressedPlan.isEmpty()) {
 			System.out.println("Plan: ...is empty!");
+		}
 		for (InstallableUnitOperand installableUnitOperand : compressedPlan) {
 			System.out.println("Plan: " + installableUnitOperand);
 		}

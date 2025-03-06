@@ -62,8 +62,9 @@ public class IUProperties extends AbstractProvisioningTest {
 		IProvisioningPlan pp1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, pp1.getStatus().getSeverity());
 		IStatus s = engine.perform(pp1, null);
-		if (!s.isOK())
+		if (!s.isOK()) {
 			LogHelper.log(s);
+		}
 		IQueryResult<IInstallableUnit> queryResult = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", IUProfilePropertyQuery.ANY), null);
 		assertEquals(1, queryResultSize(queryResult));
 

@@ -169,8 +169,9 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		URI location = directory.toURI();
 		try {
 			IMetadataRepository repo = factory.load(location, 0, getMonitor());
-			if (queryResultSize(repo.query(QueryUtil.createIUAnyQuery(), null)) != 3)
+			if (queryResultSize(repo.query(QueryUtil.createIUAnyQuery(), null)) != 3) {
 				fail("2.99");
+			}
 		} catch (ProvisionException ex) {
 			fail("2.0");
 		}
@@ -185,8 +186,9 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		URI location = directory.toURI();
 		try {
 			IMetadataRepository repo = factory.load(location, 0, getMonitor());
-			if (queryResultSize(repo.query(QueryUtil.createIUAnyQuery(), null)) != 2)
+			if (queryResultSize(repo.query(QueryUtil.createIUAnyQuery(), null)) != 2) {
 				fail("3.0");
+			}
 		} catch (ProvisionException ex) {
 			fail("2.0");
 		}
@@ -201,8 +203,9 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		URI location = directory.toURI();
 		try {
 			IMetadataRepository repo = factory.load(location, 0, getMonitor());
-			if (queryResultSize(repo.query(QueryUtil.createIUAnyQuery(), null)) != 1)
+			if (queryResultSize(repo.query(QueryUtil.createIUAnyQuery(), null)) != 1) {
 				fail("3.0");
+			}
 		} catch (ProvisionException ex) {
 			fail("2.0");
 		}
@@ -215,8 +218,9 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), eclipseDirectory);
 		try {
 			IMetadataRepository repo = factory.load(directory.toURI(), 0, getMonitor());
-			if (queryResultSize(repo.query(QueryUtil.createIUAnyQuery(), null)) != 3)
+			if (queryResultSize(repo.query(QueryUtil.createIUAnyQuery(), null)) != 3) {
 				fail("3.0");
+			}
 		} catch (ProvisionException e) {
 			fail("2.0");
 		}
@@ -240,8 +244,9 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		try {
 			factory.load(site.toURI(), 0, getMonitor());
 		} catch (ProvisionException e) {
-			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
 				return;
+			}
 		}
 		fail("1.0");
 	}
@@ -251,8 +256,9 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		try {
 			factory.load(site.toURI(), 0, getMonitor());
 		} catch (ProvisionException e) {
-			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
 				return;
+			}
 		}
 		fail("1.0");
 	}
@@ -268,8 +274,9 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		try {
 			factory.load(location, 0, getMonitor());
 		} catch (ProvisionException e) {
-			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
 				return;
+			}
 		}
 		fail("1.0");
 	}
@@ -286,8 +293,9 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		try {
 			factory.load(location, 0, getMonitor());
 		} catch (ProvisionException e) {
-			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
 				return;
+			}
 		}
 		fail("1.0");
 	}
@@ -303,8 +311,9 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		try {
 			factory.load(location, 0, getMonitor());
 		} catch (ProvisionException e) {
-			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
 				return;
+			}
 		}
 		fail("1.0");
 	}
@@ -320,8 +329,9 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		try {
 			factory.load(location, 0, getMonitor());
 		} catch (ProvisionException e) {
-			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
 				return;
+			}
 		}
 		fail("1.0");
 	}
@@ -337,8 +347,9 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		try {
 			factory.load(location, 0, getMonitor());
 		} catch (ProvisionException e) {
-			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
 				return;
+			}
 		}
 		fail("1.0");
 	}

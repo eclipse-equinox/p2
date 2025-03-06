@@ -270,8 +270,9 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		} catch (InterruptedException e) {
 			fail("4.99", e);
 		}
-		if (!failures.isEmpty())
+		if (!failures.isEmpty()) {
 			fail("1.0", failures.iterator().next());
+		}
 	}
 
 	/**
@@ -383,8 +384,9 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 */
 	public void testMetadataCachingRemoteRepo() throws URISyntaxException, ProvisionException {
 		URI repoLocation = new URI("https://download.eclipse.org/eclipse/updates/4.21/R-4.21-202109060500/");
-		if (!repoAvailable(repoLocation))
+		if (!repoAvailable(repoLocation)) {
 			return;
+		}
 		IAgentLocation agentLocation = ServiceHelper.getService(TestActivator.getContext(), IAgentLocation.class);
 		URI dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.repository/cache/");
 		File dataAreaFile = URIUtil.toFile(dataArea);
@@ -483,11 +485,13 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		URI location = site.toURI();
 		final List<URI> references = new ArrayList<>();
 		SynchronousProvisioningListener referenceCollector = o -> {
-			if (!(o instanceof RepositoryEvent))
+			if (!(o instanceof RepositoryEvent)) {
 				return;
+			}
 			RepositoryEvent event = (RepositoryEvent) o;
-			if (event.getKind() == RepositoryEvent.DISCOVERED)
+			if (event.getKind() == RepositoryEvent.DISCOVERED) {
 				references.add(event.getRepositoryLocation());
+			}
 		};
 		getEventBus().addListener(referenceCollector);
 		try {
@@ -614,8 +618,9 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	private boolean managerContains(URI location) {
 		URI[] locations = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		for (URI location2 : locations) {
-			if (location2.equals(location))
+			if (location2.equals(location)) {
 				return true;
+			}
 		}
 		return false;
 	}

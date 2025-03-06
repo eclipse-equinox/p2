@@ -149,8 +149,9 @@ public class TouchpointTest extends AbstractProvisioningTest {
 	}
 
 	public void testInitCompleteOperand() {
-		if (testTouchpoint != null)
+		if (testTouchpoint != null) {
 			testTouchpoint.resetCounters();
+		}
 		PhaseSet phaseSet = new TestPhaseSet();
 		IProfile profile = createProfile("testProfile");
 		IProvisioningPlan plan = engine.createPlan(profile, null);
@@ -161,8 +162,9 @@ public class TouchpointTest extends AbstractProvisioningTest {
 	}
 
 	public void testInitCompletePhase() {
-		if (testTouchpoint != null)
+		if (testTouchpoint != null) {
 			testTouchpoint.resetCounters();
+		}
 		PhaseSet phaseSet = new TestPhaseSet();
 		IProfile profile = createProfile("testProfile");
 		IProvisioningPlan plan = engine.createPlan(profile, null);

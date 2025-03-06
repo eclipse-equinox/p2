@@ -111,8 +111,9 @@ public class TestRequestFlexerRequestWithOptionalInstall extends AbstractProvisi
 
 	private boolean isOptionallyBeingInstalled(IInstallableUnit iu, IProfileChangeRequest originalRequest) {
 		Map<String, String> match = ((ProfileChangeRequest) originalRequest).getInstallableUnitProfilePropertiesToAdd().get(iu);
-		if (match == null)
+		if (match == null) {
 			return false;
+		}
 		return INCLUSION_OPTIONAL.equals(match.get(INCLUSION_RULES));
 	}
 

@@ -280,8 +280,9 @@ public class ProfileTest extends AbstractProvisioningTest {
 			}
 
 			public IProfile[] getProfiles() {
-				if (profileHandlers.isEmpty())
+				if (profileHandlers.isEmpty()) {
 					return new IProfile[0];
+				}
 
 				Map<String, IProfile> profileMap = new LinkedHashMap<>();
 				for (String profileId : profileHandlers.keySet()) {
@@ -292,8 +293,9 @@ public class ProfileTest extends AbstractProvisioningTest {
 			}
 
 			private void addProfile(String profileId, Map<String, IProfile> profileMap) {
-				if (profileMap.containsKey(profileId))
+				if (profileMap.containsKey(profileId)) {
 					return;
+				}
 
 				ProfileHandler profileHandler = profileHandlers.get(profileId);
 				Profile parentProfile = null;

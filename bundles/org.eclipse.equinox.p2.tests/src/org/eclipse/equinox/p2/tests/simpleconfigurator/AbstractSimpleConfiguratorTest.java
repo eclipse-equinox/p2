@@ -48,8 +48,9 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		if (equinox != null)
+		if (equinox != null) {
 			equinox.shutdown();
+		}
 	}
 
 	//Assert that all files are in the bundles
@@ -59,11 +60,13 @@ public abstract class AbstractSimpleConfiguratorTest extends AbstractProvisionin
 			String jarName = getManifestEntry(jar, Constants.BUNDLE_SYMBOLICNAME);
 			for (Bundle bundle : bundles) {
 				String bundleName = bundle.getSymbolicName();
-				if (bundleName.equalsIgnoreCase(jarName))
+				if (bundleName.equalsIgnoreCase(jarName)) {
 					found = true;
+				}
 			}
-			if (!found)
+			if (!found) {
 				fail("Bundle should be present:  " + jarName);
+			}
 		}
 	}
 

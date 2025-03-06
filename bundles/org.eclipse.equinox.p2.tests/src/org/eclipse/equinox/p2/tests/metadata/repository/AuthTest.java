@@ -39,8 +39,9 @@ public class AuthTest extends ServerBasedTestCase {
 	private void setUpRepo(String repo) throws Exception {
 		repoLoc = new URI(repo);
 		mgr.removeRepository(repoLoc);
-		if (mgr.contains(repoLoc))
+		if (mgr.contains(repoLoc)) {
 			throw new RuntimeException("Error - An earlier test did not leave a clean state - could not remove repo");
+		}
 
 	}
 
@@ -48,8 +49,9 @@ public class AuthTest extends ServerBasedTestCase {
 	public void tearDown() throws Exception {
 		AllServerTests.setServiceUI(null); // cleanup hook
 		super.tearDown();
-		if (repoLoc != null)
+		if (repoLoc != null) {
 			mgr.removeRepository(repoLoc);
+		}
 	}
 
 	public void testPrivateLoad() throws ProvisionException, Exception {

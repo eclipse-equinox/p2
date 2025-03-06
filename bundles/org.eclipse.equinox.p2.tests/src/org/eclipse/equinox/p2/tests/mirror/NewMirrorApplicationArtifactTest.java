@@ -111,10 +111,11 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 
 		if (destination != null) {
 			RepositoryDescriptor dest = null;
-			if (formatDestination != null && formatDestination)
+			if (formatDestination != null && formatDestination) {
 				dest = createRepositoryDescriptor(destination, append, source, destName);
-			else
+			} else {
 				dest = createRepositoryDescriptor(destination, append, null, destName);
+			}
 			app.addDestination(dest);
 		}
 
@@ -146,12 +147,15 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		RepositoryDescriptor descriptor = new RepositoryDescriptor();
 		descriptor.setLocation(location);
 		descriptor.setKind("artifact");
-		if (append != null)
+		if (append != null) {
 			descriptor.setAppend(append);
-		if (format != null)
+		}
+		if (format != null) {
 			descriptor.setFormat(format);
-		if (name != null)
+		}
+		if (name != null) {
 			descriptor.setName(name);
+		}
 		return descriptor;
 	}
 
@@ -576,8 +580,9 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			assertEquals("Unexpected error message", NLS.bind(org.eclipse.equinox.p2.internal.repository.tools.Messages.exception_invalidDestination, URIUtil.toUnencodedString(invalidDestRepository)), e.getMessage());
 			return; //correct type of exception has been thrown
 		} finally {
-			if (invalidDestRepository != null)
+			if (invalidDestRepository != null) {
 				getArtifactRepositoryManager().removeRepository(invalidDestRepository);
+			}
 		}
 	}
 
@@ -957,8 +962,9 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			fail("Could not create repository");
 		}
 		//ensure proper type of repository has been created
-		if (!(repo instanceof CompositeArtifactRepository))
+		if (!(repo instanceof CompositeArtifactRepository)) {
 			fail("Repository is not a CompositeArtifactRepository");
+		}
 		//Populate source
 		File child1 = getTestData("1", "/testData/mirror/mirrorSourceRepo1 with space");
 		File child2 = getTestData("2", "/testData/mirror/mirrorSourceRepo2");

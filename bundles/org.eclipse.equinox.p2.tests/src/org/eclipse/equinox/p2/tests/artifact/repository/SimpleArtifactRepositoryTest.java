@@ -120,10 +120,12 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 		delete(repositoryFile);
 
-		if (!jarFilePresent)
+		if (!jarFilePresent) {
 			fail("Repository should create JAR for artifact.xml");
-		if (artifactFilePresent)
+		}
+		if (artifactFilePresent) {
 			fail("Repository should not create artifact.xml");
+		}
 	}
 
 	public void testUncompressedRepository() throws ProvisionException {
@@ -153,10 +155,12 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 		delete(repositoryFile);
 
-		if (jarFilePresent)
+		if (jarFilePresent) {
 			fail("Repository should not create JAR for artifact.xml");
-		if (!artifactFilePresent)
+		}
+		if (!artifactFilePresent) {
 			fail("Repository should create artifact.xml");
+		}
 	}
 
 	public void testLoadInvalidLocation() {
@@ -250,8 +254,9 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 
 		repo = new File(System.getProperty("user.dir")).toURI().relativize(repo);
 		// handle case where we had file:file: URIs (https://bugs.eclipse.org/334904)
-		if (!"file".equals(repo.getScheme()))
+		if (!"file".equals(repo.getScheme())) {
 			repo = URI.create("file:" + repo.toString());
+		}
 
 		SimpleArtifactRepository repository = (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(repo, new NullProgressMonitor());
 
@@ -297,24 +302,30 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
-			if (obj == null)
+			}
+			if (obj == null) {
 				return false;
-			if (!(obj instanceof IArtifactDescriptor))
+			}
+			if (!(obj instanceof IArtifactDescriptor)) {
 				return false;
+			}
 
 			IArtifactDescriptor other = (IArtifactDescriptor) obj;
-			if (!artifactKey.equals(other.getArtifactKey()))
+			if (!artifactKey.equals(other.getArtifactKey())) {
 				return false;
+			}
 
-			if (!Arrays.equals(steps, other.getProcessingSteps()))
+			if (!Arrays.equals(steps, other.getProcessingSteps())) {
 				return false;
+			}
 
 			String format = getProperty(FORMAT);
 			String otherFormat = other.getProperty(FORMAT);
-			if (format != null ? !format.equals(otherFormat) : otherFormat != null)
+			if (format != null ? !format.equals(otherFormat) : otherFormat != null) {
 				return false;
+			}
 
 			return true;
 		}

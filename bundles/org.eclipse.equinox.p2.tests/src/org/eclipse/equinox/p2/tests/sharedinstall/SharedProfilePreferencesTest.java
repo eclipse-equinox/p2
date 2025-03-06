@@ -81,8 +81,9 @@ public class SharedProfilePreferencesTest extends AbstractProvisioningTest {
 
 	private static URI adjustTrailingSlash(URI url, boolean trailingSlash) throws URISyntaxException {
 		String file = url.toString();
-		if (trailingSlash == (file.endsWith("/"))) //$NON-NLS-1$
+		if (trailingSlash == (file.endsWith("/"))) { //$NON-NLS-1$
 			return url;
+		}
 		file = trailingSlash ? file + "/" : file.substring(0, file.length() - 1); //$NON-NLS-1$
 		return new URI(file);
 	}

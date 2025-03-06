@@ -97,8 +97,9 @@ public class VariableTest extends AbstractProvisioningTest {
 			System.out.println(this.hashCode());
 			System.out.println((String) parameters.get("arg1"));
 			count++;
-			if (failMode && count == failAt)
+			if (failMode && count == failAt) {
 				throw new RuntimeException("GENERATED Exception");
+			}
 			result = ((String) parameters.get("arg1")) + "a";
 
 			return Status.OK_STATUS;

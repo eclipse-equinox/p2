@@ -97,10 +97,11 @@ public class SynchronizeOperationTest extends AbstractProvisioningTest {
 		ProvisioningContext ctx = createProvisioningContext(repos, agent);
 
 		Collection<IInstallableUnit> iusToInstall;
-		if (toInstall == null)
+		if (toInstall == null) {
 			iusToInstall = ctx.getMetadata(monitor).query(QueryUtil.createIUGroupQuery(), monitor).toUnmodifiableSet();
-		else
+		} else {
 			iusToInstall = gatherIUs(ctx.getMetadata(monitor), toInstall, false, monitor);
+		}
 
 		SynchronizeOperation resultingOperation = new SynchronizeOperation(new ProvisioningSession(agent), iusToInstall);
 		resultingOperation.setProvisioningContext(ctx);
@@ -131,8 +132,9 @@ public class SynchronizeOperationTest extends AbstractProvisioningTest {
 
 			IQuery<IInstallableUnit> installableUnits = QueryUtil.createIUQuery(versionedId.getId(), versionedId.getVersion());
 			IQueryResult<IInstallableUnit> matches = searchContext.query(installableUnits, monitor);
-			if (matches.isEmpty())
+			if (matches.isEmpty()) {
 				throw new ProvisionException(new Status(IStatus.ERROR, Constants.BUNDLE_ID, NLS.bind(Messages.OperationFactory_noIUFound, versionedId)));
+			}
 
 			//Add the first IU
 			Iterator<IInstallableUnit> iuIt = matches.iterator();

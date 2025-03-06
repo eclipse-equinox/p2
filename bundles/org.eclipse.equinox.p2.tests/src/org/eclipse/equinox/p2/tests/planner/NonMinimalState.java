@@ -86,8 +86,9 @@ public class NonMinimalState extends AbstractProvisioningTest {
 				visited.add(type);
 				continue;
 			}
-			if (processIU(type))
+			if (processIU(type)) {
 				return;
+			}
 		}
 	}
 
@@ -109,12 +110,14 @@ public class NonMinimalState extends AbstractProvisioningTest {
 
 	private boolean expandRequirement(IInstallableUnit iu, IRequirement req) {
 		for (IInstallableUnit match : profile.query(QueryUtil.createMatchQuery(req.getMatches()), null)) {
-			if (match.getId().equals(searchedId))
+			if (match.getId().equals(searchedId)) {
 				return true;
+			}
 			if (!visited.contains(match)) {
 				visited.add(match);
-				if (processIU(match))
+				if (processIU(match)) {
 					return true;
+				}
 			}
 		}
 		return false;

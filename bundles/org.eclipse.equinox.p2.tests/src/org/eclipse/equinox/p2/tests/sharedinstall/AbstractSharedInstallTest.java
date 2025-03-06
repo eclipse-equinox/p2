@@ -198,10 +198,11 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		}
 
 		String[] args = null;
-		if (withConfigFlag)
+		if (withConfigFlag) {
 			args = new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-verifier.properties", verifierConfig.getAbsolutePath(), "-consoleLog"};
-		else
+		} else {
 			args = new String[] {"-application", "org.eclipse.equinox.p2.tests.verifier.application", "-verifier.properties", verifierConfig.getAbsolutePath(), "-consoleLog"};
+		}
 
 		assertEquals(0, runEclipse("Running verifier", output, args));
 	}
@@ -221,8 +222,9 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 	}
 
 	public static void reallyReadOnly(File folder) {
-		if (!Platform.getOS().equals(Platform.OS_WIN32))
+		if (!Platform.getOS().equals(Platform.OS_WIN32)) {
 			return;
+		}
 
 		try {
 			Path path = folder.toPath();
@@ -248,8 +250,9 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 	}
 
 	public static void removeReallyReadOnly(File folder) {
-		if (!Platform.getOS().equals(Platform.OS_WIN32))
+		if (!Platform.getOS().equals(Platform.OS_WIN32)) {
 			return;
+		}
 
 		try {
 			Path path = folder.toPath();
@@ -279,10 +282,11 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		userBase = new File(output, "user");
 		userBase.mkdir();
 		String[] files = new File(readOnlyBase, "p2/org.eclipse.equinox.p2.engine/profileRegistry/").list();
-		if (files.length > 1 || files.length == 0)
+		if (files.length > 1 || files.length == 0) {
 			fail("The profile for the read only install located at: " + output + "could not be determined");
-		else
+		} else {
 			profileId = files[0].substring(0, files[0].indexOf('.'));
+		}
 	}
 
 	public static void setReadOnly(File target, boolean readOnly) {

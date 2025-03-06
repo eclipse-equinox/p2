@@ -46,8 +46,9 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 	boolean fileContainsString(URI location, String string) throws IOException {
 		StringBuilder buffer = new StringBuilder();
 		try (BufferedReader reader = new BufferedReader(new FileReader(new File(location)));) {
-			while (reader.ready())
+			while (reader.ready()) {
 				buffer.append(reader.readLine());
+			}
 			return buffer.toString().contains(string);
 		}
 	}
@@ -223,8 +224,9 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 
 		@Override
 		public void save() {
-			if (executeBatch)
+			if (executeBatch) {
 				throw new RuntimeException("foo");
+			}
 		}
 	}
 
@@ -280,8 +282,9 @@ public class BatchExecuteMetadataRepositoryTest extends AbstractProvisioningTest
 
 		@Override
 		public void save() {
-			if (executeBatch)
+			if (executeBatch) {
 				didSave = true;
+			}
 		}
 	}
 

@@ -26,8 +26,9 @@ public class PathUtilTest extends AbstractProvisioningTest {
 	private static final boolean WINDOWS = java.io.File.separatorChar == '\\';
 
 	public void testMakeRelative() throws MalformedURLException {
-		if (!WINDOWS)
+		if (!WINDOWS) {
 			return;
+		}
 		Object[][] data = new Object[][] {
 				// simple path
 				new Object[] {"file:/c:/a/b", new URL("file:/c:/a/x"), "file:../b"},

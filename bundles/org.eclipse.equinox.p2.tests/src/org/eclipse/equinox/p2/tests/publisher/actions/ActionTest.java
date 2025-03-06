@@ -70,21 +70,24 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	 * specified.
 	 */
 	public static String[] getArrayFromString(String list, String separator) {
-		if (list == null || list.trim().equals("")) //$NON-NLS-1$
+		if (list == null || list.trim().equals("")) { //$NON-NLS-1$
 			return new String[0];
+		}
 		List<String> result = new ArrayList<>();
 		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
 			String token = tokens.nextToken().trim();
-			if (!token.equals("")) //$NON-NLS-1$
+			if (!token.equals("")) { //$NON-NLS-1$
 				result.add(token);
+			}
 		}
 		return result.toArray(new String[result.size()]);
 	}
 
 	protected void verifyProvidedCapability(Collection<IProvidedCapability> prov, String namespace, String name, Version version) {
 		for (IProvidedCapability pc : prov) {
-			if (pc.getName().equalsIgnoreCase(name) && pc.getNamespace().equalsIgnoreCase(namespace) && pc.getVersion().equals(version))
+			if (pc.getName().equalsIgnoreCase(name) && pc.getNamespace().equalsIgnoreCase(namespace) && pc.getVersion().equals(version)) {
 				return; // pass
+			}
 		}
 		Assert.fail("Missing ProvidedCapability: " + name + version.toString()); //$NON-NLS-1$
 	}
@@ -125,8 +128,9 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	protected IInstallableUnit mockIU(String id, Version version) {
 		IInstallableUnit result = mock(IInstallableUnit.class);
 		when(result.getId()).thenReturn(id);
-		if (version == null)
+		if (version == null) {
 			version = Version.emptyVersion;
+		}
 		when(result.getVersion()).thenReturn(version);
 		when(result.getFilter()).thenReturn(null);
 		return result;
@@ -189,8 +193,9 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	 * Prints a message used for debugging tests.
 	 */
 	public void debug(String message) {
-		if (DEBUG)
+		if (DEBUG) {
 			debug(message);
+		}
 	}
 
 	/**

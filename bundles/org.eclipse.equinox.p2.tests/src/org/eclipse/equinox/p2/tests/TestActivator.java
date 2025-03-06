@@ -72,11 +72,13 @@ public class TestActivator implements BundleActivator {
 	}
 
 	public static Bundle getBundle(String symbolicName) {
-		if (packageAdmin == null)
+		if (packageAdmin == null) {
 			return null;
+		}
 		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
-		if (bundles == null)
+		if (bundles == null) {
 			return null;
+		}
 		//Return the first bundle that is not installed or uninstalled
 		for (Bundle bundle : bundles) {
 			if ((bundle.getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {

@@ -214,8 +214,9 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	}
 
 	protected static void assertStatusContains(String message, IStatus status, String statusString) {
-		if (!statusContains(status, statusString))
+		if (!statusContains(status, statusString)) {
 			fail(message);
+		}
 	}
 
 	class StatusSequenceRepository extends AbstractWrappedArtifactRepository {
@@ -242,8 +243,9 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 			} catch (Exception e) {
 				fail("Failed to write to stream", e);
 			}
-			if (sequence.isEmpty())
+			if (sequence.isEmpty()) {
 				return Status.OK_STATUS;
+			}
 			return sequence.remove();
 		}
 
@@ -253,10 +255,12 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	}
 
 	private static boolean statusContains(IStatus status, String statusString) {
-		if (status.getMessage().indexOf(statusString) != -1)
+		if (status.getMessage().indexOf(statusString) != -1) {
 			return true;
-		if (!status.isMultiStatus())
+		}
+		if (!status.isMultiStatus()) {
 			return false;
+		}
 
 		IStatus[] children = status.getChildren();
 		for (IStatus child : children) {
@@ -433,8 +437,9 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 				DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder builder = domFactory.newDocumentBuilder();
 				Document document = builder.parse(mirrorsURL);
-				if (document == null)
+				if (document == null) {
 					return null;
+				}
 				NodeList mirrorNodes = document.getElementsByTagName("mirror"); //$NON-NLS-1$
 				int mirrorCount = mirrorNodes.getLength();
 				MirrorInfo[] infos = new MirrorInfo[mirrorCount + 1];
@@ -452,8 +457,9 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 						|| mirrorsURL.startsWith("https://") //$NON-NLS-1$
 						|| mirrorsURL.startsWith("file://") //$NON-NLS-1$
 						|| mirrorsURL.startsWith("ftp://") //$NON-NLS-1$
-						|| mirrorsURL.startsWith("jar://"))) //$NON-NLS-1$
+						|| mirrorsURL.startsWith("jar://"))) {
 					fail("Error processing mirrors URL: " + mirrorsURL, e); //$NON-NLS-1$
+				}
 				return null;
 			}
 		}

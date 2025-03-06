@@ -59,8 +59,9 @@ public class GenerateTestData {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (!(obj instanceof TestBundle))
+			if (!(obj instanceof TestBundle)) {
 				return false;
+			}
 			TestBundle other = (TestBundle) obj;
 			return id.equals(other.id) && version.equals(other.version);
 		}
@@ -91,8 +92,9 @@ public class GenerateTestData {
 				for (Iterator<TestObject> iter = requires.iterator(); iter.hasNext();) {
 					TestObject req = iter.next();
 					buffer.append(req.id);
-					if (iter.hasNext())
+					if (iter.hasNext()) {
 						buffer.append(",\n ");
+					}
 				}
 				manifest.append(buffer.toString());
 			}
@@ -162,16 +164,21 @@ public class GenerateTestData {
 	 */
 	static boolean validate() {
 		StringBuilder buffer = new StringBuilder();
-		if (outputFile == null)
+		if (outputFile == null) {
 			buffer.append("Need to set an output directory.\n");
-		if (numFeatures < 0 || numBundles <= 0)
+		}
+		if (numFeatures < 0 || numBundles <= 0) {
 			buffer.append("Need to specifiy at least one bundle.\n");
-		if (numFeatures > numBundles)
+		}
+		if (numFeatures > numBundles) {
 			buffer.append("Number of features must be the same or less than the number of bundles.\n");
-		if (numRequires > numBundles - 1)
+		}
+		if (numRequires > numBundles - 1) {
 			buffer.append("Cannot have more required bundles than bundles.\n");
-		if (buffer.length() == 0)
+		}
+		if (buffer.length() == 0) {
 			return true;
+		}
 		System.err.println(buffer.toString());
 		return false;
 	}
@@ -235,16 +242,18 @@ public class GenerateTestData {
 
 	void write(File location, String data) throws IOException {
 		File parent = location.getParentFile();
-		if (parent == null)
+		if (parent == null) {
 			throw new RuntimeException("Unable to write to: " + location.getAbsolutePath() + "due to null parent.");
+		}
 		parent.mkdirs();
 		Files.write(location.toPath(), data.getBytes());
 	}
 
 	// Return a random bundle from the collection of already produced ones.
 	TestBundle getRandomBundle() {
-		if (bundles.isEmpty())
+		if (bundles.isEmpty()) {
 			return null;
+		}
 		int index = random.nextInt(bundles.size());
 		return bundles.get(index);
 	}
@@ -256,8 +265,9 @@ public class GenerateTestData {
 		bundle.version = version;
 		for (int i = 0; i < numRequires; i++) {
 			TestBundle req = getRandomBundle();
-			if (req != null)
+			if (req != null) {
 				bundle.requires.add(req);
+			}
 		}
 		return bundle;
 	}
@@ -270,8 +280,9 @@ public class GenerateTestData {
 		// bundles were generated first and we already checked that we have more/equal bundles and features
 		// so we should be ok here.
 		TestBundle bundle = bundles.get(index);
-		if (bundle == null)
+		if (bundle == null) {
 			throw new RuntimeException("Could not find bundle at index: " + index + " to match feature: " + id);
+		}
 		feature.requires.add(bundle);
 		return feature;
 	}

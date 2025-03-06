@@ -61,8 +61,9 @@ public class JarURLMetadataRepositoryTest extends AbstractProvisioningTest {
 	@Override
 	protected void tearDown() throws Exception {
 		manager = null;
-		if (testRepoJar != null)
+		if (testRepoJar != null) {
 			FileUtils.deleteAll(testRepoJar.getParentFile());
+		}
 	}
 
 	/**
@@ -113,9 +114,11 @@ public class JarURLMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		URI[] local = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_LOCAL);
 		boolean found = false;
-		for (URI element : local)
-			if (element.equals(jarRepoLocation))
+		for (URI element : local) {
+			if (element.equals(jarRepoLocation)) {
 				found = true;
+			}
+		}
 		assertTrue(found);
 		manager.removeRepository(jarRepoLocation);
 	}

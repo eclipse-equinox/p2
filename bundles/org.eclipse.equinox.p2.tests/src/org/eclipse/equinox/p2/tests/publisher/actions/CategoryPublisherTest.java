@@ -56,8 +56,9 @@ public class CategoryPublisherTest extends AbstractProvisioningTest {
 			assertContains(repository, "content.jar");
 
 		} finally {
-			if (repository != null & repository.exists())
+			if (repository != null & repository.exists()) {
 				delete(repository);
+			}
 		}
 	}
 
@@ -79,8 +80,9 @@ public class CategoryPublisherTest extends AbstractProvisioningTest {
 			assertContains(repository, "content.jar");
 
 		} finally {
-			if (repository != null & repository.exists())
+			if (repository != null & repository.exists()) {
 				delete(repository);
+			}
 		}
 	}
 
@@ -102,8 +104,9 @@ public class CategoryPublisherTest extends AbstractProvisioningTest {
 			assertContains(repository, "content.xml");
 
 		} finally {
-			if (repository != null & repository.exists())
+			if (repository != null & repository.exists()) {
 				delete(repository);
+			}
 		}
 	}
 

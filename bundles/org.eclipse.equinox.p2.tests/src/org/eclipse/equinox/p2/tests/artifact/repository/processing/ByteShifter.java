@@ -39,20 +39,23 @@ public class ByteShifter extends ProcessingStep {
 
 	private void basicInitialize(IProcessingStepDescriptor descriptor) {
 		// if the status is already set to something that not ok, we've already found a problem.
-		if (!getStatus().isOK())
+		if (!getStatus().isOK()) {
 			return;
+		}
 
 		int code;
 		// if there is a descriptor, decide if the "bad case" is an error or info.  If no
 		// descriptor then default to error.
-		if (descriptor != null)
+		if (descriptor != null) {
 			code = descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
-		else
+		} else {
 			code = IStatus.ERROR;
+		}
 
 		// finally, check the actual setup and set the status.
-		if (operand <= 0)
+		if (operand <= 0) {
 			setStatus(new Status(code, Activator.ID, "ByteShifter operand invalid: " + operand));
+		}
 	}
 
 	@Override

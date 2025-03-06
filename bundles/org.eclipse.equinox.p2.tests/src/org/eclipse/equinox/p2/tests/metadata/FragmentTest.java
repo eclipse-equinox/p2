@@ -173,8 +173,9 @@ public class FragmentTest extends AbstractProvisioningTest {
 	}
 
 	public static void assertContainsWithEquals(Collection<? extends Object> objects, Object searched) {
-		if (objects.contains(searched))
+		if (objects.contains(searched)) {
 			return;
+		}
 
 		throw new AssertionFailedError("The array does not contain the searched element");
 	}

@@ -192,13 +192,16 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		final boolean[] wasEnabled = new boolean[] {false};
 		//add a listener to ensure we receive add events with the repository enabled
 		SynchronousProvisioningListener listener = o -> {
-			if (!(o instanceof RepositoryEvent))
+			if (!(o instanceof RepositoryEvent)) {
 				return;
+			}
 			RepositoryEvent event = (RepositoryEvent) o;
-			if (event.getKind() != RepositoryEvent.ADDED)
+			if (event.getKind() != RepositoryEvent.ADDED) {
 				return;
-			if (!event.getRepositoryLocation().equals(repoURI))
+			}
+			if (!event.getRepositoryLocation().equals(repoURI)) {
 				return;
+			}
 			wasEnabled[0] = event.isRepositoryEnabled();
 			callCount[0]++;
 		};
@@ -232,13 +235,16 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		final boolean[] wasEnabled = new boolean[] {false};
 		//add a listener to ensure we receive add events with the repository enabled
 		SynchronousProvisioningListener listener = o -> {
-			if (!(o instanceof RepositoryEvent))
+			if (!(o instanceof RepositoryEvent)) {
 				return;
+			}
 			RepositoryEvent event = (RepositoryEvent) o;
-			if (event.getKind() != RepositoryEvent.ADDED)
+			if (event.getKind() != RepositoryEvent.ADDED) {
 				return;
-			if (!event.getRepositoryLocation().equals(repoURL))
+			}
+			if (!event.getRepositoryLocation().equals(repoURL)) {
 				return;
+			}
 			wasEnabled[0] = event.isRepositoryEnabled();
 			callCount[0]++;
 		};

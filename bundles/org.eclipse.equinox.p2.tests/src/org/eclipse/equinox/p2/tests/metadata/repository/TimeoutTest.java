@@ -40,8 +40,9 @@ public class TimeoutTest extends ServerBasedTestCase {
 	private void setUpRepo(String repo) throws Exception {
 		repoLoc = new URI(repo);
 		mgr.removeRepository(repoLoc);
-		if (mgr.contains(repoLoc))
+		if (mgr.contains(repoLoc)) {
 			throw new RuntimeException("Error - An earlier test did not leave a clean state - could not remove repo");
+		}
 
 	}
 
@@ -49,8 +50,9 @@ public class TimeoutTest extends ServerBasedTestCase {
 	public void tearDown() throws Exception {
 		AllServerTests.setServiceUI(null); // cleanup hook
 		super.tearDown();
-		if (repoLoc != null)
+		if (repoLoc != null) {
 			mgr.removeRepository(repoLoc);
+		}
 	}
 
 	/**
@@ -72,8 +74,9 @@ public class TimeoutTest extends ServerBasedTestCase {
 			IStatus status = e.getStatus();
 			Throwable ex = status.getException();
 			String msg = e.getMessage();
-			if (ex instanceof CoreException)
+			if (ex instanceof CoreException) {
 				msg = ((CoreException) ex).getStatus().getMessage();
+			}
 
 			// Print for human inspection
 			System.out.print(String.format("%s e-message: [%s], detail:[%s]\n", //
@@ -112,8 +115,9 @@ public class TimeoutTest extends ServerBasedTestCase {
 			IStatus status = e.getStatus();
 			Throwable ex = status.getException();
 			String msg = e.getMessage();
-			if (ex instanceof CoreException)
+			if (ex instanceof CoreException) {
 				msg = ((CoreException) ex).getStatus().getMessage();
+			}
 
 			// Print for human inspection
 			System.out.print(String.format("%s e-message: [%s], detail:[%s]\n", //

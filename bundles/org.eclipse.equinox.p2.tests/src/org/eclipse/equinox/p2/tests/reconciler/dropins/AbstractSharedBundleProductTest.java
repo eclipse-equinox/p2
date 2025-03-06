@@ -107,15 +107,17 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 		for (int i = 0; infos != null && i < infos.length; i++) {
 			map.put(infos[i].getSymbolicName(), infos[i]);
 			// always add the launcher bundles. do it here because we don't know what os/ws config we will have
-			if (infos[i].getSymbolicName().contains("equinox.launcher"))
+			if (infos[i].getSymbolicName().contains("equinox.launcher")) {
 				result.put(infos[i].getSymbolicName(), infos[i]);
+			}
 		}
 
 		// just add the bootstrap bundles into the result before returning
 		for (String bundle : bootstrap) {
 			BundleInfo info = map.get(bundle);
-			if (info != null)
+			if (info != null) {
 				result.put(info.getSymbolicName(), info);
+			}
 		}
 		return result;
 	}
@@ -213,14 +215,16 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 	}
 
 	public void removeBundlesFromConfiguration(Configuration config, String[] locations) {
-		for (String location : locations)
+		for (String location : locations) {
 			removeBundleFromConfiguration(config, location);
+		}
 	}
 
 	protected Site getSharedSite(Configuration config) {
 		for (Site site : config.getSites()) {
-			if (sharedLocationURL != null && sharedLocationURL.equals(site.getUrl()))
+			if (sharedLocationURL != null && sharedLocationURL.equals(site.getUrl())) {
 				return site;
+			}
 		}
 		return null;
 	}
@@ -229,8 +233,9 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 		Site shared = getSharedSite(config);
 		assertNotNull("Unable to determine shared site from configuration.", shared);
 		boolean removed = shared.removePlugin(location);
-		if (removed)
+		if (removed) {
 			return true;
+		}
 		// try again with a relative path
 		URI relative = null;
 		try {
@@ -242,8 +247,9 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 	}
 
 	public void addBundlesToConfigurations(Configuration config, String[] locations) {
-		for (String location : locations)
+		for (String location : locations) {
 			addBundleToConfiguration(config, location);
+		}
 	}
 
 	public void addBundleToConfiguration(Configuration config, String location) {
@@ -284,8 +290,9 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 
 	private void updateBundlesInfo(Map<String, BundleInfo> infos, File sharedBundleLocation) {
 		for (BundleInfo info : infos.values()) {
-			if (info.getSymbolicName().contains("equinox.launcher"))
+			if (info.getSymbolicName().contains("equinox.launcher")) {
 				continue;
+			}
 			File location = new File(sharedBundleLocation,
 					IPath.fromOSString(info.getLocation().toString()).lastSegment());
 			assertTrue("3.1." + location.getAbsolutePath(), location.exists());

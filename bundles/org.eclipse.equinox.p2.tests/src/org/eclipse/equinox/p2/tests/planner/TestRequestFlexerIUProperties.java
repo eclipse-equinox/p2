@@ -179,8 +179,9 @@ public class TestRequestFlexerIUProperties extends AbstractProvisioningTest {
 
 	private boolean isOptionallyBeingInstalled(IInstallableUnit iu, IProfileChangeRequest request) {
 		Map<String, String> match = ((ProfileChangeRequest) request).getInstallableUnitProfilePropertiesToAdd().get(iu);
-		if (match == null)
+		if (match == null) {
 			return false;
+		}
 		return INCLUSION_OPTIONAL.equals(match.get(INCLUSION_RULES));
 	}
 }

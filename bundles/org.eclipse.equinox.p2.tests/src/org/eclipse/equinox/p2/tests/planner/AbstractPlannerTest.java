@@ -183,23 +183,27 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 				InstallableUnitOperand actual = (InstallableUnitOperand) actualOperand;
 				// handle removals
 				if (second == null) {
-					if (actual.second() != null)
+					if (actual.second() != null) {
 						continue;
-					if (!actual.first().getId().equals(first.getId()))
+					}
+					if (!actual.first().getId().equals(first.getId())) {
 						continue;
+					}
 					// we are doing a removal and we have IUs with the same id... do they have the same version too?
 					assertEquals("0.5", first, actual.first());
 				}
 				// treat additions and updates the same as long as we end up with the same IU in the end
 				assertNotNull("1.2 " + actual, actual.second());
-				if (!actual.second().getId().equals(second.getId()))
+				if (!actual.second().getId().equals(second.getId())) {
 					continue;
+				}
 				// we are doing an install or upgrade and we have IUs with the same id... do they have the same version too?
 				assertEquals("2.0", second, actual.second());
 				found = true;
 			}
-			if (!found)
+			if (!found) {
 				fail("3.0 Plan is missing install operand for: " + second);
+			}
 		}
 	}
 

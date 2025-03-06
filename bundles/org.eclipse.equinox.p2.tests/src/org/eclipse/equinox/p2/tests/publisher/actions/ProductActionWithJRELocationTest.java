@@ -85,8 +85,9 @@ public class ProductActionWithJRELocationTest extends AbstractProvisioningTest {
 
 	private boolean verifyProvidedCapabilities(Collection<IProvidedCapability> providedCapabilities, IProvidedCapability expectedProvidedCapability) {
 		for (IProvidedCapability iProvidedCapability : providedCapabilities) {
-			if (iProvidedCapability.equals(expectedProvidedCapability))
+			if (iProvidedCapability.equals(expectedProvidedCapability)) {
 				return true;
+			}
 		}
 		return false;
 	}

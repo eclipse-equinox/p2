@@ -65,14 +65,17 @@ public class PatchTestUpdate3 extends AbstractProvisioningTest {
 		planner = createPlanner();
 		engine = createEngine();
 
-		if (!install(getProfile("TestProfile." + getName()), new IInstallableUnit[] {p2Feature}, true, planner, engine).isOK())
+		if (!install(getProfile("TestProfile." + getName()), new IInstallableUnit[] {p2Feature}, true, planner, engine).isOK()) {
 			fail("Setup failed");
+		}
 
-		if (!install(getProfile("TestProfile." + getName()), new IInstallableUnit[] {pp1}, false, planner, engine).isOK())
+		if (!install(getProfile("TestProfile." + getName()), new IInstallableUnit[] {pp1}, false, planner, engine).isOK()) {
 			fail("Setup failed");
+		}
 
-		if (!install(getProfile("TestProfile." + getName()), new IInstallableUnit[] {pp2}, false, planner, engine).isOK())
+		if (!install(getProfile("TestProfile." + getName()), new IInstallableUnit[] {pp2}, false, planner, engine).isOK()) {
 			fail("Setup failed");
+		}
 
 		assertProfileContainsAll("Profile setup incorrectly", getProfile("TestProfile." + getName()), new IInstallableUnit[] {p2Feature, pp1, p1b, pp2, p2b});
 	}

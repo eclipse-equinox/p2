@@ -388,8 +388,9 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		boolean found = false;
 		for (Site site : getConfiguration().getSites()) {
 			String link = site.getLinkFile();
-			if (link != null && link.contains("myLink"))
+			if (link != null && link.contains("myLink")) {
 				found = true;
+			}
 		}
 		assertFalse("7.5", found);
 	}

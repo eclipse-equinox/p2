@@ -34,16 +34,18 @@ public class NTLMTest extends AbstractTestServerClientCase {
 	private void setUpRepo(String repo) throws Exception {
 		repoLoc = new URI(repo);
 		mgr.removeRepository(repoLoc);
-		if (mgr.contains(repoLoc))
+		if (mgr.contains(repoLoc)) {
 			throw new RuntimeException("Error - An earlier test did not leave a clean state - could not remove repo");
+		}
 
 	}
 
 	@Override
 	public void tearDown() throws Exception {
 		super.tearDown();
-		if (repoLoc != null)
+		if (repoLoc != null) {
 			mgr.removeRepository(repoLoc);
+		}
 	}
 
 	/**

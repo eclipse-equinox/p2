@@ -224,8 +224,9 @@ public class EquinoxExecutableActionTest extends ActionTest {
 			for (String path : expectedExecutablesContents) {
 				assertNotNull("executable zip missing " + path, zip.getEntry(path));
 			}
-			if (key.getId().contains("macosx"))
+			if (key.getId().contains("macosx")) {
 				checkInfoPlist(zip);
+			}
 		}
 
 		// cleanup

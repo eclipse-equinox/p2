@@ -141,8 +141,9 @@ public class FileReaderTest2 extends AbstractProvisioningTest {
 					protected IStatus run(IProgressMonitor monitor1) {
 						System.out.println("Download job is resumed at " + new Date());
 						reader.resume();
-						if (count++ < threhold)
+						if (count++ < threhold) {
 							this.pausejob.schedule(5000);
+						}
 						return Status.OK_STATUS;
 					}
 				};

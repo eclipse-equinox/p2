@@ -103,10 +103,11 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 			assertEquals("1.2", IRepository.ENABLED, ref.getOptions());
 			assertEquals("1.3", "Eclipse Project Update Site", ref.getNickname());
 
-			if (ref.getType() == IRepository.TYPE_METADATA)
+			if (ref.getType() == IRepository.TYPE_METADATA) {
 				metadataFound = true;
-			else if (ref.getType() == IRepository.TYPE_ARTIFACT)
+			} else if (ref.getType() == IRepository.TYPE_ARTIFACT) {
 				artifactFound = true;
+			}
 		}
 		assertTrue("1.3", metadataFound);
 		assertTrue("1.4", artifactFound);

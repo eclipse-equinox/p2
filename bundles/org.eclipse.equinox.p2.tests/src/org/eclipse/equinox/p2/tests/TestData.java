@@ -96,10 +96,12 @@ public class TestData {
 				count++;
 			}
 		} finally {
-			if (expected != null)
+			if (expected != null) {
 				expected.close();
-			if (actual != null)
+			}
+			if (actual != null) {
 				actual.close();
+			}
 		}
 	}
 
@@ -156,8 +158,9 @@ public class TestData {
 			Assert.assertEquals(entry1.isDirectory(), entry2.isDirectory());
 
 			// check the content of the entries
-			if (compareContent)
+			if (compareContent) {
 				Assert.assertArrayEquals((byte[]) file1[1], (byte[]) file2[1]);
+			}
 		}
 	}
 
@@ -165,8 +168,9 @@ public class TestData {
 		Map<String, Object[]> result = new HashMap<>();
 		while (true) {
 			ZipEntry entry = input.getNextEntry();
-			if (entry == null)
+			if (entry == null) {
 				return result;
+			}
 			ByteArrayOutputStream content = new ByteArrayOutputStream();
 			FileUtils.copyStream(input, false, content, true);
 			input.closeEntry();

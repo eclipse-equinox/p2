@@ -587,29 +587,35 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		assertEquals("1.0", a, b);
 		a.setURLString("file:/c:/foo");
 		b.setURLString("file:/c:/FOO");
-		if (a.equals(b))
+		if (a.equals(b)) {
 			assertEquals("1.1", a.hashCode(), b.hashCode());
+		}
 		a.setURLString("FILE:/c:/foo");
 		b.setURLString("file:/c:/FOO");
-		if (a.equals(b))
+		if (a.equals(b)) {
 			assertEquals("1.2", a.hashCode(), b.hashCode());
+		}
 		a.setURLString("HTTP://example.com");
 		b.setURLString("HTtP://example.com");
-		if (a.equals(b))
+		if (a.equals(b)) {
 			assertEquals("1.3", a.hashCode(), b.hashCode());
+		}
 		a.setURLString("HTTP://eXaMpLe.com");
 		b.setURLString("HTtP://example.com");
-		if (a.equals(b))
+		if (a.equals(b)) {
 			assertEquals("1.4", a.hashCode(), b.hashCode());
+		}
 		a.setURLString("HTTP://eXaMpLe.com/");
 		b.setURLString("HTtP://example.com");
 		assertEquals(a, b);
-		if (a.equals(b))
+		if (a.equals(b)) {
 			assertEquals("1.5", a.hashCode(), b.hashCode());
+		}
 		a.setURLString("http://localhost");
 		b.setURLString("http://127.0.0.1");
-		if (a.equals(b))
+		if (a.equals(b)) {
 			assertEquals("1.6", a.hashCode(), b.hashCode());
+		}
 	}
 
 	public void testRepoWithFeatureWithNullUpdateURL() {
@@ -672,8 +678,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		assertEquals(1, queryResultSize(keys));
 		IArtifactKey key = keys.iterator().next();
 		IStatus status = artifactRepo.getArtifact(artifactRepo.getArtifactDescriptors(key)[0], new ByteArrayOutputStream(500), new NullProgressMonitor());
-		if (!status.isOK())
+		if (!status.isOK()) {
 			fail("Can't get the expected artifact:" + key);
+		}
 	}
 
 	/**
@@ -804,12 +811,15 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			// Load the packed descriptor
 			IArtifactDescriptor[] descriptors = sourceRepo.getArtifactDescriptors(key);
 			IArtifactDescriptor descriptor = null;
-			for (int i = 0; i < descriptors.length && descriptor == null; i++)
-				if (!IArtifactDescriptor.FORMAT_PACKED.equals(descriptors[i].getProperty(IArtifactDescriptor.FORMAT)))
+			for (int i = 0; i < descriptors.length && descriptor == null; i++) {
+				if (!IArtifactDescriptor.FORMAT_PACKED.equals(descriptors[i].getProperty(IArtifactDescriptor.FORMAT))) {
 					descriptor = descriptors[i];
+				}
+			}
 
-			if (descriptor == null)
+			if (descriptor == null) {
 				fail("0.3");
+			}
 
 			RawMirrorRequest mirror = new RawMirrorRequest(descriptor, new ArtifactDescriptor(descriptor), targetRepository, getTransport());
 			mirror.perform(sourceRepo, getMonitor());
@@ -819,8 +829,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (Exception e) {
 			fail("0.2", e);
 		} finally {
-			if (targetLocation != null)
+			if (targetLocation != null) {
 				delete(targetLocation);
+			}
 			getArtifactRepositoryManager().removeRepository(siteURI);
 		}
 	}
@@ -880,8 +891,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 				mirrorLocation = MirrorInfo.class.getDeclaredField("locationString");
 				mirrorLocation.setAccessible(true);
 
-				if (index < mirrors.length)
+				if (index < mirrors.length) {
 					return URIUtil.makeAbsolute(new URI((String) mirrorLocation.get(mirrors[index++])), repoLocation);
+				}
 				return repoLocation;
 			} catch (Exception e) {
 				fail(Double.toString(0.4 + index), e);
@@ -906,8 +918,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 				DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder builder = domFactory.newDocumentBuilder();
 				Document document = builder.parse(mirrorsURL);
-				if (document == null)
+				if (document == null) {
 					return null;
+				}
 				NodeList mirrorNodes = document.getElementsByTagName("mirror"); //$NON-NLS-1$
 				int mirrorCount = mirrorNodes.getLength();
 				MirrorInfo[] infos = new MirrorInfo[mirrorCount + 1];
@@ -925,8 +938,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 						|| mirrorsURL.startsWith("https://") //$NON-NLS-1$
 						|| mirrorsURL.startsWith("file://") //$NON-NLS-1$
 						|| mirrorsURL.startsWith("ftp://") //$NON-NLS-1$
-						|| mirrorsURL.startsWith("jar://"))) //$NON-NLS-1$
+						|| mirrorsURL.startsWith("jar://"))) {
 					fail("Error processing mirrors URL: " + mirrorsURL, e); //$NON-NLS-1$
+				}
 				return null;
 			}
 		}

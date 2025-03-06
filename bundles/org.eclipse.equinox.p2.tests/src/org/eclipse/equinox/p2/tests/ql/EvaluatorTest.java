@@ -219,14 +219,16 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		IQueryResult<IArtifactKey> result = repo.query(QueryUtil.createMatchQuery(IArtifactKey.class, "classifier ~= /*/"), new NullProgressMonitor());
 		assertTrue(queryResultSize(result) > 1);
 		Iterator<IArtifactKey> itor = result.iterator();
-		while (itor.hasNext())
+		while (itor.hasNext()) {
 			assertNotNull(itor.next());
+		}
 
 		IQueryResult<IArtifactDescriptor> result2 = repo.descriptorQueryable().query(QueryUtil.createMatchQuery(IArtifactDescriptor.class, "artifactKey.classifier ~= /*/"), new NullProgressMonitor());
 		assertTrue(queryResultSize(result2) > 1);
 		Iterator<IArtifactDescriptor> itor2 = result2.iterator();
-		while (itor2.hasNext())
+		while (itor2.hasNext()) {
 			assertNotNull(itor2.next());
+		}
 	}
 
 	public void testClassConstructor() throws Exception {

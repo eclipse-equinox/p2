@@ -236,8 +236,9 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		request.addInstallableUnits(newIUs);
 		request.removeInstallableUnits(oldIUs);
 		result = createDirector().provision(request, new ProvisioningContext(getAgent()), getMonitor());
-		if (!result.isOK())
+		if (!result.isOK()) {
 			LogHelper.log(result);
+		}
 		assertTrue("2.0", result.isOK());
 
 		//check that the artifact is still there
@@ -260,16 +261,18 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	private String getKey(String location) {
 		String key = location.replace('/', '_');
 		//remove trailing slash
-		if (key.endsWith("_")) //$NON-NLS-1$
+		if (key.endsWith("_")) { //$NON-NLS-1$
 			key = key.substring(0, key.length() - 1);
+		}
 		return key;
 	}
 
 	private boolean locationExists(IProfile profile, String location) {
 		final String profileId = profile != null ? profile.getProfileId() : IProfileRegistry.SELF;
 		Preferences pref = new ProfileScope(getAgentLocation(), profileId).getNode("org.eclipse.equinox.p2.artifact.repository/repositories/" + getKey(location));
-		if (location.equals(pref.get(KEY_URI, null)))
+		if (location.equals(pref.get(KEY_URI, null))) {
 			return true;
+		}
 		return false;
 	}
 }

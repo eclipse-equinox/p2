@@ -119,24 +119,30 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 	protected AntTaskElement getIUElement(String name, String version) {
 		AntTaskElement iuElement = new AntTaskElement("iu");
 		iuElement.addAttribute("id", name);
-		if (version != null)
+		if (version != null) {
 			iuElement.addAttribute("version", version);
+		}
 		return iuElement;
 	}
 
 	protected AntTaskElement getRepositoryElement(URI address, String kind, String name, String format, Boolean compressed, Boolean append) {
 		AntTaskElement repo = new AntTaskElement("repository");
 		repo.addAttributes(new String[] {"location", URIUtil.toUnencodedString(address)});
-		if (kind != null)
+		if (kind != null) {
 			repo.addAttributes(new String[] {"kind", kind});
-		if (name != null)
+		}
+		if (name != null) {
 			repo.addAttributes(new String[] {"name", name});
-		if (format != null)
+		}
+		if (format != null) {
 			repo.addAttributes(new String[] {"format", format});
-		if (compressed != null)
+		}
+		if (compressed != null) {
 			repo.addAttributes(new String[] {"compressed", compressed.toString()});
-		if (append != null)
+		}
+		if (append != null) {
 			repo.addAttributes(new String[] {"append", append.toString()});
+		}
 		return repo;
 	}
 
@@ -190,12 +196,14 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 		writer.start(task.name);
 
 		// write properties
-		for (Iterator<String> iter = task.attributes.iterator(); iter.hasNext();)
+		for (Iterator<String> iter = task.attributes.iterator(); iter.hasNext();) {
 			writer.attribute(iter.next(), iter.next());
+		}
 
 		// write sub elements if applicable
-		for (AntTaskElement element : task.elements)
+		for (AntTaskElement element : task.elements) {
 			writeElement(writer, element);
+		}
 
 		// close tag
 		writer.end();
@@ -214,8 +222,9 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 		public AntTaskElement(String name, String[] attributes) {
 			this.name = name;
 			if (attributes != null && attributes.length > 0) {
-				if (attributes.length % 2 != 0)
+				if (attributes.length % 2 != 0) {
 					throw new IllegalStateException();
+				}
 				this.attributes.addAll(Arrays.asList(attributes));
 			}
 		}
@@ -240,8 +249,9 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 	}
 
 	protected static Throwable rootCause(Throwable e) {
-		if (e.getCause() != null)
+		if (e.getCause() != null) {
 			return rootCause(e.getCause());
+		}
 		return e;
 	}
 
@@ -278,8 +288,9 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 	protected static List<IArtifactKey> getArtifactKeys(IQueryResult<IInstallableUnit> ius) {
 		List<IArtifactKey> keys = new ArrayList<>();
 
-		for (IInstallableUnit iu : ius)
+		for (IInstallableUnit iu : ius) {
 			keys.addAll(iu.getArtifacts());
+		}
 		return keys;
 	}
 }

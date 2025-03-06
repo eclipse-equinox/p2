@@ -74,8 +74,9 @@ public class Bug351944 extends AbstractProvisioningTest {
 			Set<IArtifactKey> keySet = allArtifactKeys.toUnmodifiableSet();
 
 			Collection<IArtifactRequest> requests = new ArrayList<>();
-			for (IArtifactKey key : keySet)
+			for (IArtifactKey key : keySet) {
 				requests.add(artifactRepositoryManager.createMirrorRequest(key, repo, null, null));
+			}
 
 			long start = System.currentTimeMillis();
 			Collection<IArtifactRequest> toBeRequests = getRequestsForRepository(repo,
@@ -101,8 +102,9 @@ public class Bug351944 extends AbstractProvisioningTest {
 			IArtifactRequest[] requestsToProcess) {
 		List<IArtifactRequest> applicable = new ArrayList<>();
 		for (IArtifactRequest request : requestsToProcess) {
-			if (repository.contains(request.getArtifactKey()))
+			if (repository.contains(request.getArtifactKey())) {
 				applicable.add(request);
+			}
 		}
 		return applicable;
 	}
@@ -112,8 +114,9 @@ public class Bug351944 extends AbstractProvisioningTest {
 		Set<IArtifactKey> keys = repository.query(ArtifactKeyQuery.ALL_KEYS, new NullProgressMonitor()).toSet();
 		ArrayList<IArtifactRequest> applicable = new ArrayList<>();
 		for (IArtifactRequest request : requestsToProcess) {
-			if (keys.contains(request.getArtifactKey()))
+			if (keys.contains(request.getArtifactKey())) {
 				applicable.add(request);
+			}
 		}
 		return applicable;
 	}

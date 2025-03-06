@@ -91,8 +91,9 @@ public class RootFilesActionTest extends ActionTest {
 		adviceCollection = new ArrayList<>();
 		topLevel = AbstractPublisherAction.getArrayFromString(topArg, COMMA_SEPARATOR);
 
-		if ((testArg & ARTIFACT_REPO) > 0)
+		if ((testArg & ARTIFACT_REPO) > 0) {
 			artifactRepository = new TestArtifactRepository(getAgent());
+		}
 
 		if ((testArg & INCLUDES_FILES) > 0) {
 			adviceCollection.add(new RootFilesAdvice(null, root.listFiles(), null, configSpec));
@@ -120,8 +121,9 @@ public class RootFilesActionTest extends ActionTest {
 		boolean artifactRepo = (arg & ARTIFACT_REPO) > 0;
 		boolean includeFiles = (arg & INCLUDES_FILES) > 0;
 		boolean includeRoot = (arg & INCLUDES_ROOT) > 0;
-		if (!(artifactRepo && (includeFiles)))
+		if (!(artifactRepo && (includeFiles))) {
 			return;
+		}
 
 		IArtifactKey key = ArtifactKey.parse("binary,sdk.rootfiles.win32.win32.x86,3.4.0.i0305"); //$NON-NLS-1$
 		assertTrue(artifactRepository.contains(key));
@@ -149,33 +151,41 @@ public class RootFilesActionTest extends ActionTest {
 	public void cleanup() {
 		super.cleanup();
 
-		if (artifactRepository != null)
+		if (artifactRepository != null) {
 			artifactRepository.removeAll(new NullProgressMonitor());
+		}
 		artifactRepository = null;
 
 		excludedFiles = null;
 
-		if (adviceCollection != null)
+		if (adviceCollection != null) {
 			adviceCollection.clear();
+		}
 
-		if (includedFiles != null)
+		if (includedFiles != null) {
 			includedFiles = null;
+		}
 
 		adviceCollection = null;
 	}
 
 	protected String toArgString(int arg) {
 		String result = ""; //$NON-NLS-1$
-		if ((arg & INCLUDES_ROOT) > 0)
+		if ((arg & INCLUDES_ROOT) > 0) {
 			result += " INCLUDES_ROOT"; //$NON-NLS-1$
-		if ((arg & EXCLUDES_UNUSED) > 0)
+		}
+		if ((arg & EXCLUDES_UNUSED) > 0) {
 			result += " EXCLUDES_UNUSED"; //$NON-NLS-1$
-		if ((arg & ARTIFACT_REPO) > 0)
+		}
+		if ((arg & ARTIFACT_REPO) > 0) {
 			result += " ARTIFACT_REPO"; //$NON-NLS-1$
-		if ((arg & INCLUDES_FILES) > 0)
+		}
+		if ((arg & INCLUDES_FILES) > 0) {
 			result += " INCLUDES_FILES"; //$NON-NLS-1$
-		if ((arg & EXCLUDE_INCLUDED) > 0)
+		}
+		if ((arg & EXCLUDE_INCLUDED) > 0) {
 			result += " EXCLUDE_INCLUDED"; //$NON-NLS-1$
+		}
 		return result;
 	}
 

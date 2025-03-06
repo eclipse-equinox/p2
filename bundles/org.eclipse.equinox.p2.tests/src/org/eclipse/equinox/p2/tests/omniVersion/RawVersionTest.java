@@ -292,14 +292,16 @@ public class RawVersionTest extends VersionTesting {
 		// single digits
 		v = Version.create("raw:0.1.2.3.4.5.6.7.8.9");
 		assertNotNull(v);
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < 10; i++) {
 			assertEquals(v.getSegment(i), Integer.valueOf(i));
+		}
 
 		// negative single digits
 		v = Version.create("raw:0.-1.-2.-3.-4.-5.-6.-7.-8.-9");
 		assertNotNull(v);
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < 10; i++) {
 			assertEquals(v.getSegment(i), Integer.valueOf(-i));
+		}
 
 		// some larger numbers
 		v = Version.create("raw:123456789.-1234567890");

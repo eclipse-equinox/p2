@@ -71,8 +71,9 @@ public class DirectoryWatcherTest extends AbstractProvisioningTest {
 
 			@Override
 			public boolean added(File file) {
-				if (file.getName().equals("CVS"))
+				if (file.getName().equals("CVS")) {
 					return false;
+				}
 				list.add(file);
 				return true;
 			}
@@ -84,8 +85,9 @@ public class DirectoryWatcherTest extends AbstractProvisioningTest {
 
 			@Override
 			public boolean removed(File file) {
-				if (file.getName().equals("CVS"))
+				if (file.getName().equals("CVS")) {
 					return false;
+				}
 				list.remove(file);
 				return true;
 			}

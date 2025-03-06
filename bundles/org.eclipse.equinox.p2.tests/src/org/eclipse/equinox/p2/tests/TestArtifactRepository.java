@@ -74,8 +74,9 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		@Override
 		public IStatus download(URI toDownload, OutputStream target, IProgressMonitor pm) {
 			byte[] contents = locationsToContents.get(toDownload);
-			if (contents == null)
+			if (contents == null) {
 				Assert.fail("Attempt to download missing artifact in TestArtifactRepository: " + toDownload);
+			}
 			try {
 				target.write(contents);
 			} catch (IOException e) {
@@ -183,8 +184,9 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 
 	@Override
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
-		if (!contains(key))
+		if (!contains(key)) {
 			return null;
+		}
 		return new IArtifactDescriptor[] {new ArtifactDescriptor(key)};
 	}
 
@@ -202,21 +204,24 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 
 	@Override
 	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
-		for (IArtifactDescriptor descriptor : descriptors)
+		for (IArtifactDescriptor descriptor : descriptors) {
 			removeDescriptor(descriptor, monitor);
+		}
 	}
 
 	@Override
 	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
-		for (IArtifactKey key : keys)
+		for (IArtifactKey key : keys) {
 			removeDescriptor(key, monitor);
+		}
 	}
 
 	@Override
 	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
 		for (IArtifactDescriptor nextDescriptor : artifactDescriptors) {
-			if (key.equals(nextDescriptor.getArtifactKey()))
+			if (key.equals(nextDescriptor.getArtifactKey())) {
 				artifactDescriptors.remove(nextDescriptor);
+			}
 		}
 		if (keysToLocations.containsKey(key)) {
 			URI theLocation = keysToLocations.get(key);

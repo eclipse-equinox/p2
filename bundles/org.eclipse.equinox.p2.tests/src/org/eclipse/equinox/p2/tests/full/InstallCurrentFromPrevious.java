@@ -45,8 +45,9 @@ public class InstallCurrentFromPrevious extends AbstractReconcilerTest {
 			if (logFile.exists()) {
 				StringBuilder fileContents = new StringBuilder();
 				try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
-					while (reader.ready())
+					while (reader.ready()) {
 						fileContents.append(reader.readLine());
+					}
 				}
 				fail("runDirector returned " + result + "\n" + fileContents.toString());
 			} else {

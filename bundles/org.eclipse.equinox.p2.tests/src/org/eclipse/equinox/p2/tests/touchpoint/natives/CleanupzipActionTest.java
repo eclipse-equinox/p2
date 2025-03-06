@@ -39,8 +39,9 @@ public class CleanupzipActionTest extends AbstractProvisioningTest {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		if (store != null)
+		if (store != null) {
 			store.discard();
+		}
 	}
 
 	public void testExecuteUndo() {

@@ -53,10 +53,12 @@ public class FragmentMethodTest {
 		hash.add(iu3);
 		//		Collection result = new ResolutionHelper(new Hashtable(), null).attachCUs(hash);
 		for (IInstallableUnit iu : hash) {
-			if (iu.getId().equals(iu1.getId()))
+			if (iu.getId().equals(iu1.getId())) {
 				iu1 = iu;
-			if (iu.getId().equals(iu3.getId()))
+			}
+			if (iu.getId().equals(iu3.getId())) {
 				iu3 = iu;
+			}
 		}
 	}
 
@@ -91,21 +93,27 @@ public class FragmentMethodTest {
 	}
 
 	protected void assertEquals(String message, Collection<? extends Object> expected, Collection<? extends Object> actual) {
-		if (expected == null && actual == null)
+		if (expected == null && actual == null) {
 			return;
-		if (expected == actual)
+		}
+		if (expected == actual) {
 			return;
-		if (expected == null || actual == null)
+		}
+		if (expected == null || actual == null) {
 			assertTrue(message + ".1", false);
-		if (expected.size() != actual.size())
+		}
+		if (expected.size() != actual.size()) {
 			assertTrue(message + ".2", false);
-		if (!expected.containsAll(actual))
+		}
+		if (!expected.containsAll(actual)) {
 			fail(message + ".3");
+		}
 	}
 
 	public static void assertDoesNotContain(Collection<? extends Object> objects, Object searched) {
-		if (objects.contains(searched))
+		if (objects.contains(searched)) {
 			throw new AssertionError("The array should not contain the searched element");
+		}
 	}
 
 	@Test

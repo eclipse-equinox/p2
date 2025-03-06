@@ -84,8 +84,9 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 	public void testLoadRelativeDescription() throws IOException, URISyntaxException {
 		boolean existed = true;
 		String installerInstallArea = System.getProperty("osgi.install.area");
-		if (installerInstallArea == null)
+		if (installerInstallArea == null) {
 			throw new IllegalStateException("Install area is not specified.");
+		}
 
 		URI installerDescriptionURI = URIUtil.append(URIUtil.fromString(installerInstallArea), "installer.properties");
 		File installerDescription = URIUtil.toFile(installerDescriptionURI);
@@ -100,8 +101,9 @@ public class InstallDescriptionParserTest extends AbstractProvisioningTest {
 		} catch (Exception e) {
 			fail("0.99", e);
 		} finally {
-			if (!existed)
+			if (!existed) {
 				installerDescription.delete();
+			}
 		}
 	}
 
