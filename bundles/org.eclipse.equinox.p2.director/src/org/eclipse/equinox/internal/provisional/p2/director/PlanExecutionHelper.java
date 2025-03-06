@@ -29,14 +29,16 @@ public class PlanExecutionHelper {
 	}
 
 	public static IStatus executePlan(IProvisioningPlan result, IEngine engine, IPhaseSet phaseSet, ProvisioningContext context, IProgressMonitor progress) {
-		if (!result.getStatus().isOK())
+		if (!result.getStatus().isOK()) {
 			return result.getStatus();
+		}
 
 		if (result.getInstallerPlan() != null) {
 			IStatus installerPlanStatus = result.getInstallerPlan().getProfile().getProvisioningAgent()
 					.getService(IEngine.class).perform(result.getInstallerPlan(), phaseSet, progress);
-			if (!installerPlanStatus.isOK())
+			if (!installerPlanStatus.isOK()) {
 				return installerPlanStatus;
+			}
 			Configurator configChanger = DirectorActivator.context
 					.map(ctx -> ServiceHelper.getService(ctx, Configurator.class)).orElse(null);
 			try {

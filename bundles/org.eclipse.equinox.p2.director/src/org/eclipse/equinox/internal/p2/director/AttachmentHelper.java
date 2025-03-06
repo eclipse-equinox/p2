@@ -81,8 +81,9 @@ public class AttachmentHelper {
 	private static boolean isTranslation(IInstallableUnitFragment fragment) {
 		for (IProvidedCapability capability : fragment.getProvidedCapabilities()) {
 			// TODO make the constant in the TranslationSupport class public and use it
-			if ("org.eclipse.equinox.p2.localization".equals(capability.getNamespace())) //$NON-NLS-1$
+			if ("org.eclipse.equinox.p2.localization".equals(capability.getNamespace())) { //$NON-NLS-1$
 				return true;
+			}
 		}
 		return false;
 	}

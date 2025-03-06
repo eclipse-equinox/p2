@@ -48,8 +48,9 @@ public class OperationGenerator {
 
 	//This generates operations that are causing the IUs to be reconfigured.
 	private void generateConfigurationChanges(Collection<IInstallableUnit> to_, Collection<IInstallableUnit> intersection) {
-		if (intersection.size() == 0)
+		if (intersection.size() == 0) {
 			return;
+		}
 		//We retain from each set the things that are the same.
 		//Note that despite the fact that they are the same, a different CU can be attached.
 		//The objects contained in the intersection are the one that were originally in the from collection.
@@ -64,11 +65,13 @@ public class OperationGenerator {
 	private void generateConfigurationOperation(IInstallableUnit fromIU, IInstallableUnit toIU) {
 		Collection<IInstallableUnitFragment> fromFragments = fromIU.getFragments();
 		Collection<IInstallableUnitFragment> toFragments = toIU.getFragments();
-		if (fromFragments == toFragments)
+		if (fromFragments == toFragments) {
 			return;
+		}
 		//Check to see if the two arrays are equals independently of the order of the fragments
-		if (fromFragments.size() == toFragments.size() && fromFragments.containsAll(toFragments))
+		if (fromFragments.size() == toFragments.size() && fromFragments.containsAll(toFragments)) {
 			return;
+		}
 		plan.updateInstallableUnit(fromIU, toIU);
 	}
 
@@ -104,8 +107,9 @@ public class OperationGenerator {
 	}
 
 	private void generateUpdates(List<IInstallableUnit> from, List<IInstallableUnit> to) {
-		if (to.isEmpty() || from.isEmpty())
+		if (to.isEmpty() || from.isEmpty()) {
 			return;
+		}
 
 		Set<IInstallableUnit> processed = new HashSet<>();
 		Set<IInstallableUnit> removedFromTo = new HashSet<>();
@@ -118,8 +122,9 @@ public class OperationGenerator {
 				//System.out.println("Can't update " + iuTo + " because another iu with same id is in the target state");
 				continue;
 			}
-			if (iuTo.getUpdateDescriptor() == null)
+			if (iuTo.getUpdateDescriptor() == null) {
 				continue;
+			}
 
 			//TODO we eventually need to handle the case where an IU is a merge of several others.
 
@@ -153,16 +158,18 @@ public class OperationGenerator {
 
 	private IInstallableUnit next(List<IInstallableUnit> l, int i) {
 		i++;
-		if (i >= l.size())
+		if (i >= l.size()) {
 			return NULL_IU;
+		}
 		return l.get(i);
 	}
 
 	private int skip(List<IInstallableUnit> c, IInstallableUnit id, int idx) {
 		int i = idx;
 		for (; i < c.size(); i++) {
-			if (!id.getId().equals(c.get(i).getId()))
+			if (!id.getId().equals(c.get(i).getId())) {
 				return i;
+			}
 		}
 		return i;
 	}

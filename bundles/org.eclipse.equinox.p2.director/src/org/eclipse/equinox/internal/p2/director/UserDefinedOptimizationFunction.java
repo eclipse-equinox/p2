@@ -153,8 +153,9 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 			IQueryResult<IInstallableUnit> matches = picker.query(query, null);
 			List<IInstallableUnit> toSort = new ArrayList<>(matches.toUnmodifiableSet());
 			toSort.sort(Collections.reverseOrder());
-			if (toSort.isEmpty())
+			if (toSort.isEmpty()) {
 				continue;
+			}
 
 			Projector.AbstractVariable abs = new Projector.AbstractVariable();
 			Object notlatest = dependencyHelper.not(toSort.get(0));
@@ -198,8 +199,9 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 
 	private boolean isInstalledAsRoot(IInstallableUnit isInstalled) {
 		for (IInstallableUnit installed : alreadyExistingRoots) {
-			if (isInstalled.equals(installed))
+			if (isInstalled.equals(installed)) {
 				return true;
+			}
 		}
 		return false;
 	}

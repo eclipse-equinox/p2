@@ -42,11 +42,13 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 
 	public static ProfileChangeRequest createByProfileId(IProvisioningAgent agent, String profileId) {
 		IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
-		if (profileRegistry == null)
+		if (profileRegistry == null) {
 			throw new IllegalStateException(Messages.Planner_no_profile_registry);
+		}
 		IProfile profile = profileRegistry.getProfile(profileId);
-		if (profile == null)
+		if (profile == null) {
 			throw new IllegalArgumentException("Profile id " + profileId + " is not registered."); //$NON-NLS-1$//$NON-NLS-2$
+		}
 		return new ProfileChangeRequest(profile);
 	}
 
@@ -55,8 +57,9 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	}
 
 	public void setProfile(IProfile profile) {
-		if (profile == null)
+		if (profile == null) {
 			throw new IllegalArgumentException("Profile cannot be null."); //$NON-NLS-1$
+		}
 	}
 
 	public IProfile getProfile() {
@@ -70,66 +73,76 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 				result.remove(key);
 			}
 		}
-		if (propertiesToAdd != null)
+		if (propertiesToAdd != null) {
 			result.putAll(propertiesToAdd);
+		}
 
 		return result;
 	}
 
 	@Override
 	public void add(IInstallableUnit toInstall) {
-		if (iusToAdd == null)
+		if (iusToAdd == null) {
 			iusToAdd = new ArrayList<>();
+		}
 		iusToAdd.add(toInstall.unresolved());
 	}
 
 	@Override
 	public void addAll(Collection<IInstallableUnit> toInstall) {
-		for (IInstallableUnit iu : toInstall)
+		for (IInstallableUnit iu : toInstall) {
 			add(iu);
+		}
 	}
 
 	public void addInstallableUnits(IInstallableUnit... toInstall) {
-		for (IInstallableUnit element : toInstall)
+		for (IInstallableUnit element : toInstall) {
 			add(element);
+		}
 	}
 
 	@Override
 	public void remove(IInstallableUnit toUninstall) {
-		if (iusToRemove == null)
+		if (iusToRemove == null) {
 			iusToRemove = new ArrayList<>();
+		}
 		iusToRemove.add(toUninstall.unresolved());
 	}
 
 	public void removeInstallableUnits(IInstallableUnit[] toUninstall) {
-		for (IInstallableUnit element : toUninstall)
+		for (IInstallableUnit element : toUninstall) {
 			remove(element);
+		}
 	}
 
 	@Override
 	public void removeAll(Collection<IInstallableUnit> toUninstall) {
-		for (IInstallableUnit iu : toUninstall)
+		for (IInstallableUnit iu : toUninstall) {
 			remove(iu);
+		}
 	}
 
 	@Override
 	public void setProfileProperty(String key, String value) {
-		if (propertiesToAdd == null)
+		if (propertiesToAdd == null) {
 			propertiesToAdd = new HashMap<>();
+		}
 		propertiesToAdd.put(key, value);
 	}
 
 	@Override
 	public void removeProfileProperty(String key) {
-		if (propertiesToRemove == null)
+		if (propertiesToRemove == null) {
 			propertiesToRemove = new ArrayList<>(1);
+		}
 		propertiesToRemove.add(key);
 	}
 
 	@Override
 	public void setInstallableUnitProfileProperty(IInstallableUnit iu, String key, String value) {
-		if (iuPropertiesToAdd == null)
+		if (iuPropertiesToAdd == null) {
 			iuPropertiesToAdd = new HashMap<>();
+		}
 		iu = iu.unresolved();
 		Map<String, String> properties = iuPropertiesToAdd.get(iu);
 		if (properties == null) {
@@ -141,58 +154,66 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 
 	@Override
 	public void removeInstallableUnitProfileProperty(IInstallableUnit iu, String key) {
-		if (iuPropertiesToRemove == null)
+		if (iuPropertiesToRemove == null) {
 			iuPropertiesToRemove = new HashMap<>();
+		}
 		iu = iu.unresolved();
 		List<String> keys = iuPropertiesToRemove.get(iu);
 		if (keys == null) {
 			keys = new ArrayList<>();
 			iuPropertiesToRemove.put(iu, keys);
 		}
-		if (!keys.contains(key))
+		if (!keys.contains(key)) {
 			keys.add(key);
+		}
 	}
 
 	@Override
 	public Collection<IInstallableUnit> getRemovals() {
-		if (iusToRemove == null)
+		if (iusToRemove == null) {
 			return Collections.emptyList();
+		}
 		return Collections.unmodifiableList(iusToRemove);
 	}
 
 	@Override
 	public Collection<IInstallableUnit> getAdditions() {
-		if (iusToAdd == null)
+		if (iusToAdd == null) {
 			return Collections.emptyList();
+		}
 		return Collections.unmodifiableList(iusToAdd);
 	}
 
 	// String [key, key, key] names of properties to remove
 	public String[] getPropertiesToRemove() {
-		if (propertiesToRemove == null)
+		if (propertiesToRemove == null) {
 			return new String[0];
+		}
 		return propertiesToRemove.toArray(new String[propertiesToRemove.size()]);
 	}
 
 	// map of key value pairs
 	public Map<String, String> getPropertiesToAdd() {
-		if (propertiesToAdd == null)
+		if (propertiesToAdd == null) {
 			return Collections.emptyMap();
+		}
 		return propertiesToAdd;
 	}
 
 	// map of iu->list of property keys to be removed for an iu
 	public Map<IInstallableUnit, List<String>> getInstallableUnitProfilePropertiesToRemove() {
-		if (iuPropertiesToRemove == null)
+		if (iuPropertiesToRemove == null) {
 			return Collections.emptyMap();
+		}
 		return iuPropertiesToRemove;
 	}
 
 	// TODO This can be represented and returned in whatever way makes most sense for planner/engine
 	// map iu->map of key->value pairs for properties to be added for an iu
 	public Map<IInstallableUnit, Map<String, String>> getInstallableUnitProfilePropertiesToAdd() {
-		if (iuPropertiesToAdd == null)
+		if (iuPropertiesToAdd == null) {
 			return Collections.emptyMap();
+		}
 		return iuPropertiesToAdd;
 	}
 
@@ -249,8 +270,9 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 
 	@Override
 	public void addExtraRequirements(Collection<IRequirement> requirements) {
-		if (additionalRequirements == null)
+		if (additionalRequirements == null) {
 			additionalRequirements = new ArrayList<>(requirements.size());
+		}
 		additionalRequirements.addAll(requirements);
 	}
 

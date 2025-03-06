@@ -42,10 +42,11 @@ public class FormerState {
 		List<IInstallableUnit> iusToUpdate = new ArrayList<>();
 		while (targetIUs.hasNext()) {
 			IInstallableUnit nxt = targetIUs.next();
-			if (currentIUset.contains(nxt))
+			if (currentIUset.contains(nxt)) {
 				iusToUpdate.add(nxt);
-			else
+			} else {
 				iusToAdd.add(nxt);
+			}
 		}
 
 		//additions
@@ -63,8 +64,9 @@ public class FormerState {
 				String newValue = propertiesToSet.get(key);
 				if (newValue == null) {
 					request.removeInstallableUnitProfileProperty(iu, key);
-				} else if (newValue.equals(entry.getValue()))
+				} else if (newValue.equals(entry.getValue())) {
 					propertiesToSet.remove(key);
+				}
 			}
 
 			for (Entry<String, String> entry : propertiesToSet.entrySet()) {
@@ -96,8 +98,9 @@ public class FormerState {
 			String newValue = profilePropertiesToSet.get(key);
 			if (newValue == null) {
 				request.removeProfileProperty(key);
-			} else if (newValue.equals(entry.getValue()))
+			} else if (newValue.equals(entry.getValue())) {
 				profilePropertiesToSet.remove(key);
+			}
 		}
 
 		for (Entry<String, String> entry : profilePropertiesToSet.entrySet()) {

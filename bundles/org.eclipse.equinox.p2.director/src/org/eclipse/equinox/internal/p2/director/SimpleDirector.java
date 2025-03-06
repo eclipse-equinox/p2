@@ -32,11 +32,13 @@ public class SimpleDirector implements IDirector {
 	private final IPlanner planner;
 
 	public SimpleDirector(IEngine engine, IPlanner planner) {
-		if (engine == null)
+		if (engine == null) {
 			throw new IllegalStateException("Provisioning engine is not registered"); //$NON-NLS-1$
+		}
 		this.engine = engine;
-		if (planner == null)
+		if (planner == null) {
 			throw new IllegalStateException("Unable to find provisioning planner"); //$NON-NLS-1$
+		}
 		this.planner = planner;
 	}
 

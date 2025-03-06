@@ -90,8 +90,9 @@ public class OptimizationFunction {
 				}
 				weight = weight.multiply(POWER);
 			}
-			if (weight.compareTo(maxWeight) > 0)
+			if (weight.compareTo(maxWeight) > 0) {
 				maxWeight = weight;
+			}
 		}
 
 		// no need to add one here, since maxWeight is strictly greater than the
@@ -110,8 +111,9 @@ public class OptimizationFunction {
 		long countOptional = 1;
 		List<IInstallableUnit> requestedPatches = new ArrayList<>();
 		for (IRequirement req : metaIu.getRequirements()) {
-			if (req.getMin() > 0 || !req.isGreedy())
+			if (req.getMin() > 0 || !req.isGreedy()) {
 				continue;
+			}
 			for (IInstallableUnit match : picker.query(QueryUtil.createMatchQuery(req.getMatches()), null)) {
 				if (match instanceof IInstallableUnitPatch) {
 					requestedPatches.add(match);
@@ -141,8 +143,9 @@ public class OptimizationFunction {
 	 */
 	private int sizeOf(IQueryable<IInstallableUnit> installedIUs) {
 		IQueryResult<IInstallableUnit> qr = installedIUs.query(QueryUtil.createIUAnyQuery(), null);
-		if (qr instanceof Collector<?>)
+		if (qr instanceof Collector<?>) {
 			return ((Collector<?>) qr).size();
+		}
 		return qr.toUnmodifiableSet().size();
 	}
 
