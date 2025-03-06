@@ -23,18 +23,21 @@ public class EquinoxUtils {
 
 	public static URL[] getConfigAreaURL(BundleContext context) {
 		Location configLocation = getConfigLocation(context);
-		if (configLocation == null)
+		if (configLocation == null) {
 			return null;
+		}
 
 		URL baseURL = configLocation.getURL();
 		if (configLocation.getParentLocation() != null && configLocation.getURL() != null) {
-			if (baseURL == null)
+			if (baseURL == null) {
 				return new URL[] {configLocation.getParentLocation().getURL()};
-			else
+			} else {
 				return new URL[] {baseURL, configLocation.getParentLocation().getURL()};
+			}
 		}
-		if (baseURL != null)
+		if (baseURL != null) {
 			return new URL[] {baseURL};
+		}
 
 		return null;
 	}

@@ -30,15 +30,19 @@ public class Utils {
 	private final static String PATH_SEP = "/"; //$NON-NLS-1$
 
 	public static URL checkFullUrl(URL url, String urlName) throws IllegalArgumentException {//throws ManipulatorException {
-		if (url == null)
+		if (url == null) {
 			throw new IllegalArgumentException(urlName + " is null");
-		if (!url.getProtocol().endsWith("file"))
+		}
+		if (!url.getProtocol().endsWith("file")) {
 			return url;
+		}
 		File file = new File(url.getFile());
-		if (!file.isAbsolute())
+		if (!file.isAbsolute()) {
 			throw new IllegalArgumentException(urlName + "(" + url + ") does not have absolute path");
-		if (file.getAbsolutePath().startsWith(PATH_SEP))
+		}
+		if (file.getAbsolutePath().startsWith(PATH_SEP)) {
 			return url;
+		}
 		try {
 			return getUrl("file", null, PATH_SEP + file.getAbsolutePath());
 		} catch (MalformedURLException e) {
@@ -48,22 +52,25 @@ public class Utils {
 
 	public static void deleteDir(File file) throws IOException {
 		if (file.isFile()) {
-			if (!file.delete())
+			if (!file.delete()) {
 				throw new IOException("Fail to delete File(" + file.getAbsolutePath() + ")");
+			}
 			return;
 		}
 		File[] children = file.listFiles();
 		for (File child : children) {
 			deleteDir(child);
 		}
-		if (!file.delete())
+		if (!file.delete()) {
 			throw new IOException("Fail to delete Dir(" + file.getAbsolutePath() + ")");
+		}
 		return;
 	}
 
 	public static BundleInfo[] getBundleInfosFromList(List<BundleInfo> list) {
-		if (list == null)
+		if (list == null) {
 			return new BundleInfo[0];
+		}
 		BundleInfo[] ret = new BundleInfo[list.size()];
 		list.toArray(ret);
 		return ret;
@@ -92,12 +99,14 @@ public class Utils {
 	public static void log(int level, Object obj, String method, String message, Throwable e) {
 		String msg = "";
 		if (method == null) {
-			if (obj != null)
+			if (obj != null) {
 				msg = "(" + obj.getClass().getName() + ")";
-		} else if (obj == null)
+			}
+		} else if (obj == null) {
 			msg = "[" + method + "]" + message;
-		else
+		} else {
 			msg = "[" + method + "](" + obj.getClass().getName() + ")";
+		}
 		msg += message;
 
 		//		if (LogService logService = Activator.getLogService();
@@ -105,32 +114,35 @@ public class Utils {
 		//			logService.log(level, msg, e);
 		//		} else {
 		String levelSt = null;
-		if (level == 1)
+		if (level == 1) {
 			levelSt = "DEBUG";
-		else if (level == 2)
+		} else if (level == 2) {
 			levelSt = "INFO";
-		else if (level == 3)
+		} else if (level == 3) {
 			levelSt = "WARNING";
-		else if (level == 4) {
+		} else if (level == 4) {
 			levelSt = "ERROR";
 			//				useLog = true;
 		}
 		//			if (useLog) {
 		System.err.println("[" + levelSt + "]" + msg);
-		if (e != null)
+		if (e != null) {
 			e.printStackTrace();
 		//			}
+		}
 	}
 
 	public static URL buildURL(String spec) throws MalformedURLException {
-		if (spec == null)
+		if (spec == null) {
 			throw new NullPointerException("URL spec is null."); //$NON-NLS-1$
+		}
 		// Construct the URL carefully so as to preserve UNC paths etc.
 		if (spec.startsWith("file:")) { //$NON-NLS-1$
 			// need to do this for UNC paths
 			File file = new File(spec.substring(5));
-			if (file.isAbsolute())
+			if (file.isAbsolute()) {
 				return file.toURL();
+			}
 		}
 		return new URL(spec);
 	}

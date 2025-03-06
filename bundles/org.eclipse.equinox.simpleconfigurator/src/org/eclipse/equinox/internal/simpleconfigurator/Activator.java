@@ -69,15 +69,17 @@ public class Activator implements BundleActivator {
 		configuratorRegistration = context.registerService(Configurator.class.getName(), configurationFactory, props);
 
 		try {
-			if (null != context.getBundle().loadClass("org.eclipse.osgi.framework.console.CommandProvider")) //$NON-NLS-1$
+			if (null != context.getBundle().loadClass("org.eclipse.osgi.framework.console.CommandProvider")) { //$NON-NLS-1$
 				commandRegistration = EquinoxUtils.registerConsoleCommands(context);
+			}
 		} catch (ClassNotFoundException e) {
 			// CommandProvider is not available
 			// Ok -- optional
 		}
 
-		if (DEBUG)
+		if (DEBUG) {
 			System.out.println("registered Configurator"); //$NON-NLS-1$
+		}
 	}
 
 	@Override

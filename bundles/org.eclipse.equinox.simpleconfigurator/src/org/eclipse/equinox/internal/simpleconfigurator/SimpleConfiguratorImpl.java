@@ -62,13 +62,15 @@ public class SimpleConfiguratorImpl implements Configurator {
 
 	public URL getConfigurationURL() throws IOException {
 		String specifiedURL = context.getProperty(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL);
-		if (specifiedURL == null)
+		if (specifiedURL == null) {
 			specifiedURL = "file:" + SimpleConfiguratorConstants.CONFIGURATOR_FOLDER + "/" + SimpleConfiguratorConstants.CONFIG_LIST;
+		}
 
 		try {
 			//If it is not a file URL use it as is
-			if (!specifiedURL.startsWith("file:"))
+			if (!specifiedURL.startsWith("file:")) {
 				return new URL(specifiedURL);
+			}
 		} catch (MalformedURLException e) {
 			return null;
 		}
@@ -87,8 +89,9 @@ public class SimpleConfiguratorImpl implements Configurator {
 					done = true;
 				}
 			}
-			if (url != null && new File(url.getFile()).isAbsolute())
+			if (url != null && new File(url.getFile()).isAbsolute()) {
 				return url;
+			}
 
 			//if it is an relative file URL, then resolve it against the configuration area
 			// TODO Support relative file URLs when not on Equinox
@@ -120,18 +123,22 @@ public class SimpleConfiguratorImpl implements Configurator {
 	public URL chooseConfigurationURL(URL relativeURL, URL[] configURL) throws MalformedURLException {
 		if (configURL != null) {
 			File userConfig = new File(configURL[0].getFile(), relativeURL.getFile());
-			if (configURL.length == 1)
+			if (configURL.length == 1) {
 				return userConfig.exists() ? userConfig.toURL() : null;
+			}
 
 			File sharedConfig = new File(configURL[1].getFile(), relativeURL.getFile());
-			if (!userConfig.exists())
+			if (!userConfig.exists()) {
 				return sharedConfig.exists() ? sharedConfig.toURL() : null;
+			}
 
-			if (!sharedConfig.exists())
+			if (!sharedConfig.exists()) {
 				return userConfig.toURL();
+			}
 
-			if (Boolean.TRUE.toString().equals(System.getProperty(PROP_IGNORE_USER_CONFIGURATION)))
+			if (Boolean.TRUE.toString().equals(System.getProperty(PROP_IGNORE_USER_CONFIGURATION))) {
 				return sharedConfig.toURL();
+			}
 
 			long[] sharedBundlesInfoTimestamp = getCurrentBundlesInfoBaseTimestamp(sharedConfig);
 			long[] lastKnownBaseTimestamp = getLastKnownBundlesInfoBaseTimestamp(userConfig.getParentFile());
@@ -149,8 +156,9 @@ public class SimpleConfiguratorImpl implements Configurator {
 	private long[] getLastKnownBundlesInfoBaseTimestamp(File configFolder) {
 		long[] result = new long[] {NO_TIMESTAMP, NO_TIMESTAMP};
 		File storedSharedTimestamp = new File(configFolder, BASE_TIMESTAMP_FILE_BUNDLESINFO);
-		if (!storedSharedTimestamp.exists())
+		if (!storedSharedTimestamp.exists()) {
 			return result;
+		}
 
 		Properties p = new Properties();
 		try (InputStream is = new BufferedInputStream(new FileInputStream(storedSharedTimestamp))) {
@@ -168,8 +176,9 @@ public class SimpleConfiguratorImpl implements Configurator {
 	}
 
 	public static long[] getCurrentBundlesInfoBaseTimestamp(File sharedBundlesInfo) {
-		if (!sharedBundlesInfo.exists())
+		if (!sharedBundlesInfo.exists()) {
 			return new long[] {NO_TIMESTAMP, NO_TIMESTAMP};
+		}
 		long lastModified = SimpleConfiguratorUtils.getFileLastModified(sharedBundlesInfo);
 		long extLastModified = SimpleConfiguratorUtils.getExtendedTimeStamp();
 		return new long[] {lastModified, extLastModified};
@@ -178,22 +187,26 @@ public class SimpleConfiguratorImpl implements Configurator {
 	@Override
 	public void applyConfiguration(URL url) throws IOException {
 		synchronized (configurationLock) {
-			if (Activator.DEBUG)
+			if (Activator.DEBUG) {
 				System.out.println("applyConfiguration() URL=" + url);
-			if (url == null)
+			}
+			if (url == null) {
 				return;
+			}
 			configurationURL = url;
 
-			if (this.configApplier == null)
+			if (this.configApplier == null) {
 				configApplier = new ConfigApplier(context, bundle);
+			}
 			configApplier.install(url, isExclusiveInstallation());
 		}
 	}
 
 	private boolean isExclusiveInstallation() {
 		String value = context.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION);
-		if (value == null || value.trim().length() == 0)
+		if (value == null || value.trim().length() == 0) {
 			value = "true";
+		}
 		return Boolean.parseBoolean(value);
 	}
 

@@ -208,8 +208,9 @@ public class SimpleConfiguratorUtils {
 			while ((line = r.readLine()) != null) {
 				line = line.trim();
 				//ignore any comment or empty lines
-				if (line.length() == 0)
+				if (line.length() == 0) {
 					continue;
+				}
 
 				if (line.startsWith("#")) {//$NON-NLS-1$
 					parseCommentLine(line);
@@ -217,8 +218,9 @@ public class SimpleConfiguratorUtils {
 				}
 
 				BundleInfo bundleInfo = parseBundleInfoLine(line, base);
-				if (bundleInfo != null)
+				if (bundleInfo != null) {
 					bundles.add(bundleInfo);
+				}
 			}
 		}
 		return bundles;
@@ -242,8 +244,9 @@ public class SimpleConfiguratorUtils {
 			//do nothing
 		}
 
-		if (bytesRead == utfBytes.length && Arrays.equals(utfBytes, buffer))
+		if (bytesRead == utfBytes.length && Arrays.equals(utfBytes, buffer)) {
 			return "UTF-8";
+		}
 
 		//if the first bytes weren't the encoding, need to reset
 		try {
@@ -258,8 +261,9 @@ public class SimpleConfiguratorUtils {
 		// version
 		if (line.startsWith(VERSION_PREFIX)) {
 			String version = line.substring(VERSION_PREFIX.length()).trim();
-			if (!COMPATIBLE_VERSION.equals(new Version(version)))
+			if (!COMPATIBLE_VERSION.equals(new Version(version))) {
 				throw new IllegalArgumentException("Invalid version: " + version);
+			}
 		}
 	}
 
@@ -267,8 +271,9 @@ public class SimpleConfiguratorUtils {
 		// symbolicName,version,location,startLevel,markedAsStarted
 		StringTokenizer tok = new StringTokenizer(line, COMMA);
 		int numberOfTokens = tok.countTokens();
-		if (numberOfTokens < 5)
+		if (numberOfTokens < 5) {
 			throw new IllegalArgumentException("Line does not contain at least 5 tokens: " + line);
+		}
 
 		String symbolicName = tok.nextToken().trim();
 		String version = tok.nextToken().trim();
@@ -276,8 +281,9 @@ public class SimpleConfiguratorUtils {
 		int startLevel = Integer.parseInt(tok.nextToken().trim());
 		boolean markedAsStarted = Boolean.parseBoolean(tok.nextToken());
 		BundleInfo result = new BundleInfo(symbolicName, version, location, startLevel, markedAsStarted);
-		if (!location.isAbsolute())
+		if (!location.isAbsolute()) {
 			result.setBaseLocation(base);
+		}
 		return result;
 	}
 
@@ -292,23 +298,27 @@ public class SimpleConfiguratorUtils {
 		if (File.separatorChar != '/') {
 			int colon = location.indexOf(':');
 			String scheme = colon < 0 ? null : location.substring(0, colon);
-			if (scheme == null || scheme.equals(FILE_SCHEME))
+			if (scheme == null || scheme.equals(FILE_SCHEME)) {
 				location = location.replace(File.separatorChar, '/');
+			}
 			//if the file is a UNC path, insert extra leading // if needed to make a valid URI (see bug 207103)
 			if (scheme == null) {
-				if (location.startsWith(UNC_PREFIX) && !location.startsWith(UNC_PREFIX, 2))
+				if (location.startsWith(UNC_PREFIX) && !location.startsWith(UNC_PREFIX, 2)) {
 					location = UNC_PREFIX + location;
+				}
 			} else {
 				//insert UNC prefix after the scheme
-				if (location.startsWith(UNC_PREFIX, colon + 1) && !location.startsWith(UNC_PREFIX, colon + 3))
+				if (location.startsWith(UNC_PREFIX, colon + 1) && !location.startsWith(UNC_PREFIX, colon + 3)) {
 					location = location.substring(0, colon + 3) + location.substring(colon + 1);
+				}
 			}
 		}
 
 		try {
 			URI uri = new URI(location);
-			if (!uri.isOpaque())
+			if (!uri.isOpaque()) {
 				return uri;
+			}
 		} catch (URISyntaxException e1) {
 			// this will catch the use of invalid URI characters (e.g. spaces, etc.)
 			// ignore and fall through
@@ -329,8 +339,9 @@ public class SimpleConfiguratorUtils {
 					byte[] buffer = new byte[8192];
 					while (true) {
 						int bytesRead = -1;
-						if ((bytesRead = bufferedSource.read(buffer)) == -1)
+						if ((bytesRead = bufferedSource.read(buffer)) == -1) {
 							break;
+						}
 						destination.write(buffer, 0, bytesRead);
 					}
 				}
@@ -368,8 +379,9 @@ public class SimpleConfiguratorUtils {
 			bundleLocation = location.toString();
 		}
 
-		if (useReference && bundleLocation.startsWith(FILE_PREFIX))
+		if (useReference && bundleLocation.startsWith(FILE_PREFIX)) {
 			bundleLocation = REFERENCE_PREFIX + bundleLocation;
+		}
 		return bundleLocation;
 	}
 
