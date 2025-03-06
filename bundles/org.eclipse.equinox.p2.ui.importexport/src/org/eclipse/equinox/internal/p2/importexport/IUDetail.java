@@ -39,18 +39,21 @@ public class IUDetail implements IAdaptable {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
-		if (IInstallableUnit.class.equals(adapter))
+		if (IInstallableUnit.class.equals(adapter)) {
 			return (T) iu;
+		}
 		return null;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
+		}
 		if (obj instanceof IUDetail) {
-			if (iu.equals(((IUDetail) obj).getIU()))
+			if (iu.equals(((IUDetail) obj).getIU())) {
 				return true;
+			}
 		}
 		return false;
 	}

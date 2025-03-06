@@ -51,8 +51,9 @@ public class ExportPage extends AbstractPage {
 	@Override
 	public void doFinish() throws Exception {
 		finishException = null;
-		if (viewer == null)
+		if (viewer == null) {
 			return;
+		}
 		// about to invoke the operation so save our state
 		saveWidgetValues();
 		final Object[] checked = viewer.getCheckedElements();
@@ -60,8 +61,9 @@ public class ExportPage extends AbstractPage {
 		OutputStream stream = null;
 		try {
 			File target = new File(ExportPage.this.destinationNameField.getText());
-			if (!target.exists())
+			if (!target.exists()) {
 				target.createNewFile();
+			}
 			stream = new BufferedOutputStream(new FileOutputStream(target));
 			final OutputStream out = stream;
 			getContainer().run(true, true, new IRunnableWithProgress() {
@@ -70,18 +72,20 @@ public class ExportPage extends AbstractPage {
 				public void run(IProgressMonitor monitor) throws InterruptedException {
 					try {
 						IInstallableUnit[] units = new IInstallableUnit[checked.length];
-						for (int i = 0; i < units.length; i++)
+						for (int i = 0; i < units.length; i++) {
 							units[i] = ProvUI.getAdapter(checked[i], IInstallableUnit.class);
+						}
 						IStatus status = importexportService.exportP2F(out, units, includeAllEntries, monitor);
 						if (status.isMultiStatus()) {
 							final StringBuilder sb = new StringBuilder();
 							for (IStatus child : status.getChildren()) {
 								if (child.isMultiStatus()) {
-									for (IStatus grandchild : child.getChildren())
+									for (IStatus grandchild : child.getChildren()) {
 										sb.append("<li>").append(grandchild.getMessage()).append("</li>"); //$NON-NLS-1$ //$NON-NLS-2$
-								} else if (child.isOK())
+									}
+								} else if (child.isOK()) {
 									sb.insert(0, Messages.ExportPage_SuccessWithProblems);
-								else {
+								} else {
 									sb.insert(0, Messages.ExportPage_Fail);
 									sb.append(status.getMessage());
 								}
@@ -93,8 +97,9 @@ public class ExportPage extends AbstractPage {
 								tryAgain = StyledErrorDialog.openQuestion(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), title, sb.toString());
 							};
 							Display.getDefault().syncExec(runnable);
-							if (tryAgain)
+							if (tryAgain) {
 								throw new OperationCanceledException("User chosed try again."); //$NON-NLS-1$
+							}
 						}
 					} catch (OperationCanceledException e) {
 						throw new InterruptedException(e.getMessage());
@@ -113,8 +118,9 @@ public class ExportPage extends AbstractPage {
 					// do nothing
 				}
 			}
-			if (finishException != null)
+			if (finishException != null) {
 				throw finishException;
+			}
 		}
 	}
 
@@ -136,8 +142,9 @@ public class ExportPage extends AbstractPage {
 
 	@Override
 	protected void giveFocusToDestination() {
-		if (viewer != null)
+		if (viewer != null) {
 			viewer.getControl().setFocus();
+		}
 	}
 
 	@Override

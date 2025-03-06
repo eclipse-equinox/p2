@@ -96,8 +96,9 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 				runnableContext.run(true, true, monitor -> {
 					final SubMonitor sub = SubMonitor.convert(monitor, withRemediation ? 15 : 10);
 					((ImportPage) mainPage).recompute(sub.newChild(8));
-					if (sub.isCanceled())
+					if (sub.isCanceled()) {
 						throw new InterruptedException();
+					}
 					Display.getDefault().syncExec(() -> {
 						ProvisioningContext context = getProvisioningContext();
 						initializeResolutionModelElements(getOperationSelections());
@@ -112,8 +113,9 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 
 								@Override
 								public IStatus getResolutionResult() {
-									if (sub.isCanceled())
+									if (sub.isCanceled()) {
 										return Status.CANCEL_STATUS;
+									}
 									return new Status(IStatus.ERROR, Constants.Bundle_ID,
 											Messages.ImportWizard_CannotQuerySelection);
 								}
@@ -123,10 +125,12 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 							operation.setProvisioningContext(context);
 						}
 					});
-					if (sub.isCanceled())
+					if (sub.isCanceled()) {
 						throw new InterruptedException();
-					if (operation.resolveModal(sub.newChild(2)).getSeverity() == IStatus.CANCEL)
+					}
+					if (operation.resolveModal(sub.newChild(2)).getSeverity() == IStatus.CANCEL) {
 						throw new InterruptedException();
+					}
 					if (withRemediation) {
 						IStatus status = operation.getResolutionResult();
 						if (remediationPage != null && shouldRemediate(status)) {
@@ -147,8 +151,9 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 				ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
 				unableToResolve(null);
 			}
-		} else
+		} else {
 			super.recomputePlan(runnableContext, withRemediation);
+		}
 	}
 
 	void unableToResolve(String message) {

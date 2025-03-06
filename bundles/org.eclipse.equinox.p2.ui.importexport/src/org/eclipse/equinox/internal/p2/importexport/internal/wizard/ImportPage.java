@@ -108,8 +108,9 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 
 		@Override
 		public Color getForeground(Object element) {
-			if (hasInstalled(ProvUI.getAdapter(element, IInstallableUnit.class)))
+			if (hasInstalled(ProvUI.getAdapter(element, IInstallableUnit.class))) {
 				return Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
+			}
 			return null;
 		}
 
@@ -131,12 +132,13 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 			super();
 			for (IUColumnConfig columnConfig1 : columnConfig) {
 				int field = columnConfig1.getColumnType();
-				if (field == IUColumnConfig.COLUMN_ID)
+				if (field == IUColumnConfig.COLUMN_ID) {
 					checkId = true;
-				else if (field == IUColumnConfig.COLUMN_NAME)
+				} else if (field == IUColumnConfig.COLUMN_NAME) {
 					checkName = true;
-				else if (field == IUColumnConfig.COLUMN_VERSION)
+				} else if (field == IUColumnConfig.COLUMN_VERSION) {
 					checkVersion = true;
+				}
 			}
 
 		}
@@ -161,8 +163,9 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		 */
 		@Override
 		protected boolean isParentMatch(Viewer viewer1, Object element) {
-			if (patternString == null || patternString.length() == 0)
+			if (patternString == null || patternString.length() == 0) {
 				return true;
+			}
 			return super.isParentMatch(viewer1, element);
 		}
 
@@ -174,8 +177,9 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 				if (checkName) {
 					// Get the iu name in the default locale
 					text = iu.getProperty(IInstallableUnit.PROP_NAME, null);
-					if (text != null && wordMatches(text))
+					if (text != null && wordMatches(text)) {
 						return true;
+					}
 				}
 				if (checkId || (checkName && text == null)) {
 					text = iu.getId();
@@ -185,8 +189,9 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 				}
 				if (checkVersion) {
 					text = iu.getVersion().toString();
-					if (wordMatches(text))
+					if (wordMatches(text)) {
 						return true;
+					}
 				}
 			}
 			return false;
@@ -272,8 +277,9 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	@Override
 	protected void updatePageCompletion() {
 		super.updatePageCompletion();
-		if (isPageComplete())
+		if (isPageComplete()) {
 			getProvisioningWizard().operationSelectionsChanged(this);
+		}
 	}
 
 	@Override
@@ -298,15 +304,17 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 			} catch (IOException e) {
 				MessageDialog.openError(getShell(), Messages.ImportPage_TITLE, e.getLocalizedMessage());
 			}
-		} else
+		} else {
 			viewer.setInput(null);
+		}
 		updatePageCompletion();
 	}
 
 	private boolean hasEntriesWithoutRepo() {
 		for (IUDetail entry : features) {
-			if (entry.getReferencedRepositories().size() == 0)
+			if (entry.getReferencedRepositories().size() == 0) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -392,9 +400,11 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	public boolean hasUnloadedRepo() {
 		for (Object checked : viewer.getCheckedElements()) {
 			IUDetail feature = (IUDetail) checked;
-			for (URI uri : feature.getReferencedRepositories())
-				if (!loadRepos.contains(uri))
+			for (URI uri : feature.getReferencedRepositories()) {
+				if (!loadRepos.contains(uri)) {
 					return true;
+				}
+			}
 		}
 		return false;
 	}
@@ -409,8 +419,9 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	}
 
 	public Object[] getChecked() {
-		if (Display.findDisplay(Thread.currentThread()) != null)
+		if (Display.findDisplay(Thread.currentThread()) != null) {
 			return viewer.getCheckedElements();
+		}
 		GetCheckedElement get = new GetCheckedElement();
 		Display.getDefault().syncExec(get);
 		return get.checkedElements;
@@ -426,8 +437,9 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 			for (Object item : checked) {
 				IUDetail feature = (IUDetail) item;
 				if (!newProposedFeature.containsKey(feature)) {
-					if (sub.isCanceled())
+					if (sub.isCanceled()) {
 						throw new InterruptedException();
+					}
 					SubMonitor sub2 = sub.newChild(100, SubMonitor.SUPPRESS_ALL_LABELS);
 					sub2.setWorkRemaining(feature.getReferencedRepositories().size() * 500 + 100);
 					List<IRepository<IInstallableUnit>> repos = new ArrayList<>();
@@ -457,8 +469,9 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 							.stream().map(iu -> new IUDetail(iu, feature.getReferencedRepositories())).toList();
 					newProposedFeature.put(feature, existingFeatures);
 				} else {
-					if (sub.isCanceled())
+					if (sub.isCanceled()) {
 						throw new InterruptedException();
+					}
 					sub.worked(100);
 				}
 			}

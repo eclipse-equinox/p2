@@ -39,8 +39,9 @@ public class P2FWriter extends XMLWriter implements P2FConstants {
 	private void writeIUs(List<IUDetail> ius) {
 		start(IUS_ELEMENT);
 		attributeOptional(COLLECTION_SIZE_ATTRIBUTE, String.valueOf(ius.size()));
-		for (IUDetail iu : ius)
+		for (IUDetail iu : ius) {
 			writeIU(iu);
+		}
 		end(IUS_ELEMENT);
 	}
 

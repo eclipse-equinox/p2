@@ -130,8 +130,9 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 			} finally {
 				executor.shutdown();
 			}
-		} else
+		} else {
 			rt = super.validateDestinationGroup();
+		}
 
 		if (rt) {
 			try {
@@ -144,8 +145,9 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 						public String call() throws Exception {
 							if (Display.findDisplay(Thread.currentThread()) == null) {
 								Display.getDefault().syncExec(() -> des = getDestinationValue());
-							} else
+							} else {
 								des = getDestinationValue();
+							}
 							return des;
 						}
 					};
@@ -156,8 +158,9 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 					} finally {
 						executor.shutdown();
 					}
-				} else
+				} else {
 					destination = getDestinationValue();
+				}
 
 				String toBeImportedProfileId = null;
 				try {
@@ -175,8 +178,9 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 						if (url != null) {
 							final String CONFIG_DIR = "@config.dir/"; //$NON-NLS-1$
 							final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
-							if (url.startsWith(CONFIG_DIR))
+							if (url.startsWith(CONFIG_DIR)) {
 								url = FILE_PROTOCOL + url.substring(CONFIG_DIR.length());
+							}
 							p2DataArea = new File(URIUtil.makeAbsolute(URIUtil
 									.fromString(new File(url.substring(FILE_PROTOCOL.length())).isAbsolute() ? url
 											: url.substring(FILE_PROTOCOL.length())),
@@ -202,11 +206,13 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 								// update cached specified path by users
 								instancePath = p2DataArea;
 								cleanLocalRepository();
-							} else
+							} else {
 								createAgent = false;
+							}
 						}
-						if (createAgent)
+						if (createAgent) {
 							otherInstanceAgent = getAgentProvider().createAgent(p2DataArea.toURI());
+						}
 						ArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
 						factory.setAgent(agent);
 						IArtifactRepository artiRepo = factory.load(new File(destination).toURI(), 0,
@@ -218,34 +224,37 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 								progress.newChild(50));
 						metaURIs = new URI[] { metaRepo.getLocation() };
 
-					} else
+					} else {
 						throw new FileNotFoundException();
+					}
 				} catch (ProvisionException e) {
 					if (otherInstanceAgent != null) {
 						toBeImportedProfile = null;
 						IMetadataRepositoryManager manager = agent.getService(IMetadataRepositoryManager.class);
 						IArtifactRepositoryManager artifactManager = agent.getService(IArtifactRepositoryManager.class);
 						IProfileRegistry registry = otherInstanceAgent.getService(IProfileRegistry.class);
-						if (toBeImportedProfileId != null)
+						if (toBeImportedProfileId != null) {
 							toBeImportedProfile = registry.getProfile(toBeImportedProfileId);
+						}
 						if (toBeImportedProfile == null) {
 							IProfile[] existingProfiles = registry.getProfiles();
 							if (existingProfiles.length == 1) {
 								toBeImportedProfile = existingProfiles[0];
 							} else {
 								for (IProfile existingProfile : existingProfiles) {
-									if (toBeImportedProfile == null)
+									if (toBeImportedProfile == null) {
 										toBeImportedProfile = existingProfile;
-									else if ((toBeImportedProfile.getTimestamp() < existingProfile.getTimestamp())) // assuming
-																													// last
-																													// modified
-																													// one
-																													// is
-																													// we
-																													// are
-																													// looking
-																													// for
+									} else if ((toBeImportedProfile.getTimestamp() < existingProfile.getTimestamp())) { // assuming
+										// last
+										// modified
+										// one
+										// is
+										// we
+										// are
+										// looking
+										// for
 										toBeImportedProfile = existingProfile;
+									}
 								}
 							}
 						}
@@ -260,14 +269,16 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 						IArtifactRepository artiRepo = artifactManager.loadRepository(new File(destination).toURI(),
 								progress.newChild(25));
 						artiURIs = new URI[] { artiRepo.getLocation() };
-					} else
+					} else {
 						throw new Exception();
+					}
 				}
 			} catch (Exception e) {
 				Display.getDefault().asyncExec(() -> setErrorMessage(getInvalidDestinationMessage()));
 				rt = false;
-				if (otherInstanceAgent != null)
+				if (otherInstanceAgent != null) {
 					otherInstanceAgent.stop();
+				}
 				otherInstanceAgent = null;
 				toBeImportedProfile = null;
 				cleanLocalRepository();
@@ -347,8 +358,9 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 
 	@Override
 	protected boolean validDestination() {
-		if (this.destinationNameField == null)
+		if (this.destinationNameField == null) {
 			return true;
+		}
 		File file = new File(getDestinationValue());
 		return file.exists() && file.isDirectory();
 	}
@@ -368,8 +380,9 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 		@Override
 		public Color getForeground(Object element) {
 			IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
-			if (hasInstalled(iu))
+			if (hasInstalled(iu)) {
 				return Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
+			}
 			return super.getForeground(element);
 		}
 	}
@@ -387,19 +400,22 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 			otherInstanceAgent = null;
 			toBeImportedProfile = null;
 		}
-		if (getWizard().performCancel())
+		if (getWizard().performCancel()) {
 			cleanLocalRepository();
+		}
 	}
 
 	public void cleanLocalRepository() {
 		if (metaURIs != null && metaURIs.length > 0) {
 			IProvisioningAgent runningAgent = getProvisioningUI().getSession().getProvisioningAgent();
 			IMetadataRepositoryManager manager = runningAgent.getService(IMetadataRepositoryManager.class);
-			for (URI uri : metaURIs)
+			for (URI uri : metaURIs) {
 				manager.removeRepository(uri);
+			}
 			IArtifactRepositoryManager artifactManager = runningAgent.getService(IArtifactRepositoryManager.class);
-			for (URI uri : artiURIs)
+			for (URI uri : artiURIs) {
 				artifactManager.removeRepository(uri);
+			}
 		}
 	}
 

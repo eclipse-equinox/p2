@@ -44,8 +44,9 @@ public class P2FParser extends XMLParser implements P2FConstants {
 			super(parentHandler, REPOSITORY_ELEMENT);
 			String[] values = parseAttributes(attributes, required, optional);
 			// skip entire subrepository if the location is missing
-			if (values[0] == null)
+			if (values[0] == null) {
 				return;
+			}
 			this.uri = uri;
 			referredRepo = checkURI(REPOSITORY_ELEMENT, LOCATION_ELEMENT, values[0]);
 		}
@@ -57,8 +58,9 @@ public class P2FParser extends XMLParser implements P2FConstants {
 
 		@Override
 		protected void finished() {
-			if (referredRepo != null)
+			if (referredRepo != null) {
 				uri.add(referredRepo);
+			}
 		}
 	}
 
@@ -96,8 +98,9 @@ public class P2FParser extends XMLParser implements P2FConstants {
 			super(parentHandler, IU_ELEMENT);
 			String[] values = parseAttributes(attributes, required, optional);
 			// skip entire record if the id is missing
-			if (values[0] == null)
+			if (values[0] == null) {
 				return;
+			}
 			MetadataFactory.InstallableUnitDescription desc = new MetadataFactory.InstallableUnitDescription();
 			desc.setId(values[0]);
 			desc.setProperty(IInstallableUnit.PROP_NAME, values[1]);
@@ -189,8 +192,9 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		@Override
 		protected void finished() {
 			if (isValidXML()) {
-				if (iusHandler != null)
+				if (iusHandler != null) {
 					iusListed = iusHandler.getIUs();
+				}
 			}
 		}
 	}
@@ -201,8 +205,9 @@ public class P2FParser extends XMLParser implements P2FConstants {
 
 	public void parse(File file) throws IOException {
 		// don't overwrite if we already have a filename/location
-		if (errorContext == null)
+		if (errorContext == null) {
 			setErrorContext(file.getAbsolutePath());
+		}
 		parse(new FileInputStream(file));
 	}
 
