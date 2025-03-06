@@ -48,8 +48,9 @@ public class ConfiguratorCommandProvider implements CommandProvider {
 	public void _confapply(CommandInterpreter interpreter) {
 		String parameter = interpreter.nextArgument();
 		URL configURL = null;
-		if (parameter != null)
+		if (parameter != null) {
 			configURL = toURL(interpreter, parameter);
+		}
 
 		new ApplyCommand(interpreter, context, configURL).run();
 	}

@@ -69,11 +69,13 @@ public class BundleInfo {
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("BundleInfo("); //$NON-NLS-1$
-		if (symbolicName != null)
+		if (symbolicName != null) {
 			buffer.append(symbolicName);
+		}
 		buffer.append(", "); //$NON-NLS-1$
-		if (version != null)
+		if (version != null) {
 			buffer.append(version);
+		}
 		if (baseLocation != null) {
 			buffer.append(", baseLocation="); //$NON-NLS-1$
 			buffer.append(baseLocation);
@@ -99,30 +101,38 @@ public class BundleInfo {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
+		}
 
-		if (obj == null)
+		if (obj == null) {
 			return false;
+		}
 
-		if (getClass() != obj.getClass())
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 
 		BundleInfo other = (BundleInfo) obj;
 		if (symbolicName == null) {
-			if (other.symbolicName != null)
+			if (other.symbolicName != null) {
 				return false;
-		} else if (!symbolicName.equals(other.symbolicName))
+			}
+		} else if (!symbolicName.equals(other.symbolicName)) {
 			return false;
+		}
 
 		if (version == null) {
-			if (other.version != null)
+			if (other.version != null) {
 				return false;
-		} else if (!version.equals(other.version))
+			}
+		} else if (!version.equals(other.version)) {
 			return false;
+		}
 
-		if (location == null || other.location == null)
+		if (location == null || other.location == null) {
 			return true;
+		}
 
 		// compare absolute location URIs
 		URI absoluteLocation = baseLocation == null ? location : URIUtil.append(baseLocation, location.toString());

@@ -64,8 +64,9 @@ class ConfigApplier {
 		baseLocation = runningOnEquinox ? EquinoxUtils.getInstallLocationURI(context) : null;
 
 		ServiceReference<PackageAdmin> packageAdminRef = manipulatingContext.getServiceReference(PackageAdmin.class);
-		if (packageAdminRef == null)
+		if (packageAdminRef == null) {
 			throw new IllegalStateException("No PackageAdmin service is available."); //$NON-NLS-1$
+		}
 		packageAdminService = manipulatingContext.getService(packageAdminRef);
 
 		frameworkWiring = manipulatingContext.getBundle(Constants.SYSTEM_BUNDLE_LOCATION).adapt(FrameworkWiring.class);
@@ -73,10 +74,12 @@ class ConfigApplier {
 
 	void install(URL url, boolean exclusiveMode) throws IOException {
 		List<BundleInfo> bundleInfoList = SimpleConfiguratorUtils.readConfiguration(url, baseLocation);
-		if (Activator.DEBUG)
+		if (Activator.DEBUG) {
 			System.out.println("applyConfiguration() bundleInfoList.size()=" + bundleInfoList.size());
-		if (bundleInfoList.size() == 0)
+		}
+		if (bundleInfoList.size() == 0) {
 			return;
+		}
 
 		BundleInfo[] expectedState = Utils.getBundleInfosFromList(bundleInfoList);
 
@@ -86,12 +89,14 @@ class ConfigApplier {
 		if (systemBundleSymbolicName != null) {
 			for (BundleInfo element : expectedState) {
 				String symbolicName = element.getSymbolicName();
-				if (!systemBundleSymbolicName.equals(symbolicName))
+				if (!systemBundleSymbolicName.equals(symbolicName)) {
 					continue;
+				}
 
 				Version version = Version.parseVersion(element.getVersion());
-				if (!systemBundleVersion.equals(version))
+				if (!systemBundleVersion.equals(version)) {
 					throw new IllegalStateException("The System Bundle was updated. The framework must be restarted to finalize the configuration change");
+				}
 			}
 		}
 
@@ -113,8 +118,9 @@ class ConfigApplier {
 			toRefresh.addAll(uninstallBundles(expectedState, packageAdminService));
 		} else {
 			toRefresh.addAll(installBundles(expectedState, toStart));
-			if (toUninstall != null)
+			if (toUninstall != null) {
 				toRefresh.addAll(uninstallBundles(toUninstall));
+			}
 		}
 		if (!toRefresh.isEmpty()) {
 			if (manipulatingContext.getBundle().getState() == Bundle.STARTING) {
@@ -324,9 +330,11 @@ class ConfigApplier {
 	private Set<Bundle> getResolvedBundles() {
 		Set<Bundle> resolved = new HashSet<>();
 		Bundle[] allBundles = manipulatingContext.getBundles();
-		for (Bundle bundle : allBundles)
-			if ((bundle.getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0)
+		for (Bundle bundle : allBundles) {
+			if ((bundle.getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
 				resolved.add(bundle);
+			}
+		}
 		return resolved;
 	}
 
@@ -409,8 +417,9 @@ class ConfigApplier {
 
 	private BundleInfo[] getLastState() {
 		File lastBundlesInfo = getLastBundleInfo();
-		if (!lastBundlesInfo.isFile())
+		if (!lastBundlesInfo.isFile()) {
 			return null;
+		}
 		try {
 			return SimpleConfiguratorUtils.readConfiguration(lastBundlesInfo.toURL(), baseLocation).toArray(new BundleInfo[1]);
 		} catch (IOException e) {
@@ -425,17 +434,19 @@ class ConfigApplier {
 		boolean useReference = useReferenceProperty == null ? runningOnEquinox : Boolean.parseBoolean(useReferenceProperty);
 
 		for (BundleInfo element : finalList) {
-			if (element == null)
+			if (element == null) {
 				continue;
 			//TODO here we do not deal with bundles that don't have a symbolic id
 			//TODO Need to handle the case where getBundles return multiple value
+			}
 
 			String symbolicName = element.getSymbolicName();
 			String version = element.getVersion();
 
 			Bundle[] matches = null;
-			if (symbolicName != null && version != null)
+			if (symbolicName != null && version != null) {
 				matches = packageAdminService.getBundles(symbolicName, getVersionRange(version));
+			}
 
 			String bundleLocation = SimpleConfiguratorUtils.getBundleLocation(element, useReference);
 
@@ -454,13 +465,15 @@ class ConfigApplier {
 							}
 						} catch (IllegalArgumentException e) {
 							// invalid version string; should log
-							if (Activator.DEBUG)
+							if (Activator.DEBUG) {
 								e.printStackTrace();
+							}
 						}
 					}
 
-					if (Activator.DEBUG)
+					if (Activator.DEBUG) {
 						System.out.println("installed bundle:" + element); //$NON-NLS-1$
+					}
 					toRefresh.add(current);
 				} catch (BundleException e) {
 					if (Activator.DEBUG) {
@@ -484,8 +497,9 @@ class ConfigApplier {
 				}
 				try {
 					current = manipulatingContext.installBundle(bundleLocation);
-					if (Activator.DEBUG)
+					if (Activator.DEBUG) {
 						System.out.println("installed bundle:" + element); //$NON-NLS-1$
+					}
 					toRefresh.add(current);
 				} catch (BundleException e) {
 					if (Activator.DEBUG) {
@@ -503,14 +517,18 @@ class ConfigApplier {
 
 			// Set Start Level
 			int startLevel = element.getStartLevel();
-			if (startLevel < 1)
+			if (startLevel < 1) {
 				continue;
-			if (current.getBundleId() == 0)
+			}
+			if (current.getBundleId() == 0) {
 				continue;
-			if (isFragment(current))
+			}
+			if (isFragment(current)) {
 				continue;
-			if (SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME.equals(current.getSymbolicName()))
+			}
+			if (SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME.equals(current.getSymbolicName())) {
 				continue;
+			}
 
 			try {
 				current.adapt(BundleStartLevel.class).setStartLevel(startLevel);
@@ -551,17 +569,21 @@ class ConfigApplier {
 				System.err.println("Could not start: " + bundle.getSymbolicName() + '(' + bundle.getLocation() + ':' + bundle.getBundleId() + ')' + ". It's state is uninstalled.");
 				continue;
 			}
-			if (bundle.getState() == Bundle.STARTING && (bundle == callingBundle || bundle == manipulatingContext.getBundle()))
+			if (bundle.getState() == Bundle.STARTING && (bundle == callingBundle || bundle == manipulatingContext.getBundle())) {
 				continue;
-			if (isFragment(bundle))
+			}
+			if (isFragment(bundle)) {
 				continue;
-			if (bundle.getBundleId() == 0)
+			}
+			if (bundle.getBundleId() == 0) {
 				continue;
+			}
 
 			try {
 				bundle.start();
-				if (Activator.DEBUG)
+				if (Activator.DEBUG) {
 					System.out.println("started Bundle:" + bundle.getSymbolicName() + '(' + bundle.getLocation() + ':' + bundle.getBundleId() + ')'); //$NON-NLS-1$
+				}
 			} catch (BundleException e) {
 				e.printStackTrace();
 				//				FrameworkLogEntry entry = new FrameworkLogEntry(FrameworkAdaptor.FRAMEWORK_SYMBOLICNAME, NLS.bind(EclipseAdaptorMsg.ECLIPSE_STARTUP_FAILED_START, bundle.getLocation()), 0, e, null);
@@ -592,8 +614,9 @@ class ConfigApplier {
 
 		//Remove all the bundles appearing in the final list from the set of installed bundles
 		for (BundleInfo element : finalList) {
-			if (element == null)
+			if (element == null) {
 				continue;
+			}
 			Bundle[] toAdd = packageAdmin.getBundles(element.getSymbolicName(), getVersionRange(element.getVersion()));
 			for (int j = 0; toAdd != null && j < toAdd.length; j++) {
 				removedBundles.remove(toAdd[j]);
@@ -604,15 +627,17 @@ class ConfigApplier {
 			try {
 				Bundle bundle = iter.next();
 				if (bundle.getLocation().startsWith("initial@")) {
-					if (Activator.DEBUG)
+					if (Activator.DEBUG) {
 						System.out.println("Simple configurator thinks a bundle installed by the boot strap should be uninstalled:" + bundle.getSymbolicName() + '(' + bundle.getLocation() + ':' + bundle.getBundleId() + ')'); //$NON-NLS-1$
+					}
 					// Avoid uninstalling bundles that the boot strap code thinks should be installed (bug 232191)
 					iter.remove();
 					continue;
 				}
 				bundle.uninstall();
-				if (Activator.DEBUG)
+				if (Activator.DEBUG) {
 					System.out.println("uninstalled Bundle:" + bundle.getSymbolicName() + '(' + bundle.getLocation() + ':' + bundle.getBundleId() + ')'); //$NON-NLS-1$
+				}
 			} catch (BundleException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

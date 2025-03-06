@@ -45,13 +45,15 @@ public class ApplyCommand {
 		Configurator configurator = (Configurator) tracker.getService();
 		if (configurator != null) {
 			try {
-				if (configURL != null)
+				if (configURL != null) {
 					configurator.applyConfiguration(configURL);
-				else
+				} else {
 					configurator.applyConfiguration();
+				}
 
-				if (configurator.getUrlInUse() == null)
+				if (configurator.getUrlInUse() == null) {
 					interpreter.println("Config URL not set.");
+				}
 			} catch (IOException e) {
 				interpreter.println(e.getMessage());
 			}
