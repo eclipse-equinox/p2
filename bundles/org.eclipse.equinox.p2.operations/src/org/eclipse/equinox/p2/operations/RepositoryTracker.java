@@ -82,8 +82,9 @@ public abstract class RepositoryTracker {
 		}
 		// If a path separator char was used, interpret as a local file URI
 		String uriString = URIUtil.toUnencodedString(userLocation);
-		if (uriString.length() > 0 && (uriString.charAt(0) == '/' || uriString.charAt(0) == File.separatorChar))
+		if (uriString.length() > 0 && (uriString.charAt(0) == '/' || uriString.charAt(0) == File.separatorChar)) {
 			return RepositoryHelper.localRepoURIHelper(userLocation);
+		}
 		return userLocation;
 	}
 
@@ -112,8 +113,9 @@ public abstract class RepositoryTracker {
 			}
 		}
 
-		if (!localValidationStatus.isOK())
+		if (!localValidationStatus.isOK()) {
 			return localValidationStatus;
+		}
 
 		return Status.OK_STATUS;
 	}
@@ -238,8 +240,9 @@ public abstract class RepositoryTracker {
 		// special handling when the repo location is bad.  We don't want to continually report it
 		boolean repoLocationIsBad = LoadFailure.failureRepresentsBadRepositoryLocation(exception);
 		if (repoLocationIsBad) {
-			if (hasNotFoundStatusBeenReported(location))
+			if (hasNotFoundStatusBeenReported(location)) {
 				return;
+			}
 			addNotFound(location);
 		}
 

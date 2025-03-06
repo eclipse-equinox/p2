@@ -43,10 +43,11 @@ public class PlannerResolutionJob extends ProvisioningJob implements IProfileCha
 		super(label, session);
 		this.request = request;
 		this.profileId = profileId;
-		if (context == null)
+		if (context == null) {
 			firstPass = new ProvisioningContext(session.getProvisioningAgent());
-		else
+		} else {
 			firstPass = context;
+		}
 		this.evaluator = evaluator;
 		Assert.isNotNull(additionalStatus);
 		this.additionalStatus = additionalStatus;
@@ -93,8 +94,9 @@ public class PlannerResolutionJob extends ProvisioningJob implements IProfileCha
 
 		// First resolution was in error, try again with an alternate provisioning context
 		ProvisioningContext secondPass = evaluator.getSecondPassProvisioningContext(plan);
-		if (secondPass == null)
+		if (secondPass == null) {
 			return status;
+		}
 
 		successful = secondPass;
 		plan = getSession().getProvisioningAgent().getService(IPlanner.class).getProvisioningPlan(request, secondPass,

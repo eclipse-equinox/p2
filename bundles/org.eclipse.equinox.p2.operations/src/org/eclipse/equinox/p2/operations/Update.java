@@ -39,16 +39,21 @@ public class Update {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof Update))
+		}
+		if (!(obj instanceof Update)) {
 			return false;
-		if (toUpdate == null)
+		}
+		if (toUpdate == null) {
 			return false;
-		if (replacement == null)
+		}
+		if (replacement == null) {
 			return false;
+		}
 		Update other = (Update) obj;
 		return toUpdate.equals(other.toUpdate) && replacement.equals(other.replacement);
 	}

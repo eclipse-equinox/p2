@@ -31,8 +31,9 @@ public class ResolutionResult {
 	private MultiStatus summaryStatus;
 
 	public IStatus getSummaryStatus() {
-		if (summaryStatus != null)
+		if (summaryStatus != null) {
 			return summaryStatus;
+		}
 		return Status.OK_STATUS;
 	}
 
@@ -55,17 +56,20 @@ public class ResolutionResult {
 		MultiStatus iuSummaryStatus = iuToStatusMap.get(iu);
 		if (iuSummaryStatus == null) {
 			iuSummaryStatus = new MultiStatus(Constants.BUNDLE_ID, IStatusCodes.IU_REQUEST_ALTERED, new IStatus[] {status}, getIUString(iu), null);
-		} else
+		} else {
 			iuSummaryStatus.add(status);
+		}
 	}
 
 	private String getIUString(IInstallableUnit iu) {
-		if (iu == null)
+		if (iu == null) {
 			return Messages.PlanAnalyzer_Items;
+		}
 		// Get the iu name in the default locale
 		String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);
-		if (name != null)
+		if (name != null) {
 			return name;
+		}
 		return iu.getId();
 	}
 
@@ -83,49 +87,57 @@ public class ResolutionResult {
 		StringBuilder buffer = new StringBuilder();
 		for (IInstallableUnit iu : ius) {
 			MultiStatus iuStatus = iuToStatusMap.get(iu);
-			if (iuStatus != null)
+			if (iuStatus != null) {
 				appendDetailText(iuStatus, buffer, 0, true);
+			}
 		}
 		String report = buffer.toString();
-		if (report.length() == 0)
+		if (report.length() == 0) {
 			return null;
+		}
 		return report;
 	}
 
 	void appendDetailText(IStatus status, StringBuilder buffer, int indent, boolean includeTopLevelMessage) {
 		if (includeTopLevelMessage) {
-			for (int i = 0; i < indent; i++)
+			for (int i = 0; i < indent; i++) {
 				buffer.append(NESTING_INDENT);
-			if (status.getMessage() != null)
+			}
+			if (status.getMessage() != null) {
 				buffer.append(status.getMessage());
+			}
 		}
 		Throwable t = status.getException();
 		if (t != null) {
 			// A provision (or core) exception occurred.  Get its status message or if none, its top level message.
 			// Indent by one more level (note the <=)
 			buffer.append('\n');
-			for (int i = 0; i <= indent; i++)
+			for (int i = 0; i <= indent; i++) {
 				buffer.append(NESTING_INDENT);
+			}
 			if (t instanceof CoreException) {
 				IStatus exceptionStatus = ((CoreException) t).getStatus();
-				if (exceptionStatus != null && exceptionStatus.getMessage() != null)
+				if (exceptionStatus != null && exceptionStatus.getMessage() != null) {
 					buffer.append(exceptionStatus.getMessage());
-				else {
+				} else {
 					String details = t.getLocalizedMessage();
-					if (details != null)
+					if (details != null) {
 						buffer.append(details);
+					}
 				}
 			} else {
 				String details = t.getLocalizedMessage();
-				if (details != null)
+				if (details != null) {
 					buffer.append(details);
+				}
 			}
 		}
 		// Now print the children status info (if there are children)
 		IStatus[] children = status.getChildren();
 		for (IStatus child : children) {
-			if (buffer.length() > 0)
+			if (buffer.length() > 0) {
 				buffer.append('\n');
+			}
 			appendDetailText(child, buffer, indent + 1, true);
 		}
 	}

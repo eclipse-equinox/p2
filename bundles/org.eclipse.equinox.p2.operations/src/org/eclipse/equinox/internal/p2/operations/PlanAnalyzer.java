@@ -93,8 +93,9 @@ public class PlanAnalyzer {
 		}
 
 		// If the overall plan had a non-OK status, capture that in the report.
-		if (!plan.getStatus().isOK())
+		if (!plan.getStatus().isOK()) {
 			report.addSummaryStatus(plan.getStatus());
+		}
 
 		// Now we compare what was requested with what is going to happen.
 		// In the long run, when a RequestStatus can provide actual explanation/status
@@ -105,8 +106,9 @@ public class PlanAnalyzer {
 
 		PlannerStatus plannerStatus = plan.getStatus() instanceof PlannerStatus ? (PlannerStatus) plan.getStatus() : null;
 		// If there is no additional plannerStatus details just return the report
-		if (plannerStatus == null)
+		if (plannerStatus == null) {
 			return report;
+		}
 
 		if (plan.getStatus().getSeverity() != IStatus.ERROR) {
 			Collection<IInstallableUnit> iusAdded = originalRequest.getAdditions();
@@ -162,12 +164,14 @@ public class PlanAnalyzer {
 	}
 
 	private static String getIUString(IInstallableUnit iu) {
-		if (iu == null)
+		if (iu == null) {
 			return Messages.PlanAnalyzer_Items;
+		}
 		// Get the iu name in the default locale
 		String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);
-		if (name != null)
+		if (name != null) {
 			return name;
+		}
 		return iu.getId();
 	}
 

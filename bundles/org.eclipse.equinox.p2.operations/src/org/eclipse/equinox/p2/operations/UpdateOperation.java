@@ -116,8 +116,9 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 * @return the updates that should be chosen from all of the available updates
 	 */
 	public Update[] getSelectedUpdates() {
-		if (defaultUpdates == null)
+		if (defaultUpdates == null) {
 			return new Update[0];
+		}
 		return defaultUpdates.toArray(new Update[defaultUpdates.size()]);
 	}
 
@@ -129,8 +130,9 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 */
 	public Update[] getPossibleUpdates() {
 		ArrayList<Update> all = new ArrayList<>();
-		for (List<Update> updates : possibleUpdatesByIU.values())
+		for (List<Update> updates : possibleUpdatesByIU.values()) {
 			all.addAll(updates);
+		}
 		return all.toArray(new Update[all.size()]);
 	}
 
@@ -171,8 +173,9 @@ public class UpdateOperation extends ProfileChangeOperation {
 		HashSet<Update> elementsToPlan = new HashSet<>();
 		boolean selectionSpecified = defaultUpdates != null;
 		IProfile profile = session.getProfileRegistry().getProfile(profileId);
-		if (profile == null)
+		if (profile == null) {
 			return;
+		}
 
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.UpdateOperation_ProfileChangeRequestProgress, 100 * iusToUpdate.size());
 		for (IInstallableUnit iuToUpdate : iusToUpdate) {
@@ -241,8 +244,9 @@ public class UpdateOperation extends ProfileChangeOperation {
 				defaultUpdates = new ArrayList<>();
 				defaultUpdates.add(update);
 			} else {
-				if (!defaultUpdates.contains(update))
+				if (!defaultUpdates.contains(update)) {
 					defaultUpdates.add(update);
+				}
 			}
 			request.add(theUpdate);
 			request.setInstallableUnitProfileProperty(theUpdate, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
@@ -286,8 +290,9 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 */
 	private Collection<IInstallableUnit> getInstalledIUs() {
 		IProfile profile = session.getProfileRegistry().getProfile(profileId);
-		if (profile == null)
+		if (profile == null) {
 			return Collections.emptyList();
+		}
 		IQuery<IInstallableUnit> query = new UserVisibleRootQuery();
 		IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);
 		return queryResult.toUnmodifiableSet();

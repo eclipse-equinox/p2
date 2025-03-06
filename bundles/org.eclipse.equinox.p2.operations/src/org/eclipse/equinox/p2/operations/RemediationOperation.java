@@ -108,8 +108,9 @@ public class RemediationOperation extends ProfileChangeOperation {
 		try {
 			for (int i = 0; i < remedyConfigs.length; i++) {
 				sub.subTask((i + 1) + " / " + remedyConfigs.length); //$NON-NLS-1$
-				if (sub.isCanceled())
+				if (sub.isCanceled()) {
 					return Status.CANCEL_STATUS;
+				}
 				Remedy remedy = computeRemedy(remedyConfigs[i], sub.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
 				if (remedy != null) {
 					tmpRemedies.add(remedy);
@@ -152,8 +153,9 @@ public class RemediationOperation extends ProfileChangeOperation {
 		av.setAllowPartialInstall(configuration.allowPartialInstall);
 		av.setProvisioningContext(getProvisioningContext());
 		remedy.setRequest((ProfileChangeRequest) av.getChangeRequest(originalRequest, ((ProfileChangeRequest) originalRequest).getProfile(), monitor));
-		if (remedy.getRequest() == null)
+		if (remedy.getRequest() == null) {
 			return null;
+		}
 
 		if (configuration.allowInstalledUpdate && !configuration.allowInstalledRemoval) {
 			remedy.setInstallationRelaxedWeight(HIGH_WEIGHT);
@@ -161,8 +163,9 @@ public class RemediationOperation extends ProfileChangeOperation {
 			remedy.setInstallationRelaxedWeight(MEDIUM_WEIGHT);
 		} else if (configuration.allowInstalledUpdate && configuration.allowInstalledRemoval) {
 			remedy.setInstallationRelaxedWeight(LOW_WEIGHT);
-		} else
+		} else {
 			remedy.setInstallationRelaxedWeight(ZERO_WEIGHT);
+		}
 
 		if (configuration.allowDifferentVersion && !configuration.allowPartialInstall) {
 			remedy.setBeingInstalledRelaxedWeight(HIGH_WEIGHT);
@@ -228,8 +231,9 @@ public class RemediationOperation extends ProfileChangeOperation {
 
 	@Override
 	public IStatus getResolutionResult() {
-		if (currentRemedy != null)
+		if (currentRemedy != null) {
 			return super.getResolutionResult();
+		}
 		return remedies.size() > 0 ? Status.OK_STATUS : new Status(IStatus.ERROR, Constants.BUNDLE_ID, Messages.RemediationOperation_NoRemedyFound);
 	}
 
@@ -302,8 +306,9 @@ public class RemediationOperation extends ProfileChangeOperation {
 
 	private Version searchInOriginalRequest(String id) {
 		for (IInstallableUnit iu : originalRequest.getAdditions()) {
-			if (iu.getId() == id)
+			if (iu.getId() == id) {
 				return iu.getVersion();
+			}
 		}
 		return null;
 	}
