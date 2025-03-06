@@ -46,17 +46,20 @@ public class PreviousConfigurationFinder {
 			StringTokenizer tokenizer = new StringTokenizer(versionString, DELIM);
 
 			// major
-			if (tokenizer.hasMoreTokens())
+			if (tokenizer.hasMoreTokens()) {
 				major = Integer.parseInt(tokenizer.nextToken());
+			}
 
 			// minor
-			if (tokenizer.hasMoreTokens())
+			if (tokenizer.hasMoreTokens()) {
 				minor = Integer.parseInt(tokenizer.nextToken());
+			}
 
 			try {
 				// service
-				if (tokenizer.hasMoreTokens())
+				if (tokenizer.hasMoreTokens()) {
 					service = Integer.parseInt(tokenizer.nextToken());
+				}
 			} catch (NumberFormatException nfe) {
 				// ignore the service qualifier in that case and default to 0
 				// this will allow us to tolerate other non-conventional version numbers
@@ -69,26 +72,32 @@ public class PreviousConfigurationFinder {
 		 * 1.3.1 -> true 1.3.2 >= 1.3.1 -> true 2.0.0 >= 1.3.1 -> true
 		 */
 		boolean isGreaterEqualTo(Identifier minimum) {
-			if (major < minimum.major)
+			if (major < minimum.major) {
 				return false;
-			if (major > minimum.major)
+			}
+			if (major > minimum.major) {
 				return true;
+			}
 			// major numbers are equivalent so check minor
-			if (minor < minimum.minor)
+			if (minor < minimum.minor) {
 				return false;
-			if (minor > minimum.minor)
+			}
+			if (minor > minimum.minor) {
 				return true;
+			}
 			// minor numbers are equivalent so check service
 			return service >= minimum.service;
 		}
 
 		@Override
 		public boolean equals(Object other) {
-			if (!(other instanceof Identifier))
+			if (!(other instanceof Identifier)) {
 				return false;
+			}
 			Identifier o = (Identifier) other;
-			if (major == o.major && minor == o.minor && service == o.service)
+			if (major == o.major && minor == o.minor && service == o.service) {
 				return true;
+			}
 			return false;
 		}
 
@@ -179,8 +188,9 @@ public class PreviousConfigurationFinder {
 						result = 1;
 					} else if (o1.getConfig().lastModified() < o2.getConfig().lastModified()) {
 						result = -1;
-					} else
+					} else {
 						result = 0;
+					}
 				}
 			} else if (o1 == null) {
 				result = -1;
@@ -200,8 +210,9 @@ public class PreviousConfigurationFinder {
 
 	public ConfigurationDescriptor extractConfigurationData(File candidate) {
 		Matcher m = path.matcher(candidate.getName());
-		if (!m.matches())
+		if (!m.matches()) {
 			return null;
+		}
 		return new ConfigurationDescriptor(m.group(1), new Identifier(m.group(2)), m.group(3), m.group(5),
 				candidate.getAbsoluteFile());
 	}
@@ -209,16 +220,20 @@ public class PreviousConfigurationFinder {
 	public IProvisioningAgent findPreviousInstalls(File searchRoot, File installFolder) {
 		List<ConfigurationDescriptor> potentialConfigurations = readPreviousConfigurations(searchRoot);
 		ConfigurationDescriptor runningConfiguration = getConfigdataFromProductFile(installFolder);
-		if (runningConfiguration == null)
+		if (runningConfiguration == null) {
 			return null;
+		}
 		ConfigurationDescriptor match = findMostRelevantConfigurationFromInstallHashDir(potentialConfigurations,
 				runningConfiguration);
-		if (match == null)
+		if (match == null) {
 			match = findMostRelevantConfigurationFromProductId(potentialConfigurations, runningConfiguration);
-		if (match == null)
+		}
+		if (match == null) {
 			match = findSpecifiedConfiguration(searchRoot);
-		if (match == null)
+		}
+		if (match == null) {
 			return null;
+		}
 		return AgentFromInstall.createAgentFrom(AutomaticUpdatePlugin.getDefault().getAgentProvider(), null,
 				new File(match.getConfig(), "configuration"), null); //$NON-NLS-1$
 
@@ -226,21 +241,25 @@ public class PreviousConfigurationFinder {
 
 	public ConfigurationDescriptor findSpecifiedConfiguration(File searchRoot) {
 		final String prefixesAsString = System.getProperty("p2.forcedMigrationLocation"); //$NON-NLS-1$
-		if (prefixesAsString == null)
+		if (prefixesAsString == null) {
 			return null;
+		}
 
 		String[] prefixes = prefixesAsString.split(","); //$NON-NLS-1$
 		for (String prefix : prefixes) {
 			final String p = prefix;
 			File[] match = searchRoot.listFiles((FileFilter) candidate -> {
-				if (!candidate.isDirectory())
+				if (!candidate.isDirectory()) {
 					return false;
-				if (currentConfig.equals(candidate))
+				}
+				if (currentConfig.equals(candidate)) {
 					return false;
+				}
 				return candidate.getName().contains(p);
 			});
-			if (match.length != 0)
+			if (match.length != 0) {
 				return new ConfigurationDescriptor("unknown", new Identifier("0.0.0"), "unknown", "unknown", match[0]); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+			}
 		}
 		return null;
 	}
@@ -249,8 +268,9 @@ public class PreviousConfigurationFinder {
 		Object[] productFileInfo = loadEclipseProductFile(installFolder);
 		// Contrarily to the runtime, when the .eclipseproduct can't be found, we don't
 		// fallback to org.eclipse.platform.
-		if (productFileInfo.length == 0)
+		if (productFileInfo.length == 0) {
 			return null;
+		}
 		return new ConfigurationDescriptor((String) productFileInfo[0], (Identifier) productFileInfo[1],
 				getInstallDirHash(installFolder),
 				Platform.getOS() + '_' + Platform.getWS() + '_' + Platform.getOSArch(), null);
@@ -274,8 +294,9 @@ public class PreviousConfigurationFinder {
 				criteriaMet++;
 			}
 
-			if (criteriaMet == 0)
+			if (criteriaMet == 0) {
 				continue;
+			}
 			if (criteriaMet > numberOfcriteriaMet) {
 				bestMatch = candidate;
 				numberOfcriteriaMet = criteriaMet;
@@ -285,8 +306,9 @@ public class PreviousConfigurationFinder {
 						bestMatch = candidate;
 					}
 				} else {
-					if (candidate.getVersion().isGreaterEqualTo(bestMatch.getVersion()))
+					if (candidate.getVersion().isGreaterEqualTo(bestMatch.getVersion())) {
 						bestMatch = candidate;
+					}
 				}
 			}
 		}
@@ -344,13 +366,15 @@ public class PreviousConfigurationFinder {
 			try (FileInputStream is = new FileInputStream(eclipseProduct)) {
 				props.load(is);
 				appId = props.getProperty(PRODUCT_SITE_ID);
-				if (appId == null || appId.trim().length() == 0)
+				if (appId == null || appId.trim().length() == 0) {
 					appId = ECLIPSE;
+				}
 				String version = props.getProperty(PRODUCT_SITE_VERSION);
-				if (version == null || version.trim().length() == 0)
+				if (version == null || version.trim().length() == 0) {
 					appVersion = new Identifier(0, 0, 0);
-				else
+				} else {
 					appVersion = new Identifier(version);
+				}
 			} catch (IOException e) {
 				return new String[0];
 			}
@@ -366,13 +390,16 @@ public class PreviousConfigurationFinder {
 		File[] candidates = configurationFolder.listFiles();
 		List<ConfigurationDescriptor> configurations = new ArrayList<>(candidates.length);
 		for (File candidate : candidates) {
-			if (!candidate.isDirectory())
+			if (!candidate.isDirectory()) {
 				continue;
-			if (candidate.equals(currentConfig))
+			}
+			if (candidate.equals(currentConfig)) {
 				continue;
+			}
 			ConfigurationDescriptor tmp = extractConfigurationData(candidate);
-			if (tmp != null)
+			if (tmp != null) {
 				configurations.add(tmp);
+			}
 		}
 		return configurations;
 	}

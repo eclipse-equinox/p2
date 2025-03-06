@@ -109,8 +109,9 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	}
 
 	public AutomaticUpdater getAutomaticUpdater() {
-		if (updater == null)
+		if (updater == null) {
 			updater = new AutomaticUpdater();
+		}
 		return updater;
 	}
 
@@ -120,8 +121,9 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 
 	public IProvisioningEventBus getProvisioningEventBus() {
 		ServiceReference<IProvisioningEventBus> busReference = context.getServiceReference(IProvisioningEventBus.class);
-		if (busReference == null)
+		if (busReference == null) {
 			return null;
+		}
 		return context.getService(busReference);
 	}
 
@@ -133,8 +135,9 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		// Create the preference store lazily.
 		if (preferenceStore == null) {
 			final IAgentLocation agentLocation = getAgentLocation();
-			if (agentLocation == null)
+			if (agentLocation == null) {
 				return super.getPreferenceStore();
+			}
 			preferenceStore = new ScopedPreferenceStore(new ProfileScope(agentLocation, IProfileRegistry.SELF),
 					PLUGIN_ID);
 		}
@@ -143,15 +146,16 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 
 	public IAgentLocation getAgentLocation() {
 		ServiceReference<IAgentLocation> ref = getContext().getServiceReference(IAgentLocation.class);
-		if (ref == null)
+		if (ref == null) {
 			return null;
+		}
 		IAgentLocation location = getContext().getService(ref);
 		getContext().ungetService(ref);
 		return location;
 	}
 
 	public void savePreferences() {
-		if (preferenceStore != null)
+		if (preferenceStore != null) {
 			try {
 				preferenceStore.save();
 			} catch (IOException e) {
@@ -160,6 +164,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 								AutomaticUpdateMessages.ErrorSavingPreferences, e),
 								StatusManager.LOG | StatusManager.SHOW);
 			}
+		}
 	}
 
 	@Override
@@ -192,8 +197,9 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	public IProvisioningAgentProvider getAgentProvider() {
 		ServiceReference<IProvisioningAgentProvider> ref = getContext()
 				.getServiceReference(IProvisioningAgentProvider.class);
-		if (ref == null)
+		if (ref == null) {
 			return null;
+		}
 		IProvisioningAgentProvider agentProvider = getContext().getService(ref);
 		getContext().ungetService(ref);
 		return agentProvider;

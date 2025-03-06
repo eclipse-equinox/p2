@@ -294,9 +294,11 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 	private int getFuzzyRecurrence(IPreferenceStore pref, boolean useDefault) {
 		String day = useDefault ? pref.getDefaultString(AutomaticUpdateScheduler.P_FUZZY_RECURRENCE)
 				: pref.getString(AutomaticUpdateScheduler.P_FUZZY_RECURRENCE);
-		for (int i = 0; i < AutomaticUpdateScheduler.FUZZY_RECURRENCE.length; i++)
-			if (AutomaticUpdateScheduler.FUZZY_RECURRENCE[i].equals(day))
+		for (int i = 0; i < AutomaticUpdateScheduler.FUZZY_RECURRENCE.length; i++) {
+			if (AutomaticUpdateScheduler.FUZZY_RECURRENCE[i].equals(day)) {
 				return i;
+			}
+		}
 		return 0;
 	}
 }

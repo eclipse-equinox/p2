@@ -83,8 +83,9 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 
 	@Override
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
-		if (unitsToMigrate != null)
+		if (unitsToMigrate != null) {
 			return new MigrationPage(ui, this, toImportFrom, unitsToMigrate, firstTime);
+		}
 		return new MigrationPage(ui, this, firstTime);
 	}
 
@@ -147,12 +148,13 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 		IProfileRegistry registry = ProvisioningUI.getDefaultUI().getSession().getProvisioningAgent()
 				.getService(IProfileRegistry.class);
 		for (long timestamp : registry.listProfileTimestamps(toImportFrom.getProfileId())) {
-			if (timestamp < toImportFrom.getTimestamp())
+			if (timestamp < toImportFrom.getTimestamp()) {
 				try {
 					registry.removeProfile(toImportFrom.getProfileId(), timestamp);
 				} catch (ProvisionException e) {
 					// Can't happen
 				}
+			}
 		}
 	}
 

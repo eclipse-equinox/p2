@@ -81,11 +81,12 @@ public class AutomaticUpdatesPopup extends UpdatesPopup {
 	}
 
 	private void updateRemindText() {
-		if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE))
+		if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE)) {
 			remindLink.setText(NLS.bind(AutomaticUpdateMessages.AutomaticUpdatesPopup_RemindAndPrefLink, new String[] {
 					getElapsedTimeString(prefs.getString(PreferenceConstants.PREF_REMIND_ELAPSED)), PREFS_HREF }));
-		else
+		} else {
 			remindLink.setText(AutomaticUpdateMessages.AutomaticUpdatesPopup_PrefLinkOnly);
+		}
 		remindLink.getParent().layout(true);
 	}
 
@@ -111,10 +112,11 @@ public class AutomaticUpdatesPopup extends UpdatesPopup {
 	}
 
 	public boolean close(boolean remind) {
-		if (remind && prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE))
+		if (remind && prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE)) {
 			scheduleRemindJob();
-		else
+		} else {
 			cancelRemindJob();
+		}
 		if (prefListener != null) {
 			prefs.removePropertyChangeListener(prefListener);
 			prefListener = null;
@@ -125,16 +127,19 @@ public class AutomaticUpdatesPopup extends UpdatesPopup {
 
 	void scheduleRemindJob() {
 		// Cancel any pending remind job if there is one
-		if (remindJob != null)
+		if (remindJob != null) {
 			remindJob.cancel();
+		}
 		// If no updates have been found, there is nothing to remind
-		if (remindDelay < 0)
+		if (remindDelay < 0) {
 			return;
+		}
 		remindJob = new WorkbenchJob(AutomaticUpdateMessages.AutomaticUpdatesPopup_ReminderJobTitle) {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				if (monitor.isCanceled())
+				if (monitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
+				}
 				open();
 				return Status.OK_STATUS;
 			}
@@ -152,8 +157,8 @@ public class AutomaticUpdatesPopup extends UpdatesPopup {
 	long computeRemindDelay() {
 		if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE)) {
 			String elapsed = prefs.getString(PreferenceConstants.PREF_REMIND_ELAPSED);
-			for (int d = 0; d < ELAPSED_VALUES.length; d++)
-				if (ELAPSED_VALUES[d].equals(elapsed))
+			for (int d = 0; d < ELAPSED_VALUES.length; d++) {
+				if (ELAPSED_VALUES[d].equals(elapsed)) {
 					switch (d) {
 					case 0:
 						// 30 minutes
@@ -165,6 +170,8 @@ public class AutomaticUpdatesPopup extends UpdatesPopup {
 						// 240 minutes
 						return 240 * MINUTE;
 					}
+				}
+			}
 		}
 		return -1L;
 	}
@@ -180,9 +187,9 @@ public class AutomaticUpdatesPopup extends UpdatesPopup {
 		if (PreferenceConstants.PREF_REMIND_SCHEDULE.equals(event.getProperty())) {
 			// Reminders turned on
 			if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE)) {
-				if (remindLink == null)
+				if (remindLink == null) {
 					createRemindSection(dialogArea);
-				else {
+				} else {
 					updateRemindText();
 					getShell().layout(true, true);
 				}
@@ -204,8 +211,9 @@ public class AutomaticUpdatesPopup extends UpdatesPopup {
 
 	public static String getElapsedTimeString(String elapsedTimeKey) {
 		for (int i = 0; i < AutomaticUpdatesPopup.ELAPSED_VALUES.length; i++) {
-			if (AutomaticUpdatesPopup.ELAPSED_VALUES[i].equals(elapsedTimeKey))
+			if (AutomaticUpdatesPopup.ELAPSED_VALUES[i].equals(elapsedTimeKey)) {
 				return AutomaticUpdatesPopup.ELAPSED_LOCALIZED_STRINGS[i];
+			}
 		}
 		return AutomaticUpdatesPopup.ELAPSED_LOCALIZED_STRINGS[0];
 	}

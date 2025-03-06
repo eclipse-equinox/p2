@@ -200,8 +200,9 @@ public class AutomaticUpdater implements IUpdateListener {
 		if (profile != null) {
 			for (IInstallableUnit iuWithUpdate : iusWithUpdates) {
 				try {
-					if (validToUpdate(profile, iuWithUpdate))
+					if (validToUpdate(profile, iuWithUpdate)) {
 						list.add(iuWithUpdate);
+					}
 				} catch (OperationCanceledException e) {
 					// Nothing to report
 				}
@@ -218,8 +219,9 @@ public class AutomaticUpdater implements IUpdateListener {
 		boolean isRoot = false;
 		try {
 			String value = profile.getInstallableUnitProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU);
-			if (value != null)
+			if (value != null) {
 				lock = Integer.parseInt(value);
+			}
 			value = profile.getInstallableUnitProperty(iu, IProfile.PROP_PROFILE_ROOT_IU);
 			isRoot = value == null ? false : Boolean.parseBoolean(value);
 		} catch (NumberFormatException e) {
@@ -235,11 +237,13 @@ public class AutomaticUpdater implements IUpdateListener {
 	}
 
 	IStatusLineManager getStatusLineManager() {
-		if (statusLineManager != null)
+		if (statusLineManager != null) {
 			return statusLineManager;
+		}
 		IWorkbenchWindow activeWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		if (activeWindow == null)
+		if (activeWindow == null) {
 			return null;
+		}
 		// YUCK! YUCK! YUCK!
 		// IWorkbenchWindow does not define getStatusLineManager(), yet
 		// WorkbenchWindow does
@@ -261,11 +265,13 @@ public class AutomaticUpdater implements IUpdateListener {
 		}
 
 		IWorkbenchPage page = activeWindow.getActivePage();
-		if (page == null)
+		if (page == null) {
 			return null;
+		}
 		IWorkbenchPart part = page.getActivePart();
-		if (part == null)
+		if (part == null) {
 			return null;
+		}
 		IWorkbenchPartSite site = part.getSite();
 		if (site instanceof IViewSite) {
 			statusLineManager = ((IViewSite) site).getActionBars().getStatusLineManager();
@@ -277,8 +283,9 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	void updateStatusLine() {
 		IStatusLineManager manager = getStatusLineManager();
-		if (manager != null)
+		if (manager != null) {
 			manager.update(true);
+		}
 	}
 
 	void createUpdateAffordance() {
@@ -292,14 +299,16 @@ public class AutomaticUpdater implements IUpdateListener {
 	}
 
 	void notifyUserOfUpdates(boolean isValid, boolean showPopup, boolean showUpdateWizard) {
-		if (updateAffordance == null)
+		if (updateAffordance == null) {
 			createUpdateAffordance();
+		}
 		if (isValid) {
 			if (showPopup) {
-				if (showUpdateWizard)
+				if (showUpdateWizard) {
 					launchUpdate();
-				else
+				} else {
 					openUpdatePopup();
+				}
 			}
 			updateAffordance.setTooltip(AutomaticUpdateMessages.AutomaticUpdater_ClickToReviewUpdates);
 			updateAffordance.setImage(
@@ -321,8 +330,9 @@ public class AutomaticUpdater implements IUpdateListener {
 	void checkUpdateAffordanceEnablement() {
 		// We don't currently support enablement in the affordance,
 		// so we hide it if it should not be enabled.
-		if (updateAffordance == null)
+		if (updateAffordance == null) {
 			return;
+		}
 		boolean shouldBeVisible = getProvisioningUI().hasScheduledOperations();
 		if (updateAffordance.isVisible() != shouldBeVisible) {
 			IStatusLineManager manager = getStatusLineManager();
@@ -334,15 +344,17 @@ public class AutomaticUpdater implements IUpdateListener {
 	}
 
 	void openUpdatePopup() {
-		if (popup == null)
+		if (popup == null) {
 			popup = new AutomaticUpdatesPopup(getWorkbenchWindowShell(), alreadyDownloaded, getPreferenceStore());
+		}
 		popup.open();
 
 	}
 
 	void openUpdateFailPopup() {
-		if (failPopup == null)
+		if (failPopup == null) {
 			failPopup = new AutomaticUpdatesFailPopup(getWorkbenchWindowShell());
+		}
 		failPopup.open();
 	}
 
@@ -378,8 +390,9 @@ public class AutomaticUpdater implements IUpdateListener {
 		Job notifyJob = new Job("Update validate job") { //$NON-NLS-1$
 			@Override
 			public IStatus run(IProgressMonitor monitor) {
-				if (monitor.isCanceled())
+				if (monitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
+				}
 				// notify that updates are available for all roots. We don't know for sure that
 				// there are any, but this will cause everything to be rechecked. Don't trigger
 				// a popup, just update the affordance and internal state.
@@ -406,8 +419,9 @@ public class AutomaticUpdater implements IUpdateListener {
 	 */
 	public Collection<IInstallableUnit> getInstalledIUs() {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
-		if (profile == null)
+		if (profile == null) {
 			return Collections.emptyList();
+		}
 		IQuery<IInstallableUnit> query = new UserVisibleRootQuery();
 		IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);
 		return queryResult.toUnmodifiableSet();
