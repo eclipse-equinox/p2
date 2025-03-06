@@ -34,8 +34,9 @@ public class LauncherConfigLocationTest extends AbstractFwkAdminTest {
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
 		File installFolder = Activator.getContext().getDataFile(LauncherConfigLocationTest.class.getName());
-		if(installFolder.exists())
+		if(installFolder.exists()) {
 			delete(installFolder);
+		}
 
 		File configurationFolder = new File(installFolder, "configuration");
 		String launcherName = "foo";

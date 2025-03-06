@@ -28,8 +28,9 @@ public class TestRunningInstance extends AbstractFwkAdminTest {
 	@Test
 	public void testRunningInstance() throws BundleException {
 		// TODO Commented out due to NPE failure on Windows on test machines only
-		if (Platform.OS_WIN32.equals(Platform.getOS()))
+		if (Platform.OS_WIN32.equals(Platform.getOS())) {
 			return;
+		}
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator m = fwkAdmin.getRunningManipulator();
 		BundleInfo[] infos = m.getConfigData().getBundles();
@@ -50,8 +51,9 @@ public class TestRunningInstance extends AbstractFwkAdminTest {
 
 	private boolean same(BundleInfo info, Bundle bundle) {
 		if (info.getSymbolicName().equals(bundle.getSymbolicName())) {
-			if (new Version(bundle.getHeaders().get(Constants.BUNDLE_VERSION)).equals(new Version(info.getVersion())))
+			if (new Version(bundle.getHeaders().get(Constants.BUNDLE_VERSION)).equals(new Version(info.getVersion()))) {
 				return true;
+			}
 		}
 		return false;
 	}
