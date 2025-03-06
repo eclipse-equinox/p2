@@ -159,8 +159,9 @@ public class BundleInfo {
 	 * @return an {@link Version} string, or "0.0.0" if not set
 	 */
 	public String getVersion() {
-		if (version == null)
+		if (version == null) {
 			return EMPTY_VERSION;
+		}
 		return version;
 	}
 
@@ -280,10 +281,11 @@ public class BundleInfo {
 	 *            The version. A valid {@link Version} string.
 	 */
 	public void setVersion(String value) {
-		if (value == null)
+		if (value == null) {
 			this.version = EMPTY_VERSION;
-		else
+		} else {
 			this.version = value;
+		}
 	}
 
 	/**
@@ -300,8 +302,9 @@ public class BundleInfo {
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append("BundleInfo("); //$NON-NLS-1$
-		if (symbolicName != null)
+		if (symbolicName != null) {
 			buffer.append(symbolicName);
+		}
 		buffer.append(", "); //$NON-NLS-1$
 		buffer.append(version);
 
@@ -341,40 +344,49 @@ public class BundleInfo {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
+		}
 
-		if (obj == null)
+		if (obj == null) {
 			return false;
+		}
 
-		if (getClass() != obj.getClass())
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 
 		BundleInfo other = (BundleInfo) obj;
 		if (symbolicName == null) {
-			if (other.symbolicName != null)
+			if (other.symbolicName != null) {
 				return false;
-		} else if (!symbolicName.equals(other.symbolicName))
+			}
+		} else if (!symbolicName.equals(other.symbolicName)) {
 			return false;
+		}
 
-		if (!version.equals(other.getVersion()))
+		if (!version.equals(other.getVersion())) {
 			return false;
+		}
 
-		if (location == null || other.location == null)
+		if (location == null || other.location == null) {
 			return true;
+		}
 
 		// compare absolute location URIs
 		URI absoluteLocation = null;
-		if (location.isAbsolute() || baseLocation == null)
+		if (location.isAbsolute() || baseLocation == null) {
 			absoluteLocation = location;
-		else
+		} else {
 			absoluteLocation = URIUtil.append(baseLocation, URIUtil.toUnencodedString(location));
+		}
 
 		URI otherAbsoluteLocation = null;
-		if (other.location.isAbsolute() || other.baseLocation == null)
+		if (other.location.isAbsolute() || other.baseLocation == null) {
 			otherAbsoluteLocation = other.location;
-		else
+		} else {
 			otherAbsoluteLocation = URIUtil.append(other.baseLocation, URIUtil.toUnencodedString(other.location));
+		}
 		return URIUtil.sameURI(absoluteLocation, otherAbsoluteLocation);
 	}
 }

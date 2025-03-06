@@ -54,14 +54,16 @@ public class LauncherData {
 	}
 
 	public void addJvmArg(String arg) {
-		if (arg == null)
+		if (arg == null) {
 			return;
+		}
 		jvmArgs.add(arg);
 	}
 
 	public void addProgramArg(String arg) {
-		if (arg == null)
+		if (arg == null) {
 			return;
+		}
 		programArgs.add(arg);
 	}
 
@@ -146,18 +148,21 @@ public class LauncherData {
 		// backwards compatibility we remove all program args until the
 		// next program arg key
 		// (see bug 253862)
-		if (!arg.startsWith("-")) //$NON-NLS-1$
+		if (!arg.startsWith("-")) { //$NON-NLS-1$
 			return;
+		}
 
 		int index = programArgs.indexOf(arg);
-		if (index == -1)
+		if (index == -1) {
 			return;
+		}
 
 		programArgs.remove(index);
 		while (index < programArgs.size()) {
 			String next = programArgs.get(index);
-			if (next.charAt(0) == '-')
+			if (next.charAt(0) == '-') {
 				return;
+			}
 			programArgs.remove(index);
 		}
 	}
@@ -181,8 +186,9 @@ public class LauncherData {
 
 	public void setJvm(File file) {
 		this.jvm = file;
-		if (file == null)
+		if (file == null) {
 			removeProgramArg("-vm"); //$NON-NLS-1$
+		}
 	}
 
 	public void setJvmArgs(String[] args) {
@@ -190,8 +196,9 @@ public class LauncherData {
 			jvmArgs.clear();
 			return;
 		}
-		for (String arg : args)
+		for (String arg : args) {
 			this.addJvmArg(arg);
+		}
 	}
 
 	public void setLauncher(File launcherFile) {
@@ -215,8 +222,9 @@ public class LauncherData {
 			programArgs.clear();
 			return;
 		}
-		for (String arg : args)
+		for (String arg : args) {
 			this.addProgramArg(arg);
+		}
 	}
 
 	@Override
@@ -229,22 +237,24 @@ public class LauncherData {
 		sb.append("launcherVersion=" + this.launcherVersion + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		sb.append("jvm=" + this.jvm + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (this.jvmArgs.size() == 0)
+		if (this.jvmArgs.size() == 0) {
 			sb.append("jvmArgs = null\n"); //$NON-NLS-1$
-		else {
+		} else {
 			sb.append("jvmArgs=\n"); //$NON-NLS-1$
 			int i = 0;
-			for (Iterator<String> iterator = jvmArgs.iterator(); iterator.hasNext(); iterator.next())
+			for (Iterator<String> iterator = jvmArgs.iterator(); iterator.hasNext(); iterator.next()) {
 				sb.append("\tjvmArgs[" + i++ + "]=" + iterator + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
 
 		}
-		if (this.programArgs.size() == 0)
+		if (this.programArgs.size() == 0) {
 			sb.append("programArgs = null\n"); //$NON-NLS-1$
-		else {
+		} else {
 			sb.append("programArgs=\n"); //$NON-NLS-1$
 			int i = 0;
-			for (Iterator<String> iterator = programArgs.iterator(); iterator.hasNext(); iterator.next())
+			for (Iterator<String> iterator = programArgs.iterator(); iterator.hasNext(); iterator.next()) {
 				sb.append("\tprogramArgs[" + i++ + "]=" + iterator + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
 		}
 		sb.append("fwConfigLocation=" + this.fwConfigLocation + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append("fwJar=" + this.fwJar + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
