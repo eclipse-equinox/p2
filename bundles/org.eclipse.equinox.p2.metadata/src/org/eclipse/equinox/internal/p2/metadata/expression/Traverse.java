@@ -37,8 +37,9 @@ final class Traverse extends CollectionFilter {
 	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context, Iterator<?> iterator) {
 		HashSet<Object> collector = new HashSet<>();
-		while (iterator.hasNext())
+		while (iterator.hasNext()) {
 			traverse(collector, iterator.next(), context);
+		}
 		return collector.iterator();
 	}
 
@@ -58,8 +59,9 @@ final class Traverse extends CollectionFilter {
 			context = EvaluationContext.create(context, variable);
 			variable.setValue(context, parent);
 			Iterator<?> subIterator = lambda.evaluateAsIterator(context);
-			while (subIterator.hasNext())
+			while (subIterator.hasNext()) {
 				traverse(collector, subIterator.next(), context);
+			}
 		}
 	}
 }

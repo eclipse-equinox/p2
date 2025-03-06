@@ -133,13 +133,15 @@ public abstract class Version implements Comparable<Version>, Serializable {
 	public static Version createOSGi(int major, int minor, int micro, String qualifier) {
 		Comparable<?> logicQualifier;
 		if (qualifier == null || qualifier.length() == 0) {
-			if (major == 0 && minor == 0 && micro == 0)
+			if (major == 0 && minor == 0 && micro == 0) {
 				return emptyVersion;
+			}
 			logicQualifier = VersionVector.MINS_VALUE; // So that we can do identity compare
-		} else if (qualifier.equals(IVersionFormat.DEFAULT_MAX_STRING_TRANSLATION))
+		} else if (qualifier.equals(IVersionFormat.DEFAULT_MAX_STRING_TRANSLATION)) {
 			logicQualifier = VersionVector.MAXS_VALUE;
-		else
+		} else {
 			logicQualifier = qualifier;
+		}
 		return new OSGiVersion(major, minor, micro, logicQualifier);
 	}
 
@@ -159,8 +161,9 @@ public abstract class Version implements Comparable<Version>, Serializable {
 	 * @see #create(String)
 	 */
 	public static Version parseVersion(String version) {
-		if (version == null || version.length() == 0)
+		if (version == null || version.length() == 0) {
 			return Version.emptyVersion;
+		}
 		Version v = create(version);
 		return v == null ? Version.emptyVersion : v;
 	}

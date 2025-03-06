@@ -96,8 +96,9 @@ public class QLParser extends ExpressionParser {
 							assertToken(TOKEN_RP);
 							nextToken();
 							expr = factory.memberCall(expr, name, callArgs);
-						} else
+						} else {
 							expr = factory.member(expr, name);
+						}
 						break;
 
 					default :
@@ -182,16 +183,18 @@ public class QLParser extends ExpressionParser {
 					expr = factory.latest(expr);
 					assertToken(TOKEN_RP);
 					nextToken();
-				} else
+				} else {
 					expr = factory.latest(factory.select(expr, parseLambdaDefinition()));
+				}
 				break;
 			case TOKEN_FLATTEN :
 				if (currentToken == TOKEN_RP) {
 					expr = factory.flatten(expr);
 					assertToken(TOKEN_RP);
 					nextToken();
-				} else
+				} else {
 					expr = factory.flatten(factory.select(expr, parseLambdaDefinition()));
+				}
 				break;
 			case TOKEN_LIMIT :
 				expr = factory.limit(expr, parseCondition());
@@ -209,9 +212,9 @@ public class QLParser extends ExpressionParser {
 				nextToken();
 				break;
 			case TOKEN_UNIQUE :
-				if (currentToken == TOKEN_RP)
+				if (currentToken == TOKEN_RP) {
 					expr = factory.unique(expr, factory.constant(null));
-				else {
+				} else {
 					expr = factory.unique(expr, parseMember());
 					assertToken(TOKEN_RP);
 					nextToken();
@@ -255,9 +258,10 @@ public class QLParser extends ExpressionParser {
 			nextToken();
 			anyIndex = 0;
 			variables = parseVariables();
-			if (variables == null)
+			if (variables == null) {
 				// empty means no pipe at the end.
 				throw syntaxError();
+			}
 		} else {
 			anyIndex = 0;
 			variables = parseVariables();
@@ -270,20 +274,23 @@ public class QLParser extends ExpressionParser {
 				for (int idx = 0; idx < initializers.length; ++idx) {
 					IExpression initializer = initializers[idx];
 					if (initializer instanceof Variable && OPERATOR_EACH.equals(initializer.toString())) {
-						if (anyIndex == -1)
+						if (anyIndex == -1) {
 							anyIndex = idx;
-						else
+						} else {
 							anyIndex = -1; // Second Each. This is illegal
+						}
 						break;
 					}
 				}
-				if (anyIndex == -1)
+				if (anyIndex == -1) {
 					throw new IllegalArgumentException("Exaclty one _ must be present among the currying expressions"); //$NON-NLS-1$
+				}
 
 				variables = parseVariables();
-				if (variables == null)
+				if (variables == null) {
 					// empty means no pipe at the end.
 					throw syntaxError();
+				}
 			}
 
 		}
@@ -299,13 +306,15 @@ public class QLParser extends ExpressionParser {
 		IExpression each;
 		IExpression[] assignments;
 		if (initializers.length == 0) {
-			if (variables.length != 1)
+			if (variables.length != 1) {
 				throw new IllegalArgumentException("Must have exactly one variable unless currying is used"); //$NON-NLS-1$
+			}
 			each = variables[0];
 			assignments = IExpressionFactory.NO_ARGS;
 		} else {
-			if (initializers.length != variables.length)
+			if (initializers.length != variables.length) {
 				throw new IllegalArgumentException("Number of currying expressions and variables differ"); //$NON-NLS-1$
+			}
 
 			if (initializers.length == 1) {
 				// This is just a map from _ to some variable
@@ -315,10 +324,12 @@ public class QLParser extends ExpressionParser {
 				int idx;
 				each = variables[anyIndex];
 				assignments = new IExpression[initializers.length - 1];
-				for (idx = 0; idx < anyIndex; ++idx)
+				for (idx = 0; idx < anyIndex; ++idx) {
 					assignments[idx] = factory.assignment(variables[idx], initializers[idx]);
-				for (++idx; idx < initializers.length; ++idx)
+				}
+				for (++idx; idx < initializers.length; ++idx) {
 					assignments[idx] = factory.assignment(variables[idx], initializers[idx]);
+				}
 			}
 		}
 		return factory.lambda(each, assignments, body);
@@ -330,8 +341,9 @@ public class QLParser extends ExpressionParser {
 		Object saveTokenValue = tokenValue;
 		List<Object> ids = null;
 		while (currentToken == TOKEN_IDENTIFIER) {
-			if (ids == null)
+			if (ids == null) {
 				ids = new ArrayList<>();
+			}
 			ids.add(tokenValue);
 			nextToken();
 			if (currentToken == TOKEN_COMMA) {
@@ -349,9 +361,10 @@ public class QLParser extends ExpressionParser {
 			return null;
 		}
 
-		if (ids == null)
+		if (ids == null) {
 			// Empty list but otherwise OK
 			return IExpressionFactory.NO_ARGS;
+		}
 
 		int top = ids.size();
 		IExpression[] result = new IExpression[top];

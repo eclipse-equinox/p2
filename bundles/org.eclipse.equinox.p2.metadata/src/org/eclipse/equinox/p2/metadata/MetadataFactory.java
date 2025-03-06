@@ -103,8 +103,9 @@ public final class MetadataFactory {
 		 * @param additional the capabilities to add.
 		 */
 		public void addProvidedCapabilities(Collection<IProvidedCapability> additional) {
-			if (additional == null || additional.size() == 0)
+			if (additional == null || additional.size() == 0) {
 				return;
+			}
 			Collection<IProvidedCapability> current = unit().getProvidedCapabilities();
 			ArrayList<IProvidedCapability> all = new ArrayList<>(additional.size() + current.size());
 			all.addAll(current);
@@ -124,8 +125,9 @@ public final class MetadataFactory {
 		 * @param additional the requirements to add
 		 */
 		public void addRequirements(Collection<IRequirement> additional) {
-			if (additional == null || additional.size() == 0)
+			if (additional == null || additional.size() == 0) {
 				return;
+			}
 			List<IRequirement> current = unit().getRequirements();
 			ArrayList<IRequirement> all = new ArrayList<>(additional.size() + current.size());
 			all.addAll(current);
@@ -369,8 +371,9 @@ public final class MetadataFactory {
 
 		@Override
 		InstallableUnit unit() {
-			if (unit == null)
+			if (unit == null) {
 				unit = new InstallableUnitFragment();
+			}
 			return unit;
 		}
 	}
@@ -392,8 +395,9 @@ public final class MetadataFactory {
 		 * Set the applicability scope for the installable unit patch.
 		 */
 		public void setApplicabilityScope(IRequirement[][] applyTo) {
-			if (applyTo == null)
+			if (applyTo == null) {
 				throw new IllegalArgumentException("A patch scope can not be null"); //$NON-NLS-1$
+			}
 			((InstallableUnitPatch) unit()).setApplicabilityScope(applyTo);
 		}
 
@@ -712,8 +716,9 @@ public final class MetadataFactory {
 	 */
 	public static IRequirementChange createRequirementChange(IRequirement applyOn, IRequirement newValue) {
 		if ((applyOn == null || applyOn instanceof IRequiredCapability)
-				&& (newValue == null || newValue instanceof IRequiredCapability))
+				&& (newValue == null || newValue instanceof IRequiredCapability)) {
 			return new RequirementChange((IRequiredCapability) applyOn, (IRequiredCapability) newValue);
+		}
 		throw new IllegalArgumentException();
 	}
 
@@ -756,8 +761,9 @@ public final class MetadataFactory {
 	 */
 	public static IInstallableUnit createResolvedInstallableUnit(IInstallableUnit unit,
 			IInstallableUnitFragment[] fragments) {
-		if (unit.isResolved())
+		if (unit.isResolved()) {
 			return unit;
+		}
 		Assert.isNotNull(unit);
 		Assert.isNotNull(fragments);
 		return new ResolvedInstallableUnit(unit, Arrays.asList(fragments));
@@ -773,18 +779,20 @@ public final class MetadataFactory {
 	public static ITouchpointData createTouchpointData(Map<String, ? extends Object> instructions) {
 		Assert.isNotNull(instructions);
 		// copy the map to protect against subsequent change by caller
-		if (instructions.isEmpty())
+		if (instructions.isEmpty()) {
 			return EMPTY_TOUCHPOINT_DATA;
+		}
 
 		Map<String, ITouchpointInstruction> result = new LinkedHashMap<>(instructions.size());
 
 		for (Map.Entry<String, ? extends Object> entry : instructions.entrySet()) {
 			Object value = entry.getValue();
 			ITouchpointInstruction instruction;
-			if (value == null || value instanceof String)
+			if (value == null || value instanceof String) {
 				instruction = createTouchpointInstruction((String) value, null);
-			else
+			} else {
 				instruction = (ITouchpointInstruction) value;
+			}
 			result.put(entry.getKey(), instruction);
 		}
 		return new TouchpointData(result);
@@ -800,8 +808,9 @@ public final class MetadataFactory {
 	 */
 	public static ITouchpointData mergeTouchpointData(ITouchpointData initial,
 			Map<String, ITouchpointInstruction> incomingInstructions) {
-		if (incomingInstructions == null || incomingInstructions.size() == 0)
+		if (incomingInstructions == null || incomingInstructions.size() == 0) {
 			return initial;
+		}
 
 		Map<String, ITouchpointInstruction> resultInstructions = new HashMap<>(initial.getInstructions());
 		for (String key : incomingInstructions.keySet()) {
@@ -810,20 +819,22 @@ public final class MetadataFactory {
 
 			if (existingInstruction != null) {
 				String body = existingInstruction.getBody();
-				if (body == null || body.length() == 0)
+				if (body == null || body.length() == 0) {
 					body = instruction.getBody();
-				else if (instruction.getBody() != null) {
-					if (!body.endsWith(";")) //$NON-NLS-1$
+				} else if (instruction.getBody() != null) {
+					if (!body.endsWith(";")) { //$NON-NLS-1$
 						body += ';';
+					}
 					body += instruction.getBody();
 				}
 
 				String importAttribute = existingInstruction.getImportAttribute();
-				if (importAttribute == null || importAttribute.length() == 0)
+				if (importAttribute == null || importAttribute.length() == 0) {
 					importAttribute = instruction.getImportAttribute();
-				else if (instruction.getImportAttribute() != null) {
-					if (!importAttribute.endsWith(",")) //$NON-NLS-1$
+				} else if (instruction.getImportAttribute() != null) {
+					if (!importAttribute.endsWith(",")) { //$NON-NLS-1$
 						importAttribute += ',';
+					}
 					importAttribute += instruction.getBody();
 				}
 				instruction = createTouchpointInstruction(body, importAttribute);
@@ -848,13 +859,15 @@ public final class MetadataFactory {
 		Assert.isNotNull(id);
 		Assert.isNotNull(version);
 
-		if (id.equals(ITouchpointType.NONE.getId()) && version.equals(ITouchpointType.NONE.getVersion()))
+		if (id.equals(ITouchpointType.NONE.getId()) && version.equals(ITouchpointType.NONE.getVersion())) {
 			return ITouchpointType.NONE;
+		}
 
 		synchronized (typeCache) {
 			ITouchpointType result = getCachedTouchpointType(id, version);
-			if (result != null)
+			if (result != null) {
 				return result;
+			}
 			result = new TouchpointType(id, version);
 			putCachedTouchpointType(result);
 			return result;

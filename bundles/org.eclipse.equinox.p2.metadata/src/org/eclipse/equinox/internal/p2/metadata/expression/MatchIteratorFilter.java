@@ -37,8 +37,9 @@ public abstract class MatchIteratorFilter<T> implements Iterator<T> {
 
 	@Override
 	public T next() {
-		if (!positionNext())
+		if (!positionNext()) {
 			throw new NoSuchElementException();
+		}
 
 		T nxt = nextObject;
 		nextObject = noElement();
@@ -57,8 +58,9 @@ public abstract class MatchIteratorFilter<T> implements Iterator<T> {
 	protected abstract boolean isMatch(T val);
 
 	private boolean positionNext() {
-		if (nextObject != NO_ELEMENT)
+		if (nextObject != NO_ELEMENT) {
 			return true;
+		}
 
 		while (innerIterator.hasNext()) {
 			T nxt = innerIterator.next();

@@ -31,8 +31,9 @@ public class InstallableUnitPatch extends InstallableUnit implements IInstallabl
 		List<IRequirement> current = super.getRequirements();
 		int currSize = current.size();
 		IRequirement[] result = new IRequirement[currSize + toAdd.length];
-		for (int i = 0; i < currSize; ++i)
+		for (int i = 0; i < currSize; ++i) {
 			result[i] = current.get(i);
+		}
 		System.arraycopy(toAdd, 0, result, currSize, toAdd.length);
 		super.setRequiredCapabilities(result);
 	}
@@ -69,8 +70,9 @@ public class InstallableUnitPatch extends InstallableUnit implements IInstallabl
 	}
 
 	public void setLifeCycle(IRequirement lifeCycle) {
-		if (lifeCycle == null)
+		if (lifeCycle == null) {
 			return;
+		}
 		this.lifeCycle = lifeCycle;
 		addRequiredCapability(new IRequirement[] {lifeCycle});
 	}
@@ -81,12 +83,15 @@ public class InstallableUnitPatch extends InstallableUnit implements IInstallabl
 
 	@Override
 	public Object getMember(String memberName) {
-		if (MEMBER_APPLICABILITY_SCOPE == memberName)
+		if (MEMBER_APPLICABILITY_SCOPE == memberName) {
 			return scope;
-		if (MEMBER_LIFECYCLE == memberName)
+		}
+		if (MEMBER_LIFECYCLE == memberName) {
 			return lifeCycle;
-		if (MEMBER_REQUIREMENTS_CHANGE == memberName)
+		}
+		if (MEMBER_REQUIREMENTS_CHANGE == memberName) {
 			return changes;
+		}
 		return super.getMember(memberName);
 	}
 }

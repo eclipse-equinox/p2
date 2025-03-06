@@ -73,8 +73,9 @@ public class TranslationSupport {
 	private boolean loggedMissingSource = false;
 
 	public synchronized static TranslationSupport getInstance() {
-		if (instance == null)
+		if (instance == null) {
 			instance = new TranslationSupport();
+		}
 		return instance;
 	}
 
@@ -105,8 +106,9 @@ public class TranslationSupport {
 		while (true) {
 			result.add(locale);
 			lastSeparator = locale.lastIndexOf('_');
-			if (lastSeparator == -1)
+			if (lastSeparator == -1) {
 				break;
+			}
 			locale = locale.substring(0, lastSeparator);
 		}
 		// Add the default locale (most general)
@@ -121,8 +123,9 @@ public class TranslationSupport {
 	 * so we aren't required to reach around the API here.
 	 */
 	private String cacheResult(IInstallableUnit iu, String localizedKey, String localizedValue) {
-		if (iu instanceof InstallableUnit)
+		if (iu instanceof InstallableUnit) {
 			((InstallableUnit) iu).setLocalizedProperty(localizedKey, localizedValue);
+		}
 		return localizedValue;
 	}
 
@@ -134,20 +137,23 @@ public class TranslationSupport {
 	 * @return the localized copyright defined by the IInstallableUnit
 	 */
 	public ICopyright getCopyright(IInstallableUnit iu, String locale) {
-		if (locale == null)
+		if (locale == null) {
 			locale = getCurrentLocale();
+		}
 		ICopyright copyright = iu.getCopyright();
 		String body = (copyright != null ? copyright.getBody() : null);
-		if (body == null || body.length() <= 1 || body.charAt(0) != '%')
+		if (body == null || body.length() <= 1 || body.charAt(0) != '%') {
 			return copyright;
+		}
 		final String actualKey = body.substring(1); // Strip off the %
 		body = getLocalizedIUProperty(iu, actualKey, locale);
 		return MetadataFactory.createCopyright(copyright.getLocation(), body);
 	}
 
 	private String getCurrentLocale() {
-		if (localeProvider != null)
+		if (localeProvider != null) {
 			return localeProvider.getLocale().toString();
+		}
 		return Locale.getDefault().toString();
 	}
 
@@ -162,11 +168,13 @@ public class TranslationSupport {
 	 * such property is defined.
 	 */
 	public String getIUProperty(IInstallableUnit iu, String propertyKey, String locale) {
-		if (locale == null)
+		if (locale == null) {
 			locale = getCurrentLocale();
+		}
 		String value = iu.getProperty(propertyKey);
-		if (value == null || value.length() <= 1 || value.charAt(0) != '%')
+		if (value == null || value.length() <= 1 || value.charAt(0) != '%') {
 			return value;
+		}
 		// else have a localizable property
 		final String actualKey = value.substring(1); // Strip off the %
 		return getLocalizedIUProperty(iu, actualKey, locale);
@@ -200,8 +208,9 @@ public class TranslationSupport {
 
 	private ILicense getLicense(IInstallableUnit iu, ILicense license, String locale) {
 		String body = (license != null ? license.getBody() : null);
-		if (body == null || body.length() <= 1 || body.charAt(0) != '%')
+		if (body == null || body.length() <= 1 || body.charAt(0) != '%') {
 			return license;
+		}
 		final String actualKey = body.substring(1); // Strip off the %
 		body = getLocalizedIUProperty(iu, actualKey, locale);
 		return MetadataFactory.createLicense(license.getLocation(), body);
@@ -215,8 +224,9 @@ public class TranslationSupport {
 	 * @return the localized licenses defined by the IInstallableUnit
 	 */
 	public ILicense[] getLicenses(IInstallableUnit iu, String locale) {
-		if (locale == null)
+		if (locale == null) {
 			locale = getCurrentLocale();
+		}
 		Collection<ILicense> licenses = iu.getLicenses();
 		ILicense[] translatedLicenses = new ILicense[licenses.size()];
 		int i = 0;
@@ -233,13 +243,15 @@ public class TranslationSupport {
 	 * @return the localized update descriptor defined by the IInstallableUnit
 	 */
 	public IUpdateDescriptor getUpdateDescriptor(IInstallableUnit iu, String locale) {
-		if (locale == null)
+		if (locale == null) {
 			locale = getCurrentLocale();
+		}
 
 		IUpdateDescriptor descriptor = iu.getUpdateDescriptor();
 		String body = (descriptor != null ? descriptor.getDescription() : null);
-		if (body == null || body.length() <= 1 || body.charAt(0) != '%')
+		if (body == null || body.length() <= 1 || body.charAt(0) != '%') {
 			return descriptor;
+		}
 		final String actualKey = body.substring(1); // Strip off the %
 		body = getLocalizedIUProperty(iu, actualKey, locale);
 		return MetadataFactory.createUpdateDescriptor(descriptor.getIUsBeingUpdated(), descriptor.getSeverity(), body, descriptor.getLocation());
@@ -260,8 +272,9 @@ public class TranslationSupport {
 		SoftReference<IQueryResult<IInstallableUnit>> queryResultReference = localeCollectorCache.get(locale);
 		if (queryResultReference != null) {
 			IQueryResult<IInstallableUnit> cached = queryResultReference.get();
-			if (cached != null)
+			if (cached != null) {
 				return cached;
+			}
 		}
 
 		IQuery<IInstallableUnit> iuQuery = QueryUtil.createMatchQuery(IInstallableUnitFragment.class, capabilityMatch, NAMESPACE_IU_LOCALIZATION, localeVariants);
@@ -275,13 +288,16 @@ public class TranslationSupport {
 		String localizedValue = null;
 
 		//first check for a cached localized value
-		if (iu instanceof InstallableUnit)
+		if (iu instanceof InstallableUnit) {
 			localizedValue = ((InstallableUnit) iu).getLocalizedProperty(localizedKey);
+		}
 		//next check if the localized value is stored in the same IU (common case)
-		if (localizedValue == null)
+		if (localizedValue == null) {
 			localizedValue = iu.getProperty(localizedKey);
-		if (localizedValue != null)
+		}
+		if (localizedValue != null) {
 			return localizedValue;
+		}
 
 		final List<String> locales = buildLocaleVariants(locale);
 		final IInstallableUnit theUnit = iu;
@@ -298,8 +314,9 @@ public class TranslationSupport {
 				for (String unitlocale : locales) {
 					String localeKey = makeLocalizedKey(actualKey, unitlocale);
 					translation = localizationIU.getProperty(localeKey);
-					if (translation != null)
+					if (translation != null) {
 						return cacheResult(iu, localizedKey, translation);
+					}
 				}
 			}
 		}
@@ -307,8 +324,9 @@ public class TranslationSupport {
 		for (String nextLocale : locales) {
 			String localeKey = makeLocalizedKey(actualKey, nextLocale);
 			String nextValue = iu.getProperty(localeKey);
-			if (nextValue != null)
+			if (nextValue != null) {
 				return cacheResult(iu, localizedKey, nextValue);
+			}
 		}
 
 		return cacheResult(iu, localizedKey, actualKey);

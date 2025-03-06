@@ -121,22 +121,26 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 
 	static int compare(Comparable<?>[] vectorA, Comparable<?> padA, Comparable<?>[] vectorB, Comparable<?> padB) {
 		int top = vectorA.length;
-		if (top > vectorB.length)
+		if (top > vectorB.length) {
 			top = vectorB.length;
+		}
 
 		for (int idx = 0; idx < top; ++idx) {
 			int cmp = compareSegments(vectorA[idx], vectorB[idx]);
-			if (cmp != 0)
+			if (cmp != 0) {
 				return cmp;
+			}
 		}
 
 		// All elements compared equal up to this point. Check
 		// pad values
-		if (top < vectorA.length)
+		if (top < vectorA.length) {
 			return (padB == null) ? 1 : compareReminder(top, vectorA, padA, padB);
+		}
 
-		if (top < vectorB.length)
+		if (top < vectorB.length) {
 			return (padA == null) ? -1 : -compareReminder(top, vectorB, padB, padA);
+		}
 
 		// Lengths are equal. Compare pad values
 		return padA == null ? (padB == null ? 0 : -1) : (padB == null ? 1 : compareSegments(padA, padB));
@@ -146,23 +150,28 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 		// We compare pad first since it is impossible for versions with
 		// different pad to be equal (versions are padded to infinity) 
 		if (padValueA == null) {
-			if (padValueB != null)
+			if (padValueB != null) {
 				return false;
+			}
 		} else {
-			if (padValueB == null || !padValueA.equals(padValueB))
+			if (padValueB == null || !padValueA.equals(padValueB)) {
 				return false;
+			}
 		}
 
 		int idx = vectorA.length;
 
 		// If the length of the vector differs, the versions cannot be equal
 		// since segments equal to pad are stripped by the parser
-		if (idx != vectorB.length)
+		if (idx != vectorB.length) {
 			return false;
+		}
 
-		while (--idx >= 0)
-			if (!vectorA[idx].equals(vectorB[idx]))
+		while (--idx >= 0) {
+			if (!vectorA[idx].equals(vectorB[idx])) {
 				return false;
+			}
+		}
 
 		return true;
 	}
@@ -172,8 +181,9 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 		int idx = vector.length;
 		while (--idx >= 0) {
 			Object elem = vector[idx];
-			if (elem != null)
+			if (elem != null) {
 				hashCode += elem.hashCode();
+			}
 			hashCode = hashCode * 31;
 		}
 		return hashCode;
@@ -181,15 +191,16 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 
 	static void toString(StringBuilder sb, Comparable<?>[] vector, Comparable<?> padValue, boolean rangeSafe) {
 		int top = vector.length;
-		if (top == 0)
+		if (top == 0) {
 			// Write one pad value as explicit. It will be considered
 			// redundant and removed by the parser but the raw format
 			// does not allow zero elements
 			VersionFormat.rawToString(sb, rangeSafe, padValue == null ? MIN_VALUE : padValue);
-		else {
+		} else {
 			for (int idx = 0; idx < top; ++idx) {
-				if (idx > 0)
+				if (idx > 0) {
 					sb.append('.');
+				}
 				VersionFormat.rawToString(sb, rangeSafe, vector[idx]);
 			}
 		}
@@ -201,16 +212,19 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 
 	private static int compareReminder(int idx, Comparable<?>[] vector, Comparable<?> padValue, Comparable<?> othersPad) {
 		int cmp;
-		for (cmp = 0; idx < vector.length && cmp == 0; ++idx)
+		for (cmp = 0; idx < vector.length && cmp == 0; ++idx) {
 			cmp = compareSegments(vector[idx], othersPad);
-		if (cmp == 0)
+		}
+		if (cmp == 0) {
 			cmp = (padValue == null) ? -1 : compareSegments(padValue, othersPad);
+		}
 		return cmp;
 	}
 
 	static int compareSegments(Comparable<?> a, Comparable<?> b) {
-		if (a == b)
+		if (a == b) {
 			return 0;
+		}
 
 		if (a instanceof Integer && b instanceof Integer) {
 			int ai = ((Integer) a).intValue();
@@ -218,29 +232,38 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 			return ai > bi ? 1 : (ai < bi ? -1 : 0);
 		}
 
-		if (a instanceof String && b instanceof String)
+		if (a instanceof String && b instanceof String) {
 			return ((String) a).compareTo((String) b);
+		}
 
-		if (a == MAX_VALUE || a == MIN_VALUE || a == MAXS_VALUE)
+		if (a == MAX_VALUE || a == MIN_VALUE || a == MAXS_VALUE) {
 			return ((MinMaxComparable) a).compareTo(b);
+		}
 
-		if (b == MAX_VALUE || b == MIN_VALUE || b == MAXS_VALUE)
+		if (b == MAX_VALUE || b == MIN_VALUE || b == MAXS_VALUE) {
 			return -((MinMaxComparable) b).compareTo(a);
+		}
 
-		if (a instanceof Integer)
+		if (a instanceof Integer) {
 			return 1;
-		if (b instanceof Integer)
+		}
+		if (b instanceof Integer) {
 			return -1;
+		}
 
-		if (a instanceof VersionVector)
+		if (a instanceof VersionVector) {
 			return (b instanceof VersionVector) ? ((VersionVector) a).compareTo((VersionVector) b) : 1;
-		if (b instanceof VersionVector)
+		}
+		if (b instanceof VersionVector) {
 			return -1;
+		}
 
-		if (a instanceof EnumDefinition.EnumSegment)
+		if (a instanceof EnumDefinition.EnumSegment) {
 			return (b instanceof EnumDefinition.EnumSegment) ? ((EnumDefinition.EnumSegment) a).compareTo((EnumDefinition.EnumSegment) b) : 1;
-		if (b instanceof EnumDefinition.EnumSegment)
+		}
+		if (b instanceof EnumDefinition.EnumSegment) {
 			return -1;
+		}
 
 		throw new IllegalArgumentException();
 	}
@@ -256,19 +279,22 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 
 	@Override
 	public int compareTo(VersionVector ov) {
-		if (ov == this)
+		if (ov == this) {
 			return 0;
+		}
 
 		return compare(vector, padValue, ov.vector, ov.padValue);
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (o == this)
+		if (o == this) {
 			return true;
+		}
 
-		if (!(o instanceof VersionVector))
+		if (!(o instanceof VersionVector)) {
 			return false;
+		}
 
 		VersionVector ov = (VersionVector) o;
 		return equals(vector, padValue, ov.vector, ov.padValue);
@@ -345,11 +371,14 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 		VersionVector vv = this;
 		// Preserve the emptyString singleton
 		int idx = vector.length;
-		while (--idx >= 0)
-			if (MINS_VALUE.equals(vector[idx]))
+		while (--idx >= 0) {
+			if (MINS_VALUE.equals(vector[idx])) {
 				vector[idx] = MINS_VALUE;
-		if (MINS_VALUE.equals(padValue))
+			}
+		}
+		if (MINS_VALUE.equals(padValue)) {
 			vv = new VersionVector(vector, MINS_VALUE);
+		}
 		return vv;
 	}
 }

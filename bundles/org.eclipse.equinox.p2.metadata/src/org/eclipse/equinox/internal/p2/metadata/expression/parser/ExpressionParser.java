@@ -132,8 +132,9 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 
 	protected IExpression parseOr() {
 		IExpression expr = parseAnd();
-		if (currentToken != TOKEN_OR)
+		if (currentToken != TOKEN_OR) {
 			return expr;
+		}
 
 		ArrayList<IExpression> exprs = new ArrayList<>();
 		exprs.add(expr);
@@ -146,8 +147,9 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 
 	protected IExpression parseAnd() {
 		IExpression expr = parseBinary();
-		if (currentToken != TOKEN_AND)
+		if (currentToken != TOKEN_AND) {
 			return expr;
+		}
 
 		ArrayList<IExpression> exprs = new ArrayList<>();
 		exprs.add(expr);
@@ -182,10 +184,11 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 					int realToken = currentToken;
 					nextToken();
 					IExpression rhs;
-					if (realToken == TOKEN_MATCHES && currentToken == TOKEN_LITERAL && tokenValue instanceof String)
+					if (realToken == TOKEN_MATCHES && currentToken == TOKEN_LITERAL && tokenValue instanceof String) {
 						rhs = factory.constant(new LDAPApproximation((String) tokenValue));
-					else
+					} else {
 						rhs = parseNot();
+					}
 					switch (realToken) {
 						case TOKEN_EQUAL :
 							expr = factory.equals(expr, rhs);
@@ -230,8 +233,9 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 		IExpression expr = parseCollectionLHS();
 		if (expr == null) {
 			expr = parseMember();
-			if (currentToken != TOKEN_DOT)
+			if (currentToken != TOKEN_DOT) {
 				return expr;
+			}
 			nextToken();
 		}
 		for (;;) {
@@ -240,8 +244,9 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 			assertToken(TOKEN_LP);
 			nextToken();
 			expr = parseCollectionRHS(expr, funcToken);
-			if (currentToken != TOKEN_DOT)
+			if (currentToken != TOKEN_DOT) {
 				break;
+			}
 			nextToken();
 		}
 		return expr;
@@ -373,36 +378,41 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 
 	protected IExpression[] parseArray() {
 		IExpression expr = parseCondition();
-		if (currentToken != TOKEN_COMMA)
+		if (currentToken != TOKEN_COMMA) {
 			return new IExpression[] {expr};
+		}
 
 		ArrayList<IExpression> operands = new ArrayList<>();
 		operands.add(expr);
 		do {
 			nextToken();
-			if (currentToken == TOKEN_LC)
+			if (currentToken == TOKEN_LC) {
 				// We don't allow lambdas in the array
 				break;
+			}
 			operands.add(parseCondition());
 		} while (currentToken == TOKEN_COMMA);
 		return operands.toArray(new IExpression[operands.size()]);
 	}
 
 	protected void assertToken(int token) {
-		if (currentToken != token)
+		if (currentToken != token) {
 			throw syntaxError();
+		}
 	}
 
 	protected IExpression getVariableOrRootMember(String id) {
 		int idx = size();
 		while (--idx >= 0) {
 			IExpression v = get(idx);
-			if (id.equals(v.toString()))
+			if (id.equals(v.toString())) {
 				return v;
+			}
 		}
 
-		if (rootVariable == null || rootVariable.equals(id))
+		if (rootVariable == null || rootVariable.equals(id)) {
 			throw syntaxError("No such variable: " + id); //$NON-NLS-1$
+		}
 
 		return factory.member(getVariableOrRootMember(rootVariable), id);
 	}
@@ -413,8 +423,9 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 		char c = 0;
 		while (tokenPos < top) {
 			c = expression.charAt(tokenPos);
-			if (!Character.isWhitespace(c))
+			if (!Character.isWhitespace(c)) {
 				break;
+			}
 			++tokenPos;
 		}
 		if (tokenPos >= top) {
@@ -441,8 +452,9 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 					tokenValue = OPERATOR_AND;
 					currentToken = TOKEN_AND;
 					tokenPos += 2;
-				} else
+				} else {
 					currentToken = TOKEN_ERROR;
+				}
 				break;
 
 			case '=' :
@@ -450,8 +462,9 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 					tokenValue = OPERATOR_EQUALS;
 					currentToken = TOKEN_EQUAL;
 					tokenPos += 2;
-				} else
+				} else {
 					currentToken = TOKEN_ERROR;
+				}
 				break;
 
 			case '!' :
@@ -470,8 +483,9 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 					tokenValue = OPERATOR_MATCHES;
 					currentToken = TOKEN_MATCHES;
 					tokenPos += 2;
-				} else
+				} else {
 					currentToken = TOKEN_ERROR;
+				}
 				break;
 
 			case '>' :
@@ -558,29 +572,33 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 
 			case '/' :
 				parseDelimitedString(c);
-				if (currentToken == TOKEN_LITERAL)
+				if (currentToken == TOKEN_LITERAL) {
 					tokenValue = SimplePattern.compile((String) tokenValue);
+				}
 				break;
 
 			default :
 				if (Character.isDigit(c)) {
 					int start = tokenPos++;
-					while (tokenPos < top && Character.isDigit(expression.charAt(tokenPos)))
+					while (tokenPos < top && Character.isDigit(expression.charAt(tokenPos))) {
 						++tokenPos;
+					}
 					tokenValue = Integer.valueOf(expression.substring(start, tokenPos));
 					currentToken = TOKEN_LITERAL;
 					break;
 				}
 				if (Character.isJavaIdentifierStart(c)) {
 					int start = tokenPos++;
-					while (tokenPos < top && Character.isJavaIdentifierPart(expression.charAt(tokenPos)))
+					while (tokenPos < top && Character.isJavaIdentifierPart(expression.charAt(tokenPos))) {
 						++tokenPos;
+					}
 					String word = expression.substring(start, tokenPos);
 					Integer token = keywordToTokenMap().get(word);
-					if (token == null)
+					if (token == null) {
 						currentToken = TOKEN_IDENTIFIER;
-					else
+					} else {
 						currentToken = token.intValue();
+					}
 					tokenValue = word;
 					break;
 				}
@@ -589,16 +607,18 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 	}
 
 	protected void popVariable() {
-		if (isEmpty())
+		if (isEmpty()) {
 			throw syntaxError();
+		}
 		pop();
 	}
 
 	protected ExpressionParseException syntaxError() {
 		Object tv = tokenValue;
 		if (tv == null) {
-			if (lastTokenPos >= expression.length())
+			if (lastTokenPos >= expression.length()) {
 				return syntaxError("Unexpected end of expression"); //$NON-NLS-1$
+			}
 			tv = expression.substring(lastTokenPos, lastTokenPos + 1);
 		}
 		return syntaxError("Unexpected token \"" + tv + '"'); //$NON-NLS-1$
@@ -614,11 +634,13 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 		int top = expression.length();
 		while (tokenPos < top) {
 			char ec = expression.charAt(tokenPos);
-			if (ec == delim)
+			if (ec == delim) {
 				break;
+			}
 			if (ec == '\\') {
-				if (++tokenPos == top)
+				if (++tokenPos == top) {
 					break;
+				}
 				ec = expression.charAt(tokenPos);
 			}
 			buf.append(ec);

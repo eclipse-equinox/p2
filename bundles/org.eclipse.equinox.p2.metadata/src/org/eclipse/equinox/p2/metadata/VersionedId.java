@@ -91,11 +91,13 @@ public class VersionedId implements IVersionedId {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
+		}
 
-		if (!(obj instanceof VersionedId))
+		if (!(obj instanceof VersionedId)) {
 			return false;
+		}
 
 		VersionedId vname = (VersionedId) obj;
 		return id.equals(vname.id) && version.equals(vname.version);

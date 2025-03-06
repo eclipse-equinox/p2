@@ -29,10 +29,12 @@ public final class BooleanFunction extends Function {
 
 	@Override
 	Object createInstance(Object arg) {
-		if (arg instanceof String)
+		if (arg instanceof String) {
 			return Boolean.valueOf("true".equalsIgnoreCase((String) arg)); //$NON-NLS-1$
-		if (arg instanceof Boolean)
+		}
+		if (arg instanceof Boolean) {
 			return arg;
+		}
 		return Boolean.FALSE;
 	}
 

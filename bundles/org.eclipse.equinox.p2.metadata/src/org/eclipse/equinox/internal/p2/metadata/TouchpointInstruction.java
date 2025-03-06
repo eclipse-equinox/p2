@@ -61,10 +61,11 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 		result.append('(');
 		boolean first = true;
 		for (Entry<String, String> entry : parameters.entrySet()) {
-			if (first)
+			if (first) {
 				first = false;
-			else
+			} else {
 				result.append(',');
+			}
 			result.append(entry.getKey());
 			result.append(':');
 			appendEncoded(result, entry.getValue());
@@ -105,23 +106,30 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof ITouchpointInstruction))
+		}
+		if (!(obj instanceof ITouchpointInstruction)) {
 			return false;
+		}
 		ITouchpointInstruction other = (ITouchpointInstruction) obj;
 		if (body == null) {
-			if (other.getBody() != null)
+			if (other.getBody() != null) {
 				return false;
-		} else if (!body.equals(other.getBody()))
+			}
+		} else if (!body.equals(other.getBody())) {
 			return false;
+		}
 		if (importAttribute == null) {
-			if (other.getImportAttribute() != null)
+			if (other.getImportAttribute() != null) {
 				return false;
-		} else if (!importAttribute.equals(other.getImportAttribute()))
+			}
+		} else if (!importAttribute.equals(other.getImportAttribute())) {
 			return false;
+		}
 		return true;
 	}
 

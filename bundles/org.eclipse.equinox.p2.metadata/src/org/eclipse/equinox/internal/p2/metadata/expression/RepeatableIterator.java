@@ -23,20 +23,27 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 
 	@SuppressWarnings("unchecked")
 	public static <T> IRepeatableIterator<T> create(Object unknown) {
-		if (unknown.getClass().isArray())
+		if (unknown.getClass().isArray()) {
 			return create((T[]) unknown);
-		if (unknown instanceof Iterator<?>)
+		}
+		if (unknown instanceof Iterator<?>) {
 			return create((Iterator<T>) unknown);
-		if (unknown instanceof List<?>)
+		}
+		if (unknown instanceof List<?>) {
 			return create((List<T>) unknown);
-		if (unknown instanceof Collection<?>)
+		}
+		if (unknown instanceof Collection<?>) {
 			return create((Collection<T>) unknown);
-		if (unknown instanceof Map<?, ?>)
+		}
+		if (unknown instanceof Map<?, ?>) {
 			return create((Set<T>) ((Map<?, ?>) unknown).entrySet());
-		if (unknown instanceof IQueryResult<?>)
+		}
+		if (unknown instanceof IQueryResult<?>) {
 			return create((IQueryResult<T>) unknown);
-		if (unknown instanceof IIndexProvider<?>)
+		}
+		if (unknown instanceof IIndexProvider<?>) {
 			return create((IIndexProvider<T>) unknown);
+		}
 		throw new IllegalArgumentException("Cannot convert a " + unknown.getClass().getName() + " into an iterator"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -62,8 +69,9 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 
 	RepeatableIterator(Iterator<T> iterator) {
 		HashSet<T> v = new HashSet<>();
-		while (iterator.hasNext())
+		while (iterator.hasNext()) {
 			v.add(iterator.next());
+		}
 		values = v;
 		this.iterator = v.iterator();
 	}
@@ -118,8 +126,9 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 
 		@Override
 		public T next() {
-			if (++position >= array.length)
+			if (++position >= array.length) {
 				throw new NoSuchElementException();
+			}
 			return array[position];
 		}
 

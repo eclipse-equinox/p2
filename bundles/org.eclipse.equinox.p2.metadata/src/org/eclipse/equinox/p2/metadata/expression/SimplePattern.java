@@ -31,8 +31,9 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 	 * @return <code>true</code> if the value was a match.
 	 */
 	public boolean isMatch(CharSequence value) {
-		if (node == null)
+		if (node == null) {
 			node = parse(pattern, 0);
+		}
 		return node.match(value, 0);
 	}
 
@@ -85,17 +86,21 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 				// value must end with this constant. It will be faster
 				// to scan backwards from the end.
 				int clen = ending.length();
-				if (clen > top - pos)
+				if (clen > top - pos) {
 					return false;
-				while (clen > 0)
-					if (ending.charAt(--clen) != value.charAt(--top))
+				}
+				while (clen > 0) {
+					if (ending.charAt(--clen) != value.charAt(--top)) {
 						return false;
+					}
+				}
 				return true;
 			}
 
 			while (pos < top) {
-				if (next.match(value, pos++))
+				if (next.match(value, pos++)) {
 					return true;
+				}
 			}
 			return false;
 		}
@@ -126,13 +131,16 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 		boolean match(CharSequence value, int pos) {
 			int max = constant.length() + pos;
 			int top = value.length();
-			if (top != max)
+			if (top != max) {
 				return false;
+			}
 
 			int idx = 0;
-			while (pos < max)
-				if (value.charAt(pos++) != constant.charAt(idx++))
+			while (pos < max) {
+				if (value.charAt(pos++) != constant.charAt(idx++)) {
 					return false;
+				}
+			}
 			return true;
 		}
 
@@ -155,13 +163,16 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 		boolean match(CharSequence value, int pos) {
 			int max = constant.length() + pos;
 			int top = value.length();
-			if (top < max)
+			if (top < max) {
 				return false;
+			}
 
 			int idx = 0;
-			while (pos < max)
-				if (value.charAt(pos++) != constant.charAt(idx++))
+			while (pos < max) {
+				if (value.charAt(pos++) != constant.charAt(idx++)) {
 					return false;
+				}
+			}
 			return next == null ? (pos == top) : next.match(value, pos);
 		}
 	}
@@ -175,8 +186,9 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 	}
 
 	public static SimplePattern compile(String pattern) {
-		if (pattern == null)
+		if (pattern == null) {
 			throw new IllegalArgumentException("Pattern can not be null"); //$NON-NLS-1$
+		}
 		return new SimplePattern(pattern);
 	}
 
@@ -195,13 +207,15 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 					parsedNode = new AnyCharacterNode(parse(pattern, pos + 1));
 					break;
 				case '\\' :
-					if (++pos == top)
+					if (++pos == top) {
 						throw new IllegalArgumentException("Pattern ends with escape"); //$NON-NLS-1$
+					}
 					c = pattern.charAt(pos);
 					// fall through
 				default :
-					if (bld == null)
+					if (bld == null) {
 						bld = new StringBuilder();
+					}
 					bld.append(c);
 					++pos;
 					continue;

@@ -29,20 +29,23 @@ public class IdIndex extends Index<IInstallableUnit> {
 
 	public IdIndex(Iterator<IInstallableUnit> ius) {
 		iuMap = new IUMap();
-		while (ius.hasNext())
+		while (ius.hasNext()) {
 			iuMap.add(ius.next());
+		}
 	}
 
 	@Override
 	public Iterator<IInstallableUnit> getCandidates(IEvaluationContext ctx, IExpression variable, IExpression booleanExpr) {
 		Object queriedKeys = getQueriedIDs(ctx, variable, InstallableUnit.MEMBER_ID, booleanExpr, null);
-		if (queriedKeys == null)
+		if (queriedKeys == null) {
 			return null;
+		}
 
 		if (queriedKeys instanceof Collection<?>) {
 			HashSet<IInstallableUnit> collector = new HashSet<>();
-			for (Object key : (Collection<?>) queriedKeys)
+			for (Object key : (Collection<?>) queriedKeys) {
 				collector.addAll(iuMap.getUnits((String) key));
+			}
 			return collector.iterator();
 		}
 		return iuMap.getUnits((String) queriedKeys).iterator();

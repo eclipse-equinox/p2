@@ -33,16 +33,19 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 
 		@Override
 		public int compareTo(EnumSegment other) {
-			if (other == this)
+			if (other == this) {
 				return 0;
-			if (definition == other.definition)
+			}
+			if (definition == other.definition) {
 				// Same definition. Just compare ordinals
 				return ordinal - other.ordinal;
+			}
 
 			String thisId = definition.getIdentifier(ordinal);
 			String otherId = other.definition.getIdentifier(other.ordinal);
-			if (thisId.equals(otherId))
+			if (thisId.equals(otherId)) {
 				return 0;
+			}
 
 			int thisOrdinalInOther = other.definition.getOrdinal(thisId);
 			int otherOrdinalInThis = definition.getOrdinal(otherId);
@@ -52,11 +55,13 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 					// enums order them the same way
 					int thisOrder = ordinal - otherOrdinalInThis;
 					int otherOrder = thisOrdinalInOther - other.ordinal;
-					if (thisOrder > 0 && otherOrder > 0)
+					if (thisOrder > 0 && otherOrder > 0) {
 						return 1;
-					if (thisOrder < 0 && otherOrder < 0)
+					}
+					if (thisOrder < 0 && otherOrder < 0) {
 						return -1;
 					// Difference in opinion...
+					}
 				} else {
 					// Use the order in other since it has both identifiers and
 					// this enum does not
@@ -109,8 +114,9 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 		if (values == null) {
 			int ordinal = ed.identifiers.length;
 			values = new EnumSegment[ordinal];
-			while (--ordinal >= 0)
+			while (--ordinal >= 0) {
 				values[ordinal] = new EnumSegment(ordinal, ed);
+			}
 			enumDefinitionCache.put(ed, values);
 		}
 		return values;
@@ -120,18 +126,22 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 		nextEd: for (EnumDefinition ed : enumDefinitionCache.keySet()) {
 			String[][] defs = ed.identifiers;
 			int ordinal = defs.length;
-			if (ordinal != identifiers.size())
+			if (ordinal != identifiers.size()) {
 				continue;
+			}
 
 			while (--ordinal >= 0) {
 				String[] def = defs[ordinal];
 				List<String> ldef = identifiers.get(ordinal);
 				int idx = def.length;
-				if (ldef.size() != idx)
+				if (ldef.size() != idx) {
 					continue nextEd;
-				while (--idx >= 0)
-					if (!def[idx].equals(ldef.get(idx)))
+				}
+				while (--idx >= 0) {
+					if (!def[idx].equals(ldef.get(idx))) {
 						continue nextEd;
+					}
+				}
 			}
 			return ed;
 		}
@@ -156,10 +166,12 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 			defs[ordinal] = def;
 			while (--idx >= 0) {
 				int idLen = def[idx].length();
-				if (idLen < minLen)
+				if (idLen < minLen) {
 					minLen = idLen;
-				if (idLen > maxLen)
+				}
+				if (idLen > maxLen) {
 					maxLen = idLen;
+				}
 			}
 		}
 		this.shortestLength = minLen;
@@ -186,9 +198,11 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 			while (--ordinal >= 0) {
 				String[] idents = identifiers[ordinal];
 				int idx = idents.length;
-				while (--idx >= 0)
-					if (idents[idx].equals(identifier))
+				while (--idx >= 0) {
+					if (idents[idx].equals(identifier)) {
 						return ordinal;
+					}
+				}
 			}
 		}
 		return -1;
@@ -210,42 +224,51 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 		while (--ordinal > 0) {
 			String[] idents = identifiers[ordinal];
 			int idx = idents.length;
-			while (--idx >= 0)
+			while (--idx >= 0) {
 				result = 31 * result + idents[idx].hashCode();
+			}
 		}
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (o == this)
+		if (o == this) {
 			return true;
-		if (!(o instanceof EnumDefinition))
+		}
+		if (!(o instanceof EnumDefinition)) {
 			return false;
+		}
 		String[][] otherIds = ((EnumDefinition) o).identifiers;
 		int ordinal = identifiers.length;
-		if (ordinal != otherIds.length)
+		if (ordinal != otherIds.length) {
 			return false;
-		while (--ordinal >= 0)
-			if (!Arrays.equals(identifiers[ordinal], otherIds[ordinal]))
+		}
+		while (--ordinal >= 0) {
+			if (!Arrays.equals(identifiers[ordinal], otherIds[ordinal])) {
 				return false;
+			}
+		}
 		return true;
 	}
 
 	@Override
 	public int compareTo(EnumDefinition o) {
-		if (o == this)
+		if (o == this) {
 			return 0;
+		}
 
 		int top = identifiers.length;
 		int cmp = top - o.identifiers.length;
-		if (cmp != 0)
+		if (cmp != 0) {
 			return cmp;
+		}
 
 		for (int idx = 0; idx < top; ++idx) {
 			cmp = identifiers[idx][0].compareTo(o.identifiers[idx][0]);
-			if (cmp != 0)
+			if (cmp != 0) {
 				return cmp;
+			}
 		}
 		// this should never happen since we use a lightweight pattern
 		return 0;
@@ -269,8 +292,9 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 				bld.append('=');
 				bld.append(idents[idx]);
 			}
-			if (++ordinal == top)
+			if (++ordinal == top) {
 				break;
+			}
 			bld.append(',');
 		}
 		bld.append('}');
@@ -280,11 +304,13 @@ class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 		bld.append('{');
 		int top = identifiers.length;
 		for (int ordinal = 0;;) {
-			if (ordinal == selectedOrdinal)
+			if (ordinal == selectedOrdinal) {
 				bld.append('^');
+			}
 			bld.append(identifiers[ordinal][0]);
-			if (++ordinal == top)
+			if (++ordinal == top) {
 				break;
+			}
 			bld.append(',');
 		}
 		bld.append('}');

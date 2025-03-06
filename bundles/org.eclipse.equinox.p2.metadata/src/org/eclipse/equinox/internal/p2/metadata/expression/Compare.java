@@ -75,17 +75,20 @@ final class Compare extends Binary {
 
 	@Override
 	public void toLDAPString(StringBuilder buf) {
-		if (!equalOK)
+		if (!equalOK) {
 			buf.append("(!"); //$NON-NLS-1$
+		}
 		buf.append('(');
 		appendLDAPAttribute(buf);
-		if (equalOK)
+		if (equalOK) {
 			buf.append(compareLess ? OPERATOR_LT_EQUAL : OPERATOR_GT_EQUAL);
-		else
+		} else {
 			buf.append(compareLess ? OPERATOR_GT_EQUAL : OPERATOR_LT_EQUAL);
+		}
 		appendLDAPValue(buf);
 		buf.append(')');
-		if (!equalOK)
+		if (!equalOK) {
 			buf.append(')');
+		}
 	}
 }

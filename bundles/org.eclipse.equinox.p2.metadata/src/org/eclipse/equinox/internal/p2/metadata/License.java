@@ -55,8 +55,9 @@ public class License implements ILicense {
 	 * @throws IllegalArgumentException when the <code>body</code> is <code>null</code>
 	 */
 	public License(URI location, String body, String uuid) {
-		if (body == null)
+		if (body == null) {
 			throw new IllegalArgumentException("body cannot be null"); //$NON-NLS-1$
+		}
 		this.body = body;
 		this.location = location;
 		this.digest = uuid;
@@ -88,22 +89,26 @@ public class License implements ILicense {
 	 */
 	@Override
 	public synchronized String getUUID() {
-		if (digest == null)
+		if (digest == null) {
 			digest = calculateLicenseDigest().toString(16);
+		}
 
 		return digest;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == this)
+		if (obj == this) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
+		}
 		if (obj instanceof ILicense) {
 			ILicense other = (ILicense) obj;
-			if (other.getUUID().equals(getUUID()))
+			if (other.getUUID().equals(getUUID())) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -140,10 +145,12 @@ public class License implements ILicense {
 				foundWhitespace = true;
 				c = text.charAt(++i);
 			}
-			if (foundWhitespace)
+			if (foundWhitespace) {
 				result.append(' ');
-			if (i < length)
+			}
+			if (i < length) {
 				result.append(c);
+			}
 		}
 		return result.toString();
 	}

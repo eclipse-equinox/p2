@@ -21,8 +21,9 @@ import org.eclipse.equinox.p2.query.*;
 
 public abstract class IndexProvider<T> implements IIndexProvider<T>, IQueryable<T> {
 	public static <Q> IQueryResult<Q> query(IIndexProvider<Q> indexProvider, IQuery<Q> query, IProgressMonitor monitor) {
-		if (monitor != null)
+		if (monitor != null) {
 			monitor.beginTask(null, IProgressMonitor.UNKNOWN);
+		}
 		IQueryResult<Q> result = (query instanceof IQueryWithIndex<?>) ? ((IQueryWithIndex<Q>) query).perform(indexProvider) : query.perform(indexProvider.everything());
 		if (monitor != null) {
 			monitor.worked(1);

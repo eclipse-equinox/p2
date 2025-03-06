@@ -27,18 +27,22 @@ public abstract class NAry extends Expression {
 
 	@Override
 	public boolean accept(IExpressionVisitor visitor) {
-		if (super.accept(visitor))
-			for (Expression operand : operands)
-				if (!operand.accept(visitor))
+		if (super.accept(visitor)) {
+			for (Expression operand : operands) {
+				if (!operand.accept(visitor)) {
 					return false;
+				}
+			}
+		}
 		return true;
 	}
 
 	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
-		if (cmp == 0)
+		if (cmp == 0) {
 			cmp = compare(operands, ((NAry) e).operands);
+		}
 		return cmp;
 	}
 
@@ -69,8 +73,9 @@ public abstract class NAry extends Expression {
 	@Override
 	int countAccessToEverything() {
 		int cnt = 0;
-		for (Expression operand : operands)
+		for (Expression operand : operands) {
 			cnt += operand.countAccessToEverything();
+		}
 		return cnt;
 	}
 }

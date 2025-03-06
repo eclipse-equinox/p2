@@ -56,11 +56,13 @@ public abstract class Member extends Unary {
 		}
 
 		public final Object invoke(Object self) {
-			if (self instanceof IMemberProvider)
+			if (self instanceof IMemberProvider) {
 				return ((IMemberProvider) self).getMember(name);
+			}
 
-			if (self == null)
+			if (self == null) {
 				throw new IllegalArgumentException("Cannot access member \'" + name + "\' in null"); //$NON-NLS-1$//$NON-NLS-2$
+			}
 
 			synchronized (this) {
 				final Method method = (lastMethod != null && lastMethod.getDeclaringClass().isInstance(self))
@@ -77,16 +79,20 @@ public abstract class Member extends Unary {
 					checked = e;
 				} catch (InvocationTargetException e) {
 					Throwable cause = e.getTargetException();
-					if (cause instanceof RuntimeException)
+					if (cause instanceof RuntimeException) {
 						throw (RuntimeException) cause;
-					if (cause instanceof Error)
+					}
+					if (cause instanceof Error) {
 						throw (Error) cause;
+					}
 					checked = (Exception) cause;
 				} catch (Throwable e) {
-					if (e instanceof RuntimeException)
+					if (e instanceof RuntimeException) {
 						throw (RuntimeException) e;
-					if (e instanceof Error)
+					}
+					if (e instanceof Error) {
 						throw (Error) e;
+					}
 					checked = (Exception) e;
 				}
 				throw new RuntimeException(
@@ -149,20 +155,25 @@ public abstract class Member extends Unary {
 		}
 
 		int getLength(Object val) {
-			if (val == null)
+			if (val == null) {
 				return 0;
+			}
 
-			if (val.getClass().isArray())
+			if (val.getClass().isArray()) {
 				return java.lang.reflect.Array.getLength(val);
+			}
 
-			if (val instanceof Collection<?>)
+			if (val instanceof Collection<?>) {
 				return ((Collection<?>) val).size();
+			}
 
-			if (val instanceof String)
+			if (val instanceof String) {
 				return ((String) val).length();
+			}
 
-			if (val instanceof Map<?, ?>)
+			if (val instanceof Map<?, ?>) {
 				return ((Map<?, ?>) val).size();
+			}
 
 			return 0;
 		}
@@ -197,10 +208,13 @@ public abstract class Member extends Unary {
 
 	@Override
 	public boolean accept(IExpressionVisitor visitor) {
-		if (super.accept(visitor))
-			for (Expression expression : argExpressions)
-				if (!expression.accept(visitor))
+		if (super.accept(visitor)) {
+			for (Expression expression : argExpressions) {
+				if (!expression.accept(visitor)) {
 					return false;
+				}
+			}
+		}
 		return true;
 	}
 
@@ -209,8 +223,9 @@ public abstract class Member extends Unary {
 		int cmp = super.compareTo(e);
 		if (cmp == 0) {
 			cmp = name.compareTo(((Member) e).name);
-			if (cmp == 0)
+			if (cmp == 0) {
 				cmp = compare(argExpressions, ((Member) e).argExpressions);
+			}
 		}
 		return cmp;
 	}

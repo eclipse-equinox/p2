@@ -44,18 +44,23 @@ public class TouchpointData implements ITouchpointData {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof ITouchpointData))
+		}
+		if (!(obj instanceof ITouchpointData)) {
 			return false;
+		}
 		final ITouchpointData other = (ITouchpointData) obj;
 		if (instructions == null) {
-			if (other.getInstructions() != null)
+			if (other.getInstructions() != null) {
 				return false;
-		} else if (!instructions.equals(other.getInstructions()))
+			}
+		} else if (!instructions.equals(other.getInstructions())) {
 			return false;
+		}
 		return true;
 	}
 

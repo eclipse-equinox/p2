@@ -48,10 +48,12 @@ public final class Everything<T> extends MatchIteratorFilter<T> implements IRepe
 	@Override
 	public IRepeatableIterator<T> getCopy() {
 		Iterator<? extends T> iterator = getInnerIterator();
-		if (iterator instanceof IRepeatableIterator<?>)
+		if (iterator instanceof IRepeatableIterator<?>) {
 			return new Everything<>(elementClass, ((IRepeatableIterator<? extends T>) iterator).getCopy(), false);
-		if (atStart)
+		}
+		if (atStart) {
 			return this;
+		}
 		throw new UnsupportedOperationException();
 	}
 
@@ -68,8 +70,9 @@ public final class Everything<T> extends MatchIteratorFilter<T> implements IRepe
 	@Override
 	public Object getIteratorProvider() {
 		Iterator<? extends T> iterator = getInnerIterator();
-		if (iterator instanceof IRepeatableIterator<?>)
+		if (iterator instanceof IRepeatableIterator<?>) {
 			return ((IRepeatableIterator<?>) iterator).getIteratorProvider();
+		}
 		return this;
 	}
 

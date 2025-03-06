@@ -35,14 +35,17 @@ public abstract class CoercingComparator<T> {
 
 		@Override
 		Boolean coerce(Object v) {
-			if (v instanceof Boolean b)
+			if (v instanceof Boolean b) {
 				return b;
+			}
 			if (v instanceof String s) {
 				String sv = s.trim();
-				if (sv.equalsIgnoreCase("true")) //$NON-NLS-1$
+				if (sv.equalsIgnoreCase("true")) { //$NON-NLS-1$
 					return Boolean.TRUE;
-				if (sv.equalsIgnoreCase("false")) //$NON-NLS-1$
+				}
+				if (sv.equalsIgnoreCase("false")) { //$NON-NLS-1$
 					return Boolean.FALSE;
+				}
 			}
 			throw uncoercable(v);
 		}
@@ -66,8 +69,9 @@ public abstract class CoercingComparator<T> {
 
 		@Override
 		Class<?> coerce(Object v) {
-			if (v instanceof Class<?>)
+			if (v instanceof Class<?>) {
 				return (Class<?>) v;
+			}
 			if (v instanceof String s) {
 				try {
 					return FrameworkUtil.getBundle(CoercingComparator.class).loadClass(s.trim());
@@ -136,10 +140,12 @@ public abstract class CoercingComparator<T> {
 
 		@Override
 		Integer coerce(Object v) {
-			if (v instanceof Integer i)
+			if (v instanceof Integer i) {
 				return i;
-			if (v instanceof Number n)
+			}
+			if (v instanceof Number n) {
 				return Integer.valueOf(n.intValue());
+			}
 			if (v instanceof String s) {
 				try {
 					return Integer.valueOf(s.trim());
@@ -169,10 +175,12 @@ public abstract class CoercingComparator<T> {
 
 		@Override
 		Long coerce(Object v) {
-			if (v instanceof Long l)
+			if (v instanceof Long l) {
 				return l;
-			if (v instanceof Number n)
+			}
+			if (v instanceof Number n) {
 				return Long.valueOf(n.longValue());
+			}
 			if (v instanceof String s) {
 				try {
 					return Long.valueOf(s.trim());
@@ -202,8 +210,9 @@ public abstract class CoercingComparator<T> {
 
 		@Override
 		String coerce(Object v) {
-			if (v instanceof Class<?>)
+			if (v instanceof Class<?>) {
 				return ((Class<?>) v).getName();
+			}
 			return v.toString();
 		}
 
@@ -231,8 +240,9 @@ public abstract class CoercingComparator<T> {
 
 		@Override
 		Version coerce(Object v) {
-			if (v instanceof Version version)
+			if (v instanceof Version version) {
 				return version;
+			}
 			if (v instanceof String s) {
 				try {
 					return Version.create(s);
@@ -287,14 +297,17 @@ public abstract class CoercingComparator<T> {
 	@SuppressWarnings("unchecked")
 	public static <TA extends Object, TB extends Object> int coerceAndCompare(TA o1, TB o2)
 			throws IllegalArgumentException {
-		if (o1 == null || o2 == null)
+		if (o1 == null || o2 == null) {
 			throw new IllegalArgumentException("Cannot compare null to anything"); //$NON-NLS-1$
+		}
 
-		if (o1 instanceof Comparable c1 && o1.getClass().isAssignableFrom(o2.getClass()))
+		if (o1 instanceof Comparable c1 && o1.getClass().isAssignableFrom(o2.getClass())) {
 			return c1.compareTo(o2);
+		}
 
-		if (o2 instanceof Comparable c2 && o2.getClass().isAssignableFrom(o1.getClass()))
+		if (o2 instanceof Comparable c2 && o2.getClass().isAssignableFrom(o1.getClass())) {
 			return -c2.compareTo(o1);
+		}
 
 		CoercingComparator<TA> ca = getComparator(o1, o2);
 		CoercingComparator<TB> cb = getComparator(o2, o1);
@@ -313,17 +326,21 @@ public abstract class CoercingComparator<T> {
 	 * @see Object#equals(Object)
 	 */
 	static boolean coerceAndEquals(Object o1, Object o2) throws IllegalArgumentException {
-		if (o1 == o2)
+		if (o1 == o2) {
 			return true;
+		}
 
-		if (o1 == null || o2 == null)
+		if (o1 == null || o2 == null) {
 			return false;
+		}
 
 		if (o1.getClass() != o2.getClass()) {
-			if (o1.getClass().isAssignableFrom(o2.getClass()))
+			if (o1.getClass().isAssignableFrom(o2.getClass())) {
 				return o1.equals(o2);
-			if (o2.getClass().isAssignableFrom(o1.getClass()))
+			}
+			if (o2.getClass().isAssignableFrom(o1.getClass())) {
 				return o2.equals(o1);
+			}
 			try {
 				CoercingComparator<?> ca = getComparator(o1, o2);
 				CoercingComparator<?> cb = getComparator(o2, o1);
@@ -358,8 +375,9 @@ public abstract class CoercingComparator<T> {
 			Constructor<Comparable<Object>> constructor;
 			try {
 				constructor = cClass.getConstructor(constructorType);
-				if (!constructor.isAccessible())
+				if (!constructor.isAccessible()) {
 					AccessController.doPrivileged(new SetAccessibleAction(constructor));
+				}
 				synchronized (CoercingComparator.class) {
 					int top = coercers.length;
 					CoercingComparator<?>[] nc = new CoercingComparator<?>[top + 1];

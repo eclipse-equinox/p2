@@ -41,8 +41,9 @@ public abstract class Binary extends Expression {
 		if (cmp == 0) {
 			Binary be = (Binary) e;
 			cmp = lhs.compareTo(be.lhs);
-			if (cmp == 0)
+			if (cmp == 0) {
 				cmp = rhs.compareTo(be.rhs);
+			}
 		}
 		return cmp;
 	}
@@ -120,8 +121,9 @@ public abstract class Binary extends Expression {
 				bld.append('\\');
 				bld.append(hexChar((cs & 0x00f0) >> 4));
 				bld.append(hexChar(cs & 0x000f));
-			} else
+			} else {
 				bld.append(c);
+			}
 		}
 	}
 

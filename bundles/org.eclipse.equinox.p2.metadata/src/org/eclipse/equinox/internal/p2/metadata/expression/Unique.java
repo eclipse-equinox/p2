@@ -55,12 +55,13 @@ final class Unique extends Binary {
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object explicitCache = rhs.evaluate(context);
 		Set<Object> uniqueSet;
-		if (explicitCache == null)
+		if (explicitCache == null) {
 			// No cache, we just ensure that the iteration is unique
 			uniqueSet = new HashSet<>();
-		else {
-			if (!(explicitCache instanceof Set<?>))
+		} else {
+			if (!(explicitCache instanceof Set<?>)) {
 				throw new IllegalArgumentException("Unique cache must be a java.util.Set"); //$NON-NLS-1$
+			}
 			uniqueSet = (Set<Object>) explicitCache;
 		}
 		return new UniqueIterator<>(lhs.evaluateAsIterator(context), uniqueSet);
@@ -74,8 +75,9 @@ final class Unique extends Binary {
 	@Override
 	public void toString(StringBuilder bld, Variable rootVariable) {
 		CollectionFilter.appendProlog(bld, rootVariable, lhs, getOperator());
-		if (rhs != Literal.NULL_CONSTANT)
+		if (rhs != Literal.NULL_CONSTANT) {
 			appendOperand(bld, rootVariable, rhs, IExpressionConstants.PRIORITY_COMMA);
+		}
 		bld.append(')');
 	}
 

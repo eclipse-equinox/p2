@@ -31,8 +31,9 @@ final class First extends CollectionFilter {
 		while (itor.hasNext()) {
 			Object each = itor.next();
 			variable.setValue(context, each);
-			if (lambda.evaluate(context) == Boolean.TRUE)
+			if (lambda.evaluate(context) == Boolean.TRUE) {
 				return each;
+			}
 		}
 		return null;
 	}

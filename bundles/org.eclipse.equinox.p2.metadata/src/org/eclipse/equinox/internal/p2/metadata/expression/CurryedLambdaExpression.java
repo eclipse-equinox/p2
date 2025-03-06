@@ -25,17 +25,20 @@ final class CurryedLambdaExpression extends LambdaExpression {
 
 	CurryedLambdaExpression(Variable each, Assignment[] assignments, Expression body) {
 		super(each, body);
-		if (assignments == null)
+		if (assignments == null) {
 			assignments = emptyAssignmentArray;
+		}
 		this.assignments = assignments;
 	}
 
 	@Override
 	public boolean accept(IExpressionVisitor visitor) {
 		if (super.accept(visitor) && each.accept(visitor)) {
-			for (Assignment assignment : assignments)
-				if (!assignment.accept(visitor))
+			for (Assignment assignment : assignments) {
+				if (!assignment.accept(visitor)) {
 					return false;
+				}
+			}
 			return true;
 		}
 		return false;
@@ -44,8 +47,9 @@ final class CurryedLambdaExpression extends LambdaExpression {
 	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
-		if (cmp == 0)
+		if (cmp == 0) {
 			cmp = compare(assignments, ((CurryedLambdaExpression) e).assignments);
+		}
 		return cmp;
 	}
 
@@ -75,8 +79,9 @@ final class CurryedLambdaExpression extends LambdaExpression {
 			}
 		}
 		super.toString(bld, rootVariable);
-		if (top > 0)
+		if (top > 0) {
 			bld.append('}');
+		}
 	}
 
 	@Override
@@ -85,19 +90,22 @@ final class CurryedLambdaExpression extends LambdaExpression {
 		int top = assignments.length + 1;
 		Variable[] vars = new Variable[top];
 		vars[0] = getItemVariable();
-		for (int idx = 1; idx < top; ++idx)
+		for (int idx = 1; idx < top; ++idx) {
 			vars[idx] = (Variable) assignments[idx - 1].lhs;
+		}
 		lambdaContext = EvaluationContext.create(context, vars);
-		for (int idx = 1; idx < top; ++idx)
+		for (int idx = 1; idx < top; ++idx) {
 			lambdaContext.setValue(vars[idx], assignments[idx - 1].rhs.evaluate(context));
+		}
 		return lambdaContext;
 	}
 
 	@Override
 	int countAccessToEverything() {
 		int cnt = 0;
-		for (Assignment assignment : assignments)
+		for (Assignment assignment : assignments) {
 			cnt += assignment.countAccessToEverything();
+		}
 		cnt += super.countAccessToEverything();
 		return cnt;
 	}

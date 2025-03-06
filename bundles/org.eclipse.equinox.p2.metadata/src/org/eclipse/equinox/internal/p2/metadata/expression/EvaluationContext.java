@@ -38,10 +38,11 @@ public class EvaluationContext implements IEvaluationContext {
 
 		@Override
 		public void setValue(IExpression var, Object val) {
-			if (variable == var)
+			if (variable == var) {
 				value = val;
-			else
+			} else {
 				parentContext.setValue(var, val);
+			}
 		}
 	}
 
@@ -51,25 +52,29 @@ public class EvaluationContext implements IEvaluationContext {
 		public MultiVariableContext(EvaluationContext parentContext, IExpression[] variables, Object[] parameters) {
 			super(parentContext, parameters);
 			values = new Object[variables.length * 2];
-			for (int idx = 0, ndx = 0; ndx < variables.length; ++ndx, idx += 2)
+			for (int idx = 0, ndx = 0; ndx < variables.length; ++ndx, idx += 2) {
 				values[idx] = variables[ndx];
+			}
 		}
 
 		@Override
 		public Object getValue(IExpression variable) {
-			for (int idx = 0; idx < values.length; ++idx)
-				if (values[idx++] == variable)
+			for (int idx = 0; idx < values.length; ++idx) {
+				if (values[idx++] == variable) {
 					return values[idx];
+				}
+			}
 			return parentContext.getValue(variable);
 		}
 
 		@Override
 		public void setValue(IExpression variable, Object value) {
-			for (int idx = 0; idx < values.length; ++idx)
+			for (int idx = 0; idx < values.length; ++idx) {
 				if (values[idx++] == variable) {
 					values[idx] = value;
 					return;
 				}
+			}
 			parentContext.setValue(variable, value);
 		}
 	}
@@ -91,16 +96,19 @@ public class EvaluationContext implements IEvaluationContext {
 	}
 
 	public static IEvaluationContext create(IEvaluationContext parent, Object[] parameters, IExpression[] variables) {
-		if (variables == null || variables.length == 0)
+		if (variables == null || variables.length == 0) {
 			return create(parent, parameters);
-		if (parameters == null)
+		}
+		if (parameters == null) {
 			parameters = noParameters;
+		}
 		return variables.length == 1 ? new SingleVariableContext((EvaluationContext) parent, variables[0], parameters) : new MultiVariableContext((EvaluationContext) parent, variables, parameters);
 	}
 
 	public static IEvaluationContext create(IEvaluationContext parent, Object[] parameters) {
-		if (parameters == null)
+		if (parameters == null) {
 			parameters = noParameters;
+		}
 		return new EvaluationContext((EvaluationContext) parent, parameters);
 	}
 
@@ -113,8 +121,9 @@ public class EvaluationContext implements IEvaluationContext {
 	}
 
 	public static IEvaluationContext create(Object[] parameters, IExpression variable) {
-		if (parameters == null)
+		if (parameters == null) {
 			parameters = noParameters;
+		}
 		return new SingleVariableContext(INSTANCE, variable, parameters);
 	}
 
@@ -140,23 +149,26 @@ public class EvaluationContext implements IEvaluationContext {
 
 	@Override
 	public Object getValue(IExpression variable) {
-		if (parentContext == null)
+		if (parentContext == null) {
 			throw new IllegalArgumentException("No such variable: " + variable); //$NON-NLS-1$
+		}
 		return parentContext.getValue(variable);
 	}
 
 	@Override
 	public void setValue(IExpression variable, Object value) {
-		if (parentContext == null)
+		if (parentContext == null) {
 			throw new IllegalArgumentException("No such variable: " + variable); //$NON-NLS-1$
+		}
 		parentContext.setValue(variable, value);
 	}
 
 	@Override
 	public IIndexProvider<?> getIndexProvider() {
 		if (indexProvider == null) {
-			if (parentContext == null)
+			if (parentContext == null) {
 				return null;
+			}
 			return parentContext.getIndexProvider();
 		}
 		return indexProvider;

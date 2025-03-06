@@ -48,8 +48,9 @@ public abstract class CollectionFilter extends Unary {
 	@Override
 	public int compareTo(Expression e) {
 		int cmp = super.compareTo(e);
-		if (cmp == 0)
+		if (cmp == 0) {
 			cmp = lambda.compareTo(((CollectionFilter) e).lambda);
+		}
 		return cmp;
 	}
 
@@ -100,13 +101,15 @@ public abstract class CollectionFilter extends Unary {
 	private transient IIndex<?> lastIndex;
 
 	private IIndex<?> getIndex(Class<?> elementClass, IIndexProvider<?> indexProvider) {
-		if (lastIndexProvider == indexProvider)
+		if (lastIndexProvider == indexProvider) {
 			return lastIndex;
+		}
 
 		for (String member : getIndexCandidateMembers(elementClass, lambda.getItemVariable(), lambda.getOperand())) {
 			IIndex<?> index = indexProvider.getIndex(member);
-			if (index != null)
+			if (index != null) {
 				lastIndex = index;
+			}
 		}
 		lastIndexProvider = indexProvider;
 		return lastIndex;
@@ -123,19 +126,22 @@ public abstract class CollectionFilter extends Unary {
 				IIndex<?> index = getIndex(elementClass, indexProvider);
 				if (index != null) {
 					Iterator<?> indexed = index.getCandidates(context, lambda.getItemVariable(), lambda.getOperand());
-					if (indexed != null)
+					if (indexed != null) {
 						return indexed;
+					}
 				}
 			}
 		}
 
 		// No index. We need every element
-		if (collection instanceof IRepeatableIterator<?>)
+		if (collection instanceof IRepeatableIterator<?>) {
 			return ((IRepeatableIterator<?>) collection).getCopy();
+		}
 
 		Iterator<?> itor = RepeatableIterator.create(collection);
-		if (operand instanceof Variable)
+		if (operand instanceof Variable) {
 			((Variable) operand).setValue(context, itor);
+		}
 		return itor;
 	}
 

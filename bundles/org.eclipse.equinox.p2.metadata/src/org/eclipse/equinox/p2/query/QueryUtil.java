@@ -101,39 +101,45 @@ public class QueryUtil {
 	public static <T> IQuery<T> createCompoundQuery(Collection<? extends IQuery<? extends T>> queries, boolean and) {
 		IExpressionFactory factory = ExpressionUtil.getFactory();
 		int top = queries.size();
-		if (top == 1)
+		if (top == 1) {
 			return (IQuery<T>) queries.iterator().next();
+		}
 
 		Class<? extends T> elementClass = (Class<T>) Object.class;
-		if (top == 0)
+		if (top == 0) {
 			return QueryUtil.createMatchQuery(elementClass, ExpressionUtil.TRUE_EXPRESSION);
+		}
 
 		IExpression[] expressions = new IExpression[top];
 		boolean justBooleans = true;
 		boolean justContexts = true;
 		int idx = 0;
 		for (IQuery<? extends T> query : queries) {
-			if (query instanceof IMatchQuery<?>)
+			if (query instanceof IMatchQuery<?>) {
 				justContexts = false;
-			else
+			} else {
 				justBooleans = false;
+			}
 
 			IExpression expr = query.getExpression();
-			if (expr == null)
+			if (expr == null) {
 				expr = factory.toExpression(query);
+			}
 
 			Class<? extends T> ec = ExpressionQuery.getElementClass(query);
-			if (elementClass == null)
+			if (elementClass == null) {
 				elementClass = ec;
-			else if (elementClass != ec) {
+			} else if (elementClass != ec) {
 				if (elementClass.isAssignableFrom(ec)) {
-					if (and)
+					if (and) {
 						// Use most restrictive class
 						elementClass = ec;
+					}
 				} else if (ec.isAssignableFrom(elementClass)) {
-					if (!and)
+					if (!and) {
 						// Use least restrictive class
 						elementClass = ec;
+					}
 				}
 			}
 			expressions[idx++] = expr;
@@ -146,13 +152,15 @@ public class QueryUtil {
 
 		if (!justContexts) {
 			// Mix of boolean queries and context queries. All must be converted into context then.
-			for (idx = 0; idx < expressions.length; ++idx)
+			for (idx = 0; idx < expressions.length; ++idx) {
 				expressions[idx] = makeContextExpression(factory, expressions[idx]);
+			}
 		}
 
 		IExpression compound = expressions[0];
-		for (idx = 1; idx < expressions.length; ++idx)
+		for (idx = 1; idx < expressions.length; ++idx) {
 			compound = and ? factory.intersect(compound, expressions[idx]) : factory.union(compound, expressions[idx]);
+		}
 		return QueryUtil.createQuery(elementClass, compound);
 	}
 
@@ -193,8 +201,9 @@ public class QueryUtil {
 	 * @return A query that returns category members
 	 */
 	public static IQuery<IInstallableUnit> createIUCategoryMemberQuery(IInstallableUnit category) {
-		if (QueryUtil.isCategory(category))
+		if (QueryUtil.isCategory(category)) {
 			return QueryUtil.createMatchQuery(matchesRequirementsExpression, category.getRequirements());
+		}
 		return NO_UNITS;
 	}
 
@@ -242,14 +251,18 @@ public class QueryUtil {
 	 * @return The query matching properties
 	 */
 	public static IQuery<IInstallableUnit> createIUPropertyQuery(String propertyName, String propertyValue) {
-		if (propertyName == null)
+		if (propertyName == null) {
 			return QueryUtil.createMatchQuery(ExpressionUtil.TRUE_EXPRESSION);
-		if (propertyValue == null)
+		}
+		if (propertyValue == null) {
 			return QueryUtil.createMatchQuery(matchIU_propNull, propertyName);
-		if (ANY.equals(propertyValue))
+		}
+		if (ANY.equals(propertyValue)) {
 			return QueryUtil.createMatchQuery(matchIU_propAny, propertyName);
-		if (Boolean.parseBoolean(propertyValue))
+		}
+		if (Boolean.parseBoolean(propertyValue)) {
 			return QueryUtil.createMatchQuery(matchIU_propTrue, propertyName);
+		}
 		return QueryUtil.createMatchQuery(matchIU_propValue, propertyName, propertyValue);
 	}
 
@@ -285,10 +298,12 @@ public class QueryUtil {
 	 * @return a query that matches IU's by id and version
 	 */
 	public static IQuery<IInstallableUnit> createIUQuery(String id, Version version) {
-		if (version == null || version.equals(Version.emptyVersion))
+		if (version == null || version.equals(Version.emptyVersion)) {
 			return createIUQuery(id);
-		if (id == null)
+		}
+		if (id == null) {
 			return QueryUtil.createMatchQuery(matchIU_Version, version);
+		}
 		return QueryUtil.createMatchQuery(matchIU_IDAndVersion, id, version);
 	}
 
@@ -301,10 +316,12 @@ public class QueryUtil {
 	 * @return a query that matches IU's by id and range
 	 */
 	public static IQuery<IInstallableUnit> createIUQuery(String id, VersionRange range) {
-		if (range == null || range.equals(VersionRange.emptyRange))
+		if (range == null || range.equals(VersionRange.emptyRange)) {
 			return createIUQuery(id);
-		if (id == null)
+		}
+		if (id == null) {
 			return QueryUtil.createMatchQuery(matchIU_Range, range);
+		}
 		return QueryUtil.createMatchQuery(matchIU_IDAndRange, id, range);
 	}
 
@@ -415,8 +432,9 @@ public class QueryUtil {
 		int idx = 0;
 		for (IQuery<? extends T> query : queries) {
 			IExpression expr = query.getExpression();
-			if (expr == null)
+			if (expr == null) {
 				expr = factory.toExpression(query);
+			}
 			expressions[idx++] = expr;
 		}
 		IExpression pipe = factory.pipe(expressions);
@@ -496,8 +514,9 @@ public class QueryUtil {
 	 */
 	public static boolean isCategory(IInstallableUnit iu) {
 		String value = iu.getProperty(PROP_TYPE_CATEGORY);
-		if (value != null && (value.equals(Boolean.TRUE.toString())))
+		if (value != null && (value.equals(Boolean.TRUE.toString()))) {
 			return true;
+		}
 		return false;
 	}
 
@@ -517,8 +536,9 @@ public class QueryUtil {
 	 */
 	public static boolean isGroup(IInstallableUnit iu) {
 		String value = iu.getProperty(PROP_TYPE_GROUP);
-		if (value != null && (value.equals(Boolean.TRUE.toString())))
+		if (value != null && (value.equals(Boolean.TRUE.toString()))) {
 			return true;
+		}
 		return false;
 	}
 
@@ -530,8 +550,9 @@ public class QueryUtil {
 	 */
 	public static boolean isProduct(IInstallableUnit iu) {
 		String value = iu.getProperty(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PRODUCT);
-		if (value != null && (value.equals(Boolean.TRUE.toString())))
+		if (value != null && (value.equals(Boolean.TRUE.toString()))) {
 			return true;
+		}
 		return false;
 	}
 
@@ -542,16 +563,18 @@ public class QueryUtil {
 	 */
 	public static boolean isPatch(IInstallableUnit iu) {
 		String value = iu.getProperty(PROP_TYPE_PATCH);
-		if (value != null && (value.equals(Boolean.TRUE.toString())))
+		if (value != null && (value.equals(Boolean.TRUE.toString()))) {
 			return true;
+		}
 		return false;
 	}
 
 	private static IExpression makeContextExpression(IExpressionFactory factory, IExpression expr) {
 		VariableFinder finder = new VariableFinder(ExpressionFactory.EVERYTHING);
 		expr.accept(finder);
-		if (!finder.isFound())
+		if (!finder.isFound()) {
 			expr = factory.select(ExpressionFactory.EVERYTHING, factory.lambda(ExpressionFactory.THIS, expr));
+		}
 		return expr;
 	}
 }

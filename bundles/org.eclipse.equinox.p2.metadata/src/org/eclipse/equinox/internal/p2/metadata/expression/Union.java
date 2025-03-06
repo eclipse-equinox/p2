@@ -32,8 +32,9 @@ final class Union extends Binary {
 		@SuppressWarnings("unchecked")
 		Set<Object> resultSet = (Set<Object>) asSet(lhs.evaluate(context), true);
 		Iterator<?> itor = rhs.evaluateAsIterator(context);
-		while (itor.hasNext())
+		while (itor.hasNext()) {
 			resultSet.add(itor.next());
+		}
 		return RepeatableIterator.create(resultSet);
 	}
 

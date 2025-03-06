@@ -41,8 +41,9 @@ public class Copyright implements ICopyright {
 	 * @throws IllegalArgumentException when the <code>body</code> is <code>null</code>
 	 */
 	public Copyright(URI location, String body) {
-		if (body == null)
+		if (body == null) {
 			throw new IllegalArgumentException("body cannot be null"); //$NON-NLS-1$
+		}
 		this.location = location;
 		this.body = body;
 	}
