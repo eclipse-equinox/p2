@@ -96,8 +96,9 @@ public class AdviceFileParser {
 
 	public void parse() {
 		String adviceVersion = advice.get(ADVICE_VERSION);
-		if (adviceVersion != null)
+		if (adviceVersion != null) {
 			checkAdviceVersion(adviceVersion);
+		}
 
 		List<String> keys = new ArrayList<>(advice.keySet());
 		keys.sort(null);
@@ -106,21 +107,21 @@ public class AdviceFileParser {
 		next();
 
 		while (current != null) {
-			if (current.startsWith(PROPERTIES_PREFIX))
+			if (current.startsWith(PROPERTIES_PREFIX)) {
 				parseProperties(PROPERTIES_PREFIX, adviceProperties);
-			else if (current.startsWith(UPDATE_DESCRIPTOR_PREFIX))
+			} else if (current.startsWith(UPDATE_DESCRIPTOR_PREFIX)) {
 				this.adviceUpdateDescriptor = parseUpdateDescriptor(UPDATE_DESCRIPTOR_PREFIX, hostId);
-			else if (current.startsWith(PROVIDES_PREFIX))
+			} else if (current.startsWith(PROVIDES_PREFIX)) {
 				parseProvides(PROVIDES_PREFIX, adviceProvides);
-			else if (current.startsWith(REQUIRES_PREFIX))
+			} else if (current.startsWith(REQUIRES_PREFIX)) {
 				parseRequires(REQUIRES_PREFIX, adviceRequires);
-			else if (current.startsWith(META_REQUIREMENTS_PREFIX))
+			} else if (current.startsWith(META_REQUIREMENTS_PREFIX)) {
 				parseRequires(META_REQUIREMENTS_PREFIX, adviceMetaRequires);
-			else if (current.startsWith(INSTRUCTIONS_PREFIX))
+			} else if (current.startsWith(INSTRUCTIONS_PREFIX)) {
 				parseInstructions(INSTRUCTIONS_PREFIX, adviceInstructions);
-			else if (current.startsWith(UNITS_PREFIX))
+			} else if (current.startsWith(UNITS_PREFIX)) {
 				parseUnits(UNITS_PREFIX, adviceOtherIUs);
-			else if (current.equals(ADVICE_VERSION)) {
+			} else if (current.equals(ADVICE_VERSION)) {
 				next();
 			} else {
 				// we ignore elements we do not understand
@@ -131,8 +132,9 @@ public class AdviceFileParser {
 
 	private void checkAdviceVersion(String adviceVersion) {
 		Version version = Version.parseVersion(adviceVersion);
-		if (!VERSION_TOLERANCE.isIncluded(version))
+		if (!VERSION_TOLERANCE.isIncluded(version)) {
 			throw new IllegalStateException("bad version: " + version + ". Expected range was " + VERSION_TOLERANCE); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 
 	private void next() {
@@ -146,8 +148,9 @@ public class AdviceFileParser {
 	private void parseProperties(String prefix, Map<String, String> properties) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
-			if (dotIndex == -1)
+			if (dotIndex == -1) {
 				throw new IllegalStateException("bad token: " + current); //$NON-NLS-1$
+			}
 
 			parseProperty(current.substring(0, dotIndex + 1), properties);
 		}
@@ -224,8 +227,9 @@ public class AdviceFileParser {
 	private void parseProvides(String prefix, List<IProvidedCapability> provides) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
-			if (dotIndex == -1)
+			if (dotIndex == -1) {
 				throw new IllegalStateException("bad token: " + current); //$NON-NLS-1$
+			}
 
 			parseProvided(current.substring(0, dotIndex + 1), provides);
 		}
@@ -261,8 +265,9 @@ public class AdviceFileParser {
 	private void parseRequires(String prefix, List<IRequirement> requires) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
-			if (dotIndex == -1)
+			if (dotIndex == -1) {
 				throw new IllegalStateException("bad token: " + current); //$NON-NLS-1$
+			}
 
 			parseRequired(current.substring(0, dotIndex + 1), requires);
 		}
@@ -364,8 +369,9 @@ public class AdviceFileParser {
 	private void parseInstructions(String prefix, Map<String, ITouchpointInstruction> instructions) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
-			if (dotIndex != -1)
+			if (dotIndex != -1) {
 				throw new IllegalStateException("bad token: " + current); //$NON-NLS-1$
+			}
 
 			parseInstruction(current, instructions);
 		}
@@ -393,8 +399,9 @@ public class AdviceFileParser {
 	private void parseUnits(String prefix, List<InstallableUnitDescription> ius) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
-			if (dotIndex == -1)
+			if (dotIndex == -1) {
 				throw new IllegalStateException("bad token: " + current + " = " + currentValue()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 
 			parseUnit(current.substring(0, dotIndex + 1), ius);
 		}
@@ -463,23 +470,23 @@ public class AdviceFileParser {
 			} else if (token.equals(UPDATE_DESCRIPTION)) {
 				unitUpdateDescription = currentValue();
 				next();
-			} else if (token.startsWith(HOST_REQUIREMENTS_PREFIX))
+			} else if (token.startsWith(HOST_REQUIREMENTS_PREFIX)) {
 				parseRequires(prefix + HOST_REQUIREMENTS_PREFIX, unitHostRequirements);
-			else if (token.startsWith(ARTIFACTS_PREFIX))
+			} else if (token.startsWith(ARTIFACTS_PREFIX)) {
 				parseArtifacts(prefix + ARTIFACTS_PREFIX, unitArtifacts);
-			else if (token.startsWith(LICENSES_PREFIX))
+			} else if (token.startsWith(LICENSES_PREFIX)) {
 				parseLicenses(prefix + LICENSES_PREFIX, unitLicenses);
-			else if (token.startsWith(PROPERTIES_PREFIX))
+			} else if (token.startsWith(PROPERTIES_PREFIX)) {
 				parseProperties(prefix + PROPERTIES_PREFIX, unitProperties);
-			else if (token.startsWith(PROVIDES_PREFIX))
+			} else if (token.startsWith(PROVIDES_PREFIX)) {
 				parseProvides(prefix + PROVIDES_PREFIX, unitProvides);
-			else if (token.startsWith(REQUIRES_PREFIX))
+			} else if (token.startsWith(REQUIRES_PREFIX)) {
 				parseRequires(prefix + REQUIRES_PREFIX, unitRequires);
-			else if (token.startsWith(META_REQUIREMENTS_PREFIX))
+			} else if (token.startsWith(META_REQUIREMENTS_PREFIX)) {
 				parseRequires(prefix + META_REQUIREMENTS_PREFIX, unitMetaRequirements);
-			else if (token.startsWith(INSTRUCTIONS_PREFIX))
+			} else if (token.startsWith(INSTRUCTIONS_PREFIX)) {
 				parseInstructions(prefix + INSTRUCTIONS_PREFIX, unitInstructions);
-			else {
+			} else {
 				// we ignore elements we do not understand
 				next();
 			}
@@ -499,23 +506,28 @@ public class AdviceFileParser {
 				throw new IllegalStateException("bad copyright URI at token: " + current + ", " + currentValue()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
-		if (unitTouchpointId != null)
+		if (unitTouchpointId != null) {
 			description
 					.setTouchpointType(MetadataFactory.createTouchpointType(unitTouchpointId, unitTouchpointVersion));
+		}
 
-		if (unitUpdateId != null)
+		if (unitUpdateId != null) {
 			description.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(unitUpdateId, unitUpdateRange,
 					unitUpdateSeverity, unitUpdateDescription));
+		}
 
-		if (!unitLicenses.isEmpty())
+		if (!unitLicenses.isEmpty()) {
 			description.setLicenses(unitLicenses.toArray(new ILicense[unitLicenses.size()]));
+		}
 
-		if (!unitArtifacts.isEmpty())
+		if (!unitArtifacts.isEmpty()) {
 			description.setArtifacts(unitArtifacts.toArray(new IArtifactKey[unitArtifacts.size()]));
+		}
 
-		if (!unitHostRequirements.isEmpty())
+		if (!unitHostRequirements.isEmpty()) {
 			((InstallableUnitFragmentDescription) description)
 					.setHost(unitHostRequirements.toArray(new IRequirement[unitHostRequirements.size()]));
+		}
 
 		if (!unitProperties.isEmpty()) {
 			for (Entry<String, String> entry : unitProperties.entrySet()) {
@@ -523,18 +535,22 @@ public class AdviceFileParser {
 			}
 		}
 
-		if (!unitProvides.isEmpty())
+		if (!unitProvides.isEmpty()) {
 			description.setCapabilities(unitProvides.toArray(new IProvidedCapability[unitProvides.size()]));
+		}
 
-		if (!unitRequires.isEmpty())
+		if (!unitRequires.isEmpty()) {
 			description.setRequirements(unitRequires.toArray(new IRequirement[unitRequires.size()]));
+		}
 
-		if (!unitMetaRequirements.isEmpty())
+		if (!unitMetaRequirements.isEmpty()) {
 			description
 					.setMetaRequirements(unitMetaRequirements.toArray(new IRequirement[unitMetaRequirements.size()]));
+		}
 
-		if (!unitInstructions.isEmpty())
+		if (!unitInstructions.isEmpty()) {
 			description.addTouchpointData(MetadataFactory.createTouchpointData(unitInstructions));
+		}
 
 		adviceOtherIUs.add(description);
 	}
@@ -542,8 +558,9 @@ public class AdviceFileParser {
 	private void parseLicenses(String prefix, List<ILicense> licenses) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
-			if (dotIndex != -1)
+			if (dotIndex != -1) {
 				throw new IllegalStateException("bad token: " + current + " = " + currentValue()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 
 			parseLicense(current, licenses);
 		}
@@ -576,8 +593,9 @@ public class AdviceFileParser {
 	private void parseArtifacts(String prefix, List<IArtifactKey> artifacts) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
-			if (dotIndex == -1)
+			if (dotIndex == -1) {
 				throw new IllegalStateException("bad token: " + current + " = " + currentValue()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 
 			parseArtifact(current.substring(0, dotIndex + 1), artifacts);
 		}
@@ -618,8 +636,9 @@ public class AdviceFileParser {
 		if (version.contains(QUALIFIER_SUBSTITUTION)) {
 			try {
 				String qualifier = PublisherHelper.toOSGiVersion(hostVersion).getQualifier();
-				if (qualifier == null)
+				if (qualifier == null) {
 					qualifier = ""; //$NON-NLS-1$
+				}
 				if (qualifier.length() == 0) {
 					// Note: this works only for OSGi versions and version ranges
 					// where the qualifier if present must be at the end of a version string
@@ -635,8 +654,9 @@ public class AdviceFileParser {
 
 	// originally from org.eclipse.core.internal.net.StringUtil
 	public static String replace(String source, String from, String to) {
-		if (from.length() == 0)
+		if (from.length() == 0) {
 			return source;
+		}
 		StringBuilder buffer = new StringBuilder();
 		int current = 0;
 		int pos = 0;
@@ -654,21 +674,24 @@ public class AdviceFileParser {
 	}
 
 	public Map<String, String> getProperties() {
-		if (adviceProperties.isEmpty())
+		if (adviceProperties.isEmpty()) {
 			return null;
+		}
 		return adviceProperties;
 	}
 
 	public IRequirement[] getRequiredCapabilities() {
-		if (adviceRequires.isEmpty())
+		if (adviceRequires.isEmpty()) {
 			return null;
+		}
 
 		return adviceRequires.toArray(new IRequirement[adviceRequires.size()]);
 	}
 
 	public IProvidedCapability[] getProvidedCapabilities() {
-		if (adviceProvides.isEmpty())
+		if (adviceProvides.isEmpty()) {
 			return null;
+		}
 
 		return adviceProvides.toArray(new IProvidedCapability[adviceProvides.size()]);
 	}
@@ -678,22 +701,25 @@ public class AdviceFileParser {
 	}
 
 	public Map<String, ITouchpointInstruction> getTouchpointInstructions() {
-		if (adviceInstructions.isEmpty())
+		if (adviceInstructions.isEmpty()) {
 			return null;
+		}
 
 		return adviceInstructions;
 	}
 
 	public InstallableUnitDescription[] getAdditionalInstallableUnitDescriptions() {
-		if (adviceOtherIUs.isEmpty())
+		if (adviceOtherIUs.isEmpty()) {
 			return null;
+		}
 
 		return adviceOtherIUs.toArray(new InstallableUnitDescription[adviceOtherIUs.size()]);
 	}
 
 	public IRequirement[] getMetaRequiredCapabilities() {
-		if (adviceMetaRequires.isEmpty())
+		if (adviceMetaRequires.isEmpty()) {
 			return null;
+		}
 
 		return adviceMetaRequires.toArray(new IRequirement[adviceMetaRequires.size()]);
 	}

@@ -25,14 +25,17 @@ public class AbstractAdvice implements IPublisherAdvice {
 	}
 
 	protected boolean matchVersion(Version version) {
-		if (version == null)
+		if (version == null) {
 			return true;
+		}
 		Version adviceVersion = getVersion();
-		if (adviceVersion != null)
+		if (adviceVersion != null) {
 			return version.equals(adviceVersion);
+		}
 		VersionRange range = getVersionRange();
-		if (range != null)
+		if (range != null) {
 			return range.isIncluded(version);
+		}
 		return true;
 	}
 
@@ -45,8 +48,9 @@ public class AbstractAdvice implements IPublisherAdvice {
 	}
 
 	protected boolean matchId(String id) {
-		if (id == null)
+		if (id == null) {
 			return true;
+		}
 		String adviceId = getId();
 		return adviceId == null ? true : adviceId.equals(id);
 	}
@@ -57,14 +61,16 @@ public class AbstractAdvice implements IPublisherAdvice {
 
 	protected boolean matchConfig(String configSpec, boolean includeDefault) {
 		String adviceConfigSpec = getConfigSpec();
-		if (adviceConfigSpec == null)
+		if (adviceConfigSpec == null) {
 			return includeDefault;
+		}
 		String[] full = AbstractPublisherAction.parseConfigSpec(configSpec);
 		String[] partial = AbstractPublisherAction.parseConfigSpec(adviceConfigSpec);
 		for (int i = 0; i < partial.length; i++) {
 			String string = partial[i];
-			if (string != null && !string.equals(full[i]))
+			if (string != null && !string.equals(full[i])) {
 				return false;
+			}
 		}
 		return true;
 	}

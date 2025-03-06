@@ -150,8 +150,9 @@ public final class LocalizationHelper {
 		for (String key : propertyKeys) {
 			if (key != null) {
 				String localizedValue = properties.get(key);
-				if (localizedValue != null)
+				if (localizedValue != null) {
 					localizedProperties.put(key, localizedValue);
+				}
 			}
 		}
 		return localizedProperties;

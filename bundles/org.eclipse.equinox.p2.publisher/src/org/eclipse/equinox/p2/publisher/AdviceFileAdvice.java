@@ -78,8 +78,9 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		this.version = version;
 
 		Map<String, String> advice = loadAdviceMap(basePath, adviceFilePath);
-		if (advice.isEmpty())
+		if (advice.isEmpty()) {
 			return;
+		}
 
 		AdviceFileParser parser = new AdviceFileParser(id, version, advice);
 		try {

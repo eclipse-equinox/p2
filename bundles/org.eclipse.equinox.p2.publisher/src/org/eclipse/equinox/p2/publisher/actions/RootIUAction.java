@@ -60,8 +60,9 @@ public class RootIUAction extends AbstractPublisherAction {
 		processInstallableUnitPropertiesAdvice(descriptor, info);
 		processLicense(descriptor, info);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
-		if (rootIU == null)
+		if (rootIU == null) {
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_rootIU_generation, new Object[] {name, id, version}));
+		}
 		result.addIU(rootIU, IPublisherResult.NON_ROOT);
 
 		InstallableUnitDescription[] others = processAdditionalInstallableUnitsAdvice(rootIU, info);
@@ -81,14 +82,16 @@ public class RootIUAction extends AbstractPublisherAction {
 			ILicenseAdvice entry = advice.iterator().next();
 			String licenseText = entry.getLicenseText() == null ? "" : entry.getLicenseText(); //$NON-NLS-1$
 			String licenseUrl = entry.getLicenseURL() == null ? "" : entry.getLicenseURL(); //$NON-NLS-1$
-			if (licenseText.length() > 0 || licenseUrl.length() > 0)
+			if (licenseText.length() > 0 || licenseUrl.length() > 0) {
 				iu.setLicenses(new ILicense[] {MetadataFactory.createLicense(toURIOrNull(licenseUrl), licenseText)});
+			}
 		}
 	}
 
 	private static URI toURIOrNull(String url) {
-		if (url == null)
+		if (url == null) {
 			return null;
+		}
 		try {
 			return URIUtil.fromString(url);
 		} catch (URISyntaxException e) {
@@ -129,23 +132,26 @@ public class RootIUAction extends AbstractPublisherAction {
 		// children from the advice.
 		HashSet<IVersionedId> children = new HashSet<>();
 		Collection<IRootIUAdvice> rootAdvice = info.getAdvice(null, true, null, null, IRootIUAdvice.class);
-		if (rootAdvice == null)
+		if (rootAdvice == null) {
 			return children;
+		}
 		for (IRootIUAdvice advice : rootAdvice) {
 			Collection<? extends Object> list = advice.getChildren(result);
-			if (list != null)
+			if (list != null) {
 				for (Object object : list) {
 					// if the advice is a string, look it up in the result.  if not there then 
 					// query the known metadata repos
 					if (object instanceof String) {
 						String childId = (String) object;
 						IInstallableUnit iu = queryForIU(result, childId, getVersionAdvice(childId));
-						if (iu != null)
+						if (iu != null) {
 							children.add(iu);
+						}
 					} else if (object instanceof IVersionedId) {
 						children.add((IVersionedId) object);
 					}
 				}
+			}
 		}
 		return children;
 	}
@@ -158,8 +164,9 @@ public class RootIUAction extends AbstractPublisherAction {
 		root.setProperty(IInstallableUnit.PROP_NAME, name);
 
 		Collection<IRequirement> requiredCapabilities = createIURequirements(children);
-		if (requires != null)
+		if (requires != null) {
 			requiredCapabilities.addAll(requires);
+		}
 		root.setRequirements(requiredCapabilities.toArray(new IRequirement[requiredCapabilities.size()]));
 		root.setArtifacts(new IArtifactKey[0]);
 
@@ -184,18 +191,22 @@ public class RootIUAction extends AbstractPublisherAction {
 	private Version getVersionAdvice(String iuID) {
 		if (versionAdvice == null) {
 			versionAdvice = info.getAdvice(null, true, null, null, IVersionAdvice.class);
-			if (versionAdvice == null)
+			if (versionAdvice == null) {
 				return null;
+			}
 		}
 		for (IVersionAdvice advice : versionAdvice) {
 			// TODO have to figure a way to know the namespace here.  for now just look everywhere
 			Version result = advice.getVersion(IInstallableUnit.NAMESPACE_IU_ID, iuID);
-			if (result == null)
+			if (result == null) {
 				result = advice.getVersion(IVersionAdvice.NS_BUNDLE, iuID);
-			if (result == null)
+			}
+			if (result == null) {
 				result = advice.getVersion(IVersionAdvice.NS_FEATURE, iuID);
-			if (result != null)
+			}
+			if (result != null) {
 				return result;
+			}
 		}
 		return null;
 	}

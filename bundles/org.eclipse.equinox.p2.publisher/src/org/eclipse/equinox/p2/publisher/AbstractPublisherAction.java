@@ -84,13 +84,15 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * specified.
 	 */
 	public static String[] getArrayFromString(String list, String separator) {
-		if (list == null || list.trim().equals("")) //$NON-NLS-1$
+		if (list == null || list.trim().equals("")) { //$NON-NLS-1$
 			return new String[0];
+		}
 		List<String> result = new ArrayList<>();
 		for (QuotedTokenizer tokens = new QuotedTokenizer(list, separator); tokens.hasMoreTokens();) {
 			String token = tokens.nextToken().trim();
-			if (!token.equals("")) //$NON-NLS-1$
+			if (!token.equals("")) { //$NON-NLS-1$
 				result.add(token);
+			}
 		}
 		return result.toArray(new String[result.size()]);
 	}
@@ -103,9 +105,11 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 */
 	public static String[] parseConfigSpec(String configSpec) {
 		String[] result = getArrayFromString(configSpec, CONFIG_SEGMENT_SEPARATOR);
-		for (int i = 0; i < result.length; i++)
-			if (result[i].equals("*")) //$NON-NLS-1$
+		for (int i = 0; i < result.length; i++) {
+			if (result[i].equals("*")) { //$NON-NLS-1$
 				result[i] = CONFIG_ANY;
+			}
+		}
 
 		if (result.length < 3) {
 			String[] temp = new String[3];
@@ -146,8 +150,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 */
 	protected IMatchExpression<IInstallableUnit> createFilterSpec(String configSpec) {
 		String ldap = createLDAPString(configSpec);
-		if (ldap == null)
+		if (ldap == null) {
 			return null;
+		}
 		return InstallableUnit.parseFilter(ldap);
 	}
 
@@ -163,16 +168,18 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			String filterArch = config[2] != null && !CONFIG_ANY.equalsIgnoreCase(config[2])
 					? "(osgi.arch=" + config[2] + ")" //$NON-NLS-1$ //$NON-NLS-2$
 					: ""; //$NON-NLS-1$
-			if (filterWs.length() == 0 && filterOs.length() == 0 && filterArch.length() == 0)
+			if (filterWs.length() == 0 && filterOs.length() == 0 && filterArch.length() == 0) {
 				return null;
+			}
 			return "(& " + filterWs + filterOs + filterArch + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return null;
 	}
 
 	protected boolean filterMatches(IMatchExpression<IInstallableUnit> filter, String configSpec) {
-		if (filter == null)
+		if (filter == null) {
 			return true;
+		}
 
 		String[] config = parseConfigSpec(configSpec);
 		return filter.isMatch(InstallableUnit.contextIU(config[0], config[1], config[2]));
@@ -228,14 +235,16 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	private IMatchExpression<IInstallableUnit> getFilterAdvice(IVersionedId name) {
-		if (info == null)
+		if (info == null) {
 			return null;
+		}
 		Collection<IFilterAdvice> filterAdvice = info.getAdvice(CONFIG_ANY, true, name.getId(), name.getVersion(),
 				IFilterAdvice.class);
 		for (IFilterAdvice advice : filterAdvice) {
 			IMatchExpression<IInstallableUnit> result = advice.getFilter(name.getId(), name.getVersion(), false);
-			if (result != null)
+			if (result != null) {
 				return result;
+			}
 		}
 		return null;
 	}
@@ -274,14 +283,16 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			IPublisherInfo publisherInfo) {
 		Collection<IAdditionalInstallableUnitAdvice> advice = publisherInfo.getAdvice(null, false, iu.getId(),
 				iu.getVersion(), IAdditionalInstallableUnitAdvice.class);
-		if (advice.isEmpty())
+		if (advice.isEmpty()) {
 			return null;
+		}
 
 		List<InstallableUnitDescription> ius = new ArrayList<>();
 		for (IAdditionalInstallableUnitAdvice entry : advice) {
 			InstallableUnitDescription[] others = entry.getAdditionalInstallableUnitDescriptions(iu);
-			if (others != null)
+			if (others != null) {
 				ius.addAll(Arrays.asList(others));
+			}
 		}
 		return ius.toArray(new InstallableUnitDescription[ius.size()]);
 	}
@@ -296,15 +307,17 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 */
 	protected static void processArtifactPropertiesAdvice(IInstallableUnit iu, IArtifactDescriptor descriptor,
 			IPublisherInfo info) {
-		if (!(descriptor instanceof SimpleArtifactDescriptor))
+		if (!(descriptor instanceof SimpleArtifactDescriptor)) {
 			return;
+		}
 
 		Collection<IPropertyAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(),
 				IPropertyAdvice.class);
 		for (IPropertyAdvice entry : advice) {
 			Map<String, String> props = entry.getArtifactProperties(iu, descriptor);
-			if (props == null)
+			if (props == null) {
 				continue;
+			}
 			for (Entry<String, String> pe : props.entrySet()) {
 				((SimpleArtifactDescriptor) descriptor).setRepositoryProperty(pe.getKey(), pe.getValue());
 			}
@@ -322,8 +335,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				IPropertyAdvice.class);
 		for (IPropertyAdvice entry : advice) {
 			Map<String, String> props = entry.getInstallableUnitProperties(iu);
-			if (props == null)
+			if (props == null) {
 				continue;
+			}
 			for (Entry<String, String> pe : props.entrySet()) {
 				iu.setProperty(pe.getKey(), pe.getValue());
 			}
@@ -340,8 +354,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		Collection<IUpdateDescriptorAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(),
 				IUpdateDescriptorAdvice.class);
 
-		if (advice.isEmpty())
+		if (advice.isEmpty()) {
 			return;
+		}
 
 		for (IUpdateDescriptorAdvice entry : advice) {
 			// process the IU Descriptor
@@ -362,8 +377,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	protected static void processCapabilityAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
 		Collection<ICapabilityAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(),
 				ICapabilityAdvice.class);
-		if (advice.isEmpty())
+		if (advice.isEmpty()) {
 			return;
+		}
 
 		for (ICapabilityAdvice entry : advice) {
 			// process required capabilities
@@ -485,8 +501,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		Collection<ITouchpointAdvice> advice = info.getAdvice(configSpec, false, iu.getId(), iu.getVersion(),
 				ITouchpointAdvice.class);
 		if (currentInstructions == null) {
-			if (advice == null || advice.isEmpty())
+			if (advice == null || advice.isEmpty()) {
 				return;
+			}
 			currentInstructions = Collections.emptyMap();
 		}
 
@@ -511,12 +528,14 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 */
 	protected void publishArtifact(IArtifactDescriptor descriptor, File inclusion, IPublisherInfo publisherInfo) {
 		// no files to publish so this is done.
-		if (inclusion == null)
+		if (inclusion == null) {
 			return;
+		}
 		// if the destination already contains the descriptor, there is nothing to do.
 		IArtifactRepository destination = publisherInfo.getArtifactRepository();
-		if (destination == null || destination.contains(descriptor))
+		if (destination == null || destination.contains(descriptor)) {
 			return;
+		}
 
 		// if all we are doing is indexing things then add the descriptor and get on
 		// with it
@@ -537,8 +556,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 		try {
 			OutputStream output = destination.getOutputStream(descriptor);
-			if (output == null)
+			if (output == null) {
 				return;
+			}
 			output = new BufferedOutputStream(output);
 			FileUtils.copyStream(new BufferedInputStream(new FileInputStream(inclusion)), true, output, true);
 		} catch (ProvisionException e) {
@@ -563,12 +583,14 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	protected void publishArtifact(IArtifactDescriptor descriptor, File[] inclusions, File[] exclusions,
 			IPublisherInfo publisherInfo, IPathComputer prefixComputer) {
 		// no files to publish so this is done.
-		if (inclusions == null || inclusions.length < 1)
+		if (inclusions == null || inclusions.length < 1) {
 			return;
+		}
 		// if the destination already contains the descriptor, there is nothing to do.
 		IArtifactRepository destination = publisherInfo.getArtifactRepository();
-		if (destination == null || destination.contains(descriptor))
+		if (destination == null || destination.contains(descriptor)) {
 			return;
+		}
 		// if all we are doing is indexing things then add the descriptor and get on
 		// with it
 		if (!PublisherHelper.isArtifactPublish(publisherInfo)) {
@@ -585,21 +607,24 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		File tempFile = null;
 		try {
 			OutputStream output = destination.getOutputStream(descriptor);
-			if (output == null)
+			if (output == null) {
 				return;
+			}
 			output = new BufferedOutputStream(output);
 			tempFile = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			FileUtils.zip(inclusions, exclusions, tempFile, prefixComputer);
-			if (output != null)
+			if (output != null) {
 				FileUtils.copyStream(new BufferedInputStream(new FileInputStream(tempFile)), true, output, true);
+			}
 		} catch (ProvisionException e) {
 			LogHelper.log(e.getStatus());
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error publishing artifacts", e)); //$NON-NLS-1$
 			e.printStackTrace();
 		} finally {
-			if (tempFile != null)
+			if (tempFile != null) {
 				tempFile.delete();
+			}
 		}
 	}
 
@@ -612,19 +637,24 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 */
 	protected IInstallableUnit queryForIU(IPublisherResult publisherResult, String iuId, Version version) {
 		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(iuId, version);
-		if (version == null || Version.emptyVersion.equals(version))
+		if (version == null || Version.emptyVersion.equals(version)) {
 			query = QueryUtil.createLatestQuery(query);
+		}
 
 		IQueryResult<IInstallableUnit> collector = Collector.emptyCollector();
 		NullProgressMonitor progress = new NullProgressMonitor();
-		if (publisherResult != null)
+		if (publisherResult != null) {
 			collector = publisherResult.query(query, progress);
-		if (collector.isEmpty() && info.getMetadataRepository() != null)
+		}
+		if (collector.isEmpty() && info.getMetadataRepository() != null) {
 			collector = info.getMetadataRepository().query(query, progress);
-		if (collector.isEmpty() && info.getContextMetadataRepository() != null)
+		}
+		if (collector.isEmpty() && info.getContextMetadataRepository() != null) {
 			collector = info.getContextMetadataRepository().query(query, progress);
-		if (!collector.isEmpty())
+		}
+		if (!collector.isEmpty()) {
 			return collector.iterator().next();
+		}
 		return null;
 	}
 
@@ -642,12 +672,15 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		IQueryResult<IInstallableUnit> queryResult = Collector.emptyCollector();
 		query = QueryUtil.createIUQuery(iuId, versionRange);
 		NullProgressMonitor progress = new NullProgressMonitor();
-		if (publisherResult != null)
+		if (publisherResult != null) {
 			queryResult = publisherResult.query(query, progress);
-		if (queryResult.isEmpty() && info.getMetadataRepository() != null)
+		}
+		if (queryResult.isEmpty() && info.getMetadataRepository() != null) {
 			queryResult = info.getMetadataRepository().query(query, progress);
-		if (queryResult.isEmpty() && info.getContextMetadataRepository() != null)
+		}
+		if (queryResult.isEmpty() && info.getContextMetadataRepository() != null) {
 			queryResult = info.getContextMetadataRepository().query(query, progress);
+		}
 		return queryResult;
 	}
 

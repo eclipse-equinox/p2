@@ -32,14 +32,16 @@ public class MergeResultsAction extends AbstractPublisherAction {
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		MultiStatus finalStatus = new MultiStatus(MergeResultsAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
 		for (IPublisherAction action : actions) {
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
+			}
 			IPublisherResult result = new PublisherResult();
 			finalStatus.merge(action.perform(publisherInfo, result, monitor));
 			results.merge(result, mode);
 		}
-		if (!finalStatus.isOK())
+		if (!finalStatus.isOK()) {
 			return finalStatus;
+		}
 		return Status.OK_STATUS;
 	}
 }

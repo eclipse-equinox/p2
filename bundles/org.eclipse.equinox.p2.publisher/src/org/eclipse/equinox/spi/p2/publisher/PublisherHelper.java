@@ -204,12 +204,15 @@ public class PublisherHelper {
 	 * @throws UnsupportedOperationException if the version could not be converted into an OSGi version
 	 */
 	public static org.osgi.framework.Version toOSGiVersion(Version version) {
-		if (version == null)
+		if (version == null) {
 			return null;
-		if (version == Version.emptyVersion)
+		}
+		if (version == Version.emptyVersion) {
 			return org.osgi.framework.Version.emptyVersion;
-		if (version == Version.MAX_VERSION)
+		}
+		if (version == Version.MAX_VERSION) {
 			return new org.osgi.framework.Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+		}
 
 		BasicVersion bv = (BasicVersion) version;
 		return new org.osgi.framework.Version(bv.getMajor(), bv.getMinor(), bv.getMicro(), bv.getQualifier());

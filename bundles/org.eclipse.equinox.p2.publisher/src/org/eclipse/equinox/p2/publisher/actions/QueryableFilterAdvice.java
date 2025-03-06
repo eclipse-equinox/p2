@@ -35,15 +35,18 @@ public class QueryableFilterAdvice implements IFilterAdvice {
 	public IMatchExpression<IInstallableUnit> getFilter(String id, Version version, boolean exact) {
 		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id, version);
 		IQueryResult<IInstallableUnit> result = queryable.query(query, null);
-		if (!result.isEmpty())
+		if (!result.isEmpty()) {
 			return result.iterator().next().getFilter();
-		if (exact)
+		}
+		if (exact) {
 			return null;
+		}
 
 		query = QueryUtil.createIUQuery(id);
 		result = queryable.query(query, null);
-		if (!result.isEmpty())
+		if (!result.isEmpty()) {
 			return result.iterator().next().getFilter();
+		}
 		return null;
 	}
 

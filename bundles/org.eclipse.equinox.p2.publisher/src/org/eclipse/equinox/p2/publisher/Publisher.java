@@ -55,8 +55,9 @@ public class Publisher {
 			IMetadataRepository result = loadMetadataRepository(agent, location, true, true);
 			if (result != null && result.isModifiable()) {
 				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
-				if (!append)
+				if (!append) {
 					result.removeAll();
+				}
 				return result;
 			}
 		} catch (ProvisionException e) {
@@ -184,8 +185,9 @@ public class Publisher {
 	@SuppressWarnings("unchecked")
 	protected static <T> T getService(IProvisioningAgent agent, String serviceName) {
 		T service = (T) agent.getService(serviceName);
-		if (service != null)
+		if (service != null) {
 			return service;
+		}
 		long start = System.currentTimeMillis();
 		do {
 			try {
@@ -194,8 +196,9 @@ public class Publisher {
 				// ignore and keep waiting
 			}
 			service = (T) agent.getService(serviceName);
-			if (service != null)
+			if (service != null) {
 				return service;
+			}
 		} while ((System.currentTimeMillis() - start) < SERVICE_TIMEOUT);
 		// could not obtain the service
 		throw new IllegalStateException("Unable to obtain required service: " + serviceName); //$NON-NLS-1$
@@ -239,33 +242,38 @@ public class Publisher {
 	}
 
 	public IStatus publish(IPublisherAction[] actions, IProgressMonitor monitor) {
-		if (monitor == null)
+		if (monitor == null) {
 			monitor = new NullProgressMonitor();
+		}
 		SubMonitor sub = SubMonitor.convert(monitor, actions.length);
-		if (Tracing.DEBUG_PUBLISHING)
+		if (Tracing.DEBUG_PUBLISHING) {
 			Tracing.debug("Invoking publisher"); //$NON-NLS-1$
+		}
 		try {
 			ArtifactProcess artifactProcess = new ArtifactProcess(actions, info);
 
 			IStatus finalStatus = null;
 			if (info.getArtifactRepository() != null) {
 				finalStatus = info.getArtifactRepository().executeBatch(artifactProcess, sub);
-				if (!finalStatus.matches(IStatus.ERROR | IStatus.CANCEL))
+				if (!finalStatus.matches(IStatus.ERROR | IStatus.CANCEL)) {
 					// If the batch process didn't report any errors, then
 					// Use the status from our actions
 					finalStatus = artifactProcess.getStatus();
+				}
 			} else {
 				artifactProcess.run(sub);
 				finalStatus = artifactProcess.getStatus();
 			}
 
-			if (Tracing.DEBUG_PUBLISHING)
+			if (Tracing.DEBUG_PUBLISHING) {
 				Tracing.debug("Publishing complete. Result=" + finalStatus); //$NON-NLS-1$
+			}
 
 			savePublishedIUs();
 
-			if (!finalStatus.isOK())
+			if (!finalStatus.isOK()) {
 				return finalStatus;
+			}
 			return Status.OK_STATUS;
 		} finally {
 			sub.done();

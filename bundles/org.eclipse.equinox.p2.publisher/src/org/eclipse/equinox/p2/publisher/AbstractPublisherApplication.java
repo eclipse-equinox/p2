@@ -88,10 +88,12 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	protected void initialize(PublisherInfo publisherInfo) throws ProvisionException {
 		if (inplace) {
 			File location = new File(source);
-			if (metadataLocation == null)
+			if (metadataLocation == null) {
 				metadataLocation = location.toURI();
-			if (artifactLocation == null)
+			}
+			if (artifactLocation == null) {
 				artifactLocation = location.toURI();
+			}
 			publisherInfo.setArtifactOptions(
 					publisherInfo.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
 		}
@@ -115,20 +117,24 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			if (!append && !isEmpty(repo)) {
 				File repoLocation = URIUtil.toFile(artifactLocation);
 				if (repoLocation != null && source != null) {
-					if (repoLocation.isFile())
+					if (repoLocation.isFile()) {
 						repoLocation = repoLocation.getParentFile();
-					if (repoLocation.equals(new File(source)))
+					}
+					if (repoLocation.equals(new File(source))) {
 						throw new IllegalArgumentException(
 								NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput,
 										URIUtil.toUnencodedString(artifactLocation)));
+					}
 				}
 				repo.removeAll(new NullProgressMonitor());
 			}
 			publisherInfo.setArtifactRepository(repo);
-		} else if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0)
+		} else if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0) {
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noArtifactRepo));
-		if (metadataLocation == null)
+		}
+		if (metadataLocation == null) {
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noMetadataRepo));
+		}
 		publisherInfo.setMetadataRepository(
 				Publisher.createMetadataRepository(agent, metadataLocation, metadataRepoName, append, compress));
 
@@ -138,8 +144,9 @@ public abstract class AbstractPublisherApplication implements IApplication {
 				for (URI repositoryuri : contextMetadataRepositories) {
 					contextMetadata.addChild(repositoryuri);
 				}
-				if (contextMetadata.getChildren().size() > 0)
+				if (contextMetadata.getChildren().size() > 0) {
 					publisherInfo.setContextMetadataRepository(contextMetadata);
+				}
 			}
 		}
 		if (contextArtifactRepositories != null && contextArtifactRepositories.length > 0) {
@@ -149,15 +156,17 @@ public abstract class AbstractPublisherApplication implements IApplication {
 					contextArtifact.addChild(repositoryuri);
 				}
 
-				if (contextArtifact.getChildren().size() > 0)
+				if (contextArtifact.getChildren().size() > 0) {
 					publisherInfo.setContextArtifactRepository(contextArtifact);
+				}
 			}
 		}
 	}
 
 	protected void processCommandLineArguments(String[] args, PublisherInfo publisherInfo) throws Exception {
-		if (args == null)
+		if (args == null) {
 			return;
+		}
 		for (int i = 0; i < args.length; i++) {
 			// check for args without parameters (i.e., a flag arg)
 			processFlag(args[i], publisherInfo);
@@ -166,8 +175,9 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			// one
 			// has a '-' as the first character, then we can't have an arg with a parm so
 			// continue.
-			if (i == args.length - 1 || args[i + 1].startsWith("-")) //$NON-NLS-1$
+			if (i == args.length - 1 || args[i + 1].startsWith("-")) { //$NON-NLS-1$
 				continue;
+			}
 			processParameter(args[i], args[++i], publisherInfo);
 		}
 	}
@@ -180,45 +190,54 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo)
 			throws URISyntaxException {
 		try {
-			if (arg.equalsIgnoreCase("-metadataRepository") || arg.equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (arg.equalsIgnoreCase("-metadataRepository") || arg.equalsIgnoreCase("-mr")) { //$NON-NLS-1$ //$NON-NLS-2$
 				metadataLocation = URIUtil.fromString(parameter);
+			}
 
-			if (arg.equalsIgnoreCase("-artifactRepository") || arg.equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (arg.equalsIgnoreCase("-artifactRepository") || arg.equalsIgnoreCase("-ar")) { //$NON-NLS-1$ //$NON-NLS-2$
 				artifactLocation = URIUtil.fromString(parameter);
+			}
 		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException(NLS.bind(Messages.exception_repoMustBeURL, parameter));
 		}
 
-		if (arg.equalsIgnoreCase("-metadataRepositoryName")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-metadataRepositoryName")) { //$NON-NLS-1$
 			metadataRepoName = parameter;
+		}
 
 		if (arg.equalsIgnoreCase("-source")) { //$NON-NLS-1$
 			// check here to see if the location actually exists so we can fail gracefully
 			// now rather than unpredictably later
 			// see bug 272956 where we would fail with an NPE if someone gave us a URL
 			// instead of a file-system path
-			if (!new File(parameter).exists())
+			if (!new File(parameter).exists()) {
 				throw new IllegalArgumentException(NLS.bind(Messages.exception_sourcePath, parameter));
+			}
 			source = parameter;
 		}
 
-		if (arg.equalsIgnoreCase("-artifactRepositoryName")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-artifactRepositoryName")) { //$NON-NLS-1$
 			artifactRepoName = parameter;
+		}
 
-		if (arg.equalsIgnoreCase("-configs")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-configs")) { //$NON-NLS-1$
 			publisherInfo.setConfigurations(AbstractPublisherAction.getArrayFromString(parameter, ",")); //$NON-NLS-1$
+		}
 
-		if (arg.equalsIgnoreCase("-contextMetadata")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-contextMetadata")) { //$NON-NLS-1$
 			setContextRepositories(processRepositoryList(parameter), contextArtifactRepositories);
+		}
 
-		if (arg.equalsIgnoreCase("-contextArtifacts")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-contextArtifacts")) { //$NON-NLS-1$
 			setContextRepositories(contextMetadataRepositories, processRepositoryList(parameter));
+		}
 	}
 
 	private URI[] processRepositoryList(String parameter) {
 		String[] list = AbstractPublisherAction.getArrayFromString(parameter, ","); //$NON-NLS-1$
-		if (list == null || list.length == 0)
+		if (list == null || list.length == 0) {
 			return null;
+		}
 
 		List<URI> result = new ArrayList<>(list.length);
 		if (result != null) {
@@ -235,23 +254,29 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	}
 
 	protected void processFlag(String arg, PublisherInfo publisherInfo) {
-		if (arg.equalsIgnoreCase("-publishArtifacts") || arg.equalsIgnoreCase("-pa")) //$NON-NLS-1$ //$NON-NLS-2$
+		if (arg.equalsIgnoreCase("-publishArtifacts") || arg.equalsIgnoreCase("-pa")) { //$NON-NLS-1$ //$NON-NLS-2$
 			publisherInfo.setArtifactOptions(publisherInfo.getArtifactOptions() | IPublisherInfo.A_PUBLISH);
+		}
 
-		if (arg.equalsIgnoreCase("-publishArtifactRepository") || arg.equalsIgnoreCase("-par")) //$NON-NLS-1$ //$NON-NLS-2$
+		if (arg.equalsIgnoreCase("-publishArtifactRepository") || arg.equalsIgnoreCase("-par")) { //$NON-NLS-1$ //$NON-NLS-2$
 			publisherInfo.setArtifactOptions(publisherInfo.getArtifactOptions() | IPublisherInfo.A_INDEX);
+		}
 
-		if (arg.equalsIgnoreCase("-overwriteArtifacts")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-overwriteArtifacts")) { //$NON-NLS-1$
 			publisherInfo.setArtifactOptions(publisherInfo.getArtifactOptions() | IPublisherInfo.A_OVERWRITE);
+		}
 
-		if (arg.equalsIgnoreCase("-append")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-append")) { //$NON-NLS-1$
 			append = true;
+		}
 
-		if (arg.equalsIgnoreCase("-compress")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-compress")) { //$NON-NLS-1$
 			compress = true;
+		}
 
-		if (arg.equalsIgnoreCase("-inplace")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-inplace")) { //$NON-NLS-1$
 			inplace = true;
+		}
 	}
 
 	protected void setupAgent() throws ProvisionException {
@@ -259,16 +284,19 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			agentRef = Activator.getContext().getServiceReference(IProvisioningAgent.class);
 			if (agentRef != null) {
 				agent = Activator.getContext().getService(agentRef);
-				if (agent != null)
+				if (agent != null) {
 					return;
+				}
 			}
 			ServiceReference<IProvisioningAgentProvider> providerRef = Activator.getContext()
 					.getServiceReference(IProvisioningAgentProvider.class);
-			if (providerRef == null)
+			if (providerRef == null) {
 				throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+			}
 			IProvisioningAgentProvider provider = Activator.getContext().getService(providerRef);
-			if (provider == null)
+			if (provider == null) {
 				throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+			}
 			// obtain agent for currently running system
 			agent = provider.createAgent(null);
 			Activator.getContext().ungetService(providerRef);
@@ -288,10 +316,11 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			}
 			return result;
 		} catch (Exception e) {
-			if (e.getMessage() != null)
+			if (e.getMessage() != null) {
 				System.err.println(e.getMessage());
-			else
+			} else {
 				e.printStackTrace(System.err);
+			}
 			throw e;
 		}
 	}
