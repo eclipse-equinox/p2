@@ -52,8 +52,9 @@ public class FileUtils {
 		File base = new File(location);
 		if (!base.isAbsolute()) {
 			String pluginsDir = getSysPath(manipulator);
-			if (pluginsDir == null)
+			if (pluginsDir == null) {
 				return null;
+			}
 			base = new File(pluginsDir, location);
 		}
 
@@ -64,12 +65,14 @@ public class FileUtils {
 	private static String getSysPath(final Manipulator manipulator) {
 		Properties properties = manipulator.getConfigData().getProperties();
 		String path = (String) properties.get(EquinoxConstants.PROP_OSGI_SYSPATH);
-		if (path != null)
+		if (path != null) {
 			return path;
+		}
 		path = (String) properties.get(EquinoxConstants.PROP_OSGI_FW);
 		if (path != null) {
-			if (path.startsWith(FILE_PROTOCOL))
+			if (path.startsWith(FILE_PROTOCOL)) {
 				path = path.substring(FILE_PROTOCOL.length());
+			}
 			File file = new File(path);
 			return file.getParentFile().getAbsolutePath();
 		}
@@ -77,11 +80,11 @@ public class FileUtils {
 		LauncherData launcherData = manipulator.getLauncherData();
 		File home = launcherData.getHome();
 		File pluginsDir = null;
-		if (home != null)
+		if (home != null) {
 			pluginsDir = new File(home, EquinoxConstants.PLUGINS_DIR);
-		else if (launcherData.getFwJar() != null)
+		} else if (launcherData.getFwJar() != null) {
 			pluginsDir = launcherData.getFwJar().getParentFile();
-		else if (launcherData.getLauncher() != null) {
+		} else if (launcherData.getLauncher() != null) {
 			File launcherDir = null;
 			if (Constants.OS_MACOSX.equals(launcherData.getOS())) {
 				IPath launcherPath = IPath.fromOSString(launcherData.getLauncher().getAbsolutePath());
@@ -89,23 +92,27 @@ public class FileUtils {
 					launcherPath = launcherPath.removeLastSegments(2).append("Eclipse"); //$NON-NLS-1$
 					launcherDir = launcherPath.toFile();
 				}
-			} else
+			} else {
 				launcherDir = launcherData.getLauncher().getParentFile();
+			}
 			pluginsDir = new File(launcherDir, EquinoxConstants.PLUGINS_DIR);
 		}
-		if (pluginsDir != null)
+		if (pluginsDir != null) {
 			return pluginsDir.getAbsolutePath();
+		}
 		return null;
 	}
 
 	public static String removeEquinoxSpecificProtocols(String location) {
-		if (location == null)
+		if (location == null) {
 			return null;
+		}
 		String ret = location;
-		if (location.startsWith(REFERENCE_PROTOCOL))
+		if (location.startsWith(REFERENCE_PROTOCOL)) {
 			ret = location.substring(REFERENCE_PROTOCOL.length());
-		else if (location.startsWith(INITIAL_PREFIX))
+		} else if (location.startsWith(INITIAL_PREFIX)) {
 			ret = location.substring(INITIAL_PREFIX.length());
+		}
 		return ret;
 	}
 
@@ -121,11 +128,13 @@ public class FileUtils {
 	 * @return version string. If invalid format, return null.
 	 */
 	private static Version getVersion(String version) {
-		if (version.length() == 0)
+		if (version.length() == 0) {
 			return Version.emptyVersion;
+		}
 
-		if (version.endsWith(".jar")) //$NON-NLS-1$
+		if (version.endsWith(".jar")) { //$NON-NLS-1$
 			version = version.substring(0, version.length() - 4);
+		}
 
 		try {
 			return new Version(version);
@@ -142,19 +151,22 @@ public class FileUtils {
 	 */
 	// Based on org.eclipse.core.runtime.adaptor.EclipseStarter#searchFor
 	public static URI getEclipsePluginFullLocation(String pluginName, File bundlesDir) {
-		if (bundlesDir == null)
+		if (bundlesDir == null) {
 			return null;
+		}
 		File[] candidates = bundlesDir.listFiles();
-		if (candidates == null)
+		if (candidates == null) {
 			return null;
+		}
 
 		File result = null;
 		Version maxVersion = null;
 
 		for (File candidate : candidates) {
 			String candidateName = candidate.getName();
-			if (!candidateName.startsWith(pluginName))
+			if (!candidateName.startsWith(pluginName)) {
 				continue;
+			}
 			if (candidateName.length() > pluginName.length() && candidateName.charAt(pluginName.length()) != '_') {
 				// allow jar file with no _version tacked on the end
 				if (!candidate.isFile() || (candidateName.length() != 4 + pluginName.length())
@@ -163,11 +175,13 @@ public class FileUtils {
 				}
 			}
 			String candidateVersion = ""; //$NON-NLS-1$
-			if (candidateName.length() > pluginName.length() + 1 && candidateName.charAt(pluginName.length()) == '_')
+			if (candidateName.length() > pluginName.length() + 1 && candidateName.charAt(pluginName.length()) == '_') {
 				candidateVersion = candidateName.substring(pluginName.length() + 1);
+			}
 			Version currentVersion = getVersion(candidateVersion);
-			if (currentVersion == null)
+			if (currentVersion == null) {
 				continue;
+			}
 			if (maxVersion == null || maxVersion.compareTo(currentVersion) < 0) {
 				maxVersion = currentVersion;
 				result = candidate;
@@ -186,20 +200,23 @@ public class FileUtils {
 		}
 
 		File f = new File(path);
-		if (f.isAbsolute())
+		if (f.isAbsolute()) {
 			return f.toURI();
+		}
 		return URIUtil.fromString(FILE_PROTOCOL + path);
 	}
 
 	public static String toPath(URI uri) {
-		if (!FILE_SCHEME.equalsIgnoreCase(uri.getScheme()))
+		if (!FILE_SCHEME.equalsIgnoreCase(uri.getScheme())) {
 			return new File(URIUtil.toUnencodedString(uri)).getPath();
+		}
 		return URIUtil.toFile(uri).getAbsolutePath();
 	}
 
 	public static String toFileURL(URI uri) {
-		if (uri.getScheme() != null)
+		if (uri.getScheme() != null) {
 			return URIUtil.toUnencodedString(uri);
+		}
 		return FILE_PROTOCOL + URIUtil.toUnencodedString(uri);
 	}
 

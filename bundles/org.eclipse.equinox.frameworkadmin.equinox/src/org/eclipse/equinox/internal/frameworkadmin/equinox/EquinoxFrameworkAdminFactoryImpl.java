@@ -24,8 +24,9 @@ public class EquinoxFrameworkAdminFactoryImpl extends FrameworkAdminFactory {
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException, IllegalArgumentException,
 			InvocationTargetException, NoSuchMethodException, SecurityException {
 		String className = System.getProperty(ConfiguratorManipulatorFactory.SYSTEM_PROPERTY_KEY);
-		if (className == null)
+		if (className == null) {
 			return new EquinoxFwAdminImpl();
+		}
 		return new EquinoxFwAdminImpl(className);
 	}
 }

@@ -87,8 +87,9 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 
 	@Override
 	public Manipulator getRunningManipulator() {
-		if (!this.runningFw)
+		if (!this.runningFw) {
 			return null;
+		}
 		return new EquinoxManipulatorImpl(context, this, platformAdmin, startLevelService, true);
 	}
 
@@ -106,8 +107,9 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 	boolean isRunningFw() {
 		//TODO implementation for Eclipse.exe and for Equinox
 		String fwVendor = context.getProperty(Constants.FRAMEWORK_VENDOR);
-		if (!"Eclipse".equals(fwVendor)) //$NON-NLS-1$
+		if (!"Eclipse".equals(fwVendor)) { //$NON-NLS-1$
 			return false;
+		}
 		//TODO decide if this version can be supported by this bundle.
 		Dictionary<String, String> header = context.getBundle(0).getHeaders();
 		String versionSt = header.get(Constants.BUNDLE_VERSION);
@@ -127,10 +129,11 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 	}
 
 	private void loadConfiguratorManipulator(String configuratorManipulatorFactoryName) throws InstantiationException, IllegalAccessException, ClassNotFoundException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		if (configuratorManipulatorFactoryName == null)
+		if (configuratorManipulatorFactoryName == null) {
 			this.configuratorManipulator = null;
-		else
+		} else {
 			this.configuratorManipulator = ConfiguratorManipulatorFactory.getInstance(configuratorManipulatorFactoryName);
+		}
 		return;
 	}
 

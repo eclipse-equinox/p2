@@ -25,8 +25,9 @@ public class EquinoxLauncherData extends LauncherData {
 
 	@Override
 	public void setLauncher(File launcherFile) {
-		if (previousLauncher == null && launcherFile != null && !launcherFile.equals(getLauncher()))
+		if (previousLauncher == null && launcherFile != null && !launcherFile.equals(getLauncher())) {
 			previousLauncher = EquinoxManipulatorImpl.getLauncherConfigLocation(this);
+		}
 		super.setLauncher(launcherFile);
 	}
 

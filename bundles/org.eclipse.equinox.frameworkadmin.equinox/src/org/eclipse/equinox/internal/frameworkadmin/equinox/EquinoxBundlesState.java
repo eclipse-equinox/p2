@@ -119,8 +119,9 @@ public class EquinoxBundlesState implements BundlesState {
 	private static File getSystemBundleFromBundleInfos(BundleInfo[] bundleInfos) {
 		for (BundleInfo bundleInfo : bundleInfos) {
 			File match = isSystemBundle(bundleInfo);
-			if (match != null)
+			if (match != null) {
 				return match;
+			}
 		}
 		return null;
 	}
@@ -131,16 +132,19 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	static long getTimeStamp(File fwPersistentDataLocation) {
-		if (fwPersistentDataLocation == null)
+		if (fwPersistentDataLocation == null) {
 			return DEFAULT_TIMESTAMP;
+		}
 
 		File file = new File(fwPersistentDataLocation, EquinoxConstants.PERSISTENT_DIR_NAME);
-		if (!file.exists() || !file.isDirectory())
+		if (!file.exists() || !file.isDirectory()) {
 			return DEFAULT_TIMESTAMP;
+		}
 		long ret = file.lastModified();
 		File[] lists = file.listFiles();
-		if (lists == null)
+		if (lists == null) {
 			return ret;
+		}
 		for (File list : lists) {
 			if (ret < list.lastModified()) {
 				ret = list.lastModified();
@@ -150,14 +154,17 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	public static File isSystemBundle(BundleInfo bundleInfo) {
-		if (bundleInfo == null || bundleInfo.getLocation() == null)
+		if (bundleInfo == null || bundleInfo.getLocation() == null) {
 			return null;
+		}
 		URI bundleLocation = bundleInfo.getLocation();
 		try {
 			String[] clauses = Utils.getClausesManifestMainAttributes(bundleLocation, Constants.BUNDLE_SYMBOLICNAME);
-			if (bundleLocation.getPath().indexOf(EquinoxConstants.FW_SYMBOLIC_NAME) > 0)
-				if (EquinoxConstants.PERSISTENT_DIR_NAME.equals(Utils.getPathFromClause(clauses[0])))
+			if (bundleLocation.getPath().indexOf(EquinoxConstants.FW_SYMBOLIC_NAME) > 0) {
+				if (EquinoxConstants.PERSISTENT_DIR_NAME.equals(Utils.getPathFromClause(clauses[0]))) {
 					return new File(bundleLocation);
+				}
+			}
 		} catch (RuntimeException e) {
 			e.printStackTrace();
 		}
@@ -190,13 +197,13 @@ public class EquinoxBundlesState implements BundlesState {
 				String arch = null;
 				String name = context.getProperty("os.arch");//$NON-NLS-1$
 				// Map i386 architecture to x86
-				if (name.equalsIgnoreCase(INTERNAL_ARCH_I386))
+				if (name.equalsIgnoreCase(INTERNAL_ARCH_I386)) {
 					arch = org.eclipse.osgi.service.environment.Constants.ARCH_X86;
-				// Map amd64 architecture to x86_64
-				else if (name.equalsIgnoreCase(INTERNAL_AMD64))
+				} else if (name.equalsIgnoreCase(INTERNAL_AMD64)) {
 					arch = org.eclipse.osgi.service.environment.Constants.ARCH_X86_64;
-				else
+				} else {
 					arch = name;
+				}
 				platformProperties.setProperty("osgi.arch", arch); //$NON-NLS-1$
 
 				platformProperties.setProperty(Constants.FRAMEWORK_SYSTEMPACKAGES,
@@ -335,25 +342,28 @@ public class EquinoxBundlesState implements BundlesState {
 		}
 		if (flagNewState) {
 			int indexSystemBundle = -1;
-			for (int j = 0; j < bInfos.length; j++)
+			for (int j = 0; j < bInfos.length; j++) {
 				if (isSystemBundle(bInfos[j]) != null) {
 					indexSystemBundle = j;
 					break;
 				}
+			}
 
 			if (indexSystemBundle > 0) {
 				BundleInfo[] newBundleInfos = new BundleInfo[bInfos.length];
 				newBundleInfos[0] = bInfos[indexSystemBundle];
 				System.arraycopy(bInfos, 0, newBundleInfos, 1, indexSystemBundle);
-				if (indexSystemBundle < bInfos.length - 1)
+				if (indexSystemBundle < bInfos.length - 1) {
 					System.arraycopy(bInfos, indexSystemBundle + 1, newBundleInfos, indexSystemBundle + 1,
 							bInfos.length - indexSystemBundle - 1);
+				}
 				bInfos = newBundleInfos;
 			}
 		}
 		for (int j = 0; j < bInfos.length; j++) {
-			if (DEBUG)
+			if (DEBUG) {
 				Log.debug(this, "composeExpectedState()", "bInfos[" + j + "]=" + bInfos[j]); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
 			try {
 				this.installBundle(bInfos[j]);
 				// System.out.println("install bInfos[" + j + "]=" + bInfos[j]);
@@ -505,8 +515,9 @@ public class EquinoxBundlesState implements BundlesState {
 	@Override
 	public BundleInfo[] getSystemFragmentedBundles() {
 		BundleDescription bundle = this.getSystemBundleDescription();
-		if (bundle == null)
+		if (bundle == null) {
 			return null;
+		}
 		return convertState(bundle.getFragments());
 	}
 
@@ -517,8 +528,9 @@ public class EquinoxBundlesState implements BundlesState {
 		StateHelper helper = platformAdmin.getStateHelper();
 		VersionConstraint[] constraints = helper.getUnsatisfiedConstraints(description);
 		String[] ret = new String[constraints.length];
-		for (int i = 0; i < constraints.length; i++)
+		for (int i = 0; i < constraints.length; i++) {
 			ret[i] = constraints[i].toString();
+		}
 		return ret;
 	}
 
@@ -539,15 +551,18 @@ public class EquinoxBundlesState implements BundlesState {
 			if (manipulator.getLauncherData().getFwPersistentDataLocation() == null) {
 				File installArea = ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()),
 						configData.getProperties(), launcherData);
-				if (DEBUG)
+				if (DEBUG) {
 					Log.debug(this, "initialize(useFwPersistentDat)", "installArea=" + installArea); //$NON-NLS-1$ //$NON-NLS-2$
-				if (installArea == null)
+				}
+				if (installArea == null) {
 					throw new IllegalStateException(Messages.exception_noInstallArea);
+				}
 				File fwPersistentDataLocation = new File(installArea, "configuration"); //$NON-NLS-1$
 				manipulator.getLauncherData().setFwPersistentDataLocation(fwPersistentDataLocation, false);
 			}
-			if (!composeState(bInfos, null, manipulator.getLauncherData().getFwPersistentDataLocation()))
+			if (!composeState(bInfos, null, manipulator.getLauncherData().getFwPersistentDataLocation())) {
 				composeNewState(launcherData, configData, bInfos);
+			}
 			resolve(true);
 		}
 	}
@@ -557,21 +572,25 @@ public class EquinoxBundlesState implements BundlesState {
 		SimpleBundlesState.checkAvailability(fwAdmin);
 
 		URI realLocation = bInfo.getLocation();
-		if (getBundleByLocation(realLocation) != null)
+		if (getBundleByLocation(realLocation) != null) {
 			return;
+		}
 
 		Dictionary<String, String> manifest = Utils.getOSGiManifest(realLocation);
-		if (manifest == null)
+		if (manifest == null) {
 			return;
+		}
 
 		String newSymbolicName = manifest.get(Constants.BUNDLE_SYMBOLICNAME);
 		int position = newSymbolicName.indexOf(";"); //$NON-NLS-1$
-		if (position >= 0)
+		if (position >= 0) {
 			newSymbolicName = newSymbolicName.substring(0, position).trim();
+		}
 		String newVersion = manifest.get(Constants.BUNDLE_VERSION);
 
-		if (getBundleByNameVersion(newSymbolicName, newVersion) != null)
+		if (getBundleByNameVersion(newSymbolicName, newVersion) != null) {
 			return;
+		}
 
 		try {
 			bInfo.setBundleId(++maxId);
@@ -598,8 +617,9 @@ public class EquinoxBundlesState implements BundlesState {
 	public boolean isResolved(BundleInfo bInfo) {
 		URI realLocation = bInfo.getLocation();
 		BundleDescription description = getBundleByLocation(realLocation);
-		if (description == null)
+		if (description == null) {
 			return false;
+		}
 		return description.isResolved();
 	}
 
@@ -626,8 +646,9 @@ public class EquinoxBundlesState implements BundlesState {
 				platfromProperties.setProperty(key, (String) value);
 			}
 		}
-		if (DEBUG)
+		if (DEBUG) {
 			Utils.printoutProperties(System.out, "PlatformProperties[0]", platfromProperties); //$NON-NLS-1$
+		}
 	}
 
 	/**
@@ -652,14 +673,16 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	private void setStateObjectFactory() {
-		if (soFactory == null)
+		if (soFactory == null) {
 			soFactory = platformAdmin.getFactory();
+		}
 	}
 
 	@Override
 	public String toString() {
-		if (state == null)
+		if (state == null) {
 			return null;
+		}
 		StringBuilder sb = new StringBuilder();
 		BundleDescription[] bundleDescriptions = state.getBundles();
 		for (BundleDescription bundleDescription : bundleDescriptions) {
@@ -695,8 +718,9 @@ public class EquinoxBundlesState implements BundlesState {
 		long id = DEFAULT_TIMESTAMP;
 		URI realLocation = bInfo.getLocation();
 		BundleDescription bundle = getBundleByLocation(bInfo.getLocation());
-		if (bundle != null)
+		if (bundle != null) {
 			id = bundle.getBundleId();
+		}
 
 		if (id != DEFAULT_TIMESTAMP) {
 			try {
@@ -717,8 +741,9 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	private BundleDescription getBundleByLocation(URI location) {
-		if (location == null)
+		if (location == null) {
 			return null;
+		}
 		return locationStateIndex.get(location);
 	}
 

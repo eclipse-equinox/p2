@@ -47,31 +47,36 @@ public class EquinoxFwConfigFileParser {
 
 	private static StringBuffer toOSGiBundleListForm(BundleInfo bundleInfo, URI location) {
 		StringBuffer locationString = new StringBuffer(REFERENCE_SCHEME);
-		if (URIUtil.isFileURI(location))
+		if (URIUtil.isFileURI(location)) {
 			locationString.append(URIUtil.toUnencodedString(location));
-		else if (location.getScheme() == null)
+		} else if (location.getScheme() == null) {
 			locationString.append(FILE_PROTOCOL).append(URIUtil.toUnencodedString(location));
-		else
+		} else {
 			locationString = new StringBuffer(URIUtil.toUnencodedString(location));
+		}
 
 		int startLevel = bundleInfo.getStartLevel();
 		boolean toBeStarted = bundleInfo.isMarkedAsStarted();
 
 		StringBuffer sb = new StringBuffer();
 		sb.append(locationString);
-		if (startLevel == BundleInfo.NO_LEVEL && !toBeStarted)
+		if (startLevel == BundleInfo.NO_LEVEL && !toBeStarted) {
 			return sb;
+		}
 		sb.append('@');
-		if (startLevel != BundleInfo.NO_LEVEL)
+		if (startLevel != BundleInfo.NO_LEVEL) {
 			sb.append(startLevel);
-		if (toBeStarted)
+		}
+		if (toBeStarted) {
 			sb.append(":start"); //$NON-NLS-1$
+		}
 		return sb;
 	}
 
 	private static boolean getMarkedAsStartedFormat(String startInfo) {
-		if (startInfo == null)
+		if (startInfo == null) {
 			return false;
+		}
 		startInfo = startInfo.trim();
 		int colon = startInfo.indexOf(':');
 		if (colon > -1) {
@@ -81,8 +86,9 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private static int getStartLevel(String startInfo) {
-		if (startInfo == null)
+		if (startInfo == null) {
 			return BundleInfo.NO_LEVEL;
+		}
 		startInfo = startInfo.trim();
 		int colon = startInfo.indexOf(":"); //$NON-NLS-1$
 		if (colon > 0) {
@@ -117,8 +123,9 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private BundleInfo[] parseBundleList(Manipulator manipulator, String value) {
-		if (value == null || value.length() == 0)
+		if (value == null || value.length() == 0) {
 			return null;
+		}
 
 		List<BundleInfo> bundles = new ArrayList<>();
 		String[] bInfoStrings = Utils.getTokens(value, ","); //$NON-NLS-1$
@@ -144,13 +151,14 @@ public class EquinoxFwConfigFileParser {
 				bundles.add(new BundleInfo(realLocation, startLevel, markedAsStarted));
 				continue;
 			}
-			if (location != null && location.startsWith(FILE_PROTOCOL))
+			if (location != null && location.startsWith(FILE_PROTOCOL)) {
 				try {
 					bundles.add(new BundleInfo(FileUtils.fromFileURL(location), startLevel, markedAsStarted));
 					continue;
 				} catch (URISyntaxException e) {
 					// Ignore
 				}
+			}
 			// Fallback case, we use the location as a string
 			bundles.add(new BundleInfo(location, null, null, startLevel, markedAsStarted));
 		}
@@ -163,10 +171,12 @@ public class EquinoxFwConfigFileParser {
 		for (BundleInfo bundle : bundles) {
 			// framework jar does not get stored on the bundle list, figure out who that is.
 			if (fwJar != null) {
-				if (URIUtil.sameURI(fwJar.toURI(), bundle.getLocation()))
+				if (URIUtil.sameURI(fwJar.toURI(), bundle.getLocation())) {
 					continue;
-			} else if (EquinoxConstants.FW_SYMBOLIC_NAME.equals(bundle.getSymbolicName()))
+				}
+			} else if (EquinoxConstants.FW_SYMBOLIC_NAME.equals(bundle.getSymbolicName())) {
 				continue;
+			}
 
 			URI location = fwJar != null ? URIUtil.makeRelative(bundle.getLocation(), fwJar.getParentFile().toURI())
 					: bundle.getLocation();
@@ -186,12 +196,14 @@ public class EquinoxFwConfigFileParser {
 				osgiBundlesList.append(',');
 			}
 		}
-		if (osgiFrameworkExtensionsList.length() > 0)
+		if (osgiFrameworkExtensionsList.length() > 0) {
 			osgiFrameworkExtensionsList.deleteCharAt(osgiFrameworkExtensionsList.length() - 1);
+		}
 		props.setProperty(EquinoxConstants.PROP_FW_EXTENSIONS, osgiFrameworkExtensionsList.toString());
 
-		if (osgiBundlesList.length() > 0)
+		if (osgiBundlesList.length() > 0) {
 			osgiBundlesList.deleteCharAt(osgiBundlesList.length() - 1);
+		}
 		props.setProperty(EquinoxConstants.PROP_BUNDLES, osgiBundlesList.toString());
 	}
 
@@ -199,8 +211,9 @@ public class EquinoxFwConfigFileParser {
 	 * inputFile must be not a directory but a file.
 	 */
 	public void readFwConfig(Manipulator manipulator, File inputFile) throws IOException, URISyntaxException {
-		if (inputFile.isDirectory())
+		if (inputFile.isDirectory()) {
 			throw new IllegalArgumentException(NLS.bind(Messages.exception_inputFileIsDirectory, inputFile));
+		}
 
 		boolean baseHasChanged = false;
 		// Initialize data structures
@@ -219,9 +232,9 @@ public class EquinoxFwConfigFileParser {
 				props.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA));
 		if (sharedConfigProperties != null) {
 			baseHasChanged = hasBaseChanged(inputFile, manipulator, props);
-			if (!baseHasChanged)
+			if (!baseHasChanged) {
 				sharedConfigProperties.putAll(props);
-			else {
+			} else {
 				sharedConfigProperties.put(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA,
 						props.get(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA));
 			}
@@ -239,17 +252,19 @@ public class EquinoxFwConfigFileParser {
 		readp2DataArea(props, configArea);
 		readSimpleConfiguratorURL(props, configArea);
 
-		if (!baseHasChanged)
+		if (!baseHasChanged) {
 			readBundlesList(manipulator, ParserUtils
 					.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), props, launcherData).toURI(),
 					props);
+		}
 		readInitialStartLeve(configData, props);
 		readDefaultStartLevel(configData, props);
 
 		for (Enumeration<Object> enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
-			if (KNOWN_PROPERTIES.contains(key))
+			if (KNOWN_PROPERTIES.contains(key)) {
 				continue;
+			}
 			String value = props.getProperty(key);
 			configData.setProperty(key, value);
 		}
@@ -274,27 +289,31 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private void readDefaultStartLevel(ConfigData configData, Properties props) {
-		if (props.getProperty(EquinoxConstants.PROP_BUNDLES_STARTLEVEL) != null)
+		if (props.getProperty(EquinoxConstants.PROP_BUNDLES_STARTLEVEL) != null) {
 			configData.setInitialBundleStartLevel(
 					Integer.parseInt(props.getProperty(EquinoxConstants.PROP_BUNDLES_STARTLEVEL)));
+		}
 	}
 
 	private void writeDefaultStartLevel(ConfigData configData, Properties props) {
-		if (configData.getInitialBundleStartLevel() != BundleInfo.NO_LEVEL)
+		if (configData.getInitialBundleStartLevel() != BundleInfo.NO_LEVEL) {
 			props.setProperty(EquinoxConstants.PROP_BUNDLES_STARTLEVEL,
 					Integer.toString(configData.getInitialBundleStartLevel()));
+		}
 	}
 
 	private void readInitialStartLeve(ConfigData configData, Properties props) {
-		if (props.getProperty(EquinoxConstants.PROP_INITIAL_STARTLEVEL) != null)
+		if (props.getProperty(EquinoxConstants.PROP_INITIAL_STARTLEVEL) != null) {
 			configData.setBeginningFwStartLevel(
 					Integer.parseInt(props.getProperty(EquinoxConstants.PROP_INITIAL_STARTLEVEL)));
+		}
 	}
 
 	private void writeInitialStartLevel(ConfigData configData, Properties props) {
-		if (configData.getBeginingFwStartLevel() != BundleInfo.NO_LEVEL)
+		if (configData.getBeginingFwStartLevel() != BundleInfo.NO_LEVEL) {
 			props.setProperty(EquinoxConstants.PROP_INITIAL_STARTLEVEL,
 					Integer.toString(configData.getBeginingFwStartLevel()));
+		}
 	}
 
 	private File readFwJarLocation(ConfigData configData, LauncherData launcherData, Properties props)
@@ -311,8 +330,9 @@ public class EquinoxFwConfigFileParser {
 			String fwJarString = props.getProperty(EquinoxConstants.PROP_OSGI_FW);
 			if (fwJarString != null) {
 				fwJar = URIUtil.toFile(absoluteFwJar);
-				if (fwJar == null)
+				if (fwJar == null) {
 					throw new IllegalStateException(Messages.exception_noFrameworkLocation);
+				}
 				// Here we overwrite the value read from eclipse.ini, because the value of
 				// osgi.framework always takes precedence.
 				launcherData.setFwJar(fwJar);
@@ -320,14 +340,16 @@ public class EquinoxFwConfigFileParser {
 				throw new IllegalStateException(Messages.exception_noFrameworkLocation);
 			}
 		}
-		if (launcherData.getFwJar() != null)
+		if (launcherData.getFwJar() != null) {
 			configData.addBundle(new BundleInfo(launcherData.getFwJar().toURI()));
+		}
 		return launcherData.getFwJar();
 	}
 
 	private void writeFwJarLocation(ConfigData configData, LauncherData launcherData, Properties props) {
-		if (launcherData.getFwJar() == null)
+		if (launcherData.getFwJar() == null) {
 			return;
+		}
 		props.setProperty(EquinoxConstants.PROP_OSGI_FW,
 				FileUtils.toFileURL(URIUtil.makeRelative(launcherData.getFwJar().toURI(),
 						ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()),
@@ -342,8 +364,9 @@ public class EquinoxFwConfigFileParser {
 			props.load(is);
 		} finally {
 			try {
-				if (is != null)
+				if (is != null) {
 					is.close();
+				}
 			} catch (IOException e) {
 				Log.warn(NLS.bind(Messages.log_failed_reading_properties, inputFile));
 			}
@@ -353,18 +376,21 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private File findSharedConfigIniFile(File base, String sharedConfigurationArea) {
-		if (sharedConfigurationArea == null)
+		if (sharedConfigurationArea == null) {
 			return null;
-		if (base == null)
+		}
+		if (base == null) {
 			return null;
+		}
 		URL rootURL;
 		try {
 			rootURL = base.toURL();
 		} catch (MalformedURLException e1) {
 			return null;
 		}
-		if (rootURL == null)
+		if (rootURL == null) {
 			return null;
+		}
 
 		URL sharedConfigurationURL = null;
 		try {
@@ -410,8 +436,9 @@ public class EquinoxFwConfigFileParser {
 		if (props.getProperty(KEY_ECLIPSE_PROV_DATA_AREA) != null) {
 			String url = props.getProperty(KEY_ECLIPSE_PROV_DATA_AREA);
 			if (url != null) {
-				if (url.startsWith(CONFIG_DIR))
+				if (url.startsWith(CONFIG_DIR)) {
 					url = "file:" + url.substring(CONFIG_DIR.length()); //$NON-NLS-1$
+				}
 				props.setProperty(KEY_ECLIPSE_PROV_DATA_AREA,
 						URIUtil.makeAbsolute(FileUtils.fromFileURL(url), configArea).toString());
 			}
@@ -434,9 +461,9 @@ public class EquinoxFwConfigFileParser {
 			String result = URIUtil.toUnencodedString(relative);
 			// We only relativize up to the level where the p2 and config folder are
 			// siblings (e.g. foo/p2 and foo/config)
-			if (result.startsWith("../..")) //$NON-NLS-1$
+			if (result.startsWith("../..")) { //$NON-NLS-1$
 				result = dataArea;
-			else if (!result.equals(dataArea)) {
+			} else if (!result.equals(dataArea)) {
 				props.setProperty(KEY_ECLIPSE_PROV_DATA_AREA, CONFIG_DIR + result);
 				return;
 			}
@@ -445,21 +472,23 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private void readSimpleConfiguratorURL(Properties props, URI configArea) throws URISyntaxException {
-		if (props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL) != null)
+		if (props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL) != null) {
 			props.setProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL,
 					URIUtil.makeAbsolute(
 							FileUtils.fromFileURL(
 									props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL)),
 							configArea).toString());
+		}
 	}
 
 	private void writeSimpleConfiguratorURL(ConfigData configData, Properties props, URI configArea)
 			throws URISyntaxException {
 		// FIXME How would someone set such a value.....
 		String value = getFwProperty(configData, KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL);
-		if (value != null)
+		if (value != null) {
 			props.setProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL,
 					FileUtils.toFileURL(URIUtil.makeRelative(URIUtil.fromString(value), configArea)));
+		}
 	}
 
 	private String getFwProperty(ConfigData data, String key) {
@@ -477,16 +506,18 @@ public class EquinoxFwConfigFileParser {
 		File outputFile = launcherData.getFwConfigLocation();
 		if (outputFile.exists()) {
 			if (outputFile.isFile()) {
-				if (!outputFile.getName().equals(EquinoxConstants.CONFIG_INI))
+				if (!outputFile.getName().equals(EquinoxConstants.CONFIG_INI)) {
 					throw new IllegalStateException(NLS.bind(Messages.exception_fwConfigLocationName,
 							outputFile.getAbsolutePath(), EquinoxConstants.CONFIG_INI));
+				}
 			} else { // Directory
 				outputFile = new File(outputFile, EquinoxConstants.CONFIG_INI);
 			}
 		} else {
 			if (!outputFile.getName().equals(EquinoxConstants.CONFIG_INI)) {
-				if (!outputFile.mkdir())
+				if (!outputFile.mkdir()) {
 					throw new IOException(NLS.bind(Messages.exception_failedToCreateDir, outputFile));
+				}
 				outputFile = new File(outputFile, EquinoxConstants.CONFIG_INI);
 			}
 		}
@@ -524,17 +555,20 @@ public class EquinoxFwConfigFileParser {
 			throw new IllegalStateException(NLS.bind(Messages.exception_failedToCreateDir, outputFile.getParent()));
 		}
 
-		if (DEBUG)
+		if (DEBUG) {
 			Utils.printoutProperties(System.out, "configProps", configProps); //$NON-NLS-1$
+		}
 
-		if (backup)
+		if (backup) {
 			if (outputFile.exists()) {
 				File dest = Utils.getSimpleDataFormattedFile(outputFile);
-				if (!outputFile.renameTo(dest))
+				if (!outputFile.renameTo(dest)) {
 					throw new IOException(NLS.bind(Messages.exception_failedToRename, outputFile, dest));
+				}
 				Log.info(this, "saveFwConfig()", //$NON-NLS-1$
 						NLS.bind(Messages.log_renameSuccessful, outputFile, dest));
 			}
+		}
 
 		filterPropertiesFromSharedArea(configProps, manipulator);
 		saveProperties(outputFile, configProps);
@@ -556,14 +590,16 @@ public class EquinoxFwConfigFileParser {
 		Properties sharedConfigProperties = getSharedConfiguration(
 				ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configProps, launcherData),
 				configProps.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA));
-		if (sharedConfigProperties == null)
+		if (sharedConfigProperties == null) {
 			return;
+		}
 		Enumeration<?> keys = configProps.propertyNames();
 		while (keys.hasMoreElements()) {
 			String key = (String) keys.nextElement();
 			String sharedValue = sharedConfigProperties.getProperty(key);
-			if (sharedValue == null)
+			if (sharedValue == null) {
 				continue;
+			}
 			String value = configProps.getProperty(key);
 			if (equalsIgnoringSeparators(sharedValue, value)) {
 				configProps.remove(key);
@@ -592,8 +628,9 @@ public class EquinoxFwConfigFileParser {
 	private boolean equalBundleLists(Manipulator manipulator, String value, String sharedValue) {
 		BundleInfo[] bundles = parseBundleList(manipulator, value);
 		BundleInfo[] sharedBundles = parseBundleList(manipulator, sharedValue);
-		if (bundles == null || sharedBundles == null || bundles.length != sharedBundles.length)
+		if (bundles == null || sharedBundles == null || bundles.length != sharedBundles.length) {
 			return false;
+		}
 
 		List<BundleInfo> compareList = new ArrayList<>(Arrays.asList(bundles));
 		compareList.removeAll(Arrays.asList(sharedBundles));
@@ -601,10 +638,12 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private boolean equalsIgnoringSeparators(String s1, String s2) {
-		if (s1 == null && s2 == null)
+		if (s1 == null && s2 == null) {
 			return true;
-		if (s1 == null || s2 == null)
+		}
+		if (s1 == null || s2 == null) {
 			return false;
+		}
 		StringBuffer sb1 = new StringBuffer(s1);
 		StringBuffer sb2 = new StringBuffer(s2);
 		canonicalizePathsForComparison(sb1);
@@ -633,8 +672,9 @@ public class EquinoxFwConfigFileParser {
 		File sharedConfigIni = findSharedConfigIniFile(
 				ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configProps, launcherData),
 				configProps.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA));
-		if (sharedConfigIni == null)
+		if (sharedConfigIni == null) {
 			return;
+		}
 		File timestampFile = new File(folder, BASE_TIMESTAMP_FILE_CONFIGINI);
 		Properties timestamps;
 		try {
@@ -647,8 +687,9 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private Properties getSharedConfiguration(File baseFile, String sharedConfigurationArea) {
-		if (sharedConfigurationArea == null)
+		if (sharedConfigurationArea == null) {
 			return null;
+		}
 		File sharedConfigIni = findSharedConfigIniFile(baseFile, sharedConfigurationArea);
 		if (sharedConfigIni != null && sharedConfigIni.exists()) {
 			try {
