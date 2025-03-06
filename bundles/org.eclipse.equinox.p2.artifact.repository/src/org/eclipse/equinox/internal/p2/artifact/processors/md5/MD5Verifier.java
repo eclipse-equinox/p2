@@ -47,19 +47,21 @@ public class MD5Verifier extends MessageDigestProcessingStep {
 	public void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(agent, descriptor, context);
 		String data = descriptor.getData();
-		if (IArtifactDescriptor.DOWNLOAD_MD5.equals(data))
+		if (IArtifactDescriptor.DOWNLOAD_MD5.equals(data)) {
 			expectedMD5 = context.getProperty(IArtifactDescriptor.DOWNLOAD_MD5);
-		else if (IArtifactDescriptor.ARTIFACT_MD5.equals(data))
+		} else if (IArtifactDescriptor.ARTIFACT_MD5.equals(data)) {
 			expectedMD5 = context.getProperty(IArtifactDescriptor.ARTIFACT_MD5);
-		else
+		} else {
 			expectedMD5 = data;
+		}
 		basicInitialize(descriptor);
 	}
 
 	private void basicInitialize(IProcessingStepDescriptor descriptor) {
 		int code = (descriptor == null) ? IStatus.ERROR : descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
-		if (expectedMD5 == null || expectedMD5.length() != 32)
+		if (expectedMD5 == null || expectedMD5.length() != 32) {
 			setStatus(new Status(code, Activator.ID, NLS.bind(Messages.Error_invalid_hash, expectedMD5)));
+		}
 		try {
 			messageDigest = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
 		} catch (NoSuchAlgorithmException e) {

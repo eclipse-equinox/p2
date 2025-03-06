@@ -80,8 +80,9 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	@Override
 	public void flush() throws IOException {
 		super.flush();
-		if (destination != null)
+		if (destination != null) {
 			destination.flush();
+		}
 	}
 
 	/**
@@ -93,8 +94,9 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	@Override
 	public void close() throws IOException {
 		super.close();
-		if (destination instanceof ProcessingStep)
+		if (destination instanceof ProcessingStep) {
 			destination.close();
+		}
 		monitor = null;
 	}
 
@@ -105,10 +107,12 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 
 	@Override
 	public void setStatus(IStatus value) {
-		if (value == null)
+		if (value == null) {
 			value = Status.OK_STATUS;
-		if (status != null && status.getSeverity() >= value.getSeverity())
+		}
+		if (status != null && status.getSeverity() >= value.getSeverity()) {
 			return;
+		}
 		status = value;
 	}
 

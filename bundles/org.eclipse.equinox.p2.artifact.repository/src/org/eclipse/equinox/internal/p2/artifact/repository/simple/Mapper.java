@@ -74,8 +74,9 @@ public class Mapper {
 		}
 
 		for (int i = 0; i < filters.length; i++) {
-			if (filters[i].match(allProperties))
+			if (filters[i].match(allProperties)) {
 				return doReplacement(outputStrings[i], locationString, classifier, id, version, format, properties);
+			}
 		}
 		return null;
 	}
@@ -85,19 +86,22 @@ public class Mapper {
 		try {
 			// currently our mapping rules assume the repo URL is not "/" terminated.
 			// This may be the case for repoURLs in the root of a URL space e.g. root of a jar file or file:/c:/
-			if (repoLocation.endsWith("/")) //$NON-NLS-1$
+			if (repoLocation.endsWith("/")) { //$NON-NLS-1$
 				repoLocation = repoLocation.substring(0, repoLocation.length() - 1);
+			}
 
 			StringBuilder output = new StringBuilder(pattern);
 			int index = 0;
 			while (index < output.length()) {
 				int beginning = output.indexOf("${", index); //$NON-NLS-1$
-				if (beginning == -1)
+				if (beginning == -1) {
 					return URIUtil.fromString(output.toString());
+				}
 
 				int end = output.indexOf("}", beginning); //$NON-NLS-1$
-				if (end == -1)
+				if (end == -1) {
 					return URIUtil.fromString(pattern);
+				}
 
 				String varName = output.substring(beginning + 2, end);
 				String varValue = null;
@@ -114,8 +118,9 @@ public class Mapper {
 				} else if (properties.containsKey(varName)) {
 					varValue = properties.get(varName);
 				}
-				if (varValue == null)
+				if (varValue == null) {
 					varValue = ""; //$NON-NLS-1$
+				}
 
 				output.replace(beginning, end + 1, varValue);
 				index = beginning + varValue.length();

@@ -47,8 +47,9 @@ public class SignatureVerifier extends ProcessingStep {
 	}
 
 	private OutputStream getOutputStream() throws IOException {
-		if (tempStream != null)
+		if (tempStream != null) {
 			return tempStream;
+		}
 		// store input stream in temporary file
 		inputFile = File.createTempFile("signatureFile", ".jar"); //$NON-NLS-1$ //$NON-NLS-2$
 		tempStream = new BufferedOutputStream(new FileOutputStream(inputFile));
@@ -58,9 +59,10 @@ public class SignatureVerifier extends ProcessingStep {
 	private void verify() throws IOException {
 		BufferedInputStream resultStream = null;
 		try {
-			if (tempStream == null)
+			if (tempStream == null) {
 				// no one wrote to this stream so there is nothing to pass on
 				return;
+			}
 			// Ok, so there is content, close the tempStream
 			tempStream.close();
 			setStatus(verifyContent());
@@ -70,10 +72,12 @@ public class SignatureVerifier extends ProcessingStep {
 			FileUtils.copyStream(resultStream, true, getDestination(), false);
 			resultStream = null;
 		} finally {
-			if (inputFile != null)
+			if (inputFile != null) {
 				inputFile.delete();
-			if (resultStream != null)
+			}
+			if (resultStream != null) {
 				resultStream.close();
+			}
 		}
 	}
 
@@ -103,8 +107,9 @@ public class SignatureVerifier extends ProcessingStep {
 				break;
 			}
 		}
-		if (allStatus.size() > 0)
+		if (allStatus.size() > 0) {
 			return new MultiStatus(Activator.ID, IStatus.ERROR, allStatus.toArray(new IStatus[allStatus.size()]), Messages.SignatureVerification_invalidFileContent + inputFile, null);
+		}
 		return Status.OK_STATUS;
 	}
 

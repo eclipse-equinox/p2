@@ -62,8 +62,9 @@ public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 	}
 
 	public void addRepositoryProperties(Map<String, String> additionalProperties) {
-		if (additionalProperties.isEmpty())
+		if (additionalProperties.isEmpty()) {
 			return;
+		}
 		for (Entry<String, String> entry : additionalProperties.entrySet()) {
 			setRepositoryProperty(entry.getKey(), entry.getValue());
 		}
@@ -82,10 +83,12 @@ public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null || !(obj instanceof SimpleArtifactDescriptor))
+		}
+		if (obj == null || !(obj instanceof SimpleArtifactDescriptor)) {
 			return false;
+		}
 
 		SimpleArtifactDescriptor other = (SimpleArtifactDescriptor) obj;
 
@@ -93,8 +96,9 @@ public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 		String locationProperty = getRepositoryProperty(ARTIFACT_REFERENCE);
 		String otherProperty = other.getRepositoryProperty(ARTIFACT_REFERENCE);
 		// want not null and the same, or both null
-		if (locationProperty != null ? !locationProperty.equals(otherProperty) : otherProperty != null)
+		if (locationProperty != null ? !locationProperty.equals(otherProperty) : otherProperty != null) {
 			return false;
+		}
 
 		return super.equals(obj);
 	}
@@ -103,8 +107,9 @@ public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 	public int hashCode() {
 		int superHash = super.hashCode();
 		String ref = getRepositoryProperty(ARTIFACT_REFERENCE);
-		if (ref != null)
+		if (ref != null) {
 			return 31 * superHash + ref.hashCode();
+		}
 		return superHash;
 	}
 }

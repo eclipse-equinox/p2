@@ -44,8 +44,9 @@ public abstract class AbstractBufferingStep extends ProcessingStep {
 	}
 
 	protected OutputStream getOutputStream() throws IOException {
-		if (incomingStream != null)
+		if (incomingStream != null) {
 			return incomingStream;
+		}
 		// if buffering, store input stream in temporary file
 		incomingStream = createIncomingStream();
 		return incomingStream;
@@ -64,8 +65,9 @@ public abstract class AbstractBufferingStep extends ProcessingStep {
 			if (incomingStream != null) {
 				incomingStream.close();
 				// if canceled then skip processing
-				if (getStatus() != null && getStatus().getSeverity() != IStatus.CANCEL)
+				if (getStatus() != null && getStatus().getSeverity() != IStatus.CANCEL) {
 					performProcessing();
+				}
 			} else {
 				setStatus(new Status(IStatus.ERROR, Activator.ID, Messages.Empty_stream));
 			}
@@ -96,13 +98,16 @@ public abstract class AbstractBufferingStep extends ProcessingStep {
 	}
 
 	protected File getWorkDir() throws IOException {
-		if (workDir != null)
+		if (workDir != null) {
 			return workDir;
+		}
 		workDir = File.createTempFile(WORK_DIR_PREFIX, WORK_DIR_SUFFIX);
-		if (!workDir.delete())
+		if (!workDir.delete()) {
 			throw new IOException(NLS.bind(Messages.Can_not_delete_temp_dir, workDir));
-		if (!workDir.mkdirs())
+		}
+		if (!workDir.mkdirs()) {
 			throw new IOException(NLS.bind(Messages.Can_not_create_temp_dir, workDir));
+		}
 		return workDir;
 	}
 

@@ -35,9 +35,9 @@ public class KeyIndex extends Index<IArtifactKey> {
 		for (IArtifactKey ak : artifactKeys) {
 			Object prev = artifactMap.put(ak.getId(), ak);
 			if (prev != null) {
-				if (prev instanceof IArtifactKey)
+				if (prev instanceof IArtifactKey) {
 					artifactMap.put(ak.getId(), new IArtifactKey[] {(IArtifactKey) prev, ak});
-				else {
+				} else {
 					IArtifactKey[] prevArr = (IArtifactKey[]) prev;
 					IArtifactKey[] nxtArr = new IArtifactKey[prevArr.length + 1];
 					System.arraycopy(prevArr, 0, nxtArr, 0, prevArr.length);
@@ -51,8 +51,9 @@ public class KeyIndex extends Index<IArtifactKey> {
 	@Override
 	public Iterator<IArtifactKey> getCandidates(IEvaluationContext ctx, IExpression variable, IExpression booleanExpr) {
 		Object queriedKeys = getQueriedIDs(ctx, variable, ArtifactKey.MEMBER_ID, booleanExpr, null);
-		if (queriedKeys == null)
+		if (queriedKeys == null) {
 			return null;
+		}
 
 		Collection<IArtifactKey> collector = null;
 		if (queriedKeys.getClass().isArray()) {
@@ -60,28 +61,33 @@ public class KeyIndex extends Index<IArtifactKey> {
 			int idx = keyArr.length;
 			while (--idx >= 0) {
 				Object v = artifactMap.get(keyArr[idx]);
-				if (v == null)
+				if (v == null) {
 					continue;
-				if (collector == null)
+				}
+				if (collector == null) {
 					collector = new ArrayList<>();
-				if (v instanceof IArtifactKey)
+				}
+				if (v instanceof IArtifactKey) {
 					collector.add((IArtifactKey) v);
-				else {
+				} else {
 					IArtifactKey[] akArr = (IArtifactKey[]) v;
-					for (IArtifactKey ak : akArr)
+					for (IArtifactKey ak : akArr) {
 						collector.add(ak);
+					}
 				}
 			}
-			if (collector == null)
+			if (collector == null) {
 				collector = Collections.emptySet();
+			}
 		} else {
 			Object v = artifactMap.get(queriedKeys);
-			if (v == null)
+			if (v == null) {
 				collector = Collections.emptySet();
-			else if (v instanceof IArtifactKey)
+			} else if (v instanceof IArtifactKey) {
 				collector = Collections.singleton((IArtifactKey) v);
-			else
+			} else {
 				collector = CollectionUtils.unmodifiableList((IArtifactKey[]) v);
+			}
 		}
 		return collector.iterator();
 	}

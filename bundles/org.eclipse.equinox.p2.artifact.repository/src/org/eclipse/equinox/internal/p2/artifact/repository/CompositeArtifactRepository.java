@@ -75,8 +75,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		SubMonitor sub = SubMonitor.convert(monitor, 100 * state.getChildren().length);
 		List<URI> repositoriesToBeRemovedOnFailure = new ArrayList<>();
 		boolean failOnChildFailure = shouldFailOnChildFailure(state);
-		for (URI child : state.getChildren())
+		for (URI child : state.getChildren()) {
 			addChild(child, false, sub.newChild(100), failOnChildFailure, repositoriesToBeRemovedOnFailure);
+		}
 	}
 
 	/**
@@ -149,13 +150,15 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 			return;
 		}
 		childrenURIs.add(childURI);
-		if (save)
+		if (save) {
 			save();
+		}
 		try {
 			boolean currentLoaded = getManager().contains(absolute);
 			IArtifactRepository repo = load(childURI, sub);
-			if (!currentLoaded && propagateException)
+			if (!currentLoaded && propagateException) {
 				repositoriesToBeRemovedOnFailure.add(absolute);
+			}
 			loadedRepos.add(new ChildInfo(repo));
 		} catch (ProvisionException e) {
 			//repository failed to load. fall through
@@ -190,8 +193,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		// if the child wasn't there make sure and try the other permutation
 		// (absolute/relative) to see if it really is in the list.
 		URI other = childURI.isAbsolute() ? URIUtil.makeRelative(childURI, getLocation()) : URIUtil.makeAbsolute(childURI, getLocation());
-		if (!removed)
+		if (!removed) {
 			removed = childrenURIs.remove(other);
+		}
 
 		if (removed) {
 			// we removed the child from the list so remove the associated repo object as well
@@ -203,8 +207,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 					break;
 				}
 			}
-			if (found != null)
+			if (found != null) {
 				loadedRepos.remove(found);
+			}
 			save();
 		}
 	}
@@ -219,8 +224,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	@Override
 	public List<URI> getChildren() {
 		List<URI> result = new ArrayList<>();
-		for (URI uri : childrenURIs)
+		for (URI uri : childrenURIs) {
 			result.add(URIUtil.makeAbsolute(uri, getLocation()));
+		}
 		return result;
 	}
 
@@ -301,8 +307,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	@Override
 	public boolean contains(IArtifactKey key) {
 		for (ChildInfo current : loadedRepos) {
-			if (current.isGood() && current.repo.contains(key))
+			if (current.isGood() && current.repo.contains(key)) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -310,8 +317,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	@Override
 	public boolean contains(IArtifactDescriptor descriptor) {
 		for (ChildInfo current : loadedRepos) {
-			if (current.isGood() && current.repo.contains(descriptor))
+			if (current.isGood() && current.repo.contains(descriptor)) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -322,8 +330,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		for (ChildInfo current : loadedRepos) {
 			if (current.isGood()) {
 				IArtifactDescriptor[] tempResult = current.repo.getArtifactDescriptors(key);
-				for (IArtifactDescriptor element : tempResult)
+				for (IArtifactDescriptor element : tempResult) {
 					add(result, element);
+				}
 			}
 		}
 		return result.toArray(new IArtifactDescriptor[result.size()]);
@@ -334,19 +343,22 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_artifactsFromChildRepos, null);
 		for (ChildInfo childInfo : loadedRepos) {
-			if (requests.length == 0)
+			if (requests.length == 0) {
 				break;
+			}
 			IArtifactRepository current = childInfo.repo;
 			IArtifactRequest[] applicable = getRequestsForRepository(current, requests);
 			IStatus dlStatus = current.getArtifacts(applicable, subMonitor.newChild(requests.length));
 			multiStatus.add(dlStatus);
-			if (dlStatus.getSeverity() == IStatus.CANCEL)
+			if (dlStatus.getSeverity() == IStatus.CANCEL) {
 				return multiStatus;
+			}
 			requests = filterUnfetched(requests);
 			subMonitor.setWorkRemaining(requests.length);
 
-			if (subMonitor.isCanceled())
+			if (subMonitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
+			}
 		}
 		return multiStatus;
 	}
@@ -373,20 +385,23 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 					return Status.OK_STATUS;
 				}
 				// Download failed
-				if (status.getCode() == CODE_RETRY || status.getCode() == IStatus.CANCEL)
+				if (status.getCode() == CODE_RETRY || status.getCode() == IStatus.CANCEL) {
 					// Child has mirrors & wants to be retried, or we were canceled
 					return status;
+				}
 				// Child has failed us, mark it bad
 				current.setBad(true);
 				// If more children are available, set retry
-				if (childIterator.hasNext())
+				if (childIterator.hasNext()) {
 					return new MultiStatus(Activator.ID, CODE_RETRY, new IStatus[] {status}, NLS.bind(Messages.retryRequest, descriptor.getArtifactKey(), current.repo.getLocation()), null);
+				}
 				// Nothing that can be done, pass child's failure on
 				resetChildFailures();
 				return status;
 			}
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
+			}
 		}
 		return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.artifact_not_found, descriptor));
 	}
@@ -397,8 +412,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	 * on the next artifact.
 	 */
 	private void resetChildFailures() {
-		for (ChildInfo current : loadedRepos)
+		for (ChildInfo current : loadedRepos) {
 			current.setBad(false);
+		}
 	}
 
 	private IArtifactRequest[] filterUnfetched(IArtifactRequest[] requests) {
@@ -417,8 +433,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	private IArtifactRequest[] getRequestsForRepository(IArtifactRepository repository, IArtifactRequest[] requests) {
 		ArrayList<IArtifactRequest> applicable = new ArrayList<>();
 		for (IArtifactRequest request : requests) {
-			if (repository.contains(request.getArtifactKey()))
+			if (repository.contains(request.getArtifactKey())) {
 				applicable.add(request);
+			}
 		}
 		return applicable.toArray(new IArtifactRequest[applicable.size()]);
 	}
@@ -430,10 +447,12 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	protected void save() {
-		if (disableSave)
+		if (disableSave) {
 			return;
-		if (!isModifiable())
+		}
+		if (!isModifiable()) {
 			return;
+		}
 		boolean compress = "true".equalsIgnoreCase(getProperty(PROP_COMPRESSED)); //$NON-NLS-1$
 		OutputStream os = null;
 		try {
@@ -454,8 +473,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 					artifactsFile.delete();
 				}
 				if (!jarFile.exists()) {
-					if (!jarFile.getParentFile().exists())
+					if (!jarFile.getParentFile().exists()) {
 						jarFile.getParentFile().mkdirs();
+					}
 					jarFile.createNewFile();
 				}
 				os = new JarOutputStream(new FileOutputStream(jarFile));
@@ -572,8 +592,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		// Query all the all the repositories this composite repo contains
 		List<IArtifactRepository> repos = new ArrayList<>();
 		for (ChildInfo info : loadedRepos) {
-			if (info.isGood())
+			if (info.isGood()) {
 				repos.add(info.repo);
+			}
 		}
 		IQueryable<IArtifactKey> queryable = QueryUtil.compoundQueryable(repos);
 		return queryable.query(query, monitor);
@@ -584,8 +605,9 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		// Query all the all the repositories this composite repo contains
 		List<IQueryable<IArtifactDescriptor>> repos = new ArrayList<>();
 		for (ChildInfo info : loadedRepos) {
-			if (info.isGood())
+			if (info.isGood()) {
 				repos.add(info.repo.descriptorQueryable());
+			}
 		}
 		return QueryUtil.compoundQueryable(repos);
 	}
@@ -606,21 +628,24 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 				try {
 					save();
 				} catch (Exception e) {
-					if (result != null)
+					if (result != null) {
 						result = new MultiStatus(Activator.ID, IStatus.ERROR, new IStatus[] {result}, e.getMessage(), e);
-					else
+					} else {
 						result = new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+					}
 				}
 			}
 		}
-		if (result == null)
+		if (result == null) {
 			result = Status.OK_STATUS;
+		}
 		return result;
 	}
 
 	private void removeFromRepoManager(List<URI> currentLoadedRepositories) {
-		if (currentLoadedRepositories == null)
+		if (currentLoadedRepositories == null) {
 			return;
+		}
 		for (URI loadedChild : currentLoadedRepositories) {
 			manager.removeRepository(loadedChild);
 		}

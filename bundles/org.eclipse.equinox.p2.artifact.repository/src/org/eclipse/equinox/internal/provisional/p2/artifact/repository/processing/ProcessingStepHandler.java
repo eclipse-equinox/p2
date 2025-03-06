@@ -54,8 +54,9 @@ public class ProcessingStepHandler {
 		IExtensionPoint point = ofNullable(RegistryFactory.getRegistry())
 			.map(r -> r.getExtensionPoint(PROCESSING_STEPS_EXTENSION_ID))
 			.orElse(null);
-		if (point == null)
+		if (point == null) {
 			return false;
+		}
 
 		List<String> processorIds = stream(descriptor.getProcessingSteps())
 			// ignore steps that are not required
@@ -65,21 +66,24 @@ public class ProcessingStepHandler {
 		try {
 			for (String processorId : processorIds) {
 				IExtension requiredExtension = point.getExtension(processorId);
-				if (requiredExtension == null)
+				if (requiredExtension == null) {
 					return false;
+				}
 
 				List<IConfigurationElement> stepConfigs = stream(requiredExtension.getConfigurationElements())
 					// skip anything but step elements
 					.filter(config -> "step".equals(config.getName())) //$NON-NLS-1$
 					.collect(toList());
-				if (stepConfigs.size() != 1)
+				if (stepConfigs.size() != 1) {
 					// do not tolerate no or multiple step elements
 					return false;
+				}
 
 				IConfigurationElement stepConfig = stepConfigs.get(0);
 				ProcessingStep stepToCheck = (ProcessingStep) stepConfig.createExecutableExtension("class"); //$NON-NLS-1$
-				if (!stepToCheck.isEnabled())
+				if (!stepToCheck.isEnabled()) {
 					return false;
+				}
 			}
 		} catch (InvalidRegistryObjectException e) {
 			// extension is no longer valid, log and ignore
@@ -100,12 +104,14 @@ public class ProcessingStepHandler {
 	 * @return the requested status 
 	 */
 	public static IStatus getStatus(OutputStream stream, boolean deep) {
-		if (!deep)
+		if (!deep) {
 			return getStatus(stream);
+		}
 		ArrayList<IStatus> list = new ArrayList<>();
 		int severity = collectStatus(stream, list);
-		if (severity == IStatus.OK)
+		if (severity == IStatus.OK) {
 			return Status.OK_STATUS;
+		}
 		IStatus[] result = list.toArray(new IStatus[list.size()]);
 		return new MultiStatus(Activator.ID, severity, result, Messages.processing_step_results, null);
 	}
@@ -118,23 +124,27 @@ public class ProcessingStepHandler {
 	public static IStatus getErrorStatus(OutputStream stream) {
 		ArrayList<IStatus> list = new ArrayList<>();
 		int severity = collectErrorStatus(stream, list);
-		if (severity == IStatus.OK)
+		if (severity == IStatus.OK) {
 			return Status.OK_STATUS;
+		}
 		IStatus[] result = list.toArray(new IStatus[list.size()]);
 		return new MultiStatus(Activator.ID, 0, result, Messages.processing_step_results, null);
 	}
 
 	private static int collectErrorStatus(OutputStream stream, ArrayList<IStatus> list) {
 		IStatus status = getStatus(stream);
-		if (!status.isOK())
+		if (!status.isOK()) {
 			list.add(status);
-		if (status.matches(IStatus.ERROR))
+		}
+		if (status.matches(IStatus.ERROR)) {
 			// Errors past this should be bogus as they rely on output from this step
 			return status.getSeverity();
+		}
 
 		OutputStream destination = getDestination(stream);
-		if (destination == null || !(destination instanceof IStateful))
+		if (destination == null || !(destination instanceof IStateful)) {
 			return status.getSeverity();
+		}
 		int result = collectErrorStatus(destination, list);
 		// TODO greater than test here is a little brittle but it is very unlikely that we will add
 		// a new status severity.
@@ -142,8 +152,9 @@ public class ProcessingStepHandler {
 	}
 
 	public static IStatus getStatus(OutputStream stream) {
-		if (stream instanceof IStateful)
+		if (stream instanceof IStateful) {
 			return ((IStateful) stream).getStatus();
+		}
 		return Status.OK_STATUS;
 	}
 
@@ -151,8 +162,9 @@ public class ProcessingStepHandler {
 		IStatus status = getStatus(stream);
 		list.add(status);
 		OutputStream destination = getDestination(stream);
-		if (destination == null || !(destination instanceof IStateful))
+		if (destination == null || !(destination instanceof IStateful)) {
 			return status.getSeverity();
+		}
 		int result = collectStatus(destination, list);
 		// TODO greater than test here is a little brittle but it is very unlikely that we will add
 		// a new status severity.
@@ -160,17 +172,20 @@ public class ProcessingStepHandler {
 	}
 
 	private static OutputStream getDestination(OutputStream stream) {
-		if (stream instanceof ProcessingStep)
+		if (stream instanceof ProcessingStep) {
 			return ((ProcessingStep) stream).getDestination();
-		if (stream instanceof ArtifactOutputStream)
+		}
+		if (stream instanceof ArtifactOutputStream) {
 			return ((ArtifactOutputStream) stream).getDestination();
+		}
 		return null;
 	}
 
 	public ProcessingStep[] create(IProvisioningAgent agent, IProcessingStepDescriptor[] descriptors, IArtifactDescriptor context) {
 		ProcessingStep[] result = new ProcessingStep[descriptors.length];
-		for (int i = 0; i < descriptors.length; i++)
+		for (int i = 0; i < descriptors.length; i++) {
 			result[i] = create(agent, descriptors[i], context);
+		}
 		return result;
 	}
 
@@ -188,8 +203,9 @@ public class ProcessingStepHandler {
 			} catch (Exception e) {
 				error = e;
 			}
-		} else
+		} else {
 			error = new ProcessingStepHandlerException(NLS.bind(Messages.cannot_get_extension, PROCESSING_STEPS_EXTENSION_ID, descriptor.getProcessorId()));
+		}
 
 		int severity = descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
 		ProcessingStep result = new EmptyProcessingStep();
@@ -198,8 +214,9 @@ public class ProcessingStepHandler {
 	}
 
 	public OutputStream createAndLink(IProvisioningAgent agent, IProcessingStepDescriptor[] descriptors, IArtifactDescriptor context, OutputStream output, IProgressMonitor monitor) {
-		if (descriptors == null)
+		if (descriptors == null) {
 			return output;
+		}
 		ProcessingStep[] steps = create(agent, descriptors, context);
 		return link(steps, output, monitor);
 	}
@@ -211,12 +228,14 @@ public class ProcessingStepHandler {
 			step.link(previous, monitor);
 			previous = step;
 		}
-		if (steps.length == 0)
+		if (steps.length == 0) {
 			return previous;
+		}
 		// now link the artifact stream to the first stream in the new chain 
 		ArtifactOutputStream lastLink = getArtifactStream(previous);
-		if (lastLink != null)
+		if (lastLink != null) {
 			lastLink.setFirstLink(previous);
+		}
 		return previous;
 	}
 
@@ -224,10 +243,12 @@ public class ProcessingStepHandler {
 	// the artifact repository or null if one cannot be found.
 	private ArtifactOutputStream getArtifactStream(OutputStream stream) {
 		OutputStream current = stream;
-		while (current instanceof ProcessingStep)
+		while (current instanceof ProcessingStep) {
 			current = ((ProcessingStep) current).getDestination();
-		if (current instanceof ArtifactOutputStream)
+		}
+		if (current instanceof ArtifactOutputStream) {
 			return (ArtifactOutputStream) current;
+		}
 		return null;
 	}
 
