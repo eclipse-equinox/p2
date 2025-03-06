@@ -31,8 +31,9 @@ public class RootIUResultFilterAdvice extends AbstractAdvice implements IRootIUA
 	@Override
 	public Collection<IInstallableUnit> getChildren(IPublisherResult result) {
 		Collection<IInstallableUnit> value = result.getIUs(null, IPublisherResult.ROOT);
-		if (query == null)
+		if (query == null) {
 			return value;
+		}
 		return Arrays.asList(query.perform(value.iterator()).toArray(IInstallableUnit.class));
 	}
 }

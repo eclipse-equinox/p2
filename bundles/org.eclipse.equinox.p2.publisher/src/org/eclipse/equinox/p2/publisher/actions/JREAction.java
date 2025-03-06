@@ -72,11 +72,13 @@ public class JREAction extends AbstractPublisherAction {
 		resultStatus = new MultiStatus(Activator.ID, 0, problemMessage, null);
 		this.info = publisherInfo;
 		IArtifactDescriptor artifact = createJREData(results);
-		if (artifact != null)
+		if (artifact != null) {
 			publishArtifact(artifact, new File[] {jreLocation}, null, publisherInfo, createRootPrefixComputer(jreLocation));
+		}
 
-		if (resultStatus.isOK())
+		if (resultStatus.isOK()) {
 			return Status.OK_STATUS;
+		}
 		return resultStatus;
 	}
 
@@ -134,8 +136,9 @@ public class JREAction extends AbstractPublisherAction {
 	}
 
 	private List<IProvidedCapability> generateJRECapability(String id, Version version) {
-		if (profileProperties == null)
+		if (profileProperties == null) {
 			return Collections.emptyList();
+		}
 
 		List<IProvidedCapability> result = new ArrayList<>();
 		result.add(PublisherHelper.createSelfCapability(id, version));
@@ -170,8 +173,9 @@ public class JREAction extends AbstractPublisherAction {
 		parseSystemCapabilities(systemCapabilities, parsingStatus, result);
 
 		// result contains the valid entries, parsingStatus the invalid entries
-		if (!parsingStatus.isOK())
+		if (!parsingStatus.isOK()) {
 			resultStatus.add(parsingStatus);
+		}
 	}
 
 	static void parseSystemCapabilities(String systemCapabilities, MultiStatus parsingStatus, List<IProvidedCapability> parsingResult) {
@@ -256,14 +260,16 @@ public class JREAction extends AbstractPublisherAction {
 		iu.setVersion(DEFAULT_JRE_VERSION);
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		initialize();
-		if (profileProperties == null || profileProperties.size() == 0)
+		if (profileProperties == null || profileProperties.size() == 0) {
 			return iu;
+		}
 
 		String profileLocation = profileProperties.get(PROFILE_LOCATION);
 
 		String profileName = profileLocation != null ? IPath.fromOSString(profileLocation).lastSegment() : profileProperties.get(PROFILE_NAME);
-		if (profileName.endsWith(".profile")) //$NON-NLS-1$
+		if (profileName.endsWith(".profile")) { //$NON-NLS-1$
 			profileName = profileName.substring(0, profileName.length() - 8);
+		}
 		Version version = null;
 		int idx = profileName.indexOf('-');
 		if (idx != -1) {
@@ -283,8 +289,9 @@ public class JREAction extends AbstractPublisherAction {
 			}
 		}
 
-		if (version == null)
+		if (version == null) {
 			version = DEFAULT_JRE_VERSION;
+		}
 
 		iu.setVersion(version);
 
@@ -324,11 +331,12 @@ public class JREAction extends AbstractPublisherAction {
 				if (profiles != null && profiles.length > 0) {
 					javaProfile = profiles[0];
 				}
-			} else if (jreLocation.isFile())
+			} else if (jreLocation.isFile()) {
 				javaProfile = jreLocation;
-			else
+			} else {
 				// jreLocation file does not exist
 				throw new IllegalArgumentException(NLS.bind(Messages.exception_nonExistingJreLocationFile, jreLocation.getAbsolutePath()));
+			}
 
 			profileProperties = loadProfile(javaProfile);
 		}
@@ -462,12 +470,14 @@ public class JREAction extends AbstractPublisherAction {
 	}
 
 	private Map<String, String> loadProfile(File profileFile) {
-		if (profileFile == null || !profileFile.exists())
+		if (profileFile == null || !profileFile.exists()) {
 			return null;
+		}
 		try (InputStream stream = new FileInputStream(profileFile);) {
 			Map<String, String> properties = CollectionUtils.loadProperties(stream);
-			if (properties != null)
+			if (properties != null) {
 				properties.put(PROFILE_LOCATION, profileFile.getAbsolutePath());
+			}
 			return properties;
 		} catch (IOException e) {
 			return null;

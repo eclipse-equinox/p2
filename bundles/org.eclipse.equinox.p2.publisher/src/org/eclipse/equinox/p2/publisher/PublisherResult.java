@@ -35,29 +35,34 @@ public class PublisherResult extends IndexProvider<IInstallableUnit> implements 
 
 	@Override
 	public void addIU(IInstallableUnit iu, String type) {
-		if (type == ROOT)
+		if (type == ROOT) {
 			rootIUs.add(iu);
-		if (type == NON_ROOT)
+		}
+		if (type == NON_ROOT) {
 			nonRootIUs.add(iu);
+		}
 	}
 
 	@Override
 	public void addIUs(Collection<IInstallableUnit> ius, String type) {
-		for (IInstallableUnit iu : ius)
+		for (IInstallableUnit iu : ius) {
 			addIU(iu, type);
+		}
 	}
 
 	@Override
 	public IInstallableUnit getIU(String id, Version version, String type) {
 		if (type == null || type == ROOT) {
 			IInstallableUnit result = rootIUs.get(id, version);
-			if (result != null)
+			if (result != null) {
 				return result;
+			}
 		}
 		if (type == null || type == NON_ROOT) {
 			IInstallableUnit result = nonRootIUs.get(id, version);
-			if (result != null)
+			if (result != null) {
 				return result;
+			}
 		}
 		return null;
 	}
@@ -69,13 +74,15 @@ public class PublisherResult extends IndexProvider<IInstallableUnit> implements 
 	public IInstallableUnit getIU(String id, String type) {
 		if (type == null || type == ROOT) {
 			IQueryResult<IInstallableUnit> ius = rootIUs.get(id);
-			if (!ius.isEmpty())
+			if (!ius.isEmpty()) {
 				return ius.iterator().next();
+			}
 		}
 		if (type == null || type == NON_ROOT) {
 			IQueryResult<IInstallableUnit> ius = nonRootIUs.get(id);
-			if (!ius.isEmpty())
+			if (!ius.isEmpty()) {
 				return ius.iterator().next();
+			}
 		}
 		return null;
 	}
@@ -92,10 +99,12 @@ public class PublisherResult extends IndexProvider<IInstallableUnit> implements 
 			result.addAll(nonRootIUs.get(id).toUnmodifiableSet());
 			return result;
 		}
-		if (type == ROOT)
+		if (type == ROOT) {
 			return rootIUs.get(id).toUnmodifiableSet();
-		if (type == NON_ROOT)
+		}
+		if (type == NON_ROOT) {
 			return nonRootIUs.get(id).toUnmodifiableSet();
+		}
 		return null;
 	}
 

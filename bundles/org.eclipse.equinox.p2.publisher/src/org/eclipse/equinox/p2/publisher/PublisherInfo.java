@@ -44,9 +44,10 @@ public class PublisherInfo implements IPublisherInfo {
 	public <T extends IPublisherAdvice> Collection<T> getAdvice(String configSpec, boolean includeDefault, String id, Version version, Class<T> type) {
 		ArrayList<T> result = new ArrayList<>();
 		for (IPublisherAdvice advice : adviceList) {
-			if (type.isInstance(advice) && advice.isApplicable(configSpec, includeDefault, id, version))
+			if (type.isInstance(advice) && advice.isApplicable(configSpec, includeDefault, id, version)) {
 				// Ideally, we would use Class.cast here but it was introduced in Java 1.5
 				result.add((T) advice);
+			}
 		}
 		return result;
 	}
