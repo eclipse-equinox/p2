@@ -115,8 +115,9 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 		makeResolveJob(subMon.split(1));
 		if (job != null) {
 			IStatus status = job.runModal(subMon.split(1));
-			if (status.getSeverity() == IStatus.CANCEL)
+			if (status.getSeverity() == IStatus.CANCEL) {
 				return Status.CANCEL_STATUS;
+			}
 		}
 		monitor.done();
 		// For anything other than cancellation, we examine the artifacts of the resolution and come
@@ -146,10 +147,12 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 		SubMonitor mon = SubMonitor.convert(monitor, Messages.ProfileChangeOperation_ResolveTaskName, 1000);
 		prepareToResolve();
 		makeResolveJob(mon.newChild(100));
-		if (mon.isCanceled())
+		if (mon.isCanceled()) {
 			return null;
-		if (job != null)
+		}
+		if (job != null) {
 			job.setAdditionalProgressMonitor(mon.newChild(900));
+		}
 		return job;
 	}
 
@@ -168,9 +171,10 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 			computeProfileChangeRequest(noChangeRequest, monitor);
 		}
 		if (request == null) {
-			if (noChangeRequest.getChildren().length == 0)
+			if (noChangeRequest.getChildren().length == 0) {
 				// No explanation for failure was provided.  It shouldn't happen, but...
 				noChangeRequest = new MultiStatus(Constants.BUNDLE_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, new IStatus[] {PlanAnalyzer.getStatus(IStatusCodes.UNEXPECTED_NOTHING_TO_DO, null)}, Messages.ProfileChangeOperation_NoProfileChangeRequest, null);
+			}
 			return;
 		}
 		createPlannerResolutionJob();
@@ -217,14 +221,16 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 		if (request == null) {
 			if (noChangeRequest != null) {
 				// If there is only one child message, use the specific message
-				if (noChangeRequest.getChildren().length == 1)
+				if (noChangeRequest.getChildren().length == 1) {
 					return noChangeRequest.getChildren()[0];
+				}
 				return noChangeRequest;
 			}
 			return null;
 		}
-		if (job != null && job.getResolutionResult() != null)
+		if (job != null && job.getResolutionResult() != null) {
 			return job.getResolutionResult().getSummaryStatus();
+		}
 		return null;
 	}
 
@@ -236,13 +242,15 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 * operation has not been resolved.
 	 */
 	public String getResolutionDetails() {
-		if (job != null && job.getResolutionResult() != null)
+		if (job != null && job.getResolutionResult() != null) {
 			return job.getResolutionResult().getSummaryReport();
+		}
 		// We couldn't resolve, but we have some status describing
 		// why there is no profile change request.
 		IStatus result = getResolutionResult();
-		if (result != null)
+		if (result != null) {
 			return result.getMessage();
+		}
 		return null;
 
 	}
@@ -257,8 +265,9 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 * there are no specific results available for the installable unit.
 	 */
 	public String getResolutionDetails(IInstallableUnit iu) {
-		if (job != null && job.getResolutionResult() != null)
+		if (job != null && job.getResolutionResult() != null) {
 			return job.getResolutionResult().getDetailedReport(new IInstallableUnit[] {iu});
+		}
 		return null;
 
 	}
@@ -275,8 +284,9 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 * @see #getResolutionResult()
 	 */
 	public IProvisioningPlan getProvisioningPlan() {
-		if (job != null)
+		if (job != null) {
 			return job.getProvisioningPlan();
+		}
 		return null;
 	}
 
@@ -293,8 +303,9 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 * @since 2.1
 	 */
 	public IProfileChangeRequest getProfileChangeRequest() {
-		if (job != null)
+		if (job != null) {
 			return job.getProfileChangeRequest();
+		}
 		return null;
 	}
 
@@ -321,8 +332,9 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	public ProvisioningJob getProvisioningJob(IProgressMonitor monitor) {
 		IStatus status = getResolutionResult();
 		//if status is null we haven't resolved yet, so we must return null here
-		if (status == null)
+		if (status == null) {
 			return null;
+		}
 		if (status.getSeverity() != IStatus.CANCEL && status.getSeverity() != IStatus.ERROR) {
 			if (job.getProvisioningPlan() != null) {
 				ProfileModificationJob pJob = new ProfileModificationJob(getProvisioningJobName(), session, profileId, job.getProvisioningPlan(), job.getActualProvisioningContext());
@@ -342,8 +354,9 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 */
 	public void setProvisioningContext(ProvisioningContext context) {
 		this.context = context;
-		if (job != null)
+		if (job != null) {
 			updateJobProvisioningContexts(job, context);
+		}
 	}
 
 	/**

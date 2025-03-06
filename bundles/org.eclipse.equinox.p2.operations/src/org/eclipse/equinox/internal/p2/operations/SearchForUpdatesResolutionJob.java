@@ -39,15 +39,17 @@ public class SearchForUpdatesResolutionJob extends PlannerResolutionJob {
 		SubMonitor sub = SubMonitor.convert(monitor);
 		try {
 			searchForUpdatesRunnable.run(sub.newChild(500));
-			if (requestHolder.length > 0)
+			if (requestHolder.length > 0) {
 				this.request = requestHolder[0];
+			}
 		} catch (OperationCanceledException e) {
 			return Status.CANCEL_STATUS;
 		} catch (InvocationTargetException e) {
 			// ignore, we don't actually throw this in the supplied runnable
 		}
-		if (request != null)
+		if (request != null) {
 			return super.runModal(sub.newChild(500));
+		}
 		return operation.getResolutionResult();
 	}
 

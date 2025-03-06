@@ -77,8 +77,9 @@ public class InstallOperation extends ProfileChangeOperation {
 		for (IInstallableUnit entryToInstall : toInstall) {
 			// If the user is installing a patch, we mark it optional.  This allows
 			// the patched IU to be updated later by removing the patch.
-			if (QueryUtil.isPatch(entryToInstall))
+			if (QueryUtil.isPatch(entryToInstall)) {
 				request.setInstallableUnitInclusionRules(entryToInstall, ProfileInclusionRules.createOptionalInclusionRule(entryToInstall));
+			}
 
 			// Check to see if it is already installed.  This may alter the request.
 			IQueryResult<IInstallableUnit> alreadyInstalled = profile.query(QueryUtil.createIUQuery(entryToInstall.getId()), null);
@@ -92,8 +93,9 @@ public class InstallOperation extends ProfileChangeOperation {
 				if (compareTo > 0) {
 					boolean lockedForUpdate = false;
 					String value = profile.getInstallableUnitProperty(installedIU, IProfile.PROP_PROFILE_LOCKED_IU);
-					if (value != null)
+					if (value != null) {
 						lockedForUpdate = (Integer.parseInt(value) & IProfile.LOCK_UPDATE) == IProfile.LOCK_UPDATE;
+					}
 					if (lockedForUpdate) {
 						// Add a status telling the user that this implies an update, but the iu should not be updated
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_UPDATE, entryToInstall));
@@ -104,10 +106,10 @@ public class InstallOperation extends ProfileChangeOperation {
 					// An implied downgrade.  We will not put this in the plan, add a status informing the user
 					status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_DOWNGRADE, entryToInstall));
 				} else {
-					if (UserVisibleRootQuery.isUserVisible(installedIU, profile))
+					if (UserVisibleRootQuery.isUserVisible(installedIU, profile)) {
 						// It is already a root, nothing to do. We tell the user it was already installed
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_ALREADY_INSTALLED, entryToInstall));
-					else {
+					} else {
 						// It was already installed but not as a root.  Tell the user that parts of it are already installed and mark
 						// it as a root. 
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_PARTIAL_INSTALL, entryToInstall));
@@ -126,9 +128,10 @@ public class InstallOperation extends ProfileChangeOperation {
 						break;
 					}
 				}
-				if (!handled)
+				if (!handled) {
 					// Install it and mark as a root
 					request.add(entryToInstall);
+				}
 				request.setInstallableUnitProfileProperty(entryToInstall, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			}
 			sub.worked(1);
@@ -142,8 +145,9 @@ public class InstallOperation extends ProfileChangeOperation {
 		// Add a status informing the user that the update has been inferred
 		status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IMPLIED_UPDATE, entryToInstall));
 		// Mark it as a root if it hasn't been already
-		if (!UserVisibleRootQuery.isUserVisible(installedIU, profile))
+		if (!UserVisibleRootQuery.isUserVisible(installedIU, profile)) {
 			request.setInstallableUnitProfileProperty(entryToInstall, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+		}
 	}
 
 	@Override
@@ -169,8 +173,9 @@ public class InstallOperation extends ProfileChangeOperation {
 		return failedPlan -> {
 			// Follow metadata repository references if the first try fails
 			// There should be real API for this!
-			if (missingRequirement(failedPlan))
+			if (missingRequirement(failedPlan)) {
 				context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, Boolean.toString(true));
+			}
 			return context;
 		};
 	}
@@ -179,8 +184,9 @@ public class InstallOperation extends ProfileChangeOperation {
 	boolean missingRequirement(IProvisioningPlan failedPlan) {
 		IStatus status = failedPlan.getStatus();
 		RequestStatus requestStatus = null;
-		if (status instanceof PlannerStatus)
+		if (status instanceof PlannerStatus) {
 			requestStatus = ((PlannerStatus) status).getRequestStatus();
+		}
 		return requestStatus != null && requestStatus.getShortExplanation() == Explanation.MISSING_REQUIREMENT;
 	}
 }

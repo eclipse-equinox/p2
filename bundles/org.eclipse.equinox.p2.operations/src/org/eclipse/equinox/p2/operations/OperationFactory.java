@@ -45,8 +45,9 @@ public class OperationFactory {
 		} catch (InvalidSyntaxException e) {
 			//ignore can't happen since we write the filter ourselves
 		}
-		if (ref == null || ref.size() == 0)
+		if (ref == null || ref.size() == 0) {
 			throw new IllegalStateException(Messages.OperationFactory_noAgent);
+		}
 		IProvisioningAgent agent = bundleContext.getService(ref.iterator().next());
 		bundleContext.ungetService(ref.iterator().next());
 		return agent;
@@ -64,8 +65,9 @@ public class OperationFactory {
 
 			IQuery<IInstallableUnit> installableUnits = QueryUtil.createIUQuery(versionedId.getId(), versionedId.getVersion());
 			IQueryResult<IInstallableUnit> matches = searchContext.query(installableUnits, monitor);
-			if (matches.isEmpty())
+			if (matches.isEmpty()) {
 				throw new ProvisionException(new Status(IStatus.ERROR, Constants.BUNDLE_ID, NLS.bind(Messages.OperationFactory_noIUFound, versionedId)));
+			}
 
 			//Add the first IU
 			Iterator<IInstallableUnit> iuIt = matches.iterator();
@@ -136,10 +138,12 @@ public class OperationFactory {
 	public IQueryResult<IInstallableUnit> listInstalledElements(boolean rootsOnly, IProgressMonitor monitor) {
 		IProfileRegistry registry = getAgent().getService(IProfileRegistry.class);
 		IProfile profile = registry.getProfile(IProfileRegistry.SELF);
-		if (profile == null)
+		if (profile == null) {
 			return new CollectionResult<>(null);
-		if (rootsOnly)
+		}
+		if (rootsOnly) {
 			return profile.query(new UserVisibleRootQuery(), monitor);
+		}
 		return profile.query(QueryUtil.ALL_UNITS, monitor);
 	}
 
@@ -175,10 +179,11 @@ public class OperationFactory {
 		ProvisioningContext ctx = createProvisioningContext(repos, agent);
 
 		Collection<IInstallableUnit> iusToInstall;
-		if (toInstall == null)
+		if (toInstall == null) {
 			iusToInstall = ctx.getMetadata(monitor).query(QueryUtil.createIUGroupQuery(), monitor).toUnmodifiableSet();
-		else
+		} else {
 			iusToInstall = gatherIUs(ctx.getMetadata(monitor), toInstall, false, monitor);
+		}
 
 		SynchronizeOperation resultingOperation = new SynchronizeOperation(new ProvisioningSession(agent), iusToInstall);
 		resultingOperation.setProvisioningContext(ctx);

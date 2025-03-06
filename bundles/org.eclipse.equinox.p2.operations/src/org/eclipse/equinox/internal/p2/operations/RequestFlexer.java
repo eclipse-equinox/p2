@@ -91,45 +91,57 @@ public class RequestFlexer {
 			return null;
 		}
 		IProvisioningPlan intermediaryPlan = resolve(loosenedRequest, sub.newChild(1));
-		if (!intermediaryPlan.getStatus().isOK())
+		if (!intermediaryPlan.getStatus().isOK()) {
 			return null;
-		if (intermediaryPlan.getAdditions().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).isEmpty() && intermediaryPlan.getRemovals().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).isEmpty())
+		}
+		if (intermediaryPlan.getAdditions().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).isEmpty() && intermediaryPlan.getRemovals().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).isEmpty()) {
 			//No changes, we can't return anything
 			return null;
+		}
 		if (!productContainmentOK(intermediaryPlan)) {
 			return null;
 		}
 		IProfileChangeRequest effectiveRequest = computeEffectiveChangeRequest(intermediaryPlan, loosenedRequest, request);
-		if (isRequestUseless(effectiveRequest))
+		if (isRequestUseless(effectiveRequest)) {
 			return null;
+		}
 		return effectiveRequest;
 	}
 
 	private boolean isRequestUseless(IProfileChangeRequest effectiveRequest) {
-		if (effectiveRequest.getAdditions().isEmpty() && effectiveRequest.getRemovals().isEmpty())
+		if (effectiveRequest.getAdditions().isEmpty() && effectiveRequest.getRemovals().isEmpty()) {
 			return true;
-		if (effectiveRequest.getRemovals().containsAll(effectiveRequest.getAdditions()))
+		}
+		if (effectiveRequest.getRemovals().containsAll(effectiveRequest.getAdditions())) {
 			return true;
+		}
 		return false;
 	}
 
 	private boolean canShortCircuit(IProfileChangeRequest originalRequest) {
 		//Case where the user is asking to install only some of the requested IUs but there is only one IU to install. 
-		if (allowPartialInstall && !allowInstalledUpdate && !allowDifferentVersion && !allowInstalledRemoval)
-			if (originalRequest.getAdditions().size() == 1)
+		if (allowPartialInstall && !allowInstalledUpdate && !allowDifferentVersion && !allowInstalledRemoval) {
+			if (originalRequest.getAdditions().size() == 1) {
 				return true;
+			}
+		}
 
 		//When we can find a different version of the IU but the only version available is the one the user is asking to install
-		if (allowDifferentVersion && !allowPartialInstall && !allowInstalledRemoval && !allowInstalledUpdate)
-			if (!foundDifferentVersionsForElementsToInstall)
+		if (allowDifferentVersion && !allowPartialInstall && !allowInstalledRemoval && !allowInstalledUpdate) {
+			if (!foundDifferentVersionsForElementsToInstall) {
 				return true;
+			}
+		}
 
-		if (allowInstalledUpdate && !allowDifferentVersion && !allowPartialInstall && !allowInstalledRemoval)
-			if (!foundDifferentVersionsForElementsInstalled)
+		if (allowInstalledUpdate && !allowDifferentVersion && !allowPartialInstall && !allowInstalledRemoval) {
+			if (!foundDifferentVersionsForElementsInstalled) {
 				return true;
+			}
+		}
 
-		if (!allowPartialInstall && !allowInstalledUpdate && !allowDifferentVersion && !allowInstalledRemoval)
+		if (!allowPartialInstall && !allowInstalledUpdate && !allowDifferentVersion && !allowInstalledRemoval) {
 			return true;
+		}
 
 		return false;
 	}
@@ -158,14 +170,16 @@ public class RequestFlexer {
 			IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery(alreadyInstalled.getMatches());
 			IQueryResult<IInstallableUnit> matches = intermediaryPlan.getFutureState().query(QueryUtil.createLatestQuery(query), null);
 			IInstallableUnit potentialRootChange = null;
-			if (!matches.isEmpty())
+			if (!matches.isEmpty()) {
 				potentialRootChange = matches.iterator().next();
+			}
 
 			IQueryResult<IInstallableUnit> iuAlreadyInstalled = profile.available(query, new NullProgressMonitor());
 
 			if (!iuAlreadyInstalled.isEmpty()) {//This deals with the case where the root has not changed
-				if (potentialRootChange != null && iuAlreadyInstalled.toUnmodifiableSet().contains(potentialRootChange))
+				if (potentialRootChange != null && iuAlreadyInstalled.toUnmodifiableSet().contains(potentialRootChange)) {
 					continue;
+				}
 			}
 			iusToRemove.addAll(iuAlreadyInstalled.toUnmodifiableSet());
 			if (potentialRootChange != null) {
@@ -188,8 +202,9 @@ public class RequestFlexer {
 		//Finish construction of the IPCR
 		finalChangeRequest.addAll(iusToAdd);
 		finalChangeRequest.removeAll(iusToRemove);
-		if (originalRequest.getExtraRequirements() != null)
+		if (originalRequest.getExtraRequirements() != null) {
 			finalChangeRequest.addExtraRequirements(originalRequest.getExtraRequirements());
+		}
 		return finalChangeRequest;
 	}
 
@@ -235,10 +250,11 @@ public class RequestFlexer {
 			return planner.getProvisioningPlan(temporaryRequest, provisioningContext, subMonitor.split(1));
 		} finally {
 			if (provisioningContext != null) {
-				if (explainPropertyBackup == null)
+				if (explainPropertyBackup == null) {
 					provisioningContext.getProperties().remove(EXPLANATION_ENABLEMENT);
-				else
+				} else {
 					provisioningContext.setProperty(EXPLANATION_ENABLEMENT, explainPropertyBackup);
+				}
 			}
 		}
 	}
@@ -267,8 +283,9 @@ public class RequestFlexer {
 		newRequest.removeAll(originalRequest.getRemovals());
 
 		//Deal with extra requirements that could have been specified
-		if (originalRequest.getExtraRequirements() != null)
+		if (originalRequest.getExtraRequirements() != null) {
 			newRequest.addExtraRequirements(originalRequest.getExtraRequirements());
+		}
 	}
 
 	//This keeps track for each requirement created (those created to loosen the constraint), of the original IU and the properties associated with it in the profile
@@ -287,20 +304,23 @@ public class RequestFlexer {
 		}
 
 		Map<String, String> propertiesInRequest = ((ProfileChangeRequest) originalRequest).getInstallableUnitProfilePropertiesToAdd().get(iu);
-		if (propertiesInRequest != null)
+		if (propertiesInRequest != null) {
 			allProperties.putAll(propertiesInRequest);
+		}
 
 		propertiesPerRequirement.put(req, allProperties);
 
 		List<String> removalInRequest = ((ProfileChangeRequest) originalRequest).getInstallableUnitProfilePropertiesToRemove().get(iu);
-		if (removalInRequest != null)
+		if (removalInRequest != null) {
 			removedPropertiesPerRequirement.put(req, removalInRequest);
+		}
 	}
 
 	private boolean isRequestedInstallationOptional(IInstallableUnit iu, IProfileChangeRequest originalRequest) {
 		Map<String, String> match = ((ProfileChangeRequest) originalRequest).getInstallableUnitProfilePropertiesToAdd().get(iu);
-		if (match == null)
+		if (match == null) {
 			return false;
+		}
 		return INCLUSION_OPTIONAL.equals(match.get(INCLUSION_RULES));
 	}
 
@@ -335,8 +355,9 @@ public class RequestFlexer {
 		int count = 0;
 		for (IInstallableUnit iu : findUpdates) {
 			expression.append("(id == $").append(count * 2).append(" && version == $").append(count * 2 + 1).append(')'); //$NON-NLS-1$//$NON-NLS-2$
-			if (findUpdates.size() > 1 && count < findUpdates.size() - 1)
+			if (findUpdates.size() > 1 && count < findUpdates.size() - 1) {
 				expression.append(" || "); //$NON-NLS-1$
+			}
 			expressionParameters[count * 2] = iu.getId();
 			expressionParameters[count * 2 + 1] = iu.getVersion();
 			count++;
@@ -348,8 +369,9 @@ public class RequestFlexer {
 	//Loosen up the IUs that are already part of the profile
 	//Given how we are creating our request, this needs to take into account the removal from the original request as well as the change in inclusion 
 	private IProfileChangeRequest loosenUpInstalledSoftware(IProfileChangeRequest request, IProfileChangeRequest originalRequest, IProgressMonitor monitor) {
-		if (!allowInstalledRemoval && !allowInstalledUpdate)
+		if (!allowInstalledRemoval && !allowInstalledUpdate) {
 			return request;
+		}
 		Set<IInstallableUnit> allRoots = getRoots();
 
 		for (IInstallableUnit existingIU : allRoots) {
@@ -371,8 +393,9 @@ public class RequestFlexer {
 
 	private Set<IInstallableUnit> getRoots() {
 		Set<IInstallableUnit> allRoots = profile.query(new IUProfilePropertyQuery(INCLUSION_RULES, IUProfilePropertyQuery.ANY), null).toSet();
-		if (!honorSharedSettings)
+		if (!honorSharedSettings) {
 			return allRoots;
+		}
 		IQueryResult<IInstallableUnit> baseRoots = profile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.base", Boolean.TRUE.toString()), null); //$NON-NLS-1$
 		allRoots.removeAll(baseRoots.toUnmodifiableSet());
 		return allRoots;
@@ -386,8 +409,9 @@ public class RequestFlexer {
 
 	//Given the change request, this returns the collection of optional IUs 
 	private Set<IInstallableUnit> computeFutureStateOfInclusion(ProfileChangeRequest profileChangeRequest) {
-		if (futureOptionalIUs != null)
+		if (futureOptionalIUs != null) {
 			return futureOptionalIUs;
+		}
 
 		futureOptionalIUs = profileChangeRequest.getProfile().query(new IUProfilePropertyQuery(INCLUSION_RULES, INCLUSION_OPTIONAL), null).toSet();
 
@@ -415,16 +439,20 @@ public class RequestFlexer {
 	}
 
 	private boolean productContainmentOK(IProvisioningPlan intermediaryPlan) {
-		if (!ensureProductPresence)
+		if (!ensureProductPresence) {
 			return true;
-		if (!hasProduct())
+		}
+		if (!hasProduct()) {
 			return true;
+		}
 		//At this point we know we had a product installed and we want to make sure there is one in the resulting solution
-		if (!intermediaryPlan.getFutureState().query(QueryUtil.createIUProductQuery(), new NullProgressMonitor()).isEmpty())
+		if (!intermediaryPlan.getFutureState().query(QueryUtil.createIUProductQuery(), new NullProgressMonitor()).isEmpty()) {
 			return true;
+		}
 		//Support for legacy identification of product using the lineUp.
-		if (!intermediaryPlan.getFutureState().query(QueryUtil.createIUPropertyQuery("lineUp", "true"), new NullProgressMonitor()).isEmpty()) //$NON-NLS-1$//$NON-NLS-2$
+		if (!intermediaryPlan.getFutureState().query(QueryUtil.createIUPropertyQuery("lineUp", "true"), new NullProgressMonitor()).isEmpty()) { //$NON-NLS-1$//$NON-NLS-2$
 			return true;
+		}
 		return false;
 	}
 
@@ -433,8 +461,9 @@ public class RequestFlexer {
 			return true;
 		}
 		//Support for legacy identification of product using the lineUp.
-		if (!profile.available(QueryUtil.createIUPropertyQuery("lineUp", "true"), new NullProgressMonitor()).isEmpty()) //$NON-NLS-1$//$NON-NLS-2$
+		if (!profile.available(QueryUtil.createIUPropertyQuery("lineUp", "true"), new NullProgressMonitor()).isEmpty()) { //$NON-NLS-1$//$NON-NLS-2$
 			return true;
+		}
 		return false;
 	}
 
