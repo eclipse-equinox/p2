@@ -77,16 +77,18 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	 * specified.
 	 */
 	public static String[] getArrayArgsFromString(String list, String separator) {
-		if (list == null || list.trim().equals("")) //$NON-NLS-1$
+		if (list == null || list.trim().equals("")) { //$NON-NLS-1$
 			return new String[0];
+		}
 		List<String> result = new ArrayList<>();
 		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
 			String token = tokens.nextToken().trim();
 			if (!token.equals("")) { //$NON-NLS-1$
-				if ((token.indexOf('[') >= 0 || token.indexOf('(') >= 0) && tokens.hasMoreTokens())
+				if ((token.indexOf('[') >= 0 || token.indexOf('(') >= 0) && tokens.hasMoreTokens()) {
 					result.add(token + separator + tokens.nextToken());
-				else
+				} else {
 					result.add(token);
+				}
 			}
 		}
 		return result.toArray(new String[result.size()]);
@@ -118,8 +120,9 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	}
 
 	public void initializeFromArguments(String[] args) {
-		if (args == null)
+		if (args == null) {
 			return;
+		}
 
 		File comparatorLogLocation = null;
 		File mirrorLogLocation = null;
@@ -136,38 +139,41 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 		for (int i = 0; i < args.length; i++) {
 			// check for args without parameters (i.e., a flag arg)
-			if (args[i].equalsIgnoreCase("-raw")) //$NON-NLS-1$
+			if (args[i].equalsIgnoreCase("-raw")) { //$NON-NLS-1$
 				raw = true;
-			else if (args[i].equalsIgnoreCase("-ignoreErrors")) //$NON-NLS-1$
+			} else if (args[i].equalsIgnoreCase("-ignoreErrors")) { //$NON-NLS-1$
 				failOnError = false;
-			else if (args[i].equalsIgnoreCase("-verbose")) //$NON-NLS-1$
+			} else if (args[i].equalsIgnoreCase("-verbose")) { //$NON-NLS-1$
 				verbose = true;
-			else if (args[i].equalsIgnoreCase("-compare")) //$NON-NLS-1$
+			} else if (args[i].equalsIgnoreCase("-compare")) { //$NON-NLS-1$
 				compare = true;
-			else if (args[i].equalsIgnoreCase("-validate")) //$NON-NLS-1$
+			} else if (args[i].equalsIgnoreCase("-validate")) { //$NON-NLS-1$
 				validate = true;
-			else if (args[i].equalsIgnoreCase("-references")) //$NON-NLS-1$
+			} else if (args[i].equalsIgnoreCase("-references")) { //$NON-NLS-1$
 				mirrorReferences = true;
-			else if (args[i].equalsIgnoreCase("-properties")) //$NON-NLS-1$
+			} else if (args[i].equalsIgnoreCase("-properties")) { //$NON-NLS-1$
 				mirrorProperties = true;
+			}
 
 			// check for args with parameters. If we are at the last argument or
 			// if the next one has a '-' as the first character, then we can't have
 			// an arg with a param so continue.
-			if (i == args.length - 1 || args[i + 1].startsWith("-")) //$NON-NLS-1$
+			if (i == args.length - 1 || args[i + 1].startsWith("-")) { //$NON-NLS-1$
 				continue;
+			}
 
 			String arg = args[++i];
 
-			if (args[i - 1].equalsIgnoreCase("-comparator")) //$NON-NLS-1$
+			if (args[i - 1].equalsIgnoreCase("-comparator")) { //$NON-NLS-1$
 				comparatorID = arg;
-			else if (args[i - 1].equalsIgnoreCase("-comparatorLog")) //$NON-NLS-1$
+			} else if (args[i - 1].equalsIgnoreCase("-comparatorLog")) { //$NON-NLS-1$
 				comparatorLogLocation = new File(arg);
-			else if (args[i - 1].equalsIgnoreCase("-destinationName")) //$NON-NLS-1$
+			} else if (args[i - 1].equalsIgnoreCase("-destinationName")) { //$NON-NLS-1$
 				destination.setName(arg);
-			else if (args[i - 1].equalsIgnoreCase("-writeMode")) { //$NON-NLS-1$
-				if (args[i].equalsIgnoreCase("clean")) //$NON-NLS-1$
+			} else if (args[i - 1].equalsIgnoreCase("-writeMode")) { //$NON-NLS-1$
+				if (args[i].equalsIgnoreCase("clean")) { //$NON-NLS-1$
 					destination.setAppend(false);
+				}
 			} else if (args[i - 1].equalsIgnoreCase("-log")) { //$NON-NLS-1$
 				mirrorLogLocation = new File(arg);
 			} else if (args[i - 1].equalsIgnoreCase("-roots")) { //$NON-NLS-1$
@@ -180,9 +186,9 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 						URI uri = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(arg));
 						sourceRepo.setLocation(uri);
 						destination.setFormat(uri);
-					} else if (args[i - 1].equalsIgnoreCase("-destination")) //$NON-NLS-1$
+					} else if (args[i - 1].equalsIgnoreCase("-destination")) { //$NON-NLS-1$
 						destination.setLocation(RepositoryHelper.localRepoURIHelper(URIUtil.fromString(arg)));
-					else if (args[i - 1].equalsIgnoreCase("-compareAgainst")) { //$NON-NLS-1$
+					} else if (args[i - 1].equalsIgnoreCase("-compareAgainst")) { //$NON-NLS-1$
 						baseline = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(arg));
 						compare = true;
 					}
@@ -193,10 +199,12 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		}
 
 		// Create logs
-		if (mirrorLogLocation != null)
+		if (mirrorLogLocation != null) {
 			mirrorLog = getLog(mirrorLogLocation, "p2.artifact.mirror"); //$NON-NLS-1$
-		if (comparatorLogLocation != null && comparatorID != null)
+		}
+		if (comparatorLogLocation != null && comparatorID != null) {
 			comparatorLog = getLog(comparatorLogLocation, comparatorID);
+		}
 	}
 
 	@Override
@@ -210,17 +218,20 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 			IQueryable<IInstallableUnit> slice = slice(new NullProgressMonitor());
 			if (destinationArtifactRepository != null) {
 				mirrorStatus = mirrorArtifacts(slice, new NullProgressMonitor());
-				if (failOnError && mirrorStatus.getSeverity() == IStatus.ERROR)
+				if (failOnError && mirrorStatus.getSeverity() == IStatus.ERROR) {
 					return mirrorStatus;
+				}
 			}
-			if (destinationMetadataRepository != null)
+			if (destinationMetadataRepository != null) {
 				mirrorMetadata(slice, new NullProgressMonitor());
+			}
 		} finally {
 			finalizeRepositories();
 			finalizeLogs();
 		}
-		if (mirrorStatus.isOK())
+		if (mirrorStatus.isOK()) {
 			return Status.OK_STATUS;
+		}
 		return mirrorStatus;
 	}
 
@@ -229,10 +240,11 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 		IStatus result = mirror.run(failOnError, verbose);
 
-		if (mirrorLog != null)
+		if (mirrorLog != null) {
 			mirrorLog.log(result);
-		else
+		} else {
 			LogHelper.log(result);
+		}
 		return result;
 	}
 
@@ -256,23 +268,27 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 		// If IUs have been specified then only they should be mirrored, otherwise
 		// mirror everything.
-		if (iusSpecified)
+		if (iusSpecified) {
 			mirror.setArtifactKeys(keys.toArray(new IArtifactKey[keys.size()]));
+		}
 
-		if (comparatorLog != null)
+		if (comparatorLog != null) {
 			mirror.setComparatorLog(comparatorLog);
+		}
 		return mirror;
 	}
 
 	private IArtifactRepository initializeBaseline() {
-		if (baseline == null)
+		if (baseline == null) {
 			return null;
+		}
 		try {
 			return (IArtifactRepository) addRepository(getArtifactRepositoryManager(), baseline, 0,
 					artifactReposToRemove, null);
 		} catch (ProvisionException e) {
-			if (mirrorLog != null && e.getStatus() != null)
+			if (mirrorLog != null && e.getStatus() != null) {
 				mirrorLog.log(e.getStatus());
+			}
 			return null;
 		}
 	}
@@ -280,8 +296,9 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	private void mirrorMetadata(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) {
 		IQueryResult<IInstallableUnit> allIUs = slice.query(QueryUtil.createIUAnyQuery(), monitor);
 		destinationMetadataRepository.addInstallableUnits(allIUs.toUnmodifiableSet());
-		if (mirrorReferences)
+		if (mirrorReferences) {
 			destinationMetadataRepository.addReferences(getCompositeMetadataRepository().getReferences());
+		}
 	}
 
 	/*
@@ -291,12 +308,15 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	 * are free to add more if they wish)
 	 */
 	private void validate() throws ProvisionException {
-		if (sourceRepositories.isEmpty())
+		if (sourceRepositories.isEmpty()) {
 			throw new ProvisionException(Messages.MirrorApplication_set_source_repositories);
-		if (!hasArtifactSources() && destinationArtifactRepository != null)
+		}
+		if (!hasArtifactSources() && destinationArtifactRepository != null) {
 			throw new ProvisionException(Messages.MirrorApplication_artifactDestinationNoSource);
-		if (!hasMetadataSources() && destinationMetadataRepository != null)
+		}
+		if (!hasMetadataSources() && destinationMetadataRepository != null) {
 			throw new ProvisionException(Messages.MirrorApplication_metadataDestinationNoSource);
+		}
 	}
 
 	/*
@@ -312,17 +332,20 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 				VersionRange range = segments.length > 1 ? VersionRange.create(segments[1]) : null;
 				Iterator<IInstallableUnit> queryResult = metadataRepo
 						.query(QueryUtil.createIUQuery(segments[0], range), null).iterator();
-				while (queryResult.hasNext())
+				while (queryResult.hasNext()) {
 					sourceIUs.add(queryResult.next());
+				}
 			}
 		} else if (sourceIUs == null || sourceIUs.isEmpty()) {
 			sourceIUs = new ArrayList<>();
 			Iterator<IInstallableUnit> queryResult = metadataRepo.query(QueryUtil.createIUAnyQuery(), null).iterator();
-			while (queryResult.hasNext())
+			while (queryResult.hasNext()) {
 				sourceIUs.add(queryResult.next());
+			}
 			/* old metadata mirroring app did not throw an exception here */
-			if (sourceIUs.isEmpty() && destinationMetadataRepository != null && metadataOrArtifacts == null)
+			if (sourceIUs.isEmpty() && destinationMetadataRepository != null && metadataOrArtifacts == null) {
 				throw new ProvisionException(Messages.MirrorApplication_no_IUs);
+			}
 		}
 	}
 
@@ -330,20 +353,24 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	 * Initialize logs, if applicable
 	 */
 	private void initializeLogs() {
-		if (compare && comparatorLogFile != null)
+		if (compare && comparatorLogFile != null) {
 			comparatorLog = getLog(comparatorLogFile, comparatorID);
-		if (mirrorLog == null && mirrorLogFile != null)
+		}
+		if (mirrorLog == null && mirrorLogFile != null) {
 			mirrorLog = getLog(mirrorLogFile, LOG_ROOT);
+		}
 	}
 
 	/*
 	 * Finalize logs, if applicable
 	 */
 	private void finalizeLogs() {
-		if (comparatorLog != null)
+		if (comparatorLog != null) {
 			comparatorLog.close();
-		if (mirrorLog != null)
+		}
+		if (mirrorLog != null) {
 			mirrorLog.close();
+		}
 	}
 
 	/*
@@ -351,8 +378,9 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	 */
 	private IArtifactMirrorLog getLog(File location, String root) {
 		String absolutePath = location.getAbsolutePath();
-		if (absolutePath.toLowerCase().endsWith(".xml")) //$NON-NLS-1$
+		if (absolutePath.toLowerCase().endsWith(".xml")) { //$NON-NLS-1$
 			return new XMLMirrorLog(absolutePath, 0, root);
+		}
 		return new FileMirrorLog(absolutePath, 0, root);
 	}
 
@@ -377,10 +405,12 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	}
 
 	private IQueryable<IInstallableUnit> slice(IProgressMonitor monitor) throws ProvisionException {
-		if (slicingOptions == null)
+		if (slicingOptions == null) {
 			slicingOptions = new SlicingOptions();
-		if (slicingOptions.getInstallTimeLikeResolution())
+		}
+		if (slicingOptions.getInstallTimeLikeResolution()) {
 			return performResolution(monitor);
+		}
 
 		Slicer slicer = createSlicer(slicingOptions);
 		IQueryable<IInstallableUnit> slice = slicer.slice(sourceIUs, monitor);

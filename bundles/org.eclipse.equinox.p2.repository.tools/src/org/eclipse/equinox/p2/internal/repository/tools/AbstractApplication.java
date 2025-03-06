@@ -74,17 +74,20 @@ public abstract class AbstractApplication {
 				.getServiceReference(IProvisioningAgent.class);
 		if (agentRef != null) {
 			agent = bundleContext.getService(agentRef);
-			if (agent != null)
+			if (agent != null) {
 				return;
+			}
 		}
 		// there is no agent around so we need to create one
 		ServiceReference<IProvisioningAgentProvider> providerRef = bundleContext
 				.getServiceReference(IProvisioningAgentProvider.class);
-		if (providerRef == null)
+		if (providerRef == null) {
 			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+		}
 		IProvisioningAgentProvider provider = bundleContext.getService(providerRef);
-		if (provider == null)
+		if (provider == null) {
 			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+		}
 		// obtain agent for currently running system
 		agent = provider.createAgent(null);
 		bundleContext.ungetService(providerRef);
@@ -229,8 +232,9 @@ public abstract class AbstractApplication {
 					toInit.getName() != null ? toInit.getName()
 							: (source != null ? source.getName() : toInit.getRepoLocation().toString()),
 					repositoryType, source != null ? source.getProperties() : null);
-			if (toInit.isCompressed() && !result.getProperties().containsKey(IRepository.PROP_COMPRESSED))
+			if (toInit.isCompressed() && !result.getProperties().containsKey(IRepository.PROP_COMPRESSED)) {
 				result.setProperty(IRepository.PROP_COMPRESSED, "true"); //$NON-NLS-1$
+			}
 			return RepositoryHelper.validDestinationRepository(result);
 		} catch (UnsupportedOperationException e) {
 			throw new ProvisionException(NLS.bind(Messages.exception_invalidDestination, toInit.getRepoLocation()),
@@ -260,8 +264,9 @@ public abstract class AbstractApplication {
 			compositeMetadataRepository = CompositeMetadataRepository.createMemoryComposite(agent);
 			if (compositeMetadataRepository != null) {
 				for (RepositoryDescriptor repo : sourceRepositories) {
-					if (repo.isMetadata())
+					if (repo.isMetadata()) {
 						compositeMetadataRepository.addChild(repo.getRepoLocation());
+					}
 				}
 			}
 		}
@@ -273,8 +278,9 @@ public abstract class AbstractApplication {
 			compositeArtifactRepository = CompositeArtifactRepository.createMemoryComposite(agent);
 			if (compositeArtifactRepository != null) {
 				for (RepositoryDescriptor repo : sourceRepositories) {
-					if (repo.isArtifact())
+					if (repo.isArtifact()) {
 						compositeArtifactRepository.addChild(repo.getRepoLocation());
+					}
 				}
 			}
 		}

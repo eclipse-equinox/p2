@@ -47,18 +47,22 @@ public class JarComparator implements IArtifactComparator {
 		public boolean equals(Object o) {
 			FeatureEntry otherEntry = (o instanceof FeatureEntryWrapper) ? ((FeatureEntryWrapper) o).getEntry() : null;
 
-			if (otherEntry == null || !entry.equals(otherEntry))
+			if (otherEntry == null || !entry.equals(otherEntry)) {
 				return false;
+			}
 
 			String arch = otherEntry.getArch();
-			if (arch == null ? entry.getArch() != null : !arch.equals(entry.getArch()))
+			if (arch == null ? entry.getArch() != null : !arch.equals(entry.getArch())) {
 				return false;
+			}
 			String os = otherEntry.getOS();
-			if (os == null ? entry.getOS() != null : !os.equals(entry.getOS()))
+			if (os == null ? entry.getOS() != null : !os.equals(entry.getOS())) {
 				return false;
+			}
 			String ws = otherEntry.getWS();
-			if (ws == null ? entry.getWS() != null : !ws.equals(entry.getWS()))
+			if (ws == null ? entry.getWS() != null : !ws.equals(entry.getWS())) {
 				return false;
+			}
 
 			return true;
 		}
@@ -66,12 +70,15 @@ public class JarComparator implements IArtifactComparator {
 		@Override
 		public int hashCode() {
 			int hash = entry.hashCode();
-			if (entry.getArch() != null)
+			if (entry.getArch() != null) {
 				hash += entry.getArch().hashCode();
-			if (entry.getOS() != null)
+			}
+			if (entry.getOS() != null) {
 				hash += entry.getOS().hashCode();
-			if (entry.getWS() != null)
+			}
+			if (entry.getWS() != null) {
 				hash += entry.getWS().hashCode();
+			}
 			return hash;
 		}
 
@@ -117,17 +124,20 @@ public class JarComparator implements IArtifactComparator {
 		try {
 			firstTempFile = getLocalJarFile(source, sourceDescriptor, SOURCE_ARTIFACT_PREFIX);
 			secondTempFile = getLocalJarFile(destination, destinationDescriptor, DESTINATION_ARTIFACT_PREFIX);
-			if (classifier1.equals(OSGI_BUNDLE_CLASSIFIER))
+			if (classifier1.equals(OSGI_BUNDLE_CLASSIFIER)) {
 				return compare(firstTempFile, secondTempFile);
-			else if (classifier1.equals(FEATURE_CLASSIFIER))
+			} else if (classifier1.equals(FEATURE_CLASSIFIER)) {
 				return compareFeatures(firstTempFile, secondTempFile);
+			}
 		} catch (CoreException e) {
 			return e.getStatus();
 		} finally {
-			if (firstTempFile != null)
+			if (firstTempFile != null) {
 				firstTempFile.delete();
-			if (secondTempFile != null)
+			}
+			if (secondTempFile != null) {
 				secondTempFile.delete();
+			}
 		}
 		return Status.OK_STATUS;
 	}
@@ -139,17 +149,20 @@ public class JarComparator implements IArtifactComparator {
 
 		MultiStatus parent = new MultiStatus(PLUGIN_ID, 0, NLS.bind(Messages.differentEntry, new String[] {descriptorString, sourceLocation, destinationLocation}), null);
 
-		if (!feature1.getId().equals(feature2.getId()))
+		if (!feature1.getId().equals(feature2.getId())) {
 			parent.add(newErrorStatus(NLS.bind(Messages.featureIdsDontMatch, feature1.getId(), feature2.getId())));
-		if (!feature1.getVersion().equals(feature2.getVersion()))
+		}
+		if (!feature1.getVersion().equals(feature2.getVersion())) {
 			parent.add(newErrorStatus(NLS.bind(Messages.featureVersionsDontMatch, feature1.getVersion(), feature2.getVersion())));
+		}
 
 		Map<FeatureEntryWrapper, FeatureEntry> entryMap = new HashMap<>();
 		FeatureEntry[] entries1 = feature1.getEntries();
 		FeatureEntry[] entries2 = feature2.getEntries();
 
-		if (entries1.length != entries2.length)
+		if (entries1.length != entries2.length) {
 			parent.add(newErrorStatus(Messages.featureSize));
+		}
 
 		for (FeatureEntry entries11 : entries1) {
 			entryMap.put(new FeatureEntryWrapper(entries11), entries11);
@@ -218,10 +231,11 @@ public class JarComparator implements IArtifactComparator {
 						} else {
 							long size1 = entry.getSize();
 							long size2 = entry2.getSize();
-							if (size1 != size2)
+							if (size1 != size2) {
 								result = newErrorStatus(NLS.bind(Messages.binaryDifferentLength, new String[] {entryName, String.valueOf(Math.abs(size1 - size2))}));
-							else
+							} else {
 								result = compareBytes(entryName, firstStream, entry.getSize(), secondStream, entry2.getSize());
+							}
 						}
 					} finally {
 						Utility.close(firstStream);
@@ -251,13 +265,15 @@ public class JarComparator implements IArtifactComparator {
 		Manifest manifest = new Manifest(firstStream);
 		Manifest manifest2 = new Manifest(secondStream);
 
-		if (manifest == null || manifest2 == null)
+		if (manifest == null || manifest2 == null) {
 			return Status.OK_STATUS;
+		}
 
 		Attributes attributes = manifest.getMainAttributes();
 		Attributes attributes2 = manifest2.getMainAttributes();
-		if (attributes.size() != attributes2.size())
+		if (attributes.size() != attributes2.size()) {
 			return newErrorStatus(NLS.bind(Messages.manifestDifferentSize, String.valueOf(Math.abs(attributes.size() - attributes2.size()))));
+		}
 		for (Entry<Object, Object> entry : attributes.entrySet()) {
 			Object value2 = attributes2.get(entry.getKey());
 			if (value2 == null) {
@@ -316,29 +332,34 @@ public class JarComparator implements IArtifactComparator {
 		try {
 			return compare(firstTempFile, secondTempFile);
 		} finally {
-			if (firstTempFile != null)
+			if (firstTempFile != null) {
 				firstTempFile.delete();
-			if (secondTempFile != null)
+			}
+			if (secondTempFile != null) {
 				secondTempFile.delete();
+			}
 		}
 	}
 
 	private IStatus compareProperties(String entryName, InputStream stream1, InputStream stream2) {
 		Properties props1 = loadProperties(stream1);
 		Properties props2 = loadProperties(stream2);
-		if (props1.size() != props2.size())
+		if (props1.size() != props2.size()) {
 			return newErrorStatus(NLS.bind(Messages.propertiesSizesDifferent, entryName, String.valueOf(Math.abs(props1.size() - props2.size()))));
+		}
 
 		props1.keys();
 		for (Object object : props1.keySet()) {
 			String key = (String) object;
-			if (!props2.containsKey(key))
+			if (!props2.containsKey(key)) {
 				return newErrorStatus(NLS.bind(Messages.missingProperty, key, entryName));
+			}
 			String prop1 = props1.getProperty(key);
 			String prop2 = props2.getProperty(key);
 			if (!prop1.equals(prop2)) {
-				if (prop1.length() < 15 && prop2.length() < 15)
+				if (prop1.length() < 15 && prop2.length() < 15) {
 					return newErrorStatus(NLS.bind(Messages.differentPropertyValueFull, new String[] {entryName, key, prop1, prop2}));
+				}
 				// strings are too long, report the first bit that is different
 				String[] diff = extractDifference(prop1, prop2);
 				return newErrorStatus(NLS.bind(Messages.differentPropertyValueFull, new String[] {entryName, key, diff[0], diff[1]}));
@@ -378,8 +399,9 @@ public class JarComparator implements IArtifactComparator {
 	private IStatus compareBytes(String entryName, InputStream firstStream, long size1, InputStream secondStream, long size2) throws IOException {
 		byte[] firstBytes = Utility.getInputStreamAsByteArray(firstStream, (int) size1);
 		byte[] secondBytes = Utility.getInputStreamAsByteArray(secondStream, (int) size2);
-		if (!Arrays.equals(firstBytes, secondBytes))
+		if (!Arrays.equals(firstBytes, secondBytes)) {
 			return newErrorStatus(NLS.bind(Messages.binaryFilesDifferent, entryName));
+		}
 		return Status.OK_STATUS;
 	}
 
@@ -421,8 +443,9 @@ public class JarComparator implements IArtifactComparator {
 			file = File.createTempFile(prefix, SUFFIX_JAR);
 			stream = new BufferedOutputStream(new FileOutputStream(file));
 			IStatus status = repository.getArtifact(descriptor, stream, new NullProgressMonitor());
-			if (!status.isOK())
+			if (!status.isOK()) {
 				throw new CoreException(status);
+			}
 			stream.flush();
 		} catch (FileNotFoundException e) {
 			throw new CoreException(newErrorStatus("FileNotFoundException", e)); //$NON-NLS-1$

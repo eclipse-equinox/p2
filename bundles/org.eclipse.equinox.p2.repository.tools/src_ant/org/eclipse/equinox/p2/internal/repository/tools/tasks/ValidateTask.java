@@ -32,8 +32,9 @@ public class ValidateTask extends AbstractRepositoryTask {
 	@Override
 	public void execute() {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
-		if (manager == null)
+		if (manager == null) {
 			throw new BuildException(Messages.no_artifactRepo_manager);
+		}
 
 		ArtifactRepositoryValidator validator;
 		try {
@@ -48,8 +49,9 @@ public class ValidateTask extends AbstractRepositoryTask {
 			try {
 				artifactRepository = manager.loadRepository(repoLocation, null);
 				IStatus result = validator.validateRepository(artifactRepository);
-				if (!result.isOK())
+				if (!result.isOK()) {
 					throw new BuildException(result.getMessage());
+				}
 			} catch (ProvisionException e) {
 				throw new BuildException(Messages.exception_loadingRepository, e);
 			}

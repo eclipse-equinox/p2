@@ -575,25 +575,29 @@ public final class Signature {
 	public static char[][] getTypeParameters(char[] methodOrTypeSignature) throws IllegalArgumentException {
 		try {
 			int length = methodOrTypeSignature.length;
-			if (length == 0)
+			if (length == 0) {
 				return CharOperation.NO_CHAR_CHAR;
-			if (methodOrTypeSignature[0] != C_GENERIC_START)
+			}
+			if (methodOrTypeSignature[0] != C_GENERIC_START) {
 				return CharOperation.NO_CHAR_CHAR;
+			}
 
 			ArrayList<char[]> paramList = new ArrayList<>(1);
 			int paramStart = 1, i = 1; // start after leading '<'
 			while (i < length) {
 				if (methodOrTypeSignature[i] == C_GENERIC_END) {
 					int size = paramList.size();
-					if (size == 0)
+					if (size == 0) {
 						throw new IllegalArgumentException();
+					}
 					char[][] result;
 					paramList.toArray(result = new char[size][]);
 					return result;
 				}
 				i = CharOperation.indexOf(C_COLON, methodOrTypeSignature, i);
-				if (i < 0 || i >= length)
+				if (i < 0 || i >= length) {
 					throw new IllegalArgumentException();
+				}
 				// iterate over bounds
 				while (methodOrTypeSignature[i] == ':') {
 					i++; // skip colon
@@ -1055,8 +1059,9 @@ public final class Signature {
 						buffer.insert(checkpoint, "new "); //$NON-NLS-1$
 						buffer.append("(){}"); //$NON-NLS-1$
 					}
-					if (!inAnonymousType)
+					if (!inAnonymousType) {
 						buffer.append(c);
+					}
 					innerTypeStart = -1;
 			}
 			p++;

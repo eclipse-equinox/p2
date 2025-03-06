@@ -46,8 +46,9 @@ public class ArtifactDescription extends DataType {
 	}
 
 	public void addConfiguredProperty(Parameter property) {
-		if (properties == null)
+		if (properties == null) {
 			properties = new HashMap<>();
+		}
 
 		properties.put(property.getName(), property.getValue());
 	}
@@ -66,9 +67,9 @@ public class ArtifactDescription extends DataType {
 
 	public IQuery<IArtifactKey> createKeyQuery() {
 		VersionRange keyRange = null;
-		if (range != null)
+		if (range != null) {
 			keyRange = VersionRange.create(range);
-		else if (version != null) {
+		} else if (version != null) {
 			Version keyVersion = Version.parseVersion(version);
 			keyRange = new VersionRange(keyVersion, true, keyVersion, true);
 		}
@@ -77,9 +78,9 @@ public class ArtifactDescription extends DataType {
 
 	public IQuery<IArtifactDescriptor> createDescriptorQuery() {
 		VersionRange keyRange = null;
-		if (range != null)
+		if (range != null) {
 			keyRange = VersionRange.create(range);
-		else if (version != null) {
+		} else if (version != null) {
 			Version keyVersion = Version.parseVersion(version);
 			keyRange = new VersionRange(keyVersion, true, keyVersion, true);
 		}

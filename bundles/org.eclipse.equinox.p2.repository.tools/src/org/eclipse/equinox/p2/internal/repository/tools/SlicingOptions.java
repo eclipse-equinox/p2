@@ -60,8 +60,9 @@ public class SlicingOptions {
 	}
 
 	public Map<String, String> getFilter() {
-		if (filter == null)
+		if (filter == null) {
 			filter = new Hashtable<>();
+		}
 		return filter;
 	}
 

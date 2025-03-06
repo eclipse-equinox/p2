@@ -53,26 +53,32 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 			CompositeArtifactRepository artifactRepo = (CompositeArtifactRepository) destinationArtifactRepository;
 
 			if (removeAllChildren) {
-				if (artifactRepo != null)
+				if (artifactRepo != null) {
 					artifactRepo.removeAllChildren();
-				if (metadataRepo != null)
+				}
+				if (metadataRepo != null) {
 					metadataRepo.removeAllChildren();
+				}
 			} else {
 				// Remove children from the Composite Repositories
 				for (RepositoryDescriptor child : childrenToRemove) {
-					if (child.isArtifact() && artifactRepo != null)
+					if (child.isArtifact() && artifactRepo != null) {
 						artifactRepo.removeChild(child.getOriginalRepoLocation());
-					if (child.isMetadata() && metadataRepo != null)
+					}
+					if (child.isMetadata() && metadataRepo != null) {
 						metadataRepo.removeChild(child.getOriginalRepoLocation());
+					}
 				}
 			}
 
 			// Add children to the Composite Repositories
 			for (RepositoryDescriptor child : childrenToAdd) {
-				if (child.isArtifact() && artifactRepo != null)
+				if (child.isArtifact() && artifactRepo != null) {
 					artifactRepo.addChild(child.getOriginalRepoLocation());
-				if (child.isMetadata() && metadataRepo != null)
+				}
+				if (child.isMetadata() && metadataRepo != null) {
 					metadataRepo.addChild(child.getOriginalRepoLocation());
+				}
 			}
 
 			if (comparatorID != null) {
@@ -131,9 +137,10 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 		} catch (ProvisionException e) {
 			// re-throw the exception if we got anything other than "repo not found"
 			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND) {
-				if (e.getCause() instanceof MalformedURLException)
+				if (e.getCause() instanceof MalformedURLException) {
 					throw new ProvisionException(
 							NLS.bind(Messages.exception_invalidDestination, toInit.getRepoLocation()), e.getCause());
+				}
 				throw e;
 			}
 		}
@@ -181,8 +188,9 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 	 */
 	private void initRepository(IRepository<?> repository, RepositoryDescriptor desc) {
 		RepositoryHelper.validDestinationRepository(repository);
-		if (desc.isCompressed() && !repository.getProperties().containsKey(IRepository.PROP_COMPRESSED))
+		if (desc.isCompressed() && !repository.getProperties().containsKey(IRepository.PROP_COMPRESSED)) {
 			repository.setProperty(IRepository.PROP_COMPRESSED, String.valueOf(true));
+		}
 
 		setAtomicLoadingProperty(repository, desc);
 	}
@@ -190,8 +198,9 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 	private void setAtomicLoadingProperty(IRepository<?> repository, RepositoryDescriptor desc) {
 		// bug 356561: newly created repositories shall be atomic (by default)
 		boolean atomic = true;
-		if (desc.getAtomic() != null)
+		if (desc.getAtomic() != null) {
 			atomic = Boolean.valueOf(desc.getAtomic());
+		}
 		repository.setProperty(CompositeMetadataRepository.PROP_ATOMIC_LOADING, Boolean.toString(atomic));
 	}
 

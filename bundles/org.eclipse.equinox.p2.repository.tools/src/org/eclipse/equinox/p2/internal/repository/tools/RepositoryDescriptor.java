@@ -119,10 +119,11 @@ public class RepositoryDescriptor {
 	 * Determine the repository type
 	 */
 	public static int determineKind(String repoKind) {
-		if (kindMatches(repoKind, KIND_METADATA))
+		if (kindMatches(repoKind, KIND_METADATA)) {
 			return IRepository.TYPE_METADATA;
-		else if (kindMatches(repoKind, KIND_ARTIFACT))
+		} else if (kindMatches(repoKind, KIND_ARTIFACT)) {
 			return IRepository.TYPE_ARTIFACT;
+		}
 
 		throw new IllegalArgumentException(NLS.bind(Messages.unknown_repository_type, repoKind));
 	}

@@ -54,12 +54,14 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 	@Override
 	public void execute() throws BuildException {
 		try {
-			if (iuTasks == null || iuTasks.isEmpty())
+			if (iuTasks == null || iuTasks.isEmpty()) {
 				return; //nothing to do
+			}
 
 			application.initializeRepos(null);
-			if (application.getCompositeMetadataRepository() == null)
+			if (application.getCompositeMetadataRepository() == null) {
 				throw new BuildException(Messages.AbstractApplication_no_valid_destinations); //need a repo
+			}
 
 			IMetadataRepository repository = application.getDestinationMetadataRepository();
 			IArtifactRepository artifacts = application.getDestinationArtifactRepository();
@@ -70,9 +72,9 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 
 				IQueryResult<IInstallableUnit> queryResult = repository.query(iuQuery, null);
 
-				if (queryResult.isEmpty())
+				if (queryResult.isEmpty()) {
 					getProject().log(NLS.bind(Messages.AbstractRepositoryTask_unableToFind, iu.toString()));
-				else {
+				} else {
 					for (Iterator<IInstallableUnit> iterator = queryResult.iterator(); iterator.hasNext();) {
 						IInstallableUnit unit = iterator.next();
 						Collection<IArtifactKey> keys = unit.getArtifacts();
@@ -100,8 +102,9 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 								}
 							}
 						}
-						if (removeMetadata)
+						if (removeMetadata) {
 							toRemove.add(unit);
+						}
 					}
 				}
 			}

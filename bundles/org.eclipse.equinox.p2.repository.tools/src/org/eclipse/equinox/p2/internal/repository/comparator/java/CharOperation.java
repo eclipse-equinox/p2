@@ -44,12 +44,14 @@ public final class CharOperation {
 		int length = array.length;
 		int hash = length == 0 ? 31 : array[0];
 		if (length < 8) {
-			for (int i = length; --i > 0;)
+			for (int i = length; --i > 0;) {
 				hash = (hash * 31) + array[i];
+			}
 		} else {
 			// 8 characters is enough to compute a decent hash code, don't waste time examining every character
-			for (int i = length - 1, last = i > 16 ? i - 16 : 0; i > last; i -= 2)
+			for (int i = length - 1, last = i > 16 ? i - 16 : 0; i > last; i -= 2) {
 				hash = (hash * 31) + array[i];
+			}
 		}
 		return hash & 0x7FFFFFFF;
 	}
@@ -83,9 +85,11 @@ public final class CharOperation {
 	 * @throws NullPointerException if array is null
 	 */
 	public static final int lastIndexOf(char toBeFound, char[] array) {
-		for (int i = array.length; --i >= 0;)
-			if (toBeFound == array[i])
+		for (int i = array.length; --i >= 0;) {
+			if (toBeFound == array[i]) {
 				return i;
+			}
+		}
 		return -1;
 	}
 
@@ -121,13 +125,16 @@ public final class CharOperation {
 	 */
 	public static final char[][] splitOn(char divider, char[] array) {
 		int length = array == null ? 0 : array.length;
-		if (length == 0)
+		if (length == 0) {
 			return NO_CHAR_CHAR;
+		}
 
 		int wordCount = 1;
-		for (int i = 0; i < length; i++)
-			if (array[i] == divider)
+		for (int i = 0; i < length; i++) {
+			if (array[i] == divider) {
 				wordCount++;
+			}
+		}
 		char[][] split = new char[wordCount][];
 		int last = 0, currentWord = 0;
 		for (int i = 0; i < length; i++) {
@@ -182,9 +189,11 @@ public final class CharOperation {
 	 * @throws ArrayIndexOutOfBoundsException if  start is lower than 0
 	 */
 	public static final int indexOf(char toBeFound, char[] array, int start) {
-		for (int i = start; i < array.length; i++)
-			if (toBeFound == array[i])
+		for (int i = start; i < array.length; i++) {
+			if (toBeFound == array[i]) {
 				return i;
+			}
+		}
 		return -1;
 	}
 
@@ -217,8 +226,9 @@ public final class CharOperation {
 	 * @return the new array
 	 */
 	public static final char[] concat(char prefix, char[] array, char suffix) {
-		if (array == null)
+		if (array == null) {
 			return new char[] {prefix, suffix};
+		}
 
 		int length = array.length;
 		char[] result = new char[length + 2];
@@ -281,12 +291,15 @@ public final class CharOperation {
 	 * @return the concatenation of the three arrays, or null if the three arrays are null.
 	 */
 	public static final char[] concat(char[] first, char[] second, char[] third) {
-		if (first == null)
+		if (first == null) {
 			return concat(second, third);
-		if (second == null)
+		}
+		if (second == null) {
 			return concat(first, third);
-		if (third == null)
+		}
+		if (third == null) {
 			return concat(first, second);
+		}
 
 		int length1 = first.length;
 		int length2 = second.length;
@@ -331,10 +344,12 @@ public final class CharOperation {
 	 * @return the concatenation of the two arrays, or null if the two arrays are null.
 	 */
 	public static final char[] concat(char[] first, char[] second) {
-		if (first == null)
+		if (first == null) {
 			return second;
-		if (second == null)
+		}
+		if (second == null) {
 			return first;
+		}
 
 		int length1 = first.length;
 		int length2 = second.length;
@@ -375,8 +390,9 @@ public final class CharOperation {
 	public static final void replace(char[] array, char toBeReplaced, char replacementChar) {
 		if (toBeReplaced != replacementChar) {
 			for (int i = 0, max = array.length; i < max; i++) {
-				if (array[i] == toBeReplaced)
+				if (array[i] == toBeReplaced) {
 					array[i] = replacementChar;
+				}
 			}
 		}
 	}
@@ -426,8 +442,9 @@ public final class CharOperation {
 				result[i] = c;
 			}
 		}
-		if (result == null)
+		if (result == null) {
 			return array;
+		}
 		return result;
 	}
 
@@ -495,14 +512,18 @@ public final class CharOperation {
 	 * @throws NullPointerException if the given array is null
 	 */
 	public static final char[] subarray(char[] array, int start, int end) {
-		if (end == -1)
+		if (end == -1) {
 			end = array.length;
-		if (start > end)
+		}
+		if (start > end) {
 			return null;
-		if (start < 0)
+		}
+		if (start < 0) {
 			return null;
-		if (end > array.length)
+		}
+		if (end > array.length) {
 			return null;
+		}
 
 		char[] result = new char[end - start];
 		System.arraycopy(array, start, result, 0, end - start);
@@ -542,14 +563,18 @@ public final class CharOperation {
 	 * @throws NullPointerException if the given array is null
 	 */
 	public static final char[][] subarray(char[][] array, int start, int end) {
-		if (end == -1)
+		if (end == -1) {
 			end = array.length;
-		if (start > end)
+		}
+		if (start > end) {
 			return null;
-		if (start < 0)
+		}
+		if (start < 0) {
 			return null;
-		if (end > array.length)
+		}
+		if (end > array.length) {
 			return null;
+		}
 
 		char[][] result = new char[end - start][];
 		System.arraycopy(array, start, result, 0, end - start);
@@ -582,13 +607,16 @@ public final class CharOperation {
 	 */
 	public static final char[][] splitOn(char divider, char[] array, int start, int end) {
 		int length = array == null ? 0 : array.length;
-		if (length == 0 || start > end)
+		if (length == 0 || start > end) {
 			return NO_CHAR_CHAR;
+		}
 
 		int wordCount = 1;
-		for (int i = start; i < end; i++)
-			if (array[i] == divider)
+		for (int i = start; i < end; i++) {
+			if (array[i] == divider) {
 				wordCount++;
+			}
+		}
 		char[][] split = new char[wordCount][];
 		int last = start, currentWord = 0;
 		for (int i = start; i < end; i++) {

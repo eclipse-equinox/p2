@@ -79,8 +79,9 @@ public class XZCompressor {
 
 				byte[] buffer = new byte[8192];
 				int bytesRead = 0;
-				while ((bytesRead = input.read(buffer)) != -1)
+				while ((bytesRead = input.read(buffer)) != -1) {
 					output.write(buffer, 0, bytesRead);
+				}
 			}
 			filesToDelete.add(extractedFile);
 			return extractedFile;
@@ -108,12 +109,14 @@ public class XZCompressor {
 
 	public void compressRepo() throws IOException {
 		File metadata = getMetadataFile(CONTENT);
-		if (metadata != null)
+		if (metadata != null) {
 			compressFile(metadata, new File(repoFolder, CONTENT_XML_XZ));
+		}
 
 		File artifacts = getMetadataFile(ARTIFACTS2);
-		if (artifacts != null)
+		if (artifacts != null) {
 			compressFile(artifacts, new File(repoFolder, ARTIFACTS_XML_XZ));
+		}
 
 		createP2Index(metadata != null, artifacts != null);
 		deleteFiles();
@@ -143,8 +146,9 @@ public class XZCompressor {
 
 			byte[] buf = new byte[8192];
 			int size;
-			while ((size = is.read(buf)) != -1)
+			while ((size = is.read(buf)) != -1) {
 				out.write(buf, 0, size);
+			}
 		}
 
 	}
@@ -152,16 +156,18 @@ public class XZCompressor {
 	private void createP2Index(boolean metadata, boolean artifacts) throws IOException {
 		Properties p2Index = new Properties();
 		if (metadata) {
-			if (preserveOriginalFile)
+			if (preserveOriginalFile) {
 				p2Index.setProperty("metadata.repository.factory.order", "content.xml.xz,content.xml,!"); //$NON-NLS-1$//$NON-NLS-2$
-			else
+			} else {
 				p2Index.setProperty("metadata.repository.factory.order", "content.xml.xz,!"); //$NON-NLS-1$//$NON-NLS-2$
+			}
 		}
 		if (artifacts) {
-			if (preserveOriginalFile)
+			if (preserveOriginalFile) {
 				p2Index.setProperty("artifact.repository.factory.order", "artifacts.xml.xz,artifacts.xml,!"); //$NON-NLS-1$//$NON-NLS-2$
-			else
+			} else {
 				p2Index.setProperty("artifact.repository.factory.order", "artifacts.xml.xz,!"); //$NON-NLS-1$//$NON-NLS-2$
+			}
 		}
 		p2Index.setProperty("version", "1"); //$NON-NLS-1$//$NON-NLS-2$
 		try (OutputStream output = new FileOutputStream(new File(repoFolder, "p2.index"));) { //$NON-NLS-1$

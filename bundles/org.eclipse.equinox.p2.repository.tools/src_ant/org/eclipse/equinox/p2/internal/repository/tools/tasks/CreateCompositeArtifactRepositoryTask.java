@@ -45,8 +45,9 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 	public void execute() {
 		validate();
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) AbstractRepositoryTask.getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
-		if (manager == null)
+		if (manager == null) {
 			throw new BuildException("Unable to aquire artifact repository manager service.");
+		}
 
 		// remove the repo first.
 		manager.removeRepository(location);
@@ -57,20 +58,23 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 		try {
 			IArtifactRepository repository = manager.loadRepository(location, null);
 			if (repository instanceof CompositeArtifactRepository) {
-				if (failOnExists)
+				if (failOnExists) {
 					throw new BuildException("Composite repository already exists at location: " + location);
+				}
 				return;
 			}
 			// we have a non-composite repo at this location. that is ok because we can co-exist.
 		} catch (ProvisionException e) {
 			// re-throw the exception if we got anything other than "repo not found"
-			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND) {
 				throw new BuildException("Exception while trying to read repository at: " + location, e);
+			}
 		}
 
 		// set the properties
-		if (compressed)
+		if (compressed) {
 			properties.put(IRepository.PROP_COMPRESSED, Boolean.toString(true));
+		}
 		properties.put(CompositeArtifactRepository.PROP_ATOMIC_LOADING, Boolean.toString(atomic));
 
 		// create the repository
@@ -85,10 +89,12 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 	 * Perform basic sanity checking of some of the parameters.
 	 */
 	private void validate() {
-		if (location == null)
+		if (location == null) {
 			throw new BuildException("Must specify repository location.");
-		if (name == null)
+		}
+		if (name == null) {
 			throw new BuildException("Must specify a repository name.");
+		}
 	}
 
 	/*

@@ -37,8 +37,9 @@ public class CopyrightAnalyzer extends IUAnalyzer {
 				// If there is a copyright, but it starts with %, then check the default
 				// language for a copyright
 				String copyrightProperty = iu.getCopyright().getBody().substring(1);
-				if (iu.getProperty("df_LT." + copyrightProperty) == null)
+				if (iu.getProperty("df_LT." + copyrightProperty) == null) {
 					error(iu, "[ERROR] " + iu.getId() + " has no copyright");
+				}
 			}
 		}
 	}
