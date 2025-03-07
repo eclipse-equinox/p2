@@ -53,11 +53,13 @@ public class Activator implements BundleActivator {
 	 */
 	public static File getConfigurationLocation() {
 		Location configurationLocation = ServiceHelper.getService(getContext(), Location.class, Location.CONFIGURATION_FILTER);
-		if (configurationLocation == null || !configurationLocation.isSet())
+		if (configurationLocation == null || !configurationLocation.isSet()) {
 			return null;
+		}
 		URL url = configurationLocation.getURL();
-		if (url == null)
+		if (url == null) {
 			return null;
+		}
 		return URLUtil.toFile(url);
 	}
 
@@ -68,19 +70,22 @@ public class Activator implements BundleActivator {
 
 	public static IProvisioningAgent getCurrentAgent() {
 		ServiceReference<IProvisioningAgent> reference = bundleContext.getServiceReference(IProvisioningAgent.class);
-		if (reference == null)
+		if (reference == null) {
 			return null;
+		}
 		return bundleContext.getService(reference);
 	}
 
 	public static IFileArtifactRepository getBundlePoolRepository() {
 		IProvisioningAgent agent = getCurrentAgent();
-		if (agent == null)
+		if (agent == null) {
 			return null;
+		}
 
 		IProfile profile = getCurrentProfile();
-		if (profile == null)
+		if (profile == null) {
 			return null;
+		}
 
 		return Util.getAggregatedBundleRepository(agent, profile, Util.AGGREGATE_CACHE | Util.AGGREGATE_SHARED_CACHE);
 	}

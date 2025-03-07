@@ -66,8 +66,9 @@ public class SiteListener extends DirectoryChangeListener {
 	 * Converts a list of file names to a normalized form suitable for comparison.
 	 */
 	private String[] normalize(String[] filenames) {
-		for (int i = 0; i < filenames.length; i++)
+		for (int i = 0; i < filenames.length; i++) {
 			filenames[i] = new File(filenames[i]).toString();
+		}
 		return filenames;
 	}
 
@@ -107,8 +108,9 @@ public class SiteListener extends DirectoryChangeListener {
 		//  here we have to sync with the inner repos as the extension location repos are 
 		// read-only wrappers.
 		DirectoryChangeListener listener = new RepositoryListener(metadataRepository.metadataRepository, artifactRepository.artifactRepository);
-		if (metadataRepository.getProperties().get(SiteListener.SITE_POLICY) != null)
+		if (metadataRepository.getProperties().get(SiteListener.SITE_POLICY) != null) {
 			listener = new SiteListener(metadataRepository.getProperties(), metadataRepository.getLocation().toString(), new BundlePoolFilteredListener(listener));
+		}
 		watcher.addListener(listener);
 		watcher.poll();
 		artifactRepository.state(INITIALIZED);
@@ -124,9 +126,11 @@ public class SiteListener extends DirectoryChangeListener {
 		this.policy = properties.get(SITE_POLICY);
 		Collection<String> listCollection = new HashSet<>();
 		String listString = properties.get(SITE_LIST);
-		if (listString != null)
-			for (StringTokenizer tokenizer = new StringTokenizer(listString, ","); tokenizer.hasMoreTokens();) //$NON-NLS-1$
+		if (listString != null) {
+			for (StringTokenizer tokenizer = new StringTokenizer(listString, ","); tokenizer.hasMoreTokens();) { //$NON-NLS-1$
 				listCollection.add(tokenizer.nextToken());
+			}
+		}
 		this.list = normalize(listCollection.toArray(new String[listCollection.size()]));
 	}
 
@@ -134,19 +138,22 @@ public class SiteListener extends DirectoryChangeListener {
 	public boolean isInterested(File file) {
 		// make sure that our delegate and super-class are both interested in 
 		// the file before we consider it
-		if (!delegate.isInterested(file))
+		if (!delegate.isInterested(file)) {
 			return false;
+		}
 		if (Site.POLICY_MANAGED_ONLY.equals(policy)) {
 			// we only want plug-ins referenced by features
 			return contains(getManagedFiles(), file);
 		} else if (Site.POLICY_USER_EXCLUDE.equals(policy)) {
 			// ensure the file doesn't refer to a plug-in in our list
-			if (contains(list, file))
+			if (contains(list, file)) {
 				return false;
+			}
 		} else if (Site.POLICY_USER_INCLUDE.equals(policy)) {
 			// we are only interested in plug-ins in the list
-			if (!contains(list, file))
+			if (!contains(list, file)) {
 				return false;
+			}
 		} else {
 			// shouldn't happen... unknown policy type
 			return false;
@@ -164,15 +171,18 @@ public class SiteListener extends DirectoryChangeListener {
 	 */
 	private boolean isToBeRemoved(File file) {
 		String[] removed = getToBeRemoved();
-		if (removed.length == 0)
+		if (removed.length == 0) {
 			return false;
+		}
 		Feature feature = getFeature(file);
-		if (feature == null)
+		if (feature == null) {
 			return false;
+		}
 		for (String line : removed) {
 			// the line is a versioned identifier which is id_version
-			if (line.equals(feature.getId() + '_' + feature.getVersion()))
+			if (line.equals(feature.getId() + '_' + feature.getVersion())) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -182,11 +192,13 @@ public class SiteListener extends DirectoryChangeListener {
 	 * Can return null.
 	 */
 	private Feature getFeature(File location) {
-		if (location.isFile())
+		if (location.isFile()) {
 			return null;
+		}
 		File manifest = new File(location, FEATURE_MANIFEST);
-		if (!manifest.exists())
+		if (!manifest.exists()) {
 			return null;
+		}
 		FeatureParser parser = new FeatureParser();
 		return parser.parse(location);
 	}
@@ -197,8 +209,9 @@ public class SiteListener extends DirectoryChangeListener {
 	 * The strings are in the format of versioned identifiers: id_version
 	 */
 	private String[] getToBeRemoved() {
-		if (toBeRemoved != null)
+		if (toBeRemoved != null) {
 			return toBeRemoved;
+		}
 		File configurationLocation = Activator.getConfigurationLocation();
 		if (configurationLocation == null) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to compute the configuration location.")); //$NON-NLS-1$
@@ -219,8 +232,9 @@ public class SiteListener extends DirectoryChangeListener {
 			// TODO
 		}
 		String urlString = siteLocation;
-		if (urlString.endsWith(Constants.EXTENSION_LOCATION))
+		if (urlString.endsWith(Constants.EXTENSION_LOCATION)) {
 			urlString = urlString.substring(0, urlString.length() - Constants.EXTENSION_LOCATION.length());
+		}
 		List<String> result = new ArrayList<>();
 		for (Enumeration<Object> e = properties.elements(); e.hasMoreElements();) {
 			String line = (String) e.nextElement();
@@ -229,8 +243,9 @@ public class SiteListener extends DirectoryChangeListener {
 			try {
 				// the urlString is coming from the site location which is an encoded URI
 				// so we need to encode the targetSite string before we check for equality
-				if (!urlString.equals(URIUtil.fromString(targetSite).toString()))
+				if (!urlString.equals(URIUtil.fromString(targetSite).toString())) {
 					continue;
+				}
 			} catch (URISyntaxException e1) {
 				// shouldn't happen
 				e1.printStackTrace();
@@ -248,8 +263,9 @@ public class SiteListener extends DirectoryChangeListener {
 	 * features.
 	 */
 	private String[] getManagedFiles() {
-		if (managedFiles != null)
+		if (managedFiles != null) {
 			return managedFiles;
+		}
 		List<String> result = new ArrayList<>();
 		File siteFile;
 		try {
@@ -269,8 +285,9 @@ public class SiteListener extends DirectoryChangeListener {
 				// grab the right location from the plug-in cache
 				String key = entry.getId() + '/' + entry.getVersion();
 				File pluginLocation = pluginCache.get(key);
-				if (pluginLocation != null)
+				if (pluginLocation != null) {
 					result.add(pluginLocation.toString());
+				}
 			}
 		}
 		managedFiles = normalize(result.toArray(new String[result.size()]));
@@ -290,8 +307,9 @@ public class SiteListener extends DirectoryChangeListener {
 			if (featureLocation.isDirectory() && featureLocation.getParentFile() != null && featureLocation.getParentFile().getName().equals("features") && new File(featureLocation, "feature.xml").exists()) {//$NON-NLS-1$ //$NON-NLS-2$
 				FeatureParser parser = new FeatureParser();
 				Feature entry = parser.parse(featureLocation);
-				if (entry != null)
+				if (entry != null) {
 					result.put(featureLocation, entry);
+				}
 			}
 		}
 		return result;

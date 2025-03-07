@@ -29,12 +29,14 @@ public class ExtensionLocationMetadataRepositoryFactory extends MetadataReposito
 	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) throws ProvisionException {
 		// TODO proper progress monitoring
 		IStatus status = validate(location, null);
-		if (!status.isOK())
+		if (!status.isOK()) {
 			throw new ProvisionException(status);
+		}
 		URI repoLocation = ExtensionLocationMetadataRepository.getLocalRepositoryLocation(location);
 		// unexpected
-		if (repoLocation == null)
+		if (repoLocation == null) {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
+		}
 		// ensure that we aren't trying to create a repository at a location
 		// where one already exists
 		boolean failed = false;
@@ -63,12 +65,14 @@ public class ExtensionLocationMetadataRepositoryFactory extends MetadataReposito
 
 		// TODO proper progress monitoring
 		IStatus status = validate(location, null);
-		if (!status.isOK())
+		if (!status.isOK()) {
 			throw new ProvisionException(status);
+		}
 		URI repoLocation = ExtensionLocationMetadataRepository.getLocalRepositoryLocation(location);
 		// unexpected
-		if (repoLocation == null)
+		if (repoLocation == null) {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
+		}
 		// TODO proper progress monitoring
 		try {
 			final SimpleMetadataRepositoryFactory simpleFactory = new SimpleMetadataRepositoryFactory();

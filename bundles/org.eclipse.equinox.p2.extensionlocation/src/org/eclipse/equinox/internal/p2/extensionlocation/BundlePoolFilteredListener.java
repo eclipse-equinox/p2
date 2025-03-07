@@ -31,8 +31,9 @@ public class BundlePoolFilteredListener extends DirectoryChangeListener {
 		if (bundlePool != null) {
 			for (IArtifactKey key : bundlePool.query(ArtifactKeyQuery.ALL_KEYS, null)) {
 				File artifactFile = bundlePool.getArtifactFile(key);
-				if (artifactFile != null)
+				if (artifactFile != null) {
 					bundlePoolFiles.add(artifactFile);
+				}
 			}
 		}
 	}
@@ -54,8 +55,9 @@ public class BundlePoolFilteredListener extends DirectoryChangeListener {
 
 	@Override
 	public boolean isInterested(File file) {
-		if (bundlePoolFiles.contains(file))
+		if (bundlePoolFiles.contains(file)) {
 			return false;
+		}
 
 		return delegate.isInterested(file);
 	}
