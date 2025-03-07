@@ -151,8 +151,9 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		IProvisioningPlan plan = getPlanner(getSession().getProvisioningAgent()).getProvisioningPlan(req, context,
 				monitor);
 		monitor.assertUsedUp();
-		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
+		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL) {
 			return plan.getStatus();
+		}
 		FussyProgressMonitor monitor2 = new FussyProgressMonitor();
 		try {
 			return getSession().performProvisioningPlan(plan, PhaseSetFactory.createDefaultPhaseSet(),
@@ -167,8 +168,9 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		iu.setId(id);
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, name);
-		if (isCategory)
+		if (isCategory) {
 			iu.setProperty(InstallableUnitDescription.PROP_TYPE_CATEGORY, Boolean.toString(true));
+		}
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
@@ -178,8 +180,9 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 			public IStatus runModal(IProgressMonitor monitor) {
 				while (true) {
 					// spin unless cancelled
-					if (monitor.isCanceled())
+					if (monitor.isCanceled()) {
 						return Status.CANCEL_STATUS;
+					}
 				}
 			}
 		};

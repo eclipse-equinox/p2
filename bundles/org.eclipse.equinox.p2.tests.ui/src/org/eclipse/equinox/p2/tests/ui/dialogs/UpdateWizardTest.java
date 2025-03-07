@@ -98,8 +98,9 @@ public class UpdateWizardTest extends WizardTest {
 			longOp.cancel();
 		} finally {
 			dialog.getShell().close();
-			if (longOp != null)
+			if (longOp != null) {
 				longOp.cancel();
+			}
 		}
 	}
 

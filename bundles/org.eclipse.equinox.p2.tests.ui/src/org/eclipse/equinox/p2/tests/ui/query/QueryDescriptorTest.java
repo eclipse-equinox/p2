@@ -47,12 +47,15 @@ public class QueryDescriptorTest {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
-			if (obj == null)
+			}
+			if (obj == null) {
 				return false;
-			if (!(obj instanceof WrappedString))
+			}
+			if (!(obj instanceof WrappedString)) {
 				return false;
+			}
 			WrappedString other = (WrappedString) obj;
 			return this.string.equals(other.string);
 		}
@@ -76,8 +79,9 @@ public class QueryDescriptorTest {
 		@Override
 		@Deprecated
 		public boolean isMatch(Object candidate) {
-			if (candidate == "a" || candidate == "b")
+			if (candidate == "a" || candidate == "b") {
 				return true;
+			}
 			return false;
 		}
 	}
@@ -87,8 +91,9 @@ public class QueryDescriptorTest {
 		@Override
 		@Deprecated
 		public boolean isMatch(Object candidate) {
-			if (candidate == "b" || candidate == "c")
+			if (candidate == "b" || candidate == "c") {
 				return true;
+			}
 			return false;
 		}
 	}

@@ -46,14 +46,16 @@ public class RepositoryManipulationPageTest extends AbstractProvisioningUITest {
 
 		@Override
 		protected void okPressed() {
-			if (page.performOk())
+			if (page.performOk()) {
 				super.okPressed();
+			}
 		}
 
 		@Override
 		protected void cancelPressed() {
-			if (page.performCancel())
+			if (page.performCancel()) {
 				super.cancelPressed();
+			}
 		}
 	}
 
