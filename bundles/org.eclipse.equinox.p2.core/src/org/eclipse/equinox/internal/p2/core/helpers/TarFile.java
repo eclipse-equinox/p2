@@ -59,8 +59,9 @@ public class TarFile implements Closeable {
 	@Override
 	public void close() throws IOException {
 		entryEnumerationStream.close();
-		if (internalEntryStream != null)
+		if (internalEntryStream != null) {
 			internalEntryStream.close();
+		}
 	}
 
 	/**

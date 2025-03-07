@@ -40,8 +40,9 @@ public class AgentLocation implements IAgentLocation {
 
 	@Override
 	public String toString() {
-		if (location == null)
+		if (location == null) {
 			return "No location specified"; //$NON-NLS-1$
+		}
 		return location.toString();
 	}
 }

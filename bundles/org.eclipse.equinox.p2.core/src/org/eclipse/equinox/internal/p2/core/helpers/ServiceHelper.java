@@ -26,27 +26,31 @@ public class ServiceHelper {
 	 * @return The requested service
 	 */
 	public static <T> T getService(BundleContext context, Class<T> clazz) {
-		if (context == null)
+		if (context == null) {
 			return null;
+		}
 		ServiceReference<T> reference = context.getServiceReference(clazz);
-		if (reference == null)
+		if (reference == null) {
 			return null;
+		}
 		T result = context.getService(reference);
 		context.ungetService(reference);
 		return result;
 	}
 
 	public static <T> T getService(BundleContext context, Class<T> clazz, String filter) {
-		if (context == null)
+		if (context == null) {
 			return null;
+		}
 		Collection<ServiceReference<T>> references;
 		try {
 			references = context.getServiceReferences(clazz, filter);
 		} catch (InvalidSyntaxException e) {
 			return null;
 		}
-		if (references.isEmpty())
+		if (references.isEmpty()) {
 			return null;
+		}
 		final ServiceReference<T> ref = references.iterator().next();
 		T result = context.getService(ref);
 		context.ungetService(ref);
@@ -61,27 +65,31 @@ public class ServiceHelper {
 	 * @return The requested service
 	 */
 	public static Object getService(BundleContext context, String name) {
-		if (context == null)
+		if (context == null) {
 			return null;
+		}
 		ServiceReference<?> reference = context.getServiceReference(name);
-		if (reference == null)
+		if (reference == null) {
 			return null;
+		}
 		Object result = context.getService(reference);
 		context.ungetService(reference);
 		return result;
 	}
 
 	public static Object getService(BundleContext context, String name, String filter) {
-		if (context == null)
+		if (context == null) {
 			return null;
+		}
 		ServiceReference<?>[] references;
 		try {
 			references = context.getServiceReferences(name, filter);
 		} catch (InvalidSyntaxException e) {
 			return null;
 		}
-		if (references == null || references.length == 0)
+		if (references == null || references.length == 0) {
 			return null;
+		}
 		Object result = context.getService(references[0]);
 		context.ungetService(references[0]);
 		return result;

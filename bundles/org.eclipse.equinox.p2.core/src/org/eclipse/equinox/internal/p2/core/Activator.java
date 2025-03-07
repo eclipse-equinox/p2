@@ -55,8 +55,9 @@ public class Activator implements BundleActivator {
 	 */
 	private static URI adjustTrailingSlash(URI url, boolean trailingSlash) throws URISyntaxException {
 		String file = url.toString();
-		if (trailingSlash == (file.endsWith("/"))) //$NON-NLS-1$
+		if (trailingSlash == (file.endsWith("/"))) { //$NON-NLS-1$
 			return url;
+		}
 		file = trailingSlash ? file + "/" : file.substring(0, file.length() - 1); //$NON-NLS-1$
 		return new URI(file);
 	}
@@ -71,12 +72,14 @@ public class Activator implements BundleActivator {
 	 * @return a URL
 	 */
 	private static URI buildURL(String spec, boolean trailingSlash) {
-		if (spec == null)
+		if (spec == null) {
 			return null;
+		}
 		boolean isFile = spec.startsWith("file:"); //$NON-NLS-1$
 		try {
-			if (isFile)
+			if (isFile) {
 				return adjustTrailingSlash(new File(spec.substring(5)).toURI(), trailingSlash);
+			}
 			//for compatibility only allow non-file URI if it is also a legal URL
 			//when given "c:/foo" we want to treat it as a file rather than a URI with protocol "c"
 			new URL(spec);
@@ -84,8 +87,9 @@ public class Activator implements BundleActivator {
 		} catch (Exception e) {
 			// if we failed and it is a file spec, there is nothing more we can do
 			// otherwise, try to make the spec into a file URL.
-			if (isFile)
+			if (isFile) {
 				return null;
+			}
 			try {
 				return adjustTrailingSlash(new File(spec).toURI(), trailingSlash);
 			} catch (URISyntaxException e1) {
@@ -96,8 +100,9 @@ public class Activator implements BundleActivator {
 
 	private static String substituteVar(String source, String var, String prop) {
 		String value = getProperty(prop);
-		if (value == null)
+		if (value == null) {
 			value = ""; //$NON-NLS-1$
+		}
 		return value + source.substring(var.length());
 	}
 
@@ -113,12 +118,15 @@ public class Activator implements BundleActivator {
 		String location = getProperty(property);
 		// if the instance location is not set, predict where the workspace will be and
 		// put the instance area inside the workspace meta area.
-		if (location == null)
+		if (location == null) {
 			return new AgentLocation(defaultLocation);
-		if (location.equalsIgnoreCase(NONE))
+		}
+		if (location.equalsIgnoreCase(NONE)) {
 			return null;
-		if (location.equalsIgnoreCase(NO_DEFAULT))
+		}
+		if (location.equalsIgnoreCase(NO_DEFAULT)) {
 			return new AgentLocation(null);
+		}
 		if (location.startsWith(VAR_USER_HOME)) {
 			String base = substituteVar(location, VAR_USER_HOME, PROP_USER_HOME);
 			location = IPath.fromOSString(base).toFile().getAbsolutePath();
@@ -144,12 +152,14 @@ public class Activator implements BundleActivator {
 	 */
 	private void registerAgent() {
 		//no need to register an agent if there is no agent location
-		if (agentDataLocation == null)
+		if (agentDataLocation == null) {
 			return;
+		}
 		ServiceReference<IProvisioningAgentProvider> agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.class);
 		IProvisioningAgentProvider provider = null;
-		if (agentProviderRef != null)
+		if (agentProviderRef != null) {
 			provider = context.getService(agentProviderRef);
+		}
 
 		if (provider == null) {
 			// If we don't have a provider, which could happen if the p2.core bundle is
@@ -176,12 +186,14 @@ public class Activator implements BundleActivator {
 		String sharedConfigArea = null;
 		try {
 			sharedConfigArea = context.getProperty(PROP_SHARED_CONFIG_DIR);
-			if (sharedConfigArea == null)
+			if (sharedConfigArea == null) {
 				return null;
+			}
 
 			//Make sure the property has a trai
-			if (!sharedConfigArea.endsWith("/") && !sharedConfigArea.endsWith("\\")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (!sharedConfigArea.endsWith("/") && !sharedConfigArea.endsWith("\\")) { //$NON-NLS-1$ //$NON-NLS-2$
 				sharedConfigArea += "/"; //$NON-NLS-1$
+			}
 			location = URIUtil.fromString(sharedConfigArea + DEFAULT_AGENT_LOCATION + '/');
 		} catch (URISyntaxException e) {
 			final String msg = "Unable to instantiate p2 agent for shared location " + sharedConfigArea; //$NON-NLS-1$
@@ -225,8 +237,9 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext aContext) throws Exception {
 		unregisterAgent();
 		agentDataLocation = null;
-		if (agentLocationRegistration != null)
+		if (agentLocationRegistration != null) {
 			agentLocationRegistration.unregister();
+		}
 		Activator.context = null;
 	}
 

@@ -33,10 +33,11 @@ public class FileUtils {
 					if (entry.getFileType() == TarEntry.DIRECTORY) {
 						outFile.mkdirs();
 					} else {
-						if (outFile.exists())
+						if (outFile.exists()) {
 							outFile.delete();
-						else
+						} else {
 							outFile.getParentFile().mkdirs();
+						}
 						try {
 							copyStream(input, false, new FileOutputStream(outFile), true);
 						} catch (FileNotFoundException e1) {
@@ -185,14 +186,16 @@ public class FileUtils {
 
 	// Delete the given file whether it is a file or a directory
 	public static void deleteAll(File file) {
-		if (!file.exists())
+		if (!file.exists()) {
 			return;
+		}
 		if (file.isDirectory()) {
 			File[] files = file.listFiles();
-			if (files != null)
+			if (files != null) {
 				for (File f : files) {
 					deleteAll(f);
 				}
+			}
 		}
 		file.delete();
 	}
@@ -227,16 +230,19 @@ public class FileUtils {
 
 	public static void copy(File source, File destination, File root, boolean overwrite) throws IOException {
 		File sourceFile = new File(source, root.getPath());
-		if (!sourceFile.exists())
+		if (!sourceFile.exists()) {
 			throw new FileNotFoundException("Source: " + sourceFile + " does not exist"); //$NON-NLS-1$//$NON-NLS-2$
+		}
 
 		File destinationFile = new File(destination, root.getPath());
 
-		if (destinationFile.exists())
-			if (overwrite)
+		if (destinationFile.exists()) {
+			if (overwrite) {
 				deleteAll(destinationFile);
-			else
+			} else {
 				throw new IOException("Destination: " + destinationFile + " already exists"); //$NON-NLS-1$//$NON-NLS-2$
+			}
+		}
 		if (sourceFile.isDirectory()) {
 			destinationFile.mkdirs();
 			File[] list = sourceFile.listFiles();
@@ -291,20 +297,23 @@ public class FileUtils {
 	}
 
 	public static void zip(ZipOutputStream output, File source, Set<File> exclusions, IPathComputer pathComputer, Set<IPath> directoryEntries) throws IOException {
-		if (exclusions.contains(source))
+		if (exclusions.contains(source)) {
 			return;
-		if (source.isDirectory()) //if the file path is a URL then isDir and isFile are both false
+		}
+		if (source.isDirectory()) { //if the file path is a URL then isDir and isFile are both false
 			zipDir(output, source, exclusions, pathComputer, directoryEntries);
-		else
+		} else {
 			zipFile(output, source, pathComputer, directoryEntries);
+		}
 	}
 
 	private static void zipDirectoryEntry(ZipOutputStream output, IPath entry, long time, Set<IPath> directoryEntries) throws IOException {
 		entry = entry.addTrailingSeparator();
 		if (!directoryEntries.contains(entry)) {
 			//make sure parent entries are in the zip
-			if (entry.segmentCount() > 1)
+			if (entry.segmentCount() > 1) {
 				zipDirectoryEntry(output, entry.removeLastSegments(1), time, directoryEntries);
+			}
 
 			try {
 				ZipEntry dirEntry = new ZipEntry(entry.toString());
@@ -343,14 +352,15 @@ public class FileUtils {
 			IPath a = IPath.fromOSString(arg0.getAbsolutePath());
 			IPath b = IPath.fromOSString(arg1.getAbsolutePath());
 			if (a.segmentCount() == b.segmentCount()) {
-				if (arg0.isDirectory() && arg1.isFile())
+				if (arg0.isDirectory() && arg1.isFile()) {
 					return 1;
-				else if (arg0.isDirectory() && arg1.isDirectory())
+				} else if (arg0.isDirectory() && arg1.isDirectory()) {
 					return 0;
-				else if (arg0.isFile() && arg1.isDirectory())
+				} else if (arg0.isFile() && arg1.isDirectory()) {
 					return -1;
-				else
+				} else {
 					return 0;
+				}
 			}
 			return a.segmentCount() - b.segmentCount();
 		});
@@ -368,17 +378,20 @@ public class FileUtils {
 		boolean isManifest = false; //manifest files are special
 		try (InputStream input = new BufferedInputStream(new FileInputStream(source))) {
 			IPath entryPath = pathComputer.computePath(source);
-			if (entryPath.isAbsolute())
+			if (entryPath.isAbsolute()) {
 				throw new IOException(Messages.Util_Absolute_Entry);
-			if (entryPath.segmentCount() == 0)
+			}
+			if (entryPath.segmentCount() == 0) {
 				throw new IOException(Messages.Util_Empty_Zip_Entry);
+			}
 
 			//make sure parent directory entries are in the zip
 			if (entryPath.segmentCount() > 1) {
 				//manifest files should be first, add their directory entry afterwards
 				isManifest = JarFile.MANIFEST_NAME.equals(entryPath.toString());
-				if (!isManifest)
+				if (!isManifest) {
 					zipDirectoryEntry(output, entryPath.removeLastSegments(1), source.lastModified(), directoryEntries);
+				}
 			}
 
 			ZipEntry zipEntry = new ZipEntry(entryPath.toString());

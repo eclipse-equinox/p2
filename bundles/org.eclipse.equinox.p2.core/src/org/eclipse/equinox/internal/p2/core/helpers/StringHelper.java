@@ -26,20 +26,23 @@ public class StringHelper {
 			int splitIdx = spec.indexOf(c);
 			if (splitIdx <= 0) {
 				spec = spec.trim();
-				if (spec.length() > 0)
+				if (spec.length() > 0) {
 					resultArr = new String[] {spec};
+				}
 			} else {
 				List<String> result = new ArrayList<>();
 				while (splitIdx >= 0) {
 					String part = spec.substring(0, splitIdx).trim();
-					if (part.length() > 0)
+					if (part.length() > 0) {
 						result.add(part);
+					}
 					spec = spec.substring(splitIdx + 1);
 					splitIdx = spec.indexOf(c);
 				}
 				spec = spec.trim();
-				if (spec.length() > 0)
+				if (spec.length() > 0) {
 					result.add(spec);
+				}
 				resultArr = result.toArray(new String[result.size()]);
 			}
 		}

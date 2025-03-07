@@ -145,21 +145,25 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 
 	@Override
 	public boolean equals(Object o) {
-		if (o == this)
+		if (o == this) {
 			return true;
+		}
 		if (o instanceof OrderedProperties) {
 			OrderedProperties rhs = (OrderedProperties) o;
-			if (rhs.propertyMap == this.propertyMap)
+			if (rhs.propertyMap == this.propertyMap) {
 				return true;
-			if (rhs.propertyMap == null)
+			}
+			if (rhs.propertyMap == null) {
 				return this.propertyMap.isEmpty();
-			else if (this.propertyMap == null)
+			} else if (this.propertyMap == null) {
 				return rhs.isEmpty();
+			}
 			return rhs.propertyMap.equals(this.propertyMap);
 		}
 		if (this.propertyMap == null) {
-			if (o instanceof Map<?, ?>)
+			if (o instanceof Map<?, ?>) {
 				return ((Map<?, ?>) o).isEmpty();
+			}
 			return false;
 		}
 		return this.propertyMap.equals(o);
