@@ -54,8 +54,9 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 				} else {
 					String id = feature.getId();
 					String version = feature.getVersion();
-					if (id != null && version != null)
+					if (id != null && version != null) {
 						buffer.append("features/" + id + "_" + version + "/,"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$					
+					}
 				}
 			}
 		}
@@ -64,8 +65,9 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 				buffer.append(list1).append(',');
 			}
 		}
-		if (buffer.length() == 0)
+		if (buffer.length() == 0) {
 			return ""; //$NON-NLS-1$
+		}
 
 		return buffer.substring(0, buffer.length() - 1);
 	}
@@ -75,8 +77,9 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	 */
 	public PlatformXmlListener(File file) {
 		super();
-		if (!PLATFORM_XML.equals(file.getName()))
+		if (!PLATFORM_XML.equals(file.getName())) {
 			throw new IllegalArgumentException();
+		}
 		this.root = file;
 	}
 
@@ -128,8 +131,9 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	}
 
 	public Collection<IMetadataRepository> getMetadataRepositories() {
-		if (configRepositories == null)
+		if (configRepositories == null) {
 			return Collections.emptySet();
+		}
 		return configRepositories;
 	}
 
@@ -139,27 +143,32 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	 * be found.
 	 */
 	private IMetadataRepository getMatchingRepo(Collection<IMetadataRepository> repositoryList, String urlString) {
-		if (repositoryList == null)
+		if (repositoryList == null) {
 			return null;
+		}
 		IPath urlPath = IPath.fromOSString(urlString).makeAbsolute();
 		for (IMetadataRepository repo : repositoryList) {
 			File file = URIUtil.toFile(repo.getLocation());
-			if (file == null)
+			if (file == null) {
 				continue;
+			}
 			IPath repoPath = IPath.fromOSString(file.getAbsolutePath());
-			if (repoPath.makeAbsolute().equals(urlPath))
+			if (repoPath.makeAbsolute().equals(urlPath)) {
 				return repo;
+			}
 			// normalize the URLs to be the same
 			if (repo instanceof ExtensionLocationMetadataRepository) {
 				try {
 					File one = ExtensionLocationMetadataRepository.getBaseDirectory(repo.getLocation());
 					File two = ExtensionLocationMetadataRepository.getBaseDirectory(new URI(urlString));
-					if (one.equals(two))
+					if (one.equals(two)) {
 						return repo;
+					}
 				} catch (ProvisionException e) {
 					// Skip the repo if it's not found. Log all other errors.
-					if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+					if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND) {
 						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while comparing repository locations.", e)); //$NON-NLS-1$
+					}
 				} catch (URISyntaxException e) {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while comparing repository locations.", e)); //$NON-NLS-1$
 				}
@@ -249,16 +258,18 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));
 				} catch (ProvisionException e) {
 					// Skip the repo if it's not found. Log all other errors.
-					if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+					if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND) {
 						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));
+					}
 				}
 			} else {
 				newRepos.add(match);
 			}
 		}
 		if (!toBeRemoved.isEmpty()) {
-			for (Site site : toBeRemoved)
+			for (Site site : toBeRemoved) {
 				config.removeSite(site);
+			}
 			try {
 				config.save(root, Activator.getOSGiInstallArea());
 			} catch (ProvisionException e) {
