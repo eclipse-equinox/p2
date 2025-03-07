@@ -23,17 +23,21 @@ import org.osgi.framework.Constants;
  */
 public class MessageHelper {
 	public static String getResolutionFailureMessage(VersionConstraint unsatisfied) {
-		if (unsatisfied.isResolved())
+		if (unsatisfied.isResolved()) {
 			throw new IllegalArgumentException();
+		}
 		if (unsatisfied instanceof ImportPackageSpecification) {
-			if (ImportPackageSpecification.RESOLUTION_OPTIONAL.equals(((ImportPackageSpecification) unsatisfied).getDirective(Constants.RESOLUTION_DIRECTIVE)))
+			if (ImportPackageSpecification.RESOLUTION_OPTIONAL.equals(((ImportPackageSpecification) unsatisfied).getDirective(Constants.RESOLUTION_DIRECTIVE))) {
 				return NLS.bind(EclipseAdaptorMsg.ECLIPSE_MISSING_OPTIONAL_IMPORTED_PACKAGE, toString(unsatisfied));
-			if (ImportPackageSpecification.RESOLUTION_DYNAMIC.equals(((ImportPackageSpecification) unsatisfied).getDirective(Constants.RESOLUTION_DIRECTIVE)))
+			}
+			if (ImportPackageSpecification.RESOLUTION_DYNAMIC.equals(((ImportPackageSpecification) unsatisfied).getDirective(Constants.RESOLUTION_DIRECTIVE))) {
 				return NLS.bind(EclipseAdaptorMsg.ECLIPSE_MISSING_DYNAMIC_IMPORTED_PACKAGE, toString(unsatisfied));
+			}
 			return NLS.bind(EclipseAdaptorMsg.ECLIPSE_MISSING_IMPORTED_PACKAGE, toString(unsatisfied));
 		} else if (unsatisfied instanceof BundleSpecification) {
-			if (((BundleSpecification) unsatisfied).isOptional())
+			if (((BundleSpecification) unsatisfied).isOptional()) {
 				return NLS.bind(EclipseAdaptorMsg.ECLIPSE_MISSING_OPTIONAL_REQUIRED_BUNDLE, toString(unsatisfied));
+			}
 			return NLS.bind(EclipseAdaptorMsg.ECLIPSE_MISSING_REQUIRED_BUNDLE, toString(unsatisfied));
 		} else if (unsatisfied instanceof HostSpecification) {
 			return NLS.bind(EclipseAdaptorMsg.ECLIPSE_MISSING_HOST, toString(unsatisfied));
@@ -61,8 +65,9 @@ public class MessageHelper {
 
 	private static String toString(VersionConstraint constraint) {
 		org.eclipse.osgi.service.resolver.VersionRange versionRange = constraint.getVersionRange();
-		if (versionRange == null)
+		if (versionRange == null) {
 			return constraint.getName();
+		}
 		return constraint.getName() + '_' + versionRange;
 	}
 
