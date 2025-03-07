@@ -108,9 +108,10 @@ public class CacheManager {
 			// bug 269588 - server may return 0 when file exists, so extra flag is needed
 			try {
 				lastModifiedRemote = transport.getLastModified(location, submonitor.newChild(1));
-				if (lastModifiedRemote <= 0)
+				if (lastModifiedRemote <= 0) {
 					LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
 							"Server returned lastModified <= 0 for " + location)); //$NON-NLS-1$
+				}
 			} catch (AuthenticationFailedException e) {
 				// it is not meaningful to continue - the credentials are for the server
 				// do not pass the exception - it gives no additional meaningful user
@@ -124,12 +125,14 @@ public class CacheManager {
 				// must pass this on
 				throw e;
 			}
-			if (submonitor.isCanceled())
+			if (submonitor.isCanceled()) {
 				throw new OperationCanceledException();
+			}
 			stale = lastModifiedRemote > lastModified || lastModifiedRemote <= 0;
 
-			if (!stale)
+			if (!stale) {
 				return cacheFile;
+			}
 
 			// The cache is stale or missing, so we need to update it from the remote
 			// location
@@ -189,12 +192,14 @@ public class CacheManager {
 			throws FileNotFoundException, IOException, ProvisionException {
 		cacheFile.getParentFile().mkdirs();
 		File downloadDir = new File(cacheFile.getParentFile(), DOWNLOADING);
-		if (!downloadDir.exists())
+		if (!downloadDir.exists()) {
 			downloadDir.mkdir();
+		}
 		File tempFile = new File(downloadDir, cacheFile.getName());
 		// Ensure that the file from a previous download attempt is removed
-		if (tempFile.exists())
+		if (tempFile.exists()) {
 			safeDelete(tempFile);
+		}
 
 		tempFile.createNewFile();
 
@@ -210,24 +215,28 @@ public class CacheManager {
 				result = stream.getStatus();
 			} finally {
 				// If there was any problem fetching the file, delete the temp file
-				if (result == null || !result.isOK())
+				if (result == null || !result.isOK()) {
 					safeDelete(tempFile);
+				}
 			}
 		} catch (FileNotFoundException e) {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
 		}
 
 		if (result != null && result.isOK()) {
-			if (cacheFile.exists())
+			if (cacheFile.exists()) {
 				safeDelete(cacheFile);
-			if (tempFile.renameTo(cacheFile))
+			}
+			if (tempFile.renameTo(cacheFile)) {
 				return;
+			}
 			result = new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CacheManage_ErrorRenamingCache,
 					new Object[] { remoteFile.toString(), tempFile.getAbsolutePath(), cacheFile.getAbsolutePath() }));
 		}
 
-		if (result != null && result.getSeverity() == IStatus.CANCEL || submonitor.isCanceled())
+		if (result != null && result.getSeverity() == IStatus.CANCEL || submonitor.isCanceled()) {
 			throw new OperationCanceledException();
+		}
 		throw new ProvisionException(result);
 	}
 }
