@@ -35,8 +35,9 @@ public class RemoveChildTask extends AbstractMDRTask {
 	@Override
 	public void execute() {
 		IMetadataRepositoryManager manager = getAgent().getService(IMetadataRepositoryManager.class);
-		if (manager == null)
+		if (manager == null) {
 			throw new BuildException("Unable to aquire metadata repository manager service."); //$NON-NLS-1$
+		}
 
 		CompositeMetadataRepository repo;
 		try {
@@ -47,10 +48,11 @@ public class RemoveChildTask extends AbstractMDRTask {
 
 		// remove all the children repositories if requested, otherwise
 		// just remove the specific child
-		if (allChildren)
+		if (allChildren) {
 			repo.removeAllChildren();
-		else
+		} else {
 			repo.removeChild(child);
+		}
 	}
 
 	/*

@@ -89,8 +89,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		SubMonitor sub = SubMonitor.convert(monitor, 100 * state.getChildren().length);
 		List<URI> repositoriesToBeRemovedOnFailure = new ArrayList<>();
 		boolean failOnChildFailure = shouldFailOnChildFailure(state);
-		for (URI child : state.getChildren())
+		for (URI child : state.getChildren()) {
 			addChild(child, false, sub.newChild(100), failOnChildFailure, repositoriesToBeRemovedOnFailure);
+		}
 
 	}
 
@@ -121,15 +122,17 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 
 	@Override
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-		if (monitor == null)
+		if (monitor == null) {
 			monitor = new NullProgressMonitor();
+		}
 		try {
 			// Query all the all the repositories this composite repo contains
 			IQueryable<IInstallableUnit> queryable = QueryUtil.compoundQueryable(loadedRepos);
 			return queryable.query(query, monitor);
 		} finally {
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.done();
+			}
 		}
 	}
 
@@ -154,8 +157,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		}
 		// always add the URI to the list of child URIs (even if we can't load it later)
 		childrenURIs.add(childURI);
-		if (save)
+		if (save) {
 			save();
+		}
 		try {
 			boolean currentLoaded = getManager().contains(absolute);
 			IMetadataRepository currentRepo = getManager().loadRepository(absolute, sub);
@@ -164,8 +168,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 				getManager().setEnabled(absolute, false);
 				//set repository to system to hide from users
 				getManager().setRepositoryProperty(absolute, IRepository.PROP_SYSTEM, String.valueOf(true));
-				if (propagateException)
+				if (propagateException) {
 					repositoriesToBeRemovedOnFailure.add(absolute);
+				}
 			}
 			currentRepo.compress(iuPool); // Share IUs across this CompositeMetadataRepository
 			// we successfully loaded the repo so remember it
@@ -197,8 +202,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		// if the child wasn't there make sure and try the other permutation
 		// (absolute/relative) to see if it really is in the list.
 		URI other = childURI.isAbsolute() ? URIUtil.makeRelative(childURI, getLocation()) : URIUtil.makeAbsolute(childURI, getLocation());
-		if (!removed)
+		if (!removed) {
 			removed = childrenURIs.remove(other);
+		}
 
 		if (removed) {
 			// we removed the child from the list so remove the associated repo object as well
@@ -210,8 +216,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 					break;
 				}
 			}
-			if (found != null)
+			if (found != null) {
 				loadedRepos.remove(found);
+			}
 			save();
 		}
 	}
@@ -274,8 +281,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 
 	// caller should be synchronized
 	private void save() {
-		if (!isModifiable())
+		if (!isModifiable()) {
 			return;
+		}
 		File file = getActualLocation(getLocation());
 		File jarFile = getActualLocation(getLocation(), JAR_EXTENSION);
 		boolean compress = "true".equalsIgnoreCase(getProperty(PROP_COMPRESSED)); //$NON-NLS-1$
@@ -286,8 +294,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 					jarFile.delete();
 				}
 				if (!file.exists()) {
-					if (!file.getParentFile().exists())
+					if (!file.getParentFile().exists()) {
 						file.getParentFile().mkdirs();
+					}
 					file.createNewFile();
 				}
 				output = new FileOutputStream(file);
@@ -296,8 +305,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 					file.delete();
 				}
 				if (!jarFile.exists()) {
-					if (!jarFile.getParentFile().exists())
+					if (!jarFile.getParentFile().exists()) {
 						jarFile.getParentFile().mkdirs();
+					}
 					jarFile.createNewFile();
 				}
 				JarEntry jarEntry = new JarEntry(file.getName());
@@ -314,14 +324,16 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	@Override
 	public List<URI> getChildren() {
 		List<URI> result = new ArrayList<>();
-		for (URI childURI : childrenURIs)
+		for (URI childURI : childrenURIs) {
 			result.add(URIUtil.makeAbsolute(childURI, getLocation()));
+		}
 		return result;
 	}
 
 	public static URI getActualLocationURI(URI base, String extension) {
-		if (extension == null)
+		if (extension == null) {
 			extension = XML_EXTENSION;
+		}
 		return URIUtil.append(base, CompositeMetadataRepositoryFactory.CONTENT_FILENAME + extension);
 	}
 
@@ -368,8 +380,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	}
 
 	private void removeFromRepoManager(List<URI> currentLoadedRepositories) {
-		if (currentLoadedRepositories == null)
+		if (currentLoadedRepositories == null) {
 			return;
+		}
 		for (URI loadedChild : currentLoadedRepositories) {
 			manager.removeRepository(loadedChild);
 		}

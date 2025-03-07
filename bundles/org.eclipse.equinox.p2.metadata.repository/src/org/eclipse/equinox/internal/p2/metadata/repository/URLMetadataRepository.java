@@ -54,8 +54,9 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 	}
 
 	public static URI getActualLocation(URI base, String extension) {
-		if (extension == null)
+		if (extension == null) {
 			extension = XML_EXTENSION;
+		}
 		return URIUtil.append(base, CONTENT_FILENAME + extension);
 	}
 
@@ -115,14 +116,16 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 	@Override
 	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {
 		if (InstallableUnit.MEMBER_ID.equals(memberName)) {
-			if (idIndex == null)
+			if (idIndex == null) {
 				idIndex = new IdIndex(units);
+			}
 			return idIndex;
 		}
 
 		if (InstallableUnit.MEMBER_PROVIDED_CAPABILITIES.equals(memberName)) {
-			if (capabilityIndex == null)
+			if (capabilityIndex == null) {
 				capabilityIndex = new CapabilityIndex(units.iterator());
+			}
 			return capabilityIndex;
 		}
 		return null;
@@ -130,12 +133,14 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 
 	@Override
 	public synchronized Object getManagedProperty(Object client, String memberName, Object key) {
-		if (!(client instanceof IInstallableUnit))
+		if (!(client instanceof IInstallableUnit)) {
 			return null;
+		}
 		IInstallableUnit iu = (IInstallableUnit) client;
 		if (InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(memberName)) {
-			if (translationSupport == null)
+			if (translationSupport == null) {
 				translationSupport = new TranslationSupport(this);
+			}
 			return key instanceof KeyWithLocale ? translationSupport.getIUProperty(iu, (KeyWithLocale) key) : translationSupport.getIUProperty(iu, key.toString());
 		}
 		return null;

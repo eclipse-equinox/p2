@@ -76,8 +76,9 @@ public class MetadataRepositoryIO {
 				}
 				return repositoryParser.getRepository();
 			} finally {
-				if (bufferedInput != null)
+				if (bufferedInput != null) {
 					bufferedInput.close();
+				}
 			}
 		} catch (IOException ioe) {
 			String msg = NLS.bind(Messages.io_failedRead, location);
@@ -151,12 +152,14 @@ public class MetadataRepositoryIO {
 		 * @param size The number of references  to write
 		 */
 		protected void writeRepositoryReferences(Iterator<IRepositoryReference> references, int size) {
-			if (size == 0)
+			if (size == 0) {
 				return;
+			}
 			start(REPOSITORY_REFERENCES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, size);
-			while (references.hasNext())
+			while (references.hasNext()) {
 				writeRepositoryReference(references.next());
+			}
 			end(REPOSITORY_REFERENCES_ELEMENT);
 		}
 
@@ -316,8 +319,9 @@ public class MetadataRepositoryIO {
 					state.Repositories = repositoryReferencesHandler == null ? new IRepositoryReference[0] : repositoryReferencesHandler.getReferences();
 					Object repositoryObject = null;
 					//can't create repository if missing type - this is already logged when parsing attributes
-					if (state.Type == null)
+					if (state.Type == null) {
 						return;
+					}
 					try {
 						Class<?> clazz = Class.forName(state.Type);
 						Constructor<?> ctor = clazz.getConstructor(IProvisioningAgent.class);

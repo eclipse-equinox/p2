@@ -66,10 +66,11 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 			//			return new File(spec + extension);
 			return spec;
 		}
-		if (path.endsWith("/")) //$NON-NLS-1$
+		if (path.endsWith("/")) { //$NON-NLS-1$
 			path += CONTENT_FILENAME;
-		else
+		} else {
 			path += "/" + CONTENT_FILENAME; //$NON-NLS-1$
+		}
 		return new File(path + extension);
 	}
 
@@ -91,16 +92,18 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	 */
 	public LocalMetadataRepository(IProvisioningAgent agent, URI location, String name, Map<String, String> properties) {
 		super(agent, name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
-		if (!location.getScheme().equals("file")) //$NON-NLS-1$
+		if (!location.getScheme().equals("file")) { //$NON-NLS-1$
 			throw new IllegalArgumentException("Invalid local repository location: " + location); //$NON-NLS-1$
+		}
 		//when creating a repository, we must ensure it exists on disk so a subsequent load will succeed
 		save();
 	}
 
 	@Override
 	public synchronized void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
-		if (installableUnits == null || installableUnits.isEmpty())
+		if (installableUnits == null || installableUnits.isEmpty()) {
 			return;
+		}
 		if (snapshotNeeded) {
 			units = units.clone();
 			idIndex = null; // Backed by units
@@ -138,15 +141,17 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {
 		if (InstallableUnit.MEMBER_ID.equals(memberName)) {
 			snapshotNeeded = true;
-			if (idIndex == null)
+			if (idIndex == null) {
 				idIndex = new IdIndex(units);
+			}
 			return idIndex;
 		}
 
 		if (InstallableUnit.MEMBER_PROVIDED_CAPABILITIES.equals(memberName)) {
 			snapshotNeeded = true;
-			if (capabilityIndex == null)
+			if (capabilityIndex == null) {
 				capabilityIndex = new CapabilityIndex(units.iterator());
+			}
 			return capabilityIndex;
 		}
 		return null;
@@ -154,12 +159,14 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 
 	@Override
 	public synchronized Object getManagedProperty(Object client, String memberName, Object key) {
-		if (!(client instanceof IInstallableUnit))
+		if (!(client instanceof IInstallableUnit)) {
 			return null;
+		}
 		IInstallableUnit iu = (IInstallableUnit) client;
 		if (InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(memberName)) {
-			if (translationSupport == null)
+			if (translationSupport == null) {
 				translationSupport = new TranslationSupport(this);
+			}
 			return key instanceof KeyWithLocale ? translationSupport.getIUProperty(iu, (KeyWithLocale) key) : translationSupport.getIUProperty(iu, key.toString());
 		}
 		return null;
@@ -200,8 +207,9 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	}
 
 	private synchronized List<IRepositoryReference> createRepositoriesSnapshot() {
-		if (repositories.isEmpty())
+		if (repositories.isEmpty()) {
 			return Collections.emptyList();
+		}
 		return new ArrayList<>(repositories);
 	}
 
@@ -237,8 +245,9 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 			units = new IUMap();
 			idIndex = null; // Backed by units
 			snapshotNeeded = false;
-		} else
+		} else {
 			units.clear();
+		}
 		capabilityIndex = null; // Generated, not backed by units.
 		save();
 	}
@@ -256,8 +265,9 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 			units.removeAll(installableUnits);
 			capabilityIndex = null; // Generated, not backed by units.
 		}
-		if (changed)
+		if (changed) {
 			save();
+		}
 		return changed;
 	}
 
@@ -268,8 +278,9 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	 * @nooverride This method is not intended to be re-implemented or extended by clients.
 	 */
 	protected void save() {
-		if (disableSave)
+		if (disableSave) {
 			return;
+		}
 		File file = getActualLocation(getLocation());
 		File jarFile = getActualLocation(getLocation(), JAR_EXTENSION);
 		boolean compress = "true".equalsIgnoreCase(getProperty(PROP_COMPRESSED)); //$NON-NLS-1$
@@ -280,8 +291,9 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 					jarFile.delete();
 				}
 				if (!file.exists()) {
-					if (!file.getParentFile().exists())
+					if (!file.getParentFile().exists()) {
 						file.getParentFile().mkdirs();
+					}
 					file.createNewFile();
 				}
 				output = new FileOutputStream(file);
@@ -290,8 +302,9 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 					file.delete();
 				}
 				if (!jarFile.exists()) {
-					if (!jarFile.getParentFile().exists())
+					if (!jarFile.getParentFile().exists()) {
 						jarFile.getParentFile().mkdirs();
+					}
 					jarFile.createNewFile();
 				}
 				JarEntry jarEntry = new JarEntry(file.getName());
@@ -311,8 +324,9 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 			String oldValue = null;
 			synchronized (this) {
 				oldValue = super.setProperty(key, newValue, monitor);
-				if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue)))
+				if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue))) {
 					return oldValue;
+				}
 				save();
 			}
 			IMetadataRepositoryManager manager = getProvisioningAgent()
@@ -320,13 +334,15 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 			if (manager instanceof MetadataRepositoryManager) {
 				// force repository manager to reload this repository because it caches
 				// properties
-				if (manager.removeRepository(getLocation()))
+				if (manager.removeRepository(getLocation())) {
 					((MetadataRepositoryManager) manager).addRepository(this);
+				}
 			}
 			return oldValue;
 		} finally {
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.done();
+			}
 		}
 	}
 
@@ -349,15 +365,17 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 						save();
 					}
 				} catch (Exception e) {
-					if (result != null)
+					if (result != null) {
 						result = new MultiStatus(Constants.ID, IStatus.ERROR, new IStatus[] {result}, e.getMessage(), e);
-					else
+					} else {
 						result = new Status(IStatus.ERROR, Constants.ID, e.getMessage(), e);
+					}
 				}
 			}
 		}
-		if (result == null)
+		if (result == null) {
 			result = Status.OK_STATUS;
+		}
 		return result;
 	}
 

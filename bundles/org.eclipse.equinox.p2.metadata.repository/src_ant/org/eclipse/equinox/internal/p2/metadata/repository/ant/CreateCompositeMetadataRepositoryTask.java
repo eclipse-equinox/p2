@@ -43,8 +43,9 @@ public class CreateCompositeMetadataRepositoryTask extends AbstractMDRTask {
 	@Override
 	public void execute() {
 		IMetadataRepositoryManager manager = getAgent().getService(IMetadataRepositoryManager.class);
-		if (manager == null)
+		if (manager == null) {
 			throw new BuildException("Unable to aquire metadata repository manager service.");
+		}
 
 		// remove the repo first.
 		manager.removeRepository(location);
@@ -55,22 +56,26 @@ public class CreateCompositeMetadataRepositoryTask extends AbstractMDRTask {
 		try {
 			IMetadataRepository repository = manager.loadRepository(location, null);
 			if (repository instanceof CompositeMetadataRepository) {
-				if (failOnExists)
+				if (failOnExists) {
 					throw new BuildException("Composite repository already exists at location: " + location);
+				}
 				return;
 			}
 			// we have a non-composite repo at this location. that is ok because we can co-exist.
 		} catch (ProvisionException e) {
 			// re-throw the exception if we got anything other than "repo not found"
-			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND) {
 				throw new BuildException("Exception while trying to read repository at: " + location, e);
+			}
 		}
 
 		// create the properties
-		if (compressed)
+		if (compressed) {
 			properties.put(IRepository.PROP_COMPRESSED, Boolean.toString(true));
-		if (atomic)
+		}
+		if (atomic) {
 			properties.put(CompositeMetadataRepository.PROP_ATOMIC_LOADING, Boolean.toString(true));
+		}
 
 		// create the repository
 		try {

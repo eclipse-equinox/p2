@@ -48,8 +48,9 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager<IInstal
 	@Override
 	protected IRepository<IInstallableUnit> factoryCreate(URI location, String name, String type, Map<String, String> properties, IExtension extension) throws ProvisionException {
 		MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
-		if (factory == null)
+		if (factory == null) {
 			return null;
+		}
 		factory.setAgent(agent);
 		return factory.create(location, name, type, properties);
 	}
@@ -57,8 +58,9 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager<IInstal
 	@Override
 	protected IRepository<IInstallableUnit> factoryLoad(URI location, IExtension extension, int flags, SubMonitor monitor) throws ProvisionException {
 		MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
-		if (factory == null)
+		if (factory == null) {
 			return null;
+		}
 		factory.setAgent(agent);
 		return factory.load(location, flags, monitor);
 	}
