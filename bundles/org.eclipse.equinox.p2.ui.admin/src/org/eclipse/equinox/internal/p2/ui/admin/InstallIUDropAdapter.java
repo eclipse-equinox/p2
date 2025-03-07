@@ -91,12 +91,14 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 		if (DEBUG) {
 			System.out.println("Perform drop on target: " + getCurrentTarget() + " with data: " + data); //$NON-NLS-1$//$NON-NLS-2$
 		}
-		if (getCurrentTarget() == null || data == null)
+		if (getCurrentTarget() == null || data == null) {
 			return false;
+		}
 
 		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
-		if (!(selection instanceof IStructuredSelection) || selection.isEmpty())
+		if (!(selection instanceof IStructuredSelection) || selection.isEmpty()) {
 			return false;
+		}
 
 		String profileId = getProfileTarget(getCurrentTarget());
 		if (getCurrentOperation() == DND.DROP_COPY && profileId != null) {
@@ -128,8 +130,9 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 				}
 			};
 			InstallAction action = new InstallAction(ProvAdminUIActivator.getDefault().getProvisioningUI(profileId), selectionProvider);
-			if (DEBUG)
+			if (DEBUG) {
 				System.out.println("Running install action"); //$NON-NLS-1$
+			}
 			action.run();
 			return true;
 		}

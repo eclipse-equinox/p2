@@ -98,14 +98,16 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 
 	void updateForPreferences() {
 
-		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_GROUPS_ONLY))
+		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_GROUPS_ONLY)) {
 			policy.setVisibleAvailableIUQuery(QueryUtil.createIUGroupQuery());
-		else
+		} else {
 			policy.setVisibleAvailableIUQuery(QueryUtil.createIUAnyQuery());
-		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY))
+		}
+		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY)) {
 			policy.setVisibleInstalledIUQuery(new UserVisibleRootQuery());
-		else
+		} else {
 			policy.setVisibleInstalledIUQuery(QueryUtil.createIUAnyQuery());
+		}
 
 		RepositoryTracker tracker = getRepositoryTracker();
 		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS)) {

@@ -117,8 +117,9 @@ public class AddProfileDialog extends StatusDialog {
 	}
 
 	protected void setOkEnablement(boolean enable) {
-		if (okButton != null && !okButton.isDisposed())
+		if (okButton != null && !okButton.isDisposed()) {
 			okButton.setEnabled(enable);
+		}
 	}
 
 	/**

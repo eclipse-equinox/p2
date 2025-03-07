@@ -204,8 +204,9 @@ public class ProfilesView extends ProvView {
 			return ((InstalledIUElement) firstElement).getProfileId();
 		}
 		IProfile profile = ProvUI.getAdapter(firstElement, IProfile.class);
-		if (profile != null)
+		if (profile != null) {
 			return profile.getProfileId();
+		}
 		return null;
 	}
 
@@ -219,16 +220,18 @@ public class ProfilesView extends ProvView {
 	String[] getKnownProfileIds() {
 		IProfile[] allProfiles = ProvAdminUIActivator.getDefault().getProfileRegistry().getProfiles();
 		String[] ids = new String[allProfiles.length];
-		for (int i = 0; i < allProfiles.length; i++)
+		for (int i = 0; i < allProfiles.length; i++) {
 			ids[i] = allProfiles[i].getProfileId();
+		}
 		return ids;
 	}
 
 	@Override
 	protected ProvisioningUI getProvisioningUI() {
 		ProvisioningUI pui = ProvAdminUIActivator.getDefault().getProvisioningUI(getProfileId());
-		if (pui != null)
+		if (pui != null) {
 			return pui;
+		}
 		return super.getProvisioningUI();
 	}
 }

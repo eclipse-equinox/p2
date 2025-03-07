@@ -114,17 +114,20 @@ public class RepositoryImplementationPropertyPage extends PropertyPage {
 			IRepository<?> repo = getRepositoryElement().getRepository(null);
 			location.setText(repo.getLocation().toString());
 			String value = repo.getName();
-			if (value != null)
+			if (value != null) {
 				name.setText(value);
+			}
 			value = repo.getDescription();
-			if (value != null)
+			if (value != null) {
 				description.setText(value);
+			}
 			String nick = element.getName();
 			// Kind of a hack, to avoid figuring out which manager to go to get the
 			// nickname.  Instead we are just assuming that any name stored in the element that
 			// is not location or provider name is the nickname.
-			if (!nick.equals(value) && !nick.equals(repo.getLocation().toString()))
+			if (!nick.equals(value) && !nick.equals(repo.getLocation().toString())) {
 				nickname.setText(nick);
+			}
 		}
 	}
 

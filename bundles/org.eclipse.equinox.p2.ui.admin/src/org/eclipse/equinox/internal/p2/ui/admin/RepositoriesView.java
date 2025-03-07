@@ -231,7 +231,8 @@ abstract class RepositoriesView extends ProvView {
 			} catch (InterruptedException e) {
 				// ignore
 			}
-		} else
+		} else {
 			getRepositoryTracker().refreshRepositories(getRepositoryTracker().getKnownRepositories(getProvisioningUI().getSession()), getProvisioningUI().getSession(), new NullProgressMonitor());
+		}
 	}
 }
