@@ -27,16 +27,19 @@ public class LinkAction extends ProvisioningAction {
 	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
-		if (targetDir == null)
+		if (targetDir == null) {
 			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.param_not_set, ActionConstants.PARM_TARGET_DIR, ID), null);
+		}
 
 		String linkTarget = (String) parameters.get(ActionConstants.PARM_LINK_TARGET);
-		if (linkTarget == null)
+		if (linkTarget == null) {
 			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.param_not_set, ActionConstants.PARM_LINK_TARGET, ID), null);
+		}
 
 		String linkName = (String) parameters.get(ActionConstants.PARM_LINK_NAME);
-		if (linkName == null)
+		if (linkName == null) {
 			return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.param_not_set, ActionConstants.PARM_LINK_NAME, ID), null);
+		}
 
 		String force = (String) parameters.get(ActionConstants.PARM_LINK_FORCE);
 
@@ -52,8 +55,9 @@ public class LinkAction extends ProvisioningAction {
 
 	@Override
 	public IStatus undo(Map<String, Object> parameters) {
-		if (WINDOWS)
+		if (WINDOWS) {
 			return Status.OK_STATUS;
+		}
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
 		String linkName = (String) parameters.get(ActionConstants.PARM_LINK_NAME);
 
@@ -76,13 +80,15 @@ public class LinkAction extends ProvisioningAction {
 	 * @throws IOException if backup of existing file fails
 	 */
 	private void ln(String targetDir, String linkTarget, String linkName, boolean force, IBackupStore store) throws IOException {
-		if (WINDOWS)
+		if (WINDOWS) {
 			return;
+		}
 		// backup a file that would be overwritten using "force == true"
 		if (force && store != null) {
 			File xFile = new File(targetDir, linkName);
-			if (xFile.exists())
+			if (xFile.exists()) {
 				store.backup(xFile);
+			}
 		}
 		Runtime r = Runtime.getRuntime();
 		try {

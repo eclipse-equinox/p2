@@ -28,15 +28,17 @@ public class RmdirAction extends ProvisioningAction {
 	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		String path = (String) parameters.get(ActionConstants.PARM_PATH);
-		if (path == null)
+		if (path == null) {
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PATH, ID));
+		}
 
 		IBackupStore store = (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP);
 
 		File dir = new File(path);
-		if (!dir.isDirectory())
+		if (!dir.isDirectory()) {
 			return Util.createError(NLS.bind(Messages.rmdir_failed, path, ID));
-		if (store != null)
+		}
+		if (store != null) {
 			try {
 				store.backupDirectory(dir);
 			} catch (IOException e) {
@@ -46,8 +48,9 @@ public class RmdirAction extends ProvisioningAction {
 				// Ignore the delete/backup if the directory was not empty as this preserves the
 				// the original semantics. See Bug 272312 for more detail.
 			}
-		else
+		} else {
 			dir.delete();
+		}
 		return Status.OK_STATUS;
 	}
 
@@ -55,11 +58,13 @@ public class RmdirAction extends ProvisioningAction {
 	public IStatus undo(Map<String, Object> parameters) {
 		String path = (String) parameters.get(ActionConstants.PARM_PATH);
 		IBackupStore store = (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP);
-		if (path == null)
+		if (path == null) {
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PATH, ID));
+		}
 		// only need to create a dir if backup was not used
-		if (store == null)
+		if (store == null) {
 			new File(path).mkdir();
+		}
 		return Status.OK_STATUS;
 	}
 }

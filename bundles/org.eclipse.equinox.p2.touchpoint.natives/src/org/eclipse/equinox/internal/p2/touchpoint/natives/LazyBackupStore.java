@@ -46,21 +46,24 @@ public class LazyBackupStore implements IBackupStore {
 
 	@Override
 	public void discard() {
-		if (delegate == null)
+		if (delegate == null) {
 			return;
+		}
 		delegate.discard();
 	}
 
 	@Override
 	public void restore() throws IOException {
-		if (delegate == null)
+		if (delegate == null) {
 			return;
+		}
 		delegate.restore();
 	}
 
 	private void loadDelegate() {
-		if (delegate != null)
+		if (delegate != null) {
 			return;
+		}
 		delegate = new SimpleBackupStore(null, prefix);
 	}
 

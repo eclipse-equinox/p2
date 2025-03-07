@@ -28,13 +28,15 @@ public class MkdirAction extends ProvisioningAction {
 	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		String path = (String) parameters.get(ActionConstants.PARM_PATH);
-		if (path == null)
+		if (path == null) {
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PATH, ID));
+		}
 		File dir = new File(path);
 		// A created or existing directory is ok
 		dir.mkdir();
-		if (dir.isDirectory())
+		if (dir.isDirectory()) {
 			return Status.OK_STATUS;
+		}
 		// mkdir could have failed because of permissions, or because of an existing file
 		return Util.createError(NLS.bind(Messages.mkdir_failed, path, ID));
 	}
@@ -42,13 +44,15 @@ public class MkdirAction extends ProvisioningAction {
 	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		String path = (String) parameters.get(ActionConstants.PARM_PATH);
-		if (path == null)
+		if (path == null) {
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PATH, ID));
+		}
 		File dir = new File(path);
 		// although not perfect, it at least prevents a faulty mkdir to delete a file on undo
 		// worst case is that an empty directory could be deleted
-		if (dir.isDirectory())
+		if (dir.isDirectory()) {
 			dir.delete();
+		}
 		return Status.OK_STATUS;
 	}
 }

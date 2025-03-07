@@ -38,20 +38,23 @@ public class CheckAndPromptNativePackage extends ProvisioningAction {
 		String versionComparator = (String) parameters.get(ActionConstants.PARM_LINUX_VERSION_COMPARATOR);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(ActionConstants.PARM_IU);
 
-		if (distro == null || packageName == null || (versionComparator != null && packageVersion == null))
+		if (distro == null || packageName == null || (versionComparator != null && packageVersion == null)) {
 			return new Status(IStatus.ERROR, Activator.ID, Messages.Incorrect_Command);
+		}
 
 		distro = distro.toLowerCase();
 
 		// If we are not running the distro we are provisioning, do nothing and return
-		if (!runningDistro(distro))
+		if (!runningDistro(distro)) {
 			return Status.OK_STATUS;
+		}
 
 		// Check if the desired package is installed and collect information in the
 		// touchpoint
 		File scriptToExecute = NativeTouchpoint.getFileFromBundle(distro, IS_INSTALLED);
-		if (scriptToExecute == null)
+		if (scriptToExecute == null) {
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cannot_Find_status, distro));
+		}
 
 		try {
 			List<String> cmd = new ArrayList<>(4);
@@ -59,8 +62,9 @@ public class CheckAndPromptNativePackage extends ProvisioningAction {
 			cmd.add(scriptToExecute.getAbsolutePath());
 			cmd.add(packageName);
 			if (packageVersion != null) {
-				if (versionComparator == null)
+				if (versionComparator == null) {
 					versionComparator = "ge"; //$NON-NLS-1$
+				}
 
 				cmd.add(versionComparator);
 				cmd.add(packageVersion);
@@ -90,15 +94,17 @@ public class CheckAndPromptNativePackage extends ProvisioningAction {
 	protected boolean runningDistro(String distro) {
 		try {
 			File scriptToExecute = NativeTouchpoint.getFileFromBundle(distro, IS_RUNNING);
-			if (scriptToExecute == null)
+			if (scriptToExecute == null) {
 				return false;
+			}
 
 			List<String> cmd = new ArrayList<>(4);
 			cmd.add(SHELL);
 			cmd.add(scriptToExecute.getAbsolutePath());
 			int exitValue = new ProcessBuilder(cmd).start().waitFor();
-			if (exitValue == 0)
+			if (exitValue == 0) {
 				return true;
+			}
 			return false;
 		} catch (IOException e) {
 			return false;

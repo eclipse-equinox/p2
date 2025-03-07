@@ -28,15 +28,18 @@ public class RemoveAction extends ProvisioningAction {
 	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		String path = (String) parameters.get(ActionConstants.PARM_PATH);
-		if (path == null)
+		if (path == null) {
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PATH, ID));
+		}
 		File file = new File(path);
 		// ignore if the file is already removed
-		if (!file.exists())
+		if (!file.exists()) {
 			return Status.OK_STATUS;
+		}
 		IBackupStore store = (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP);
-		if (store == null)
+		if (store == null) {
 			return Util.createError(NLS.bind(Messages.param_not_set, NativeTouchpoint.PARM_BACKUP, ID));
+		}
 		try {
 			store.backupAll(file);
 		} catch (IOException e) {

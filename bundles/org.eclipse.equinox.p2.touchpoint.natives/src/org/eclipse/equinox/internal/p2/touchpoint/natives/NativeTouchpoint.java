@@ -64,8 +64,9 @@ public class NativeTouchpoint extends Touchpoint {
 			try {
 				IFileArtifactRepository downloadCache = Util.getDownloadCacheRepo(agent);
 				File fileLocation = downloadCache.getArtifactFile(artifactKey);
-				if (fileLocation != null && fileLocation.exists())
+				if (fileLocation != null && fileLocation.exists()) {
 					parameters.put(PARM_ARTIFACT_LOCATION, fileLocation.getAbsolutePath());
+				}
 			} catch (ProvisionException e) {
 				return e.getStatus();
 			}
@@ -103,8 +104,9 @@ public class NativeTouchpoint extends Touchpoint {
 	}
 
 	private void promptForNativePackage() {
-		if (packagesToInstall.size() == 0)
+		if (packagesToInstall.size() == 0) {
 			return;
+		}
 		loadInstallCommandsProperties(installCommandsProperties, distro);
 		UIServices serviceUI = agent.getService(UIServices.class);
 		String text = Messages.PromptForNative_IntroText;
@@ -142,21 +144,24 @@ public class NativeTouchpoint extends Touchpoint {
 	}
 
 	private String formatVersion(NativePackageEntry entry) {
-		if (entry.getVersion() == null)
+		if (entry.getVersion() == null) {
 			return null;
+		}
 		return getUserFriendlyComparator(entry.comparator) + ' ' + entry.version + ' ';
 	}
 
 	private String getUserFriendlyComparator(String comparator) {
-		if (comparator == null)
+		if (comparator == null) {
 			return ""; //$NON-NLS-1$
+		}
 		return installCommandsProperties.getProperty(comparator, ""); //$NON-NLS-1$
 	}
 
 	public static void loadInstallCommandsProperties(Properties properties, String distro) {
 		File f = getFileFromBundle(distro, INSTALL_COMMANDS);
-		if (f == null)
+		if (f == null) {
 			return;
+		}
 
 		try (InputStream is = new BufferedInputStream(new FileInputStream(f))) {
 			properties.load(is);
@@ -170,8 +175,9 @@ public class NativeTouchpoint extends Touchpoint {
 	}
 
 	private String createCommand(List<NativePackageEntry> packageEntries) {
-		if (packageEntries.isEmpty())
+		if (packageEntries.isEmpty()) {
 			return null;
+		}
 		String text = getInstallCommad() + ' ';
 		for (NativePackageEntry nativePackageEntry : packageEntries) {
 			text += nativePackageEntry.name + " "; //$NON-NLS-1$
@@ -246,8 +252,9 @@ public class NativeTouchpoint extends Touchpoint {
 	public static File getFileFromBundle(String distro, String file) {
 		URL[] installScripts = FileLocator.findEntries(Activator.getContext().getBundle(),
 				IPath.fromOSString(NativeTouchpoint.FOLDER + '/' + distro + '/' + file));
-		if (installScripts.length == 0)
+		if (installScripts.length == 0) {
 			return null;
+		}
 
 		try {
 			return URIUtil.toFile(URIUtil.toURI(FileLocator.toFileURL(installScripts[0])));
