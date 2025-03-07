@@ -44,8 +44,9 @@ public class InstallAction extends ProfileModificationAction {
 
 	@Override
 	protected boolean isEnabledFor(Object[] selectionArray) {
-		if (selectionArray.length == 0)
+		if (selectionArray.length == 0) {
 			return false;
+		}
 		// We allow non-IU's to be selected at this point, but there
 		// must be at least one installable unit selected that is
 		// selectable
@@ -54,8 +55,9 @@ public class InstallAction extends ProfileModificationAction {
 				return true;
 			}
 			IInstallableUnit iu = ProvUI.getAdapter(selectionArray1, IInstallableUnit.class);
-			if (iu != null && isSelectable(iu))
+			if (iu != null && isSelectable(iu)) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -111,8 +113,9 @@ public class InstallAction extends ProfileModificationAction {
 		Object[] result = dialog.getResult();
 		if (result != null && result.length > 0) {
 			IProfile profile = ProvUI.getAdapter(result[0], IProfile.class);
-			if (profile != null)
+			if (profile != null) {
 				return profile.getProfileId();
+			}
 		}
 		return null;
 	}

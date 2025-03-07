@@ -71,8 +71,9 @@ public class IUPropertiesGroup extends IUGroup {
 		for (int i = 0; i < propNames.length; i++) {
 			TableItem item = new TableItem(propertiesTable, SWT.NULL);
 			String value = getIU().getProperty(propNames[i], null);
-			if (value != null)
+			if (value != null) {
 				item.setText(new String[] {userPropNames[i], value});
+			}
 		}
 	}
 }

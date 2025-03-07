@@ -139,8 +139,9 @@ public class ProfileGroup {
 		} else {
 			String value = profile.getProfileId();
 			// Should not happen, profiles must have an id, but just in case.
-			if (value == null)
+			if (value == null) {
 				value = ""; //$NON-NLS-1$
+			}
 			id.setText(value);
 
 			// The remaining values may be null
@@ -247,8 +248,9 @@ public class ProfileGroup {
 		if (control instanceof Text) {
 			Text text = (Text) control;
 			text.setEditable(editable);
-			if (listener != null && editable)
+			if (listener != null && editable) {
 				text.addModifyListener(listener);
+			}
 		} else {
 			control.setEnabled(editable);
 		}

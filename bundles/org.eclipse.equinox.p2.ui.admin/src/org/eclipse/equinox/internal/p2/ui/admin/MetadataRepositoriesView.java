@@ -110,8 +110,9 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	}
 
 	protected int getRepoFlags() {
-		if (ProvAdminUIActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS))
+		if (ProvAdminUIActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS)) {
 			return IRepositoryManager.REPOSITORIES_NON_SYSTEM;
+		}
 		return IRepositoryManager.REPOSITORIES_ALL;
 	}
 
