@@ -117,16 +117,20 @@ public class RepositoryStatus {
 	}
 
 	public static DownloadStatus forException(Throwable t, URI toDownload) {
-		if (t instanceof FileNotFoundException || (t instanceof IncomingFileTransferException && ((IncomingFileTransferException) t).getErrorCode() == 404))
+		if (t instanceof FileNotFoundException || (t instanceof IncomingFileTransferException && ((IncomingFileTransferException) t).getErrorCode() == 404)) {
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND, NLS.bind(Messages.artifact_not_found, toDownload), t);
-		if (t instanceof ConnectException)
+		}
+		if (t instanceof ConnectException) {
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, NLS.bind(Messages.TransportErrorTranslator_UnableToConnectToRepository_0, toDownload), t);
-		if (t instanceof UnknownHostException)
+		}
+		if (t instanceof UnknownHostException) {
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.TransportErrorTranslator_UnknownHost, toDownload), t);
+		}
 		if (t instanceof IDCreateException) {
 			IStatus status = ((IDCreateException) t).getStatus();
-			if (status != null && status.getException() != null)
+			if (status != null && status.getException() != null) {
 				t = status.getException();
+			}
 
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.TransportErrorTranslator_MalformedRemoteFileReference, toDownload), t);
 		}
@@ -135,18 +139,20 @@ public class RepositoryStatus {
 		// default to report as read repository error
 		int provisionCode = ProvisionException.REPOSITORY_FAILED_READ;
 
-		if (t instanceof IncomingFileTransferException)
+		if (t instanceof IncomingFileTransferException) {
 			code = ((IncomingFileTransferException) t).getErrorCode();
-		else if (t instanceof BrowseFileTransferException)
+		} else if (t instanceof BrowseFileTransferException) {
 			code = ((BrowseFileTransferException) t).getErrorCode();
+		}
 
 		// Switch on error codes in the HTTP error code range. 
 		// Note that 404 uses ARTIFACT_NOT_FOUND (as opposed to REPOSITORY_NOT_FOUND, which
 		// is determined higher up in the calling chain).
-		if (code == 401)
+		if (code == 401) {
 			provisionCode = ProvisionException.REPOSITORY_FAILED_AUTHENTICATION;
-		else if (code == 404)
+		} else if (code == 404) {
 			provisionCode = ProvisionException.ARTIFACT_NOT_FOUND;
+		}
 
 		// Add more specific translation here
 
