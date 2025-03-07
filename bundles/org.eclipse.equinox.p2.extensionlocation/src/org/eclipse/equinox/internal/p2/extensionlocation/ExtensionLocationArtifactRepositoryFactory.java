@@ -30,12 +30,14 @@ public class ExtensionLocationArtifactRepositoryFactory extends ArtifactReposito
 	public IArtifactRepository create(URI location, String name, String type, Map<String, String> properties) throws ProvisionException {
 		// TODO proper progress monitoring
 		IStatus status = validate(location, null);
-		if (!status.isOK())
+		if (!status.isOK()) {
 			throw new ProvisionException(status);
+		}
 		URI repoLocation = ExtensionLocationArtifactRepository.getLocalRepositoryLocation(location);
 		// unexpected
-		if (repoLocation == null)
+		if (repoLocation == null) {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
+		}
 		// make sure that we aren't trying to create a repo at a location
 		// where one already exists
 		boolean failed = false;
@@ -64,12 +66,14 @@ public class ExtensionLocationArtifactRepositoryFactory extends ArtifactReposito
 
 		// TODO proper progress monitoring
 		IStatus status = validate(location, null);
-		if (!status.isOK())
+		if (!status.isOK()) {
 			throw new ProvisionException(status);
+		}
 		URI repoLocation = ExtensionLocationArtifactRepository.getLocalRepositoryLocation(location);
 		// unexpected
-		if (repoLocation == null)
+		if (repoLocation == null) {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
+		}
 		// TODO proper progress monitoring
 		try {
 			final SimpleArtifactRepositoryFactory simpleFactory = new SimpleArtifactRepositoryFactory();
