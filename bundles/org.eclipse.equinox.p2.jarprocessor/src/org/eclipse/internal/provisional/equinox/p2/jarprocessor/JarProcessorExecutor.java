@@ -47,8 +47,9 @@ public class JarProcessorExecutor {
 			try {
 				processor.processZip(options.input);
 			} catch (IOException e) {
-				if (options.verbose)
+				if (options.verbose) {
 					e.printStackTrace();
+				}
 			}
 		} else {
 			JarProcessor processor = new JarProcessor();
@@ -67,8 +68,9 @@ public class JarProcessorExecutor {
 				FileFilter filter = createFileFilter(options);
 				process(options.input, filter, options.verbose, processor, properties);
 			} catch (FileNotFoundException e) {
-				if (options.verbose)
+				if (options.verbose) {
 					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -78,14 +80,16 @@ public class JarProcessorExecutor {
 	}
 
 	protected String getRelativeName(File file) {
-		if (options.input == null)
+		if (options.input == null) {
 			return file.toString();
+		}
 		try {
 			File input = options.input.getCanonicalFile();
 			File subFile = file.getCanonicalFile();
 
-			if (input.isFile())
+			if (input.isFile()) {
 				return subFile.getName();
+			}
 
 			if (!subFile.toString().startsWith(input.toString())) {
 				// the file is not under the base folder.
@@ -106,23 +110,26 @@ public class JarProcessorExecutor {
 	}
 
 	private boolean shouldSign(String name) {
-		if (options.signCommand == null)
+		if (options.signCommand == null) {
 			return false;
+		}
 		return signExclusions == null ? true : !signExclusions.contains(name);
 	}
 
 	protected void process(File input, FileFilter filter, boolean verbose, JarProcessor processor,
 			Properties packProperties) throws FileNotFoundException {
-		if (!input.exists())
+		if (!input.exists()) {
 			throw new FileNotFoundException();
+		}
 
 		File[] files = null;
 		if (input.isDirectory()) {
 			files = input.listFiles();
 		} else if (filter.accept(input)) {
 			files = new File[] { input };
-		} else
+		} else {
 			return;
+		}
 		for (int i = 0; i < files.length; i++) {
 			if (files[i].isDirectory()) {
 				processDirectory(files[i], filter, verbose, processor, packProperties);
@@ -134,14 +141,16 @@ public class JarProcessorExecutor {
 
 					if (sign) {
 						processor.clearProcessSteps();
-						if (sign)
+						if (sign) {
 							addSignStep(processor, packProperties, options);
+						}
 						files[i] = processor.processJar(files[i]);
 					}
 
 				} catch (IOException e) {
-					if (verbose)
+					if (verbose) {
 						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -149,8 +158,9 @@ public class JarProcessorExecutor {
 
 	protected void processDirectory(File input, FileFilter filter, boolean verbose, JarProcessor processor,
 			Properties packProperties) throws FileNotFoundException {
-		if (!input.isDirectory())
+		if (!input.isDirectory()) {
 			return;
+		}
 		String dir = processor.getWorkingDirectory();
 		processor.setWorkingDirectory(dir + "/" + input.getName()); //$NON-NLS-1$
 		process(input, filter, verbose, processor, packProperties);

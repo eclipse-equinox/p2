@@ -64,8 +64,9 @@ public class JarProcessorTask extends Task {
 	}
 
 	public void setKeypass(String keypass) {
-		if (keypass != null && keypass.length() > 0 && !keypass.startsWith("${")) //$NON-NLS-1$
+		if (keypass != null && keypass.length() > 0 && !keypass.startsWith("${")) { //$NON-NLS-1$
 			signArgs.setProperty(KEYPASS, keypass);
+		}
 	}
 
 	public void setUnsign(boolean unsign) {
@@ -85,11 +86,13 @@ public class JarProcessorTask extends Task {
 	private void adjustAndValidateConfiguration() {
 		// Check that alias, and storepass are set
 		if (options.signCommand != null && signArgs.getProperty(UNSIGN) == null) {
-			if (signArgs.getProperty(ALIAS) == null)
+			if (signArgs.getProperty(ALIAS) == null) {
 				throw new BuildException("Alias must be set"); //$NON-NLS-1$
+			}
 
-			if (signArgs.getProperty(STOREPASS) == null)
+			if (signArgs.getProperty(STOREPASS) == null) {
 				throw new BuildException("Storepass must be set"); //$NON-NLS-1$
+			}
 		}
 	}
 
@@ -98,8 +101,9 @@ public class JarProcessorTask extends Task {
 		options.processAll = true;
 		adjustAndValidateConfiguration();
 		AntBasedProcessorExecutor executor = new AntBasedProcessorExecutor(signArgs, getProject(), getTaskName());
-		if (inputFiles.size() > 0)
+		if (inputFiles.size() > 0) {
 			executor.setInputFiles(inputFiles);
+		}
 		executor.runJarProcessor(options);
 	}
 

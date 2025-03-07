@@ -32,8 +32,9 @@ public class SignCommandStep extends CommandStep {
 
 	@Override
 	public String recursionEffect(String entryName) {
-		if (entryName.endsWith(extension) && !exclusions.contains(entryName))
+		if (entryName.endsWith(extension) && !exclusions.contains(entryName)) {
 			return entryName;
+		}
 		return null;
 	}
 
@@ -71,8 +72,9 @@ public class SignCommandStep extends CommandStep {
 			inf = iterator.next();
 			if (inf.containsKey(Utils.MARK_EXCLUDE_CHILDREN_SIGN)) {
 				if (Boolean.parseBoolean(inf.getProperty(Utils.MARK_EXCLUDE_CHILDREN_SIGN))) {
-					if (verbose)
+					if (verbose) {
 						System.out.println(input.getName() + "is excluded from signing by its containers."); //$NON-NLS-1$ 
+					}
 					return false;
 				}
 				break;
@@ -82,8 +84,9 @@ public class SignCommandStep extends CommandStep {
 		//2: Is this jar itself marked as exclude?
 		inf = Utils.getEclipseInf(input, verbose);
 		if (inf != null && inf.containsKey(Utils.MARK_EXCLUDE_SIGN) && Boolean.parseBoolean(inf.getProperty(Utils.MARK_EXCLUDE_SIGN))) {
-			if (verbose)
+			if (verbose) {
 				System.out.println("Excluding " + input.getName() + " from signing."); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			return false;
 		}
 		return true;

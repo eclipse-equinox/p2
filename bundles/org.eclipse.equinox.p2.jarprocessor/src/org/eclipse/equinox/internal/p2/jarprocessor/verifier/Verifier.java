@@ -77,8 +77,9 @@ public class Verifier extends JarProcessorExecutor {
 		Verifier verifier = new Verifier();
 		verifier.verify(workingDir, input);
 
-		if (clear)
+		if (clear) {
 			workingDir.deleteOnExit();
+		}
 	}
 
 	public void verify(final File workingDirectory, String[] input) {
@@ -98,8 +99,9 @@ public class Verifier extends JarProcessorExecutor {
 			@Override
 			public File processJar(File inputFile) throws IOException {
 				Iterator<IProcessStep> iterator = getStepIterator();
-				if (iterator.hasNext() && iterator.next() instanceof VerifyStep)
+				if (iterator.hasNext() && iterator.next() instanceof VerifyStep) {
 					return verifyStep.postProcess(inputFile, workingDirectory, null);
+				}
 				// else we are unpacking, call super
 				return super.processJar(inputFile);
 			}

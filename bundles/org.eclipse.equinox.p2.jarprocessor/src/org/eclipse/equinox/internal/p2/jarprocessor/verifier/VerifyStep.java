@@ -27,8 +27,9 @@ public class VerifyStep extends CommandStep {
 	static Boolean canVerify = null;
 
 	public static boolean canVerify() {
-		if (canVerify != null)
+		if (canVerify != null) {
 			return canVerify.booleanValue();
+		}
 
 		String javaHome = System.getProperty("java.home"); //$NON-NLS-1$
 		String command = javaHome + "/../bin/jarsigner"; //$NON-NLS-1$
@@ -62,11 +63,13 @@ public class VerifyStep extends CommandStep {
 				System.out.print("Verifying " + input.getName() + ":  "); //$NON-NLS-1$ //$NON-NLS-2$
 				String[] cmd = new String[] {verifyCommand, "-verify", input.getCanonicalPath()}; //$NON-NLS-1$
 				int result = execute(cmd, true);
-				if (result != 0 && verbose)
+				if (result != 0 && verbose) {
 					System.out.println("Error: " + result + " was returned from command: " + Utils.concat(cmd)); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 			} catch (IOException e) {
-				if (verbose)
+				if (verbose) {
 					e.printStackTrace();
+				}
 				return null;
 			}
 			return input;

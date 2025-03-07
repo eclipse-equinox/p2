@@ -49,12 +49,13 @@ public class Utils {
 	public static void close(Object stream) {
 		if (stream != null) {
 			try {
-				if (stream instanceof InputStream)
+				if (stream instanceof InputStream) {
 					((InputStream) stream).close();
-				else if (stream instanceof OutputStream)
+				} else if (stream instanceof OutputStream) {
 					((OutputStream) stream).close();
-				else if (stream instanceof JarFile)
+				} else if (stream instanceof JarFile) {
 					((JarFile) stream).close();
+				}
 			} catch (IOException e) {
 				// ignore
 			}
@@ -90,8 +91,9 @@ public class Utils {
 	public static boolean clear(java.io.File root) {
 		boolean result = clearChildren(root);
 		try {
-			if (root.exists())
+			if (root.exists()) {
 				result &= root.delete();
+			}
 		} catch (Exception e) {
 			result = false;
 		}
@@ -110,10 +112,11 @@ public class Utils {
 			String[] list = root.list();
 			// for some unknown reason, list() can return null.
 			// Just skip the children If it does.
-			if (list != null)
+			if (list != null) {
 				for (String list1 : list) {
 					result &= clear(new java.io.File(root, list1));
 				}
+			}
 		}
 		return result;
 	}
@@ -130,8 +133,9 @@ public class Utils {
 	}
 
 	public static Set<String> getSignExclusions(Properties properties) {
-		if (properties == null)
+		if (properties == null) {
 			return Collections.emptySet();
+		}
 		String signExcludes = properties.getProperty(SIGN_EXCLUDES);
 		if (signExcludes != null) {
 			String[] excludes = toStringArray(signExcludes, ","); //$NON-NLS-1$
@@ -167,8 +171,9 @@ public class Utils {
 	 */
 	public static Properties getEclipseInf(File jarFile, boolean verbose) {
 		if (jarFile == null || !jarFile.exists()) {
-			if (verbose)
+			if (verbose) {
 				System.out.println("Failed to obtain eclipse.inf due to missing jar file: " + jarFile); //$NON-NLS-1$
+			}
 			return null;
 		}
 		try (JarFile jar = new JarFile(jarFile, false)) {
@@ -202,12 +207,14 @@ public class Utils {
 		String exclude = inf.getProperty(MARK_EXCLUDE);
 
 		// was marked as exclude, we should skip
-		if (exclude != null && Boolean.parseBoolean(exclude))
+		if (exclude != null && Boolean.parseBoolean(exclude)) {
 			return true;
+		}
 
 		// process all was set, don't skip
-		if (processAll)
+		if (processAll) {
 			return false;
+		}
 
 		// otherwise, we skip
 		return true;
