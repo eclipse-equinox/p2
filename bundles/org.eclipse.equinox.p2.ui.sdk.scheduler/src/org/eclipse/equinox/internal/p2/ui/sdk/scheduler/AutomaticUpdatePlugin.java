@@ -57,7 +57,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	private AutomaticUpdater updater;
 	private ScopedPreferenceStore preferenceStore;
 
-	private ProvisioningSession session;
+	private volatile ProvisioningSession session;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk.scheduler"; //$NON-NLS-1$
 
@@ -187,8 +187,10 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	public ProvisioningSession getSession() {
 		if (session == null) {
 			synchronized (this) {
-				IProvisioningAgent agent = ServiceHelper.getService(getContext(), IProvisioningAgent.class);
-				session = new ProvisioningSession(agent);
+				if (session == null) {
+					IProvisioningAgent agent = ServiceHelper.getService(getContext(), IProvisioningAgent.class);
+					session = new ProvisioningSession(agent);
+				}
 			}
 		}
 		return session;
