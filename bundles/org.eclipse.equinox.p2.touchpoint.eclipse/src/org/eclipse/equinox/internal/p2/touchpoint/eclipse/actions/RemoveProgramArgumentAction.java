@@ -30,21 +30,24 @@ public class RemoveProgramArgumentAction extends ProvisioningAction {
 	public IStatus execute(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String programArg = (String) parameters.get(ActionConstants.PARM_PROGRAM_ARG);
-		if (programArg == null)
+		if (programArg == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROGRAM_ARG, ID));
+		}
 
 		if (programArg.startsWith("-")) {//$NON-NLS-1$
 			List<String> programArgs = Arrays.asList(manipulator.getLauncherData().getProgramArgs());
 
 			int index = programArgs.indexOf(programArg);
-			if (index == -1)
+			if (index == -1) {
 				return Status.OK_STATUS;
+			}
 
 			index++; // move index to potential programArgValue
 			if (programArgs.size() > index) {
 				String programArgValue = programArgs.get(index);
-				if (!programArgValue.startsWith("-")) //$NON-NLS-1$
+				if (!programArgValue.startsWith("-")) { //$NON-NLS-1$
 					getMemento().put(ActionConstants.PARM_PROGRAM_ARG_VALUE, programArgValue);
+				}
 			}
 			manipulator.getLauncherData().removeProgramArg(programArg);
 		}
@@ -56,15 +59,17 @@ public class RemoveProgramArgumentAction extends ProvisioningAction {
 	public IStatus undo(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String programArg = (String) parameters.get(ActionConstants.PARM_PROGRAM_ARG);
-		if (programArg == null)
+		if (programArg == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROGRAM_ARG, ID));
+		}
 
 		if (programArg.startsWith("-")) {//$NON-NLS-1$ {
 			manipulator.getLauncherData().addProgramArg(programArg);
 
 			String programArgValue = (String) getMemento().get(ActionConstants.PARM_PROGRAM_ARG_VALUE);
-			if (programArgValue != null)
+			if (programArgValue != null) {
 				manipulator.getLauncherData().addProgramArg(programArgValue);
+			}
 		}
 		return Status.OK_STATUS;
 	}

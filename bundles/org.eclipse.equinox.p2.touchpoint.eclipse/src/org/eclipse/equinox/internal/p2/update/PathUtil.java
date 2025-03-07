@@ -31,8 +31,9 @@ public class PathUtil {
 	public static String makeRelative(String urlString, URL rootURL) {
 		// we only traffic in file: URLs
 		int index = urlString.indexOf(FILE_PROTOCOL);
-		if (index == -1)
+		if (index == -1) {
 			return urlString;
+		}
 		index = index + 5;
 
 		// ensure we have an absolute path to start with
@@ -47,8 +48,9 @@ public class PathUtil {
 				done = true;
 			}
 		}
-		if (url == null || !new File(url.getFile()).isAbsolute())
+		if (url == null || !new File(url.getFile()).isAbsolute()) {
 			return urlString;
+		}
 
 		String rootString = rootURL.toExternalForm();
 		return urlString.substring(0, index) + makeRelative(urlString.substring(index), rootString.substring(rootString.indexOf(FILE_PROTOCOL) + 5));
@@ -57,8 +59,9 @@ public class PathUtil {
 	public static String makeRelative(String original, String rootPath) {
 		IPath path = IPath.fromOSString(original);
 		// ensure we have an absolute path to start with
-		if (!path.isAbsolute())
+		if (!path.isAbsolute()) {
 			return original;
+		}
 
 		//Returns the original string if no relativization has been done
 		String result = makeRelative(path, IPath.fromOSString(rootPath));
@@ -72,8 +75,9 @@ public class PathUtil {
 	private static String makeRelative(IPath toRel, IPath base) {
 		//can't make relative if devices are not equal
 		final String device = toRel.getDevice();
-		if (device != base.getDevice() && (device == null || !device.equalsIgnoreCase(base.getDevice())))
+		if (device != base.getDevice() && (device == null || !device.equalsIgnoreCase(base.getDevice()))) {
 			return toRel.toOSString();
+		}
 		int i = base.matchingFirstSegments(toRel);
 		if (i == 0) {
 			return toRel.toOSString();
@@ -82,8 +86,9 @@ public class PathUtil {
 		for (int j = 0; j < base.segmentCount() - i; j++) {
 			result += ".." + IPath.SEPARATOR; //$NON-NLS-1$
 		}
-		if (i == toRel.segmentCount())
+		if (i == toRel.segmentCount()) {
 			return "."; //$NON-NLS-1$
+		}
 		//TODO This will return mixed path with some / and some \ on windows!!
 		result += toRel.setDevice(null).removeFirstSegments(i).toOSString();
 		return result;
@@ -98,8 +103,9 @@ public class PathUtil {
 	public static String makeAbsolute(String original, String rootPath) {
 		IPath path = IPath.fromOSString(original);
 		// ensure we have a relative path to start with
-		if (path.isAbsolute())
+		if (path.isAbsolute()) {
 			return original;
+		}
 		IPath root = IPath.fromOSString(rootPath);
 		return root.addTrailingSeparator().append(original.replace(':', '}')).toOSString().replace('}', ':');
 	}
@@ -107,8 +113,9 @@ public class PathUtil {
 	public static String makeAbsolute(String urlString, URL rootURL) {
 		// we only traffic in file: URLs
 		int index = urlString.indexOf(FILE_PROTOCOL);
-		if (index == -1)
+		if (index == -1) {
 			return urlString;
+		}
 		index = index + 5;
 
 		// ensure we have a relative path to start with
@@ -123,8 +130,9 @@ public class PathUtil {
 				done = true;
 			}
 		}
-		if (url == null || new File(url.getFile()).isAbsolute())
+		if (url == null || new File(url.getFile()).isAbsolute()) {
 			return urlString;
+		}
 
 		return urlString.substring(0, index - 5) + makeAbsolute(urlString.substring(index), rootURL.toExternalForm());
 	}

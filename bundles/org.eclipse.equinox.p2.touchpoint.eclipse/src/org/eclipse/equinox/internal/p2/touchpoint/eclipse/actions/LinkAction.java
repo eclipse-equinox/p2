@@ -29,8 +29,9 @@ public class LinkAction extends ProvisioningAction {
 	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
-		if (targetDir == null)
+		if (targetDir == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_TARGET_DIR, ID));
+		}
 
 		if (targetDir.equals(ActionConstants.PARM_AT_ARTIFACT)) {
 			try {
@@ -45,12 +46,14 @@ public class LinkAction extends ProvisioningAction {
 		}
 
 		String linkTarget = (String) parameters.get(ActionConstants.PARM_LINK_TARGET);
-		if (linkTarget == null)
+		if (linkTarget == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_LINK_TARGET, ID));
+		}
 
 		String linkName = (String) parameters.get(ActionConstants.PARM_LINK_NAME);
-		if (linkName == null)
+		if (linkName == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_LINK_NAME, ID));
+		}
 
 		String force = (String) parameters.get(ActionConstants.PARM_LINK_FORCE);
 
@@ -74,8 +77,9 @@ public class LinkAction extends ProvisioningAction {
 	 * @param force      if overwrite of existing file should be performed.
 	 */
 	private static void ln(String targetDir, String linkTarget, String linkName, boolean force) {
-		if (WINDOWS)
+		if (WINDOWS) {
 			return;
+		}
 
 		Runtime r = Runtime.getRuntime();
 		try {

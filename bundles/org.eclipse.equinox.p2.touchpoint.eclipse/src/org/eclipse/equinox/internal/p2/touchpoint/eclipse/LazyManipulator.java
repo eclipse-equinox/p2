@@ -42,12 +42,14 @@ public class LazyManipulator implements Manipulator {
 	}
 
 	private void loadDelegate() {
-		if (manipulator != null)
+		if (manipulator != null) {
 			return;
+		}
 
 		manipulator = getFrameworkManipulator();
-		if (manipulator == null)
+		if (manipulator == null) {
 			throw new IllegalStateException(Messages.failed_acquire_framework_manipulator);
+		}
 
 		LauncherData launcherData = manipulator.getLauncherData();
 		launcherData.setFwConfigLocation(Util.getConfigurationFolder(profile));
@@ -86,22 +88,25 @@ public class LazyManipulator implements Manipulator {
 			// Can't happen we are writing the filter ourselves
 			return null;
 		} finally {
-			if (fwAdminTracker != null)
+			if (fwAdminTracker != null) {
 				fwAdminTracker.close();
+			}
 		}
 	}
 
 	private static Manipulator getFrameworkManipulator() {
 		FrameworkAdmin fwAdmin = getFrameworkAdmin();
-		if (fwAdmin != null)
+		if (fwAdmin != null) {
 			return fwAdmin.getManipulator();
+		}
 		return null;
 	}
 
 	@Override
 	public void save(boolean backup) throws IOException, FrameworkAdminRuntimeException {
-		if (manipulator != null)
+		if (manipulator != null) {
 			manipulator.save(backup);
+		}
 	}
 
 	// DELEGATE METHODS

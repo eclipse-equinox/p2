@@ -44,8 +44,9 @@ public class UninstallFeatureAction extends ProvisioningAction {
 		String featureVersion = (String) parameters.get(ActionConstants.PARM_FEATURE_VERSION);
 
 		Collection<IArtifactKey> artifacts = iu.getArtifacts();
-		if (artifacts == null || artifacts.isEmpty())
+		if (artifacts == null || artifacts.isEmpty()) {
 			return Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu));
+		}
 
 		IArtifactKey artifactKey = null;
 		for (IArtifactKey candidate : artifacts) {
@@ -55,15 +56,15 @@ public class UninstallFeatureAction extends ProvisioningAction {
 			}
 		}
 
-		if (featureId == null)
+		if (featureId == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_FEATURE_ID, ID));
-		else if (ActionConstants.PARM_DEFAULT_VALUE.equals(featureId)) {
+		} else if (ActionConstants.PARM_DEFAULT_VALUE.equals(featureId)) {
 			featureId = artifactKey.getId();
 		}
 
-		if (featureVersion == null)
+		if (featureVersion == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_FEATURE_VERSION, ID));
-		else if (ActionConstants.PARM_DEFAULT_VALUE.equals(featureVersion)) {
+		} else if (ActionConstants.PARM_DEFAULT_VALUE.equals(featureVersion)) {
 			featureVersion = artifactKey.getVersion().toString();
 		}
 

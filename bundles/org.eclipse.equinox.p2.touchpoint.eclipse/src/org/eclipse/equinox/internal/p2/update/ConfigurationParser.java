@@ -52,31 +52,39 @@ public class ConfigurationParser implements ConfigurationConstants {
 	private static Feature createFeature(Node node, Site site) {
 		Feature result = new Feature(site);
 		String id = getAttribute(node, ATTRIBUTE_ID);
-		if (id != null)
+		if (id != null) {
 			result.setId(id);
+		}
 		String url = getAttribute(node, ATTRIBUTE_URL);
-		if (url != null)
+		if (url != null) {
 			result.setUrl(url);
+		}
 		String version = getAttribute(node, ATTRIBUTE_VERSION);
-		if (version != null)
+		if (version != null) {
 			result.setVersion(version);
+		}
 		String pluginIdentifier = getAttribute(node, ATTRIBUTE_PLUGIN_IDENTIFIER);
-		if (pluginIdentifier != null)
+		if (pluginIdentifier != null) {
 			result.setPluginIdentifier(pluginIdentifier);
+		}
 		String pluginVersion = getAttribute(node, ATTRIBUTE_PLUGIN_VERSION);
 		// plug-in version is the same as the feature version if it is missing
-		if (pluginVersion == null)
+		if (pluginVersion == null) {
 			pluginVersion = version;
-		if (pluginVersion != null)
+		}
+		if (pluginVersion != null) {
 			result.setPluginVersion(pluginVersion);
+		}
 		String application = getAttribute(node, ATTRIBUTE_APPLICATION);
-		if (application != null)
+		if (application != null) {
 			result.setApplication(application);
+		}
 
 		// get primary flag
 		String flag = getAttribute(node, ATTRIBUTE_PRIMARY);
-		if (flag != null && Boolean.parseBoolean(flag))
+		if (flag != null && Boolean.parseBoolean(flag)) {
 			result.setPrimary(true);
+		}
 
 		// get install locations
 		String locations = getAttribute(node, ATTRIBUTE_ROOT);
@@ -106,13 +114,16 @@ public class ConfigurationParser implements ConfigurationConstants {
 		int size = children.getLength();
 		for (int i = 0; i < size; i++) {
 			Node child = children.item(i);
-			if (child.getNodeType() != Node.ELEMENT_NODE)
+			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
-			if (!ELEMENT_FEATURE.equalsIgnoreCase(child.getNodeName()))
+			}
+			if (!ELEMENT_FEATURE.equalsIgnoreCase(child.getNodeName())) {
 				continue;
+			}
 			Feature feature = createFeature(child, site);
-			if (feature != null)
+			if (feature != null) {
 				site.addFeature(feature);
+			}
 		}
 	}
 
@@ -122,14 +133,17 @@ public class ConfigurationParser implements ConfigurationConstants {
 	private Site createSite(Node node) {
 		Site result = new Site();
 		String policy = getAttribute(node, ATTRIBUTE_POLICY);
-		if (policy != null)
+		if (policy != null) {
 			result.setPolicy(policy);
+		}
 		String enabled = getAttribute(node, ATTRIBUTE_ENABLED);
-		if (enabled != null)
+		if (enabled != null) {
 			result.setEnabled(Boolean.parseBoolean(enabled));
+		}
 		String updateable = getAttribute(node, ATTRIBUTE_UPDATEABLE);
-		if (updateable != null)
+		if (updateable != null) {
 			result.setUpdateable(Boolean.parseBoolean(updateable));
+		}
 		String url = getAttribute(node, ATTRIBUTE_URL);
 		if (url != null) {
 			try {
@@ -142,12 +156,15 @@ public class ConfigurationParser implements ConfigurationConstants {
 			}
 		}
 		String linkFile = getAttribute(node, ATTRIBUTE_LINKFILE);
-		if (linkFile != null)
+		if (linkFile != null) {
 			result.setLinkFile(linkFile);
+		}
 		String list = getAttribute(node, ATTRIBUTE_LIST);
-		if (list != null)
-			for (StringTokenizer tokenizer = new StringTokenizer(list, ","); tokenizer.hasMoreTokens();) //$NON-NLS-1$
+		if (list != null) {
+			for (StringTokenizer tokenizer = new StringTokenizer(list, ","); tokenizer.hasMoreTokens();) { //$NON-NLS-1$
 				result.addPlugin(tokenizer.nextToken());
+			}
+		}
 		createFeatures(node, result);
 		return result;
 	}
@@ -157,10 +174,12 @@ public class ConfigurationParser implements ConfigurationConstants {
 	 * platform:/base/ then return a string which represents the osgi install area.
 	 */
 	private static URI getLocation(URI location, URI osgiArea) {
-		if (osgiArea == null)
+		if (osgiArea == null) {
 			return location;
-		if (PLATFORM_BASE.equals(location.toString()))
+		}
+		if (PLATFORM_BASE.equals(location.toString())) {
 			return osgiArea;
+		}
 		return URIUtil.makeAbsolute(location, osgiArea);
 	}
 
@@ -184,12 +203,13 @@ public class ConfigurationParser implements ConfigurationConstants {
 		try {
 			return builder.parse(input);
 		} finally {
-			if (input != null)
+			if (input != null) {
 				try {
 					input.close();
 				} catch (IOException e) {
 					// ignore
 				}
+			}
 		}
 	}
 
@@ -205,8 +225,9 @@ public class ConfigurationParser implements ConfigurationConstants {
 		}
 		// have we read this before?
 		Configuration result = ConfigurationCache.get(file);
-		if (result != null)
+		if (result != null) {
 			return result;
+		}
 		try {
 			InputStream input = new BufferedInputStream(new FileInputStream(file));
 			Document document = load(input);
@@ -228,20 +249,24 @@ public class ConfigurationParser implements ConfigurationConstants {
 	 */
 	private Configuration process(Document document) {
 		Node node = getConfigElement(document);
-		if (node == null)
+		if (node == null) {
 			return null;
+		}
 		Configuration configuration = createConfiguration(node);
 		NodeList children = node.getChildNodes();
 		int size = children.getLength();
 		for (int i = 0; i < size; i++) {
 			Node child = children.item(i);
-			if (child.getNodeType() != Node.ELEMENT_NODE)
+			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
-			if (!ELEMENT_SITE.equalsIgnoreCase(child.getNodeName()))
+			}
+			if (!ELEMENT_SITE.equalsIgnoreCase(child.getNodeName())) {
 				continue;
+			}
 			Site site = createSite(child);
-			if (site != null)
+			if (site != null) {
 				configuration.add(site);
+			}
 		}
 		return configuration;
 	}
@@ -249,17 +274,21 @@ public class ConfigurationParser implements ConfigurationConstants {
 	private static Configuration createConfiguration(Node node) {
 		Configuration result = new Configuration();
 		String value = getAttribute(node, ATTRIBUTE_DATE);
-		if (value != null)
+		if (value != null) {
 			result.setDate(value);
+		}
 		value = getAttribute(node, ATTRIBUTE_TRANSIENT);
-		if (value != null)
+		if (value != null) {
 			result.setTransient(Boolean.parseBoolean(value));
+		}
 		value = getAttribute(node, ATTRIBUTE_SHARED_UR);
-		if (value != null)
+		if (value != null) {
 			result.setSharedUR(value);
+		}
 		value = getAttribute(node, ATTRIBUTE_VERSION);
-		if (value != null)
+		if (value != null) {
 			result.setVersion(value);
+		}
 		return result;
 	}
 
@@ -268,10 +297,12 @@ public class ConfigurationParser implements ConfigurationConstants {
 		int size = children.getLength();
 		for (int i = 0; i < size; i++) {
 			Node child = children.item(i);
-			if (child.getNodeType() != Node.ELEMENT_NODE)
+			if (child.getNodeType() != Node.ELEMENT_NODE) {
 				continue;
-			if (ELEMENT_CONFIG.equalsIgnoreCase(child.getNodeName()))
+			}
+			if (ELEMENT_CONFIG.equalsIgnoreCase(child.getNodeName())) {
 				return child;
+			}
 		}
 		return null;
 	}

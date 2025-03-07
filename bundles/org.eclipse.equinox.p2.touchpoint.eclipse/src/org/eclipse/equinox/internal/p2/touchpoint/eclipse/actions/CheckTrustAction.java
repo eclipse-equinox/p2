@@ -42,13 +42,15 @@ public class CheckTrustAction extends ProvisioningAction {
 	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
-		if (iu == null)
+		if (iu == null) {
 			return null;
+		}
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 		// if the IU is already in the profile there is nothing to do
-		if (!profile.available(QueryUtil.createIUQuery(iu), null).isEmpty())
+		if (!profile.available(QueryUtil.createIUQuery(iu), null).isEmpty()) {
 			return null;
+		}
 		@SuppressWarnings("unchecked")
 		Map<IArtifactDescriptor, File> bundleFiles = (Map<IArtifactDescriptor, File>) parameters
 				.get(CheckTrust.PARM_ARTIFACTS);

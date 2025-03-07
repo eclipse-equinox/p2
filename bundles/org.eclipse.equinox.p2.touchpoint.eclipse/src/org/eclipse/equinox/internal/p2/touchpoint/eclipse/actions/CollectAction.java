@@ -55,11 +55,13 @@ public class CollectAction extends ProvisioningAction {
 	}
 
 	public static boolean isZipped(Collection<ITouchpointData> data) {
-		if (data == null || data.size() == 0)
+		if (data == null || data.size() == 0) {
 			return false;
+		}
 		for (ITouchpointData td : data) {
-			if (td.getInstruction("zipped") != null) //$NON-NLS-1$
+			if (td.getInstruction("zipped") != null) { //$NON-NLS-1$
 				return true;
+			}
 		}
 		return false;
 	}
@@ -77,13 +79,15 @@ public class CollectAction extends ProvisioningAction {
 	static IArtifactRequest[] collect(IProvisioningAgent agent, IProfile profile, IInstallableUnit installableUnit)
 			throws ProvisionException {
 		Collection<IArtifactKey> toDownload = installableUnit.getArtifacts();
-		if (toDownload == null || toDownload.size() == 0)
+		if (toDownload == null || toDownload.size() == 0) {
 			return IArtifactRepositoryManager.NO_ARTIFACT_REQUEST;
+		}
 
 		IArtifactRepository aggregatedRepositoryView = Util.getAggregatedBundleRepository(agent, profile);
 		IArtifactRepository bundlePool = Util.getBundlePoolRepository(agent, profile);
-		if (bundlePool == null)
+		if (bundlePool == null) {
 			throw new ProvisionException(Util.createError(NLS.bind(Messages.no_bundle_pool, profile.getProfileId())));
+		}
 
 		List<IArtifactRequest> requests = new ArrayList<>();
 		for (IArtifactKey key : toDownload) {
@@ -95,8 +99,9 @@ public class CollectAction extends ProvisioningAction {
 			}
 		}
 
-		if (requests.isEmpty())
+		if (requests.isEmpty()) {
 			return IArtifactRepositoryManager.NO_ARTIFACT_REQUEST;
+		}
 
 		IArtifactRequest[] result = requests.toArray(new IArtifactRequest[requests.size()]);
 		return result;

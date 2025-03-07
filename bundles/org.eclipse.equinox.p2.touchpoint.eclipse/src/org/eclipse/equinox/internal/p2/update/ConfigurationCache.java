@@ -49,8 +49,9 @@ public class ConfigurationCache {
 	public static Configuration get(File file) {
 		String key = toKey(file);
 		CacheEntry entry = cache.get(key);
-		if (entry == null)
+		if (entry == null) {
 			return null;
+		}
 		return file.lastModified() == entry.timestamp ? entry.config : null;
 	}
 

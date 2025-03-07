@@ -61,8 +61,9 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static synchronized void saveManipulator(IProfile profile)
 			throws FrameworkAdminRuntimeException, IOException {
 		LazyManipulator manipulator = manipulators.remove(profile);
-		if (manipulator != null)
+		if (manipulator != null) {
 			manipulator.save(false);
+		}
 	}
 
 	private static synchronized PlatformConfigurationWrapper getPlatformConfigurationWrapper(IProvisioningAgent agent,
@@ -79,8 +80,9 @@ public class EclipseTouchpoint extends Touchpoint {
 
 	private static synchronized void savePlatformConfigurationWrapper(IProfile profile) throws ProvisionException {
 		PlatformConfigurationWrapper wrapper = wrappers.remove(profile);
-		if (wrapper != null)
+		if (wrapper != null) {
 			wrapper.save();
+		}
 	}
 
 	private static synchronized SourceManipulator getSourceManipulator(IProfile profile) {
@@ -94,14 +96,16 @@ public class EclipseTouchpoint extends Touchpoint {
 
 	private static synchronized void saveSourceManipulator(IProfile profile) throws IOException {
 		SourceManipulator sourceManipulator = sourceManipulators.remove(profile);
-		if (sourceManipulator != null)
+		if (sourceManipulator != null) {
 			sourceManipulator.save();
+		}
 	}
 
 	private static synchronized IInstallableUnit getPreparedIU(IProfile profile, IInstallableUnit iu) {
 		Map<IInstallableUnit, IInstallableUnit> preparedProfileIUs = preparedIUs.get(profile);
-		if (preparedProfileIUs == null)
+		if (preparedProfileIUs == null) {
 			return null;
+		}
 
 		return preparedProfileIUs.get(iu);
 	}
@@ -129,8 +133,9 @@ public class EclipseTouchpoint extends Touchpoint {
 	@Override
 	public IStatus prepare(IProfile profile) {
 		try {
-			if (hasPreparedIUs(profile))
+			if (hasPreparedIUs(profile)) {
 				return validateProfile(profile);
+			}
 		} catch (RuntimeException e) {
 			return Util.createError(NLS.bind(Messages.error_validating_profile, profile.getProfileId()), e);
 		}
@@ -196,16 +201,18 @@ public class EclipseTouchpoint extends Touchpoint {
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
 		if (iu != null && Boolean.parseBoolean(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU))) {
 			IInstallableUnit preparedIU = prepareIU(agent, profile, iu, artifactKey);
-			if (preparedIU == null)
+			if (preparedIU == null) {
 				return Util.createError(NLS.bind(Messages.failed_prepareIU, iu));
+			}
 
 			parameters.put(PARM_IU, preparedIU);
 		}
 
 		if (!parameters.containsKey(PARM_ARTIFACT_LOCATION) && artifactKey != null) {
 			File fileLocation = Util.getArtifactFile(agent, artifactKey, profile);
-			if (fileLocation != null && fileLocation.exists())
+			if (fileLocation != null && fileLocation.exists()) {
 				parameters.put(PARM_ARTIFACT_LOCATION, fileLocation.getAbsolutePath());
+			}
 		}
 		return Status.OK_STATUS;
 	}
@@ -213,22 +220,25 @@ public class EclipseTouchpoint extends Touchpoint {
 	public IInstallableUnit prepareIU(IProvisioningAgent agent, IProfile profile, IInstallableUnit iu,
 			IArtifactKey artifactKey) {
 		IInstallableUnit preparedIU = getPreparedIU(profile, iu);
-		if (preparedIU != null)
+		if (preparedIU != null) {
 			return preparedIU;
+		}
 
 		Class<?> c = null;
 		try {
 			c = Class.forName("org.eclipse.equinox.p2.publisher.eclipse.BundlesAction"); //$NON-NLS-1$
-			if (c != null)
+			if (c != null) {
 				c = Class.forName("org.eclipse.osgi.service.resolver.PlatformAdmin"); //$NON-NLS-1$
+			}
 		} catch (ClassNotFoundException e) {
 			LogHelper.log(Util.createError(NLS.bind(Messages.publisher_not_available, e.getMessage()), e));
 			return null;
 		}
 
 		if (c != null) {
-			if (artifactKey == null)
+			if (artifactKey == null) {
 				return iu;
+			}
 
 			File bundleFile = Util.getArtifactFile(agent, artifactKey, profile);
 			if (bundleFile == null) {
@@ -250,8 +260,9 @@ public class EclipseTouchpoint extends Touchpoint {
 
 	private static IStatus validateProfile(IProfile profile) {
 		// by default we validate
-		if (Boolean.FALSE.toString().equals(profile.getProperty(VALIDATE_PROFILE)))
+		if (Boolean.FALSE.toString().equals(profile.getProperty(VALIDATE_PROFILE))) {
 			return Status.OK_STATUS;
+		}
 
 		Class<?> c = null;
 		try {

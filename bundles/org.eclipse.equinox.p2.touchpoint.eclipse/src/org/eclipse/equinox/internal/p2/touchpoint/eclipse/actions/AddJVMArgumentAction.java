@@ -37,16 +37,18 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM_ARG);
-		if (jvmArg == null)
+		if (jvmArg == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_JVM_ARG, ID));
+		}
 		return addArg(jvmArg, parameters);
 	}
 
 	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM_ARG);
-		if (jvmArg == null)
+		if (jvmArg == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_JVM_ARG, ID));
+		}
 		return RemoveJVMArgumentAction.removeArg(jvmArg, parameters);
 	}
 
@@ -59,15 +61,16 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 				.getLauncherData();
 		File storageArea = (File) parameters.get(ActionConstants.PARM_PROFILE_DATA_DIRECTORY);
 		try {
-			if (arg.startsWith(XMS))
+			if (arg.startsWith(XMS)) {
 				addByteArg(arg.trim(), XMS, launcherData, storageArea);
-			else if (arg.startsWith(XMX))
+			} else if (arg.startsWith(XMX)) {
 				addByteArg(arg.trim(), XMX, launcherData, storageArea);
-			else if (arg.startsWith(XX_MAX_PERM_SIZE))
+			} else if (arg.startsWith(XX_MAX_PERM_SIZE)) {
 				addByteArg(arg.trim(), XX_MAX_PERM_SIZE, launcherData, storageArea);
-			else
+			} else {
 				// Argument with a non-byte value, no special handling
 				launcherData.addJvmArg(arg);
+			}
 		} catch (IOException e) {
 			return new Status(IStatus.ERROR, Activator.ID, Messages.error_processing_vmargs, e);
 		} catch (IllegalArgumentException e) {
@@ -102,22 +105,26 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 	protected static void detectUserValue(String currentValue, String flag, Properties storedValues) {
 		String maxValue = getMaxValue(getArgs(storedValues, flag));
 
-		if (currentValue == null)
+		if (currentValue == null) {
 			// User has removed value from file
 			setUserArg(storedValues, flag, null);
-		else if (maxValue == null || !maxValue.equals(currentValue.substring(flag.length())))
+		} else if (maxValue == null || !maxValue.equals(currentValue.substring(flag.length()))) {
 			// User has set an initial value, or modified the file
 			setUserArg(storedValues, flag, currentValue.substring(flag.length()));
+		}
 	}
 
 	protected static String getMaxValue(String[] values) {
-		if (values == null || values.length == 0)
+		if (values == null || values.length == 0) {
 			return null;
+		}
 
 		int max = 0;
-		for (int i = 1; i < values.length; i++)
-			if (compareSize(values[max], values[i]) < 0)
+		for (int i = 1; i < values.length; i++) {
+			if (compareSize(values[max], values[i]) < 0) {
 				max = i;
+			}
+		}
 		return values[max];
 	}
 
@@ -127,14 +134,15 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 
 		if (maxStored != null || userDefined != null) {
 			// Replacement is available either stored, or user defined
-			if (maxStored == null)
+			if (maxStored == null) {
 				launcherData.addJvmArg(flag + userDefined);
-			else if (userDefined == null)
+			} else if (userDefined == null) {
 				launcherData.addJvmArg(flag + maxStored);
-			else if (AddJVMArgumentAction.compareSize(maxStored, userDefined) > 0)
+			} else if (AddJVMArgumentAction.compareSize(maxStored, userDefined) > 0) {
 				launcherData.addJvmArg(flag + maxStored);
-			else
+			} else {
 				launcherData.addJvmArg(flag + userDefined);
+			}
 		}
 	}
 
@@ -156,24 +164,25 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 			bPower += 10;
 		}
 
-		if (aPower > bPower && aVal != 0)
+		if (aPower > bPower && aVal != 0) {
 			return 1;
-		else if (aPower < bPower && bVal != 0)
+		} else if (aPower < bPower && bVal != 0) {
 			return -1;
-		// Both have same power, so direct comparison
-		else if (aVal > bVal)
+		} else if (aVal > bVal) {
 			return 1;
-		else if (aVal < bVal)
+		} else if (aVal < bVal) {
 			return -1;
-		else
+		} else {
 			return 0;
+		}
 	}
 
 	// Parse the numeric portion of an argument
 	private static double getByteValue(String arg, int power) {
 		try {
-			if (power == 0)
+			if (power == 0) {
 				return Integer.parseInt(arg);
+			}
 			return Integer.parseInt(arg.substring(0, arg.length() - 1));
 		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException(NLS.bind(Messages.invalid_byte_format, arg));
@@ -212,21 +221,24 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 	protected static void rememberArg(Properties storedValues, String value, String flag) {
 		String argString = storedValues.getProperty(flag);
 
-		if (argString == null)
+		if (argString == null) {
 			argString = ""; //$NON-NLS-1$
-		else if (argString.length() > 0)
+		} else if (argString.length() > 0) {
 			argString += ',';
+		}
 
 		argString += value;
 
-		if (argString.length() != 0)
+		if (argString.length() != 0) {
 			storedValues.put(flag, argString);
+		}
 	}
 
 	protected static String[] getArgs(Properties storage, String flag) {
 		String argString = storage.getProperty(flag);
-		if (argString == null || argString.length() == 0)
+		if (argString == null || argString.length() == 0) {
 			return new String[0];
+		}
 
 		List<String> list = new ArrayList<>();
 		int i = 0;
@@ -238,8 +250,9 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 			if (c == ',') {
 				list.add(arg);
 				arg = ""; //$NON-NLS-1$
-			} else
+			} else {
 				arg += c;
+			}
 		}
 
 		list.add(arg);
@@ -248,10 +261,11 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 
 	// Store a single user argument, null removes stored values
 	private static void setUserArg(Properties storage, String flag, String value) {
-		if (value == null)
+		if (value == null) {
 			storage.remove(PREFIX_USER_VALUE + flag);
-		else
+		} else {
 			storage.setProperty(PREFIX_USER_VALUE + flag, value);
+		}
 	}
 
 	protected static Properties load(File storageArea) throws IOException {
@@ -265,8 +279,9 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 					in = new FileInputStream(file);
 					args.load(in);
 				} finally {
-					if (in != null)
+					if (in != null) {
 						in.close();
+					}
 				}
 			} catch (FileNotFoundException e) {
 				// Should not occur as we check to see if it exists
@@ -278,17 +293,19 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 	protected static void save(Properties args, File storageArea) throws IOException {
 		FileOutputStream out = null;
 		File file = new File(storageArea, STORAGE);
-		if (!file.exists())
+		if (!file.exists()) {
 			// Ensure parent directory exists
 			file.getParentFile().mkdirs();
+		}
 
 		try {
 			try {
 				out = new FileOutputStream(file);
 				args.store(out, null);
 			} finally {
-				if (out != null)
+				if (out != null) {
 					out.close();
+				}
 			}
 		} catch (FileNotFoundException e) {
 			throw new IllegalStateException(NLS.bind(Messages.unable_to_open_file, file));

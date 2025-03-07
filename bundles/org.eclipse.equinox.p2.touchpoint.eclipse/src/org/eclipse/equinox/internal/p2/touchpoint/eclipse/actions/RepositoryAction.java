@@ -76,13 +76,15 @@ abstract class RepositoryAction extends ProvisioningAction {
 		if (repositoryExists(node)) {
 			count = getRepositoryCount(node);
 			// If a user has added a repository we need to set the initial count manually
-			if (count == 0)
+			if (count == 0) {
 				count = 1;
+			}
 		}
 		node.put(KEY_URI, location.toString());
 		node.put(KEY_ENABLED, Boolean.toString(enabled));
-		if (nickname != null)
+		if (nickname != null) {
 			node.put(KEY_NICKNAME, nickname);
+		}
 		count++;
 		setRepositoryCount(node, count);
 		try {
@@ -105,28 +107,33 @@ abstract class RepositoryAction extends ProvisioningAction {
 		int count = getRepositoryCount(node);
 		if (manager.contains(location)) {
 			// If a user as added a repository we need to set the initial count manually
-			if (count == 0)
+			if (count == 0) {
 				count = 1;
+			}
 		} else {
-			if (manager != null)
+			if (manager != null) {
 				manager.addRepository(location);
+			}
 		}
 		// increment the counter & send to preferences
 		count++;
 		setRepositoryCount(node, count);
 
-		if (!event.isRepositoryEnabled())
+		if (!event.isRepositoryEnabled()) {
 			manager.setEnabled(location, false);
+		}
 		final String name = event.getRepositoryNickname();
-		if (name != null)
+		if (name != null) {
 			manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+		}
 	}
 
 	protected RepositoryEvent createEvent(Map<String, Object> parameters) throws CoreException {
 		String parm = (String) parameters.get(ActionConstants.PARM_REPOSITORY_LOCATION);
-		if (parm == null)
+		if (parm == null) {
 			throw new CoreException(Util.createError(
 					NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_REPOSITORY_LOCATION, getId())));
+		}
 		URI location = null;
 		try {
 			location = new URI(parm);
@@ -135,9 +142,10 @@ abstract class RepositoryAction extends ProvisioningAction {
 					NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_REPOSITORY_LOCATION, getId()), e));
 		}
 		parm = (String) parameters.get(ActionConstants.PARM_REPOSITORY_TYPE);
-		if (parm == null)
+		if (parm == null) {
 			throw new CoreException(Util
 					.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_REPOSITORY_TYPE, getId())));
+		}
 		int type = 0;
 		try {
 			type = Integer.parseInt(parm);
@@ -163,14 +171,17 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 */
 	protected boolean isSelfProfile(IProfileRegistry registry, IProfile profile) {
 		// if we can't determine the current profile, assume we are running on self
-		if (profile == null)
+		if (profile == null) {
 			return true;
-		if (registry == null)
+		}
+		if (registry == null) {
 			return false;
+		}
 		final IProfile selfProfile = registry.getProfile(IProfileRegistry.SELF);
 		// if we can't determine the self profile, assume we are running on self
-		if (selfProfile == null)
+		if (selfProfile == null) {
 			return true;
+		}
 		return profile.getProfileId().equals(selfProfile.getProfileId());
 	}
 
@@ -185,8 +196,9 @@ abstract class RepositoryAction extends ProvisioningAction {
 		int count = getRepositoryCount(node);
 		// modify the repository count before (potentially) removing the preference node
 		setRepositoryCount(node, --count);
-		if (count < 1 && manager != null)
+		if (count < 1 && manager != null) {
 			manager.removeRepository(event.getRepositoryLocation());
+		}
 	}
 
 	/**
@@ -210,8 +222,9 @@ abstract class RepositoryAction extends ProvisioningAction {
 				// TODO: Should this be passed back to be associated with State?
 			}
 
-		} else
+		} else {
 			setRepositoryCount(node, count);
+		}
 
 		try {
 			node.flush();
@@ -232,18 +245,20 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * Sets the counter associated with this repository to a specific value
 	 */
 	protected void setRepositoryCount(Preferences node, int count) {
-		if (count < 1)
+		if (count < 1) {
 			node.remove(REPOSITORY_COUNT);
-		else
+		} else {
 			node.putInt(REPOSITORY_COUNT, count);
+		}
 	}
 
 	/*
 	 * Determine if a repository is already known
 	 */
 	protected boolean repositoryExists(Preferences node) {
-		if (node.get(KEY_URI, null) == null)
+		if (node.get(KEY_URI, null) == null) {
 			return false;
+		}
 		return true;
 	}
 
@@ -264,16 +279,18 @@ abstract class RepositoryAction extends ProvisioningAction {
 	private static String getKey(URI location) {
 		String key = location.toString().replace('/', '_');
 		// remove trailing slash
-		if (key.endsWith("_")) //$NON-NLS-1$
+		if (key.endsWith("_")) { //$NON-NLS-1$
 			key = key.substring(0, key.length() - 1);
+		}
 		return key;
 	}
 
 	protected IProvisioningAgent getAgent(Map<String, Object> parameters) throws CoreException {
 		// We shouldn't really know about the session parameter
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get("agent"); //$NON-NLS-1$
-		if (agent == null)
+		if (agent == null) {
 			throw new CoreException(Util.createError(NLS.bind(Messages.parameter_not_set, "agent", getId()))); //$NON-NLS-1$
+		}
 		return agent;
 	}
 }

@@ -109,14 +109,16 @@ public class PlatformConfigurationWrapper {
 			if (bis[i].getSymbolicName().equals(searchFor)) {
 				if (bis[i].getLocation() != null) {
 					try {
-						if (bis[i].getLocation().getScheme().equals("file")) //$NON-NLS-1$
+						if (bis[i].getLocation().getScheme().equals("file")) { //$NON-NLS-1$
 							return fromOSGiJarToOSGiInstallArea(bis[i].getLocation().getPath()).toURI().toURL();
+						}
 					} catch (MalformedURLException e) {
 						// do nothing
 					}
 				}
-				if (searchFor.equals(OSGI))
+				if (searchFor.equals(OSGI)) {
 					return null;
+				}
 				searchFor = OSGI;
 				i = -1;
 			}
@@ -126,8 +128,9 @@ public class PlatformConfigurationWrapper {
 
 	private static File fromOSGiJarToOSGiInstallArea(String path) {
 		IPath parentFolder = IPath.fromOSString(path).removeLastSegments(1);
-		if (parentFolder.lastSegment().equals("plugins")) //$NON-NLS-1$
+		if (parentFolder.lastSegment().equals("plugins")) { //$NON-NLS-1$
 			return parentFolder.removeLastSegments(1).toFile();
+		}
 		return parentFolder.toFile();
 	}
 
@@ -139,8 +142,9 @@ public class PlatformConfigurationWrapper {
 	}
 
 	private void loadDelegate() {
-		if (configuration != null)
+		if (configuration != null) {
 			return;
+		}
 
 		try {
 			if (configFile.exists()) {
@@ -152,8 +156,9 @@ public class PlatformConfigurationWrapper {
 			// TODO: Make this a real message
 			throw new IllegalStateException(Messages.error_parsing_configuration);
 		}
-		if (poolURI == null)
+		if (poolURI == null) {
 			throw new IllegalStateException("Error creating platform configuration. No bundle pool defined."); //$NON-NLS-1$
+		}
 
 		poolSite = getSite(poolURI);
 		if (poolSite == null) {
@@ -169,8 +174,9 @@ public class PlatformConfigurationWrapper {
 	 */
 	private String getDefaultPolicy() {
 		for (Site site : configuration.getSites()) {
-			if (Site.POLICY_MANAGED_ONLY.equals(site.getPolicy()))
+			if (Site.POLICY_MANAGED_ONLY.equals(site.getPolicy())) {
 				return Site.POLICY_MANAGED_ONLY;
+			}
 		}
 		return Site.POLICY_USER_EXCLUDE;
 	}
@@ -196,10 +202,12 @@ public class PlatformConfigurationWrapper {
 		for (Site nextSite : sites) {
 			try {
 				File nextFile = URIUtil.toFile(new URI(nextSite.getUrl()));
-				if (nextFile == null)
+				if (nextFile == null) {
 					continue;
-				if (nextFile.equals(file))
+				}
+				if (nextFile.equals(file)) {
 					return nextSite;
+				}
 			} catch (URISyntaxException e) {
 				// ignore incorrectly formed site
 			}
@@ -227,30 +235,35 @@ public class PlatformConfigurationWrapper {
 	public IStatus addFeatureEntry(File file, String id, String version, String pluginIdentifier, String pluginVersion,
 			boolean primary, String application, URL[] root, String linkFile) {
 		loadDelegate();
-		if (configuration == null)
+		if (configuration == null) {
 			return new Status(IStatus.WARNING, Activator.ID, Messages.platform_config_unavailable, null);
+		}
 
 		URI fileURL = null;
 		File featureDir = file.getParentFile();
-		if (featureDir == null || !featureDir.getName().equals("features")) //$NON-NLS-1$
+		if (featureDir == null || !featureDir.getName().equals("features")) { //$NON-NLS-1$
 			return new Status(IStatus.ERROR, Activator.ID,
-					NLS.bind(Messages.parent_dir_features, file.getAbsolutePath()), null);
+			NLS.bind(Messages.parent_dir_features, file.getAbsolutePath()), null);
+		}
 		File locationDir = featureDir.getParentFile();
-		if (locationDir == null)
+		if (locationDir == null) {
 			return new Status(IStatus.ERROR, Activator.ID,
 					NLS.bind(Messages.cannot_calculate_extension_location, file.getAbsolutePath()), null);
+		}
 
 		fileURL = locationDir.toURI();
 		Site site = getSite(fileURL);
 		if (site == null) {
 			site = createSite(fileURL, getDefaultPolicy());
-			if (linkFile != null)
+			if (linkFile != null) {
 				site.setLinkFile(linkFile);
+			}
 			configuration.add(site);
 		} else {
 			// check to see if the feature already exists in this site
-			if (site.getFeature(id, version) != null)
+			if (site.getFeature(id, version) != null) {
 				return Status.OK_STATUS;
+			}
 		}
 		Feature addedFeature = new Feature(site);
 		addedFeature.setId(id);
@@ -267,12 +280,14 @@ public class PlatformConfigurationWrapper {
 
 	public IStatus removeFeatureEntry(String id, String version) {
 		loadDelegate();
-		if (configuration == null)
+		if (configuration == null) {
 			return new Status(IStatus.WARNING, Activator.ID, Messages.platform_config_unavailable, null);
+		}
 
 		Site site = getSite(id, version);
-		if (site == null)
+		if (site == null) {
 			site = poolSite;
+		}
 		site.removeFeature(makeFeatureURL(id, version));
 		// if we weren't able to remove the feature from the site because it
 		// didn't exist, then someone already did our job for us and it is ok.
@@ -281,12 +296,14 @@ public class PlatformConfigurationWrapper {
 
 	public boolean containsFeature(URI siteURI, String featureId, String featureVersion) {
 		loadDelegate();
-		if (configuration == null)
+		if (configuration == null) {
 			return false;
+		}
 
 		Site site = getSite(siteURI);
-		if (site == null)
+		if (site == null) {
 			return false;
+		}
 
 		return site.getFeature(featureId, featureVersion) != null;
 	}

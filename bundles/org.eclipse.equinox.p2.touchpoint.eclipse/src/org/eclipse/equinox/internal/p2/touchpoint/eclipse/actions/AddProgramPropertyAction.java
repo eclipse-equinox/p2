@@ -29,8 +29,9 @@ public class AddProgramPropertyAction extends ProvisioningAction {
 	// convert it to a real list
 	protected static List<String> convertToList(String value) {
 		List<String> result = new ArrayList<>();
-		for (StringTokenizer tokenizer = new StringTokenizer(value, ","); tokenizer.hasMoreTokens();) //$NON-NLS-1$
+		for (StringTokenizer tokenizer = new StringTokenizer(value, ","); tokenizer.hasMoreTokens();) { //$NON-NLS-1$
 			result.add(tokenizer.nextToken());
+		}
 		return result;
 	}
 
@@ -39,8 +40,9 @@ public class AddProgramPropertyAction extends ProvisioningAction {
 		StringBuilder buffer = new StringBuilder();
 		for (Iterator<String> iter = list.iterator(); iter.hasNext();) {
 			buffer.append(iter.next());
-			if (iter.hasNext())
+			if (iter.hasNext()) {
 				buffer.append(',');
+			}
 		}
 		return buffer.toString();
 	}
@@ -49,11 +51,13 @@ public class AddProgramPropertyAction extends ProvisioningAction {
 	public IStatus execute(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String propName = (String) parameters.get(ActionConstants.PARM_PROP_NAME);
-		if (propName == null)
+		if (propName == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROP_NAME, ID));
+		}
 		String propValue = (String) parameters.get(ActionConstants.PARM_PROP_VALUE);
-		if (propValue == null)
+		if (propValue == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROP_VALUE, ID));
+		}
 		if (propValue != null && propValue.equals(ActionConstants.PARM_AT_ARTIFACT)) {
 			try {
 				propValue = Util.resolveArtifactParam(parameters);
@@ -70,8 +74,9 @@ public class AddProgramPropertyAction extends ProvisioningAction {
 		// make a backup - even if it is null
 		getMemento().put(ActionConstants.PARM_PREVIOUS_VALUE, previous);
 		// assume the value is a comma-separated list and just add ourselves to the end
-		if (previous != null)
+		if (previous != null) {
 			propValue = previous + ',' + propValue;
+		}
 		data.setProperty(propName, propValue);
 		return Status.OK_STATUS;
 	}
@@ -80,8 +85,9 @@ public class AddProgramPropertyAction extends ProvisioningAction {
 	public IStatus undo(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String propName = (String) parameters.get(ActionConstants.PARM_PROP_NAME);
-		if (propName == null)
+		if (propName == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROP_NAME, ID));
+		}
 		String previous = (String) getMemento().get(ActionConstants.PARM_PREVIOUS_VALUE);
 		manipulator.getConfigData().setProperty(propName, previous);
 		return Status.OK_STATUS;

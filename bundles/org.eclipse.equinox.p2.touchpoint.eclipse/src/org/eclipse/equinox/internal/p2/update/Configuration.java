@@ -62,30 +62,35 @@ public class Configuration {
 	}
 
 	List<Site> internalGetSites(boolean includeParent) {
-		if (!includeParent)
+		if (!includeParent) {
 			return sites;
+		}
 		String shared = getSharedUR();
-		if (shared == null)
+		if (shared == null) {
 			return sites;
+		}
 		List<Site> result = new ArrayList<>(sites);
 		try {
 			URL url = new URL(shared);
 			File location = URLUtil.toFile(url);
-			if (location == null)
+			if (location == null) {
 				return result;
+			}
 
 			if (!location.isAbsolute()) {
 				File eclipseHome = Util.getEclipseHome();
-				if (eclipseHome == null)
+				if (eclipseHome == null) {
 					return null;
+				}
 
 				location = new File(eclipseHome, location.getPath());
 			}
 			Configuration parent = Configuration.load(location, Util.getOSGiInstallArea());
-			if (parent == null)
+			if (parent == null) {
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to load parent configuration from: " + location)); //$NON-NLS-1$
-			else
+			} else {
 				result.addAll(parent.getSites());
+			}
 		} catch (MalformedURLException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while getting parent configuration location.", e)); //$NON-NLS-1$
 		} catch (ProvisionException e) {

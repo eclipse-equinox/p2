@@ -70,19 +70,22 @@ public class Util {
 
 	public static URI getBundlePoolLocation(IProvisioningAgent agent, IProfile profile) {
 		String path = profile.getProperty(IProfile.PROP_CACHE);
-		if (path != null)
+		if (path != null) {
 			return new File(path).toURI();
+		}
 		IAgentLocation location = getAgentLocation(agent);
-		if (location == null)
+		if (location == null) {
 			return null;
+		}
 		return location.getDataArea(Activator.ID);
 	}
 
 	public static synchronized IFileArtifactRepository getBundlePoolRepository(IProvisioningAgent agent,
 			IProfile profile) {
 		URI location = getBundlePoolLocation(agent, profile);
-		if (location == null)
+		if (location == null) {
 			return null;
+		}
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager(agent);
 		try {
 			IArtifactRepository repository = manager.loadRepository(location, null);
@@ -125,8 +128,9 @@ public class Util {
 					URI repoLocation = new File(sharedCache).toURI();
 					IArtifactRepository repository = manager.loadRepository(repoLocation, null);
 					if (repository != null && repository instanceof IFileArtifactRepository
-							&& !bundleRepositories.contains(repository))
+							&& !bundleRepositories.contains(repository)) {
 						bundleRepositories.add((IFileArtifactRepository) repository);
+					}
 				} catch (ProvisionException e) {
 					// skip repository if it could not be read
 				}
@@ -135,8 +139,9 @@ public class Util {
 
 		if ((repoFilter & AGGREGATE_CACHE) != 0) {
 			IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(agent, profile);
-			if (bundlePool != null)
+			if (bundlePool != null) {
 				bundleRepositories.add(bundlePool);
+			}
 		}
 
 		if ((repoFilter & AGGREGATE_CACHE_EXTENSIONS) != 0) {
@@ -152,8 +157,9 @@ public class Util {
 					}
 					IArtifactRepository repository = manager.loadRepository(repoLocation, null);
 					if (repository != null && repository instanceof IFileArtifactRepository
-							&& !bundleRepositories.contains(repository))
+							&& !bundleRepositories.contains(repository)) {
 						bundleRepositories.add((IFileArtifactRepository) repository);
+					}
 				} catch (ProvisionException e) {
 					// skip repositories that could not be read
 				} catch (URISyntaxException e) {
@@ -175,8 +181,9 @@ public class Util {
 				IArtifactRepository candidate = manager.loadRepository(localURL, new NullProgressMonitor());
 				if (Boolean.parseBoolean(candidate.getProperty(IArtifactRepository.PROP_RUNNABLE))) {
 					if (candidate != null && candidate instanceof IFileArtifactRepository
-						&& !bundleRepositories.contains(candidate))
+						&& !bundleRepositories.contains(candidate)) {
 						bundleRepositories.add((IFileArtifactRepository) candidate);
+					}
 				}
 			}catch (ProvisionException e) {
 				// skip repositories that could not be read
@@ -198,8 +205,9 @@ public class Util {
 
 	public static BundleInfo createBundleInfo(File bundleFile, IInstallableUnit unit) {
 		BundleInfo bundleInfo = new BundleInfo();
-		if (bundleFile != null)
+		if (bundleFile != null) {
 			bundleInfo.setLocation(bundleFile.toURI());
+		}
 
 		Collection<IProvidedCapability> capabilities = unit.getProvidedCapabilities();
 		for (IProvidedCapability capability : capabilities) {
@@ -211,10 +219,11 @@ public class Util {
 				String fragmentName = capability.getName();
 				String fragmentHost = getFragmentHost(unit, fragmentName);
 				// shouldn't happen as long as the metadata is well-formed
-				if (fragmentHost == null)
+				if (fragmentHost == null) {
 					LogHelper.log(createError("Unable to find fragment host for IU: " + unit)); //$NON-NLS-1$
-				else
+				} else {
 					bundleInfo.setFragmentHost(fragmentHost);
+				}
 				bundleInfo.setVersion(capability.getVersion().toString());
 			}
 		}
@@ -264,8 +273,9 @@ public class Util {
 
 	public static File getConfigurationFolder(IProfile profile) {
 		String config = profile.getProperty(IProfile.PROP_CONFIGURATION_FOLDER);
-		if (config != null)
+		if (config != null) {
 			return new File(config);
+		}
 		return new File(getInstallFolder(profile), "configuration"); //$NON-NLS-1$
 	}
 
@@ -274,10 +284,12 @@ public class Util {
 	 */
 	public static URL getOSGiInstallArea() {
 		Location location = ServiceHelper.getService(Activator.getContext(), Location.class, Location.INSTALL_FILTER);
-		if (location == null)
+		if (location == null) {
 			return null;
-		if (!location.isSet())
+		}
+		if (!location.isSet()) {
 			return null;
+		}
 		return location.getURL();
 	}
 
@@ -288,11 +300,13 @@ public class Util {
 	public static File getEclipseHome() {
 		Location eclipseHome = ServiceHelper.getService(Activator.getContext(), Location.class,
 				Location.ECLIPSE_HOME_FILTER);
-		if (eclipseHome == null || !eclipseHome.isSet())
+		if (eclipseHome == null || !eclipseHome.isSet()) {
 			return null;
+		}
 		URL url = eclipseHome.getURL();
-		if (url == null)
+		if (url == null) {
 			return null;
+		}
 		return URLUtil.toFile(url);
 	}
 
@@ -307,8 +321,9 @@ public class Util {
 
 	public static File getLauncherPath(IProfile profile) {
 		String name = profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME);
-		if (name == null || name.length() == 0)
+		if (name == null || name.length() == 0) {
 			name = "eclipse"; //$NON-NLS-1$
+		}
 		String relativePath = getLauncherRelativePath(name, getOSFromProfile(profile), getInstallFolder(profile));
 		return relativePath == null ? null : new File(getInstallFolder(profile), relativePath);
 	}
@@ -319,15 +334,17 @@ public class Util {
 	private static String getLauncherRelativePath(String name, String os, File installFolder) {
 		if (os == null) {
 			EnvironmentInfo info = ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class);
-			if (info == null)
+			if (info == null) {
 				return null;
+			}
 			os = info.getOS();
 		}
 
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32)) {
 			IPath path = IPath.fromOSString(name);
-			if ("exe".equals(path.getFileExtension())) //$NON-NLS-1$
+			if ("exe".equals(path.getFileExtension())) { //$NON-NLS-1$
 				return name;
+			}
 			return name + ".exe"; //$NON-NLS-1$
 		}
 
@@ -339,14 +356,16 @@ public class Util {
 
 	public static String getOSFromProfile(IProfile profile) {
 		String environments = profile.getProperty(IProfile.PROP_ENVIRONMENTS);
-		if (environments == null)
+		if (environments == null) {
 			return null;
+		}
 		for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) { //$NON-NLS-1$
 			String entry = tokenizer.nextToken();
 			int i = entry.indexOf('=');
 			String key = entry.substring(0, i).trim();
-			if (!key.equals("osgi.os")) //$NON-NLS-1$
+			if (!key.equals("osgi.os")) { //$NON-NLS-1$
 				continue;
+			}
 			return entry.substring(i + 1).trim();
 		}
 		return null;
@@ -375,8 +394,9 @@ public class Util {
 
 	public static String resolveArtifactParam(Map<String, Object> parameters) throws CoreException {
 		String artifactLocation = (String) parameters.get(EclipseTouchpoint.PARM_ARTIFACT_LOCATION);
-		if (artifactLocation != null)
+		if (artifactLocation != null) {
 			return artifactLocation;
+		}
 
 		IArtifactKey artifactKey = (IArtifactKey) parameters.get(EclipseTouchpoint.PARM_ARTIFACT);
 		if (artifactKey == null) {
