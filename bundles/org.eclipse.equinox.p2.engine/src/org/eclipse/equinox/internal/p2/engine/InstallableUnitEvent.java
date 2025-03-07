@@ -50,8 +50,9 @@ public class InstallableUnitEvent extends EventObject {
 		this.prePhase = prePhase;
 		this.profile = profile;
 		this.iu = iu;
-		if (type != UNINSTALL && type != INSTALL && type != UNCONFIGURE && type != CONFIGURE)
+		if (type != UNINSTALL && type != INSTALL && type != UNCONFIGURE && type != CONFIGURE) {
 			throw new IllegalArgumentException(Messages.InstallableUnitEvent_type_not_install_or_uninstall_or_configure);
+		}
 		this.type = type;
 		this.result = result;
 		this.touchpoint = touchpoint;

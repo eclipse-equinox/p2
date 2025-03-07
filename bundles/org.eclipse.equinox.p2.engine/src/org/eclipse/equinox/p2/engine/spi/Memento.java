@@ -26,16 +26,18 @@ public final class Memento {
 	Map<String, Object> mementoMap = new HashMap<>();
 
 	public Object remove(String key) {
-		if (key == null)
+		if (key == null) {
 			throw new NullPointerException();
+		}
 
 		// TODO: persist change
 		return mementoMap.remove(key);
 	}
 
 	public Object put(String key, Object value) {
-		if (key == null)
+		if (key == null) {
 			throw new NullPointerException();
+		}
 
 		validateValue(value);
 
@@ -44,8 +46,9 @@ public final class Memento {
 	}
 
 	public Object get(String key) {
-		if (key == null)
+		if (key == null) {
 			throw new NullPointerException();
+		}
 
 		return mementoMap.get(key);
 	}
@@ -55,16 +58,19 @@ public final class Memento {
 	}
 
 	private static void validateValue(Object value) {
-		if (value == null)
+		if (value == null) {
 			return;
+		}
 
 		Class<? extends Object> clazz = value.getClass();
 
-		if (simples.contains(clazz))
+		if (simples.contains(clazz)) {
 			return;
+		}
 
-		if (simpleArrays.contains(clazz) || primitiveArrays.contains(clazz))
+		if (simpleArrays.contains(clazz) || primitiveArrays.contains(clazz)) {
 			return;
+		}
 
 		throw new IllegalArgumentException(clazz.getName());
 	}

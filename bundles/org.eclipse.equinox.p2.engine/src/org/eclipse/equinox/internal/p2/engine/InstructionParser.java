@@ -51,8 +51,9 @@ public class InstructionParser {
 	}
 
 	private Map<String, ActionEntry> parseImportAttribute(String importAttribute) {
-		if (importAttribute == null)
+		if (importAttribute == null) {
 			return Collections.emptyMap();
+		}
 
 		Map<String, ActionEntry> result = new HashMap<>();
 		StringTokenizer tokenizer = new StringTokenizer(importAttribute, ","); //$NON-NLS-1$
@@ -64,8 +65,9 @@ public class InstructionParser {
 			VersionRange actionVersionRange = null;
 			while (actionTokenizer.hasMoreTokens()) {
 				String actionAttribute = actionTokenizer.nextToken().trim();
-				if (actionAttribute.startsWith(VERSION_EQUALS))
+				if (actionAttribute.startsWith(VERSION_EQUALS)) {
 					actionVersionRange = VersionRange.create(actionAttribute.substring(VERSION_EQUALS.length() + 1));
+				}
 			}
 			result.put(actionKey, new ActionEntry(actionId, actionVersionRange));
 			result.put(actionId, new ActionEntry(actionId, actionVersionRange));
@@ -76,24 +78,28 @@ public class InstructionParser {
 	private ProvisioningAction parseAction(String statement, Map<String, ActionEntry> qualifier, ITouchpointType touchpointType) {
 		int openBracket = statement.indexOf('(');
 		int closeBracket = statement.lastIndexOf(')');
-		if (openBracket == -1 || closeBracket == -1 || openBracket > closeBracket)
+		if (openBracket == -1 || closeBracket == -1 || openBracket > closeBracket) {
 			throw new IllegalArgumentException(NLS.bind(Messages.action_syntax_error, statement));
+		}
 		String actionName = statement.substring(0, openBracket).trim();
 		ProvisioningAction action = lookupAction(actionName, qualifier, touchpointType);
-		if (action instanceof MissingAction)
+		if (action instanceof MissingAction) {
 			return action;
+		}
 
 		String nameValuePairs = statement.substring(openBracket + 1, closeBracket);
-		if (nameValuePairs.length() == 0)
+		if (nameValuePairs.length() == 0) {
 			return new ParameterizedProvisioningAction(action, Collections.emptyMap(), statement);
+		}
 
 		StringTokenizer tokenizer = new StringTokenizer(nameValuePairs, ","); //$NON-NLS-1$
 		Map<String, String> parameters = new HashMap<>();
 		while (tokenizer.hasMoreTokens()) {
 			String nameValuePair = tokenizer.nextToken();
 			int colonIndex = nameValuePair.indexOf(":"); //$NON-NLS-1$
-			if (colonIndex == -1)
+			if (colonIndex == -1) {
 				throw new IllegalArgumentException(NLS.bind(Messages.action_syntax_error, statement));
+			}
 			String name = nameValuePair.substring(0, colonIndex).trim();
 			String value = nameValuePair.substring(colonIndex + 1).trim();
 			parameters.put(name, value);
@@ -111,8 +117,9 @@ public class InstructionParser {
 
 		actionId = actionManager.getTouchpointQualifiedActionId(actionId, touchpointType);
 		ProvisioningAction action = actionManager.getAction(actionId, versionRange);
-		if (action == null)
+		if (action == null) {
 			action = new MissingAction(actionId, versionRange);
+		}
 
 		return action;
 	}

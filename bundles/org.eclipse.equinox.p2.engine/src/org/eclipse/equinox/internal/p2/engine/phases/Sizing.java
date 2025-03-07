@@ -54,12 +54,14 @@ public class Sizing extends InstallableUnitPhase {
 	protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 		IInstallableUnit unit = operand.second();
 		List<ProvisioningAction> parsedActions = getActions(unit, COLLECT_PHASE_ID);
-		if (parsedActions != null)
+		if (parsedActions != null) {
 			return parsedActions;
+		}
 
 		ITouchpointType type = unit.getTouchpointType();
-		if (type == null || type == ITouchpointType.NONE)
+		if (type == null || type == ITouchpointType.NONE) {
 			return null;
+		}
 
 		String actionId = getActionManager().getTouchpointQualifiedActionId(COLLECT_PHASE_ID, type);
 		ProvisioningAction action = getActionManager().getAction(actionId, null);
@@ -84,15 +86,17 @@ public class Sizing extends InstallableUnitPhase {
 		Set<IArtifactRequest> artifactsToObtain = new HashSet<>(artifactRequests.size());
 
 		for (IArtifactRequest[] requests : artifactRequests) {
-			if (requests == null)
+			if (requests == null) {
 				continue;
+			}
 			for (IArtifactRequest request : requests) {
 				artifactsToObtain.add(request);
 			}
 		}
 
-		if (monitor.isCanceled())
+		if (monitor.isCanceled()) {
 			return Status.CANCEL_STATUS;
+		}
 
 		SubMonitor sub = SubMonitor.convert(monitor, 1000);
 		IQueryable<IArtifactRepository> repoQueryable = context.getArtifactRepositories(sub.newChild(500));
@@ -100,32 +104,38 @@ public class Sizing extends InstallableUnitPhase {
 		IArtifactRepository[] repositories = repoQueryable.query(all, sub.newChild(500)).toArray(IArtifactRepository.class);
 
 		for (IArtifactRequest artifactRequest : artifactsToObtain) {
-			if (sub.isCanceled())
+			if (sub.isCanceled()) {
 				break;
+			}
 			boolean found = false;
 			for (IArtifactRepository repo : repositories) {
-				if (sub.isCanceled())
+				if (sub.isCanceled()) {
 					return Status.CANCEL_STATUS;
+				}
 				IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(artifactRequest.getArtifactKey());
 				if (descriptors.length > 0) {
-					if (descriptors[0].getProperty(IArtifactDescriptor.ARTIFACT_SIZE) != null)
+					if (descriptors[0].getProperty(IArtifactDescriptor.ARTIFACT_SIZE) != null) {
 						sizeOnDisk += Long.parseLong(descriptors[0].getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
-					else
+					} else {
 						statusCode = ProvisionException.ARTIFACT_INCOMPLETE_SIZING;
-					if (descriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_SIZE) != null)
+					}
+					if (descriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_SIZE) != null) {
 						dlSize += Long.parseLong(descriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_SIZE));
-					else
+					} else {
 						statusCode = ProvisionException.ARTIFACT_INCOMPLETE_SIZING;
+					}
 					found = true;
 					break;
 				}
 			}
-			if (!found)
+			if (!found) {
 				// The artifact wasn't present in any repository
 				return new Status(IStatus.ERROR, EngineActivator.ID, ProvisionException.ARTIFACT_NOT_FOUND, Messages.Phase_Sizing_Error, null);
+			}
 		}
-		if (statusCode != 0)
+		if (statusCode != 0) {
 			return new Status(IStatus.WARNING, EngineActivator.ID, statusCode, Messages.Phase_Sizing_Warning, null);
+		}
 		return null;
 	}
 

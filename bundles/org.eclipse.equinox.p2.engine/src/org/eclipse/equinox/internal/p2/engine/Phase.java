@@ -53,10 +53,12 @@ public abstract class Phase {
 	protected boolean isPaused = false;
 
 	protected Phase(String phaseId, int weight, boolean forced) {
-		if (phaseId == null || phaseId.length() == 0)
+		if (phaseId == null || phaseId.length() == 0) {
 			throw new IllegalArgumentException(Messages.phaseid_not_set);
-		if (weight <= 0)
+		}
+		if (weight <= 0) {
 			throw new IllegalArgumentException(Messages.phaseid_not_positive);
+		}
 		this.weight = weight;
 		this.phaseId = phaseId;
 		this.forced = forced;
@@ -91,21 +93,24 @@ public abstract class Phase {
 		session.recordPhaseEnter(this);
 		broadcastPhaseEvent(session, operands, PhaseEvent.TYPE_START);
 		prePerform(status, session, subMonitor.newChild(prePerformWork));
-		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
+		if (status.matches(IStatus.ERROR | IStatus.CANCEL)) {
 			return;
+		}
 		session.recordPhaseStart(this);
 
 		subMonitor.setWorkRemaining(mainPerformWork + postPerformWork);
 		mainPerform(status, session, operands, subMonitor.newChild(mainPerformWork));
-		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
+		if (status.matches(IStatus.ERROR | IStatus.CANCEL)) {
 			return;
+		}
 
 		session.recordPhaseEnd(this);
 		subMonitor.setWorkRemaining(postPerformWork);
 		postPerform(status, session, subMonitor.newChild(postPerformWork));
 		phaseParameters.clear();
-		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
+		if (status.matches(IStatus.ERROR | IStatus.CANCEL)) {
 			return;
+		}
 		broadcastPhaseEvent(session, operands, PhaseEvent.TYPE_END);
 		session.recordPhaseExit(this);
 		subMonitor.done();
@@ -127,8 +132,9 @@ public abstract class Phase {
 		subMonitor.beginTask(null, operands.length);
 		for (int i = 0; i < operands.length; i++) {
 			subMonitor.setWorkRemaining(operands.length - i);
-			if (subMonitor.isCanceled())
+			if (subMonitor.isCanceled()) {
 				throw new OperationCanceledException();
+			}
 			while (isPaused) {
 				try {
 					Thread.sleep(1000);
@@ -136,12 +142,14 @@ public abstract class Phase {
 					mergeStatus(status, new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_thread_interrupted_error, phaseId), e));
 					return;
 				}
-				if (subMonitor.isCanceled())
+				if (subMonitor.isCanceled()) {
 					throw new OperationCanceledException();
+				}
 			}
 			Operand operand = operands[i];
-			if (!isApplicable(operand))
+			if (!isApplicable(operand)) {
 				continue;
+			}
 
 			session.recordOperandStart(operand);
 			List<ProvisioningAction> actions = getActions(operand);
@@ -156,8 +164,9 @@ public abstract class Phase {
 			Touchpoint operandTouchpoint = (Touchpoint) operandParameters.get(PARM_TOUCHPOINT);
 			if (operandTouchpoint != null) {
 				mergeStatus(status, initializeTouchpointParameters(profile, operand, operandTouchpoint, subMonitor));
-				if (status.matches(IStatus.ERROR | IStatus.CANCEL))
+				if (status.matches(IStatus.ERROR | IStatus.CANCEL)) {
 					return;
+				}
 
 				operandParameters = touchpointToTouchpointOperandParameters.get(operandTouchpoint);
 			}
@@ -169,8 +178,9 @@ public abstract class Phase {
 					Touchpoint touchpoint = action.getTouchpoint();
 					if (touchpoint != null) {
 						mergeStatus(status, initializeTouchpointParameters(profile, operand, touchpoint, subMonitor));
-						if (status.matches(IStatus.ERROR | IStatus.CANCEL))
+						if (status.matches(IStatus.ERROR | IStatus.CANCEL)) {
 							return;
+						}
 
 						parameters = touchpointToTouchpointOperandParameters.get(touchpoint);
 					}
@@ -186,14 +196,16 @@ public abstract class Phase {
 						actionStatus = action.execute(parameters);
 						lastResult = action.getResult();
 					} catch (RuntimeException e) {
-						if (!forced)
+						if (!forced) {
 							throw e;
+						}
 						// "action.execute" calls user code and might throw an unchecked exception
 						// we catch the error here to gather information on where the problem occurred.
 						actionStatus = new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.forced_action_execute_error, action.getClass().getName()), e);
 					} catch (LinkageError e) {
-						if (!forced)
+						if (!forced) {
 							throw e;
+						}
 						// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
 						actionStatus = new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.forced_action_execute_error, action.getClass().getName()), e);
 					}
@@ -204,14 +216,16 @@ public abstract class Phase {
 						actionStatus = Status.OK_STATUS;
 					}
 					mergeStatus(status, actionStatus);
-					if (status.matches(IStatus.ERROR | IStatus.CANCEL))
+					if (status.matches(IStatus.ERROR | IStatus.CANCEL)) {
 						return;
+					}
 				}
 			}
 			mergeStatus(status, touchpointCompleteOperand(profile, operand, operandParameters, subMonitor));
 			mergeStatus(status, completeOperand(profile, operand, operandParameters, subMonitor));
-			if (status.matches(IStatus.ERROR | IStatus.CANCEL))
+			if (status.matches(IStatus.ERROR | IStatus.CANCEL)) {
 				return;
+			}
 			operandParameters = null;
 			session.recordOperandEnd(operand);
 			subMonitor.worked(1);
@@ -219,23 +233,26 @@ public abstract class Phase {
 	}
 
 	private IStatus initializeTouchpointParameters(IProfile profile, Operand operand, Touchpoint touchpoint, IProgressMonitor monitor) {
-		if (touchpointToTouchpointOperandParameters.containsKey(touchpoint))
+		if (touchpointToTouchpointOperandParameters.containsKey(touchpoint)) {
 			return Status.OK_STATUS;
+		}
 
 		Map<String, Object> touchpointPhaseParameters = touchpointToTouchpointPhaseParameters.get(touchpoint);
 		if (touchpointPhaseParameters == null) {
 			touchpointPhaseParameters = new HashMap<>(phaseParameters);
 			IStatus status = touchpoint.initializePhase(monitor, profile, phaseId, touchpointPhaseParameters);
-			if (status != null && status.matches(IStatus.ERROR | IStatus.CANCEL))
+			if (status != null && status.matches(IStatus.ERROR | IStatus.CANCEL)) {
 				return status;
+			}
 			touchpointToTouchpointPhaseParameters.put(touchpoint, touchpointPhaseParameters);
 		}
 
 		Map<String, Object> touchpointOperandParameters = new HashMap<>(touchpointPhaseParameters);
 		touchpointOperandParameters.putAll(operandParameters);
 		IStatus status = touchpoint.initializeOperand(profile, touchpointOperandParameters);
-		if (status != null && status.matches(IStatus.ERROR | IStatus.CANCEL))
+		if (status != null && status.matches(IStatus.ERROR | IStatus.CANCEL)) {
 			return status;
+		}
 		touchpointToTouchpointOperandParameters.put(touchpoint, touchpointOperandParameters);
 		return Status.OK_STATUS;
 	}
@@ -244,8 +261,9 @@ public abstract class Phase {
 	 * Merges a given IStatus into a MultiStatus
 	 */
 	protected static void mergeStatus(MultiStatus multi, IStatus status) {
-		if (status != null && !status.isOK())
+		if (status != null && !status.isOK()) {
 			multi.merge(status);
+		}
 	}
 
 	void postPerform(MultiStatus status, EngineSession session, IProgressMonitor monitor) {
@@ -262,8 +280,9 @@ public abstract class Phase {
 			Touchpoint operandTouchpoint = (Touchpoint) operandParameters.get(PARM_TOUCHPOINT);
 			if (operandTouchpoint != null) {
 				mergeStatus(status, initializeTouchpointParameters(profile, operand, operandTouchpoint, new NullProgressMonitor()));
-				if (status.matches(IStatus.ERROR | IStatus.CANCEL))
+				if (status.matches(IStatus.ERROR | IStatus.CANCEL)) {
 					return;
+				}
 
 				operandParameters = touchpointToTouchpointOperandParameters.get(operandTouchpoint);
 			}
@@ -274,8 +293,9 @@ public abstract class Phase {
 			Touchpoint touchpoint = action.getTouchpoint();
 			if (touchpoint != null) {
 				mergeStatus(status, initializeTouchpointParameters(profile, operand, touchpoint, new NullProgressMonitor()));
-				if (status.matches(IStatus.ERROR))
+				if (status.matches(IStatus.ERROR)) {
 					return;
+				}
 
 				parameters = touchpointToTouchpointOperandParameters.get(touchpoint);
 			}
@@ -315,8 +335,9 @@ public abstract class Phase {
 	}
 
 	IStatus touchpointCompletePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
-		if (touchpointToTouchpointPhaseParameters.isEmpty())
+		if (touchpointToTouchpointPhaseParameters.isEmpty()) {
 			return Status.OK_STATUS;
+		}
 
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		for (Map.Entry<Touchpoint, Map<String, Object>> entry : touchpointToTouchpointPhaseParameters.entrySet()) {
@@ -333,8 +354,9 @@ public abstract class Phase {
 	}
 
 	IStatus touchpointCompleteOperand(IProfile profile, Operand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
-		if (touchpointToTouchpointOperandParameters.isEmpty())
+		if (touchpointToTouchpointOperandParameters.isEmpty()) {
 			return Status.OK_STATUS;
+		}
 
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		for (Map.Entry<Touchpoint, Map<String, Object>> entry : touchpointToTouchpointOperandParameters.entrySet()) {

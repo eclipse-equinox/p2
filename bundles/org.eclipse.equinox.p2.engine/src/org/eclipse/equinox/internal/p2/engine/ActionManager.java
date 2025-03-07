@@ -46,19 +46,22 @@ public class ActionManager implements IRegistryChangeListener {
 	}
 
 	public Touchpoint getTouchpointPoint(ITouchpointType type) {
-		if (type == null || type == ITouchpointType.NONE)
+		if (type == null || type == ITouchpointType.NONE) {
 			return null;
+		}
 		return touchpointManager.getTouchpoint(type);
 	}
 
 	public String getTouchpointQualifiedActionId(String actionId, ITouchpointType type) {
 		if (actionId.indexOf('.') == -1) {
-			if (type == null || type == ITouchpointType.NONE)
+			if (type == null || type == ITouchpointType.NONE) {
 				return actionId;
+			}
 
 			Touchpoint touchpoint = touchpointManager.getTouchpoint(type);
-			if (touchpoint == null)
+			if (touchpoint == null) {
 				throw new IllegalArgumentException(NLS.bind(Messages.ActionManager_Required_Touchpoint_Not_Found, type.toString(), actionId));
+			}
 			actionId = touchpoint.qualifyAction(actionId);
 		}
 		return actionId;
@@ -74,8 +77,9 @@ public class ActionManager implements IRegistryChangeListener {
 				if (touchpointType != null) {
 					String touchpointVersion = actionElement.getAttribute(TOUCHPOINT_VERSION);
 					Touchpoint touchpoint = touchpointManager.getTouchpoint(touchpointType, touchpointVersion);
-					if (touchpoint == null)
+					if (touchpoint == null) {
 						throw new IllegalArgumentException(NLS.bind(Messages.ActionManager_Required_Touchpoint_Not_Found, touchpointType, actionId));
+					}
 					action.setTouchpoint(touchpoint);
 				}
 				return action;
@@ -89,8 +93,9 @@ public class ActionManager implements IRegistryChangeListener {
 	}
 
 	private synchronized Map<String, IConfigurationElement> getActionMap() {
-		if (actionMap != null)
+		if (actionMap != null) {
 			return actionMap;
+		}
 		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_ACTIONS);
 		IExtension[] extensions = point.getExtensions();
 		actionMap = new HashMap<>(extensions.length);
@@ -98,15 +103,18 @@ public class ActionManager implements IRegistryChangeListener {
 			try {
 				IConfigurationElement[] elements = extension.getConfigurationElements();
 				for (IConfigurationElement actionElement : elements) {
-					if (!actionElement.getName().equals(ELEMENT_ACTION))
+					if (!actionElement.getName().equals(ELEMENT_ACTION)) {
 						continue;
+					}
 
 					String actionId = actionElement.getAttribute(ATTRIBUTE_NAME);
-					if (actionId == null)
+					if (actionId == null) {
 						continue;
+					}
 
-					if (actionId.indexOf('.') == -1)
+					if (actionId.indexOf('.') == -1) {
 						actionId = actionElement.getNamespaceIdentifier() + "." + actionId; //$NON-NLS-1$
+					}
 
 					actionMap.put(actionId, actionElement);
 				}

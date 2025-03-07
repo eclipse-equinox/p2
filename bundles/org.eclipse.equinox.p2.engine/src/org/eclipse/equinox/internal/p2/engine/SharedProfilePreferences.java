@@ -37,14 +37,17 @@ public class SharedProfilePreferences extends ProfilePreferences {
 		String path = absolutePath();
 		segmentCount = getSegmentCount(path);
 
-		if (segmentCount <= 3)
+		if (segmentCount <= 3) {
 			return;
+		}
 
-		if (segmentCount == 4)
+		if (segmentCount == 4) {
 			profileLock = new Object();
+		}
 
-		if (segmentCount < 5)
+		if (segmentCount < 5) {
 			return;
+		}
 		// cache the qualifier
 		qualifier = getQualifierSegment();
 	}
@@ -68,14 +71,16 @@ public class SharedProfilePreferences extends ProfilePreferences {
 	@Override
 	protected IEclipsePreferences getLoadLevel() {
 		if (loadLevel == null) {
-			if (qualifier == null)
+			if (qualifier == null) {
 				return null;
+			}
 			// Make it relative to this node rather than navigating to it from the root.
 			// Walk backwards up the tree starting at this node.
 			// This is important to avoid a chicken/egg thing on startup.
 			IEclipsePreferences node = this;
-			for (int i = 5; i < segmentCount; i++)
+			for (int i = 5; i < segmentCount; i++) {
 				node = (EclipsePreferences) node.parent();
+			}
 			loadLevel = node;
 		}
 		return loadLevel;

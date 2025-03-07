@@ -104,8 +104,9 @@ public class TouchpointManager implements IRegistryChangeListener {
 	 * or <code>null</code> if none are registered.
 	 */
 	public synchronized Touchpoint getTouchpoint(ITouchpointType type) {
-		if (type == null)
+		if (type == null) {
 			throw new IllegalArgumentException(Messages.TouchpointManager_Null_Touchpoint_Type_Argument);
+		}
 		return getTouchpoint(type.getId(), type.getVersion().toString());
 	}
 
@@ -114,16 +115,19 @@ public class TouchpointManager implements IRegistryChangeListener {
 	 * or <code>null</code> if none are registered.
 	 */
 	public Touchpoint getTouchpoint(String typeId, String versionRange) {
-		if (typeId == null || typeId.length() == 0)
+		if (typeId == null || typeId.length() == 0) {
 			throw new IllegalArgumentException(Messages.TouchpointManager_Null_Touchpoint_Type_Argument);
+		}
 
 		TouchpointEntry entry = getTouchpointEntries().get(typeId);
-		if (entry == null)
+		if (entry == null) {
 			return null;
+		}
 		if (versionRange != null) {
 			VersionRange range = VersionRange.create(versionRange);
-			if (!range.isIncluded(entry.getVersion()))
+			if (!range.isIncluded(entry.getVersion())) {
 				return null;
+			}
 		}
 
 		return entry.getTouchpoint();
@@ -133,8 +137,9 @@ public class TouchpointManager implements IRegistryChangeListener {
 	 * Construct a map of the extensions that implement the touchpoints extension point.
 	 */
 	private synchronized Map<String, TouchpointEntry> getTouchpointEntries() {
-		if (touchpointEntries != null)
+		if (touchpointEntries != null) {
 			return touchpointEntries;
+		}
 
 		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_TOUCHPOINTS);
 		IExtension[] extensions = point.getExtensions();

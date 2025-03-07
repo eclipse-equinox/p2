@@ -82,8 +82,9 @@ public class PhaseSetFactory {
 	 * @return the {@link PhaseSet}
 	 */
 	public static final IPhaseSet createDefaultPhaseSetExcluding(String[] exclude) {
-		if (exclude == null || exclude.length == 0)
+		if (exclude == null || exclude.length == 0) {
 			return createDefaultPhaseSet();
+		}
 		List<String> excludeList = Arrays.asList(exclude);
 		List<String> includeList = new ArrayList<>(ALL_PHASES_LIST);
 		includeList.removeAll(excludeList);

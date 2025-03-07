@@ -120,8 +120,9 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 			userProfile.setProperty(IProfile.PROP_ROAMING, Boolean.FALSE.toString());
 		} else {
 			String cache = sharedProfile.getProperty(IProfile.PROP_CACHE);
-			if (cache != null)
+			if (cache != null) {
 				userProfile.setProperty(IProfile.PROP_SHARED_CACHE, cache);
+			}
 		}
 
 		Location configurationLocation = ServiceHelper.getService(EngineActivator.getContext(), Location.class, Location.CONFIGURATION_FILTER);
@@ -135,8 +136,9 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		// We need to check that the configuration folder is not a file system root.
 		// some of the profiles resources are stored as siblings to the configuration folder.
 		// also see bug 230384
-		if (configurationFolder.getParentFile() == null)
+		if (configurationFolder.getParentFile() == null) {
 			throw new IllegalArgumentException("Configuration folder must not be a file system root."); //$NON-NLS-1$
+		}
 
 		userProfile.setProperty(IProfile.PROP_CACHE, configurationFolder.getParentFile().getAbsolutePath());
 
@@ -168,21 +170,24 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	private IProfile getSharedProfile(String id) {
 		SimpleProfileRegistry registry = getProfileRegistry();
 		long[] timestamps = registry.listProfileTimestamps(id);
-		if (timestamps.length == 0)
+		if (timestamps.length == 0) {
 			return null;
+		}
 
 		long currentTimestamp = timestamps[timestamps.length - 1];
 
 		//see if we have a cached profile
 		if (cachedProfile != null) {
 			IProfile profile = cachedProfile.get();
-			if (profile != null && profile.getProfileId().equals(id) && profile.getTimestamp() == currentTimestamp)
+			if (profile != null && profile.getProfileId().equals(id) && profile.getTimestamp() == currentTimestamp) {
 				return profile;
+			}
 		}
 
 		final Profile profile = (Profile) registry.getProfile(id, currentTimestamp);
-		if (profile != null)
+		if (profile != null) {
 			cachedProfile = new SoftReference<>(profile);
+		}
 
 		if (!EngineActivator.EXTENDED) {
 			return profile;
@@ -225,8 +230,9 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	@Override
 	public IProfile createProfile(String id) {
 		final Profile sharedProfile = (Profile) getSharedProfile(id);
-		if (sharedProfile == null)
+		if (sharedProfile == null) {
 			return null;
+		}
 
 		if (!EngineActivator.EXTENDED) {
 			Profile userProfile = new Profile(agent, id, null, sharedProfile.getProperties());
@@ -292,8 +298,9 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	@Override
 	public IQueryResult<IInstallableUnit> queryProfile(IProfile profile, IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		IProfile sharedProfile = getSharedProfile(profile.getProfileId());
-		if (sharedProfile == null)
+		if (sharedProfile == null) {
 			return profile.query(query, monitor);
+		}
 
 		// TODO: Should consider using a sequenced iterator here instead of collecting
 		Collector<IInstallableUnit> result = new Collector<>();

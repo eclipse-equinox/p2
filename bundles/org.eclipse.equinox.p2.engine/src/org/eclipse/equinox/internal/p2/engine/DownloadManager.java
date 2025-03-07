@@ -101,16 +101,19 @@ public class DownloadManager {
 	 */
 	public IStatus start(IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, Messages.download_artifact, 1000);
-		if (requestsToProcess.isEmpty())
+		if (requestsToProcess.isEmpty()) {
 			return Status.OK_STATUS;
+		}
 
-		if (provContext == null)
+		if (provContext == null) {
 			provContext = new ProvisioningContext(agent);
+		}
 
 		IArtifactRepository[] repositories = getArtifactRepositories(subMonitor);
-		if (repositories.length == 0)
+		if (repositories.length == 0) {
 			return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository,
 					new Exception(Collect.NO_ARTIFACT_REPOSITORIES_AVAILABLE));
+		}
 		fetch(repositories, subMonitor.newChild(500));
 		return overallStatus(monitor, repositories);
 	}
@@ -139,8 +142,9 @@ public class DownloadManager {
 			publishDownloadEvent(new CollectEvent(CollectEvent.TYPE_REPOSITORY_START, repositories[i], provContext, requests));
 			IStatus dlStatus = repositories[i].getArtifacts(requests, monitor.newChild(requests.length));
 			publishDownloadEvent(new CollectEvent(CollectEvent.TYPE_REPOSITORY_END, repositories[i], provContext, requests));
-			if (dlStatus.getSeverity() == IStatus.CANCEL)
+			if (dlStatus.getSeverity() == IStatus.CANCEL) {
 				return;
+			}
 			filterUnfetched();
 			monitor.setWorkRemaining(requestsToProcess.size());
 		}
@@ -148,25 +152,29 @@ public class DownloadManager {
 
 	private void publishDownloadEvent(CollectEvent event) {
 		IProvisioningEventBus bus = agent.getService(IProvisioningEventBus.class);
-		if (bus != null)
+		if (bus != null) {
 			bus.publishEvent(event);
+		}
 	}
 
 	private IArtifactRequest[] getRequestsForRepository(IArtifactRepository repository) {
 		ArrayList<IArtifactRequest> applicable = new ArrayList<>();
 		for (IArtifactRequest request : requestsToProcess) {
-			if (repository.contains(request.getArtifactKey()))
+			if (repository.contains(request.getArtifactKey())) {
 				applicable.add(request);
+			}
 		}
 		return applicable.toArray(new IArtifactRequest[applicable.size()]);
 	}
 
 	private IStatus overallStatus(IProgressMonitor monitor, IArtifactRepository[] repositories) {
-		if (monitor != null && monitor.isCanceled())
+		if (monitor != null && monitor.isCanceled()) {
 			return Status.CANCEL_STATUS;
+		}
 
-		if (requestsToProcess.size() == 0)
+		if (requestsToProcess.size() == 0) {
 			return Status.OK_STATUS;
+		}
 
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		for (IArtifactRequest request : requestsToProcess) {

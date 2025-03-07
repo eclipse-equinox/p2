@@ -44,8 +44,9 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		Assert.isNotNull(profile);
 		this.status = status;
 		this.profile = profile;
-		if (operands != null)
+		if (operands != null) {
 			this.operands.addAll(Arrays.asList(operands));
+		}
 		this.context = (context == null) ? new ProvisioningContext(profile.getProvisioningAgent()) : context;
 		this.installerPlan = installerPlan;
 	}
@@ -149,16 +150,18 @@ public class ProvisioningPlan implements IProvisioningPlan {
 	@Override
 	public void setProfileProperty(String name, String value) {
 		String currentValue = profile.getProperty(name);
-		if (value == null && currentValue == null)
+		if (value == null && currentValue == null) {
 			return;
+		}
 		operands.add(new PropertyOperand(name, currentValue, value));
 	}
 
 	@Override
 	public void setInstallableUnitProfileProperty(IInstallableUnit iu, String name, String value) {
 		String currentValue = profile.getInstallableUnitProperty(iu, name);
-		if (value == null && currentValue == null)
+		if (value == null && currentValue == null) {
 			return;
+		}
 		operands.add(new InstallableUnitPropertyOperand(iu, name, currentValue, value));
 	}
 

@@ -508,8 +508,9 @@ public class ProvisioningContext {
 	public void setExtraInstallableUnits(List<IInstallableUnit> extraIUs) {
 		this.extraIUs.clear();
 		//copy the list to prevent future client tampering
-		if (extraIUs != null)
+		if (extraIUs != null) {
 			this.extraIUs.addAll(extraIUs);
+		}
 	}
 
 	/**
