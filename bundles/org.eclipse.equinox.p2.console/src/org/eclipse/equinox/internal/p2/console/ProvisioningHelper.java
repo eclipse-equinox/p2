@@ -60,19 +60,22 @@ public class ProvisioningHelper {
 
 	static IProfile addProfile(IProvisioningAgent agent, String profileId, Map<String, String> properties) throws ProvisionException {
 		IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
-		if (profileRegistry == null)
+		if (profileRegistry == null) {
 			return null;
+		}
 		IProfile profile = profileRegistry.getProfile(profileId);
-		if (profile != null)
+		if (profile != null) {
 			return profile;
+		}
 
 		Map<String, String> profileProperties = new HashMap<>(properties);
 		if (profileProperties.get(IProfile.PROP_ENVIRONMENTS) == null) {
 			EnvironmentInfo info = ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class);
-			if (info != null)
+			if (info != null) {
 				profileProperties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch()); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-			else
+			} else {
 				profileProperties.put(IProfile.PROP_ENVIRONMENTS, ""); //$NON-NLS-1$
+			}
 		}
 
 		return profileRegistry.addProfile(profileId, profileProperties);
@@ -80,22 +83,25 @@ public class ProvisioningHelper {
 
 	static void removeProfile(IProvisioningAgent agent, String profileId) {
 		IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
-		if (profileRegistry == null)
+		if (profileRegistry == null) {
 			return;
+		}
 		profileRegistry.removeProfile(profileId);
 	}
 
 	static IProfile[] getProfiles(IProvisioningAgent agent) {
 		IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
-		if (profileRegistry == null)
+		if (profileRegistry == null) {
 			return new IProfile[0];
+		}
 		return profileRegistry.getProfiles();
 	}
 
 	static IProfile getProfile(IProvisioningAgent agent, String id) {
 		IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
-		if (profileRegistry == null)
+		if (profileRegistry == null) {
 			return null;
+		}
 		return profileRegistry.getProfile(id);
 	}
 
@@ -116,8 +122,9 @@ public class ProvisioningHelper {
 		} else {
 			queryable = getMetadataRepository(agent, location);
 		}
-		if (queryable != null)
+		if (queryable != null) {
 			return queryable.query(query, monitor);
+		}
 		return Collector.emptyCollector();
 	}
 
@@ -129,25 +136,29 @@ public class ProvisioningHelper {
 	 * Install the described IU
 	 */
 	static IStatus install(IProvisioningAgent agent, String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
-		if (profile == null)
+		if (profile == null) {
 			return null;
+		}
 		IQueryResult<IInstallableUnit> units = getInstallableUnits(agent, (URI) null, QueryUtil.createIUQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
 			StringBuilder error = new StringBuilder();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n'); //$NON-NLS-1$
 			error.append("Repositories searched:\n");//$NON-NLS-1$
-			for (URI repo : getMetadataRepositories(agent))
+			for (URI repo : getMetadataRepositories(agent)) {
 				error.append(repo + "\n");//$NON-NLS-1$
+			}
 			throw new ProvisionException(error.toString());
 		}
 
 		IPlanner planner = agent.getService(IPlanner.class);
-		if (planner == null)
+		if (planner == null) {
 			throw new ProvisionException("No planner service found.");//$NON-NLS-1$
+		}
 
 		IEngine engine = agent.getService(IEngine.class);
-		if (engine == null)
+		if (engine == null) {
 			throw new ProvisionException("No director service found."); //$NON-NLS-1$
+		}
 		ProvisioningContext context = new ProvisioningContext(agent);
 		IProfileChangeRequest request = planner.createChangeRequest(profile);
 		request.addAll(units.toUnmodifiableSet());
@@ -168,21 +179,25 @@ public class ProvisioningHelper {
 			profileId = IProfileRegistry.SELF;
 		}
 		IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
-		if (profileRegistry == null)
+		if (profileRegistry == null) {
 			return null;
+		}
 		return profileRegistry.listProfileTimestamps(profileId);
 	}
 
 	static IStatus revertToPreviousState(IProvisioningAgent agent, IProfile profile, long revertToPreviousState) throws ProvisionException {
 		IEngine engine = agent.getService(IEngine.class);
-		if (engine == null)
+		if (engine == null) {
 			throw new ProvisionException("No p2 engine found."); //$NON-NLS-1$
+		}
 		IPlanner planner = agent.getService(IPlanner.class);
-		if (planner == null)
+		if (planner == null) {
 			throw new ProvisionException("No planner found."); //$NON-NLS-1$
+		}
 		IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
-		if (profileRegistry == null)
+		if (profileRegistry == null) {
 			throw new ProvisionException("profile registry cannot be null"); //$NON-NLS-1$
+		}
 		// If given profile is null, then get/use the self profile
 		if (profile == null) {
 			profile = getProfile(agent, IProfileRegistry.SELF);
@@ -190,15 +205,17 @@ public class ProvisioningHelper {
 		IProfile targetProfile = null;
 		if (revertToPreviousState == 0) {
 			long[] profiles = profileRegistry.listProfileTimestamps(profile.getProfileId());
-			if (profiles.length == 0)
+			if (profiles.length == 0) {
 				// Nothing to do, as the profile does not have any previous timestamps
 				return Status.OK_STATUS;
+			}
 			targetProfile = profileRegistry.getProfile(profile.getProfileId(), profiles[profiles.length - 1]);
 		} else {
 			targetProfile = profileRegistry.getProfile(profile.getProfileId(), revertToPreviousState);
 		}
-		if (targetProfile == null)
+		if (targetProfile == null) {
 			throw new ProvisionException("target profile with timestamp=" + revertToPreviousState + " not found"); //$NON-NLS-1$//$NON-NLS-2$
+		}
 		URI[] artifactRepos = getArtifactRepositories(agent).toArray(URI[]::new);
 		URI[] metadataRepos = getMetadataRepositories(agent).toArray(URI[]::new);
 		IProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
@@ -212,8 +229,9 @@ public class ProvisioningHelper {
 	 * Install the described IU
 	 */
 	static IStatus uninstall(IProvisioningAgent agent, String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
-		if (profile == null)
+		if (profile == null) {
 			return null;
+		}
 		IQueryResult<IInstallableUnit> units = profile.query(QueryUtil.createIUQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
 			StringBuilder error = new StringBuilder();
@@ -226,12 +244,14 @@ public class ProvisioningHelper {
 		}
 
 		IPlanner planner = agent.getService(IPlanner.class);
-		if (planner == null)
+		if (planner == null) {
 			throw new ProvisionException("No planner service found."); //$NON-NLS-1$
+		}
 
 		IEngine engine = agent.getService(IEngine.class);
-		if (engine == null)
+		if (engine == null) {
 			throw new ProvisionException("No engine service found."); //$NON-NLS-1$
+		}
 		ProvisioningContext context = new ProvisioningContext(agent);
 		IProfileChangeRequest request = planner.createChangeRequest(profile);
 		request.removeAll(units.toUnmodifiableSet());

@@ -82,8 +82,9 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 		URI repoURI = toURI(interpreter, urlString);
-		if (repoURI == null)
+		if (repoURI == null) {
 			return;
+		}
 		// add metadata repo
 		if (ProvisioningHelper.addMetadataRepository(agent, repoURI) == null) {
 			interpreter.println("Unable to add metadata repository: " + repoURI);
@@ -100,8 +101,9 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 		URI repoURI = toURI(interpreter, urlString);
-		if (repoURI == null)
+		if (repoURI == null) {
 			return;
+		}
 		ProvisioningHelper.removeMetadataRepository(agent, repoURI);
 		ProvisioningHelper.removeArtifactRepository(agent, repoURI);
 	}
@@ -116,10 +118,12 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 		URI repoURI = toURI(interpreter, urlString);
-		if (repoURI == null)
+		if (repoURI == null) {
 			return;
-		if (ProvisioningHelper.addMetadataRepository(agent, repoURI) == null)
+		}
+		if (ProvisioningHelper.addMetadataRepository(agent, repoURI) == null) {
 			interpreter.println("Unable to add repository: " + repoURI);
+		}
 	}
 
 	public void _provdelmetadatarepo(CommandInterpreter interpreter) {
@@ -129,8 +133,9 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 		URI repoURI = toURI(interpreter, urlString);
-		if (repoURI == null)
+		if (repoURI == null) {
 			return;
+		}
 		ProvisioningHelper.removeMetadataRepository(agent, repoURI);
 	}
 
@@ -141,10 +146,12 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 		URI repoURI = toURI(interpreter, urlString);
-		if (repoURI == null)
+		if (repoURI == null) {
 			return;
-		if (ProvisioningHelper.addArtifactRepository(agent, repoURI) == null)
+		}
+		if (ProvisioningHelper.addArtifactRepository(agent, repoURI) == null) {
 			interpreter.println("Unable to add repository " + repoURI);
+		}
 	}
 
 	public void _provdelartifactrepo(CommandInterpreter interpreter) {
@@ -154,8 +161,9 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 		URI repoURI = toURI(interpreter, urlString);
-		if (repoURI == null)
+		if (repoURI == null) {
 			return;
+		}
 		ProvisioningHelper.removeArtifactRepository(agent, repoURI);
 	}
 
@@ -166,8 +174,9 @@ public class ProvCommandProvider implements CommandProvider {
 		String iu = interpreter.nextArgument();
 		String version = interpreter.nextArgument();
 		String profileId = interpreter.nextArgument();
-		if (profileId == null || profileId.equals("this")) //$NON-NLS-1$
+		if (profileId == null || profileId.equals("this")) { //$NON-NLS-1$
 			profileId = IProfileRegistry.SELF;
+		}
 		if (iu == null || version == null || profileId == null) {
 			interpreter.println("Installable unit id, version, and profileid must be provided");
 			return;
@@ -189,9 +198,9 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.printStackTrace(e);
 			return;
 		}
-		if (s.isOK())
+		if (s.isOK()) {
 			interpreter.println("Installation complete for " + iu + " " + version);
-		else {
+		} else {
 			interpreter.println("Installation failed for " + iu + " " + version);
 			interpreter.println(flattenStatus(s.getChildren(), "  "));
 		}
@@ -220,8 +229,9 @@ public class ProvCommandProvider implements CommandProvider {
 		String environments = interpreter.nextArgument();
 		Map<String, String> props = new HashMap<>();
 		props.put(IProfile.PROP_INSTALL_FOLDER, location);
-		if (environments != null)
+		if (environments != null) {
 			props.put(IProfile.PROP_ENVIRONMENTS, environments);
+		}
 
 		try {
 			ProvisioningHelper.addProfile(agent, profileId, props);
@@ -251,8 +261,9 @@ public class ProvCommandProvider implements CommandProvider {
 		String id = processArgument(interpreter.nextArgument());
 		String version = processArgument(interpreter.nextArgument());
 		URI repoURL = null;
-		if (urlString != null && !urlString.equals(WILDCARD_ANY))
+		if (urlString != null && !urlString.equals(WILDCARD_ANY)) {
 			repoURL = toURI(interpreter, urlString);
+		}
 		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoURL,
 				QueryUtil.createIUQuery(id, VersionRange.create(version)), null));
 		for (IInstallableUnit unit : units) {
@@ -275,16 +286,17 @@ public class ProvCommandProvider implements CommandProvider {
 		}
 		boolean useFull = Boolean.parseBoolean(processArgument(interpreter.nextArgument()));
 		URI repoURL = null;
-		if (urlString != null && !urlString.equals(WILDCARD_ANY))
+		if (urlString != null && !urlString.equals(WILDCARD_ANY)) {
 			repoURL = toURI(interpreter, urlString);
+		}
 
 		IQuery<IInstallableUnit> query = useFull ? QueryUtil.createQuery(expression)
 				: QueryUtil.createMatchQuery(expression);
 		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoURL, query, null));
 		// Now print out results
-		if (units.length == 0)
+		if (units.length == 0) {
 			interpreter.println("No units found");
-		else {
+		} else {
 			for (IInstallableUnit unit : units) {
 				println(interpreter, unit);
 			}
@@ -306,8 +318,9 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 		URI repoLocation = toURI(interpreter, urlString);
-		if (repoLocation == null)
+		if (repoLocation == null) {
 			return;
+		}
 		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoLocation,
 				QueryUtil.createIUQuery(id, VersionRange.create(version)), null));
 		for (IInstallableUnit unit : units) {
@@ -324,15 +337,18 @@ public class ProvCommandProvider implements CommandProvider {
 		IQueryable<IInstallableUnit> queryable = null;
 		if (urlString == null) {
 			queryable = agent.getService(IMetadataRepositoryManager.class);
-			if (queryable == null)
+			if (queryable == null) {
 				return;
+			}
 		} else {
 			URI repoURL = toURI(interpreter, urlString);
-			if (repoURL == null)
+			if (repoURL == null) {
 				return;
+			}
 			queryable = ProvisioningHelper.getMetadataRepository(agent, repoURL);
-			if (queryable == null)
+			if (queryable == null) {
 				return;
+			}
 		}
 		IInstallableUnit[] units = sort(queryable.query(QueryUtil.createIUGroupQuery(), null));
 		for (IInstallableUnit unit : units) {
@@ -353,8 +369,9 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 		URI repoURL = toURI(interpreter, urlString);
-		if (repoURL == null)
+		if (repoURL == null) {
 			return;
+		}
 		IArtifactRepository repo = ProvisioningHelper.getArtifactRepository(agent, repoURL);
 		IQueryResult<IArtifactKey> keys = null;
 		try {
@@ -372,8 +389,9 @@ public class ProvCommandProvider implements CommandProvider {
 			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);
 			for (IArtifactDescriptor descriptor : descriptors) {
 				File location = null;
-				if (fileRepo != null)
+				if (fileRepo != null) {
 					location = fileRepo.getArtifactFile(descriptor);
+				}
 				println(interpreter, key, location);
 			}
 
@@ -395,8 +413,9 @@ public class ProvCommandProvider implements CommandProvider {
 	}
 
 	private String processArgument(String arg) {
-		if (arg == null || arg.equals(WILDCARD_ANY))
+		if (arg == null || arg.equals(WILDCARD_ANY)) {
 			return null;
+		}
 		return arg;
 	}
 
@@ -420,8 +439,9 @@ public class ProvCommandProvider implements CommandProvider {
 		}
 		// determine which profile is to be listed
 		IProfile target = null;
-		if (profileId.equals("this")) //$NON-NLS-1$
+		if (profileId.equals("this")) { //$NON-NLS-1$
 			profileId = IProfileRegistry.SELF;
+		}
 		target = ProvisioningHelper.getProfile(agent, profileId);
 		if (target == null) {
 			if (profileId.equals(IProfileRegistry.SELF)) {
@@ -487,8 +507,9 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 		String profileId = interpreter.nextArgument();
-		if (profileId == null || profileId.equals("this"))
+		if (profileId == null || profileId.equals("this")) {
 			profileId = IProfileRegistry.SELF;
+		}
 
 		IProfile profile = ProvisioningHelper.getProfile(agent, profileId);
 		if (profile == null) {
@@ -507,9 +528,9 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.printStackTrace(e);
 			return;
 		}
-		if (s.isOK())
+		if (s.isOK()) {
 			interpreter.println("revert completed");
-		else {
+		} else {
 			interpreter.println("revert failed ");
 			printErrorStatus(interpreter, s);
 		}
@@ -576,9 +597,9 @@ public class ProvCommandProvider implements CommandProvider {
 		}
 		IInstallableUnit[] units = sort(profile.query(query, new NullProgressMonitor()));
 		// Now print out results
-		if (units.length == 0)
+		if (units.length == 0) {
 			interpreter.println("No units found");
-		else {
+		} else {
 			for (IInstallableUnit unit : units) {
 				println(interpreter, unit);
 			}
@@ -589,8 +610,9 @@ public class ProvCommandProvider implements CommandProvider {
 		String iu = interpreter.nextArgument();
 		String version = interpreter.nextArgument();
 		String profileId = interpreter.nextArgument();
-		if (profileId == null || profileId.equals("this"))
+		if (profileId == null || profileId.equals("this")) {
 			profileId = IProfileRegistry.SELF;
+		}
 		if (version == null) {
 			version = Version.emptyVersion.toString();
 		}
@@ -615,9 +637,9 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.printStackTrace(e);
 			return;
 		}
-		if (s.isOK())
+		if (s.isOK()) {
 			interpreter.println("Remove complete for " + iu + " " + version);
-		else {
+		} else {
 			interpreter.println("Remove failed for " + iu + " " + version);
 			printErrorStatus(interpreter, s);
 		}
@@ -662,8 +684,9 @@ public class ProvCommandProvider implements CommandProvider {
 		interpreter.print(",bundle=" + status.getPlugin());
 		interpreter.println("--");
 		Throwable t = status.getException();
-		if (t != null)
+		if (t != null) {
 			interpreter.printStackTrace(t);
+		}
 		IStatus[] children = status.getChildren();
 		if (children != null && children.length > 0) {
 			interpreter.println("Error status children:");
