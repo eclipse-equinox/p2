@@ -58,8 +58,9 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer<IPro
 	@Override
 	public void stop(BundleContext ctxt) throws Exception {
 		agentTracker.close();
-		if (providerRegistration != null)
+		if (providerRegistration != null) {
 			providerRegistration.unregister();
+		}
 		providerRegistration = null;
 		provAgent = null;
 		Activator.context = null;
@@ -94,8 +95,9 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer<IPro
 			return;
 		}
 
-		if (providerRegistration != null)
+		if (providerRegistration != null) {
 			providerRegistration.unregister();
+		}
 		providerRegistration = null;
 		provider = null;
 		provAgent = null;
