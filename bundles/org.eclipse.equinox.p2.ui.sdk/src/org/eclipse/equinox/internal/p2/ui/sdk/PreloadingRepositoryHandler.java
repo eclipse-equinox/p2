@@ -82,8 +82,9 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 				public IStatus runModal(IProgressMonitor monitor) {
 					SubMonitor sub = SubMonitor.convert(monitor, getProgressTaskName(), 1000);
 					IStatus status = super.runModal(sub.newChild(500));
-					if (status.getSeverity() == IStatus.CANCEL)
+					if (status.getSeverity() == IStatus.CANCEL) {
 						return status;
+					}
 					try {
 						doPostLoadBackgroundWork(sub.newChild(500));
 					} catch (OperationCanceledException e) {
@@ -103,10 +104,11 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 				loadJob.addJobChangeListener(new JobChangeAdapter() {
 					@Override
 					public void done(IJobChangeEvent event) {
-						if (PlatformUI.isWorkbenchRunning())
+						if (PlatformUI.isWorkbenchRunning()) {
 							if (event.getResult().isOK()) {
 								PlatformUI.getWorkbench().getDisplay().asyncExec(() -> doExecute(loadJob));
 							}
+						}
 					}
 				});
 				loadJob.setUser(true);

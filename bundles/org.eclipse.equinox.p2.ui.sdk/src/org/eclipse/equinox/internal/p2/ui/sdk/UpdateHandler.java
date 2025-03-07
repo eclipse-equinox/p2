@@ -78,8 +78,9 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 		operation = getProvisioningUI().getUpdateOperation(null, null);
 		// check for updates
 		IStatus resolveStatus = operation.resolveModal(monitor);
-		if (resolveStatus.getSeverity() == IStatus.CANCEL)
+		if (resolveStatus.getSeverity() == IStatus.CANCEL) {
 			throw new OperationCanceledException();
+		}
 	}
 
 	@Override

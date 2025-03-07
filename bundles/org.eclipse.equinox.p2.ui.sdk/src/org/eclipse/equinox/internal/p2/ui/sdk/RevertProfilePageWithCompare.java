@@ -50,8 +50,9 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 
 	@Override
 	public void createPageButtons(Composite parent) {
-		if (ProvisioningUI.getDefaultUI().getProfileId() == null)
+		if (ProvisioningUI.getDefaultUI().getProfileId() == null) {
 			return;
+		}
 		compareButton = createButton(parent, COMPARE_ID, ProvUIMessages.RevertProfilePage_CompareLabel);
 		compareButton.setToolTipText(ProvUIMessages.RevertProfilePage_CompareTooltip);
 		compareButton.setEnabled(computeCompareEnablement(getSelection()));
@@ -89,17 +90,20 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 		super.handleSelectionChanged(selection);
 		if (!selection.isEmpty()) {
 			if (selection.size() == 1) {
-				if (compareButton != null)
+				if (compareButton != null) {
 					compareButton.setEnabled(false);
+				}
 			} else {
 				// multiple selections, we can compare
-				if (compareButton != null)
+				if (compareButton != null) {
 					compareButton.setEnabled(computeCompareEnablement(selection));
+				}
 			}
 		} else {
 			// Nothing is selected
-			if (compareButton != null)
+			if (compareButton != null) {
 				compareButton.setEnabled(false);
+			}
 		}
 	}
 
@@ -112,8 +116,9 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 			if (selected != null && selected instanceof RollbackProfileElement) {
 				result[i++] = (RollbackProfileElement) selected;
 			}
-			if (i == 2)
+			if (i == 2) {
 				break;
+			}
 		}
 		return result;
 	}
@@ -197,8 +202,9 @@ public class RevertProfilePageWithCompare extends RevertProfilePage {
 		 */
 		@Override
 		public boolean equals(Object other) {
-			if (other instanceof ProvElementNode)
+			if (other instanceof ProvElementNode) {
 				return id.equals(((ProvElementNode) other).id);
+			}
 			return super.equals(other);
 		}
 

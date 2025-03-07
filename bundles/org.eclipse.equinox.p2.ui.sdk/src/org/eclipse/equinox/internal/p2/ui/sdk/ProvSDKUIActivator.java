@@ -149,8 +149,9 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		// Create the preference store lazily.
 		if (preferenceStore == null) {
 			final IAgentLocation agentLocation = getAgentLocation();
-			if (agentLocation == null)
+			if (agentLocation == null) {
 				return super.getPreferenceStore();
+			}
 			preferenceStore = new ScopedPreferenceStore(new ProfileScope(agentLocation, IProfileRegistry.SELF), PLUGIN_ID);
 		}
 		return preferenceStore;
@@ -158,19 +159,21 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 
 	private IAgentLocation getAgentLocation() {
 		ServiceReference<IAgentLocation> ref = getContext().getServiceReference(IAgentLocation.class);
-		if (ref == null)
+		if (ref == null) {
 			return null;
+		}
 		IAgentLocation location = getContext().getService(ref);
 		getContext().ungetService(ref);
 		return location;
 	}
 
 	public void savePreferences() {
-		if (preferenceStore != null)
+		if (preferenceStore != null) {
 			try {
 				preferenceStore.save();
 			} catch (IOException e) {
 				StatusManager.getManager().handle(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_ErrorSavingPrefs, e), StatusManager.LOG | StatusManager.SHOW);
 			}
+		}
 	}
 }
