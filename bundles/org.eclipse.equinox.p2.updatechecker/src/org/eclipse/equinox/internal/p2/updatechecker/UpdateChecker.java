@@ -85,8 +85,9 @@ public class UpdateChecker implements IUpdateChecker {
 					if (iusWithUpdates.size() > 0) {
 						trace("Notifying listener of available updates"); //$NON-NLS-1$
 						UpdateEvent event = new UpdateEvent(profileId, iusWithUpdates);
-						if (!done)
+						if (!done) {
 							listener.updatesAvailable(event);
+						}
 					} else {
 						trace("No updates were available"); //$NON-NLS-1$
 					}
@@ -138,16 +139,19 @@ public class UpdateChecker implements IUpdateChecker {
 			int repositoryFlags) {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
 		ArrayList<IInstallableUnit> iusWithUpdates = new ArrayList<>();
-		if (profile == null)
+		if (profile == null) {
 			return Collections.emptyList();
+		}
 		ProvisioningContext context = new ProvisioningContext(agent);
 		context.setMetadataRepositories(getAvailableRepositories(repositoryFlags));
-		if (query == null)
+		if (query == null) {
 			query = QueryUtil.createIUAnyQuery();
+		}
 		for (IInstallableUnit iu : profile.query(query, null)) {
 			IQueryResult<IInstallableUnit> replacements = getPlanner().updatesFor(iu, context, null);
-			if (!replacements.isEmpty())
+			if (!replacements.isEmpty()) {
 				iusWithUpdates.add(iu);
+			}
 		}
 		return iusWithUpdates;
 	}
@@ -171,8 +175,9 @@ public class UpdateChecker implements IUpdateChecker {
 	}
 
 	void trace(String message) {
-		if (Tracing.DEBUG_UPDATE_CHECK)
+		if (Tracing.DEBUG_UPDATE_CHECK) {
 			Tracing.debug(message);
+		}
 	}
 
 	String getTimeStamp() {
