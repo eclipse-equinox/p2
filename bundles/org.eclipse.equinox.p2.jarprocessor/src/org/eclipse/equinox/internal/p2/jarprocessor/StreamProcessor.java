@@ -55,10 +55,11 @@ public class StreamProcessor {
 					break;
 				}
 				if (verbose) {
-					if (STDERR.equals(name))
+					if (STDERR.equals(name)) {
 						System.err.println(name + ": " + s); //$NON-NLS-1$
-					else
+					} else {
 						System.out.println(name + ": " + s); //$NON-NLS-1$
+					}
 				}
 			}
 		} catch (IOException e) {

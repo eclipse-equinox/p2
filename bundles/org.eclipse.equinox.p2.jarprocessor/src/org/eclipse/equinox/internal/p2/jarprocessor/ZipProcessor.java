@@ -41,14 +41,16 @@ public class ZipProcessor {
 	}
 
 	public String getWorkingDirectory() {
-		if (workingDirectory == null)
+		if (workingDirectory == null) {
 			workingDirectory = "."; //$NON-NLS-1$
+		}
 		return workingDirectory;
 	}
 
 	public void processZip(File zipFile) throws ZipException, IOException {
-		if (options.verbose)
+		if (options.verbose) {
 			System.out.println("Processing " + zipFile.getPath()); //$NON-NLS-1$
+		}
 		try (ZipFile zip = new ZipFile(zipFile)) {
 			initialize(zip);
 
@@ -61,8 +63,9 @@ public class ZipProcessor {
 
 			File outputFile = new File(getWorkingDirectory(), zipFile.getName() + ".temp"); //$NON-NLS-1$
 			File parent = outputFile.getParentFile();
-			if (!parent.exists())
+			if (!parent.exists()) {
 				parent.mkdirs();
+			}
 			try (ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(outputFile))) {
 				Enumeration<? extends ZipEntry> entries = zip.entries();
 				if (entries.hasMoreElements()) {
@@ -80,10 +83,12 @@ public class ZipProcessor {
 						if (entry.getName().endsWith(extension) && (sign)) {
 							extractedFile = createSubPathFile(tempDir, name);
 							parent = extractedFile.getParentFile();
-							if (!parent.exists())
+							if (!parent.exists()) {
 								parent.mkdirs();
-							if (options.verbose)
+							}
+							if (options.verbose) {
 								System.out.println("Extracting " + entry.getName()); //$NON-NLS-1$
+							}
 							FileOutputStream extracted = new FileOutputStream(extractedFile);
 							Utils.transferStreams(entryStream, extracted, true); // this will close the stream
 							entryStream = null;
@@ -92,13 +97,15 @@ public class ZipProcessor {
 							if (skip) {
 								// skipping this file
 								entryStream = new FileInputStream(extractedFile);
-								if (options.verbose)
+								if (options.verbose) {
 									System.out.println(entry.getName() + " is not marked, skipping."); //$NON-NLS-1$
+								}
 							} else {
 								if (sign) {
 									processor.clearProcessSteps();
-									if (sign)
+									if (sign) {
 										executor.addSignStep(processor, properties, options);
+									}
 									extractedFile = processor.processJar(extractedFile);
 								}
 								if (extractedFile.exists()) {
@@ -133,8 +140,9 @@ public class ZipProcessor {
 							entryStream.close();
 						}
 
-						if (extractedFile != null)
+						if (extractedFile != null) {
 							Utils.clear(extractedFile);
+						}
 
 						if (options.verbose) {
 							System.out.println();
@@ -144,8 +152,9 @@ public class ZipProcessor {
 				}
 			}
 			File finalFile = new File(getWorkingDirectory(), zipFile.getName());
-			if (finalFile.exists())
+			if (finalFile.exists()) {
 				finalFile.delete();
+			}
 			outputFile.renameTo(finalFile);
 			Utils.clear(tempDir);
 		}
@@ -169,14 +178,16 @@ public class ZipProcessor {
 			try (InputStream stream = zip.getInputStream(entry)) {
 				properties.load(stream);
 			} catch (IOException e) {
-				if (options.verbose)
+				if (options.verbose) {
 					e.printStackTrace();
+				}
 			}
 		}
 
 		signExclusions = Utils.getSignExclusions(properties);
 
-		if (executor == null)
+		if (executor == null) {
 			executor = new JarProcessorExecutor();
+		}
 	}
 }

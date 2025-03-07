@@ -33,8 +33,9 @@ public class JarProcessor {
 	}
 
 	public void setWorkingDirectory(String dir) {
-		if (dir != null)
+		if (dir != null) {
 			workingDirectory = dir;
+		}
 	}
 
 	public void setVerbose(boolean verbose) {
@@ -145,8 +146,9 @@ public class JarProcessor {
 		String result = null;
 		for (IProcessStep step : steps) {
 			result = step.recursionEffect(entryName);
-			if (result != null)
+			if (result != null) {
 				entryName = result;
+			}
 		}
 		return result;
 	}
@@ -157,12 +159,14 @@ public class JarProcessor {
 			// skip if excluding children
 			if (inf.containsKey(Utils.MARK_EXCLUDE_CHILDREN)) {
 				String excludeChildren = inf.getProperty(Utils.MARK_EXCLUDE_CHILDREN);
-				if (Boolean.parseBoolean(excludeChildren))
+				if (Boolean.parseBoolean(excludeChildren)) {
 					if (verbose) {
-						for (int i = 0; i <= depth; i++)
+						for (int i = 0; i <= depth; i++) {
 							System.out.print("  "); //$NON-NLS-1$
+						}
 						System.out.println("Children of " + jar.getName() + "are excluded from processing."); //$NON-NLS-1$ //$NON-NLS-2$
 					}
+				}
 				return;
 			}
 		}
@@ -176,15 +180,17 @@ public class JarProcessor {
 				String newName = recursionEffect(name);
 				if (newName != null) {
 					if (verbose) {
-						for (int i = 0; i <= depth; i++)
+						for (int i = 0; i <= depth; i++) {
 							System.out.print("  "); //$NON-NLS-1$
+						}
 						System.out.println("Processing nested file: " + name); //$NON-NLS-1$
 					}
 					// extract entry to temp directory
 					File extracted = ZipProcessor.createSubPathFile(tempDir, name);
 					File parentDir = extracted.getParentFile();
-					if (!parentDir.exists())
+					if (!parentDir.exists()) {
 						parentDir.mkdirs();
+					}
 
 					InputStream in = null;
 					OutputStream out = null;
@@ -212,8 +218,9 @@ public class JarProcessor {
 					}
 
 					// delete the extracted item leaving the recursion result
-					if (!name.equals(newName))
+					if (!name.equals(newName)) {
 						extracted.delete();
+					}
 				}
 			}
 		}
@@ -223,8 +230,9 @@ public class JarProcessor {
 		File result = null;
 		for (IProcessStep step : steps) {
 			result = step.preProcess(input, tempDir, containingInfs);
-			if (result != null)
+			if (result != null) {
 				input = result;
+			}
 		}
 		return input;
 	}
@@ -233,8 +241,9 @@ public class JarProcessor {
 		File result = null;
 		for (IProcessStep step : steps) {
 			result = step.postProcess(input, tempDir, containingInfs);
-			if (result != null)
+			if (result != null) {
 				input = result;
+			}
 		}
 		return input;
 	}
@@ -253,14 +262,15 @@ public class JarProcessor {
 		try {
 			long lastModified = input.lastModified();
 			File workingDir = new File(getWorkingDirectory());
-			if (!workingDir.exists())
+			if (!workingDir.exists()) {
 				workingDir.mkdirs();
+			}
 
 			boolean skip = Utils.shouldSkipJar(input, processAll, verbose);
 			if (depth == 0 && verbose) {
-				if (skip)
+				if (skip) {
 					System.out.println("Skipping " + input.getPath()); //$NON-NLS-1$
-				else {
+				} else {
 					System.out.print("Running "); //$NON-NLS-1$
 					for (IProcessStep step : steps) {
 						System.out.print(step.getStepName() + " "); //$NON-NLS-1$
@@ -294,8 +304,9 @@ public class JarProcessor {
 				extractEntries(jar, tempDir, replacements, inf);
 
 				boolean infAdjusted = false;
-				if (inf != null)
+				if (inf != null) {
 					infAdjusted = adjustInf(workingFile, inf);
+				}
 
 				// Recreate the jar with replacements.
 				// This is not strictly necessary if we didn't change the inf file and didn't
@@ -304,8 +315,9 @@ public class JarProcessor {
 					File tempJar = null;
 					tempJar = new File(tempDir, workingFile.getName());
 					File parent = tempJar.getParentFile();
-					if (!parent.exists())
+					if (!parent.exists()) {
 						parent.mkdirs();
+					}
 					try (JarOutputStream jarOut = new JarOutputStream(
 							new BufferedOutputStream(new FileOutputStream(tempJar)))) {
 						recreateJar(jar, jarOut, replacements, tempDir, inf);
@@ -328,15 +340,18 @@ public class JarProcessor {
 			normalize(result, workingDir);
 
 			// If the original input is where we ended up, just return it
-			if (input.equals(result))
+			if (input.equals(result)) {
 				return result;
+			}
 
-			if (!result.equals(workingFile) && !workingFile.equals(input))
+			if (!result.equals(workingFile) && !workingFile.equals(input)) {
 				workingFile.delete();
+			}
 			if (!result.getParentFile().equals(workingDir)) {
 				File finalFile = new File(workingDir, result.getName());
-				if (finalFile.exists())
+				if (finalFile.exists()) {
 					finalFile.delete();
+				}
 				result.renameTo(finalFile);
 				result = finalFile;
 			}
@@ -345,8 +360,9 @@ public class JarProcessor {
 			return result;
 		} finally {
 			--depth;
-			if (tempDir != null && tempDir.exists())
+			if (tempDir != null && tempDir.exists()) {
 				Utils.clear(tempDir);
+			}
 		}
 	}
 

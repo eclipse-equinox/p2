@@ -53,15 +53,17 @@ public abstract class CommandStep implements IProcessStep {
 			int result = proc.waitFor();
 			return result;
 		} catch (InterruptedException e) {
-			if (verbose)
+			if (verbose) {
 				e.printStackTrace();
+			}
 		}
 		return -1;
 	}
 
 	public Properties getOptions() {
-		if (options == null)
+		if (options == null) {
 			options = new Properties();
+		}
 		return options;
 	}
 

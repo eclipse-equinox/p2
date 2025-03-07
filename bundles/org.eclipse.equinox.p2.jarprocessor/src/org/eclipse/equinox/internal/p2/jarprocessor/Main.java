@@ -76,8 +76,9 @@ public class Main {
 
 	public static void main(String[] args) {
 		JarProcessorExecutor.Options options = processArguments(args);
-		if (options == null)
+		if (options == null) {
 			return;
+		}
 		new JarProcessorExecutor().runJarProcessor(options);
 	}
 
