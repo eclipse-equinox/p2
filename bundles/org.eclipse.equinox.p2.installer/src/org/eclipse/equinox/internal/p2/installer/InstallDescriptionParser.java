@@ -50,15 +50,17 @@ public class InstallDescriptionParser {
 	public static InstallDescription createDescription(String site, SubMonitor monitor) throws Exception {
 		// if no description URL was given from the outside, look for an "install.properties" file 
 		// in relative to where the installer is running.  This allows the installer to be self-contained
-		if (site == null)
+		if (site == null) {
 			site = "installer.properties"; //$NON-NLS-1$
+		}
 
 		URI propsURI = URIUtil.fromString(site);
 		InputStream in = null;
 		if (!propsURI.isAbsolute()) {
 			String installerInstallArea = System.getProperty("osgi.install.area"); //$NON-NLS-1$
-			if (installerInstallArea == null)
+			if (installerInstallArea == null) {
 				throw new IllegalStateException("Install area is not specified."); //$NON-NLS-1$
+			}
 
 			propsURI = URIUtil.append(URIUtil.fromString(installerInstallArea), site);
 			File installerDescription = URIUtil.toFile(propsURI);
@@ -85,49 +87,59 @@ public class InstallDescriptionParser {
 	}
 
 	private static URI getBase(URI uri) {
-		if (uri == null)
+		if (uri == null) {
 			return null;
+		}
 
 		String uriString = uri.toString();
 		int slashIndex = uriString.lastIndexOf('/');
-		if (slashIndex == -1 || slashIndex == (uriString.length() - 1))
+		if (slashIndex == -1 || slashIndex == (uriString.length() - 1)) {
 			return uri;
+		}
 
 		return URI.create(uriString.substring(0, slashIndex + 1));
 	}
 
 	private static InstallDescription initialize(InstallDescription description, Map<String, String> properties, URI base) {
 		String property = properties.get(PROP_ARTIFACT_REPOSITORY);
-		if (property != null)
+		if (property != null) {
 			description.setArtifactRepositories(getURIs(property, base));
+		}
 
 		property = properties.get(PROP_METADATA_REPOSITORY);
-		if (property != null)
+		if (property != null) {
 			description.setMetadataRepositories(getURIs(property, base));
+		}
 
 		property = properties.get(PROP_IS_AUTO_START);
-		if (property != null)
+		if (property != null) {
 			description.setAutoStart(Boolean.TRUE.toString().equalsIgnoreCase(property));
+		}
 
 		property = properties.get(PROP_LAUNCHER_NAME);
-		if (property != null)
+		if (property != null) {
 			description.setLauncherName(property);
+		}
 
 		property = properties.get(PROP_INSTALL_LOCATION);
-		if (property != null)
+		if (property != null) {
 			description.setInstallLocation(IPath.fromOSString(property));
+		}
 
 		property = properties.get(PROP_AGENT_LOCATION);
-		if (property != null)
+		if (property != null) {
 			description.setAgentLocation(IPath.fromOSString(property));
+		}
 
 		property = properties.get(PROP_BUNDLE_LOCATION);
-		if (property != null)
+		if (property != null) {
 			description.setBundleLocation(IPath.fromOSString(property));
+		}
 
 		property = properties.get(PROP_PROFILE_NAME);
-		if (property != null)
+		if (property != null) {
 			description.setProductName(property);
+		}
 
 		// Process the retro root id and rootVersion properties
 		String id = properties.get(PROP_ROOT_ID);
@@ -151,8 +163,9 @@ public class InstallDescriptionParser {
 					LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid version in install description: " + rootList1, e)); //$NON-NLS-1$
 				}
 			}
-			if (!roots.isEmpty())
+			if (!roots.isEmpty()) {
 				description.setRoots(roots.toArray(new IVersionedId[roots.size()]));
+			}
 		}
 		return description;
 	}
@@ -196,15 +209,17 @@ public class InstallDescriptionParser {
 				LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid URL in install description: " + urlSpec, e)); //$NON-NLS-1$
 			}
 		}
-		if (result.isEmpty())
+		if (result.isEmpty()) {
 			return null;
+		}
 		return result.toArray(new URI[result.size()]);
 	}
 
 	private static void safeClose(InputStream in) {
 		try {
-			if (in != null)
+			if (in != null) {
 				in.close();
+			}
 		} catch (IOException e) {
 			//ignore secondary failure during close
 		}
@@ -215,13 +230,15 @@ public class InstallDescriptionParser {
 	 * specified.
 	 */
 	public static String[] getArrayFromString(String list, String separator) {
-		if (list == null || list.trim().equals("")) //$NON-NLS-1$
+		if (list == null || list.trim().equals("")) { //$NON-NLS-1$
 			return new String[0];
+		}
 		List<String> result = new ArrayList<>();
 		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
 			String token = tokens.nextToken().trim();
-			if (!token.equals("")) //$NON-NLS-1$
+			if (!token.equals("")) { //$NON-NLS-1$
 				result.add(token);
+			}
 		}
 		return result.toArray(new String[result.size()]);
 	}

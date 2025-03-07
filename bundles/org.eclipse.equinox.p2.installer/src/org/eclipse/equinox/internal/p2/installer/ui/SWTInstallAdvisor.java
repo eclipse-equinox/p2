@@ -33,8 +33,9 @@ public class SWTInstallAdvisor extends InstallAdvisor {
 
 	@Override
 	public InstallDescription prepareInstallDescription(InstallDescription description) {
-		if (description.getInstallLocation() == null)
+		if (description.getInstallLocation() == null) {
 			dialog.promptForLocations(description);
+		}
 		return description;
 	}
 
@@ -56,29 +57,34 @@ public class SWTInstallAdvisor extends InstallAdvisor {
 
 	@Override
 	public synchronized void start() {
-		if (stopped || started)
+		if (stopped || started) {
 			return;
+		}
 		started = true;
 		Display display = Display.getCurrent();
-		if (display == null)
+		if (display == null) {
 			display = new Display();
+		}
 		dialog = new InstallDialog();
 		dialog.setMessage(Messages.Advisor_Preparing);
 	}
 
 	@Override
 	public synchronized void stop() {
-		if (stopped || !started)
+		if (stopped || !started) {
 			return;
+		}
 		stopped = true;
 		final InstallDialog activeDialog = dialog;
-		if (activeDialog == null)
+		if (activeDialog == null) {
 			return;
+		}
 		//clear the window now, so the reference is gone no matter what happens during cleanup
 		dialog = null;
 		final Display display = activeDialog.getDisplay();
-		if (display == null || display.isDisposed())
+		if (display == null || display.isDisposed()) {
 			return;
+		}
 		display.syncExec(() -> activeDialog.close());
 		display.dispose();
 	}

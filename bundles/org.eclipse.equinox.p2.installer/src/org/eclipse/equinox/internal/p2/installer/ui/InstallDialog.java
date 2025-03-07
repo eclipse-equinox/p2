@@ -83,28 +83,33 @@ public class InstallDialog {
 
 		void update() {
 			Display display = getDisplay();
-			if (display == null)
+			if (display == null) {
 				return;
+			}
 			display.asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					Shell theShell = getShell();
-					if (theShell == null || theShell.isDisposed())
+					if (theShell == null || theShell.isDisposed()) {
 						return;
+					}
 					progressSubTask.setText(shorten(subTaskName));
-					if (progressBar.isDisposed())
+					if (progressBar.isDisposed()) {
 						return;
+					}
 					progressBar.setVisible(running);
 					progressBar.setMaximum(1000);
 					progressBar.setMinimum(0);
 					int value = (int) (usedWork / totalWork * 1000);
-					if (progressBar.getSelection() < value)
+					if (progressBar.getSelection() < value) {
 						progressBar.setSelection(value);
+					}
 				}
 
 				private String shorten(String text) {
-					if (text.length() <= 64)
+					if (text.length() <= 64) {
 						return text;
+					}
 					int len = text.length();
 					return text.substring(0, 30) + "..." + text.substring(len - 30, len); //$NON-NLS-1$
 				}
@@ -195,26 +200,31 @@ public class InstallDialog {
 		DirectoryDialog dirDialog = new DirectoryDialog(shell);
 		dirDialog.setMessage(Messages.Dialog_SelectLocation);
 		String location = dirDialog.open();
-		if (location == null)
+		if (location == null) {
 			location = ""; //$NON-NLS-1$
+		}
 		settingsLocation.setText(location);
 		validateInstallSettings();
 	}
 
 	protected void buttonPressed(int code) {
 		returnCode = code;
-		if (waitingForClose)
+		if (waitingForClose) {
 			close();
+		}
 		//grey out the cancel button to indicate the request was heard
-		if (code == CANCEL && !cancelButton.isDisposed())
+		if (code == CANCEL && !cancelButton.isDisposed()) {
 			cancelButton.setEnabled(false);
+		}
 	}
 
 	public void close() {
-		if (shell == null)
+		if (shell == null) {
 			return;
-		if (!shell.isDisposed())
+		}
+		if (!shell.isDisposed()) {
 			shell.dispose();
+		}
 		shell = null;
 	}
 
@@ -288,8 +298,9 @@ public class InstallDialog {
 		settingsLocation.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent event) {
-				if (event.character == SWT.CR || event.character == SWT.KEYPAD_CR)
+				if (event.character == SWT.CR || event.character == SWT.KEYPAD_CR) {
 					buttonPressed(OK);
+				}
 			}
 		});
 		settingsBrowse = new Button(locationFieldGroup, SWT.PUSH);
@@ -386,8 +397,9 @@ public class InstallDialog {
 
 	public Display getDisplay() {
 		Shell theShell = shell;
-		if (theShell == null || theShell.isDisposed())
+		if (theShell == null || theShell.isDisposed()) {
 			return null;
+		}
 		return theShell.getDisplay();
 	}
 
@@ -400,8 +412,9 @@ public class InstallDialog {
 	 */
 	public void promptForClose(String message) {
 		Display display = getDisplay();
-		if (display == null)
+		if (display == null) {
 			return;
+		}
 		progressTask.setText(message);
 		progressSubTask.setText(""); //$NON-NLS-1$
 		progressBar.setVisible(false);
@@ -410,15 +423,17 @@ public class InstallDialog {
 		cancelButton.setEnabled(true);
 		waitingForClose = true;
 		while (shell != null && !shell.isDisposed()) {
-			if (!display.readAndDispatch())
+			if (!display.readAndDispatch()) {
 				display.sleep();
+			}
 		}
 	}
 
 	public boolean promptForLaunch(InstallDescription description) {
 		Display display = getDisplay();
-		if (display == null)
+		if (display == null) {
 			return false;
+		}
 		progressTask.setText(NLS.bind(Messages.Dialog_PromptStart, description.getProductName()));
 		progressSubTask.setText(""); //$NON-NLS-1$
 		progressBar.setVisible(false);
@@ -428,8 +443,9 @@ public class InstallDialog {
 		cancelButton.setVisible(true);
 		waitingForClose = true;
 		while (shell != null && !shell.isDisposed()) {
-			if (!display.readAndDispatch())
+			if (!display.readAndDispatch()) {
 				display.sleep();
+			}
 		}
 		return returnCode == OK;
 	}
@@ -449,13 +465,16 @@ public class InstallDialog {
 		Display display = getDisplay();
 		returnCode = -1;
 		while (returnCode == -1 && shell != null && !shell.isDisposed()) {
-			if (!display.readAndDispatch())
+			if (!display.readAndDispatch()) {
 				display.sleep();
+			}
 		}
-		if (returnCode == CANCEL)
+		if (returnCode == CANCEL) {
 			close();
-		if (shell == null || shell.isDisposed())
+		}
+		if (shell == null || shell.isDisposed()) {
 			throw new OperationCanceledException();
+		}
 		setInstallSettingsEnablement(false);
 		IPath location = IPath.fromOSString(settingsLocation.getText());
 		description.setInstallLocation(location);
@@ -464,10 +483,11 @@ public class InstallDialog {
 			description.setAgentLocation(location.append("p2")); //$NON-NLS-1$
 			description.setBundleLocation(location);
 		} else {
-			if (description.getAgentLocation() == null)
+			if (description.getAgentLocation() == null) {
 				description.setAgentLocation(IPath.fromOSString(System.getProperty("user.home")).append(".p2/")); //$NON-NLS-1$ //$NON-NLS-2$
 			//use bundle pool location specified in install description
 			//by default this will be null, causing the bundle pool to be nested in the agent location
+			}
 		}
 		okButton.setVisible(false);
 	}
@@ -507,8 +527,9 @@ public class InstallDialog {
 					}
 					result.done();
 					//wake the event loop
-					if (display != null)
+					if (display != null) {
 						display.wake();
+					}
 				}
 			}
 		};
@@ -518,8 +539,9 @@ public class InstallDialog {
 		thread.start();
 		Display display = getDisplay();
 		while (!result.isDone()) {
-			if (!display.readAndDispatch())
+			if (!display.readAndDispatch()) {
 				display.sleep();
+			}
 		}
 		return result.getStatus();
 	}
@@ -535,8 +557,9 @@ public class InstallDialog {
 	}
 
 	public void setMessage(String message) {
-		if (progressTask != null && !progressTask.isDisposed())
+		if (progressTask != null && !progressTask.isDisposed()) {
 			progressTask.setText(message);
+		}
 	}
 
 	/**
@@ -552,10 +575,11 @@ public class InstallDialog {
 		}
 		okButton.setEnabled(enabled);
 
-		if (settingsStandalone.getSelection())
+		if (settingsStandalone.getSelection()) {
 			settingsExplain.setText(Messages.Dialog_ExplainStandalone);
-		else
+		} else {
 			settingsExplain.setText(Messages.Dialog_ExplainShared);
+		}
 	}
 
 	private void openMessage(String msg, int style) {
