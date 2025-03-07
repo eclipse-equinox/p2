@@ -394,8 +394,9 @@ public class CatalogViewer extends FilteredViewer {
 		resources = new DiscoveryResources(container.getDisplay());
 		_viewer.getControl().addDisposeListener(e -> {
 			resources.dispose();
-			if (catalog != null)
+			if (catalog != null) {
 				catalog.dispose();
+			}
 		});
 		_viewer.addFilter(new Filter());
 		return _viewer;
