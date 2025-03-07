@@ -46,16 +46,19 @@ public class SimpleConfiguratorManipulatorUtils {
 			caughtException = e;
 		} finally {
 			try {
-				if (stream != null)
+				if (stream != null) {
 					stream.close();
+				}
 			} catch (IOException e) {
 				// we want to avoid over-writing the original exception
-				if (caughtException != null)
+				if (caughtException != null) {
 					caughtException = e;
+				}
 			}
 		}
-		if (caughtException != null)
+		if (caughtException != null) {
 			throw caughtException;
+		}
 	}
 
 	/**
@@ -65,8 +68,9 @@ public class SimpleConfiguratorManipulatorUtils {
 		// sort by symbolic name
 		Arrays.sort(simpleInfos, (b1, b2) -> {
 			int bsnComparison = b1.getSymbolicName().compareTo(b2.getSymbolicName());
-			if (bsnComparison != 0)
+			if (bsnComparison != 0) {
 				return bsnComparison;
+			}
 			// prefer latest version, see https://bugs.eclipse.org/363590
 			return new Version(b2.getVersion()).compareTo(new Version(b1.getVersion()));
 		});
@@ -78,10 +82,12 @@ public class SimpleConfiguratorManipulatorUtils {
 			if (SimpleConfiguratorManipulator.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME
 					.equals(simpleInfo.getSymbolicName())) {
 				Version version = new Version(simpleInfo.getVersion());
-				if (version.compareTo(OLD_STYLE_SIMPLE_CONFIGURATOR_VERSION) < 0)
+				if (version.compareTo(OLD_STYLE_SIMPLE_CONFIGURATOR_VERSION) < 0) {
 					oldStyle = true;
-				if (version.compareTo(DEFAULT_ENCODING_CONFIGURATOR_VERSION) < 0)
+				}
+				if (version.compareTo(DEFAULT_ENCODING_CONFIGURATOR_VERSION) < 0) {
 					utf8 = false;
+				}
 				break;
 			}
 		}
@@ -127,8 +133,9 @@ public class SimpleConfiguratorManipulatorUtils {
 	public static String createBundleLocation(URI location, boolean oldStyle) {
 		if (oldStyle) {
 			String scheme = location.getScheme();
-			if (scheme == null)
+			if (scheme == null) {
 				scheme = "file"; //$NON-NLS-1$
+			}
 			return scheme + ':' + location.getSchemeSpecificPart();
 		}
 
