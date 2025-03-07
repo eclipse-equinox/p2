@@ -4,7 +4,7 @@ Bundle-Name: %bundleName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-SymbolicName: org.eclipse.equinox.p2.ui.admin.rcp; singleton:=true
-Bundle-Version: 1.4.100.qualifier
+Bundle-Version: 1.4.200.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.ui.admin.rcp.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.ui,
