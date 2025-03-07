@@ -228,13 +228,15 @@ public class RemediationGroup {
 		nameColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				if (element instanceof RemedyElementCategory)
+				if (element instanceof RemedyElementCategory) {
 					return ((RemedyElementCategory) element).getName();
+				}
 				if (element instanceof RemedyIUDetail) {
 					RemedyIUDetail iu = (RemedyIUDetail) element;
 					String label = iu.getIu().getProperty(IInstallableUnit.PROP_NAME, null);
-					if (label == null)
+					if (label == null) {
 						label = iu.getIu().getId();
+					}
 					return label;
 				}
 				return super.getText(element);
@@ -244,14 +246,18 @@ public class RemediationGroup {
 			public Image getImage(Object element) {
 				if (element instanceof RemedyElementCategory) {
 					RemedyElementCategory category = (RemedyElementCategory) element;
-					if (category.getName().equals(ProvUIMessages.RemedyCategoryAdded))
+					if (category.getName().equals(ProvUIMessages.RemedyCategoryAdded)) {
 						return ProvUIImages.getImage(ProvUIImages.IMG_ADDED);
-					if (category.getName().equals(ProvUIMessages.RemedyCategoryChanged))
+					}
+					if (category.getName().equals(ProvUIMessages.RemedyCategoryChanged)) {
 						return ProvUIImages.getImage(ProvUIImages.IMG_CHANGED);
-					if (category.getName().equals(ProvUIMessages.RemedyCategoryNotAdded))
+					}
+					if (category.getName().equals(ProvUIMessages.RemedyCategoryNotAdded)) {
 						return ProvUIImages.getImage(ProvUIImages.IMG_NOTADDED);
-					if (category.getName().equals(ProvUIMessages.RemedyCategoryRemoved))
+					}
+					if (category.getName().equals(ProvUIMessages.RemedyCategoryRemoved)) {
 						return ProvUIImages.getImage(ProvUIImages.IMG_REMOVED);
+					}
 				} else if (element instanceof RemedyIUDetail) {
 					RemedyIUDetail iuDetail = (RemedyIUDetail) element;
 					int status = compare(iuDetail);
@@ -267,10 +273,12 @@ public class RemediationGroup {
 						return decoratedImg;
 					}
 
-					if (status < 0)
+					if (status < 0) {
 						return ProvUIImages.getImage(ProvUIImages.IMG_DOWNGRADED_IU);
-					if (status > 0)
+					}
+					if (status > 0) {
 						return ProvUIImages.getImage(ProvUIImages.IMG_UPGRADED_IU);
+					}
 					return ProvUIImages.getImage(ProvUIImages.IMG_IU);
 				}
 				return super.getImage(element);
@@ -282,25 +290,30 @@ public class RemediationGroup {
 					RemedyIUDetail iuDetail = (RemedyIUDetail) element;
 					String toolTipText = ""; //$NON-NLS-1$
 					List<String> versions = new ArrayList<>();
-					if (iuDetail.getInstalledVersion() != null)
+					if (iuDetail.getInstalledVersion() != null) {
 						versions.add(ProvUIMessages.RemedyElementInstalledVersion + iuDetail.getInstalledVersion().toString());
-					if (iuDetail.getRequestedVersion() != null)
+					}
+					if (iuDetail.getRequestedVersion() != null) {
 						versions.add(ProvUIMessages.RemedyElementRequestedVersion + iuDetail.getRequestedVersion().toString());
-					if (iuDetail.getBeingInstalledVersion() != null)
+					}
+					if (iuDetail.getBeingInstalledVersion() != null) {
 						versions.add(ProvUIMessages.RemedyElementBeingInstalledVersion + iuDetail.getBeingInstalledVersion().toString());
+					}
 					for (String version : versions) {
 						toolTipText += (toolTipText == "" ? "" : "\n") + version; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					}
-					if (containerPage != null && containerPage.getWizard() instanceof UpdateWizard && compare(iuDetail.getBeingInstalledVersion(), iuDetail.getRequestedVersion()) < 0)
+					if (containerPage != null && containerPage.getWizard() instanceof UpdateWizard && compare(iuDetail.getBeingInstalledVersion(), iuDetail.getRequestedVersion()) < 0) {
 						toolTipText = ProvUIMessages.RemedyElementNotHighestVersion + "\n\n" + toolTipText; //$NON-NLS-1$
+					}
 					return toolTipText;
 				}
 				return super.getToolTipText(element);
 			}
 
 			private int compare(Version versionA, Version versionB) {
-				if (versionA != null && versionB != null)
+				if (versionA != null && versionB != null) {
 					return versionA.compareTo(versionB);
+				}
 				return 0;
 			}
 
@@ -323,8 +336,9 @@ public class RemediationGroup {
 			public String getText(Object element) {
 				if (element instanceof RemedyIUDetail) {
 					RemedyIUDetail iu = (RemedyIUDetail) element;
-					if (iu.getBeingInstalledVersion() != null)
+					if (iu.getBeingInstalledVersion() != null) {
 						return iu.getBeingInstalledVersion().toString();
+					}
 				}
 				return ""; //$NON-NLS-1$
 			}
@@ -447,8 +461,9 @@ public class RemediationGroup {
 
 		@Override
 		public int compare(Viewer viewer1, Object e1, Object e2) {
-			if (!(e1 instanceof RemedyIUDetail && e2 instanceof RemedyIUDetail))
+			if (!(e1 instanceof RemedyIUDetail && e2 instanceof RemedyIUDetail)) {
 				return 0;
+			}
 			IInstallableUnit iu1 = ((RemedyIUDetail) e1).getIu();
 			IInstallableUnit iu2 = ((RemedyIUDetail) e2).getIu();
 			if (iu1 != null && iu2 != null) {

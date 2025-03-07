@@ -60,10 +60,11 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	protected ResolutionResultsWizardPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot input, ProfileChangeOperation operation) {
 		super("ResolutionPage", ui, wizard); //$NON-NLS-1$
 		this.resolvedOperation = operation;
-		if (input == null)
+		if (input == null) {
 			this.input = new IUElementListRoot(ui);
-		else
+		} else {
 			this.input = input;
+		}
 	}
 
 	@Override
@@ -99,24 +100,28 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 			public String getText(Object element) {
 				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 				String label = iu.getProperty(IInstallableUnit.PROP_NAME, null);
-				if (label == null)
+				if (label == null) {
 					label = iu.getId();
+				}
 				return label;
 			}
 
 			@Override
 			public Image getImage(Object element) {
-				if (element instanceof ProvElement)
+				if (element instanceof ProvElement) {
 					return ((ProvElement) element).getImage(element);
-				if (ProvUI.getAdapter(element, IInstallableUnit.class) != null)
+				}
+				if (ProvUI.getAdapter(element, IInstallableUnit.class) != null) {
 					return ProvUIImages.getImage(ProvUIImages.IMG_IU);
+				}
 				return null;
 			}
 
 			@Override
 			public String getToolTipText(Object element) {
-				if (element instanceof AvailableIUElement && ((AvailableIUElement) element).getImageOverlayId(null) == ProvUIImages.IMG_INFO)
+				if (element instanceof AvailableIUElement && ((AvailableIUElement) element).getImageOverlayId(null) == ProvUIImages.IMG_INFO) {
 					return ProvUIMessages.RemedyElementNotHighestVersion;
+				}
 				return super.getToolTipText(element);
 			}
 		});
@@ -128,8 +133,9 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 			public String getText(Object element) {
 				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 				if (element instanceof IIUElement) {
-					if (((IIUElement) element).shouldShowVersion())
+					if (((IIUElement) element).shouldShowVersion()) {
 						return iu.getVersion().toString();
+					}
 					return ""; //$NON-NLS-1$
 				}
 				return iu.getVersion().toString();
@@ -222,8 +228,9 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	}
 
 	public IProvisioningPlan getCurrentPlan() {
-		if (resolvedOperation != null)
+		if (resolvedOperation != null) {
 			return resolvedOperation.getProvisioningPlan();
+		}
 		return null;
 	}
 
@@ -235,8 +242,9 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	@Override
 	protected IInstallableUnit getSelectedIU() {
 		java.util.List<IInstallableUnit> units = ElementUtils.elementsToIUs(getSelectedElements());
-		if (units.size() == 0)
+		if (units.size() == 0) {
 			return null;
+		}
 		return units.get(0);
 	}
 
@@ -250,8 +258,9 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	}
 
 	void setDrilldownElements(IUElementListRoot root, ProfileChangeOperation operation) {
-		if (operation == null || operation.getProvisioningPlan() == null)
+		if (operation == null || operation.getProvisioningPlan() == null) {
 			return;
+		}
 		Object[] elements = root.getChildren(root);
 		for (Object element : elements) {
 			if (element instanceof QueriedElement) {
@@ -311,10 +320,11 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		if (newRoot != null) {
 			setDrilldownElements(newRoot, resolvedOperation);
 			if (treeViewer != null) {
-				if (input != newRoot)
+				if (input != newRoot) {
 					treeViewer.setInput(newRoot);
-				else
+				} else {
 					treeViewer.refresh();
+				}
 			}
 			input = newRoot;
 		}

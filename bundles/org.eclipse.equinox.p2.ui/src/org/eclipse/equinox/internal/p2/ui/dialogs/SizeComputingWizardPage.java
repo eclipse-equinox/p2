@@ -46,27 +46,31 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 		super(ui, wizard, root, initialResolution);
 		// Compute size immediately if a plan is available.  This may or may not finish before
 		// the widgetry is created.
-		if (initialResolution != null && initialResolution.hasResolved())
+		if (initialResolution != null && initialResolution.hasResolved()) {
 			computeSizing(initialResolution.getProvisioningPlan(), initialResolution.getProvisioningContext());
-		else
+		} else {
 			// Set the size to indicate there is no size yet.
 			size = ProvUI.SIZE_NOTAPPLICABLE;
+		}
 	}
 
 	protected void computeSizing(final IProvisioningPlan plan, final ProvisioningContext provisioningContext) {
-		if (plan == lastComputedPlan)
+		if (plan == lastComputedPlan) {
 			return;
+		}
 		lastComputedPlan = plan;
 		size = ProvUI.SIZE_UNKNOWN;
 		updateSizingInfo();
-		if (sizingJob != null)
+		if (sizingJob != null) {
 			sizingJob.cancel();
+		}
 		sizingJob = new Job(ProvUIMessages.SizeComputingWizardPage_SizeJobTitle) {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				size = ProvUI.getSize(ProvUI.getEngine(getProvisioningUI().getSession()), plan, provisioningContext, monitor);
-				if (monitor.isCanceled())
+				if (monitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
+				}
 				if (display != null) {
 					display.asyncExec(() -> updateSizingInfo());
 				}
@@ -90,9 +94,9 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 
 	protected void updateSizingInfo() {
 		if (sizeInfo != null && !sizeInfo.isDisposed()) {
-			if (size == ProvUI.SIZE_NOTAPPLICABLE)
+			if (size == ProvUI.SIZE_NOTAPPLICABLE) {
 				sizeInfo.setVisible(false);
-			else {
+			} else {
 				sizeInfo.setText(NLS.bind(ProvUIMessages.UpdateOrInstallWizardPage_Size, getFormattedSize()));
 				sizeInfo.setVisible(true);
 			}
@@ -100,8 +104,9 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 	}
 
 	protected String getFormattedSize() {
-		if (size == ProvUI.SIZE_UNKNOWN || size == ProvUI.SIZE_UNAVAILABLE)
+		if (size == ProvUI.SIZE_UNKNOWN || size == ProvUI.SIZE_UNAVAILABLE) {
 			return ProvUIMessages.IUDetailsLabelProvider_Unknown;
+		}
 		if (size > 1000L) {
 			long kb = size / 1000L;
 			return NLS.bind(ProvUIMessages.IUDetailsLabelProvider_KB, NumberFormat.getInstance().format(Long.valueOf(kb)));
@@ -120,8 +125,9 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 	@Override
 	public void updateStatus(IUElementListRoot root, ProfileChangeOperation op) {
 		super.updateStatus(root, op);
-		if (op != null && op.getProvisioningPlan() != null)
+		if (op != null && op.getProvisioningPlan() != null) {
 			computeSizing(op.getProvisioningPlan(), op.getProvisioningContext());
+		}
 	}
 
 	@Override

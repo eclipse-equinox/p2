@@ -79,8 +79,9 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 			if (parent instanceof QueriedElement) {
 				QueriedElement element = (QueriedElement) parent;
 				IUViewQueryContext context = element.getQueryContext();
-				if (context == null)
+				if (context == null) {
 					context = ProvUI.getQueryContext(element.getPolicy());
+				}
 				if (parent instanceof MetadataRepositoryElement || parent instanceof MetadataRepositories) {
 					if (context != null && context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY && context.getUseCategories()) {
 						return emptyExplanation(IStatus.INFO, ProvUIMessages.QueriedElementWrapper_NoCategorizedItemsExplanation, context.getUsingCategoriesDescription());
@@ -95,8 +96,9 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 		// We had elements but now they have been filtered out.  Hopefully
 		// we can explain this.
 		if (elements.isEmpty()) {
-			if (emptyExplanationString != null)
+			if (emptyExplanationString != null) {
 				return emptyExplanation(emptyExplanationSeverity, emptyExplanationString, emptyExplanationDescription);
+			}
 			// We filtered out content but never explained it.  Ideally this doesn't happen if
 			// all wrappers explain any filtering.
 			return emptyExplanation(emptyExplanationSeverity, ProvUIMessages.QueriedElementWrapper_NoItemsExplanation, null);

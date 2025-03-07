@@ -55,8 +55,9 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 		List<RollbackProfileElement> elements = new ArrayList<>();
 
 		for (int i = 0; i < timestamps.length; i++) {
-			if (hidden.containsKey(String.valueOf(timestamps[i])))
+			if (hidden.containsKey(String.valueOf(timestamps[i]))) {
 				continue;
+			}
 			RollbackProfileElement element = null;
 			String timestamp = String.valueOf(timestamps[i]);
 			if (!tag.containsKey(timestamp)) {
@@ -70,12 +71,14 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 			// This doesn't always happen, but can, and we don't want to offer the user an
 			// empty profile to
 			// revert to. Just reset the list since it only has one element.
-			if (i == 0 && element.getChildren(element).length == 0)
+			if (i == 0 && element.getChildren(element).length == 0) {
 				elements.clear();
+			}
 		}
 		// current profile is the last one in the list
-		if (elements.size() > 0)
+		if (elements.size() > 0) {
 			elements.get(elements.size() - 1).setIsCurrentProfile(true);
+		}
 		return elements.toArray(new RollbackProfileElement[elements.size()]);
 	}
 

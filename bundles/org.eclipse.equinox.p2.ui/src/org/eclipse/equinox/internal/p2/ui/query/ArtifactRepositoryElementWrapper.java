@@ -40,8 +40,9 @@ public class ArtifactRepositoryElementWrapper extends QueriedElementWrapper {
 	 */
 	@Override
 	protected boolean shouldWrap(Object match) {
-		if ((match instanceof URI))
+		if ((match instanceof URI)) {
 			return true;
+		}
 		return false;
 	}
 

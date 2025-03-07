@@ -40,8 +40,9 @@ public class QueryableUpdates implements IQueryable<IInstallableUnit> {
 
 	@Override
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-		if (monitor == null)
+		if (monitor == null) {
 			monitor = new NullProgressMonitor();
+		}
 		int totalWork = 2000;
 		SubMonitor subMonitor = SubMonitor.convert(monitor, ProvUIMessages.QueryableUpdates_UpdateListProgress,
 				totalWork);

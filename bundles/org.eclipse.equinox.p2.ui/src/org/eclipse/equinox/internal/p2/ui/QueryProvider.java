@@ -56,11 +56,13 @@ public class QueryProvider {
 	 * if the settings cannot be obtained.
 	 */
 	private static Map<String, String> getEnvFromProfile(IProfile profile) {
-		if (profile == null)
+		if (profile == null) {
 			return null;
+		}
 		String environments = profile.getProperty(IProfile.PROP_ENVIRONMENTS);
-		if (environments == null)
+		if (environments == null) {
 			return null;
+		}
 		Map<String, String> result = new HashMap<>();
 		for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) { //$NON-NLS-1$
 			String entry = tokenizer.nextToken();
@@ -75,11 +77,13 @@ public class QueryProvider {
 	// If we are supposed to filter out the results based on the environment settings in
 	// the target profile then create a compound query otherwise just return the given query
 	private IQuery<IInstallableUnit> createEnvironmentFilterQuery(IUViewQueryContext context, IProfile profile, IQuery<IInstallableUnit> query) {
-		if (!context.getFilterOnEnv())
+		if (!context.getFilterOnEnv()) {
 			return query;
+		}
 		Map<String, String> environment = getEnvFromProfile(profile);
-		if (environment == null)
+		if (environment == null) {
 			return query;
+		}
 		IInstallableUnit envIU = InstallableUnit.contextIU(environment);
 		IQuery<IInstallableUnit> filterQuery = QueryUtil.createMatchQuery("filter == null || $0 ~= filter", envIU); //$NON-NLS-1$
 		return QueryUtil.createCompoundQuery(query, filterQuery, true);
@@ -125,10 +129,12 @@ public class QueryProvider {
 				if (element instanceof MetadataRepositories || element instanceof MetadataRepositoryElement) {
 					if (context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_FLAT || !context.getUseCategories()) {
 						AvailableIUWrapper wrapper = new AvailableIUWrapper(queryable, element, false, context.getShowAvailableChildren());
-						if (showLatest)
+						if (showLatest) {
 							topLevelQuery = QueryUtil.createLatestQuery(topLevelQuery);
-						if (targetProfile != null)
+						}
+						if (targetProfile != null) {
 							wrapper.markInstalledIUs(targetProfile, hideInstalled);
+						}
 						return new ElementQueryDescriptor(queryable, topLevelQuery, new Collector<>(), wrapper);
 					}
 					// Installed content not a concern for collecting categories
@@ -152,18 +158,21 @@ public class QueryProvider {
 					}
 					memberOfCategoryQuery = createEnvironmentFilterQuery(context, targetProfile, memberOfCategoryQuery);
 					availableIUWrapper = new AvailableIUWrapper(queryable, element, true, drillDownTheChildren);
-					if (targetProfile != null)
+					if (targetProfile != null) {
 						availableIUWrapper.markInstalledIUs(targetProfile, hideInstalled);
+					}
 					// if it's a category, there is a special query.
 					if (element instanceof CategoryElement) {
-						if (showLatest)
+						if (showLatest) {
 							memberOfCategoryQuery = QueryUtil.createLatestQuery(memberOfCategoryQuery);
+						}
 						return new ElementQueryDescriptor(queryable, memberOfCategoryQuery, new Collector<>(), availableIUWrapper);
 					}
 					// It is not a category, we want to traverse the requirements that are groups.
 					IQuery<IInstallableUnit> query = QueryUtil.createCompoundQuery(topLevelQuery, new RequiredIUsQuery(((IIUElement) element).getIU()), true);
-					if (showLatest)
+					if (showLatest) {
 						query = QueryUtil.createLatestQuery(query);
+					}
 					// If it's not a category, these are generic requirements and should be filtered by the visibility property (topLevelQuery)
 					return new ElementQueryDescriptor(queryable, query, new Collector<>(), availableIUWrapper);
 				}
@@ -180,8 +189,9 @@ public class QueryProvider {
 				} else {
 					profile = ProvUI.getAdapter(element, IProfile.class);
 				}
-				if (profile == null)
+				if (profile == null) {
 					return null;
+				}
 				if (toUpdate == null) {
 					IQueryResult<IInstallableUnit> queryResult = profile.query(policy.getVisibleInstalledIUQuery(), null);
 					toUpdate = queryResult.toArray(IInstallableUnit.class);
@@ -193,8 +203,9 @@ public class QueryProvider {
 				// Querying of IU's.  We are drilling down into the requirements.
 				if (element instanceof IIUElement && context.getShowInstallChildren()) {
 					Collection<IRequirement> reqs = ((IIUElement) element).getRequirements();
-					if (reqs.size() == 0)
+					if (reqs.size() == 0) {
 						return null; // no children
+					}
 					IExpression[] requirementExpressions = new IExpression[reqs.size()];
 					int i = 0;
 					for (IRequirement req : reqs) {
@@ -208,8 +219,9 @@ public class QueryProvider {
 					return new ElementQueryDescriptor(queryable, createCompoundQuery, new Collector<>(), new InstalledIUElementWrapper(queryable, element));
 				}
 				profile = ProvUI.getAdapter(element, IProfile.class);
-				if (profile == null)
+				if (profile == null) {
 					return null;
+				}
 				return new ElementQueryDescriptor(profile, policy.getVisibleInstalledIUQuery(), new Collector<>(), new InstalledIUElementWrapper(profile, element));
 
 			case METADATA_REPOS :
@@ -227,8 +239,9 @@ public class QueryProvider {
 				return new ElementQueryDescriptor(queryable, QueryUtil.createMatchQuery(IProfile.class, ExpressionUtil.TRUE_EXPRESSION), new Collector<>(), new ProfileElementWrapper(null, element));
 
 			case AVAILABLE_ARTIFACTS :
-				if (!(queryable instanceof IArtifactRepository))
+				if (!(queryable instanceof IArtifactRepository)) {
 					return null;
+				}
 				return new ElementQueryDescriptor(queryable, ArtifactKeyQuery.ALL_KEYS, new Collector<>(), new ArtifactKeyWrapper((IArtifactRepository) queryable, element));
 
 			default :

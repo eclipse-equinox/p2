@@ -92,8 +92,9 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 	@Override
 	protected void startFetchingDeferredChildren(final Object parent, final IDeferredWorkbenchAdapter adapter,
 			final PendingUpdateAdapter placeholder) {
-		if (placeholder instanceof ElementPendingUpdateAdapter)
+		if (placeholder instanceof ElementPendingUpdateAdapter) {
 			notifyListener(true, (ElementPendingUpdateAdapter) placeholder);
+		}
 		super.startFetchingDeferredChildren(parent, adapter, placeholder);
 	}
 
@@ -139,8 +140,9 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 	}
 
 	private void notifyListener(boolean starting, ElementPendingUpdateAdapter placeholder) {
-		if (listeners == null || listeners.isEmpty())
+		if (listeners == null || listeners.isEmpty()) {
 			return;
+		}
 		if (starting) {
 			for (IDeferredQueryTreeListener deferredQueryTreeListener : listeners) {
 				deferredQueryTreeListener.fetchingDeferredChildren(placeholder.element, placeholder);

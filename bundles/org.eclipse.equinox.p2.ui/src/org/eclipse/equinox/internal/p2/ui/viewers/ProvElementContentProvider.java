@@ -46,8 +46,9 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 		if (fetchInBackground && input instanceof IDeferredWorkbenchAdapter && viewer instanceof AbstractTableViewer) {
 			final Display display = viewer.getControl().getDisplay();
 			final Object pending = new PendingUpdateAdapter();
-			if (fetchJob != null)
+			if (fetchJob != null) {
 				fetchJob.cancel();
+			}
 			fetchJob = new Job(ProvUIMessages.ProvElementContentProvider_FetchJobTitle) {
 				@Override
 				protected IStatus run(final IProgressMonitor monitor) {
@@ -56,15 +57,17 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 					parent.fetchDeferredChildren(parent, new IElementCollector() {
 						@Override
 						public void add(Object element, IProgressMonitor mon) {
-							if (mon.isCanceled())
+							if (mon.isCanceled()) {
 								return;
+							}
 							children.add(element);
 						}
 
 						@Override
 						public void add(Object[] elements, IProgressMonitor mon) {
-							if (mon.isCanceled())
+							if (mon.isCanceled()) {
 								return;
+							}
 							children.addAll(Arrays.asList(elements));
 						}
 
@@ -77,8 +80,9 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 					if (!monitor.isCanceled()) {
 						display.asyncExec(() -> {
 							AbstractTableViewer tableViewer = (AbstractTableViewer) viewer;
-							if (monitor.isCanceled() || tableViewer == null || tableViewer.getControl().isDisposed())
+							if (monitor.isCanceled() || tableViewer == null || tableViewer.getControl().isDisposed()) {
 								return;
+							}
 							tableViewer.getControl().setRedraw(false);
 							tableViewer.remove(pending);
 							tableViewer.add(children.toArray());
@@ -113,8 +117,9 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 
 	@Override
 	public boolean hasChildren(Object element) {
-		if (element instanceof ProvElement)
+		if (element instanceof ProvElement) {
 			return ((ProvElement) element).hasChildren(element);
+		}
 		return false;
 	}
 

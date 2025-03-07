@@ -127,8 +127,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 	@Override
 	public void createPageButtons(Composite parent) {
-		if (profileId == null)
+		if (profileId == null) {
 			return;
+		}
 		deleteButton = createButton(parent, DELETE_ID, ProvUIMessages.RevertProfilePage_Delete);
 		deleteButton.setToolTipText(ProvUIMessages.RevertProfilePage_DeleteTooltip);
 		deleteButton.setEnabled(computeDeleteEnablement());
@@ -142,8 +143,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		profileId = getProvisioningUI().getProfileId();
 		if (profileId == null) {
 			IStatus status = getProvisioningUI().getPolicy().getNoProfileChosenStatus();
-			if (status != null)
+			if (status != null) {
 				ProvUI.reportStatus(status, StatusManager.LOG);
+			}
 			Text text = new Text(parent, SWT.WRAP | SWT.READ_ONLY);
 			text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			text.setText(ProvUIMessages.RevertProfilePage_NoProfile);
@@ -185,8 +187,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			@Override
 			protected void finishedFetchingElements(Object o) {
 				Object element = configsViewer.getElementAt(0);
-				if (element != null)
+				if (element != null) {
 					configsViewer.setSelection(new StructuredSelection(element));
+				}
 			}
 		};
 		setConfigsColumns(configsViewer);
@@ -205,8 +208,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 				if (o1 instanceof RollbackProfileElement && o2 instanceof RollbackProfileElement) {
 					long timestamp1 = ((RollbackProfileElement) o1).getTimestamp();
 					long timestamp2 = ((RollbackProfileElement) o2).getTimestamp();
-					if (timestamp1 > timestamp2)
+					if (timestamp1 > timestamp2) {
 						return -1;
+					}
 					return 1;
 				}
 				// this is naive (doesn't consult the label provider), but shouldn't happen
@@ -325,10 +329,12 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 					configContentsViewer.getTree().setRedraw(true);
 					boolean isNotCurrentProfile = !((RollbackProfileElement) selected).isCurrentProfile();
 					revertAction.setEnabled(isNotCurrentProfile);
-					if (revertButton != null)
+					if (revertButton != null) {
 						revertButton.setEnabled(isNotCurrentProfile);
-					if (deleteButton != null)
+					}
+					if (deleteButton != null) {
 						deleteButton.setEnabled(isNotCurrentProfile);
+					}
 					return;
 				}
 			} else {
@@ -345,10 +351,12 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		// Nothing is selected
 		configContentsViewer.setInput(null);
 		revertAction.setEnabled(false);
-		if (revertButton != null)
+		if (revertButton != null) {
 			revertButton.setEnabled(false);
-		if (deleteButton != null)
+		}
+		if (deleteButton != null) {
 			deleteButton.setEnabled(computeDeleteEnablement());
+		}
 	}
 
 	boolean computeDeleteEnablement() {
@@ -382,15 +390,17 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 	private IProfile getSelectedSnapshot() {
 		Object selected = configsViewer.getStructuredSelection().getFirstElement();
-		if (selected != null && selected instanceof RollbackProfileElement)
+		if (selected != null && selected instanceof RollbackProfileElement) {
 			return ((RollbackProfileElement) selected).getProfileSnapshot(new NullProgressMonitor());
+		}
 		return null;
 	}
 
 	boolean revert() {
 		final IProfile snapshot = getSelectedSnapshot();
-		if (snapshot == null)
+		if (snapshot == null) {
 			return false;
+		}
 		final IProvisioningPlan[] plan = new IProvisioningPlan[1];
 		IRunnableWithProgress runnable = monitor -> {
 			IProfile currentProfile;
@@ -409,8 +419,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		}
 		// the dialog does not throw OperationCanceledException so we have to
 		// check the monitor
-		if (dialog.getProgressMonitor().isCanceled())
+		if (dialog.getProgressMonitor().isCanceled()) {
 			return false;
+		}
 
 		boolean reverted = false;
 		if (plan[0] != null) {
@@ -444,16 +455,19 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			StringBuilder buffer = new StringBuilder();
 			for (int i = 0; i < elements.length; i++) {
 				if (elements[i] instanceof RollbackProfileElement) {
-					if (i > 0)
+					if (i > 0) {
 						buffer.append(CopyUtils.NEWLINE);
+					}
 					buffer.append(((RollbackProfileElement) elements[i]).getLabel(elements[i]));
 				}
 			}
 			text = buffer.toString();
-		} else
+		} else {
 			return;
-		if (text.isEmpty())
+		}
+		if (text.isEmpty()) {
 			return;
+		}
 		Clipboard clipboard = new Clipboard(PlatformUI.getWorkbench().getDisplay());
 		clipboard.setContents(new Object[] { text }, new Transfer[] { TextTransfer.getInstance() });
 		clipboard.dispose();
@@ -461,8 +475,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 	void deleteSelectedSnapshots() {
 		IStructuredSelection selection = configsViewer.getStructuredSelection();
-		if (selection.isEmpty())
+		if (selection.isEmpty()) {
 			return;
+		}
 		String title = selection.size() == 1 ? ProvUIMessages.RevertProfilePage_DeleteSingleConfigurationTitle
 				: ProvUIMessages.RevertProfilePage_DeleteMultipleConfigurationsTitle;
 		String confirmMessage = selection.size() == 1 ? ProvUIMessages.RevertProfilePage_ConfirmDeleteSingleConfig
@@ -499,8 +514,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	ProvisioningUI getProvisioningUI() {
 		// if a UI has not been set then assume that the current default UI is the right
 		// thing
-		if (ui == null)
+		if (ui == null) {
 			return ui = ProvisioningUI.getDefaultUI();
+		}
 		return ui;
 	}
 

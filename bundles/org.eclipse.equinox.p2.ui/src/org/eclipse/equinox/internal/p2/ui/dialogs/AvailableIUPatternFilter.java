@@ -77,8 +77,9 @@ public class AvailableIUPatternFilter extends PatternFilter {
 	 */
 	@Override
 	protected boolean isParentMatch(Viewer viewer, Object element) {
-		if (patternString == null || patternString.length() == 0)
+		if (patternString == null || patternString.length() == 0) {
 			return true;
+		}
 		return super.isParentMatch(viewer, element);
 	}
 
@@ -94,12 +95,14 @@ public class AvailableIUPatternFilter extends PatternFilter {
 			if (checkName) {
 				// Get the iu name in the default locale
 				text = iu.getProperty(IInstallableUnit.PROP_NAME, null);
-				if (text != null && wordMatches(text))
+				if (text != null && wordMatches(text)) {
 					return true;
+				}
 				// Get the iu description in the default locale
 				text = iu.getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
-				if (text != null && wordMatches(text))
+				if (text != null && wordMatches(text)) {
 					return true;
+				}
 			}
 			if (checkId || (checkName && text == null)) {
 				text = iu.getId();
@@ -110,13 +113,15 @@ public class AvailableIUPatternFilter extends PatternFilter {
 			if (!checkName && checkDescription) {
 				// Get the iu description in the default locale
 				text = iu.getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
-				if (text != null && wordMatches(text))
+				if (text != null && wordMatches(text)) {
 					return true;
+				}
 			}
 			if (checkVersion) {
 				text = iu.getVersion().toString();
-				if (wordMatches(text))
+				if (wordMatches(text)) {
 					return true;
+				}
 			}
 		}
 		return false;

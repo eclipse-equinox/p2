@@ -49,10 +49,12 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
-		if (adapter == IArtifactRepository.class)
+		if (adapter == IArtifactRepository.class) {
 			return (T) getRepository(null);
-		if (adapter == IRepository.class)
+		}
+		if (adapter == IRepository.class) {
 			return (T) getRepository(null);
+		}
 		return super.getAdapter(adapter);
 	}
 
@@ -72,7 +74,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 
 	@Override
 	public IArtifactRepository getRepository(IProgressMonitor monitor) {
-		if (repo == null)
+		if (repo == null) {
 			try {
 				repo = getArtifactRepositoryManager().loadRepository(location, monitor);
 			} catch (ProvisionException e) {
@@ -80,6 +82,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 			} catch (OperationCanceledException e) {
 				// nothing to report
 			}
+		}
 		return repo;
 	}
 
@@ -91,21 +94,25 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	@Override
 	public String getName() {
 		String name = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
-		if (name == null)
+		if (name == null) {
 			name = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
-		if (name == null)
+		}
+		if (name == null) {
 			name = ""; //$NON-NLS-1$
+		}
 		return name;
 	}
 
 	@Override
 	public String getDescription() {
-		if (getProvisioningUI().getRepositoryTracker().hasNotFoundStatusBeenReported(location))
+		if (getProvisioningUI().getRepositoryTracker().hasNotFoundStatusBeenReported(location)) {
 			return ProvUIMessages.RepositoryElement_NotFound;
+		}
 		String description = getArtifactRepositoryManager().getRepositoryProperty(location,
 				IRepository.PROP_DESCRIPTION);
-		if (description == null)
+		if (description == null) {
 			return ""; //$NON-NLS-1$
+		}
 		return description;
 	}
 
@@ -126,8 +133,9 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 
 	@Override
 	public IQueryable<?> getQueryable() {
-		if (queryable == null)
+		if (queryable == null) {
 			queryable = getRepository(new NullProgressMonitor());
+		}
 		return queryable;
 	}
 

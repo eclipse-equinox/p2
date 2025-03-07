@@ -87,8 +87,9 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 
 	@Override
 	protected void okPressed() {
-		if (handleOk())
+		if (handleOk()) {
 			super.okPressed();
+		}
 	}
 
 	protected boolean handleOk() {
@@ -135,23 +136,25 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	 * appropriate to contact the repositories on every keystroke.
 	 */
 	protected IStatus validateRepositoryURL(final boolean contactRepositories) {
-		if (url == null || url.isDisposed())
+		if (url == null || url.isDisposed()) {
 			return Status.OK_STATUS;
+		}
 		final IStatus[] status = new IStatus[1];
 		status[0] = getRepositoryTracker().getInvalidLocationStatus(url.getText().trim());
 		final URI userLocation = getUserLocation();
-		if (url.getText().length() == 0)
+		if (url.getText().length() == 0) {
 			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, RepositoryTracker.STATUS_INVALID_REPOSITORY_LOCATION, ProvUIMessages.RepositoryGroup_URLRequired, null);
-		else if (userLocation == null)
+		} else if (userLocation == null) {
 			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, RepositoryTracker.STATUS_INVALID_REPOSITORY_LOCATION, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
-		else {
-			if (initialURL.equals(url.getText().trim()))
+		} else {
+			if (initialURL.equals(url.getText().trim())) {
 				status[0] = Status.OK_STATUS;
-			else if (userLocation.equals(getOriginalLocation()))
+			} else if (userLocation.equals(getOriginalLocation())) {
 				// the location is reverted to the original one that has not been saved
 				status[0] = Status.OK_STATUS;
-			else
+			} else {
 				BusyIndicator.showWhile(getShell().getDisplay(), () -> status[0] = getRepositoryTracker().validateRepositoryLocation(ui.getSession(), userLocation, contactRepositories, null));
+			}
 		}
 		// At this point the subclasses may have decided to opt out of
 		// this dialog.
@@ -171,8 +174,9 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	}
 
 	protected void setOkEnablement(boolean enable) {
-		if (okButton != null && !okButton.isDisposed())
+		if (okButton != null && !okButton.isDisposed()) {
 			okButton.setEnabled(enable);
+		}
 	}
 
 	protected String getInitialLocationText() {

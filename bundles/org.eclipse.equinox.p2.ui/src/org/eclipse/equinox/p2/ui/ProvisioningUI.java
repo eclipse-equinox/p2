@@ -75,8 +75,9 @@ public class ProvisioningUI {
 	public ProvisioningUI(ProvisioningSession session, String profileId, Policy policy) {
 		this.policy = policy;
 		this.profileId = profileId;
-		if (profileId == null)
+		if (profileId == null) {
 			this.profileId = IProfileRegistry.SELF;
+		}
 		this.session = session;
 		this.runner = new ProvisioningOperationRunner(this);
 		// register this UI with the agent so other UI related agent services can find
@@ -379,14 +380,16 @@ public class ProvisioningUI {
 
 				@Override
 				protected void okPressed() {
-					if (page.performOk())
+					if (page.performOk()) {
 						super.okPressed();
+					}
 				}
 
 				@Override
 				protected void cancelPressed() {
-					if (page.performCancel())
+					if (page.performCancel()) {
 						super.cancelPressed();
+					}
 				}
 			};
 			dialog.open();
@@ -454,8 +457,9 @@ public class ProvisioningUI {
 	 */
 	public void signalRepositoryOperationStart() {
 		runner.eventBatchCount++;
-		if (Tracing.DEBUG_EVENTS_CLIENT)
+		if (Tracing.DEBUG_EVENTS_CLIENT) {
 			Tracing.debug("Batch Count Incremented to:  " + Integer.toString(runner.eventBatchCount)); //$NON-NLS-1$
+		}
 		ProvUI.getProvisioningEventBus(getSession()).publishEvent(new RepositoryOperationBeginningEvent(this));
 	}
 
@@ -470,8 +474,9 @@ public class ProvisioningUI {
 	 */
 	public void signalRepositoryOperationComplete(RepositoryEvent event, boolean update) {
 		runner.eventBatchCount--;
-		if (Tracing.DEBUG_EVENTS_CLIENT)
+		if (Tracing.DEBUG_EVENTS_CLIENT) {
 			Tracing.debug("Batch Count Decremented to:  " + Integer.toString(runner.eventBatchCount)); //$NON-NLS-1$
+		}
 		ProvUI.getProvisioningEventBus(getSession())
 				.publishEvent(new RepositoryOperationEndingEvent(this, update, event));
 	}
@@ -502,8 +507,9 @@ public class ProvisioningUI {
 			String name = manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 			if (name == null || name.isEmpty()) {
 				name = repo.getName();
-				if (name != null && !name.isEmpty())
+				if (name != null && !name.isEmpty()) {
 					manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+				}
 			}
 		} catch (ProvisionException e) {
 			getRepositoryTracker().reportLoadFailure(location, e);
@@ -541,8 +547,9 @@ public class ProvisioningUI {
 			String name = manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 			if (name == null) {
 				name = manager.getRepositoryProperty(location, IRepository.PROP_NAME);
-				if (name != null)
+				if (name != null) {
 					manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+				}
 			}
 		} finally {
 			// We have no idea how many repos may have been touched as a result of loading

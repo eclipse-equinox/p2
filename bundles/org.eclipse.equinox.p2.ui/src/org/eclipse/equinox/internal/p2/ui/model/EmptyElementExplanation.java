@@ -43,10 +43,12 @@ public class EmptyElementExplanation extends ProvElement {
 
 	@Override
 	protected String getImageId(Object obj) {
-		if (severity == IStatus.ERROR)
+		if (severity == IStatus.ERROR) {
 			return Dialog.DLG_IMG_MESSAGE_ERROR;
-		if (severity == IStatus.WARNING)
+		}
+		if (severity == IStatus.WARNING) {
 			return Dialog.DLG_IMG_MESSAGE_WARNING;
+		}
 		return Dialog.DLG_IMG_MESSAGE_INFO;
 	}
 

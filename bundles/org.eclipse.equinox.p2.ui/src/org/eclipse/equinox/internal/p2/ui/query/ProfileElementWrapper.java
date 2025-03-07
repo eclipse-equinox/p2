@@ -32,8 +32,9 @@ public class ProfileElementWrapper extends QueriedElementWrapper {
 
 	@Override
 	protected boolean shouldWrap(Object match) {
-		if ((match instanceof IProfile))
+		if ((match instanceof IProfile)) {
 			return true;
+		}
 		return false;
 	}
 

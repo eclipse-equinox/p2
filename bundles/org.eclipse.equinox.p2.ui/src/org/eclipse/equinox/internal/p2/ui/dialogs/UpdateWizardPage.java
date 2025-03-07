@@ -33,8 +33,9 @@ public class UpdateWizardPage extends SizeComputingWizardPage {
 	protected String getIUDescription(IInstallableUnit iu) {
 		if (iu != null) {
 			IUpdateDescriptor updateDescriptor = iu.getUpdateDescriptor();
-			if (updateDescriptor != null && updateDescriptor.getDescription() != null && updateDescriptor.getDescription().length() > 0)
+			if (updateDescriptor != null && updateDescriptor.getDescription() != null && updateDescriptor.getDescription().length() > 0) {
 				return updateDescriptor.getDescription();
+			}
 		}
 		return super.getIUDescription(iu);
 	}

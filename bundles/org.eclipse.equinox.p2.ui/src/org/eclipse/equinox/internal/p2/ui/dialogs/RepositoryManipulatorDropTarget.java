@@ -58,8 +58,9 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 			ProvUI.reportStatus(tracker.getInvalidLocationStatus(urlText), StatusManager.SHOW | StatusManager.LOG);
 			return;
 		}
-		if (location[0] == null)
+		if (location[0] == null) {
 			return;
+		}
 
 		Job job = UIJob.create(ProvUIMessages.RepositoryManipulatorDropTarget_DragAndDropJobLabel, monitor -> {
 			IStatus status = tracker.validateRepositoryLocation(ui.getSession(), location[0], false, monitor);

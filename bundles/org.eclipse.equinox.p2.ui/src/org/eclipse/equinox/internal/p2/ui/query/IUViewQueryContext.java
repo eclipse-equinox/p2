@@ -67,8 +67,9 @@ public class IUViewQueryContext {
 	 * getQueryType()
 	 */
 	public int getQueryType() {
-		if (view == AVAILABLE_VIEW_BY_REPO)
+		if (view == AVAILABLE_VIEW_BY_REPO) {
 			return QueryProvider.METADATA_REPOS;
+		}
 		return QueryProvider.AVAILABLE_IUS;
 	}
 

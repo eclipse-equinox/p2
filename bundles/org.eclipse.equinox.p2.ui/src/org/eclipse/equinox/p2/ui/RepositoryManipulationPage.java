@@ -208,8 +208,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	protected Control createContents(Composite parent) {
 		display = parent.getDisplay();
 		// The help refers to the full-blown dialog.  No help if it's read only.
-		if (policy.getRepositoriesVisible())
+		if (policy.getRepositoriesVisible()) {
 			PlatformUI.getWorkbench().getHelpSystem().setHelp(parent.getShell(), IProvHelpContextIds.REPOSITORY_MANIPULATION_DIALOG);
+		}
 
 		Composite composite = new Composite(parent, SWT.NONE);
 
@@ -241,8 +242,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		}));
 
 		// spacer to fill other column
-		if (policy.getRepositoriesVisible())
+		if (policy.getRepositoriesVisible()) {
 			new Label(composite, SWT.NONE);
+		}
 
 		// Table of available repositories
 		table = new Table(composite, SWT.CHECK | SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
@@ -294,10 +296,11 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 					if (!value.toString().equals(repo.getName())) {
 						changed = true;
 						repo.setNickname(value.toString());
-						if (comparator.getSortKey() == RepositoryDetailsLabelProvider.COL_NAME)
+						if (comparator.getSortKey() == RepositoryDetailsLabelProvider.COL_NAME) {
 							repositoryViewer.refresh(true);
-						else
+						} else {
 							repositoryViewer.update(repo, null);
+						}
 					}
 				}
 			}
@@ -307,14 +310,16 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		repositoryViewer.setCellEditors(new CellEditor[] {new TextCellEditor(repositoryViewer.getTable())});
 
 		repositoryViewer.addSelectionChangedListener(event -> {
-			if (policy.getRepositoriesVisible())
+			if (policy.getRepositoriesVisible()) {
 				validateButtons();
+			}
 			setDetails();
 		});
 
 		repositoryViewer.addDoubleClickListener(event -> {
-			if (policy.getRepositoriesVisible())
+			if (policy.getRepositoriesVisible()) {
 				changeRepositoryProperties();
+			}
 		});
 
 		repositoryViewer.setCheckStateProvider(new ICheckStateProvider() {
@@ -402,10 +407,11 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	private void setTableColumns() {
 		table.setHeaderVisible(true);
 		String[] columnHeaders;
-		if (policy.getRepositoriesVisible())
+		if (policy.getRepositoriesVisible()) {
 			columnHeaders = new String[] {ProvUIMessages.RepositoryManipulationPage_NameColumnTitle, ProvUIMessages.RepositoryManipulationPage_LocationColumnTitle, ProvUIMessages.RepositoryManipulationPage_EnabledColumnTitle};
-		else
+		} else {
 			columnHeaders = new String[] {ProvUIMessages.RepositoryManipulationPage_NameColumnTitle, ProvUIMessages.RepositoryManipulationPage_LocationColumnTitle};
+		}
 		for (int i = 0; i < columnHeaders.length; i++) {
 			TableColumn tc = new TableColumn(table, SWT.NONE, i);
 			tc.setResizable(true);
@@ -485,15 +491,17 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	}
 
 	CachedMetadataRepositories getInput() {
-		if (input == null)
+		if (input == null) {
 			input = new CachedMetadataRepositories();
+		}
 		return input;
 	}
 
 	@Override
 	public boolean performOk() {
-		if (changed)
+		if (changed) {
 			ElementUtils.updateRepositoryUsingElements(ui, getElements());
+		}
 		originalNameCache.clear();
 		originalURICache.clear();
 		return super.performOk();
@@ -521,8 +529,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		Object[] items = repositoryViewer.getStructuredSelection().toArray();
 		ArrayList<Object> list = new ArrayList<>(items.length);
 		for (Object item : items) {
-			if (item instanceof MetadataRepositoryElement)
+			if (item instanceof MetadataRepositoryElement) {
 				list.add(item);
+			}
 		}
 		return list.toArray(new MetadataRepositoryElement[list.size()]);
 	}
@@ -534,10 +543,11 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		editButton.setEnabled(elements.length == 1);
 		refreshButton.setEnabled(elements.length == 1);
 		if (elements.length >= 1) {
-			if (toggleMeansDisable(elements))
+			if (toggleMeansDisable(elements)) {
 				disableButton.setText(ProvUIMessages.RepositoryManipulationPage_DisableButton);
-			else
+			} else {
 				disableButton.setText(ProvUIMessages.RepositoryManipulationPage_EnableButton);
+			}
 			disableButton.setEnabled(true);
 		} else {
 			disableButton.setText(ProvUIMessages.RepositoryManipulationPage_EnableButton);
@@ -561,8 +571,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		final ProvisionException[] fail = new ProvisionException[1];
 		final boolean[] remove = new boolean[1];
 		remove[0] = false;
-		if (selected.length != 1)
+		if (selected.length != 1) {
 			return;
+		}
 		final URI location = selected[0].getLocation();
 		ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell());
 		try {
@@ -606,8 +617,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 					fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled, e3));
 				} finally {
 					// Check if the monitor was canceled
-					if (fail[0] == null && monitor.isCanceled())
+					if (fail[0] == null && monitor.isCanceled()) {
 						fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled));
+					}
 					// If we temporarily added a repo so we could read it, remove it.
 					if (remove[0]) {
 						ProvUI.getMetadataRepositoryManager(ui.getSession()).removeRepository(location);
@@ -641,9 +653,11 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	}
 
 	boolean includesRepo(URI[] repos, URI repo) {
-		for (URI repo2 : repos)
-			if (repo2.equals(repo))
+		for (URI repo2 : repos) {
+			if (repo2.equals(repo)) {
 				return true;
+			}
+		}
 		return false;
 	}
 
@@ -661,11 +675,13 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	}
 
 	void updateForEnablementChange(MetadataRepositoryElement[] updated) {
-		if (comparator.getSortKey() == RepositoryDetailsLabelProvider.COL_ENABLEMENT)
+		if (comparator.getSortKey() == RepositoryDetailsLabelProvider.COL_ENABLEMENT) {
 			repositoryViewer.refresh(true);
-		else
-			for (MetadataRepositoryElement element : updated)
+		} else {
+			for (MetadataRepositoryElement element : updated) {
 				repositoryViewer.update(element, null);
+			}
+		}
 		changed = true;
 	}
 
@@ -674,8 +690,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			MetadataRepositoryElement[] imported = UpdateManagerCompatibility.importSites(getShell());
 			if (imported.length > 0) {
 				changed = true;
-				for (MetadataRepositoryElement element : imported)
+				for (MetadataRepositoryElement element : imported) {
 					getInput().put(element);
+				}
 				safeRefresh(null);
 			}
 		});
@@ -684,27 +701,31 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	void exportRepositories() {
 		BusyIndicator.showWhile(getShell().getDisplay(), () -> {
 			MetadataRepositoryElement[] elements = getSelectedElements();
-			if (elements.length == 0)
+			if (elements.length == 0) {
 				elements = getElements();
+			}
 			UpdateManagerCompatibility.exportSites(getShell(), elements);
 		});
 	}
 
 	void changeRepositoryProperties() {
 		final MetadataRepositoryElement[] selected = getSelectedElements();
-		if (selected.length != 1)
+		if (selected.length != 1) {
 			return;
+		}
 
 		URI originalLocation = null;
 		String originalName = null;
 		if (originalURICache.containsKey(selected[0])) {
 			originalLocation = originalURICache.get(selected[0]);
-		} else
+		} else {
 			originalLocation = selected[0].getLocation();
+		}
 		if (originalNameCache.containsKey(selected[0])) {
 			originalName = originalNameCache.get(selected[0]);
-		} else
+		} else {
 			originalName = selected[0].getName();
+		}
 		final URI existingLocation = originalLocation;
 		RepositoryNameAndLocationDialog dialog = new RepositoryNameAndLocationDialog(getShell(), ui) {
 			@Override
@@ -730,17 +751,20 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			if (dialog.getLocation().equals(existingLocation)) {
 				// the change is reverted
 				originalURICache.remove(selected[0]);
-			} else if (!originalURICache.containsKey(selected[0]))
+			} else if (!originalURICache.containsKey(selected[0])) {
 				originalURICache.put(selected[0], existingLocation);
+			}
 			if (dialog.getName().equals(originalName)) {
 				// the change is reverted
 				originalNameCache.remove(selected[0]);
-			} else if (!originalNameCache.containsKey(selected[0]))
+			} else if (!originalNameCache.containsKey(selected[0])) {
 				originalNameCache.put(selected[0], originalName);
-			if (originalURICache.size() > 0 || originalNameCache.size() > 0)
+			}
+			if (originalURICache.size() > 0 || originalNameCache.size() > 0) {
 				changed = true;
-			else
+			} else {
 				changed = false;
+			}
 			repositoryViewer.update(selected[0], null);
 			setDetails();
 		}
@@ -773,30 +797,37 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	void safeRefresh(final MetadataRepositoryElement elementToSelect) {
 		Runnable runnable = () -> {
 			repositoryViewer.refresh();
-			if (elementToSelect != null)
+			if (elementToSelect != null) {
 				repositoryViewer.setSelection(new StructuredSelection(elementToSelect), true);
+			}
 		};
-		if (Display.getCurrent() == null)
+		if (Display.getCurrent() == null) {
 			display.asyncExec(runnable);
-		else
+		} else {
 			runnable.run();
+		}
 	}
 
 	void applyFilter() {
 		String text = pattern.getText();
-		if (text == DEFAULT_FILTER_TEXT)
+		if (text == DEFAULT_FILTER_TEXT) {
 			text = ""; //$NON-NLS-1$
-		if (text.length() == 0)
+		}
+		if (text.length() == 0) {
 			filter.setPattern(null);
-		else
+		} else {
 			filter.setPattern(text);
-		if (filterJob != null)
+		}
+		if (filterJob != null) {
 			filterJob.cancel();
+		}
 		filterJob = org.eclipse.e4.ui.progress.UIJob.create("filter job", monitor -> { //$NON-NLS-1$
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
-			if (!repositoryViewer.getTable().isDisposed())
+			}
+			if (!repositoryViewer.getTable().isDisposed()) {
 				repositoryViewer.refresh();
+			}
 			return Status.OK_STATUS;
 		});
 		filterJob.setSystem(true);
@@ -824,8 +855,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		MetadataRepositoryElement[] selections = getSelectedElements();
 		if (selections.length > 0) {
 			String message = ProvUIMessages.RepositoryManipulationPage_RemoveConfirmMessage;
-			if (selections.length == 1)
+			if (selections.length == 1) {
 				message = NLS.bind(ProvUIMessages.RepositoryManipulationPage_RemoveConfirmSingleMessage, URIUtil.toUnencodedString(selections[0].getLocation()));
+			}
 			if (MessageDialog.openQuestion(getShell(), ProvUIMessages.RepositoryManipulationPage_RemoveConfirmTitle, message)) {
 
 				changed = true;
@@ -840,7 +872,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	// Return a repo manipulator that only operates on the local cache.
 	// Labels and other presentation info are used from the original manipulator.
 	RepositoryTracker getLocalCacheRepoTracker() {
-		if (localCacheRepoManipulator == null)
+		if (localCacheRepoManipulator == null) {
 			localCacheRepoManipulator = new RepositoryTracker() {
 				@Override
 				public void addRepository(URI location, String nickname, ProvisioningSession session) {
@@ -849,8 +881,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 						element = new MetadataRepositoryElement(getInput(), null, ui, location, true);
 						getInput().put(element);
 					}
-					if (nickname != null)
+					if (nickname != null) {
 						element.setNickname(nickname);
+					}
 					changed = true;
 					safeRefresh(element);
 				}
@@ -889,25 +922,29 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 				}
 			};
+		}
 		return localCacheRepoManipulator;
 	}
 
 	@Override
 	public void copyToClipboard(Control activeControl) {
 		MetadataRepositoryElement[] elements = getSelectedElements();
-		if (elements.length == 0)
+		if (elements.length == 0) {
 			elements = getElements();
+		}
 		String text = ""; //$NON-NLS-1$
 		StringBuilder buffer = new StringBuilder();
 		for (int i = 0; i < elements.length; i++) {
 			buffer.append(labelProvider.getClipboardText(elements[i], CopyUtils.DELIMITER));
-			if (i > 0)
+			if (i > 0) {
 				buffer.append(CopyUtils.NEWLINE);
+			}
 		}
 		text = buffer.toString();
 
-		if (text.length() == 0)
+		if (text.length() == 0) {
 			return;
+		}
 		Clipboard clipboard = new Clipboard(PlatformUI.getWorkbench().getDisplay());
 		clipboard.setContents(new Object[] {text}, new Transfer[] {TextTransfer.getInstance()});
 		clipboard.dispose();
@@ -928,8 +965,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	URI[] getKnownRepositories() {
 		MetadataRepositoryElement[] elements = getElements();
 		URI[] locations = new URI[elements.length];
-		for (int i = 0; i < elements.length; i++)
+		for (int i = 0; i < elements.length; i++) {
 			locations[i] = elements[i].getLocation();
+		}
 		return locations;
 	}
 }

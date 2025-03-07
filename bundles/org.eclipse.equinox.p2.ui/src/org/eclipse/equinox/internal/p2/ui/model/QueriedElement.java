@@ -44,15 +44,17 @@ public abstract class QueriedElement extends ProvElement {
 
 	public Policy getPolicy() {
 		Object parent = getParent(this);
-		if (parent instanceof QueriedElement)
+		if (parent instanceof QueriedElement) {
 			return ((QueriedElement) parent).getPolicy();
+		}
 		return getProvisioningUI().getPolicy();
 	}
 
 	public ProvisioningUI getProvisioningUI() {
 		Object parent = getParent(this);
-		if (parent instanceof QueriedElement)
+		if (parent instanceof QueriedElement) {
 			return ((QueriedElement) parent).getProvisioningUI();
+		}
 		// if we really can't find a UI then get the default. In general this should
 		// not happen though. Turn on tracing in getDefaultUI() to see places where
 		// it is happening.
@@ -62,8 +64,9 @@ public abstract class QueriedElement extends ProvElement {
 
 	public IUViewQueryContext getQueryContext() {
 		Object parent = getParent(this);
-		if (parent instanceof QueriedElement)
+		if (parent instanceof QueriedElement) {
 			return ((QueriedElement) parent).getQueryContext();
+		}
 		return null;
 	}
 
@@ -101,8 +104,9 @@ public abstract class QueriedElement extends ProvElement {
 		cachedChildren = Collections.emptyList();
 		QueryProvider provider = new QueryProvider(getProvisioningUI());
 		ElementQueryDescriptor queryDescriptor = provider.getQueryDescriptor(this);
-		if (queryDescriptor == null)
+		if (queryDescriptor == null) {
 			return new Object[0];
+		}
 		Collection<?> results = queryDescriptor.performQuery(monitor);
 		cachedChildren = Collections.unmodifiableCollection(results);
 		if (results.size() > 0) {
@@ -159,17 +163,20 @@ public abstract class QueriedElement extends ProvElement {
 	}
 
 	public Object[] getCachedChildren() {
-		if (cachedChildren == null)
+		if (cachedChildren == null) {
 			return EMPTY;
+		}
 		return cachedChildren.toArray();
 	}
 
 	protected Object[] getSiblings() {
 		Object parent = getParent(this);
-		if (parent instanceof QueriedElement)
+		if (parent instanceof QueriedElement) {
 			return ((QueriedElement) parent).getCachedChildren();
-		if (parent instanceof IUElementListRoot)
+		}
+		if (parent instanceof IUElementListRoot) {
 			return ((IUElementListRoot) parent).getChildren(parent);
+		}
 		return new Object[0];
 	}
 }

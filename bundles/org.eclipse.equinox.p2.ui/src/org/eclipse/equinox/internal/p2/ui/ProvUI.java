@@ -124,8 +124,9 @@ public class ProvUI {
 				// unset logging for statuses that should never be logged.
 				// Ideally the caller would do this but this bug keeps coming back.
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=274074
-				if (status.getCode() == UpdateOperation.STATUS_NOTHING_TO_UPDATE)
+				if (status.getCode() == UpdateOperation.STATUS_NOTHING_TO_UPDATE) {
 					style = 0;
+				}
 			} else if (status.getSeverity() == IStatus.WARNING) {
 				MessageDialog.openWarning(ProvUI.getDefaultParentShell(), ProvUIMessages.ProvUI_WarningTitle,
 						status.getMessage());
@@ -134,17 +135,19 @@ public class ProvUI {
 				style = style & ~StatusManager.SHOW;
 			}
 		}
-		if (style != 0)
+		if (style != 0) {
 			StatusManager.getManager().handle(status, style);
+		}
 	}
 
 	public static IUColumnConfig[] getIUColumnConfig() {
-		if (columnConfig == null)
+		if (columnConfig == null) {
 			columnConfig = new IUColumnConfig[] {
 					new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME,
 							ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH),
 					new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION,
 							ILayoutConstants.DEFAULT_COLUMN_WIDTH) };
+		}
 		return columnConfig;
 
 	}
@@ -168,14 +171,17 @@ public class ProvUI {
 
 	@SuppressWarnings("unchecked")
 	public static <T> T getAdapter(Object object, Class<T> adapterType) {
-		if (object == null)
+		if (object == null) {
 			return null;
-		if (adapterType.isInstance(object))
+		}
+		if (adapterType.isInstance(object)) {
 			// Ideally, we would use Class.cast here but it was introduced in Java 1.5
 			return (T) object;
-		if (object instanceof IAdaptable)
+		}
+		if (object instanceof IAdaptable) {
 			// Ideally, we would use Class.cast here but it was introduced in Java 1.5
 			return ((IAdaptable) object).getAdapter(adapterType);
+		}
 		return null;
 	}
 
@@ -248,24 +254,28 @@ public class ProvUI {
 	public static long getSize(IEngine engine, IProvisioningPlan plan, ProvisioningContext context,
 			IProgressMonitor monitor) {
 		// If there is nothing to size, return 0
-		if (plan == null)
+		if (plan == null) {
 			return SIZE_NOTAPPLICABLE;
-		if (countPlanElements(plan) == 0)
+		}
+		if (countPlanElements(plan) == 0) {
 			return 0;
+		}
 		long installPlanSize = 0;
 		SubMonitor mon = SubMonitor.convert(monitor, 300);
 		if (plan.getInstallerPlan() != null) {
 			ISizingPhaseSet sizingPhaseSet = PhaseSetFactory.createSizingPhaseSet();
 			IStatus status = engine.perform(plan.getInstallerPlan(), sizingPhaseSet, mon.newChild(100));
-			if (status.isOK())
+			if (status.isOK()) {
 				installPlanSize = sizingPhaseSet.getDiskSize();
+			}
 		} else {
 			mon.worked(100);
 		}
 		ISizingPhaseSet sizingPhaseSet = PhaseSetFactory.createSizingPhaseSet();
 		IStatus status = engine.perform(plan, sizingPhaseSet, mon.newChild(200));
-		if (status.isOK())
+		if (status.isOK()) {
 			return installPlanSize + sizingPhaseSet.getDiskSize();
+		}
 		return SIZE_UNAVAILABLE;
 	}
 

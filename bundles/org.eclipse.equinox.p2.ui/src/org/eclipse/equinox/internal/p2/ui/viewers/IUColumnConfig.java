@@ -131,8 +131,9 @@ public class IUColumnConfig {
 	 * @see #setWidthInPixels(int)
 	 */
 	public int getWidthInPixels(Control control) {
-		if (columnWidthInPixels >= 0)
+		if (columnWidthInPixels >= 0) {
 			return columnWidthInPixels;
+		}
 
 		GC gc = new GC(control);
 		FontMetrics fm = gc.getFontMetrics();

@@ -46,9 +46,10 @@ public class IUComparator extends ViewerComparator {
 	public int compare(Viewer viewer, Object obj1, Object obj2) {
 		IInstallableUnit iu1 = ProvUI.getAdapter(obj1, IInstallableUnit.class);
 		IInstallableUnit iu2 = ProvUI.getAdapter(obj2, IInstallableUnit.class);
-		if (iu1 == null || iu2 == null)
+		if (iu1 == null || iu2 == null) {
 			// If these are not iu's use the super class comparator.
 			return super.compare(viewer, obj1, obj2);
+		}
 
 		String key1, key2;
 		if (key == IU_NAME) {
@@ -57,17 +58,21 @@ public class IUComparator extends ViewerComparator {
 			// column. If the id is not shown elsewhere, then we are displaying it, so use
 			// the id instead.
 			key1 = iu1.getProperty(IInstallableUnit.PROP_NAME, null);
-			if (key1 == null)
-				if (showingId)
+			if (key1 == null) {
+				if (showingId) {
 					key1 = ""; //$NON-NLS-1$
-				else
+				} else {
 					key1 = iu1.getId();
+				}
+			}
 			key2 = iu2.getProperty(IInstallableUnit.PROP_NAME, null);
-			if (key2 == null)
-				if (showingId)
+			if (key2 == null) {
+				if (showingId) {
 					key2 = ""; //$NON-NLS-1$
-				else
+				} else {
 					key2 = iu2.getId();
+				}
+			}
 		} else {
 			key1 = iu1.getId();
 			key2 = iu2.getId();

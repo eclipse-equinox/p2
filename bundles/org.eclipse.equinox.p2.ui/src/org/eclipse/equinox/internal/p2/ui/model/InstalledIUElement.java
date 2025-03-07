@@ -54,8 +54,9 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
-		if (adapter == IInstallableUnit.class)
+		if (adapter == IInstallableUnit.class) {
 			return (T) iu;
+		}
 		return super.getAdapter(adapter);
 	}
 
@@ -134,39 +135,47 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof InstalledIUElement))
+		}
+		if (!(obj instanceof InstalledIUElement)) {
 			return false;
-		if (iu == null)
+		}
+		if (iu == null) {
 			return false;
-		if (!iu.equals(((InstalledIUElement) obj).getIU()))
+		}
+		if (!iu.equals(((InstalledIUElement) obj).getIU())) {
 			return false;
+		}
 
 		Object parent = getParent(this);
 		Object objParent = ((InstalledIUElement) obj).getParent(obj);
-		if (parent == this)
+		if (parent == this) {
 			return objParent == obj;
-		else if (parent != null && objParent != null)
+		} else if (parent != null && objParent != null) {
 			return parent.equals(objParent);
-		else if (parent == null && objParent == null)
+		} else if (parent == null && objParent == null) {
 			return true;
+		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		if (iu == null)
+		if (iu == null) {
 			return 0;
+		}
 		return iu.hashCode();
 	}
 
 	@Override
 	public String toString() {
-		if (iu == null)
+		if (iu == null) {
 			return "NULL"; //$NON-NLS-1$
+		}
 		return iu.toString();
 	}
 

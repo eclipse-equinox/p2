@@ -45,31 +45,37 @@ public class ComboAutoCompleteField {
 	}
 
 	String[] getStringItems() {
-		if (proposalStrings == null)
+		if (proposalStrings == null) {
 			return combo.getItems();
+		}
 		return proposalStrings;
 	}
 
 	IContentProposalProvider getProposalProvider() {
 		return (contents, position) -> {
 			String[] items = getStringItems();
-			if (contents.length() == 0 || items.length == 0)
+			if (contents.length() == 0 || items.length == 0) {
 				return new IContentProposal[0];
+			}
 			StringMatcher matcher = new StringMatcher("*" + contents + "*", true, false); //$NON-NLS-1$ //$NON-NLS-2$
 			ArrayList<String> matches = new ArrayList<>();
-			for (String item : items)
-				if (matcher.match(item))
+			for (String item : items) {
+				if (matcher.match(item)) {
 					matches.add(item);
+				}
+			}
 
 			// We don't want to autoactivate if the only proposal exactly matches
 			// what is in the combo.  This prevents the popup from
 			// opening when the user is merely scrolling through the combo values or
 			// has accepted a combo value.
-			if (matches.size() == 1 && matches.get(0).equals(combo.getText()))
+			if (matches.size() == 1 && matches.get(0).equals(combo.getText())) {
 				return new IContentProposal[0];
+			}
 
-			if (matches.isEmpty())
+			if (matches.isEmpty()) {
 				return new IContentProposal[0];
+			}
 
 			// Make the proposals
 			IContentProposal[] proposals = new IContentProposal[matches.size()];

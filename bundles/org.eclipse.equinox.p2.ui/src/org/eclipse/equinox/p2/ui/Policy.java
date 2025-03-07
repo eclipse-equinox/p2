@@ -126,8 +126,9 @@ public class Policy {
 		Assert.isTrue(operation.getResolutionResult() != null);
 		IStatus status = operation.getResolutionResult();
 		// user cancelled
-		if (status.getSeverity() == IStatus.CANCEL)
+		if (status.getSeverity() == IStatus.CANCEL) {
 			return false;
+		}
 
 		// Special case those statuses where we would never want to open a wizard
 		if (status.getCode() == UpdateOperation.STATUS_NOTHING_TO_UPDATE) {

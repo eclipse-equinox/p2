@@ -80,10 +80,11 @@ public class IUDetailsGroup {
 		gd.heightHint = Dialog.convertHeightInCharsToPixels(fontMetrics, ILayoutConstants.DEFAULT_DESCRIPTION_HEIGHT);
 		gd.minimumHeight = Dialog.convertHeightInCharsToPixels(fontMetrics, ILayoutConstants.MINIMUM_DESCRIPTION_HEIGHT);
 		gd.widthHint = widthHint;
-		if (scrollable)
+		if (scrollable) {
 			detailsArea = new StyledText(detailsComposite, SWT.WRAP | SWT.READ_ONLY | SWT.V_SCROLL);
-		else
+		} else {
 			detailsArea = new StyledText(detailsComposite, SWT.WRAP | SWT.READ_ONLY);
+		}
 		detailsArea.setLayoutData(gd);
 
 		gd = new GridData(SWT.END, SWT.BOTTOM, true, false);

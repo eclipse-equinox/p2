@@ -86,8 +86,9 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 
 					if (PlatformUI.isWorkbenchRunning()) {
 						PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-							if (validateOperation(operation))
+							if (validateOperation(operation)) {
 								performAction(operation, ius);
+							}
 						});
 					}
 
@@ -152,12 +153,14 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		for (int i = 0; i < elements.size(); i++) {
 			if (elements.get(i) instanceof IIUElement) {
 				IIUElement element = (IIUElement) elements.get(i);
-				if (isSelectable(element))
+				if (isSelectable(element)) {
 					iusList.add(getIU(element));
+				}
 			} else {
 				IInstallableUnit iu = ProvUI.getAdapter(elements.get(i), IInstallableUnit.class);
-				if (iu != null && isSelectable(iu))
+				if (iu != null && isSelectable(iu)) {
 					iusList.add(iu);
+				}
 			}
 		}
 		return iusList;
@@ -179,19 +182,22 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	protected final void checkEnablement(Object[] selections) {
 		if (isEnabledFor(selections)) {
 			setEnabled(!getProvisioningUI().hasScheduledOperations());
-		} else
+		} else {
 			setEnabled(false);
+		}
 	}
 
 	protected abstract boolean isEnabledFor(Object[] selections);
 
 	protected int getLock(IProfile profile, IInstallableUnit iu) {
-		if (profile == null)
+		if (profile == null) {
 			return IProfile.LOCK_NONE;
+		}
 		try {
 			String value = profile.getInstallableUnitProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU);
-			if (value != null)
+			if (value != null) {
 				return Integer.parseInt(value);
+			}
 		} catch (NumberFormatException e) {
 			// ignore and assume no lock
 		}
@@ -199,8 +205,9 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	protected String getProfileProperty(IProfile profile, IInstallableUnit iu, String propertyName) {
-		if (profile == null || iu == null)
+		if (profile == null || iu == null) {
 			return null;
+		}
 		return profile.getInstallableUnitProperty(iu, propertyName);
 	}
 

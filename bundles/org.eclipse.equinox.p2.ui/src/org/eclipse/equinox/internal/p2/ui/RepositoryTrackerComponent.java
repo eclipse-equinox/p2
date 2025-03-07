@@ -27,8 +27,9 @@ public class RepositoryTrackerComponent implements IAgentServiceFactory {
 	@Override
 	public Object createService(IProvisioningAgent agent) {
 		ProvisioningUI ui = agent.getService(ProvisioningUI.class);
-		if (ui == null)
+		if (ui == null) {
 			return null;
+		}
 		return new ColocatedRepositoryTracker(ui);
 	}
 }

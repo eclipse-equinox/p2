@@ -118,10 +118,11 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	public AvailableIUGroup(ProvisioningUI ui, final Composite parent, Font font, IUViewQueryContext queryContext, IUColumnConfig[] columnConfig, int filterConstant) {
 		super(ui, parent, font, columnConfig);
 		this.display = parent.getDisplay();
-		if (queryContext == null)
+		if (queryContext == null) {
 			this.queryContext = ProvUI.getQueryContext(getPolicy());
-		else
+		} else {
 			this.queryContext = queryContext;
+		}
 		repoFlags = ui.getRepositoryTracker().getMetadataRepositoryFlags();
 		this.queryableManager = new QueryableMetadataRepositoryManager(ui, false);
 		this.filterConstant = filterConstant;
@@ -189,8 +190,9 @@ public class AvailableIUGroup extends StructuredIUGroup {
 				final TreeViewer treeViewer = filteredTree.getViewer();
 				final Tree tree = treeViewer.getTree();
 				IWorkbench workbench = PlatformUI.getWorkbench();
-				if (workbench.isClosing())
+				if (workbench.isClosing()) {
 					return;
+				}
 				if (tree != null && !tree.isDisposed()) {
 					updateAvailableViewState();
 				}
@@ -258,8 +260,9 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * labels, so that must be done explicitly by the caller.
 	 */
 	public void setUseBoldFontForFilteredItems(boolean useBoldFont) {
-		if (labelProvider != null)
+		if (labelProvider != null) {
 			labelProvider.setUseBoldFontForFilteredItems(useBoldFont);
+		}
 	}
 
 	/**
@@ -295,9 +298,11 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	public Object[] getSelectedIUElements() {
 		Object[] elements = viewer.getStructuredSelection().toArray();
 		ArrayList<Object> list = new ArrayList<>(elements.length);
-		for (Object element : elements)
-			if (ElementUtils.getIU(element) != null)
+		for (Object element : elements) {
+			if (ElementUtils.getIU(element) != null) {
 				list.add(element);
+			}
+		}
 		return list.toArray();
 	}
 
@@ -311,22 +316,25 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 */
 	public IInstallableUnit[] getCheckedLeafIUs() {
 		Object[] selections = filteredTree.getCheckedElements(); // Get all the elements that have been selected, not just the visible ones
-		if (selections.length == 0)
+		if (selections.length == 0) {
 			return new IInstallableUnit[0];
+		}
 		ArrayList<IInstallableUnit> leaves = new ArrayList<>(selections.length);
 		for (Object selection : selections) {
 			if (!getCheckboxTreeViewer().getGrayed(selection)) {
 				IInstallableUnit iu = ProvUI.getAdapter(selection, IInstallableUnit.class);
-				if (iu != null && !ProvUI.isCategory(iu) && !leaves.contains(iu))
+				if (iu != null && !ProvUI.isCategory(iu) && !leaves.contains(iu)) {
 					leaves.add(iu);
+				}
 			}
 		}
 		return leaves.toArray(new IInstallableUnit[leaves.size()]);
 	}
 
 	public Tree getTree() {
-		if (viewer == null)
+		if (viewer == null) {
 			return null;
+		}
 		return ((TreeViewer) viewer).getTree();
 	}
 
@@ -337,10 +345,11 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// If we are viewing by anything other than site, there is no specific way
 		// to make a repo visible.
 		if (!(queryContext.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_BY_REPO)) {
-			if (Display.getCurrent() == null)
+			if (Display.getCurrent() == null) {
 				display.asyncExec(this::updateAvailableViewState);
-			else
+			} else {
 				updateAvailableViewState();
+			}
 			return;
 		}
 		// First reset the input so that the new repo shows up
@@ -348,16 +357,18 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			final TreeViewer treeViewer = filteredTree.getViewer();
 			final Tree tree = treeViewer.getTree();
 			IWorkbench workbench = PlatformUI.getWorkbench();
-			if (workbench.isClosing())
+			if (workbench.isClosing()) {
 				return;
+			}
 			if (tree != null && !tree.isDisposed()) {
 				updateAvailableViewState();
 			}
 		};
-		if (Display.getCurrent() == null)
+		if (Display.getCurrent() == null) {
 			display.asyncExec(runnable);
-		else
+		} else {
 			runnable.run();
+		}
 		// We don't know if loading will be a fast or slow operation.
 		// We do it in a job to be safe, and when it's done, we update
 		// the UI.
@@ -380,12 +391,13 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		job.addJobChangeListener(new JobChangeAdapter() {
 			@Override
 			public void done(final IJobChangeEvent event) {
-				if (event.getResult().isOK())
+				if (event.getResult().isOK()) {
 					display.asyncExec(() -> {
 						final TreeViewer treeViewer = filteredTree.getViewer();
 						IWorkbench workbench = PlatformUI.getWorkbench();
-						if (workbench.isClosing())
+						if (workbench.isClosing()) {
 							return;
+						}
 						// Expand only if there have been no other jobs started for other repos.
 						if (event.getJob() == lastRequestedLoadJob) {
 							final Tree tree = treeViewer.getTree();
@@ -403,6 +415,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 							}
 						}
 					});
+				}
 			}
 		});
 		lastRequestedLoadJob = job;
@@ -410,8 +423,9 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	}
 
 	public void updateAvailableViewState() {
-		if (getTree() == null || getTree().isDisposed())
+		if (getTree() == null || getTree().isDisposed()) {
 			return;
+		}
 		final Composite parent = getComposite().getParent();
 		setUseBoldFontForFilteredItems(queryContext.getViewType() != IUViewQueryContext.AVAILABLE_VIEW_FLAT);
 
@@ -425,8 +439,9 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 	@Override
 	public Control getDefaultFocusControl() {
-		if (filteredTree != null)
+		if (filteredTree != null) {
 			return filteredTree.getFilterControl();
+		}
 		return null;
 	}
 
@@ -461,10 +476,12 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// clearing out selection caches in this method and should not do
 		// so if there's really no change.
 		if (filterConstant == filterFlag) {
-			if (filterConstant != AVAILABLE_SPECIFIED)
+			if (filterConstant != AVAILABLE_SPECIFIED) {
 				return;
-			if (repoLocation != null && repoLocation.equals(repositoryFilter))
+			}
+			if (repoLocation != null && repoLocation.equals(repositoryFilter)) {
 				return;
+			}
 		}
 		filterConstant = filterFlag;
 
@@ -497,8 +514,9 @@ public class AvailableIUGroup extends StructuredIUGroup {
 				case AVAILABLE_LOCAL :
 					return null;
 				default :
-					if (repositoryFilter == null)
+					if (repositoryFilter == null) {
 						return null;
+					}
 					Job job = new Job("Repository Load Job") { //$NON-NLS-1$
 						@Override
 						protected IStatus run(IProgressMonitor monitor) {

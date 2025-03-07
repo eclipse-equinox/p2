@@ -69,8 +69,9 @@ public class AvailableUpdateElement extends AvailableIUElement {
 		IPlanner planner = getPlanner();
 		IProfileChangeRequest request = ProfileChangeRequest
 				.createByProfileId(getProvisioningUI().getSession().getProvisioningAgent(), profileID);
-		if (iuToBeUpdated.getId().equals(getIU().getId()))
+		if (iuToBeUpdated.getId().equals(getIU().getId())) {
 			request.remove(iuToBeUpdated);
+		}
 		request.add(getIU());
 		return planner.getProvisioningPlan(request,
 				new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent()), monitor);
@@ -78,16 +79,21 @@ public class AvailableUpdateElement extends AvailableIUElement {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof AvailableUpdateElement))
+		}
+		if (!(obj instanceof AvailableUpdateElement)) {
 			return false;
-		if (iu == null)
+		}
+		if (iu == null) {
 			return false;
-		if (iuToBeUpdated == null)
+		}
+		if (iuToBeUpdated == null) {
 			return false;
+		}
 		AvailableUpdateElement other = (AvailableUpdateElement) obj;
 		return iu.equals(other.getIU()) && iuToBeUpdated.equals(other.getIUToBeUpdated());
 	}
@@ -108,8 +114,9 @@ public class AvailableUpdateElement extends AvailableIUElement {
 	@Override
 	protected String getImageId(Object obj) {
 		String imageId = super.getImageId(obj);
-		if (ProvUIImages.IMG_IU.equals(imageId) && isLockedForUpdate())
+		if (ProvUIImages.IMG_IU.equals(imageId) && isLockedForUpdate()) {
 			return ProvUIImages.IMG_DISABLED_IU;
+		}
 		return imageId;
 	}
 }

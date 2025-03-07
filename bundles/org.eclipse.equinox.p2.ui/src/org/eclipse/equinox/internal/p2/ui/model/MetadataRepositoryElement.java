@@ -62,17 +62,20 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
-		if (adapter == IMetadataRepository.class)
+		if (adapter == IMetadataRepository.class) {
 			return (T) getQueryable();
-		if (adapter == IRepository.class)
+		}
+		if (adapter == IRepository.class) {
 			return (T) getQueryable();
+		}
 		return super.getAdapter(adapter);
 	}
 
 	@Override
 	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
-		if (cache != null)
+		if (cache != null) {
 			return cache;
+		}
 
 		SubMonitor sub = SubMonitor.convert(monitor, 200);
 		// Ensure the repository is loaded using the monitor, so we respond to
@@ -116,8 +119,9 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 */
 	@Override
 	public IQueryable<?> getQueryable() {
-		if (queryable == null)
+		if (queryable == null) {
 			queryable = getRepository(new NullProgressMonitor());
+		}
 		return queryable;
 	}
 
@@ -159,10 +163,12 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	public String getName() {
 		if (name == null) {
 			name = getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
-			if (name == null)
+			if (name == null) {
 				name = getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
-			if (name == null)
+			}
+			if (name == null) {
 				name = ""; //$NON-NLS-1$
+			}
 		}
 		return name;
 	}
@@ -178,12 +184,14 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 
 	@Override
 	public String getDescription() {
-		if (getProvisioningUI().getRepositoryTracker().hasNotFoundStatusBeenReported(location))
+		if (getProvisioningUI().getRepositoryTracker().hasNotFoundStatusBeenReported(location)) {
 			return ProvUIMessages.RepositoryElement_NotFound;
+		}
 		String description = getMetadataRepositoryManager().getRepositoryProperty(location,
 				IRepository.PROP_DESCRIPTION);
-		if (description == null)
+		if (description == null) {
 			return ""; //$NON-NLS-1$
+		}
 		return description;
 	}
 
@@ -207,16 +215,20 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 */
 	@Override
 	public boolean hasQueryable() {
-		if (queryable != null)
+		if (queryable != null) {
 			return true;
-		if (location == null)
+		}
+		if (location == null) {
 			return false;
+		}
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		if (manager == null || !(manager instanceof MetadataRepositoryManager))
+		if (manager == null || !(manager instanceof MetadataRepositoryManager)) {
 			return false;
+		}
 		IMetadataRepository repo = ((MetadataRepositoryManager) manager).getRepository(location);
-		if (repo == null)
+		if (repo == null) {
 			return false;
+		}
 		queryable = repo;
 		return true;
 	}
@@ -224,10 +236,12 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	@Override
 	public Policy getPolicy() {
 		Object parent = getParent(this);
-		if (parent == null)
+		if (parent == null) {
 			return super.getPolicy();
-		if (parent instanceof QueriedElement)
+		}
+		if (parent instanceof QueriedElement) {
 			return ((QueriedElement) parent).getPolicy();
+		}
 		return getProvisioningUI().getPolicy();
 	}
 
@@ -236,10 +250,11 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		StringBuilder result = new StringBuilder();
 		result.append("Metadata Repository Element - "); //$NON-NLS-1$
 		result.append(URIUtil.toUnencodedString(location));
-		if (hasQueryable())
+		if (hasQueryable()) {
 			result.append(" (loaded)"); //$NON-NLS-1$
-		else
+		} else {
 			result.append(" (not loaded)"); //$NON-NLS-1$
+		}
 		return result.toString();
 	}
 
@@ -255,11 +270,13 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	@Override
 	public ProvisioningUI getProvisioningUI() {
 		ProvisioningUI ui = super.getProvisioningUI();
-		if (ui != null)
+		if (ui != null) {
 			return ui;
+		}
 		Object parent = getParent(this);
-		if (parent != null && parent instanceof QueriedElement)
+		if (parent != null && parent instanceof QueriedElement) {
 			return ((QueriedElement) parent).getProvisioningUI();
+		}
 		// if all else fails get the global UI. This should not really happen but
 		// we need to account for some possible historical cases.
 		return ProvisioningUI.getDefaultUI();

@@ -61,16 +61,18 @@ public class InstallWizard extends WizardWithLicenses {
 	@Override
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
 		mainPage = new AvailableIUsPage(ui, this);
-		if (selections != null && selections.length > 0)
+		if (selections != null && selections.length > 0) {
 			mainPage.setCheckedElements(selections);
+		}
 		return mainPage;
 
 	}
 
 	@Override
 	protected void initializeResolutionModelElements(Object[] selectedElements) {
-		if (selectedElements == null)
+		if (selectedElements == null) {
 			return;
+		}
 		root = new IUElementListRoot(ui);
 		if (operation instanceof RemediationOperation) {
 			AvailableIUElement[] elements = ElementUtils
@@ -109,8 +111,9 @@ public class InstallWizard extends WizardWithLicenses {
 	 */
 	protected ISelectableIUsPage getOperationSelectionsPage() {
 		IWizardPage page = getContainer().getCurrentPage();
-		if (page instanceof ISelectableIUsPage)
+		if (page instanceof ISelectableIUsPage) {
 			return (ISelectableIUsPage) page;
+		}
 		// return the main page if we weren't on main or error page
 		return mainPage;
 	}
@@ -122,10 +125,11 @@ public class InstallWizard extends WizardWithLicenses {
 
 	@Override
 	protected IResolutionErrorReportingPage createErrorReportingPage() {
-		if (root == null)
+		if (root == null) {
 			errorReportingPage = new SelectableIUsPage(ui, this, null, null);
-		else
+		} else {
 			errorReportingPage = new SelectableIUsPage(ui, this, root, root.getChildren(root));
+		}
 		errorReportingPage.setTitle(ProvUIMessages.InstallWizardPage_Title);
 		errorReportingPage.setDescription(ProvUIMessages.PreselectedIUInstallWizard_Description);
 		errorReportingPage.updateStatus(root, operation);
@@ -167,16 +171,18 @@ public class InstallWizard extends WizardWithLicenses {
 	 */
 	@Override
 	public void operationSelectionsChanged(ISelectableIUsPage page) {
-		if (ignoreSelectionChanges)
+		if (ignoreSelectionChanges) {
 			return;
+		}
 		super.operationSelectionsChanged(page);
 		// If we are on the error page, resolution has failed.
 		// Our ability to move on depends on whether the selections have changed.
 		// If they are the same selections, then we are not complete until selections
 		// are changed.
-		if (getOperationSelectionsPage() == errorPage)
+		if (getOperationSelectionsPage() == errorPage) {
 			((WizardPage) errorPage).setPageComplete(
 					pageSelectionsHaveChanged(errorPage) && errorPage.getCheckedIUElements().length > 0);
+		}
 		synchSelections(page);
 	}
 
@@ -228,8 +234,9 @@ public class InstallWizard extends WizardWithLicenses {
 							null, ProvUIMessages.Policy_RequiresUpdateManagerMessage, MessageDialog.WARNING,
 							new String[] { ProvUIMessages.LaunchUpdateManagerButton, IDialogConstants.CANCEL_LABEL },
 							0);
-					if (dialog.open() == 0)
+					if (dialog.open() == 0) {
 						BusyIndicator.showWhile(shell.getDisplay(), UpdateManagerCompatibility::openInstaller);
+					}
 				});
 			}
 			return installHandlerStatus;

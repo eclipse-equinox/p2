@@ -41,10 +41,12 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
-		if (adapter == IWorkbenchAdapter.class)
+		if (adapter == IWorkbenchAdapter.class) {
 			return (T) this;
-		if ((adapter == IDeferredWorkbenchAdapter.class) && this instanceof IDeferredWorkbenchAdapter)
+		}
+		if ((adapter == IDeferredWorkbenchAdapter.class) && this instanceof IDeferredWorkbenchAdapter) {
 			return (T) this;
+		}
 		return null;
 	}
 
@@ -71,8 +73,9 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 			return null;
 		}
 		ImageDescriptor desc = ProvUIImages.getImageDescriptor(id);
-		if (desc == null)
+		if (desc == null) {
 			desc = JFaceResources.getImageRegistry().getDescriptor(id);
+		}
 		return desc;
 	}
 
@@ -89,11 +92,13 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 			return null;
 		}
 		Image img = ProvUIImages.getImage(id);
-		if (img == null)
+		if (img == null) {
 			img = JFaceResources.getImageRegistry().get(id);
+		}
 		String overlayId = getImageOverlayId(object);
-		if (overlayId == null)
+		if (overlayId == null) {
 			return img;
+		}
 		ImageDescriptor overlay = ProvUIActivator.getDefault().getImageRegistry().getDescriptor(overlayId);
 		String decoratedImageId = id.concat(overlayId);
 		if (ProvUIActivator.getDefault().getImageRegistry().get(decoratedImageId) == null) {
@@ -101,8 +106,9 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 			ProvUIActivator.getDefault().getImageRegistry().put(decoratedImageId, decoratedImage);
 		}
 		Image decoratedImg = ProvUIActivator.getDefault().getImageRegistry().get(decoratedImageId);
-		if (decoratedImg == null)
+		if (decoratedImg == null) {
 			return img;
+		}
 		return decoratedImg;
 	}
 
@@ -115,8 +121,9 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 	}
 
 	public boolean hasChildren(Object o) {
-		if (this instanceof IDeferredWorkbenchAdapter)
+		if (this instanceof IDeferredWorkbenchAdapter) {
 			return ((IDeferredWorkbenchAdapter) this).isContainer();
+		}
 		Object[] children = getChildren(o);
 		if (children == null) {
 			return false;

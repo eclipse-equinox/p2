@@ -63,8 +63,9 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 
 	protected AcceptLicensesWizardPage createLicensesPage() {
 		IInstallableUnit[] ius = new IInstallableUnit[0];
-		if (planSelections != null)
+		if (planSelections != null) {
 			ius = ElementUtils.elementsToIUs(planSelections).toArray(new IInstallableUnit[0]);
+		}
 		return new AcceptLicensesWizardPage(ui.getLicenseManager(), ius, operation);
 	}
 

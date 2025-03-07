@@ -68,8 +68,9 @@ public class CategoryElementWrapper extends QueriedElementWrapper {
 
 	@Override
 	public Collection<?> getElements(Collector<?> collector) {
-		if (collector.isEmpty())
+		if (collector.isEmpty()) {
 			return super.getElements(collector);
+		}
 		Collection<?> results = super.getElements(collector);
 		cleanList();
 		return results;

@@ -136,8 +136,9 @@ public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialo
 		if (status.isOK()) {
 			addedLocation = getUserLocation();
 			String nick = nickname.getText().trim();
-			if (nick.length() == 0)
+			if (nick.length() == 0) {
 				nick = null;
+			}
 			getRepositoryTracker().addRepository(addedLocation, nick, getProvisioningUI().getSession());
 		}
 		return status;

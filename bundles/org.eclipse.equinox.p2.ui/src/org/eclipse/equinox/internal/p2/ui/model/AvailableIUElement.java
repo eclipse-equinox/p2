@@ -69,29 +69,36 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 
 	@Override
 	protected String getImageId(Object obj) {
-		if (imageId != null)
+		if (imageId != null) {
 			return imageId;
-		if (isUpdate)
+		}
+		if (isUpdate) {
 			return ProvUIImages.IMG_UPDATED_IU;
-		else if (isPatch)
+		} else if (isPatch) {
 			return isInstalled ? ProvUIImages.IMG_DISABLED_PATCH_IU : ProvUIImages.IMG_PATCH_IU;
-		else if (isInstalled)
+		} else if (isInstalled) {
 			return ProvUIImages.IMG_DISABLED_IU;
-		if (beingDowngraded)
+		}
+		if (beingDowngraded) {
 			return ProvUIImages.IMG_DOWNGRADED_IU;
-		if (beingUpgraded)
+		}
+		if (beingUpgraded) {
 			return ProvUIImages.IMG_UPGRADED_IU;
+		}
 		return ProvUIImages.IMG_IU;
 	}
 
 	@Override
 	public String getImageOverlayId(Object obj) {
-		if (imageOverlayId != null)
+		if (imageOverlayId != null) {
 			return imageOverlayId;
-		if (beingRemoved)
+		}
+		if (beingRemoved) {
 			return ProvUIImages.IMG_REMOVED_OVERLAY;
-		if (beingAdded)
+		}
+		if (beingAdded) {
 			return ProvUIImages.IMG_ADDED_OVERLAY;
+		}
 		return null;
 	}
 
@@ -103,8 +110,9 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
-		if (adapter == IInstallableUnit.class)
+		if (adapter == IInstallableUnit.class) {
 			return (T) iu;
+		}
 		return super.getAdapter(adapter);
 	}
 
@@ -115,8 +123,9 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 
 	@Override
 	public void computeSize(IProgressMonitor monitor) {
-		if (profileID == null)
+		if (profileID == null) {
 			return;
+		}
 		SubMonitor mon = SubMonitor.convert(monitor, 100);
 		IProvisioningPlan plan = getSizingPlan(mon.newChild(50));
 		size = ProvUI.getSize(getEngine(), plan, getProvisioningContext(), mon.newChild(50));
@@ -178,37 +187,45 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof AvailableIUElement))
+		}
+		if (!(obj instanceof AvailableIUElement)) {
 			return false;
-		if (iu == null)
+		}
+		if (iu == null) {
 			return false;
-		if (!iu.equals(((AvailableIUElement) obj).getIU()))
+		}
+		if (!iu.equals(((AvailableIUElement) obj).getIU())) {
 			return false;
+		}
 
 		Object parent = getParent(this);
 		Object objParent = ((AvailableIUElement) obj).getParent(obj);
-		if (parent != null && objParent != null)
+		if (parent != null && objParent != null) {
 			return parent.equals(objParent);
-		else if (parent == null && objParent == null)
+		} else if (parent == null && objParent == null) {
 			return true;
+		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		if (iu == null)
+		if (iu == null) {
 			return 0;
+		}
 		return iu.hashCode();
 	}
 
 	@Override
 	public String toString() {
-		if (iu == null)
+		if (iu == null) {
 			return "NULL"; //$NON-NLS-1$
+		}
 		return iu.toString();
 	}
 
