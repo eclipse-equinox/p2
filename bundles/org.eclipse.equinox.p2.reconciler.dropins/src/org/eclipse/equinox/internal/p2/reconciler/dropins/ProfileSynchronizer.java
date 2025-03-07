@@ -105,8 +105,9 @@ public class ProfileSynchronizer {
 	 */
 	public IStatus synchronize(IProgressMonitor monitor) {
 		readTimestamps();
-		if (isUpToDate())
+		if (isUpToDate()) {
 			return Status.OK_STATUS;
+		}
 
 		ProvisioningContext context = getContext();
 		context.setProperty(EXPLANATION, Boolean.toString(Tracing.DEBUG_RECONCILER));
@@ -116,20 +117,24 @@ public class ProfileSynchronizer {
 		// figure out if we really have anything to install/uninstall.
 		ReconcilerProfileChangeRequest request = createProfileChangeRequest(context);
 		if (request == null) {
-			if (updatedCacheExtensions == null)
+			if (updatedCacheExtensions == null) {
 				return Status.OK_STATUS;
+			}
 			IStatus engineResult = setProperty(CACHE_EXTENSIONS, updatedCacheExtensions, context, null);
-			if (engineResult.getSeverity() != IStatus.ERROR && engineResult.getSeverity() != IStatus.CANCEL)
+			if (engineResult.getSeverity() != IStatus.ERROR && engineResult.getSeverity() != IStatus.CANCEL) {
 				writeTimestamps();
+			}
 			return engineResult;
 		}
-		if (updatedCacheExtensions != null)
+		if (updatedCacheExtensions != null) {
 			request.setProfileProperty(CACHE_EXTENSIONS, updatedCacheExtensions);
+		}
 
 		// if some of the IUs move locations then construct a special plan and execute that first
 		IStatus moveResult = performRemoveForMovedIUs(request, context, monitor);
-		if (moveResult.getSeverity() == IStatus.ERROR || moveResult.getSeverity() == IStatus.CANCEL)
+		if (moveResult.getSeverity() == IStatus.ERROR || moveResult.getSeverity() == IStatus.CANCEL) {
 			return moveResult;
+		}
 
 		if (!request.getRemovals().isEmpty()) {
 			Collection<IRequirement> requirements = new ArrayList<>();
@@ -142,8 +147,9 @@ public class ProfileSynchronizer {
 
 		// now create a plan for the rest of the work and execute it
 		IStatus addRemoveResult = performAddRemove(request, context, monitor);
-		if (addRemoveResult.getSeverity() == IStatus.ERROR || addRemoveResult.getSeverity() == IStatus.CANCEL)
+		if (addRemoveResult.getSeverity() == IStatus.ERROR || addRemoveResult.getSeverity() == IStatus.CANCEL) {
 			return addRemoveResult;
+		}
 
 		// write out the new timestamps (for caching) and apply the configuration
 		writeTimestamps();
@@ -192,14 +198,16 @@ public class ProfileSynchronizer {
 		Collection<IInstallableUnit> additions = request.getAdditions();
 		Collection<IInstallableUnit> removals = request.getRemovals();
 		// see if there is any work to do
-		if (additions.isEmpty() && removals.isEmpty())
+		if (additions.isEmpty() && removals.isEmpty()) {
 			return Status.OK_STATUS;
+		}
 
 		// TODO See bug 270195. Eventually we will attempt to remove strictly installed IUs if their
 		// dependent bundles have been deleted.
 		boolean removeStrictRoots = false;
-		if (removeStrictRoots)
+		if (removeStrictRoots) {
 			return performStrictRootRemoval(request, context, monitor);
+		}
 		IProvisioningPlan plan = createProvisioningPlan(request, context, monitor);
 		debug(request, plan);
 		return executePlan(plan, context, monitor);
@@ -224,26 +232,30 @@ public class ProfileSynchronizer {
 		// if the resulting plan affects them
 		Set<IInstallableUnit> strictRoots = getStrictRoots().toUnmodifiableSet();
 		Collection<IRequirement> forceNegation = new ArrayList<>(removals.size());
-		for (IInstallableUnit iu : removals)
+		for (IInstallableUnit iu : removals) {
 			forceNegation.add(createNegation(iu));
+		}
 		request.addExtraRequirements(forceNegation);
 
 		// set all the profile roots to be optional to see how they would be effected by the plan
-		for (IInstallableUnit iu : strictRoots)
+		for (IInstallableUnit iu : strictRoots) {
 			request.setInstallableUnitProfileProperty(iu, INCLUSION_RULES, INCLUSION_OPTIONAL);
+		}
 
 		// get the tentative plan back from the planner
 		IProvisioningPlan plan = createProvisioningPlan(request, context, monitor);
 		debug(request, plan);
-		if (!plan.getStatus().isOK())
+		if (!plan.getStatus().isOK()) {
 			return plan.getStatus();
+		}
 
 		// Analyze the plan to see if any of the strict roots are being uninstalled.
 		int removedRoots = 0;
 		for (IInstallableUnit initialRoot : strictRoots) {
 			// if the root wasn't uninstalled, then continue
-			if (plan.getRemovals().query(QueryUtil.createIUQuery(initialRoot), null).isEmpty())
+			if (plan.getRemovals().query(QueryUtil.createIUQuery(initialRoot), null).isEmpty()) {
 				continue;
+			}
 			// otherwise add its removal to the change request, along with a negation and
 			// change of strict to optional for their inclusion rule.
 			finalRequest.remove(initialRoot);
@@ -257,8 +269,9 @@ public class ProfileSynchronizer {
 		}
 
 		// Check for the case where all the strict roots are being removed.
-		if (removedRoots == strictRoots.size())
+		if (removedRoots == strictRoots.size()) {
 			return new Status(IStatus.ERROR, Activator.ID, Messages.remove_all_roots);
+		}
 		plan = createProvisioningPlan(finalRequest, context, monitor);
 		if (!plan.getStatus().isOK()) {
 			System.out.println("original request"); //$NON-NLS-1$
@@ -278,12 +291,14 @@ public class ProfileSynchronizer {
 	 */
 	private IStatus performRemoveForMovedIUs(ReconcilerProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
 		Collection<IInstallableUnit> moves = request.getMoves();
-		if (moves.isEmpty())
+		if (moves.isEmpty()) {
 			return Status.OK_STATUS;
+		}
 		IEngine engine = agent.getService(IEngine.class);
 		IProvisioningPlan plan = engine.createPlan(profile, context);
-		for (IInstallableUnit unit : moves)
+		for (IInstallableUnit unit : moves) {
 			plan.removeInstallableUnit(unit);
+		}
 		return executePlan(plan, context, monitor);
 	}
 
@@ -298,10 +313,12 @@ public class ProfileSynchronizer {
 			IMetadataRepository repository = entry.getValue();
 			Map<String, String> props = repository.getProperties();
 			String timestamp = null;
-			if (props != null)
+			if (props != null) {
 				timestamp = props.get(IRepository.PROP_TIMESTAMP);
-			if (timestamp == null)
+			}
+			if (timestamp == null) {
 				timestamp = NO_TIMESTAMP;
+			}
 
 			timestamps.put(entry.getKey(), timestamp);
 		}
@@ -356,11 +373,13 @@ public class ProfileSynchronizer {
 
 			Map<String, String> props = repository.getProperties();
 			String currentTimestamp = null;
-			if (props != null)
+			if (props != null) {
 				currentTimestamp = props.get(IRepository.PROP_TIMESTAMP);
+			}
 
-			if (currentTimestamp == null)
+			if (currentTimestamp == null) {
 				currentTimestamp = NO_TIMESTAMP;
+			}
 
 			String key = entry.getKey();
 			String lastKnownTimestamp = timestamps.remove(key);
@@ -385,8 +404,9 @@ public class ProfileSynchronizer {
 		//A repo has been removed
 		if (Tracing.DEBUG_RECONCILER) {
 			Activator.trace("Extra values in timestamp file:"); //$NON-NLS-1$
-			for (String string : timestamps.keySet())
+			for (String string : timestamps.keySet()) {
 				Activator.trace(string);
+			}
 			Activator.trace("Performing reconciliation."); //$NON-NLS-1$
 		}
 		return false;
@@ -450,10 +470,12 @@ public class ProfileSynchronizer {
 			// Sort the repositories so the extension location at the OSGi install folder is first.
 			// See https://bugs.eclipse.org/246310.
 			repositories.sort((left, right) -> {
-				if (OSGiInstallArea.equals(left))
+				if (OSGiInstallArea.equals(left)) {
 					return -1;
-				if (OSGiInstallArea.equals(right))
+				}
+				if (OSGiInstallArea.equals(right)) {
 					return 1;
+				}
 				return left.compareTo(right);
 			});
 		} catch (URISyntaxException e) {
@@ -468,8 +490,9 @@ public class ProfileSynchronizer {
 				if (repository instanceof IFileArtifactRepository) {
 					currentExtensions.add(escapePipe(repositoryId));
 					buffer.append(repositoryId);
-					if (it.hasNext())
+					if (it.hasNext()) {
 						buffer.append(PIPE);
+					}
 				}
 			} catch (ProvisionException e) {
 				// ignore
@@ -489,8 +512,9 @@ public class ProfileSynchronizer {
 			}
 		}
 
-		if (previousExtensions.size() == currentExtensions.size() && previousExtensions.containsAll(currentExtensions))
+		if (previousExtensions.size() == currentExtensions.size() && previousExtensions.containsAll(currentExtensions)) {
 			return null;
+		}
 
 		return currentExtensionsProperty;
 	}
@@ -503,8 +527,9 @@ public class ProfileSynchronizer {
 	private String escapePipe(String location) {
 		String result = location;
 		int pipeIndex;
-		while ((pipeIndex = result.indexOf(',')) != -1)
+		while ((pipeIndex = result.indexOf(',')) != -1) {
 			result = result.substring(0, pipeIndex) + "%7C" + result.substring(pipeIndex + 1); //$NON-NLS-1$
+		}
 		return result;
 	}
 
@@ -546,8 +571,9 @@ public class ProfileSynchronizer {
 		ReconcilerProfileChangeRequest request = new ReconcilerProfileChangeRequest(profile);
 
 		boolean resolve = Boolean.parseBoolean(profile.getProperty("org.eclipse.equinox.p2.resolve")); //$NON-NLS-1$
-		if (resolve)
+		if (resolve) {
 			request.removeProfileProperty("org.eclipse.equinox.p2.resolve"); //$NON-NLS-1$
+		}
 
 		List<IInstallableUnit> toRemove = new ArrayList<>();
 		List<IInstallableUnit> toMove = new ArrayList<>();
@@ -584,8 +610,9 @@ public class ProfileSynchronizer {
 			}
 			// even though we are adding all IUs below, we need to explicitly set the properties for
 			// them as well. Do that here.
-			if (QueryUtil.isGroup(iu))
+			if (QueryUtil.isGroup(iu)) {
 				request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+			}
 			// mark all IUs with special property
 			request.setInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS, Boolean.TRUE.toString());
 			request.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
@@ -614,13 +641,15 @@ public class ProfileSynchronizer {
 			}
 			// if the IU from the profile is in the "all available" list, then it is already added
 			// otherwise if it isn't in the repo then we have to remove it from the profile.
-			if (!all.contains(iu))
+			if (!all.contains(iu)) {
 				toRemove.add(iu);
+			}
 		}
 
 		if (!foundIUsToAdd && toRemove.isEmpty() && !resolve && toMove.isEmpty()) {
-			if (Tracing.DEBUG_RECONCILER)
+			if (Tracing.DEBUG_RECONCILER) {
 				Tracing.debug("[reconciler] Nothing to do."); //$NON-NLS-1$
+			}
 			return null;
 		}
 
@@ -646,8 +675,9 @@ public class ProfileSynchronizer {
 	 * provisioning plan matches the request.
 	 */
 	private void debug(ReconcilerProfileChangeRequest request, IProvisioningPlan plan) {
-		if (!Tracing.DEBUG_RECONCILER)
+		if (!Tracing.DEBUG_RECONCILER) {
 			return;
+		}
 		final String PREFIX = "[reconciler] [plan] "; //$NON-NLS-1$
 		// get the request
 		List<IInstallableUnit> toAdd = new ArrayList<>(request.getAdditions());
@@ -671,17 +701,20 @@ public class ProfileSynchronizer {
 		toAdd.removeAll(toMove);
 
 		// if anything is left in the request, then something is wrong with the plan
-		if (toAdd.size() == 0 && toRemove.size() == 0)
+		if (toAdd.size() == 0 && toRemove.size() == 0) {
 			Tracing.debug(PREFIX + "Plan matches the request."); //$NON-NLS-1$
+		}
 		if (toAdd.size() != 0) {
 			Tracing.debug(PREFIX + "Some units will not be installed, because they are already installed or there are dependency issues:"); //$NON-NLS-1$
-			for (IInstallableUnit unit : toAdd)
+			for (IInstallableUnit unit : toAdd) {
 				Tracing.debug(PREFIX + unit);
+			}
 		}
 		if (toRemove.size() != 0) {
 			Tracing.debug(PREFIX + "Some units will not be uninstalled:"); //$NON-NLS-1$
-			for (IInstallableUnit unit : toRemove)
+			for (IInstallableUnit unit : toRemove) {
 				Tracing.debug(PREFIX + unit);
+			}
 		}
 	}
 
@@ -689,8 +722,9 @@ public class ProfileSynchronizer {
 	 * If debugging is turned on, then print out the details for the given profile change request.
 	 */
 	private void debug(ReconcilerProfileChangeRequest request) {
-		if (!Tracing.DEBUG_RECONCILER)
+		if (!Tracing.DEBUG_RECONCILER) {
 			return;
+		}
 		final String PREFIX = "[reconciler] "; //$NON-NLS-1$
 		Collection<IInstallableUnit> toAdd = request.getAdditions();
 		if (toAdd == null || toAdd.size() == 0) {
@@ -730,16 +764,18 @@ public class ProfileSynchronizer {
 		if (toMove == null || toMove.isEmpty()) {
 			Tracing.debug(PREFIX + "No installable units to move."); //$NON-NLS-1$
 		} else {
-			for (IInstallableUnit move : toMove)
+			for (IInstallableUnit move : toMove) {
 				Tracing.debug(PREFIX + "Moving IU: " + move.getId() + ' ' + move.getVersion()); //$NON-NLS-1$
+			}
 		}
 
 		Collection<IRequirement> extra = request.getExtraRequirements();
 		if (extra == null || extra.isEmpty()) {
 			Tracing.debug(PREFIX + "No extra requirements."); //$NON-NLS-1$
 		} else {
-			for (IRequirement requirement : extra)
+			for (IRequirement requirement : extra) {
 				Tracing.debug(PREFIX + "Extra requirement: " + requirement); //$NON-NLS-1$
+			}
 		}
 	}
 
@@ -784,8 +820,9 @@ public class ProfileSynchronizer {
 
 		if (plan.getInstallerPlan() != null) {
 			IStatus installerPlanStatus = engine.perform(plan.getInstallerPlan(), phaseSet, monitor);
-			if (!installerPlanStatus.isOK())
+			if (!installerPlanStatus.isOK()) {
 				return installerPlanStatus;
+			}
 
 			applyConfiguration(true);
 		}
@@ -796,8 +833,9 @@ public class ProfileSynchronizer {
 	 * Write out the configuration file.
 	 */
 	private IStatus applyConfiguration(boolean isInstaller) {
-		if (!isInstaller && isReconciliationApplicationRunning())
+		if (!isInstaller && isReconciliationApplicationRunning()) {
 			return Status.OK_STATUS;
+		}
 		BundleContext context = Activator.getContext();
 		ServiceReference<Configurator> reference = context.getServiceReference(Configurator.class);
 		Configurator configurator = context.getService(reference);
@@ -813,14 +851,17 @@ public class ProfileSynchronizer {
 
 	static boolean isReconciliationApplicationRunning() {
 		EnvironmentInfo info = ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class);
-		if (info == null)
+		if (info == null) {
 			return false;
+		}
 		String[] args = info.getCommandLineArgs();
-		if (args == null)
+		if (args == null) {
 			return false;
+		}
 		for (String arg : args) {
-			if (arg != null && RECONCILER_APPLICATION_ID.equals(arg.trim()))
+			if (arg != null && RECONCILER_APPLICATION_ID.equals(arg.trim())) {
 				return true;
+			}
 		}
 		return false;
 	}

@@ -23,8 +23,9 @@ public class Application implements IApplication {
 	public Object start(IApplicationContext context) throws Exception {
 		Object obj = System.getProperties().get(Activator.PROP_APPLICATION_STATUS);
 		// if we have a non-OK status return "unlucky" 13, otherwise return the OK return code
-		if (obj != null && (obj instanceof IStatus) && !((IStatus) obj).isOK())
+		if (obj != null && (obj instanceof IStatus) && !((IStatus) obj).isOK()) {
 			return Integer.valueOf(13);
+		}
 		return IApplication.EXIT_OK;
 	}
 

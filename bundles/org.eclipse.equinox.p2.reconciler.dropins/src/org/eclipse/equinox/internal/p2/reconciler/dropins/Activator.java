@@ -69,15 +69,17 @@ public class Activator implements BundleActivator {
 	public static IMetadataRepository createExtensionLocationMetadataRepository(URI location, String name, Map<String, String> properties) throws ProvisionException {
 		IProvisioningAgent agent = getAgent();
 		IMetadataRepositoryManager manager = agent.getService(IMetadataRepositoryManager.class);
-		if (manager == null)
+		if (manager == null) {
 			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
+		}
 		ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
 		factory.setAgent(agent);
 		// always compress repositories that we are creating.
 		Map<String, String> repositoryProperties = new HashMap<>();
 		repositoryProperties.put(IRepository.PROP_COMPRESSED, Boolean.TRUE.toString());
-		if (properties != null)
+		if (properties != null) {
 			repositoryProperties.putAll(properties);
+		}
 		IMetadataRepository repository = factory.create(location, name, ExtensionLocationMetadataRepository.TYPE, repositoryProperties);
 		//we need to add the concrete repository to the repository manager, or its properties will not be correct
 		((MetadataRepositoryManager) manager).addRepository(repository);
@@ -105,15 +107,17 @@ public class Activator implements BundleActivator {
 	public static IArtifactRepository createExtensionLocationArtifactRepository(URI location, String name, Map<String, String> properties) throws ProvisionException {
 		IProvisioningAgent agent = getAgent();
 		IArtifactRepositoryManager manager = agent.getService(IArtifactRepositoryManager.class);
-		if (manager == null)
+		if (manager == null) {
 			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
+		}
 		ExtensionLocationArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
 		factory.setAgent(agent);
 		// always compress repositories that we are creating.
 		Map<String, String> repositoryProperties = new HashMap<>();
 		repositoryProperties.put(IRepository.PROP_COMPRESSED, Boolean.TRUE.toString());
-		if (properties != null)
+		if (properties != null) {
 			repositoryProperties.putAll(properties);
+		}
 		IArtifactRepository repository = factory.create(location, name, ExtensionLocationArtifactRepository.TYPE, repositoryProperties);
 		//we need to add the concrete repository to the repository manager, or its properties will not be correct
 		((ArtifactRepositoryManager) manager).addRepository(repository);
@@ -187,8 +191,9 @@ public class Activator implements BundleActivator {
 		if (!configIni.exists()) {
 			// try parent configuration
 			File parentConfiguration = getParentConfigurationLocation();
-			if (parentConfiguration == null)
+			if (parentConfiguration == null) {
 				return;
+			}
 
 			// write shared configuration
 			Properties props = new Properties();
@@ -258,8 +263,9 @@ public class Activator implements BundleActivator {
 		} else {
 			if (Tracing.DEBUG_RECONCILER) {
 				trace("Found extra values in cached timestamp file: "); //$NON-NLS-1$
-				for (Object object : timestamps.keySet())
+				for (Object object : timestamps.keySet()) {
 					trace(object);
+				}
 				trace("Performing reconciliation. "); //$NON-NLS-1$
 			}
 		}
@@ -272,8 +278,9 @@ public class Activator implements BundleActivator {
 	private Properties readTimestamps() {
 		Properties result = new Properties();
 		File file = Activator.getContext().getDataFile(CACHE_FILENAME);
-		if (!file.exists())
+		if (!file.exists()) {
 			return result;
+		}
 		trace("Reading timestamps from file: " + file.getAbsolutePath()); //$NON-NLS-1$
 		try (InputStream input = new BufferedInputStream(new FileInputStream(file))) {
 			result.load(input);
@@ -294,8 +301,9 @@ public class Activator implements BundleActivator {
 	 * to figure out if something has changed and perhaps avoid an unnecessary reconcilation.
 	 */
 	private Collection<File> getFilesToCheck() {
-		if (filesToCheck != null)
+		if (filesToCheck != null) {
 			return filesToCheck;
+		}
 
 		Set<File> result = new HashSet<>();
 
@@ -353,8 +361,9 @@ public class Activator implements BundleActivator {
 				if (child.isFile() && child.getName().toLowerCase().endsWith(EXT_LINK)) {
 					// if we have a link file then add the link file and its target
 					LinkedRepository repo = DropinsRepositoryListener.getLinkedRepository(child);
-					if (repo == null || !repo.exists())
+					if (repo == null || !repo.exists()) {
 						continue;
+					}
 					File target = repo.getLocation();
 					result.add(child);
 					result.add(target);
@@ -384,11 +393,13 @@ public class Activator implements BundleActivator {
 						parent = child;
 					}
 					File plugins = new File(parent, DIR_PLUGINS);
-					if (plugins.exists())
+					if (plugins.exists()) {
 						result.add(plugins);
+					}
 					File features = new File(parent, DIR_FEATURES);
-					if (features.exists())
+					if (features.exists()) {
 						result.add(features);
+					}
 				}
 			}
 		}
@@ -427,16 +438,18 @@ public class Activator implements BundleActivator {
 	 */
 	public static synchronized void synchronize(IProgressMonitor monitor) {
 		IProfile profile = getCurrentProfile(bundleContext);
-		if (profile == null)
+		if (profile == null) {
 			return;
+		}
 		// create the profile synchronizer on all available repositories
 		ProfileSynchronizer synchronizer = new ProfileSynchronizer(getAgent(), profile, repositories);
 		IStatus result = synchronizer.synchronize(monitor);
 		if (ProfileSynchronizer.isReconciliationApplicationRunning()) {
 			System.getProperties().put(PROP_APPLICATION_STATUS, result);
 		}
-		if (!result.isOK() && !(result.getSeverity() == IStatus.CANCEL))
+		if (!result.isOK() && !(result.getSeverity() == IStatus.CANCEL)) {
 			LogHelper.log(result);
+		}
 	}
 
 	/*
@@ -453,12 +466,14 @@ public class Activator implements BundleActivator {
 		if (!configFile.exists()) {
 			// try parent configuration
 			File parentConfiguration = getParentConfigurationLocation();
-			if (parentConfiguration == null)
+			if (parentConfiguration == null) {
 				return;
+			}
 
 			File shareConfigFile = new File(parentConfiguration, PLATFORM_CFG);
-			if (!shareConfigFile.exists())
+			if (!shareConfigFile.exists()) {
 				return;
+			}
 
 			Configuration config = new Configuration();
 			config.setDate(Long.toString(new Date().getTime()));
@@ -494,8 +509,9 @@ public class Activator implements BundleActivator {
 		directories.addAll(Arrays.asList(dropinsDirectories));
 		File[] linksDirectories = getLinksDirectories();
 		directories.addAll(Arrays.asList(linksDirectories));
-		if (directories.isEmpty())
+		if (directories.isEmpty()) {
 			return;
+		}
 
 		// we will compress the repositories and mark them hidden as "system" repos.
 		Map<String, String> properties = new HashMap<>();
@@ -527,11 +543,13 @@ public class Activator implements BundleActivator {
 	 */
 	public static File getConfigurationLocation() {
 		Location configurationLocation = ServiceHelper.getService(getContext(), Location.class, Location.CONFIGURATION_FILTER);
-		if (configurationLocation == null || !configurationLocation.isSet())
+		if (configurationLocation == null || !configurationLocation.isSet()) {
 			return null;
+		}
 		URL url = configurationLocation.getURL();
-		if (url == null)
+		if (url == null) {
 			return null;
+		}
 		return URLUtil.toFile(url);
 	}
 
@@ -541,16 +559,19 @@ public class Activator implements BundleActivator {
 	 */
 	public static File getParentConfigurationLocation() {
 		Location configurationLocation = ServiceHelper.getService(getContext(), Location.class, Location.CONFIGURATION_FILTER);
-		if (configurationLocation == null || !configurationLocation.isSet())
+		if (configurationLocation == null || !configurationLocation.isSet()) {
 			return null;
+		}
 
 		Location sharedConfigurationLocation = configurationLocation.getParentLocation();
-		if (sharedConfigurationLocation == null)
+		if (sharedConfigurationLocation == null) {
 			return null;
+		}
 
 		URL url = sharedConfigurationLocation.getURL();
-		if (url == null)
+		if (url == null) {
 			return null;
+		}
 		return URLUtil.toFile(url);
 	}
 
@@ -559,10 +580,12 @@ public class Activator implements BundleActivator {
 	 */
 	public static URL getOSGiInstallArea() {
 		Location location = ServiceHelper.getService(Activator.getContext(), Location.class, Location.INSTALL_FILTER);
-		if (location == null)
+		if (location == null) {
 			return null;
-		if (!location.isSet())
+		}
+		if (!location.isSet()) {
 			return null;
+		}
 		return location.getURL();
 	}
 
@@ -571,24 +594,29 @@ public class Activator implements BundleActivator {
 	 * with the equivalent property set in the System properties.
 	 */
 	public static String substituteVariables(String path) {
-		if (path == null)
+		if (path == null) {
 			return path;
+		}
 		int beginIndex = path.indexOf('%');
 		// no variable
-		if (beginIndex == -1)
+		if (beginIndex == -1) {
 			return path;
+		}
 		beginIndex++;
 		int endIndex = path.indexOf('%', beginIndex);
 		// no matching end % to indicate variable
-		if (endIndex == -1)
+		if (endIndex == -1) {
 			return path;
+		}
 		// get the variable name and do a lookup
 		String var = path.substring(beginIndex, endIndex);
-		if (var.length() == 0 || var.indexOf(File.pathSeparatorChar) != -1)
+		if (var.length() == 0 || var.indexOf(File.pathSeparatorChar) != -1) {
 			return path;
+		}
 		var = getContext().getProperty(var);
-		if (var == null)
+		if (var == null) {
 			return path;
+		}
 		return path.substring(0, beginIndex - 1) + var + path.substring(endIndex + 1);
 	}
 
@@ -598,11 +626,13 @@ public class Activator implements BundleActivator {
 	 */
 	public static File getEclipseHome() {
 		Location eclipseHome = ServiceHelper.getService(getContext(), Location.class, Location.ECLIPSE_HOME_FILTER);
-		if (eclipseHome == null || !eclipseHome.isSet())
+		if (eclipseHome == null || !eclipseHome.isSet()) {
 			return null;
+		}
 		URL url = eclipseHome.getURL();
-		if (url == null)
+		if (url == null) {
 			return null;
+		}
 		return URLUtil.toFile(url);
 	}
 
@@ -613,16 +643,18 @@ public class Activator implements BundleActivator {
 	private static File[] getLinksDirectories() {
 		List<File> linksDirectories = new ArrayList<>();
 		File root = getEclipseHome();
-		if (root != null)
+		if (root != null) {
 			linksDirectories.add(new File(root, LINKS));
+		}
 
 		// check to see if we are in shared mode. if so, then add the user's local
 		// links directory. (the shared one will have been added above with the
 		// reference to Eclipse home)
 		if (getParentConfigurationLocation() != null) {
 			File configuration = getConfigurationLocation();
-			if (configuration != null && configuration.getParentFile() != null)
+			if (configuration != null && configuration.getParentFile() != null) {
 				linksDirectories.add(new File(configuration.getParentFile(), LINKS));
+			}
 		}
 		return linksDirectories.toArray(new File[linksDirectories.size()]);
 	}
@@ -645,16 +677,18 @@ public class Activator implements BundleActivator {
 
 		// always add the one in the Eclipse home directory
 		File root = getEclipseHome();
-		if (root != null)
+		if (root != null) {
 			dropinsDirectories.add(new File(root, DROPINS));
+		}
 
 		// check to see if we are in shared mode. if so, then add the user's local
 		// dropins directory. (the shared one will have been added above with the
 		// reference to Eclipse home)
 		if (getParentConfigurationLocation() != null) {
 			File configuration = getConfigurationLocation();
-			if (configuration != null && configuration.getParentFile() != null)
+			if (configuration != null && configuration.getParentFile() != null) {
 				dropinsDirectories.add(new File(configuration.getParentFile(), DROPINS));
+			}
 		}
 		return dropinsDirectories.toArray(new File[dropinsDirectories.size()]);
 	}
@@ -665,8 +699,9 @@ public class Activator implements BundleActivator {
 	public static IProfile getCurrentProfile(BundleContext context) {
 		IProvisioningAgent agent = getAgent();
 		IProfileRegistry profileRegistry = agent.getService(IProfileRegistry.class);
-		if (profileRegistry == null)
+		if (profileRegistry == null) {
 			return null;
+		}
 		return profileRegistry.getProfile(IProfileRegistry.SELF);
 	}
 
@@ -674,8 +709,9 @@ public class Activator implements BundleActivator {
 	 * If tracing is enabled, then write out the given message.
 	 */
 	public static void trace(Object message) {
-		if (Tracing.DEBUG_RECONCILER)
+		if (Tracing.DEBUG_RECONCILER) {
 			Tracing.debug(TRACING_PREFIX + message);
+		}
 	}
 
 }
