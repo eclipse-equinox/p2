@@ -154,8 +154,9 @@ public class Activator implements BundleActivator {
 
 	private boolean startBundle(String bundleId) {
 		PackageAdmin packageAdmin = ServiceHelper.getService(Activator.context, PackageAdmin.class);
-		if (packageAdmin == null)
+		if (packageAdmin == null) {
 			return false;
+		}
 
 		Bundle[] bundles = packageAdmin.getBundles(bundleId, null);
 		if (bundles != null && bundles.length > 0) {

@@ -123,11 +123,12 @@ public class RepositoryTransport extends Transport {
 							listener = event -> {
 								if (event instanceof DownloadPauseResumeEvent) {
 									if (((DownloadPauseResumeEvent) event)
-											.getType() == DownloadPauseResumeEvent.TYPE_PAUSE)
+											.getType() == DownloadPauseResumeEvent.TYPE_PAUSE) {
 										fileReader.pause();
-									else if (((DownloadPauseResumeEvent) event)
-											.getType() == DownloadPauseResumeEvent.TYPE_RESUME)
+									} else if (((DownloadPauseResumeEvent) event)
+											.getType() == DownloadPauseResumeEvent.TYPE_RESUME) {
 										fileReader.resume();
+									}
 								}
 							};
 							eventBus.addListener(listener);
@@ -148,10 +149,12 @@ public class RepositoryTransport extends Transport {
 							ProvisionException.REPOSITORY_FAILED_READ, msg, null);
 					return statusOn(target, ds, reader);
 				}
-				if (result.getSeverity() == IStatus.CANCEL)
+				if (result.getSeverity() == IStatus.CANCEL) {
 					throw new OperationCanceledException();
-				if (!result.isOK())
+				}
+				if (!result.isOK()) {
 					throw new CoreException(result);
+				}
 
 				// Download status is expected on success
 				DownloadStatus status = new DownloadStatus(IStatus.OK, Activator.ID, Status.OK_STATUS.getMessage());
@@ -163,8 +166,9 @@ public class RepositoryTransport extends Transport {
 				statusOn(target, new DownloadStatus(IStatus.CANCEL, Activator.ID, 1, "", null), reader); //$NON-NLS-1$
 				throw e;
 			} catch (CoreException e) {
-				if (e.getStatus().getException() == null)
+				if (e.getStatus().getException() == null) {
 					return statusOn(target, forException(e, secureToDownload), reader);
+				}
 				return statusOn(target, forStatus(e.getStatus(), secureToDownload), reader);
 			} catch (FileNotFoundException e) {
 				return statusOn(target, forException(e, secureToDownload), reader);
@@ -216,8 +220,9 @@ public class RepositoryTransport extends Transport {
 			} catch (CoreException e) {
 				// must translate this core exception as it is most likely not informative to a
 				// user
-				if (e.getStatus().getException() == null)
+				if (e.getStatus().getException() == null) {
 					throw new CoreException(forException(e, secureToDownload));
+				}
 				throw new CoreException(forStatus(e.getStatus(), secureToDownload));
 			} catch (LoginCanceledException e) {
 				// i.e. same behavior when user cancels as when failing n attempts.
@@ -252,8 +257,9 @@ public class RepositoryTransport extends Transport {
 				status.setTransferRate(fi.getAverageSpeed());
 			}
 		}
-		if (target instanceof IStateful)
+		if (target instanceof IStateful) {
 			((IStateful) target).setStatus(status);
+		}
 		return status;
 	}
 
@@ -278,8 +284,9 @@ public class RepositoryTransport extends Transport {
 			} catch (CoreException e) {
 				// must translate this core exception as it is most likely not informative to a
 				// user
-				if (e.getStatus().getException() == null)
+				if (e.getStatus().getException() == null) {
 					throw new CoreException(forException(e, secureToDownload));
+				}
 				throw new CoreException(forStatus(e.getStatus(), secureToDownload));
 			} catch (AuthenticationFailedException e) {
 				promptUser = true;
@@ -300,21 +307,23 @@ public class RepositoryTransport extends Transport {
 	}
 
 	private static boolean isForgiveableException(Throwable t) {
-		if (t instanceof SocketTimeoutException)
+		if (t instanceof SocketTimeoutException) {
 			return true;
-		else if (t instanceof SocketException)
+		} else if (t instanceof SocketException) {
 			return true;
-		else if (t instanceof IncomingFileTransferException
-				&& ((IncomingFileTransferException) t).getErrorCode() == 503)
+		} else if (t instanceof IncomingFileTransferException
+				&& ((IncomingFileTransferException) t).getErrorCode() == 503) {
 			return true;
+		}
 		return false;
 	}
 
 	public static DownloadStatus forStatus(IStatus original, URI toDownload) {
 		Throwable t = original.getException();
-		if (isForgiveableException(t) && original.getCode() == IArtifactRepository.CODE_RETRY)
+		if (isForgiveableException(t) && original.getCode() == IArtifactRepository.CODE_RETRY) {
 			return new DownloadStatus(original.getSeverity(), Activator.ID, original.getCode(), original.getMessage(),
 					t);
+		}
 		return forException(t, toDownload);
 	}
 
@@ -331,19 +340,23 @@ public class RepositoryTransport extends Transport {
 			}
 		}
 		if (t instanceof FileNotFoundException || (t instanceof IncomingFileTransferException
-				&& ((IncomingFileTransferException) t).getErrorCode() == 404))
+				&& ((IncomingFileTransferException) t).getErrorCode() == 404)) {
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND,
 					NLS.bind(Messages.artifact_not_found, toDownload), t);
-		if (t instanceof ConnectException)
+		}
+		if (t instanceof ConnectException) {
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ,
 					NLS.bind(Messages.TransportErrorTranslator_UnableToConnectToRepository_0, toDownload), t);
-		if (t instanceof UnknownHostException)
+		}
+		if (t instanceof UnknownHostException) {
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION,
 					NLS.bind(Messages.TransportErrorTranslator_UnknownHost, toDownload), t);
+		}
 		if (t instanceof IDCreateException) {
 			IStatus status = ((IDCreateException) t).getStatus();
-			if (status != null && status.getException() != null)
+			if (status != null && status.getException() != null) {
 				t = status.getException();
+			}
 
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION,
 					NLS.bind(Messages.TransportErrorTranslator_MalformedRemoteFileReference, toDownload), t);
@@ -353,19 +366,21 @@ public class RepositoryTransport extends Transport {
 		// default to report as read repository error
 		int provisionCode = ProvisionException.REPOSITORY_FAILED_READ;
 
-		if (t instanceof IncomingFileTransferException)
+		if (t instanceof IncomingFileTransferException) {
 			code = ((IncomingFileTransferException) t).getErrorCode();
-		else if (t instanceof BrowseFileTransferException)
+		} else if (t instanceof BrowseFileTransferException) {
 			code = ((BrowseFileTransferException) t).getErrorCode();
+		}
 
 		// Switch on error codes in the HTTP error code range.
 		// Note that 404 uses ARTIFACT_NOT_FOUND (as opposed to REPOSITORY_NOT_FOUND,
 		// which
 		// is determined higher up in the calling chain).
-		if (code == 401)
+		if (code == 401) {
 			provisionCode = ProvisionException.REPOSITORY_FAILED_AUTHENTICATION;
-		else if (code == 404)
+		} else if (code == 404) {
 			provisionCode = ProvisionException.ARTIFACT_NOT_FOUND;
+		}
 
 		// Add more specific translation here
 
