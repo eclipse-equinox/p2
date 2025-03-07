@@ -29,8 +29,9 @@ public class Application implements IApplication {
 		Display display = PlatformUI.createDisplay();
 		try {
 			int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());
-			if (returnCode == PlatformUI.RETURN_RESTART)
+			if (returnCode == PlatformUI.RETURN_RESTART) {
 				return IApplication.EXIT_RESTART;
+			}
 			return IApplication.EXIT_OK;
 		} finally {
 			display.dispose();
@@ -41,12 +42,14 @@ public class Application implements IApplication {
 	@Override
 	public void stop() {
 		final IWorkbench workbench = PlatformUI.getWorkbench();
-		if (workbench == null)
+		if (workbench == null) {
 			return;
+		}
 		final Display display = workbench.getDisplay();
 		display.syncExec(() -> {
-			if (!display.isDisposed())
+			if (!display.isDisposed()) {
 				workbench.close();
+			}
 		});
 	}
 }
