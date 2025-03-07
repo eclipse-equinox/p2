@@ -67,8 +67,9 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	class LicenseContentProvider implements ITreeContentProvider {
 		@Override
 		public Object[] getChildren(Object parentElement) {
-			if (!(parentElement instanceof ILicense))
+			if (!(parentElement instanceof ILicense)) {
 				return new Object[0];
+			}
 
 			if (licensesToIUs.containsKey(parentElement)) {
 				List<IInstallableUnit> iusWithLicense = licensesToIUs.get(parentElement);
@@ -133,8 +134,9 @@ public class AcceptLicensesWizardPage extends WizardPage {
 			int i = body.indexOf('\n');
 			int j = body.indexOf('\r');
 			if (i > 0) {
-				if (j > 0)
+				if (j > 0) {
 					return body.substring(0, i < j ? i : j);
+				}
 				return body.substring(0, i);
 			} else if (j > 0) {
 				return body.substring(0, j);
@@ -157,10 +159,11 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	static String getIUName(IInstallableUnit iu) {
 		StringBuilder buf = new StringBuilder();
 		String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);
-		if (name != null)
+		if (name != null) {
 			buf.append(name);
-		else
+		} else {
 			buf.append(iu.getId());
+		}
 		buf.append(" "); //$NON-NLS-1$
 		buf.append(iu.getVersion().toString());
 		return buf.toString();
@@ -235,17 +238,19 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		buttonContainer.setLayoutData(gd);
 
 		acceptButton = new Button(buttonContainer, SWT.RADIO);
-		if (multiple)
+		if (multiple) {
 			acceptButton.setText(ProvUIMessages.AcceptLicensesWizardPage_AcceptMultiple);
-		else
+		} else {
 			acceptButton.setText(ProvUIMessages.AcceptLicensesWizardPage_AcceptSingle);
+		}
 
 		acceptButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> setPageComplete(acceptButton.getSelection())));
 		declineButton = new Button(buttonContainer, SWT.RADIO);
-		if (multiple)
+		if (multiple) {
 			declineButton.setText(ProvUIMessages.AcceptLicensesWizardPage_RejectMultiple);
-		else
+		} else {
 			declineButton.setText(ProvUIMessages.AcceptLicensesWizardPage_RejectSingle);
+		}
 		declineButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> setPageComplete(!declineButton.getSelection())));
 
 		acceptButton.setSelection(false);
@@ -262,10 +267,11 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		composite.setLayoutData(gd);
 
 		Label label = new Label(composite, SWT.NONE);
-		if (singleIU == null)
+		if (singleIU == null) {
 			label.setText(ProvUIMessages.AcceptLicensesWizardPage_LicenseTextLabel);
-		else
+		} else {
 			label.setText(NLS.bind(ProvUIMessages.AcceptLicensesWizardPage_SingleLicenseTextLabel, getIUName(singleIU)));
+		}
 		licenseTextBox = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY);
 		licenseTextBox.setBackground(licenseTextBox.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
 		initializeDialogUnits(licenseTextBox);
@@ -292,10 +298,11 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	void handleSelectionChanged(IStructuredSelection selection) {
 		if (!selection.isEmpty()) {
 			Object selected = selection.getFirstElement();
-			if (selected instanceof License)
+			if (selected instanceof License) {
 				licenseTextBox.setText(((License) selected).getBody());
-			else if (selected instanceof IUWithLicenseParent)
+			} else if (selected instanceof IUWithLicenseParent) {
 				licenseTextBox.setText(((IUWithLicenseParent) selected).license.getBody());
+			}
 		}
 	}
 
@@ -342,10 +349,11 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 	private void updateLicenses(IInstallableUnit[] theIUs, IProvisioningPlan plan) {
 		this.originalIUs = theIUs;
-		if (theIUs == null)
+		if (theIUs == null) {
 			licensesToIUs = new HashMap<>();
-		else
+		} else {
 			findUnacceptedLicenses(theIUs, plan);
+		}
 		setDescription();
 		setPageComplete(licensesToIUs.size() == 0);
 		if (getControl() != null) {
@@ -391,8 +399,9 @@ public class AcceptLicensesWizardPage extends WizardPage {
 			for (ILicense license : iu.getLicenses(null)) {
 				if (manager != null && !manager.isAccepted(license)) {
 					String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);
-					if (name == null)
+					if (name == null) {
 						name = iu.getId();
+					}
 					// Have we already found this license?
 					if (licensesToIUs.containsKey(license)) {
 						HashSet<String> names = namesSeen.get(license);
@@ -414,23 +423,21 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	}
 
 	private void rememberAcceptedLicenses() {
-		if (licensesToIUs == null || manager == null)
+		if (licensesToIUs == null || manager == null) {
 			return;
-		for (ILicense license : licensesToIUs.keySet())
+		}
+		for (ILicense license : licensesToIUs.keySet()) {
 			manager.accept(license);
+		}
 	}
 
 	private void setDescription() {
 		// No licenses but the page is open.  Shouldn't happen, but just in case...
-		if (licensesToIUs == null || licensesToIUs.size() == 0)
+		if (licensesToIUs == null || licensesToIUs.size() == 0) {
 			setDescription(ProvUIMessages.AcceptLicensesWizardPage_NoLicensesDescription);
-		// We have licenses.  Use a generic message if we think we aren't showing extra
-		// licenses from required IU's.  This check is not entirely accurate, for example
-		// one root IU could have no license and the next one has two different
-		// IU's with different licenses.  But this cheaply catches the common cases.
-		else if (licensesToIUs.size() <= originalIUs.length)
+		} else if (licensesToIUs.size() <= originalIUs.length) {
 			setDescription(ProvUIMessages.AcceptLicensesWizardPage_ReviewLicensesDescription);
-		else {
+		} else {
 			// Without a doubt we know we are showing extra licenses.
 			setDescription(ProvUIMessages.AcceptLicensesWizardPage_ReviewExtraLicensesDescription);
 		}
@@ -444,8 +451,9 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	 * Save any settings related to the current size and location of the wizard page.
 	 */
 	public void saveBoundsRelatedSettings() {
-		if (iuViewer == null || iuViewer.getTree().isDisposed())
+		if (iuViewer == null || iuViewer.getTree().isDisposed()) {
 			return;
+		}
 		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
 		IDialogSettings section = settings.getSection(getDialogSettingsName());
 		if (section == null) {
@@ -454,8 +462,9 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		section.put(NAME_COLUMN_WIDTH, iuViewer.getTree().getColumn(0).getWidth());
 		section.put(VERSION_COLUMN_WIDTH, iuViewer.getTree().getColumn(1).getWidth());
 
-		if (sashForm == null || sashForm.isDisposed())
+		if (sashForm == null || sashForm.isDisposed()) {
 			return;
+		}
 		int[] weights = sashForm.getWeights();
 		section.put(LIST_WEIGHT, weights[0]);
 		section.put(LICENSE_WEIGHT, weights[1]);

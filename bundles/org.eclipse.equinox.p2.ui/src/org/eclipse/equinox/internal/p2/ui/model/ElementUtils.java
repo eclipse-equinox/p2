@@ -48,10 +48,10 @@ public class ElementUtils {
 			for (MetadataRepositoryElement element : elements) {
 				URI location = element.getLocation();
 				if (element.isEnabled()) {
-					if (containsURI(currentlyDisabled, location))
+					if (containsURI(currentlyDisabled, location)) {
 						// It should be enabled and is not currently
 						setColocatedRepositoryEnablement(ui, location, true);
-					else if (!containsURI(currentlyEnabled, location)) {
+					} else if (!containsURI(currentlyEnabled, location)) {
 						// It is not known as enabled or disabled. Add it.
 						metaManager.addRepository(location);
 						artManager.addRepository(location);
@@ -62,10 +62,10 @@ public class ElementUtils {
 						artManager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, "false"); //$NON-NLS-1$
 					}
 				} else {
-					if (containsURI(currentlyEnabled, location))
+					if (containsURI(currentlyEnabled, location)) {
 						// It should be disabled, and is currently enabled
 						setColocatedRepositoryEnablement(ui, location, false);
-					else if (!containsURI(currentlyDisabled, location)) {
+					} else if (!containsURI(currentlyDisabled, location)) {
 						// It is not known as enabled or disabled. Add it and then disable it.
 						metaManager.addRepository(location);
 						artManager.addRepository(location);
@@ -81,8 +81,9 @@ public class ElementUtils {
 			// Are there any elements that need to be deleted? Go over the original state
 			// and remove any elements that weren't in the elements we were given
 			Set<String> nowKnown = new HashSet<>();
-			for (MetadataRepositoryElement element : elements)
+			for (MetadataRepositoryElement element : elements) {
 				nowKnown.add(URIUtil.toUnencodedString(element.getLocation()));
+			}
 			for (URI element : currentlyEnabled) {
 				if (!nowKnown.contains(URIUtil.toUnencodedString(element))) {
 					metaManager.removeRepository(element);
@@ -106,10 +107,12 @@ public class ElementUtils {
 	}
 
 	public static IInstallableUnit getIU(Object element) {
-		if (element instanceof IInstallableUnit)
+		if (element instanceof IInstallableUnit) {
 			return (IInstallableUnit) element;
-		if (element instanceof IIUElement)
+		}
+		if (element instanceof IIUElement) {
 			return ((IIUElement) element).getIU();
+		}
 		return ProvUI.getAdapter(element, IInstallableUnit.class);
 	}
 
@@ -117,8 +120,9 @@ public class ElementUtils {
 		ArrayList<IInstallableUnit> theIUs = new ArrayList<>(elements.length);
 		for (Object element : elements) {
 			IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
-			if (iu != null)
+			if (iu != null) {
 				theIUs.add(iu);
+			}
 		}
 		return theIUs;
 	}
@@ -128,28 +132,33 @@ public class ElementUtils {
 	}
 
 	static boolean containsURI(URI[] locations, URI url) {
-		for (URI location : locations)
-			if (location.equals(url))
+		for (URI location : locations) {
+			if (location.equals(url)) {
 				return true;
+			}
+		}
 		return false;
 	}
 
 	public static AvailableIUElement[] requestToElement(Remedy remedy, boolean installMode) {
-		if (remedy == null)
+		if (remedy == null) {
 			return new AvailableIUElement[0];
+		}
 		ArrayList<AvailableIUElement> temp = new ArrayList<>();
 		ProvisioningUI ui = ProvisioningUI.getDefaultUI();
 		IUElementListRoot root = new IUElementListRoot(ui);
 		for (RemedyIUDetail iuDetail : remedy.getIusDetails()) {
-			if (iuDetail.getStatus() == RemedyIUDetail.STATUS_NOT_ADDED)
+			if (iuDetail.getStatus() == RemedyIUDetail.STATUS_NOT_ADDED) {
 				continue;
+			}
 			AvailableIUElement element = new AvailableIUElement(root, iuDetail.getIu(), ui.getProfileId(), true);
 			if (iuDetail.getBeingInstalledVersion() != null && iuDetail.getRequestedVersion() != null
 					&& iuDetail.getBeingInstalledVersion().compareTo(iuDetail.getRequestedVersion()) < 0
-					&& !installMode)
+					&& !installMode) {
 				element.setImageOverlayId(ProvUIImages.IMG_INFO);
-			else if (iuDetail.getStatus() == RemedyIUDetail.STATUS_REMOVED)
+			} else if (iuDetail.getStatus() == RemedyIUDetail.STATUS_REMOVED) {
 				element.setImageId(ProvUIImages.IMG_REMOVED);
+			}
 			temp.add(element);
 		}
 		return temp.toArray(new AvailableIUElement[temp.size()]);
@@ -162,24 +171,29 @@ public class ElementUtils {
 		RemedyElementCategory categoryNotAdded = new RemedyElementCategory(ProvUIMessages.RemedyCategoryNotAdded);
 		RemedyElementCategory categoryChanged = new RemedyElementCategory(ProvUIMessages.RemedyCategoryChanged);
 		for (RemedyIUDetail remedyIUVersions : remedy.getIusDetails()) {
-			if (remedyIUVersions.getStatus() == RemedyIUDetail.STATUS_ADDED)
+			if (remedyIUVersions.getStatus() == RemedyIUDetail.STATUS_ADDED) {
 				categoryAdded.add(remedyIUVersions);
-			else if (remedyIUVersions.getStatus() == RemedyIUDetail.STATUS_CHANGED)
+			} else if (remedyIUVersions.getStatus() == RemedyIUDetail.STATUS_CHANGED) {
 				categoryChanged.add(remedyIUVersions);
-			else if (remedyIUVersions.getStatus() == RemedyIUDetail.STATUS_REMOVED)
+			} else if (remedyIUVersions.getStatus() == RemedyIUDetail.STATUS_REMOVED) {
 				cateogyRemoved.add(remedyIUVersions);
-			else if (remedyIUVersions.getStatus() == RemedyIUDetail.STATUS_NOT_ADDED)
+			} else if (remedyIUVersions.getStatus() == RemedyIUDetail.STATUS_NOT_ADDED) {
 				categoryNotAdded.add(remedyIUVersions);
+			}
 		}
 
-		if (cateogyRemoved.getElements().size() > 0)
+		if (cateogyRemoved.getElements().size() > 0) {
 			categories.add(cateogyRemoved);
-		if (categoryChanged.getElements().size() > 0)
+		}
+		if (categoryChanged.getElements().size() > 0) {
 			categories.add(categoryChanged);
-		if (categoryNotAdded.getElements().size() > 0)
+		}
+		if (categoryNotAdded.getElements().size() > 0) {
 			categories.add(categoryNotAdded);
-		if (categoryAdded.getElements().size() > 0)
+		}
+		if (categoryAdded.getElements().size() > 0) {
 			categories.add(categoryAdded);
+		}
 		return categories.toArray(new RemedyElementCategory[categories.size()]);
 	}
 }

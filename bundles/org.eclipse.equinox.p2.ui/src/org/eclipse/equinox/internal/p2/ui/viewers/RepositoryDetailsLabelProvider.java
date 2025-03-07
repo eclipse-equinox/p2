@@ -86,8 +86,9 @@ public class RepositoryDetailsLabelProvider extends LabelProvider implements ITa
 				}
 				break;
 			case COL_ENABLEMENT :
-				if (element instanceof MetadataRepositoryElement)
+				if (element instanceof MetadataRepositoryElement) {
 					return ((MetadataRepositoryElement) element).isEnabled() ? ProvUIMessages.RepositoryDetailsLabelProvider_Enabled : ProvUIMessages.RepositoryDetailsLabelProvider_Disabled;
+				}
 
 		}
 		return null;

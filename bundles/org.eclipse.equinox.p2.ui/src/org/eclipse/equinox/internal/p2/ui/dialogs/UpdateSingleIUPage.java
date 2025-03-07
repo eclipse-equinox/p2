@@ -50,12 +50,13 @@ public class UpdateSingleIUPage extends ProvisioningWizardPage {
 	public void createControl(Composite parent) {
 		IInstallableUnit updateIU = getUpdate().replacement;
 		String url = null;
-		if (updateIU.getUpdateDescriptor().getLocation() != null)
+		if (updateIU.getUpdateDescriptor().getLocation() != null) {
 			try {
 				url = URIUtil.toURL(updateIU.getUpdateDescriptor().getLocation()).toExternalForm();
 			} catch (MalformedURLException e) {
 				// ignore and null URL will be ignored below
 			}
+		}
 		if (url != null) {
 			Browser browser = null;
 			try {
@@ -85,12 +86,13 @@ public class UpdateSingleIUPage extends ProvisioningWizardPage {
 		buffer.append(CopyUtils.NEWLINE);
 		buffer.append(CopyUtils.NEWLINE);
 		String text = iu.getUpdateDescriptor().getDescription();
-		if (text != null)
+		if (text != null) {
 			buffer.append(text);
-		else {
+		} else {
 			text = iu.getProperty(IInstallableUnit.PROP_DESCRIPTION);
-			if (text != null)
+			if (text != null) {
 				buffer.append(text);
+			}
 		}
 		return buffer.toString();
 

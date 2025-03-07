@@ -75,8 +75,9 @@ public class MetadataRepositories extends RootElement {
 	 */
 	@Override
 	public int getQueryType() {
-		if (getQueryContext() == null)
+		if (getQueryContext() == null) {
 			return getDefaultQueryType();
+		}
 		return getQueryContext().getQueryType();
 	}
 
@@ -97,8 +98,9 @@ public class MetadataRepositories extends RootElement {
 	 */
 	@Override
 	public boolean hasQueryable() {
-		if (getQueryType() == QueryProvider.METADATA_REPOS)
+		if (getQueryType() == QueryProvider.METADATA_REPOS) {
 			return queryable != null;
+		}
 		return super.hasQueryable();
 	}
 }

@@ -71,8 +71,9 @@ public class IUElementListRoot extends QueriedElement {
 
 	@Override
 	public ProvisioningUI getProvisioningUI() {
-		if (ui != null)
+		if (ui != null) {
 			return ui;
+		}
 		return super.getProvisioningUI();
 	}
 }

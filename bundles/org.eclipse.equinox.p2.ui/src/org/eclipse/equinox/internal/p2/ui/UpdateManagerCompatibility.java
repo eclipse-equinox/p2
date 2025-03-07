@@ -47,8 +47,9 @@ public class UpdateManagerCompatibility {
 
 	private static void parse(String fileName, Vector<MetadataRepositoryElement> bookmarks) {
 		File file = new File(fileName);
-		if (!file.exists())
+		if (!file.exists()) {
 			return;
+		}
 
 		try {
 			DocumentBuilderFactory documentBuilderFactory = SecureXMLUtil.newSecureDocumentBuilderFactory();
@@ -104,14 +105,16 @@ public class UpdateManagerCompatibility {
 
 		MetadataRepositoryElement element = new MetadataRepositoryElement(null, uri, selected);
 		String nickname = getAttribute(child, "name"); //$NON-NLS-1$
-		if (nickname != null && nickname.length() > 0)
+		if (nickname != null && nickname.length() > 0) {
 			element.setNickname(nickname);
+		}
 		bookmarks.add(element);
 	}
 
 	private static void createFolder(Node child, Vector<MetadataRepositoryElement> bookmarks) {
-		if (child.hasChildNodes())
+		if (child.hasChildNodes()) {
 			processChildren(child.getChildNodes(), bookmarks);
+		}
 	}
 
 	private static String getAttribute(Node node, String name) {
@@ -145,14 +148,16 @@ public class UpdateManagerCompatibility {
 				writer.close();
 			}
 			try {
-				if (osw != null)
+				if (osw != null) {
 					osw.close();
+				}
 			} catch (IOException e1) {
 				logFail(e1);
 			}
 			try {
-				if (fos != null)
+				if (fos != null) {
 					fos.close();
+				}
 			} catch (IOException e2) {
 				logFail(e2);
 			}
@@ -172,8 +177,9 @@ public class UpdateManagerCompatibility {
 	public static IStatus getInstallHandlerStatus(IProvisioningPlan plan) {
 		IQueryResult<IInstallableUnit> result = plan.getAdditions().query(QueryUtil.createIUAnyQuery(), null);
 		for (IInstallableUnit iu : result) {
-			if (iu != null && iu.getProperty(ECLIPSE_INSTALL_HANDLER_PROP) != null)
+			if (iu != null && iu.getProperty(ECLIPSE_INSTALL_HANDLER_PROP) != null) {
 				return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, NLS.bind(ProvUIMessages.UpdateManagerCompatibility_ItemRequiresUpdateManager, iu.getId()));
+			}
 		}
 		return Status.OK_STATUS;
 	}
@@ -210,8 +216,9 @@ public class UpdateManagerCompatibility {
 
 	public static void writeBookmarkFile(String filename, MetadataRepositoryElement[] sites) {
 		Vector<MetadataRepositoryElement> bookmarks = new Vector<>(sites.length);
-		for (MetadataRepositoryElement site : sites)
+		for (MetadataRepositoryElement site : sites) {
 			bookmarks.add(site);
+		}
 		store(filename, bookmarks);
 
 	}
@@ -232,8 +239,9 @@ public class UpdateManagerCompatibility {
 		dialog.setOverwrite(true);
 
 		String bookmarksFile = dialog.open();
-		if (bookmarksFile == null)
+		if (bookmarksFile == null) {
 			return;
+		}
 
 		writeBookmarkFile(bookmarksFile, sites);
 	}
@@ -254,8 +262,9 @@ public class UpdateManagerCompatibility {
 
 	private static String getWritableXMLString(String value) {
 		StringBuilder buf = new StringBuilder();
-		if (value == null)
+		if (value == null) {
 			return buf.toString();
+		}
 		for (int i = 0; i < value.length(); i++) {
 			char c = value.charAt(i);
 			switch (c) {

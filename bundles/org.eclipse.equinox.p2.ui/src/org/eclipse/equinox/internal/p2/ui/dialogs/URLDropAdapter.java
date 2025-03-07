@@ -43,14 +43,16 @@ public abstract class URLDropAdapter extends DropTargetAdapter {
 			e.detail = DND.DROP_NONE;
 			return;
 		}
-		if (e.detail == DND.DROP_NONE)
+		if (e.detail == DND.DROP_NONE) {
 			e.detail = DND.DROP_LINK;
+		}
 	}
 
 	@Override
 	public void dragOperationChanged(DropTargetEvent e) {
-		if (e.detail == DND.DROP_NONE)
+		if (e.detail == DND.DROP_NONE) {
 			e.detail = DND.DROP_LINK;
+		}
 	}
 
 	@Override
@@ -66,8 +68,9 @@ public abstract class URLDropAdapter extends DropTargetAdapter {
 	}
 
 	private String getURLText(DropTargetEvent event) {
-		if (URLTransfer.getInstance().isSupportedType(event.currentDataType))
+		if (URLTransfer.getInstance().isSupportedType(event.currentDataType)) {
 			return (String) URLTransfer.getInstance().nativeToJava(event.currentDataType);
+		}
 		if (convertFileToURL && FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
 			String[] names = (String[]) FileTransfer.getInstance().nativeToJava(event.currentDataType);
 			if (names != null && names.length == 1) {
@@ -89,10 +92,12 @@ public abstract class URLDropAdapter extends DropTargetAdapter {
 	 * @return <code>true</code> if drop should proceed, <code>false</code> if it should not.
 	 */
 	protected boolean dropTargetIsValid(DropTargetEvent event) {
-		if (URLTransfer.getInstance().isSupportedType(event.currentDataType) && dropTargetDataIsValid(event))
+		if (URLTransfer.getInstance().isSupportedType(event.currentDataType) && dropTargetDataIsValid(event)) {
 			return true;
-		if (!convertFileToURL)
+		}
+		if (!convertFileToURL) {
 			return false;
+		}
 		if (FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
 			String[] names = (String[]) FileTransfer.getInstance().nativeToJava(event.currentDataType);
 			return names != null && names.length == 1;
@@ -107,8 +112,9 @@ public abstract class URLDropAdapter extends DropTargetAdapter {
 	 * @return <code>true</code> if data is valid, (or can not be determined), <code>false</code> otherwise.
 	 */
 	protected boolean dropTargetDataIsValid(DropTargetEvent event) {
-		if (Util.isWindows())
+		if (Util.isWindows()) {
 			return URLTransfer.getInstance().nativeToJava(event.currentDataType) != null;
+		}
 		return true;
 	}
 

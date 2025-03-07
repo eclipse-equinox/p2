@@ -74,8 +74,9 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		profileId = getProvisioningUI().getProfileId();
 		if (profileId == null) {
 			IStatus status = getProvisioningUI().getPolicy().getNoProfileChosenStatus();
-			if (status != null)
+			if (status != null) {
 				ProvUI.reportStatus(status, StatusManager.LOG);
+			}
 			Text text = new Text(parent, SWT.WRAP | SWT.READ_ONLY);
 			text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			text.setText(ProvUIMessages.InstalledSoftwarePage_NoProfile);
@@ -114,8 +115,9 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 
 	@Override
 	public void createPageButtons(Composite parent) {
-		if (profileId == null)
+		if (profileId == null) {
 			return;
+		}
 		// For the update action, we create a custom selection provider that will interpret no
 		// selection as checking for updates to everything.
 		// We also override the run method to close the containing dialog
@@ -209,15 +211,17 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	}
 
 	void updateEnablement() {
-		if (updateButton == null || updateButton.isDisposed())
+		if (updateButton == null || updateButton.isDisposed()) {
 			return;
+		}
 		Button[] buttons = {updateButton, uninstallButton, propertiesButton};
 		for (Button button : buttons) {
 			Action action = (Action) button.getData(BUTTON_ACTION);
-			if (action == null || !action.isEnabled())
+			if (action == null || !action.isEnabled()) {
 				button.setEnabled(false);
-			else
+			} else {
 				button.setEnabled(true);
+			}
 		}
 	}
 
@@ -237,8 +241,9 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	@Override
 	public void copyToClipboard(Control activeControl) {
 		Object[] elements = installedIUGroup.getSelectedIUElements();
-		if (elements.length == 0)
+		if (elements.length == 0) {
 			return;
+		}
 		String text = CopyUtils.getIndentedClipboardText(elements, new IUDetailsLabelProvider(null, getColumnConfig(), null));
 		Clipboard clipboard = new Clipboard(PlatformUI.getWorkbench().getDisplay());
 		clipboard.setContents(new Object[] {text}, new Transfer[] {TextTransfer.getInstance()});
@@ -265,8 +270,9 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 
 	ProvisioningUI getProvisioningUI() {
 		// if a UI has not been set then assume that the current default UI is the right thing
-		if (ui == null)
+		if (ui == null) {
 			return ui = ProvisioningUI.getDefaultUI();
+		}
 		return ui;
 	}
 

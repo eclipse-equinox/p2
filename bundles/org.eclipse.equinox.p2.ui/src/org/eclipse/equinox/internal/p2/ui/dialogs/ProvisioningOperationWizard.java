@@ -87,11 +87,13 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		mainPage = createMainPage(root, planSelections);
 		addPage(mainPage);
 		errorPage = createErrorReportingPage();
-		if (errorPage != mainPage)
+		if (errorPage != mainPage) {
 			addPage(errorPage);
+		}
 		remediationPage = createRemediationPage();
-		if (remediationPage != null)
+		if (remediationPage != null) {
 			addPage(remediationPage);
+		}
 		resolutionPage = createResolutionPage();
 		addPage(resolutionPage);
 	}
@@ -187,8 +189,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			} else if (status.getSeverity() == IStatus.CANCEL) {
 				return page;
 			} else {
-				if (remediationPage != null)
+				if (remediationPage != null) {
 					remediationPage.setPageComplete(true);
+				}
 				return resolutionPage;
 			}
 		}
@@ -247,8 +250,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			// If the state has truly changed, update the buttons.
 			if (old != resolutionPage.isPageComplete()) {
 				IWizardContainer container = getContainer();
-				if (container != null && container.getCurrentPage() != null)
+				if (container != null && container.getCurrentPage() != null) {
 					getContainer().updateButtons();
+				}
 			}
 		}
 	}
@@ -266,17 +270,20 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		Object[] currentSelections = page.getCheckedIUElements();
 		selectedIUs.addAll(ElementUtils.elementsToIUs(currentSelections));
 		HashSet<IInstallableUnit> lastIUSelections = new HashSet<>();
-		if (planSelections != null)
+		if (planSelections != null) {
 			lastIUSelections.addAll(ElementUtils.elementsToIUs(planSelections));
+		}
 		return !(selectedIUs.equals(lastIUSelections));
 	}
 
 	private boolean provisioningContextChanged() {
 		ProvisioningContext currentProvisioningContext = getProvisioningContext();
-		if (currentProvisioningContext == null && provisioningContext == null)
+		if (currentProvisioningContext == null && provisioningContext == null) {
 			return false;
-		if (currentProvisioningContext != null && provisioningContext != null)
+		}
+		if (currentProvisioningContext != null && provisioningContext != null) {
 			return !currentProvisioningContext.equals(provisioningContext);
+		}
 		// One is null and the other is not
 		return true;
 	}
@@ -386,8 +393,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	public IStatus getCurrentStatus() {
-		if (statusOverridesOperation())
+		if (statusOverridesOperation()) {
 			return couldNotResolveStatus;
+		}
 		if (operation != null && operation.getResolutionResult() != null) {
 			if (!operation.getResolutionResult().isOK() || localJRECheckPlan == null || compatibleWithCurrentEE()) {
 				return operation.getResolutionResult();
@@ -405,8 +413,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	public void saveBoundsRelatedSettings() {
 		IWizardPage[] pages = getPages();
 		for (IWizardPage page : pages) {
-			if (page instanceof ProvisioningWizardPage)
+			if (page instanceof ProvisioningWizardPage) {
 				((ProvisioningWizardPage) page).saveBoundsRelatedSettings();
+			}
 		}
 	}
 
@@ -487,8 +496,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	void asyncReportLoadFailures() {
 		if (repoPreloadJob != null && getShell() != null && !getShell().isDisposed()) {
 			getShell().getDisplay().asyncExec(() -> {
-				if (PlatformUI.isWorkbenchRunning() && getShell() != null && !getShell().isDisposed())
+				if (PlatformUI.isWorkbenchRunning() && getShell() != null && !getShell().isDisposed()) {
 					repoPreloadJob.reportAccumulatedStatus();
+				}
 			});
 		}
 	}

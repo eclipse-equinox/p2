@@ -41,8 +41,9 @@ public class InstalledIUElementWrapper extends QueriedElementWrapper {
 	 */
 	@Override
 	protected boolean shouldWrap(Object match) {
-		if (match instanceof IInstallableUnit)
+		if (match instanceof IInstallableUnit) {
 			return true;
+		}
 		return false;
 	}
 
@@ -51,8 +52,9 @@ public class InstalledIUElementWrapper extends QueriedElementWrapper {
 	 */
 	@Override
 	protected Object wrap(Object item) {
-		if (queryable instanceof IProfile)
+		if (queryable instanceof IProfile) {
 			return super.wrap(new InstalledIUElement(parent, ((IProfile) queryable).getProfileId(), (IInstallableUnit) item));
+		}
 		// Shouldn't happen, the queryable should typically be a profile
 		return super.wrap(item);
 	}

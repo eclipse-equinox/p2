@@ -42,8 +42,9 @@ abstract class ProvisioningWizardPage extends WizardPage implements ICopyable {
 	@Override
 	public void copyToClipboard(Control activeControl) {
 		String text = getClipboardText(activeControl);
-		if (text.length() == 0)
+		if (text.length() == 0) {
 			return;
+		}
 		Clipboard clipboard = new Clipboard(PlatformUI.getWorkbench().getDisplay());
 		clipboard.setContents(new Object[] {text}, new Transfer[] {TextTransfer.getInstance()});
 		clipboard.dispose();

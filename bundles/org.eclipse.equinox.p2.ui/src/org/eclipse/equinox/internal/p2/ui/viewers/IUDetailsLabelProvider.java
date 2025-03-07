@@ -53,15 +53,17 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 
 	public IUDetailsLabelProvider(FilteredTree filteredTree, IUColumnConfig[] columnConfig, Shell shell) {
 		this.filteredTree = filteredTree;
-		if (columnConfig == null)
+		if (columnConfig == null) {
 			this.columnConfig = ProvUI.getIUColumnConfig();
-		else
+		} else {
 			this.columnConfig = columnConfig;
-		for (IUColumnConfig config : this.columnConfig)
+		}
+		for (IUColumnConfig config : this.columnConfig) {
 			if (config.getColumnType() == IUColumnConfig.COLUMN_ID) {
 				showingId = true;
 				break;
 			}
+		}
 		this.shell = shell;
 	}
 
@@ -85,8 +87,9 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 		if (iu == null) {
 			if (columnIndex == 0) {
-				if (element instanceof ProvElement)
+				if (element instanceof ProvElement) {
 					return ((ProvElement) element).getLabel(element);
+				}
 				return element.toString();
 			}
 			return BLANK;
@@ -98,25 +101,29 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			case IUColumnConfig.COLUMN_NAME :
 				// Get the iu name in the current locale
 				String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);
-				if (name != null)
+				if (name != null) {
 					return name;
+				}
 				// If the iu name is not available, we return blank if we know know we are
 				// showing id in another column.  Otherwise we return id so the user doesn't
 				// see blank iu's.
-				if (showingId)
+				if (showingId) {
 					return BLANK;
+				}
 				return iu.getId();
 			case IUColumnConfig.COLUMN_DESCRIPTION :
 				// Get the iu description in the current locale
 				String description = iu.getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
-				if (description != null)
+				if (description != null) {
 					return description;
+				}
 				return BLANK;
 			case IUColumnConfig.COLUMN_VERSION :
 				// If it's an element, determine if version should be shown
 				if (element instanceof IIUElement) {
-					if (((IIUElement) element).shouldShowVersion())
+					if (((IIUElement) element).shouldShowVersion()) {
 						return iu.getVersion().toString();
+					}
 					return BLANK;
 				}
 				// It's a raw IU, return the version
@@ -124,8 +131,9 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			case IUColumnConfig.COLUMN_PROVIDER :
 				return iu.getProperty(IInstallableUnit.PROP_PROVIDER, null);
 			case IUColumnConfig.COLUMN_SIZE :
-				if (element instanceof IIUElement && ((IIUElement) element).shouldShowSize())
+				if (element instanceof IIUElement && ((IIUElement) element).shouldShowSize()) {
 					return getIUSize((IIUElement) element);
+				}
 				return BLANK;
 		}
 		return BLANK;
@@ -134,10 +142,12 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	@Override
 	public Image getColumnImage(Object element, int index) {
 		if (index == PRIMARY_COLUMN) {
-			if (element instanceof ProvElement)
+			if (element instanceof ProvElement) {
 				return ((ProvElement) element).getImage(element);
-			if (ProvUI.getAdapter(element, IInstallableUnit.class) != null)
+			}
+			if (ProvUI.getAdapter(element, IInstallableUnit.class) != null) {
 				return ProvUIImages.getImage(ProvUIImages.IMG_IU);
+			}
 		}
 		return null;
 	}
@@ -146,30 +156,36 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		long size = element.getSize();
 		// If size is already known, or we already tried
 		// to get it, don't try again
-		if (size != ProvUI.SIZE_UNKNOWN)
+		if (size != ProvUI.SIZE_UNKNOWN) {
 			return getFormattedSize(size);
+		}
 		if (!jobs.containsKey(element)) {
 			Job resolveJob = new Job(element.getIU().getId()) {
 
 				@Override
 				protected IStatus run(IProgressMonitor monitor) {
-					if (monitor.isCanceled())
+					if (monitor.isCanceled()) {
 						return Status.CANCEL_STATUS;
+					}
 
-					if (shell == null || shell.isDisposed())
+					if (shell == null || shell.isDisposed()) {
 						return Status.CANCEL_STATUS;
+					}
 
 					element.computeSize(monitor);
 
-					if (monitor.isCanceled())
+					if (monitor.isCanceled()) {
 						return Status.CANCEL_STATUS;
+					}
 
 					// If we still could not compute size, give up
-					if (element.getSize() == ProvUI.SIZE_UNKNOWN)
+					if (element.getSize() == ProvUI.SIZE_UNKNOWN) {
 						return Status.OK_STATUS;
+					}
 
-					if (shell == null || shell.isDisposed())
+					if (shell == null || shell.isDisposed()) {
 						return Status.CANCEL_STATUS;
+					}
 
 					shell.getDisplay().asyncExec(() -> labelProviderChanged(element));
 
@@ -196,8 +212,9 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	}
 
 	private String getFormattedSize(long size) {
-		if (size == ProvUI.SIZE_UNKNOWN || size == ProvUI.SIZE_UNAVAILABLE)
+		if (size == ProvUI.SIZE_UNKNOWN || size == ProvUI.SIZE_UNAVAILABLE) {
 			return ProvUIMessages.IUDetailsLabelProvider_Unknown;
+		}
 		if (size > 1000L) {
 			long kb = size / 1000L;
 			return NLS.bind(ProvUIMessages.IUDetailsLabelProvider_KB, NumberFormat.getInstance().format(Long.valueOf(kb)));
@@ -212,8 +229,9 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	public String getClipboardText(Object element, String columnDelimiter) {
 		StringBuilder result = new StringBuilder();
 		for (int i = 0; i < columnConfig.length; i++) {
-			if (i != 0)
+			if (i != 0) {
 				result.append(columnDelimiter);
+			}
 			result.append(getColumnText(element, i));
 		}
 		return result.toString();
@@ -226,8 +244,9 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	@Override
 	public String getToolTipText(Object element) {
 		IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
-		if (iu == null || toolTipProperty == null)
+		if (iu == null || toolTipProperty == null) {
 			return null;
+		}
 		return iu.getProperty(toolTipProperty, null);
 	}
 
@@ -242,8 +261,9 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	@Override
 	public void dispose() {
 		super.dispose();
-		for (Job job : jobs.values())
+		for (Job job : jobs.values()) {
 			job.cancel();
+		}
 	}
 
 }

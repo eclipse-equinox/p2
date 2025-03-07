@@ -33,8 +33,9 @@ public class CopyHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) {
 		Object control = HandlerUtil.getVariable(event, ISources.ACTIVE_FOCUS_CONTROL_NAME);
-		if (control instanceof Control)
+		if (control instanceof Control) {
 			copySource.copyToClipboard((Control) control);
+		}
 		return null;
 	}
 }

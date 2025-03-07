@@ -96,8 +96,9 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 
 		@Override
 		protected Control createCustomArea(Composite parent) {
-			if (linkText == null)
+			if (linkText == null) {
 				return super.createCustomArea(parent);
+			}
 
 			Link link = new Link(parent, SWT.NONE);
 			link.setText(linkText);
@@ -199,8 +200,9 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 		}
 		// For now, there is no need to show certificates if there was unsigned content
 		// and we don't trust it.
-		if (!trustUnsigned)
+		if (!trustUnsigned) {
 			return new TrustInfo(trustedCertificates, trustedKeys, persistTrust, trustUnsigned);
+		}
 
 		// We've established trust for unsigned content, now examine the untrusted
 		// chains
@@ -342,10 +344,11 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 			getDisplay().syncExec(() -> {
 				Shell shell = shellProvider.getShell();
 				String message = null;
-				if (previousInfo.saveResult())
+				if (previousInfo.saveResult()) {
 					message = NLS.bind(ProvUIMessages.ProvUIMessages_SavedNotAccepted_EnterFor_0, location);
-				else
+				} else {
 					message = NLS.bind(ProvUIMessages.ProvUIMessages_NotAccepted_EnterFor_0, location);
+				}
 
 				UserValidationDialog dialog = new UserValidationDialog(previousInfo, shell,
 						ProvUIMessages.ServiceUI_LoginRequired, null, message);

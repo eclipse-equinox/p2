@@ -101,8 +101,9 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	@Override
 	protected void profileChanged(final String profileId) {
 		display.asyncExec(() -> {
-			if (isClosing())
+			if (isClosing()) {
 				return;
+			}
 			// We want to refresh the affected profile, so we
 			// construct a profile element on this profile.
 			ProfileElement element = new ProfileElement(null, profileId);
@@ -141,8 +142,9 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 		}
 
 		display.asyncExec(() -> {
-			if (isClosing())
+			if (isClosing()) {
 				return;
+			}
 			refreshViewer();
 		});
 	}
@@ -170,11 +172,13 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	 */
 	protected boolean isClosing() {
 		IWorkbench workbench = PlatformUI.getWorkbench();
-		if (workbench.isClosing())
+		if (workbench.isClosing()) {
 			return true;
+		}
 
-		if (viewer.getControl().isDisposed())
+		if (viewer.getControl().isDisposed()) {
 			return true;
+		}
 
 		return false;
 	}

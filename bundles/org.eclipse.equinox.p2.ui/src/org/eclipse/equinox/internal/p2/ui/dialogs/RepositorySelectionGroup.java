@@ -141,8 +141,9 @@ public class RepositorySelectionGroup {
 		repoAutoComplete = new ComboAutoCompleteField(repoCombo);
 		repoCombo.setVisibleItemCount(COUNT_VISIBLE_ITEMS);
 		repoCombo.addKeyListener(KeyListener.keyPressedAdapter(e -> {
-			if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)
+			if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 				addRepository(false);
+			}
 		}));
 
 		// We don't ever want this to be interpreted as a default
@@ -183,14 +184,16 @@ public class RepositorySelectionGroup {
 
 		// Clear default text when user clicks in the combo box.
 		repoCombo.addMouseListener(MouseListener.mouseDownAdapter(e -> {
-			if (repoCombo.getText().equals(SITE_NONE))
+			if (repoCombo.getText().equals(SITE_NONE)) {
 				repoCombo.setText(""); //$NON-NLS-1$
+			}
 		}));
 
 		// Restore default text when focus is lost from the combo box.
 		repoCombo.addFocusListener(FocusListener.focusLostAdapter(e -> {
-			if (repoCombo.getText().isEmpty())
+			if (repoCombo.getText().isEmpty()) {
 				fillRepoCombo(SITE_NONE);
+			}
 		}));
 
 		repoDec = new ControlDecoration(repoCombo, SWT.LEFT | SWT.TOP);
@@ -292,25 +295,28 @@ public class RepositorySelectionGroup {
 			// We may have been previously showing an error or warning
 			// hover. We will need to dismiss it, but if there is no text
 			// typed, don't do this, so that the user gets the info cue
-			if (repoCombo.getText().length() > 0)
+			if (repoCombo.getText().length() > 0) {
 				repoDec.showHoverText(null);
+			}
 			return;
 		}
 		Image image;
-		if (status.getSeverity() == IStatus.WARNING)
+		if (status.getSeverity() == IStatus.WARNING) {
 			image = warning;
-		else if (status.getSeverity() == IStatus.ERROR)
+		} else if (status.getSeverity() == IStatus.ERROR) {
 			image = error;
-		else
+		} else {
 			image = info;
+		}
 		repoDec.setImage(image);
 		repoDec.setDescriptionText(status.getMessage());
 		repoDec.setShowOnlyOnFocus(false);
 		// use a delay to show the validation method because the very next
 		// selection or keystroke might fix it
 		repoCombo.getDisplay().timerExec(500, () -> {
-			if (repoDec != null && repoDec.getImage() != info)
+			if (repoDec != null && repoDec.getImage() != info) {
 				repoDec.showHoverText(status.getMessage());
+			}
 		});
 
 	}
@@ -340,52 +346,61 @@ public class RepositorySelectionGroup {
 			items[i + 2] = getSiteString(sites[i]);
 			comboRepos[i + 2] = sites[i];
 		}
-		if (hasLocalSites)
+		if (hasLocalSites) {
 			items[items.length - 1] = SITE_LOCAL;
-		if (sites.length > 0)
+		}
+		if (sites.length > 0) {
 			sortRepoItems(items, comboRepos, hasLocalSites);
+		}
 		Runnable runnable = () -> {
-			if (repoCombo == null || repoCombo.isDisposed())
+			if (repoCombo == null || repoCombo.isDisposed()) {
 				return;
+			}
 			String repoToSelect = selection;
 			if (repoToSelect == null) {
 				// If the combo is open and something is selected, use that index if we
 				// weren't given a string to select.
 				int selIndex = repoCombo.getSelectionIndex();
-				if (selIndex >= 0)
+				if (selIndex >= 0) {
 					repoToSelect = repoCombo.getItem(selIndex);
-				else
+				} else {
 					repoToSelect = repoCombo.getText();
+				}
 			}
 			repoCombo.setItems(items);
 			repoAutoComplete.setProposalStrings(getComboProposals());
 			boolean selected = false;
-			for (int i = 0; i < items.length; i++)
+			for (int i = 0; i < items.length; i++) {
 				if (items[i].equals(repoToSelect)) {
 					selected = true;
-					if (repoCombo.getListVisible())
+					if (repoCombo.getListVisible()) {
 						repoCombo.select(i);
+					}
 					repoCombo.setText(repoToSelect);
 					break;
 				}
+			}
 			if (!selected) {
-				if (repoCombo.getListVisible())
+				if (repoCombo.getListVisible()) {
 					repoCombo.select(INDEX_SITE_NONE);
+				}
 				repoCombo.setText(SITE_NONE);
 			}
 			repoComboSelectionChanged();
 		};
-		if (Display.getCurrent() == null)
+		if (Display.getCurrent() == null) {
 			repoCombo.getDisplay().asyncExec(runnable);
-		else
+		} else {
 			runnable.run();
+		}
 	}
 
 	String getSiteString(URI uri) {
 		String nickname = getMetadataRepositoryManager().getRepositoryProperty(uri, IRepository.PROP_NICKNAME);
-		if (nickname != null && nickname.length() > 0)
+		if (nickname != null && nickname.length() > 0) {
 			return NLS.bind(ProvUIMessages.AvailableIUsPage_NameWithLocation, new Object[] { nickname,
 					ProvUIMessages.RepositorySelectionGroup_NameAndLocationSeparator, URIUtil.toUnencodedString(uri) });
+		}
 		return URIUtil.toUnencodedString(uri);
 	}
 
@@ -400,8 +415,9 @@ public class RepositorySelectionGroup {
 	private void sortRepoItems(String[] strings, URI[] locations, boolean hasLocalSites) {
 		int sortStart = 2;
 		int sortEnd = hasLocalSites ? strings.length - 2 : strings.length - 1;
-		if (sortStart >= sortEnd)
+		if (sortStart >= sortEnd) {
 			return;
+		}
 		final HashMap<URI, String> uriToString = new HashMap<>();
 		for (int i = sortStart; i <= sortEnd; i++) {
 			uriToString.put(locations[i], strings[i]);
@@ -444,20 +460,22 @@ public class RepositorySelectionGroup {
 		// This includes the name, etc.
 		if (repoText.length() > 0) {
 			String[] items = repoCombo.getItems();
-			for (int i = 0; i < items.length; i++)
+			for (int i = 0; i < items.length; i++) {
 				if (repoText.equals(items[i])) {
 					return i;
 				}
+			}
 		}
 		// Look for URI match - the user may have pasted or dragged
 		// in a location that matches one we already know about, even
 		// if the text does not match completely. (slashes, no name, etc.)
 		try {
 			URI location = URIUtil.fromString(repoText);
-			for (int i = 0; i < comboRepos.length; i++)
+			for (int i = 0; i < comboRepos.length; i++) {
 				if (URIUtil.sameURI(location, comboRepos[i])) {
 					return i;
 				}
+			}
 		} catch (URISyntaxException e) {
 			// never mind
 		}
@@ -537,8 +555,9 @@ public class RepositorySelectionGroup {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=293068
 						if (loc != null && manipulator instanceof ColocatedRepositoryTracker) {
 							String parsedNickname = ((ColocatedRepositoryTracker) manipulator).getParsedNickname(loc);
-							if (parsedNickname != null)
+							if (parsedNickname != null) {
 								return parsedNickname;
+							}
 						}
 					}
 					return super.getInitialNameText();
@@ -548,8 +567,9 @@ public class RepositorySelectionGroup {
 			dialog.setTitle(ProvUIMessages.AddRepositoryDialog_Title);
 			dialog.open();
 			URI location = dialog.getAddedLocation();
-			if (location != null)
+			if (location != null) {
 				fillRepoCombo(getSiteString(location));
+			}
 		} else if (isNewText) {
 			try {
 				container.run(false, false, monitor -> {
@@ -561,16 +581,17 @@ public class RepositorySelectionGroup {
 						status = Status.OK_STATUS;
 					} else {
 						location = manipulator.locationFromString(selectedRepo);
-						if (location == null)
+						if (location == null) {
 							status = manipulator.getInvalidLocationStatus(selectedRepo);
-						else {
+						} else {
 							status = manipulator.validateRepositoryLocation(ui.getSession(), location, false, monitor);
 						}
 					}
 					if (status.isOK() && location != null) {
 						String nick = null;
-						if (manipulator instanceof ColocatedRepositoryTracker)
+						if (manipulator instanceof ColocatedRepositoryTracker) {
 							nick = ((ColocatedRepositoryTracker) manipulator).getParsedNickname(location);
+						}
 						manipulator.addRepository(location, nick, ui.getSession());
 						fillRepoCombo(getSiteString(location));
 					}
@@ -586,8 +607,9 @@ public class RepositorySelectionGroup {
 
 	public ProvisioningContext getProvisioningContext() {
 		int siteSel = getComboIndex(repoCombo.getText().trim());
-		if (siteSel < 0 || siteSel == INDEX_SITE_ALL || siteSel == INDEX_SITE_NONE)
+		if (siteSel < 0 || siteSel == INDEX_SITE_ALL || siteSel == INDEX_SITE_NONE) {
 			return new ProvisioningContext(ui.getSession().getProvisioningAgent());
+		}
 		URI[] locals = getLocalSites();
 		// If there are local sites, the last item in the combo is "Local Sites Only"
 		// Use all local sites in this case

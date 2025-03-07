@@ -35,8 +35,9 @@ public class ArtifactKeyWrapper extends QueriedElementWrapper {
 
 	@Override
 	protected boolean shouldWrap(Object match) {
-		if ((match instanceof IArtifactKey))
+		if ((match instanceof IArtifactKey)) {
 			return true;
+		}
 		return false;
 	}
 

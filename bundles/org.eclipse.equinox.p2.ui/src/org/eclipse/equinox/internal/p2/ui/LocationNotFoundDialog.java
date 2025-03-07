@@ -46,8 +46,9 @@ public class LocationNotFoundDialog implements Runnable {
 	@Override
 	public void run() {
 		IWorkbench workbench = PlatformUI.getWorkbench();
-		if (workbench.isClosing())
+		if (workbench.isClosing()) {
 			return;
+		}
 		Shell shell = ProvUI.getDefaultParentShell();
 		int result = MessageDialog.open(MessageDialog.QUESTION, shell,
 				ProvUIMessages.ColocatedRepositoryTracker_SiteNotFoundTitle,

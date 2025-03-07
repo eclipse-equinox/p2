@@ -69,8 +69,9 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 	@Override
 	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
 		IRepositoryManager<T> manager = getRepositoryManager();
-		if (monitor == null)
+		if (monitor == null) {
 			monitor = new NullProgressMonitor();
+		}
 		return query(getRepoLocations(manager), query, monitor);
 	}
 
@@ -99,13 +100,15 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 	 */
 	public boolean areRepositoriesLoaded() {
 		IRepositoryManager<T> mgr = getRepositoryManager();
-		if (mgr == null)
+		if (mgr == null) {
 			return false;
+		}
 		for (URI repoURI : getRepoLocations(mgr)) {
 			IRepository<T> repo = getRepository(mgr, repoURI);
 			// A not-loaded repo doesn't count if it's considered missing (not found)
-			if (repo == null && !tracker.hasNotFoundStatusBeenReported(repoURI))
+			if (repo == null && !tracker.hasNotFoundStatusBeenReported(repoURI)) {
 				return false;
+			}
 		}
 		return true;
 	}
@@ -158,8 +161,9 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 				// user has canceled
 				repo = null;
 			}
-			if (repo != null)
+			if (repo != null) {
 				loadedRepos.add(repo);
+			}
 		}
 		if (loadedRepos.size() > 0) {
 			return QueryUtil.compoundQueryable(loadedRepos).query(query, sub.newChild(100));

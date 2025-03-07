@@ -98,8 +98,9 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 			}
 		}
 		setPageComplete(pageComplete);
-		if (!isCreated())
+		if (!isCreated()) {
 			return;
+		}
 
 		setMessage(getMessageText(currentStatus), messageType);
 		setDetailText(op);
@@ -112,8 +113,9 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	protected String getIUDescription(IInstallableUnit iu) {
 		// Get the iu description in the default locale
 		String description = iu.getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
-		if (description == null)
+		if (description == null) {
 			description = ""; //$NON-NLS-1$
+		}
 		return description;
 	}
 
@@ -140,12 +142,15 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	}
 
 	String getMessageText(IStatus currentStatus) {
-		if (currentStatus == null || currentStatus.isOK())
+		if (currentStatus == null || currentStatus.isOK()) {
 			return getDescription();
-		if (currentStatus.getSeverity() == IStatus.CANCEL)
+		}
+		if (currentStatus.getSeverity() == IStatus.CANCEL) {
 			return ProvUIMessages.ResolutionWizardPage_Canceled;
-		if (currentStatus.getSeverity() == IStatus.ERROR)
+		}
+		if (currentStatus.getSeverity() == IStatus.ERROR) {
 			return ProvUIMessages.ResolutionWizardPage_ErrorStatus;
+		}
 		return ProvUIMessages.ResolutionWizardPage_WarningInfoStatus;
 	}
 
@@ -206,15 +211,17 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		// No IU is selected, give the overall report
 		detail = resolvedOperation.getResolutionDetails();
 		detailsGroup.enablePropertyLink(false);
-		if (detail == null)
+		if (detail == null) {
 			detail = ""; //$NON-NLS-1$
+		}
 		detailsGroup.setDetailText(detail);
 	}
 
 	private Object getSelectedElement() {
 		Object[] elements = getSelectedElements();
-		if (elements.length == 0)
+		if (elements.length == 0) {
 			return null;
+		}
 		return elements[0];
 	}
 
@@ -273,12 +280,15 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		IDialogSettings section = settings.getSection(getDialogSettingsName());
 		if (section != null) {
 			try {
-				if (section.get(NAME_COLUMN_WIDTH) != null)
+				if (section.get(NAME_COLUMN_WIDTH) != null) {
 					getNameColumn().setWidthInPixels(section.getInt(NAME_COLUMN_WIDTH));
-				if (section.get(VERSION_COLUMN_WIDTH) != null)
+				}
+				if (section.get(VERSION_COLUMN_WIDTH) != null) {
 					getVersionColumn().setWidthInPixels(section.getInt(VERSION_COLUMN_WIDTH));
-				if (section.get(ID_COLUMN_WIDTH) != null)
+				}
+				if (section.get(ID_COLUMN_WIDTH) != null) {
 					getIdColumn().setWidthInPixels(section.getInt(ID_COLUMN_WIDTH));
+				}
 			} catch (NumberFormatException e) {
 				// Ignore if there actually was a value that didn't parse.
 			}
@@ -287,8 +297,9 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 
 	@Override
 	public void saveBoundsRelatedSettings() {
-		if (!isCreated())
+		if (!isCreated()) {
 			return;
+		}
 		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
 		IDialogSettings section = settings.getSection(getDialogSettingsName());
 		if (section == null) {
@@ -316,8 +327,9 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	}
 
 	private boolean isLocked(AvailableIUElement elementToBeUpdated) {
-		if (elementToBeUpdated instanceof AvailableUpdateElement)
+		if (elementToBeUpdated instanceof AvailableUpdateElement) {
 			return ((AvailableUpdateElement) elementToBeUpdated).isLockedForUpdate();
+		}
 		return false;
 	}
 }

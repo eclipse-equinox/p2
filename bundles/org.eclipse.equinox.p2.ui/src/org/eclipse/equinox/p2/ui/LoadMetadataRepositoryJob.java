@@ -102,8 +102,9 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 
 	@Override
 	public IStatus runModal(IProgressMonitor monitor) {
-		if (locations == null || locations.length == 0)
+		if (locations == null || locations.length == 0) {
 			return Status.OK_STATUS;
+		}
 
 		IStatus status;
 
@@ -121,11 +122,13 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	private IStatus doLoad(IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.LoadMetadataRepositoryJob_ContactSitesProgress,
 				locations.length * 100);
-		if (sub.isCanceled())
+		if (sub.isCanceled()) {
 			return Status.CANCEL_STATUS;
+		}
 		for (URI location : locations) {
-			if (sub.isCanceled())
+			if (sub.isCanceled()) {
 				return Status.CANCEL_STATUS;
+			}
 			try {
 				repoCache.add(ProvUI.getMetadataRepositoryManager(ui.getSession()).loadRepository(location,
 						sub.newChild(100)));
@@ -165,9 +168,10 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 		// this well. We correct this by recreating a status with error severity
 		// so that the platform status handler does the right thing.
 		IStatus status = e.getStatus();
-		if (status instanceof MultiStatus && ((MultiStatus) status).getChildren().length == 0)
+		if (status instanceof MultiStatus && ((MultiStatus) status).getChildren().length == 0) {
 			status = new Status(IStatus.ERROR, status.getPlugin(), status.getCode(), status.getMessage(),
 					status.getException());
+		}
 		if (accumulatedStatus == null) {
 			accumulatedStatus = new MultiStatus(ProvUIActivator.PLUGIN_ID, ProvisionException.REPOSITORY_NOT_FOUND,
 					new IStatus[] { status }, ProvUIMessages.LoadMetadataRepositoryJob_SitesMissingError, null);
@@ -187,12 +191,14 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	 */
 	public void reportAccumulatedStatus() {
 		IStatus status = getCurrentStatus();
-		if (status.isOK() || status.getSeverity() == IStatus.CANCEL)
+		if (status.isOK() || status.getSeverity() == IStatus.CANCEL) {
 			return;
+		}
 
 		// If user is unaware of individual sites, nothing to report here.
-		if (!ui.getPolicy().getRepositoriesVisible())
+		if (!ui.getPolicy().getRepositoriesVisible()) {
 			return;
+		}
 		if (loadFailureAccumulator.hasSingleFailureCausedByBadLocation()) {
 			URI failingLocation = loadFailureAccumulator.getLoadFailuresCausedByBadRepoLocation().get(0).getLocation();
 			LocationNotFoundDialog locationNotFoundDialog = new LocationNotFoundDialog(tracker, ui, failingLocation);
@@ -222,8 +228,9 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 		if (accumulatedStatus != null) {
 			// If there is only missing repo to report, use the specific message rather than
 			// the generic.
-			if (accumulatedStatus.getChildren().length == 1)
+			if (accumulatedStatus.getChildren().length == 1) {
 				return accumulatedStatus.getChildren()[0];
+			}
 			return accumulatedStatus;
 		}
 		return Status.OK_STATUS;

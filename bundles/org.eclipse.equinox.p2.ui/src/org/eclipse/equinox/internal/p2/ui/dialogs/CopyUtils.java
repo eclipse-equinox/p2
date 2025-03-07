@@ -37,8 +37,9 @@ public class CopyUtils {
 	public static String getIndentedClipboardText(Object[] elements, IUDetailsLabelProvider labelProvider) {
 		StringBuilder buffer = new StringBuilder();
 		for (int i = 0; i < elements.length; i++) {
-			if (i > 0)
+			if (i > 0) {
 				buffer.append(NEWLINE);
+			}
 			appendIndention(buffer, elements[i]);
 			buffer.append(labelProvider.getClipboardText(elements[i], DELIMITER));
 		}

@@ -28,8 +28,9 @@ public class RepositoryContentProvider extends DeferredQueryContentProvider {
 	@Override
 	public Object[] getChildren(final Object parent) {
 		Object[] children = super.getChildren(parent);
-		if (children != null)
+		if (children != null) {
 			return children;
+		}
 		if (parent instanceof IArtifactDescriptor) {
 			return ((IArtifactDescriptor) parent).getProcessingSteps();
 		}

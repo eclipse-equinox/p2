@@ -142,8 +142,9 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 	@Override
 	public URI locationFromString(String locationString) {
 		URI uri = super.locationFromString(locationString);
-		if (uri != null)
+		if (uri != null) {
 			return uri;
+		}
 		// Look for the "Name - Location" pattern
 		// There could be a hyphen in the name or URI, so we have to visit all
 		// combinations
@@ -173,10 +174,12 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=293068
 	 */
 	public String getParsedNickname(URI location) {
-		if (parsedNickname == null || parsedLocation == null)
+		if (parsedNickname == null || parsedLocation == null) {
 			return null;
-		if (location.toString().equals(parsedLocation.toString()))
+		}
+		if (location.toString().equals(parsedLocation.toString())) {
 			return parsedNickname;
+		}
 		return null;
 	}
 

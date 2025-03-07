@@ -129,12 +129,14 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 			return super.wrap(item);
 		}
 		// If it's not an IU or element, we have nothing to do here
-		if (!(item instanceof IInstallableUnit))
+		if (!(item instanceof IInstallableUnit)) {
 			return super.wrap(item);
+		}
 
 		// We need to make an element
-		if (makeCategories && isCategory(iu))
+		if (makeCategories && isCategory(iu)) {
 			return super.wrap(new CategoryElement(parent, iu));
+		}
 
 		IIUElement element = makeDefaultElement(iu);
 		if (element instanceof AvailableIUElement) {
@@ -147,8 +149,9 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 	}
 
 	protected IIUElement makeDefaultElement(IInstallableUnit iu) {
-		if (parent instanceof AvailableIUElement)
+		if (parent instanceof AvailableIUElement) {
 			drillDownChild = ((AvailableIUElement) parent).shouldShowChildren();
+		}
 		return new AvailableIUElement(parent, iu, null, drillDownChild);
 	}
 

@@ -34,8 +34,9 @@ public abstract class ElementWrapper {
 		Iterator<?> iter = collector.iterator();
 		while (iter.hasNext()) {
 			Object o = iter.next();
-			if (shouldWrap(o))
+			if (shouldWrap(o)) {
 				collection.add(wrap(o));
+			}
 		}
 		return getCollection();
 	}

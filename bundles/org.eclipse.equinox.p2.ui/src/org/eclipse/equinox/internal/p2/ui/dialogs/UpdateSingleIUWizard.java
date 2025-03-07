@@ -59,8 +59,9 @@ public class UpdateSingleIUWizard extends Wizard {
 		if (!WizardWithLicenses.canBypassLicensePage()) {
 			AcceptLicensesWizardPage page = createLicensesPage();
 			page.update(null, operation);
-			if (page.hasLicensesToAccept())
+			if (page.hasLicensesToAccept()) {
 				addPage(page);
+			}
 		}
 	}
 

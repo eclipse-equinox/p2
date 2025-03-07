@@ -75,8 +75,9 @@ public abstract class RemoteQueriedElement extends QueriedElement implements IDe
 
 	@Override
 	public boolean hasQueryable() {
-		if (queryable instanceof QueryableMetadataRepositoryManager)
+		if (queryable instanceof QueryableMetadataRepositoryManager) {
 			return ((QueryableMetadataRepositoryManager) queryable).areRepositoriesLoaded();
+		}
 		return super.hasQueryable();
 	}
 

@@ -35,8 +35,9 @@ public class ProfileElement extends RemoteQueriedElement {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
-		if (adapter == IProfile.class)
+		if (adapter == IProfile.class) {
 			return (T) getQueryable();
+		}
 		return super.getAdapter(adapter);
 	}
 

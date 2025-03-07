@@ -69,11 +69,13 @@ public class UpdateAction extends ExistingIUInProfileAction {
 
 	@Override
 	protected int performAction(final ProfileChangeOperation operation, Collection<IInstallableUnit> ius) {
-		if (operation.getResolutionResult() == Status.OK_STATUS)
+		if (operation.getResolutionResult() == Status.OK_STATUS) {
 			return ui.openUpdateWizard(skipSelectionPage, (UpdateOperation) operation, null);
+		}
 
-		if (!operation.hasResolved())
+		if (!operation.hasResolved()) {
 			return Window.CANCEL;
+		}
 
 		final RemediationOperation remediationOperation = new RemediationOperation(getSession(), operation.getProfileChangeRequest());
 		ProvisioningJob job = new ProvisioningJob(ProvUIMessages.UpdateActionRemediationJobName, getSession()) {

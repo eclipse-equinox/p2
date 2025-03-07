@@ -51,10 +51,12 @@ public class ArtifactElement extends ProvElement {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
-		if (adapter == IArtifactRepository.class)
+		if (adapter == IArtifactRepository.class) {
 			return (T) getArtifactRepository();
-		if (adapter == IArtifactKey.class)
+		}
+		if (adapter == IArtifactKey.class) {
 			return (T) getArtifactKey();
+		}
 		return super.getAdapter(adapter);
 	}
 

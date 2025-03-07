@@ -64,8 +64,9 @@ public class ApplyProfileChangesDialog extends MessageDialog {
 				mustRestart ? ProvUIMessages.PlatformRestartMessage : ProvUIMessages.OptionalPlatformRestartMessage,
 				productName);
 		ApplyProfileChangesDialog dialog = new ApplyProfileChangesDialog(parent, title, message, mustRestart);
-		if (dialog.open() == Window.CANCEL)
+		if (dialog.open() == Window.CANCEL) {
 			return PROFILE_IGNORE;
+		}
 		return dialog.returnCode;
 	}
 

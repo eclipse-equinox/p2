@@ -51,10 +51,11 @@ public class InstalledIUGroup extends StructuredIUGroup {
 	public InstalledIUGroup(ProvisioningUI ui, final Composite parent, Font font, String profileId,
 			IUColumnConfig[] columnConfig) {
 		super(ui, parent, font, columnConfig);
-		if (profileId == null)
+		if (profileId == null) {
 			this.profileId = ui.getProfileId();
-		else
+		} else {
 			this.profileId = profileId;
+		}
 		createGroupComposite(parent);
 	}
 

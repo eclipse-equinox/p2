@@ -44,16 +44,18 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 	@Override
 	public String getLabel(Object o) {
 		IInstallableUnit iu = getIU();
-		if (iu != null)
+		if (iu != null) {
 			return iu.getId();
+		}
 		return null;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> adapter) {
-		if (adapter == IInstallableUnit.class)
+		if (adapter == IInstallableUnit.class) {
 			return (T) getIU();
+		}
 		return super.getAdapter(adapter);
 	}
 
@@ -64,8 +66,9 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 
 	@Override
 	public IInstallableUnit getIU() {
-		if (ius == null || ius.isEmpty())
+		if (ius == null || ius.isEmpty()) {
 			return null;
+		}
 		return ius.get(0);
 	}
 
@@ -95,8 +98,9 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 
 	public boolean shouldMerge(IInstallableUnit iu) {
 		IInstallableUnit myIU = getIU();
-		if (myIU == null)
+		if (myIU == null) {
 			return false;
+		}
 		return getMergeKey(myIU).equals(getMergeKey(iu));
 	}
 
@@ -110,12 +114,13 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 
 	@Override
 	public Collection<IRequirement> getRequirements() {
-		if (ius == null || ius.isEmpty())
+		if (ius == null || ius.isEmpty()) {
 			return Collections.emptyList();
+		}
 		if (requirements == null) {
-			if (ius.size() == 1)
+			if (ius.size() == 1) {
 				requirements = getIU().getRequirements();
-			else {
+			} else {
 				ArrayList<IRequirement> capabilities = new ArrayList<>();
 				for (IInstallableUnit iu : ius) {
 					capabilities.addAll(iu.getRequirements());
@@ -128,8 +133,9 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 
 	@Override
 	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
-		if (cache == null)
+		if (cache == null) {
 			cache = super.fetchChildren(o, monitor);
+		}
 		return cache;
 	}
 
@@ -140,16 +146,20 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof CategoryElement))
+		}
+		if (!(obj instanceof CategoryElement)) {
 			return false;
+		}
 		IInstallableUnit myIU = getIU();
 		IInstallableUnit objIU = ((CategoryElement) obj).getIU();
-		if (myIU == null || objIU == null)
+		if (myIU == null || objIU == null) {
 			return false;
+		}
 		return getMergeKey(myIU).equals(getMergeKey(objIU));
 	}
 
@@ -165,8 +175,9 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 	@Override
 	public String toString() {
 		IInstallableUnit iu = getIU();
-		if (iu == null)
+		if (iu == null) {
 			return "NULL"; //$NON-NLS-1$
+		}
 		StringBuilder result = new StringBuilder();
 		result.append("Category Element - "); //$NON-NLS-1$
 		result.append(getMergeKey(iu));

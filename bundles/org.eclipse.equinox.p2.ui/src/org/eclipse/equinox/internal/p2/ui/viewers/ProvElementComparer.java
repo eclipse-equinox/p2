@@ -27,36 +27,44 @@ public class ProvElementComparer implements IElementComparer {
 		// We treat category elements specially because this
 		// is one case where resolving down to an IU will lose identity
 		// differences.  (category IU's with the same name and version number cannot be treated the same).
-		if (a instanceof CategoryElement || b instanceof CategoryElement)
+		if (a instanceof CategoryElement || b instanceof CategoryElement) {
 			return a.equals(b);
+		}
 		IInstallableUnit iu1 = getIU(a);
 		IInstallableUnit iu2 = getIU(b);
-		if (iu1 != null && iu2 != null)
+		if (iu1 != null && iu2 != null) {
 			return iu1.equals(iu2);
+		}
 		String p1 = getProfileId(a);
 		String p2 = getProfileId(b);
-		if (p1 != null && p2 != null)
+		if (p1 != null && p2 != null) {
 			return p1.equals(p2);
+		}
 		URI r1 = getRepositoryLocation(a);
 		URI r2 = getRepositoryLocation(b);
-		if (r1 != null && r2 != null)
+		if (r1 != null && r2 != null) {
 			return r1.equals(r2);
+		}
 		return a.equals(b);
 	}
 
 	@Override
 	public int hashCode(Object element) {
-		if (element instanceof CategoryElement)
+		if (element instanceof CategoryElement) {
 			return element.hashCode();
+		}
 		IInstallableUnit iu = getIU(element);
-		if (iu != null)
+		if (iu != null) {
 			return iu.hashCode();
+		}
 		String profileId = getProfileId(element);
-		if (profileId != null)
+		if (profileId != null) {
 			return profileId.hashCode();
+		}
 		URI location = getRepositoryLocation(element);
-		if (location != null)
+		if (location != null) {
 			return location.hashCode();
+		}
 		return element.hashCode();
 	}
 
@@ -65,17 +73,20 @@ public class ProvElementComparer implements IElementComparer {
 	}
 
 	private String getProfileId(Object obj) {
-		if (obj instanceof ProfileElement)
+		if (obj instanceof ProfileElement) {
 			return ((ProfileElement) obj).getLabel(obj);
+		}
 		IProfile profile = ProvUI.getAdapter(obj, IProfile.class);
-		if (profile == null)
+		if (profile == null) {
 			return null;
+		}
 		return profile.getProfileId();
 	}
 
 	private URI getRepositoryLocation(Object obj) {
-		if (obj instanceof IRepositoryElement<?>)
+		if (obj instanceof IRepositoryElement<?>) {
 			return ((IRepositoryElement<?>) obj).getLocation();
+		}
 		return null;
 	}
 

@@ -58,12 +58,14 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 						return false;
 					}
 					// Now consider the validity of the element on its own
-					if (!isSelectable(element.getIU(), profile))
+					if (!isSelectable(element.getIU(), profile)) {
 						return false;
+					}
 				} else {
 					IInstallableUnit iu = ProvUI.getAdapter(selection, IInstallableUnit.class);
-					if (iu == null || !isSelectable(iu))
+					if (iu == null || !isSelectable(iu)) {
 						return false;
+					}
 				}
 			}
 			return true;
@@ -73,28 +75,32 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 
 	@Override
 	protected boolean isSelectable(IIUElement element) {
-		if (!super.isSelectable(element))
+		if (!super.isSelectable(element)) {
 			return false;
+		}
 		Object parent = element.getParent(element);
 		if (parent != null) {
 			IProfile profile = ProvUI.getAdapter(parent, IProfile.class);
-			if (profile != null)
+			if (profile != null) {
 				return isSelectable(element.getIU(), profile);
+			}
 		}
 		return false;
 	}
 
 	@Override
 	protected boolean isSelectable(IInstallableUnit iu) {
-		if (!super.isSelectable(iu))
+		if (!super.isSelectable(iu)) {
 			return false;
+		}
 		return isSelectable(iu, getProfile());
 	}
 
 	private boolean isSelectable(IInstallableUnit iu, IProfile profile) {
 		int lock = getLock(profile, iu);
-		if ((lock & getLockConstant()) == getLockConstant())
+		if ((lock & getLockConstant()) == getLockConstant()) {
 			return false;
+		}
 		return !profile.query(QueryUtil.createPipeQuery(QueryUtil.createIUQuery(iu), getPolicy().getVisibleInstalledIUQuery()), null).isEmpty();
 	}
 
