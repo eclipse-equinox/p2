@@ -56,8 +56,9 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	static class LinkedRepository {
 		LinkedRepository(File location) {
 			super();
-			if (location == null)
+			if (location == null) {
 				throw new IllegalArgumentException("Repository location cannot be null."); //$NON-NLS-1$
+			}
 			this.location = location;
 		}
 
@@ -94,8 +95,9 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	@Override
 	public boolean added(File file) {
 		if (super.added(file)) {
-			if (Tracing.DEBUG_RECONCILER)
+			if (Tracing.DEBUG_RECONCILER) {
 				Tracing.debug(PREFIX + "Interesting feature or bundle added: " + file); //$NON-NLS-1$
+			}
 			return true;
 		}
 		addRepository(file);
@@ -105,8 +107,9 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	@Override
 	public boolean changed(File file) {
 		if (super.changed(file)) {
-			if (Tracing.DEBUG_RECONCILER)
+			if (Tracing.DEBUG_RECONCILER) {
 				Tracing.debug(PREFIX + "Interesting feature or bundle changed: " + file); //$NON-NLS-1$
+			}
 			return true;
 		}
 		addRepository(file);
@@ -115,15 +118,17 @@ public class DropinsRepositoryListener extends RepositoryListener {
 
 	private void addRepository(File file) {
 		URI repoLocation = createRepositoryLocation(file);
-		if (repoLocation == null)
+		if (repoLocation == null) {
 			return;
+		}
 		Map<String, String> properties = new HashMap<>();
 		// if the file pointed to a link file, keep track of the attribute
 		// so we can add it to the repo later
 		if (file.isFile() && file.getName().endsWith(LINK)) {
 			URI linkLocation = getLinkRepository(file, false);
-			if (linkLocation != null)
+			if (linkLocation != null) {
 				properties.put(Site.PROP_LINK_FILE, file.getAbsolutePath());
+			}
 		}
 		getMetadataRepository(repoLocation, properties);
 		getArtifactRepository(repoLocation, properties);
@@ -161,8 +166,9 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		if (!linkedFile.isAbsolute()) {
 			// link support is relative to the install root
 			File root = Activator.getEclipseHome();
-			if (root != null)
+			if (root != null) {
 				linkedFile = new File(root, path);
+			}
 		}
 		try {
 			LinkedRepository result = new LinkedRepository(linkedFile.getCanonicalFile());
@@ -182,8 +188,9 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		try {
 			file = file.getCanonicalFile();
 			String fileName = file.getName();
-			if (fileName.endsWith(LINK))
+			if (fileName.endsWith(LINK)) {
 				return getLinkRepository(file, true);
+			}
 
 			if (file.isDirectory()) {
 				// Check if the directory is either the plugins directory of an extension location
@@ -195,16 +202,18 @@ public class DropinsRepositoryListener extends RepositoryListener {
 				}
 				if (file.getName().equals(FEATURES)) {
 					File parentFile = file.getParentFile();
-					if (parentFile == null || new File(parentFile, PLUGINS).isDirectory())
+					if (parentFile == null || new File(parentFile, PLUGINS).isDirectory()) {
 						return null;
+					}
 					return parentFile.toURI();
 				}
 				return file.toURI();
 			}
 
 			//TODO: Should we remove this? We only should support directly runnable repos
-			if (fileName.endsWith(ZIP) || fileName.endsWith(JAR))
+			if (fileName.endsWith(ZIP) || fileName.endsWith(JAR)) {
 				return new URI("jar:" + file.toURI() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 
 			// last resort -- we'll try to interpret the file as a link
 			return getLinkRepository(file, false);
@@ -219,8 +228,9 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	private URI getLinkRepository(File file, boolean logMissingLink) {
 		LinkedRepository repo = getLinkedRepository(file);
 		if (repo == null) {
-			if (logMissingLink)
+			if (logMissingLink) {
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to determine link location from file: " + file.getAbsolutePath())); //$NON-NLS-1$
+			}
 			return null;
 		}
 		return repo.isOptional() && !repo.exists() ? null : repo.getLocation().toURI();
@@ -243,13 +253,15 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private void debugRepository(IMetadataRepository repository) {
-		if (!Tracing.DEBUG_RECONCILER)
+		if (!Tracing.DEBUG_RECONCILER) {
 			return;
+		}
 		Tracing.debug(PREFIX + "Repository created " + repository.getLocation()); //$NON-NLS-1$
 		// Print out a list of all the IUs in the repository
 		IQueryResult<IInstallableUnit> result = repository.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
-		for (IInstallableUnit iInstallableUnit : result)
+		for (IInstallableUnit iInstallableUnit : result) {
 			Tracing.debug(PREFIX + "\t" + iInstallableUnit); //$NON-NLS-1$
+		}
 	}
 
 	public void getArtifactRepository(URI repoURL, Map<String, String> properties) {
@@ -282,16 +294,18 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		}
 		List<String> previousRepositories = getListRepositoryProperty(getMetadataRepository(), DROPIN_METADATA_REPOSITORIES);
 		for (String repository : previousRepositories) {
-			if (!currentRepositories.contains(repository))
+			if (!currentRepositories.contains(repository)) {
 				removeMetadataRepository(repository);
+			}
 		}
 		setListRepositoryProperty(getMetadataRepository(), DROPIN_METADATA_REPOSITORIES, currentRepositories);
 	}
 
 	private void removeMetadataRepository(String urlString) {
 		IMetadataRepositoryManager manager = agent.getService(IMetadataRepositoryManager.class);
-		if (manager == null)
+		if (manager == null) {
 			throw new IllegalStateException(Messages.metadata_repo_manager_not_registered);
+		}
 		try {
 			manager.removeRepository(new URI(urlString));
 		} catch (URISyntaxException e) {
@@ -306,16 +320,18 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		}
 		List<String> previousRepositories = getListRepositoryProperty(getArtifactRepository(), DROPIN_ARTIFACT_REPOSITORIES);
 		for (String repository : previousRepositories) {
-			if (!currentRepositories.contains(repository))
+			if (!currentRepositories.contains(repository)) {
 				removeArtifactRepository(repository);
+			}
 		}
 		setListRepositoryProperty(getArtifactRepository(), DROPIN_ARTIFACT_REPOSITORIES, currentRepositories);
 	}
 
 	public void removeArtifactRepository(String urlString) {
 		IArtifactRepositoryManager manager = agent.getService(IArtifactRepositoryManager.class);
-		if (manager == null)
+		if (manager == null) {
 			throw new IllegalStateException(Messages.artifact_repo_manager_not_registered);
+		}
 		try {
 			manager.removeRepository(new URI(urlString));
 		} catch (URISyntaxException e) {
@@ -340,8 +356,9 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		for (Iterator<String> it = listProperty.iterator(); it.hasNext();) {
 			String repositoryString = it.next();
 			buffer.append(repositoryString);
-			if (it.hasNext())
+			if (it.hasNext()) {
 				buffer.append(PIPE);
+			}
 		}
 		String value = (buffer.length() == 0) ? null : buffer.toString();
 		repository.setProperty(key, value);
