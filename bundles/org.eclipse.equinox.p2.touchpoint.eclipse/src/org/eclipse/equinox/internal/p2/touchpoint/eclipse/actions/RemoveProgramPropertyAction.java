@@ -31,14 +31,16 @@ public class RemoveProgramPropertyAction extends ProvisioningAction {
 	public IStatus execute(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String propName = (String) parameters.get(ActionConstants.PARM_PROP_NAME);
-		if (propName == null)
+		if (propName == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROP_NAME, ID));
+		}
 		String propValue = (String) parameters.get(ActionConstants.PARM_PROP_VALUE);
 
 		ConfigData data = manipulator.getConfigData();
 		String previous = data.getProperty(propName);
-		if (previous == null)
+		if (previous == null) {
 			return Status.OK_STATUS;
+		}
 		// make a backup - even if it is null
 		getMemento().put(ActionConstants.PARM_PREVIOUS_VALUE, previous);
 		// if the value is null, remove the key/value pair.
@@ -50,8 +52,9 @@ public class RemoveProgramPropertyAction extends ProvisioningAction {
 		// just the one value that was specified.
 		List<String> list = AddProgramPropertyAction.convertToList(previous);
 		// if the value wasn't in the list, then just return
-		if (!list.remove(propValue))
+		if (!list.remove(propValue)) {
 			return Status.OK_STATUS;
+		}
 		// otherwise set the property to the new value, or remove it if it is now empty
 		propValue = list.isEmpty() ? null : AddProgramPropertyAction.convertToString(list);
 		data.setProperty(propName, propValue);
@@ -62,8 +65,9 @@ public class RemoveProgramPropertyAction extends ProvisioningAction {
 	public IStatus undo(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String propName = (String) parameters.get(ActionConstants.PARM_PROP_NAME);
-		if (propName == null)
+		if (propName == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROP_NAME, ID));
+		}
 		String previous = (String) getMemento().get(ActionConstants.PARM_PREVIOUS_VALUE);
 		manipulator.getConfigData().setProperty(propName, previous);
 		return Status.OK_STATUS;

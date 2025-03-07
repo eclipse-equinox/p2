@@ -49,8 +49,9 @@ public class InstallBundleAction extends ProvisioningAction {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String bundleId = (String) parameters.get(ActionConstants.PARM_BUNDLE);
-		if (bundleId == null)
+		if (bundleId == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_BUNDLE, ID));
+		}
 
 		// TODO: eventually remove this. What is a fragment doing here??
 		if (QueryUtil.isFragment(iu)) {
@@ -59,8 +60,9 @@ public class InstallBundleAction extends ProvisioningAction {
 		}
 
 		Collection<IArtifactKey> artifacts = iu.getArtifacts();
-		if (artifacts == null || artifacts.isEmpty())
+		if (artifacts == null || artifacts.isEmpty()) {
 			return Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu));
+		}
 
 		IArtifactKey artifactKey = null;
 		for (IArtifactKey candidate : artifacts) {
@@ -69,16 +71,19 @@ public class InstallBundleAction extends ProvisioningAction {
 				break;
 			}
 		}
-		if (artifactKey == null)
+		if (artifactKey == null) {
 			throw new IllegalArgumentException(NLS.bind(Messages.no_matching_artifact, bundleId));
+		}
 
 		File bundleFile = Util.getArtifactFile(agent, artifactKey, profile);
-		if (bundleFile == null || !bundleFile.exists())
+		if (bundleFile == null || !bundleFile.exists()) {
 			return Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey));
+		}
 
 		BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, iu);
-		if (bundleInfo == null)
+		if (bundleInfo == null) {
 			return Util.createError(NLS.bind(Messages.failed_create_bundleinfo, iu));
+		}
 		manipulator.getConfigData().addBundle(bundleInfo);
 
 		return Status.OK_STATUS;

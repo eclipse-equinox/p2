@@ -39,8 +39,9 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	public File getArtifactFile(IArtifactKey key) {
 		for (IFileArtifactRepository repository : bundleRepositories) {
 			File artifactFile = repository.getArtifactFile(key);
-			if (artifactFile != null)
+			if (artifactFile != null) {
 				return artifactFile;
+			}
 		}
 		return null;
 	}
@@ -49,8 +50,9 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
 		for (IFileArtifactRepository repository : bundleRepositories) {
 			File artifactFile = repository.getArtifactFile(descriptor);
-			if (artifactFile != null)
+			if (artifactFile != null) {
 				return artifactFile;
+			}
 		}
 		return null;
 	}
@@ -58,8 +60,9 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	@Override
 	public boolean contains(IArtifactDescriptor descriptor) {
 		for (IFileArtifactRepository repository : bundleRepositories) {
-			if (repository.contains(descriptor))
+			if (repository.contains(descriptor)) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -67,8 +70,9 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	@Override
 	public boolean contains(IArtifactKey key) {
 		for (IFileArtifactRepository repository : bundleRepositories) {
-			if (repository.contains(key))
+			if (repository.contains(key)) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -78,8 +82,9 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 		Set<IArtifactDescriptor> artifactDescriptors = new HashSet<>();
 		for (IFileArtifactRepository repository : bundleRepositories) {
 			IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
-			if (descriptors != null)
+			if (descriptors != null) {
 				artifactDescriptors.addAll(Arrays.asList(descriptors));
+			}
 		}
 		return artifactDescriptors.toArray(new IArtifactDescriptor[artifactDescriptors.size()]);
 	}
@@ -123,8 +128,9 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	@Override
 	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
 		List<IQueryable<IArtifactDescriptor>> descQueryables = new ArrayList<>(bundleRepositories.size());
-		for (IFileArtifactRepository repository : bundleRepositories)
+		for (IFileArtifactRepository repository : bundleRepositories) {
 			descQueryables.add(repository.descriptorQueryable());
+		}
 
 		return QueryUtil.compoundQueryable(descQueryables);
 	}

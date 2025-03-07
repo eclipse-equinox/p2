@@ -68,14 +68,16 @@ public class AgentFromInstall {
 
 	private IProvisioningAgent loadAgent() {
 		if (installFolder != null) {
-			if (!installFolder.exists())
+			if (!installFolder.exists()) {
 				return null;
+			}
 			initializeFromConfigFiles();
 		} else {
 			initializeByGuessing();
 		}
-		if (profileId == null)
+		if (profileId == null) {
 			profileId = userSpecifiedProfileId;
+		}
 
 		if (profileId == null || p2DataAreaURI == null) {
 			return null;
@@ -99,8 +101,9 @@ public class AgentFromInstall {
 
 	private boolean initializeFromConfigFiles() {
 		FrameworkAdmin fwk = LazyManipulator.getFrameworkAdmin();
-		if (fwk == null)
+		if (fwk == null) {
 			return false;
+		}
 		Manipulator manipulator = fwk.getManipulator();
 		LauncherData launcherData = manipulator.getLauncherData();
 		launcherData.setFwConfigLocation(configurationFolder != null ? configurationFolder
@@ -124,8 +127,9 @@ public class AgentFromInstall {
 		File p2Folder = new File(configurationFolder, "p2"); //$NON-NLS-1$
 		if (!p2Folder.exists()) {
 			p2Folder = new File(configurationFolder.getParentFile(), "p2"); //$NON-NLS-1$
-			if (!p2Folder.exists())
+			if (!p2Folder.exists()) {
 				return;
+			}
 		}
 		p2DataAreaURI = p2Folder.toURI().toASCIIString();
 		if (profileId == null) {

@@ -38,14 +38,16 @@ public class SourceManipulator {
 	}
 
 	public BundleInfo[] getBundles() throws IOException {
-		if (sourceBundles == null)
+		if (sourceBundles == null) {
 			load();
+		}
 		return sourceBundles.toArray(new BundleInfo[sourceBundles.size()]);
 	}
 
 	public void addBundle(File bundleFile, String bundleId, Version bundleVersion) throws IOException {
-		if (sourceBundles == null)
+		if (sourceBundles == null) {
 			load();
+		}
 		BundleInfo sourceInfo = new BundleInfo(bundleFile.toURI());
 		sourceInfo.setSymbolicName(bundleId);
 		sourceInfo.setVersion(bundleVersion.toString());
@@ -53,20 +55,23 @@ public class SourceManipulator {
 	}
 
 	public void removeBundle(File bundleFile, String bundleId, Version bundleVersion) throws MalformedURLException, IOException {
-		if (sourceBundles == null)
+		if (sourceBundles == null) {
 			load();
+		}
 
 		BundleInfo sourceInfo = new BundleInfo();
-		if (bundleFile != null)
+		if (bundleFile != null) {
 			sourceInfo.setLocation(bundleFile.toURI());
+		}
 		sourceInfo.setSymbolicName(bundleId);
 		sourceInfo.setVersion(bundleVersion.toString());
 		sourceBundles.remove(sourceInfo);
 	}
 
 	public void save() throws IOException {
-		if (sourceBundles != null)
+		if (sourceBundles != null) {
 			manipulator.saveConfiguration(sourceBundles.toArray(new BundleInfo[sourceBundles.size()]), getFileLocation(), getLauncherLocation().toURI());
+		}
 	}
 
 	private void load() throws MalformedURLException, IOException {

@@ -39,12 +39,14 @@ public class ConfigurationWriter implements ConfigurationConstants {
 			args.put(ATTRIBUTE_DATE, Long.toString(new Date().getTime()));
 
 			String value = configuration.getSharedUR();
-			if (value != null)
+			if (value != null) {
 				args.put(ATTRIBUTE_SHARED_UR, value);
+			}
 
 			value = configuration.getVersion();
-			if (value != null)
+			if (value != null) {
 				args.put(ATTRIBUTE_VERSION, value);
+			}
 
 			args.put(ATTRIBUTE_TRANSIENT, Boolean.toString(configuration.isTransient()));
 
@@ -69,12 +71,14 @@ public class ConfigurationWriter implements ConfigurationConstants {
 		Map<String, String> args = new HashMap<>();
 
 		String value = site.getLinkFile();
-		if (value != null)
+		if (value != null) {
 			args.put(ATTRIBUTE_LINKFILE, value);
+		}
 
 		value = site.getPolicy();
-		if (value != null)
+		if (value != null) {
 			args.put(ATTRIBUTE_POLICY, value);
+		}
 
 		value = site.getUrl();
 		if (value != null) {
@@ -87,8 +91,9 @@ public class ConfigurationWriter implements ConfigurationConstants {
 		}
 
 		value = toString(site.getList());
-		if (value != null)
+		if (value != null) {
 			args.put(ATTRIBUTE_LIST, value);
+		}
 
 		args.put(ATTRIBUTE_UPDATEABLE, Boolean.toString(site.isUpdateable()));
 		args.put(ATTRIBUTE_ENABLED, Boolean.toString(site.isEnabled()));
@@ -104,14 +109,16 @@ public class ConfigurationWriter implements ConfigurationConstants {
 	 * possible and could potentially return platform:/base/.
 	 */
 	private static String getLocation(String value, URL osgiInstallArea) {
-		if (osgiInstallArea == null || !value.startsWith("file:")) //$NON-NLS-1$
+		if (osgiInstallArea == null || !value.startsWith("file:")) { //$NON-NLS-1$
 			return value;
+		}
 		try {
 			// if our site represents the osgi install area, then write out platform:/base/
 			File installArea = URLUtil.toFile(osgiInstallArea);
 			File path = URLUtil.toFile(new URL(value));
-			if (installArea.getAbsoluteFile().equals(path.getAbsoluteFile()))
+			if (installArea.getAbsoluteFile().equals(path.getAbsoluteFile())) {
 				return ConfigurationParser.PLATFORM_BASE;
+			}
 		} catch (MalformedURLException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while writing configuration.", e)); //$NON-NLS-1$
 		}
@@ -122,13 +129,15 @@ public class ConfigurationWriter implements ConfigurationConstants {
 	 * Convert the given list to a comma-separated string.
 	 */
 	private static String toString(Object[] list) {
-		if (list == null || list.length == 0)
+		if (list == null || list.length == 0) {
 			return null;
+		}
 		StringBuilder buffer = new StringBuilder();
 		for (int i = 0; i < list.length; i++) {
 			buffer.append(list[i].toString());
-			if (i + 1 < list.length)
+			if (i + 1 < list.length) {
 				buffer.append(',');
+			}
 		}
 		return buffer.toString();
 	}
@@ -137,37 +146,46 @@ public class ConfigurationWriter implements ConfigurationConstants {
 	 * Write out the given list of features.
 	 */
 	private static void write(XMLWriter writer, Feature[] features) {
-		if (features == null || features.length == 0)
+		if (features == null || features.length == 0) {
 			return;
+		}
 		for (Feature feature : features) {
 			Map<String, String> args = new HashMap<>();
 			String value = feature.getId();
-			if (value != null)
+			if (value != null) {
 				args.put(ATTRIBUTE_ID, value);
+			}
 			value = feature.getUrl();
-			if (value != null)
+			if (value != null) {
 				args.put(ATTRIBUTE_URL, value);
+			}
 			value = feature.getVersion();
-			if (value != null)
+			if (value != null) {
 				args.put(ATTRIBUTE_VERSION, value);
+			}
 			value = feature.getPluginIdentifier();
 			// only write out the plug-in identifier if it is different from the feature id
-			if (value != null && !value.equals(feature.getId()))
+			if (value != null && !value.equals(feature.getId())) {
 				args.put(ATTRIBUTE_PLUGIN_IDENTIFIER, value);
+			}
 			value = feature.getPluginVersion();
 			// only write out the plug-in version if it is different from the feature version
-			if (value != null && !value.equals(feature.getVersion()))
+			if (value != null && !value.equals(feature.getVersion())) {
 				args.put(ATTRIBUTE_PLUGIN_VERSION, value);
-			if (feature.isPrimary())
+			}
+			if (feature.isPrimary()) {
 				args.put(ATTRIBUTE_PRIMARY, "true"); //$NON-NLS-1$
+			}
 			value = feature.getApplication();
-			if (value != null)
+			if (value != null) {
 				args.put(ATTRIBUTE_APPLICATION, value);
+			}
 
 			// collect the roots
 			URL[] roots = feature.getRoots();
-			if (roots != null && roots.length > 0)
+			if (roots != null && roots.length > 0) {
 				args.put(ATTRIBUTE_ROOT, toString(roots));
+			}
 
 			writer.startTag(ELEMENT_FEATURE, args);
 			writer.endTag(ELEMENT_FEATURE);

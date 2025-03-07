@@ -36,8 +36,9 @@ public class SetJvmAction extends ProvisioningAction {
 	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM);
-		if (jvmArg == null)
+		if (jvmArg == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_JVM, ID));
+		}
 		LauncherData launcherData = ((Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR))
 				.getLauncherData();
 		File previous = launcherData.getJvm();
@@ -54,8 +55,9 @@ public class SetJvmAction extends ProvisioningAction {
 	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM);
-		if (jvmArg == null)
+		if (jvmArg == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_JVM, ID));
+		}
 		// make a backup - even if it is null
 		String previous = (String) getMemento().get(ActionConstants.PARM_PREVIOUS_VALUE);
 		LauncherData launcherData = ((Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR))

@@ -31,8 +31,9 @@ public class RemoveJVMArgumentAction extends ProvisioningAction {
 	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM_ARG);
-		if (jvmArg == null)
+		if (jvmArg == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_JVM_ARG, ID));
+		}
 		removeArg(jvmArg, parameters);
 		return Status.OK_STATUS;
 	}
@@ -40,8 +41,9 @@ public class RemoveJVMArgumentAction extends ProvisioningAction {
 	@Override
 	public IStatus undo(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM_ARG);
-		if (jvmArg == null)
+		if (jvmArg == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_JVM_ARG, ID));
+		}
 		AddJVMArgumentAction.addArg(jvmArg, parameters);
 		return Status.OK_STATUS;
 	}
@@ -52,15 +54,16 @@ public class RemoveJVMArgumentAction extends ProvisioningAction {
 		File storageArea = (File) parameters.get(ActionConstants.PARM_PROFILE_DATA_DIRECTORY);
 
 		try {
-			if (arg.startsWith(AddJVMArgumentAction.XMS))
+			if (arg.startsWith(AddJVMArgumentAction.XMS)) {
 				removeByteArg(arg, AddJVMArgumentAction.XMS, launcherData, storageArea);
-			else if (arg.startsWith(AddJVMArgumentAction.XMX))
+			} else if (arg.startsWith(AddJVMArgumentAction.XMX)) {
 				removeByteArg(arg, AddJVMArgumentAction.XMX, launcherData, storageArea);
-			else if (arg.startsWith(AddJVMArgumentAction.XX_MAX_PERM_SIZE))
+			} else if (arg.startsWith(AddJVMArgumentAction.XX_MAX_PERM_SIZE)) {
 				removeByteArg(arg, AddJVMArgumentAction.XX_MAX_PERM_SIZE, launcherData, storageArea);
-			else
+			} else {
 				// Argument with a non-byte value, no special handling
 				launcherData.removeJvmArg(arg);
+			}
 		} catch (IOException e) {
 			return new Status(IStatus.ERROR, Activator.ID, Messages.error_processing_vmargs, e);
 		} catch (IllegalArgumentException e) {
@@ -89,20 +92,21 @@ public class RemoveJVMArgumentAction extends ProvisioningAction {
 
 	private static void removeArg(Properties storage, String value, String flag) {
 		String[] args = AddJVMArgumentAction.getArgs(storage, flag);
-		for (int i = 0; i < args.length; i++)
+		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals(value)) {
 				args[i] = null;
 				// Stop now that we've removed a matching argument
 				break;
 			}
+		}
 		setArgs(storage, flag, args);
 	}
 
 	private static void setArgs(Properties storedValues, String flag, String[] args) {
-		if (args == null || args.length == 0)
+		if (args == null || args.length == 0) {
 			// Null or empty list, unset flag
 			storedValues.remove(flag);
-		else {
+		} else {
 			// Build a comma separated list of values for this flag
 			String argString = ""; //$NON-NLS-1$
 			for (String arg : args) {
@@ -111,12 +115,13 @@ public class RemoveJVMArgumentAction extends ProvisioningAction {
 				}
 			}
 
-			if (argString.length() > 0)
+			if (argString.length() > 0) {
 				// Strip the trailing comma
 				storedValues.setProperty(flag, argString.substring(0, argString.length() - 1));
-			else
+			} else {
 				// Array was full of null values, unset flag
 				storedValues.remove(flag);
+			}
 		}
 	}
 }

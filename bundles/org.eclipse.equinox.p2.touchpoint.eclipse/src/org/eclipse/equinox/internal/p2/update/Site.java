@@ -46,10 +46,11 @@ public class Site {
 	}
 
 	public void setPluginList(List<String> plugins) {
-		if (plugins == null)
+		if (plugins == null) {
 			this.list = new ArrayList<>();
-		else
+		} else {
 			this.list = plugins;
+		}
 	}
 
 	public Feature[] getFeatures() {
@@ -62,12 +63,14 @@ public class Site {
 	 * first feature with a matching id.
 	 */
 	public Feature getFeature(String id, String version) {
-		if (id == null)
+		if (id == null) {
 			return null;
+		}
 		for (Feature feature : features) {
 			if (id.equals(feature.getId())) {
-				if (version == null || version.equals(feature.getVersion()))
+				if (version == null || version.equals(feature.getVersion())) {
 					return feature;
+				}
 			}
 		}
 		return null;
@@ -76,8 +79,9 @@ public class Site {
 	public Feature removeFeature(String featureURL) {
 		for (Feature feature : features) {
 			String nextURL = feature.getUrl();
-			if (nextURL != null && nextURL.equals(featureURL))
+			if (nextURL != null && nextURL.equals(featureURL)) {
 				return features.remove(feature) ? feature : null;
+			}
 		}
 		return null;
 	}
@@ -139,23 +143,31 @@ public class Site {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof Site))
+		if (!(obj instanceof Site)) {
 			return false;
+		}
 		Site other = (Site) obj;
-		if (isEnabled() != other.isEnabled())
+		if (isEnabled() != other.isEnabled()) {
 			return false;
-		if (isUpdateable() != other.isUpdateable())
+		}
+		if (isUpdateable() != other.isUpdateable()) {
 			return false;
-		if (!getUrl().equals(other.getUrl()))
+		}
+		if (!getUrl().equals(other.getUrl())) {
 			return false;
-		if (!Site.equals(getLinkFile(), other.getLinkFile()))
+		}
+		if (!Site.equals(getLinkFile(), other.getLinkFile())) {
 			return false;
-		if (!Site.equals(getPolicy(), other.getPolicy()))
+		}
+		if (!Site.equals(getPolicy(), other.getPolicy())) {
 			return false;
-		if (!Site.equals(getList(), other.getList()))
+		}
+		if (!Site.equals(getList(), other.getList())) {
 			return false;
-		if (!Site.equals(getFeatures(), other.getFeatures()))
+		}
+		if (!Site.equals(getFeatures(), other.getFeatures())) {
 			return false;
+		}
 		return true;
 	}
 
@@ -172,19 +184,23 @@ public class Site {
 	 * considered equal.
 	 */
 	public static boolean equals(Object[] one, Object[] two) {
-		if (one == null && two == null)
+		if (one == null && two == null) {
 			return true;
-		if (one == null || two == null)
+		}
+		if (one == null || two == null) {
 			return false;
-		if (one.length != two.length)
+		}
+		if (one.length != two.length) {
 			return false;
+		}
 		for (Object one1 : one) {
 			boolean found = false;
 			for (int j = 0; !found && j < two.length; j++) {
 				found = one1.equals(two[j]);
 			}
-			if (!found)
+			if (!found) {
 				return false;
+			}
 		}
 		return true;
 	}

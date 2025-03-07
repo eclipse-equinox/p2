@@ -24,8 +24,9 @@ public class WhatIsRunning {
 
 	private static Manipulator getFrameworkManipulator() {
 		FrameworkAdmin fwAdmin = LazyManipulator.getFrameworkAdmin();
-		if (fwAdmin != null)
+		if (fwAdmin != null) {
 			return fwAdmin.getRunningManipulator();
+		}
 		return null;
 	}
 }

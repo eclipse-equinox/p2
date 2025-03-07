@@ -30,14 +30,16 @@ public class PublisherUtil {
 	 */
 	public static IInstallableUnit createBundleIU(IArtifactKey artifactKey, File bundleFile) {
 		BundleDescription bundleDescription = BundlesAction.createBundleDescriptionIgnoringExceptions(bundleFile);
-		if (bundleDescription == null)
+		if (bundleDescription == null) {
 			return null;
+		}
 		PublisherInfo info = new PublisherInfo();
 		Version version = Version.create(bundleDescription.getVersion().toString());
 		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(), version,
 				IPath.fromOSString(bundleFile.getAbsolutePath()), AdviceFileAdvice.BUNDLE_ADVICE_FILE);
-		if (advice.containsAdvice())
+		if (advice.containsAdvice()) {
 			info.addAdvice(advice);
+		}
 		String shape = bundleFile.isDirectory() ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
 		info.addAdvice(new BundleShapeAdvice(bundleDescription.getSymbolicName(), version, shape));
 		return BundlesAction.createBundleIU(bundleDescription, artifactKey, info);

@@ -35,13 +35,15 @@ public class AddRepositoryAction extends RepositoryAction {
 			IAgentLocation agentLocation = agent.getService(IAgentLocation.class);
 			final RepositoryEvent event = createEvent(parameters);
 			IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
-			if (profile != null)
+			if (profile != null) {
 				addRepositoryToProfile(agentLocation, profile, event.getRepositoryLocation(),
 						event.getRepositoryNickname(), event.getRepositoryType(), event.isRepositoryEnabled());
+			}
 			// if provisioning into the current profile, broadcast an event to add this
 			// repository directly to the current repository managers.
-			if (isSelfProfile(registry, profile))
+			if (isSelfProfile(registry, profile)) {
 				addToSelf(agent, agentLocation, event);
+			}
 			return Status.OK_STATUS;
 		} catch (CoreException e) {
 			return e.getStatus();
@@ -61,13 +63,15 @@ public class AddRepositoryAction extends RepositoryAction {
 			IAgentLocation agentLocation = agent.getService(IAgentLocation.class);
 			final RepositoryEvent event = createEvent(parameters);
 			IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
-			if (profile != null)
+			if (profile != null) {
 				removeRepositoryFromProfile(agentLocation, profile, event.getRepositoryLocation(),
 						event.getRepositoryType());
+			}
 			// if provisioning into the current profile, broadcast an event to add this
 			// repository directly to the current repository managers.
-			if (isSelfProfile(registry, profile))
+			if (isSelfProfile(registry, profile)) {
 				removeFromSelf(agent, agentLocation, event);
+			}
 			return Status.OK_STATUS;
 		} catch (CoreException e) {
 			return e.getStatus();

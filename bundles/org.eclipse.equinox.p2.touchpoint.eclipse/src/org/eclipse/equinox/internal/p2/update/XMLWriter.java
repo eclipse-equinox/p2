@@ -50,8 +50,9 @@ public class XMLWriter extends PrintWriter {
 	}
 
 	public void printTabulation() {
-		for (int i = 0; i < tab; i++)
+		for (int i = 0; i < tab; i++) {
 			super.print('\t');
+		}
 	}
 
 	public void printTag(String name, Map<String, String> parameters) {
@@ -62,7 +63,7 @@ public class XMLWriter extends PrintWriter {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<"); //$NON-NLS-1$
 		sb.append(name);
-		if (parameters != null)
+		if (parameters != null) {
 			for (String key : parameters.keySet()) {
 				sb.append(" "); //$NON-NLS-1$
 				sb.append(key);
@@ -70,13 +71,16 @@ public class XMLWriter extends PrintWriter {
 				sb.append(getEscaped(String.valueOf(parameters.get(key))));
 				sb.append("\""); //$NON-NLS-1$
 			}
+		}
 		sb.append(">"); //$NON-NLS-1$
-		if (shouldTab && !ignoreWhitespace)
+		if (shouldTab && !ignoreWhitespace) {
 			printTabulation();
-		if (newLine && !ignoreWhitespace)
+		}
+		if (newLine && !ignoreWhitespace) {
 			println(sb.toString());
-		else
+		} else {
 			print(sb.toString());
+		}
 	}
 
 	public void startTag(String name, Map<String, String> parameters) {
@@ -101,8 +105,9 @@ public class XMLWriter extends PrintWriter {
 
 	public static String getEscaped(String s) {
 		StringBuffer result = new StringBuffer(s.length() + 10);
-		for (int i = 0; i < s.length(); ++i)
+		for (int i = 0; i < s.length(); ++i) {
 			appendEscapedChar(result, s.charAt(i));
+		}
 		return result.toString();
 	}
 

@@ -46,12 +46,14 @@ public class RemoveSourceBundleAction extends ProvisioningAction {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
 		SourceManipulator manipulator = (SourceManipulator) parameters.get(EclipseTouchpoint.PARM_SOURCE_BUNDLES);
 		String bundleId = (String) parameters.get(ActionConstants.PARM_BUNDLE);
-		if (bundleId == null)
+		if (bundleId == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_BUNDLE, ID));
+		}
 
 		Collection<IArtifactKey> artifacts = iu.getArtifacts();
-		if (artifacts == null || artifacts.isEmpty())
+		if (artifacts == null || artifacts.isEmpty()) {
 			return Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu));
+		}
 
 		IArtifactKey artifactKey = null;
 		for (IArtifactKey candidate : artifacts) {
@@ -60,8 +62,9 @@ public class RemoveSourceBundleAction extends ProvisioningAction {
 				break;
 			}
 		}
-		if (artifactKey == null)
+		if (artifactKey == null) {
 			throw new IllegalArgumentException(NLS.bind(Messages.no_matching_artifact, bundleId));
+		}
 
 		// the bundleFile might be null here, that's OK.
 		File bundleFile = Util.getArtifactFile(agent, artifactKey, profile);

@@ -28,8 +28,9 @@ public class SetProgramPropertyAction extends ProvisioningAction {
 	public IStatus execute(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String propName = (String) parameters.get(ActionConstants.PARM_PROP_NAME);
-		if (propName == null)
+		if (propName == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROP_NAME, ID));
+		}
 		String propValue = (String) parameters.get(ActionConstants.PARM_PROP_VALUE);
 		if (propValue != null && propValue.equals(ActionConstants.PARM_AT_ARTIFACT)) {
 			try {
@@ -48,8 +49,9 @@ public class SetProgramPropertyAction extends ProvisioningAction {
 	public IStatus undo(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String propName = (String) parameters.get(ActionConstants.PARM_PROP_NAME);
-		if (propName == null)
+		if (propName == null) {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROP_NAME, ID));
+		}
 		String previousValue = (String) getMemento().get(ActionConstants.PARM_PREVIOUS_VALUE);
 		manipulator.getConfigData().setProperty(propName, previousValue);
 		return Status.OK_STATUS;

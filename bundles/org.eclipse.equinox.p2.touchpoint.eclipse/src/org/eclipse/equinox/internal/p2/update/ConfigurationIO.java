@@ -39,13 +39,15 @@ public class ConfigurationIO {
 	 */
 	static Configuration read(File file, URL osgiInstallArea) throws ProvisionException {
 		// check the cached copy first
-		if (cache != null && file.lastModified() == cache.timestamp)
+		if (cache != null && file.lastModified() == cache.timestamp) {
 			return cache.config;
+		}
 
 		// cache miss or file is out of date, read from disk
 		Configuration config = ConfigurationParser.parse(file, osgiInstallArea);
-		if (config == null)
+		if (config == null) {
 			return null;
+		}
 
 		// successful read, store in the cache before we return
 		cache(file, config, osgiInstallArea);

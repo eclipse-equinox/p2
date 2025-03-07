@@ -42,8 +42,9 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 	public MarkSet[] getMarkSets(IProvisioningAgent agent, IProfile inProfile) {
 		artifactKeyList = new HashSet<>();
 		IArtifactRepository repositoryToGC = Util.getBundlePoolRepository(agent, inProfile);
-		if (repositoryToGC == null)
+		if (repositoryToGC == null) {
 			return new MarkSet[0];
+		}
 		addArtifactKeys(inProfile);
 		IProfile currentProfile = getCurrentProfile(agent);
 		if (currentProfile != null && inProfile.getProfileId().equals(currentProfile.getProfileId())) {
@@ -61,8 +62,9 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 			for (Feature f : allFeatures) {
 				IArtifactKey match = searchArtifact(f.getId(), Version.create(f.getVersion()),
 						ARTIFACT_CLASSIFIER_FEATURE, repositoryToGC);
-				if (match != null)
+				if (match != null) {
 					artifactKeyList.add(match);
+				}
 			}
 		} catch (ProvisionException e) {
 			// Ignore the exception
@@ -70,8 +72,9 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 	}
 
 	private static List<Feature> getAllFeatures(Configuration cfg) {
-		if (cfg == null)
+		if (cfg == null) {
 			return Collections.emptyList();
+		}
 		List<Site> sites = cfg.getSites();
 		ArrayList<Feature> result = new ArrayList<>();
 		for (Site object : sites) {
@@ -85,8 +88,9 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 
 	private static IProfile getCurrentProfile(IProvisioningAgent agent) {
 		IProfileRegistry pr = agent.getService(IProfileRegistry.class);
-		if (pr == null)
+		if (pr == null) {
 			return null;
+		}
 		return pr.getProfile(IProfileRegistry.SELF);
 	}
 
@@ -94,8 +98,9 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 		Iterator<IInstallableUnit> installableUnits = aProfile.query(QueryUtil.createIUAnyQuery(), null).iterator();
 		while (installableUnits.hasNext()) {
 			Collection<IArtifactKey> keys = installableUnits.next().getArtifacts();
-			if (keys == null)
+			if (keys == null) {
 				continue;
+			}
 			artifactKeyList.addAll(keys);
 		}
 	}
@@ -119,8 +124,9 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 		ArtifactKeyQuery query = new ArtifactKeyQuery(classifier, searchedId, range);
 		// TODO short-circuit the query when we find one?
 		IQueryResult<IArtifactKey> keys = repo.query(query, null);
-		if (!keys.isEmpty())
+		if (!keys.isEmpty()) {
 			return keys.iterator().next();
+		}
 		return null;
 	}
 
@@ -131,8 +137,9 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 			// if version is "0.0.0", we will use null to find all versions, see bug 305710
 			Version version = BundleInfo.EMPTY_VERSION.equals(bi.getVersion()) ? null : Version.create(bi.getVersion());
 			IArtifactKey match = searchArtifact(bi.getSymbolicName(), version, ARTIFACT_CLASSIFIER_OSGI_BUNDLE, repo);
-			if (match != null)
+			if (match != null) {
 				toRetain.add(match);
+			}
 		}
 		return toRetain;
 	}
