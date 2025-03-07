@@ -53,12 +53,14 @@ public class SDKPolicy extends Policy {
 	public boolean continueWorkingOperation(ProfileChangeOperation operation, Shell shell) {
 		// don't continue if superclass has already identified problem scenarios
 		boolean ok = super.continueWorkingWithOperation(operation, shell);
-		if (!ok)
+		if (!ok) {
 			return false;
+		}
 
 		IProvisioningPlan plan = operation.getProvisioningPlan();
-		if (plan == null)
+		if (plan == null) {
 			return false;
+		}
 
 		// Check the preference to see whether to continue.
 		IPreferenceStore prefs = ProvSDKUIActivator.getDefault().getPreferenceStore();
@@ -73,8 +75,9 @@ public class SDKPolicy extends Policy {
 		MessageDialogWithToggle dialog = MessageDialogWithToggle.openYesNoCancelQuestion(shell, ProvSDKMessages.ProvSDKUIActivator_Question, ProvSDKMessages.ProvSDKUIActivator_OpenWizardAnyway, null, false, prefs, PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN);
 
 		// Any answer but yes will stop the performance of the plan, but NO is interpreted to mean, show me the error.
-		if (dialog.getReturnCode() == IDialogConstants.NO_ID)
+		if (dialog.getReturnCode() == IDialogConstants.NO_ID) {
 			StatusManager.getManager().handle(plan.getStatus(), StatusManager.SHOW | StatusManager.LOG);
+		}
 		return dialog.getReturnCode() == IDialogConstants.YES_ID;
 	}
 }

@@ -67,8 +67,9 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
 	private static IAgentLocation getDefaultAgentLocation() {
 		ServiceReference<IAgentLocation> reference = ProvSDKUIActivator.getContext().getServiceReference(IAgentLocation.class);
-		if (reference == null)
+		if (reference == null) {
 			return null;
+		}
 		IAgentLocation result = ProvSDKUIActivator.getContext().getService(reference);
 		ProvSDKUIActivator.getContext().ungetService(reference);
 		return result;

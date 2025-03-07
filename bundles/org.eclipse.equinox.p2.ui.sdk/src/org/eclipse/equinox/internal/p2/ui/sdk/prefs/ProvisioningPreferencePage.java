@@ -142,12 +142,13 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 	public boolean performOk() {
 		IPreferenceStore pref = ProvSDKUIActivator.getDefault().getPreferenceStore();
 		pref.setValue(PreferenceConstants.PREF_SHOW_LATEST_VERSION, showLatestRadio.getSelection());
-		if (alwaysShowFailedPlan.getSelection())
+		if (alwaysShowFailedPlan.getSelection()) {
 			pref.setValue(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, MessageDialogWithToggle.ALWAYS);
-		else if (neverShowFailedPlan.getSelection())
+		} else if (neverShowFailedPlan.getSelection()) {
 			pref.setValue(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, MessageDialogWithToggle.NEVER);
-		else
+		} else {
 			pref.setValue(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, MessageDialogWithToggle.PROMPT);
+		}
 		pref.setValue(PreferenceConstants.PREF_CHECK_AGAINST_CURRENT_JRE, checkAgainstCurrentCheckbox.getSelection());
 		ProvSDKUIActivator.getDefault().savePreferences();
 		return true;
