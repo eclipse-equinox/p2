@@ -65,8 +65,9 @@ public class ProductAction extends AbstractPublisherAction {
 		// create all the actions needed to publish a product
 		ArrayList<IPublisherAction> actions = new ArrayList<>();
 		// products include the executable so add actions to publish them
-		if (getExecutablesLocation() != null && this.product.includeLaunchers())
+		if (getExecutablesLocation() != null && this.product.includeLaunchers()) {
 			actions.add(createApplicationExecutableAction(info.getConfigurations()));
+		}
 		// add the actions that just configure things.
 		actions.add(createConfigCUsAction());
 		actions.add(createDefaultCUsAction());
@@ -144,12 +145,14 @@ public class ProductAction extends AbstractPublisherAction {
 		finalStatus = new MultiStatus(Activator.ID, 0, NLS.bind(Messages.message_problemPublishingProduct, product.getId()), null);
 		IPublisherAction[] actions = createActions(results);
 		for (IPublisherAction action : actions) {
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
+			}
 			finalStatus.merge(action.perform(publisherInfo, results, monitor));
 		}
-		if (!finalStatus.isOK())
+		if (!finalStatus.isOK()) {
 			return finalStatus;
+		}
 
 		return Status.OK_STATUS;
 	}
@@ -167,12 +170,14 @@ public class ProductAction extends AbstractPublisherAction {
 	 */
 	private void createAdviceFileAdvice() {
 		File productFileLocation = product.getLocation();
-		if (productFileLocation == null)
+		if (productFileLocation == null) {
 			return;
+		}
 
 		AdviceFileAdvice advice = new AdviceFileAdvice(product.getId(), Version.parseVersion(product.getVersion()), IPath.fromOSString(productFileLocation.getParent()), IPath.fromOSString("p2.inf")); //$NON-NLS-1$
-		if (advice.containsAdvice())
+		if (advice.containsAdvice()) {
 			info.addAdvice(advice);
+		}
 	}
 
 	private void createRootAdvice() {
@@ -218,8 +223,9 @@ public class ProductAction extends AbstractPublisherAction {
 		id = product.getId();
 		version = Version.parseVersion(product.getVersion());
 		name = product.getProductName();
-		if (name == null || name.length() == 0) // If the name is not defined, use the ID
+		if (name == null || name.length() == 0) { // If the name is not defined, use the ID
 			name = product.getId();
+		}
 
 		String[] configSpecs = info.getConfigurations();
 		for (String configSpec : configSpecs) {
@@ -258,8 +264,9 @@ public class ProductAction extends AbstractPublisherAction {
 	}
 
 	private Collection<IVersionedId> listElements(List<IVersionedId> elements, String suffix) {
-		if (suffix == null || suffix.length() == 0)
+		if (suffix == null || suffix.length() == 0) {
 			return elements;
+		}
 		ArrayList<IVersionedId> result = new ArrayList<>(elements.size());
 		for (IVersionedId elementName : elements) {
 			result.add(new VersionedId(elementName.getId() + suffix, elementName.getVersion()));
@@ -268,10 +275,12 @@ public class ProductAction extends AbstractPublisherAction {
 	}
 
 	protected File getExecutablesLocation() {
-		if (executablesFeatureLocation != null)
+		if (executablesFeatureLocation != null) {
 			return executablesFeatureLocation;
-		if (source != null)
+		}
+		if (source != null) {
 			return new File(source);
+		}
 		return null;
 	}
 

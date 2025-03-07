@@ -218,16 +218,18 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private final List<IMacOsBundleUrlType> macOsBundleUrlTypes = new ArrayList<>();
 
 	private static String normalize(String text) {
-		if (text == null || text.trim().length() == 0)
+		if (text == null || text.trim().length() == 0) {
 			return ""; //$NON-NLS-1$
+		}
 
 		StringBuilder result = new StringBuilder(text.length());
 		boolean haveSpace = false;
 		for (int i = 0; i < text.length(); i++) {
 			char c = text.charAt(i);
 			if (Character.isWhitespace(c)) {
-				if (haveSpace)
+				if (haveSpace) {
 					continue;
+				}
 				haveSpace = true;
 				result.append(" "); //$NON-NLS-1$
 			} else {
@@ -334,10 +336,12 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				}
 			}
 		}
-		if (application != null && !result.containsKey(PROPERTY_ECLIPSE_APPLICATION))
+		if (application != null && !result.containsKey(PROPERTY_ECLIPSE_APPLICATION)) {
 			result.put(PROPERTY_ECLIPSE_APPLICATION, application);
-		if (id != null && !result.containsKey(PROPERTY_ECLIPSE_PRODUCT))
+		}
+		if (id != null && !result.containsKey(PROPERTY_ECLIPSE_PRODUCT)) {
 			result.put(PROPERTY_ECLIPSE_PRODUCT, id);
+		}
 
 		return result;
 	}
@@ -429,8 +433,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	@Override
 	public String[] getIcons(String os) {
 		Collection<String> result = icons.get(os);
-		if (result == null)
+		if (result == null) {
 			return new String[0];
+		}
 		return result.toArray(new String[result.size()]);
 	}
 
@@ -453,8 +458,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 */
 	@Override
 	public String getId() {
-		if (uid != null)
+		if (uid != null) {
 			return uid;
+		}
 		return id;
 	}
 
@@ -611,15 +617,17 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			}
 		}
 		if (defaults != null) {
-			if (platform != null)
+			if (platform != null) {
 				args = platformAndArch != null ? defaults + " " + platform + " " + platformAndArch : defaults + " " + platform; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			else
+			} else {
 				args = defaults;
+			}
 		} else {
-			if (platform != null)
+			if (platform != null) {
 				args = platformAndArch != null ? platform + " " + platformAndArch : platform; //$NON-NLS-1$
-			else
+			} else {
 				args = platformAndArch != null ? platformAndArch : ""; //$NON-NLS-1$
+			}
 		}
 		return normalize(args);
 	}
@@ -709,15 +717,17 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			}
 		}
 		if (defaults != null) {
-			if (platform != null)
+			if (platform != null) {
 				args = platformAndArch != null ? defaults + " " + platform + " " + platformAndArch : defaults + " " + platform; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			else
+			} else {
 				args = defaults;
+			}
 		} else {
-			if (platform != null)
+			if (platform != null) {
 				args = platformAndArch != null ? platform + " " + platformAndArch : platform; //$NON-NLS-1$
-			else
+			} else {
 				args = platformAndArch != null ? platformAndArch : ""; //$NON-NLS-1$
+			}
 		}
 		return normalize(args);
 	}
@@ -748,41 +758,43 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				break;
 
 			case STATE_PRODUCT :
-				if (null != localName) switch (localName) {
-					case EL_CONFIG_INI:
-						processConfigIni(attributes);
-						state = STATE_CONFIG_INI;
-						break;
-					case EL_LAUNCHER:
-						processLauncher(attributes);
-						state = STATE_LAUNCHER;
-						break;
-					case EL_PLUGINS:
-						state = STATE_PLUGINS;
-						break;
-					case EL_FEATURES:
-						state = STATE_FEATURES;
-						break;
-					case EL_LAUNCHER_ARGS:
-						state = STATE_LAUNCHER_ARGS;
-						break;
-					case EL_SPLASH:
-						splashLocation = attributes.getValue(ATTRIBUTE_LOCATION);
-						break;
-					case EL_CONFIGURATIONS:
-						state = STATE_CONFIGURATIONS;
-						break;
-					case EL_LICENSE:
-						state = STATE_LICENSE;
-						break;
-					case EL_REPOSITORIES:
-						state = STATE_REPOSITORIES;
-						break;
-					case VM:
-						state = STATE_VM;
-						break;
-					default:
-						break;
+				if (null != localName) {
+					switch (localName) {
+						case EL_CONFIG_INI:
+							processConfigIni(attributes);
+							state = STATE_CONFIG_INI;
+							break;
+						case EL_LAUNCHER:
+							processLauncher(attributes);
+							state = STATE_LAUNCHER;
+							break;
+						case EL_PLUGINS:
+							state = STATE_PLUGINS;
+							break;
+						case EL_FEATURES:
+							state = STATE_FEATURES;
+							break;
+						case EL_LAUNCHER_ARGS:
+							state = STATE_LAUNCHER_ARGS;
+							break;
+						case EL_SPLASH:
+							splashLocation = attributes.getValue(ATTRIBUTE_LOCATION);
+							break;
+						case EL_CONFIGURATIONS:
+							state = STATE_CONFIGURATIONS;
+							break;
+						case EL_LICENSE:
+							state = STATE_LICENSE;
+							break;
+						case EL_REPOSITORIES:
+							state = STATE_REPOSITORIES;
+							break;
+						case VM:
+							state = STATE_VM;
+							break;
+						default:
+							break;
+					}
 				}
 				break;
 
@@ -792,22 +804,24 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				break;
 
 			case STATE_LAUNCHER :
-				if (null != localName) switch (localName) {
-					case OS_SOLARIS:
-						processSolaris(attributes);
-						break;
-					case "win": //$NON-NLS-1$
-						processWin(attributes);
-						break;
-					case OS_LINUX:
-						processLinux(attributes);
-						break;
-					case OS_MACOSX:
-						processMac(attributes);
-						state = STATE_LAUNCHER_MAC;
-						break;
-					default:
-						break;
+				if (null != localName) {
+					switch (localName) {
+						case OS_SOLARIS:
+							processSolaris(attributes);
+							break;
+						case "win": //$NON-NLS-1$
+							processWin(attributes);
+							break;
+						case OS_LINUX:
+							processLinux(attributes);
+							break;
+						case OS_MACOSX:
+							processMac(attributes);
+							state = STATE_LAUNCHER_MAC;
+							break;
+						default:
+							break;
+					}
 				}
 				if ("ico".equals(localName)) { //$NON-NLS-1$
 					processIco(attributes);
@@ -834,39 +848,41 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				break;
 
 			case STATE_LAUNCHER_ARGS:
-				if (null != localName) switch (localName) {
-					case PROGRAM_ARGS:
-						state = STATE_PROGRAM_ARGS;
-						break;
-					case PROGRAM_ARGS_LINUX:
-						state = STATE_PROGRAM_ARGS_LINUX;
-						break;
-					case PROGRAM_ARGS_MAC:
-						state = STATE_PROGRAM_ARGS_MAC;
-						break;
-					case PROGRAM_ARGS_SOLARIS:
-						state = STATE_PROGRAM_ARGS_SOLARIS;
-						break;
-					case PROGRAM_ARGS_WIN:
-						state = STATE_PROGRAM_ARGS_WIN;
-						break;
-					case VM_ARGS:
-						state = STATE_VM_ARGS;
-						break;
-					case VM_ARGS_LINUX:
-						state = STATE_VM_ARGS_LINUX;
-						break;
-					case VM_ARGS_MAC:
-						state = STATE_VM_ARGS_MAC;
-						break;
-					case VM_ARGS_SOLARIS:
-						state = STATE_VM_ARGS_SOLARIS;
-						break;
-					case VM_ARGS_WIN:
-						state = STATE_VM_ARGS_WIN;
-						break;
-					default:
-						break;
+				if (null != localName) {
+					switch (localName) {
+						case PROGRAM_ARGS:
+							state = STATE_PROGRAM_ARGS;
+							break;
+						case PROGRAM_ARGS_LINUX:
+							state = STATE_PROGRAM_ARGS_LINUX;
+							break;
+						case PROGRAM_ARGS_MAC:
+							state = STATE_PROGRAM_ARGS_MAC;
+							break;
+						case PROGRAM_ARGS_SOLARIS:
+							state = STATE_PROGRAM_ARGS_SOLARIS;
+							break;
+						case PROGRAM_ARGS_WIN:
+							state = STATE_PROGRAM_ARGS_WIN;
+							break;
+						case VM_ARGS:
+							state = STATE_VM_ARGS;
+							break;
+						case VM_ARGS_LINUX:
+							state = STATE_VM_ARGS_LINUX;
+							break;
+						case VM_ARGS_MAC:
+							state = STATE_VM_ARGS_MAC;
+							break;
+						case VM_ARGS_SOLARIS:
+							state = STATE_VM_ARGS_SOLARIS;
+							break;
+						case VM_ARGS_WIN:
+							state = STATE_VM_ARGS_WIN;
+							break;
+						default:
+							break;
+					}
 				}
 				break;
 
@@ -959,18 +975,20 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				break;
 
 			case STATE_VM :
-				if (null != localName) switch (localName) {
-					case OS_LINUX:
-						state = STATE_VM_LINUX;
-						break;
-					case OS_WINDOWS:
-						state = STATE_VM_WINDOWS;
-						break;
-					case OS_MACOS:
-						state = STATE_VM_MACOS;
-						break;
-					default:
-						break;
+				if (null != localName) {
+					switch (localName) {
+						case OS_LINUX:
+							state = STATE_VM_LINUX;
+							break;
+						case OS_WINDOWS:
+							state = STATE_VM_WINDOWS;
+							break;
+						case OS_MACOS:
+							state = STATE_VM_MACOS;
+							break;
+						default:
+							break;
+					}
 				}
 				break;
 
@@ -979,30 +997,32 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 	private void setArchState(String archName) {
 		outerState = state;
-		if (null != archName) switch (archName) {
-			case EL_ARCH_X86:
-				state = STATE_ARCH_X86;
-				break;
-			case EL_ARCH_X86_64:
-				state = STATE_ARCH_X86_64;
-				break;
-			case EL_ARCH_PPC:
-				state = STATE_ARCH_PPC;
-				break;
-			case EL_ARCH_IA_64:
-				state = STATE_ARCH_IA_64;
-				break;
-			case EL_ARCH_IA_64_32:
-				state = STATE_ARCH_IA_64_32;
-				break;
-			case EL_ARCH_PA_RISC:
-				state = STATE_ARCH_PA_RISC;
-				break;
-			case EL_ARCH_SPARC:
-				state = STATE_ARCH_SPARC;
-				break;
-			default:
-				break;
+		if (null != archName) {
+			switch (archName) {
+				case EL_ARCH_X86:
+					state = STATE_ARCH_X86;
+					break;
+				case EL_ARCH_X86_64:
+					state = STATE_ARCH_X86_64;
+					break;
+				case EL_ARCH_PPC:
+					state = STATE_ARCH_PPC;
+					break;
+				case EL_ARCH_IA_64:
+					state = STATE_ARCH_IA_64;
+					break;
+				case EL_ARCH_IA_64_32:
+					state = STATE_ARCH_IA_64_32;
+					break;
+				case EL_ARCH_PA_RISC:
+					state = STATE_ARCH_PA_RISC;
+					break;
+				case EL_ARCH_SPARC:
+					state = STATE_ARCH_SPARC;
+					break;
+				default:
+					break;
+			}
 		}
 	}
 
@@ -1015,25 +1035,31 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		String name = attributes.getValue(ATTRIBUTE_NAME);
 		String value = attributes.getValue(ATTRIBUTE_VALUE);
 		String os = attributes.getValue(ATTRIBUTE_OS);
-		if (os == null)
+		if (os == null) {
 			os = ""; //$NON-NLS-1$
+		}
 		String arch = attributes.getValue(ATTRIBUTE_ARCH);
-		if (arch == null)
+		if (arch == null) {
 			arch = ""; //$NON-NLS-1$
+		}
 		String propOSArchKey = os + "." + arch; //$NON-NLS-1$
-		if (name == null)
+		if (name == null) {
 			return;
-		if (value == null)
+		}
+		if (value == null) {
 			value = ""; //$NON-NLS-1$
+		}
 		if (propOSArchKey.length() <= 1) {
 			// this is a generic property for all platforms and arch
-			if (properties == null)
+			if (properties == null) {
 				properties = new HashMap<>();
+			}
 			properties.put(name, value);
 		} else {
 			// store the property in the filtered map, keyed by "os.arch"
-			if (filteredProperties == null)
+			if (filteredProperties == null) {
 				filteredProperties = new HashMap<>();
+			}
 			HashMap<String, String> filteredMap = filteredProperties.get(propOSArchKey);
 			if (filteredMap == null) {
 				filteredMap = new HashMap<>();
@@ -1050,14 +1076,17 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		String value = attributes.getValue(ATTRIBUTE_START_LEVEL);
 		if (value != null) {
 			int startLevel = Integer.parseInt(value);
-			if (startLevel > 0)
+			if (startLevel > 0) {
 				info.setStartLevel(startLevel);
+			}
 		}
 		value = attributes.getValue(ATTRIBUTE_AUTO_START);
-		if (value != null)
+		if (value != null) {
 			info.setMarkedAsStarted(Boolean.parseBoolean(value));
-		if (bundleInfos == null)
+		}
+		if (bundleInfos == null) {
 			bundleInfos = new ArrayList<>();
+		}
 		bundleInfos.add(info);
 	}
 
@@ -1080,28 +1109,34 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	public void endElement(String uri, String localName, String qName) {
 		switch (state) {
 			case STATE_PLUGINS :
-				if (EL_PLUGINS.equals(localName))
+				if (EL_PLUGINS.equals(localName)) {
 					state = STATE_PRODUCT;
+				}
 				break;
 			case STATE_FEATURES :
-				if (EL_FEATURES.equals(localName))
+				if (EL_FEATURES.equals(localName)) {
 					state = STATE_PRODUCT;
+				}
 				break;
 			case STATE_LAUNCHER_ARGS :
-				if (EL_LAUNCHER_ARGS.equals(localName))
+				if (EL_LAUNCHER_ARGS.equals(localName)) {
 					state = STATE_PRODUCT;
+				}
 				break;
 			case STATE_LAUNCHER :
-				if (EL_LAUNCHER.equals(localName))
+				if (EL_LAUNCHER.equals(localName)) {
 					state = STATE_PRODUCT;
+				}
 				break;
 			case STATE_CONFIGURATIONS :
-				if (EL_CONFIGURATIONS.equals(localName))
+				if (EL_CONFIGURATIONS.equals(localName)) {
 					state = STATE_PRODUCT;
+				}
 				break;
 			case STATE_LICENSE :
-				if (EL_LICENSE.equals(localName))
+				if (EL_LICENSE.equals(localName)) {
 					state = STATE_PRODUCT;
+				}
 				break;
 			case STATE_LAUNCHER_MAC_BUNDLE_URL_TYPES:
 				if (EL_BUNDLE_URL_TYPES.equals(localName)) {
@@ -1150,15 +1185,17 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				break;
 
 			case STATE_CONFIG_INI :
-				if (EL_CONFIG_INI.equals(localName))
+				if (EL_CONFIG_INI.equals(localName)) {
 					state = STATE_PRODUCT;
-				else
+				} else {
 					processConfigIniPlatform(localName, false);
+				}
 				break;
 
 			case STATE_REPOSITORIES :
-				if (EL_REPOSITORIES.equals(localName))
+				if (EL_REPOSITORIES.equals(localName)) {
 					state = STATE_PRODUCT;
+				}
 				break;
 
 		}
@@ -1219,15 +1256,17 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				addLaunchArgumentToMap(platformKeyPrefix + "." + EL_ARCH_SPARC, String.valueOf(ch, start, length)); //$NON-NLS-1$
 				break;
 			case STATE_CONFIG_INI :
-				if (platformConfigPath != null)
+				if (platformConfigPath != null) {
 					platformConfigPath += String.valueOf(ch, start, length);
+				}
 				break;
 			case STATE_LICENSE_URL :
 				licenseURL = String.valueOf(ch, start, length);
 				break;
 			case STATE_LICENSE_TEXT :
-				if (licenseText != null)
+				if (licenseText != null) {
 					licenseText += String.valueOf(ch, start, length);
+				}
 				break;
 			case STATE_VM_LINUX :
 				addVM(OS_LINUX, String.valueOf(ch, start, length));
@@ -1256,14 +1295,16 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	private void addLaunchArgumentToMap(String key, String value) {
-		if (launcherArgs == null)
+		if (launcherArgs == null) {
 			launcherArgs = new Properties();
+		}
 
 		String oldValue = launcherArgs.getProperty(key);
-		if (oldValue != null)
+		if (oldValue != null) {
 			launcherArgs.setProperty(key, oldValue + value);
-		else
+		} else {
 			launcherArgs.setProperty(key, value);
+		}
 	}
 
 	protected void processPlugin(Attributes attributes) {
@@ -1296,18 +1337,21 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		uid = attributes.getValue(ATTRIBUTE_UID);
 		productName = attributes.getValue(ATTRIBUTE_NAME);
 		application = attributes.getValue(ATTRIBUTE_APPLICATION);
-		if (attributes.getIndex(ATTRIBUTE_INCLUDE_LAUNCHERS) >= 0)
+		if (attributes.getIndex(ATTRIBUTE_INCLUDE_LAUNCHERS) >= 0) {
 			includeLaunchers = Boolean.valueOf(attributes.getValue(ATTRIBUTE_INCLUDE_LAUNCHERS));
+		}
 		String contentTypeString = attributes.getValue(ATTRIBUTE_CONTENT_TYPE);
-		if (contentTypeString != null)
+		if (contentTypeString != null) {
 			productContentType = ProductContentType.toProductContentType(contentTypeString);
+		}
 		if (productContentType == null) { // useFeatures attribute is taken into account only if the contentType attribute is missing
 			String use = attributes.getValue("useFeatures"); //$NON-NLS-1$
 			// for backward compatibility with the old behavior 
-			if (use != null && Boolean.parseBoolean(use))
+			if (use != null && Boolean.parseBoolean(use)) {
 				productContentType = ProductContentType.FEATURES;
-			else
+			} else {
 				productContentType = ProductContentType.BUNDLES;
+			}
 		}
 
 		version = attributes.getValue(ATTRIBUTE_VERSION);
@@ -1321,8 +1365,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		String os = attributes.getValue("os"); //$NON-NLS-1$
 		if (os != null && os.length() > 0) {
 			// TODO should we allow a platform-specific default to over-ride a custom generic path?
-			if (path != null)
+			if (path != null) {
 				platformSpecificConfigPaths.put(os, path);
+			}
 		} else if (path != null) {
 			configPath = path;
 		}
@@ -1343,8 +1388,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	private void addIcon(String os, String value) {
-		if (value == null)
+		if (value == null) {
 			return;
+		}
 
 		File iconFile = new File(value);
 		if (!iconFile.isFile()) {
@@ -1352,12 +1398,14 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			Location instanceLocation = getInstanceLocation();
 			if (instanceLocation != null && instanceLocation.getURL() != null) {
 				File workspace = URLUtil.toFile(instanceLocation.getURL());
-				if (workspace != null)
+				if (workspace != null) {
 					iconFile = new File(workspace, value);
+				}
 			}
 		}
-		if (!iconFile.isFile())
+		if (!iconFile.isFile()) {
 			iconFile = new File(location.getParentFile(), value);
+		}
 
 		Collection<String> list = icons.get(os);
 		if (list == null) {

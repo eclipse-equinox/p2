@@ -82,12 +82,14 @@ public class ProductPublisherTask extends AbstractPublishTask {
 		try {
 			productDescriptor = new ProductFile(productFile);
 		} catch (Exception e) {
-			if (productFile == null)
+			if (productFile == null) {
 				throw new IllegalArgumentException("unable to load product file"); //$NON-NLS-1$
+			}
 		}
 
-		if (flavor == null || flavor.startsWith(ANT_PROPERTY_PREFIX))
+		if (flavor == null || flavor.startsWith(ANT_PROPERTY_PREFIX)) {
 			flavor = "tooling"; //$NON-NLS-1$
+		}
 
 		IPublisherAction action = new ProductAction(source, productDescriptor, flavor, executables != null ? new File(executables) : null, jreLocation != null ? new File(jreLocation) : null);
 		new Publisher(getInfo()).publish(new IPublisherAction[] {action}, new NullProgressMonitor());
@@ -108,8 +110,9 @@ public class ProductPublisherTask extends AbstractPublishTask {
 
 	protected void processAdvice(PublisherInfo info) {
 		for (AdviceElement element : advice) {
-			if (element.kind == null || element.file == null)
+			if (element.kind == null || element.file == null) {
 				continue;
+			}
 
 			if (element.kind.equals("featureVersions") || element.kind.equals("pluginVersions")) { //$NON-NLS-1$ //$NON-NLS-2$
 				VersionAdvice versionAdvice = new VersionAdvice();

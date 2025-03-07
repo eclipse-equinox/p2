@@ -57,26 +57,30 @@ public class Feature implements IPlatformEntry {
 	private Map<Locale, Map<String, String>> localizations;
 
 	public Feature(String id, String version) {
-		if (id == null)
+		if (id == null) {
 			throw new IllegalArgumentException();
+		}
 		this.id = id;
 		this.version = version;
 	}
 
 	public void addDiscoverySite(String siteLabel, String url) {
-		if (siteLabel == null && url == null)
+		if (siteLabel == null && url == null) {
 			return;
+		}
 
-		if (this.discoverySites == null)
+		if (this.discoverySites == null) {
 			this.discoverySites = new ArrayList<>();
+		}
 
 		URLEntry entry = new URLEntry(url, siteLabel);
 		this.discoverySites.add(entry);
 	}
 
 	public void addEntry(FeatureEntry plugin) {
-		if (entries == null)
+		if (entries == null) {
 			entries = new ArrayList<>();
+		}
 		entries.add(plugin);
 	}
 
@@ -98,38 +102,44 @@ public class Feature implements IPlatformEntry {
 	}
 
 	public String getCopyright() {
-		if (copyright != null)
+		if (copyright != null) {
 			return copyright.getAnnotation();
+		}
 		return null;
 	}
 
 	public String getCopyrightURL() {
-		if (copyright != null)
+		if (copyright != null) {
 			return copyright.getURL();
+		}
 		return null;
 	}
 
 	public String getDescription() {
-		if (description != null)
+		if (description != null) {
 			return description.getAnnotation();
+		}
 		return null;
 	}
 
 	public String getDescriptionURL() {
-		if (description != null)
+		if (description != null) {
 			return description.getURL();
+		}
 		return null;
 	}
 
 	public URLEntry[] getDiscoverySites() {
-		if (discoverySites == null)
+		if (discoverySites == null) {
 			return new URLEntry[0];
+		}
 		return discoverySites.toArray(new URLEntry[discoverySites.size()]);
 	}
 
 	public FeatureEntry[] getEntries() {
-		if (entries == null)
+		if (entries == null) {
 			return new FeatureEntry[0];
+		}
 		return entries.toArray(new FeatureEntry[entries.size()]);
 	}
 
@@ -158,8 +168,9 @@ public class Feature implements IPlatformEntry {
 	}
 
 	public String getLicense() {
-		if (license != null)
+		if (license != null) {
 			return license.getAnnotation();
+		}
 		return null;
 	}
 
@@ -172,8 +183,9 @@ public class Feature implements IPlatformEntry {
 	}
 
 	public String getLicenseURL() {
-		if (license != null)
+		if (license != null) {
 			return license.getURL();
+		}
 		return null;
 	}
 
@@ -204,14 +216,16 @@ public class Feature implements IPlatformEntry {
 	}
 
 	public String getUpdateSiteLabel() {
-		if (updateSite != null)
+		if (updateSite != null) {
 			return updateSite.getAnnotation();
+		}
 		return null;
 	}
 
 	public String getUpdateSiteURL() {
-		if (updateSite != null)
+		if (updateSite != null) {
 			return updateSite.getURL();
+		}
 		return null;
 	}
 
@@ -233,8 +247,9 @@ public class Feature implements IPlatformEntry {
 	}
 
 	public boolean removeEntry(FeatureEntry entry) {
-		if (entry == null || entries == null)
+		if (entry == null || entries == null) {
 			return false;
+		}
 		return entries.remove(entry);
 	}
 
@@ -251,26 +266,30 @@ public class Feature implements IPlatformEntry {
 	}
 
 	public void setCopyright(String copyright) {
-		if (this.copyright == null)
+		if (this.copyright == null) {
 			this.copyright = new URLEntry();
+		}
 		this.copyright.setAnnotation(copyright);
 	}
 
 	public void setCopyrightURL(String copyrightURL) {
-		if (this.copyright == null)
+		if (this.copyright == null) {
 			this.copyright = new URLEntry();
+		}
 		this.copyright.setURL(copyrightURL);
 	}
 
 	public void setDescription(String description) {
-		if (this.description == null)
+		if (this.description == null) {
 			this.description = new URLEntry();
+		}
 		this.description.setAnnotation(description);
 	}
 
 	public void setDescriptionURL(String descriptionURL) {
-		if (this.description == null)
+		if (this.description == null) {
 			this.description = new URLEntry();
+		}
 		this.description.setURL(descriptionURL);
 	}
 
@@ -306,8 +325,9 @@ public class Feature implements IPlatformEntry {
 	}
 
 	public void setLicense(String license) {
-		if (this.license == null)
+		if (this.license == null) {
 			this.license = new URLEntry();
+		}
 		this.license.setAnnotation(license);
 	}
 
@@ -320,8 +340,9 @@ public class Feature implements IPlatformEntry {
 	}
 
 	public void setLicenseURL(String licenseURL) {
-		if (this.license == null)
+		if (this.license == null) {
 			this.license = new URLEntry();
+		}
 		this.license.setURL(licenseURL);
 	}
 
@@ -342,14 +363,16 @@ public class Feature implements IPlatformEntry {
 	}
 
 	public void setUpdateSiteLabel(String updateSiteLabel) {
-		if (this.updateSite == null)
+		if (this.updateSite == null) {
 			this.updateSite = new URLEntry();
+		}
 		this.updateSite.setAnnotation(updateSiteLabel);
 	}
 
 	public void setUpdateSiteURL(String updateSiteURL) {
-		if (this.updateSite == null)
+		if (this.updateSite == null) {
 			this.updateSite = new URLEntry();
+		}
 		this.updateSite.setURL(updateSiteURL);
 	}
 

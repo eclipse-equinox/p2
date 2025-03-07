@@ -45,8 +45,9 @@ public class FeatureParser {
 	 * @param location the location of the feature to parse.  
 	 */
 	public Feature parse(File location) {
-		if (!location.exists())
+		if (!location.exists()) {
 			return null;
+		}
 
 		Feature feature = null;
 		if (location.isDirectory()) {
@@ -69,8 +70,9 @@ public class FeatureParser {
 		} else if (location.getName().endsWith(".jar")) { //$NON-NLS-1$
 			try (JarFile jar = new JarFile(location);) {
 				JarEntry entry = jar.getJarEntry("feature.xml"); //$NON-NLS-1$
-				if (entry == null)
+				if (entry == null) {
 					return null;
+				}
 
 				InputStream input = new BufferedInputStream(jar.getInputStream(entry));
 				feature = parser.parse(input, toURL(location));

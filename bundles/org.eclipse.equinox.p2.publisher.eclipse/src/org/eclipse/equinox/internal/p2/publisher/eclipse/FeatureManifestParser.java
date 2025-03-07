@@ -52,8 +52,9 @@ public class FeatureManifestParser extends DefaultHandler {
 
 	public FeatureManifestParser(boolean createParser) {
 		super();
-		if (!createParser)
+		if (!createParser) {
 			return;
+		}
 		try {
 			SAXParserFactory parserFactory = SecureXMLUtil.newSecureSAXParserFactory();
 			parserFactory.setNamespaceAware(true);
@@ -67,8 +68,9 @@ public class FeatureManifestParser extends DefaultHandler {
 
 	@Override
 	public void characters(char[] ch, int start, int length) {
-		if (characters == null)
+		if (characters == null) {
 			return;
+		}
 		characters.append(ch, start, length);
 	}
 
@@ -81,9 +83,10 @@ public class FeatureManifestParser extends DefaultHandler {
 		if ("requires".equals(localName) && !hasImports) { //$NON-NLS-1$
 			error(Messages.feature_parse_emptyRequires);
 		}
-		if (characters == null)
+		if (characters == null) {
 			return;
-		if (null != localName)
+		}
+		if (null != localName) {
 			switch (localName) {
 			case "description": //$NON-NLS-1$
 				result.setDescription(localize(characters.toString().trim()));
@@ -97,6 +100,7 @@ public class FeatureManifestParser extends DefaultHandler {
 			default:
 				break;
 			}
+		}
 		characters = null;
 	}
 
@@ -150,8 +154,9 @@ public class FeatureManifestParser extends DefaultHandler {
 
 	private void processDiscoverySite(Attributes attributes) {
 		// ignore discovery sites of type 'web'
-		if ("web".equals(attributes.getValue("type"))) //$NON-NLS-1$ //$NON-NLS-2$
+		if ("web".equals(attributes.getValue("type"))) { //$NON-NLS-1$ //$NON-NLS-2$
 			return;
+		}
 		result.addDiscoverySite(attributes.getValue("label"), attributes.getValue("url")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -193,8 +198,9 @@ public class FeatureManifestParser extends DefaultHandler {
 		boolean isPlugin = false;
 		if (id == null) {
 			id = attributes.getValue("plugin"); //$NON-NLS-1$
-			if (id == null)
+			if (id == null) {
 				throw new IllegalStateException();
+			}
 			isPlugin = true;
 		}
 		String versionStr = attributes.getValue("version"); //$NON-NLS-1$
@@ -221,15 +227,18 @@ public class FeatureManifestParser extends DefaultHandler {
 	private void processIncludes(Attributes attributes) {
 		FeatureEntry entry = new FeatureEntry(attributes.getValue("id"), attributes.getValue("version"), false); //$NON-NLS-1$ //$NON-NLS-2$
 		String unpack = attributes.getValue("unpack"); //$NON-NLS-1$
-		if (unpack != null)
+		if (unpack != null) {
 			entry.setUnpack(Boolean.parseBoolean(unpack));
+		}
 		String optional = attributes.getValue("optional"); //$NON-NLS-1$
-		if (optional != null)
+		if (optional != null) {
 			entry.setOptional(Boolean.parseBoolean(optional));
+		}
 		setEnvironment(attributes, entry);
 		String filter = attributes.getValue("filter"); //$NON-NLS-1$
-		if (filter != null)
+		if (filter != null) {
 			entry.setFilter(filter);
+		}
 		result.addEntry(entry);
 	}
 
@@ -254,14 +263,17 @@ public class FeatureManifestParser extends DefaultHandler {
 			FeatureEntry plugin = new FeatureEntry(id, version, true);
 			setEnvironment(attributes, plugin);
 			String unpack = attributes.getValue("unpack"); //$NON-NLS-1$
-			if (unpack != null)
+			if (unpack != null) {
 				plugin.setUnpack(Boolean.parseBoolean(unpack));
+			}
 			String fragment = attributes.getValue("fragment"); //$NON-NLS-1$
-			if (fragment != null)
+			if (fragment != null) {
 				plugin.setFragment(Boolean.parseBoolean(fragment));
+			}
 			String filter = attributes.getValue("filter"); //$NON-NLS-1$
-			if (filter != null)
+			if (filter != null) {
 				plugin.setFilter(filter);
+			}
 			result.addEntry(plugin);
 
 			// Utils.debug("End process DefaultFeature tag: id:" + id + " ver:" + ver + "
@@ -284,42 +296,43 @@ public class FeatureManifestParser extends DefaultHandler {
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) {
-		if (null != localName) // Utils.debug("Start Element: uri:" + uri + " local Name:" + localName + "
-								// qName:" + qName); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if (null != localName) { // Utils.debug("Start Element: uri:" + uri + " local Name:" + localName + "
+			// qName:" + qName); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			switch (localName) {
 			case "plugin": //$NON-NLS-1$
-				processPlugin(attributes);
-				break;
+			processPlugin(attributes);
+			break;
 			case "description": //$NON-NLS-1$
-				processDescription(attributes);
-				break;
+			processDescription(attributes);
+			break;
 			case "license": //$NON-NLS-1$
-				processLicense(attributes);
-				break;
+			processLicense(attributes);
+			break;
 			case "copyright": //$NON-NLS-1$
-				processCopyright(attributes);
-				break;
+			processCopyright(attributes);
+			break;
 			case "feature": //$NON-NLS-1$
-				processFeature(attributes);
-				break;
+			processFeature(attributes);
+			break;
 			case "import": //$NON-NLS-1$
-				processImport(attributes);
-				break;
+			processImport(attributes);
+			break;
 			case "includes": //$NON-NLS-1$
-				processIncludes(attributes);
-				break;
+			processIncludes(attributes);
+			break;
 			case "install-handler": //$NON-NLS-1$
-				processInstallHandler(attributes);
-				break;
+			processInstallHandler(attributes);
+			break;
 			case "update": //$NON-NLS-1$
-				processUpdateSite(attributes);
-				break;
+			processUpdateSite(attributes);
+			break;
 			case "discovery": //$NON-NLS-1$
-				processDiscoverySite(attributes);
-				break;
+			processDiscoverySite(attributes);
+			break;
 			default:
-				break;
+			break;
 			}
+		}
 	}
 
 }

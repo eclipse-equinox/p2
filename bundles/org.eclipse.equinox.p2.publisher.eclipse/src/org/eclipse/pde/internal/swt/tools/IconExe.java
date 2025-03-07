@@ -180,8 +180,9 @@ public class IconExe {
 			for (Iterator<IconResInfo> originalIconsIterator = iconInfo.iterator(); originalIconsIterator.hasNext();) {
 				IconResInfo iconToReplace = originalIconsIterator.next();
 				for (ImageData iconToWrite : Arrays.asList(icons)) {
-					if (iconToWrite == null)
+					if (iconToWrite == null) {
 						continue;
+					}
 
 					if (iconToReplace.data.width == iconToWrite.width && iconToReplace.data.height == iconToWrite.height && iconToReplace.data.depth == iconToWrite.depth) {
 						raf.seek(iconToReplace.offset);
@@ -233,20 +234,24 @@ public class IconExe {
 
 		IMAGE_DOS_HEADER imageDosHeader = new IMAGE_DOS_HEADER();
 		read(raf, imageDosHeader);
-		if (imageDosHeader.e_magic != IMAGE_DOS_SIGNATURE)
+		if (imageDosHeader.e_magic != IMAGE_DOS_SIGNATURE) {
 			return Collections.emptyList();
+		}
 		int imageNtHeadersOffset = imageDosHeader.e_lfanew;
 		raf.seek(imageNtHeadersOffset);
 		IMAGE_NT_HEADERS imageNtHeaders = new IMAGE_NT_HEADERS();
 		read(raf, imageNtHeaders);
-		if (imageNtHeaders.Signature != IMAGE_NT_SIGNATURE)
+		if (imageNtHeaders.Signature != IMAGE_NT_SIGNATURE) {
 			return Collections.emptyList();
+		}
 		// DumpResources
 		int resourcesRVA = imageNtHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE].VirtualAddress;
-		if (resourcesRVA == 0)
+		if (resourcesRVA == 0) {
 			return Collections.emptyList();
-		if (DEBUG)
+		}
+		if (DEBUG) {
 			System.out.println("* Resources (RVA= " + resourcesRVA + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		IMAGE_SECTION_HEADER imageSectionHeader = new IMAGE_SECTION_HEADER();
 		int firstSectionOffset = imageNtHeadersOffset + IMAGE_NT_HEADERS.FIELD_OFFSET_OptionalHeader + imageNtHeaders.FileHeader.SizeOfOptionalHeader;
 		raf.seek(firstSectionOffset);
@@ -259,8 +264,9 @@ public class IconExe {
 				break;
 			}
 		}
-		if (!found)
+		if (!found) {
 			return Collections.emptyList();
+		}
 		int delta = imageSectionHeader.VirtualAddress - imageSectionHeader.PointerToRawData;
 		int imageResourceDirectoryOffset = resourcesRVA - delta;
 		return dumpResourceDirectory(raf, imageResourceDirectoryOffset, imageResourceDirectoryOffset, delta, 0, 0,
@@ -270,8 +276,9 @@ public class IconExe {
 	static Collection<IconResInfo> dumpResourceDirectory(RandomAccessFile raf, int imageResourceDirectoryOffset,
 			int resourceBase, int delta, int type, int level, boolean rt_icon_root) throws IOException {
 		Collection<IconResInfo> iconInfo = new ArrayList<>();
-		if (DEBUG)
+		if (DEBUG) {
 			System.out.println("** LEVEL " + level); //$NON-NLS-1$
+		}
 
 		IMAGE_RESOURCE_DIRECTORY imageResourceDirectory = new IMAGE_RESOURCE_DIRECTORY();
 		raf.seek(imageResourceDirectoryOffset);
@@ -282,10 +289,12 @@ public class IconExe {
 			// level 1 resources are resource types
 			if (level == 1) {
 				System.out.println("___________________________"); //$NON-NLS-1$
-				if (type == RT_ICON)
+				if (type == RT_ICON) {
 					sType = "RT_ICON"; //$NON-NLS-1$
-				if (type == RT_GROUP_ICON)
+				}
+				if (type == RT_GROUP_ICON) {
 					sType = "RT_GROUP_ICON"; //$NON-NLS-1$
+				}
 			}
 			System.out.println("Resource Directory [" + sType + "]" + " (Named " + imageResourceDirectory.NumberOfNamedEntries + ", ID " + imageResourceDirectory.NumberOfIdEntries + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
@@ -307,8 +316,9 @@ public class IconExe {
 				IMAGE_RESOURCE_DATA_ENTRY data = new IMAGE_RESOURCE_DATA_ENTRY();
 				raf.seek(imageResourceDirectoryEntry.OffsetToData + resourceBase);
 				read(raf, data);
-				if (DEBUG)
+				if (DEBUG) {
 					System.out.println("Resource Id " + irde.Id + " Data Offset RVA " + data.OffsetToData + ", Size " + data.Size); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				}
 				if (rt_icon_root) {
 					IconResInfo resInfo = new IconResInfo();
 					resInfo.data = parseIcon(raf, data.OffsetToData - delta, data.Size);
@@ -348,8 +358,9 @@ public class IconExe {
 	}
 
 	static final byte[] convertPad(byte[] data, int width, int height, int depth, int pad, int newPad) {
-		if (pad == newPad)
+		if (pad == newPad) {
 			return data;
+		}
 		int stride = (width * depth + 7) / 8;
 		int bpl = (stride + (pad - 1)) / pad * pad;
 		int newBpl = (stride + (newPad - 1)) / newPad * newPad;
@@ -370,17 +381,20 @@ public class IconExe {
 			if (numColors == 0) {
 				numColors = 1 << depth;
 			} else {
-				if (numColors > 256)
+				if (numColors > 256) {
 					numColors = 256;
+				}
 			}
 			byte[] buf = new byte[numColors * 4];
 			raf.read(buf);
 			return paletteFromBytes(buf, numColors);
 		}
-		if (depth == 16)
+		if (depth == 16) {
 			return new PaletteData(0x7C00, 0x3E0, 0x1F);
-		if (depth == 24)
+		}
+		if (depth == 24) {
 			return new PaletteData(0xFF, 0xFF00, 0xFF0000);
+		}
 		return new PaletteData(0xFF00, 0xFF0000, 0xFF000000);
 	}
 
@@ -423,8 +437,9 @@ public class IconExe {
 		if (cmp == 0) { // BMP_NO_COMPRESSION
 			raf.read(data);
 		} else {
-			if (DEBUG)
+			if (DEBUG) {
 				System.out.println("ICO cannot be compressed?"); //$NON-NLS-1$
+			}
 		}
 		return data;
 	}
@@ -507,8 +522,9 @@ public class IconExe {
 		raf.seek(offset);
 		NEWHEADER newHeader = new NEWHEADER();
 		read(raf, newHeader);
-		if (newHeader.ResType != RES_ICON)
+		if (newHeader.ResType != RES_ICON) {
 			return false;
+		}
 		RESDIR[] resDir = new RESDIR[newHeader.ResCount];
 		for (int i = 0; i < newHeader.ResCount; i++) {
 			resDir[i] = new RESDIR();
@@ -523,8 +539,9 @@ public class IconExe {
 		try (InputStream in = new BufferedInputStream(new FileInputStream(srcFile));
 			OutputStream out = new BufferedOutputStream(new FileOutputStream(dstFile))) {
 			int c;
-			while ((c = in.read()) != -1)
+			while ((c = in.read()) != -1) {
 				out.write(c);
+			}
 		}
 	}
 
@@ -786,12 +803,14 @@ public class IconExe {
 		idh.e_cs = readU2(raf);
 		idh.e_lfarlc = readU2(raf);
 		idh.e_ovno = readU2(raf);
-		for (int i = 0; i < idh.e_res.length; i++)
+		for (int i = 0; i < idh.e_res.length; i++) {
 			idh.e_res[i] = readU2(raf);
+		}
 		idh.e_oemid = readU2(raf);
 		idh.e_oeminfo = readU2(raf);
-		for (int i = 0; i < idh.e_res2.length; i++)
+		for (int i = 0; i < idh.e_res2.length; i++) {
 			idh.e_res2[i] = readU2(raf);
+		}
 		idh.e_lfanew = read4(raf);
 	}
 
@@ -874,8 +893,9 @@ public class IconExe {
 	}
 
 	static void read(RandomAccessFile raf, IMAGE_SECTION_HEADER ish) throws IOException {
-		for (int i = 0; i < ish.Name.length; i++)
+		for (int i = 0; i < ish.Name.length; i++) {
 			ish.Name[i] = raf.read();
+		}
 		ish.Misc_VirtualSize = read4(raf);
 		ish.VirtualAddress = read4(raf);
 		ish.SizeOfRawData = read4(raf);
@@ -979,8 +999,9 @@ public class IconExe {
 		 * </ul>
 		 */
 		public RGB(int red, int green, int blue) {
-			if ((red > 255) || (red < 0) || (green > 255) || (green < 0) || (blue > 255) || (blue < 0))
+			if ((red > 255) || (red < 0) || (green > 255) || (green < 0) || (blue > 255) || (blue < 0)) {
 				SWT.error(SWT.ERROR_INVALID_ARGUMENT);
+			}
 			this.red = red;
 			this.green = green;
 			this.blue = blue;
@@ -998,10 +1019,12 @@ public class IconExe {
 		 */
 		@Override
 		public boolean equals(Object object) {
-			if (object == this)
+			if (object == this) {
 				return true;
-			if (!(object instanceof RGB))
+			}
+			if (!(object instanceof RGB)) {
 				return false;
+			}
 			RGB rgb = (RGB) object;
 			return (rgb.red == this.red) && (rgb.green == this.green) && (rgb.blue == this.blue);
 		}
@@ -1090,8 +1113,9 @@ public class IconExe {
 		 * </ul>
 		 */
 		public PaletteData(RGB[] colors) {
-			if (colors == null)
+			if (colors == null) {
 				SWT.error(SWT.ERROR_NULL_ARGUMENT);
+			}
 			this.colors = colors;
 			this.isDirect = false;
 		}
@@ -1125,8 +1149,9 @@ public class IconExe {
 		 * </ul>
 		 */
 		public int getPixel(RGB rgb) {
-			if (rgb == null)
+			if (rgb == null) {
 				SWT.error(SWT.ERROR_NULL_ARGUMENT);
+			}
 			if (isDirect) {
 				int pixel = 0;
 				pixel |= (redShift < 0 ? rgb.red << -redShift : rgb.red >>> redShift) & redMask;
@@ -1136,8 +1161,9 @@ public class IconExe {
 			}
 
 			for (int i = 0; i < colors.length; i++) {
-				if (colors[i].equals(rgb))
+				if (colors[i].equals(rgb)) {
 					return i;
+				}
 			}
 			/* The RGB did not exist in the palette */
 			SWT.error(SWT.ERROR_INVALID_ARGUMENT);
@@ -1191,8 +1217,9 @@ public class IconExe {
 		 */
 		int shiftForMask(int mask) {
 			for (int i = 31; i >= 0; i--) {
-				if (((mask >> i) & 0x1) != 0)
+				if (((mask >> i) & 0x1) != 0) {
 					return 7 - i;
+				}
 			}
 			return 32;
 		}
@@ -1280,8 +1307,9 @@ public class IconExe {
 		 * </ul>
 		 */
 		public ImageData[] load(InputStream stream) {
-			if (stream == null)
+			if (stream == null) {
 				throw new NullPointerException("stream can't be null"); //$NON-NLS-1$
+			}
 			reset();
 			data = FileFormat.load(stream, this);
 			return data;
@@ -1469,13 +1497,16 @@ public class IconExe {
 		static {
 			for (int b = 0; b < 9; ++b) {
 				byte[] data = ANY_TO_EIGHT[b] = new byte[1 << b];
-				if (b == 0)
+				if (b == 0) {
 					continue;
+				}
 				int inc = 0;
-				for (int bit = 0x10000; (bit >>= b) != 0;)
+				for (int bit = 0x10000; (bit >>= b) != 0;) {
 					inc |= bit;
-				for (int v = 0, p = 0; v < 0x10000; v += inc)
+				}
+				for (int v = 0, p = 0; v < 0x10000; v += inc) {
 					data[p++] = (byte) (v >> 8);
+				}
 			}
 		}
 		static final byte[] ONE_TO_ONE_MAPPING = ANY_TO_EIGHT[8];
@@ -1550,8 +1581,9 @@ public class IconExe {
 		 * </ul>
 		 */
 		public ImageData(ImageData[] data) {
-			if (data.length < 1)
+			if (data.length < 1) {
 				SWT.error(SWT.ERROR_INVALID_IMAGE);
+			}
 			ImageData i = data[0];
 			setAllFields(i.width, i.height, i.depth, i.scanlinePad, i.bytesPerLine, i.data, i.palette, i.transparentPixel, i.maskData, i.maskPad, i.alphaData, i.alpha, i.type, i.topLeftX, i.topLeftY, i.disposalMethod, i.delayTime);
 		}
@@ -1571,16 +1603,18 @@ public class IconExe {
 		 */
 		ImageData(int width, int height, int depth, PaletteData palette, int scanlinePad, byte[] data, int maskPad, byte[] maskData, byte[] alphaData, int alpha, int transparentPixel, int type, int x, int y, int disposalMethod, int delayTime) {
 
-			if (palette == null)
+			if (palette == null) {
 				SWT.error(SWT.ERROR_NULL_ARGUMENT);
+			}
 			if (!(depth == 1 || depth == 2 || depth == 4 || depth == 8 || depth == 16 || depth == 24 || depth == 32)) {
 				SWT.error(SWT.ERROR_INVALID_ARGUMENT);
 			}
 			if (width <= 0 || height <= 0) {
 				SWT.error(SWT.ERROR_INVALID_ARGUMENT);
 			}
-			if (scanlinePad == 0)
+			if (scanlinePad == 0) {
 				SWT.error(SWT.ERROR_CANNOT_BE_ZERO);
+			}
 
 			int bpl = (((width * depth + 7) / 8) + (scanlinePad - 1)) / scanlinePad * scanlinePad; // bytesPerLine
 			setAllFields(width, height, depth, scanlinePad, bpl, data != null ? data : new byte[bpl * height], palette,
@@ -1653,8 +1687,9 @@ public class IconExe {
 		}
 
 		static byte[] checkData(byte[] data) {
-			if (data == null)
+			if (data == null) {
 				SWT.error(SWT.ERROR_NULL_ARGUMENT);
+			}
 			return data;
 		}
 
@@ -1681,14 +1716,17 @@ public class IconExe {
 		 * </ul>
 		 */
 		public void getPixels(int x, int y, int getWidth, byte[] pixels, int startIndex) {
-			if (pixels == null)
+			if (pixels == null) {
 				SWT.error(SWT.ERROR_NULL_ARGUMENT);
-			if (getWidth < 0 || x >= width || y >= height || x < 0 || y < 0)
+			}
+			if (getWidth < 0 || x >= width || y >= height || x < 0 || y < 0) {
 				SWT.error
 
 				(SWT.ERROR_INVALID_ARGUMENT);
-			if (getWidth == 0)
+			}
+			if (getWidth == 0) {
 				return;
+			}
 			int index;
 			int theByte;
 			int mask = 0;
@@ -1711,14 +1749,16 @@ public class IconExe {
 					if (srcX >= width) {
 						srcY++;
 						index = srcY * bytesPerLine;
-						if (n > 0)
+						if (n > 0) {
 							theByte = data[index] & 0xFF;
+						}
 						srcX = 0;
 					} else {
 						if (mask == 1) {
 							index++;
-							if (n > 0)
+							if (n > 0) {
 								theByte = data[index] & 0xFF;
+							}
 						}
 					}
 				}
@@ -1738,8 +1778,9 @@ public class IconExe {
 					if (srcX >= width) {
 						srcY++;
 						index = srcY * bytesPerLine;
-						if (n > 0)
+						if (n > 0) {
 							theByte = data[index] & 0xFF;
+						}
 						srcX = 0;
 					} else {
 						if (offset == 0) {
@@ -1837,14 +1878,17 @@ public class IconExe {
 		 * </ul>
 		 */
 		public void getPixels(int x, int y, int getWidth, int[] pixels, int startIndex) {
-			if (pixels == null)
+			if (pixels == null) {
 				SWT.error(SWT.ERROR_NULL_ARGUMENT);
-			if (getWidth < 0 || x >= width || y >= height || x < 0 || y < 0)
+			}
+			if (getWidth < 0 || x >= width || y >= height || x < 0 || y < 0) {
 				SWT.error
 
 				(SWT.ERROR_INVALID_ARGUMENT);
-			if (getWidth == 0)
+			}
+			if (getWidth == 0) {
 				return;
+			}
 			int index;
 			int theByte;
 			int mask;
@@ -1867,14 +1911,16 @@ public class IconExe {
 					if (srcX >= width) {
 						srcY++;
 						index = srcY * bytesPerLine;
-						if (n > 0)
+						if (n > 0) {
 							theByte = data[index] & 0xFF;
+						}
 						srcX = 0;
 					} else {
 						if (mask == 1) {
 							index++;
-							if (n > 0)
+							if (n > 0) {
 								theByte = data[index] & 0xFF;
+							}
 						}
 					}
 				}
@@ -1894,8 +1940,9 @@ public class IconExe {
 					if (srcX >= width) {
 						srcY++;
 						index = srcY * bytesPerLine;
-						if (n > 0)
+						if (n > 0) {
 							theByte = data[index] & 0xFF;
+						}
 						srcX = 0;
 					} else {
 						if (offset == 0) {
@@ -2053,12 +2100,15 @@ public class IconExe {
 		 * @return the receiver's transparency type
 		 */
 		public int getTransparencyType() {
-			if (maskData != null)
+			if (maskData != null) {
 				return SWT.TRANSPARENCY_MASK;
-			if (transparentPixel != -1)
+			}
+			if (transparentPixel != -1) {
 				return SWT.TRANSPARENCY_PIXEL;
-			if (alphaData != null)
+			}
+			if (alphaData != null) {
 				return SWT.TRANSPARENCY_ALPHA;
+			}
 			return SWT.TRANSPARENCY_NONE;
 		}
 
@@ -2095,12 +2145,15 @@ public class IconExe {
 		 * </ul>
 		 */
 		public void setPixels(int x, int y, int putWidth, byte[] pixels, int startIndex) {
-			if (pixels == null)
+			if (pixels == null) {
 				SWT.error(SWT.ERROR_NULL_ARGUMENT);
-			if (putWidth < 0 || x >= width || y >= height || x < 0 || y < 0)
+			}
+			if (putWidth < 0 || x >= width || y >= height || x < 0 || y < 0) {
 				SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-			if (putWidth == 0)
+			}
+			if (putWidth == 0) {
 				return;
+			}
 			int index;
 			int theByte;
 			int mask;
@@ -2176,8 +2229,9 @@ public class IconExe {
 						high = true;
 						srcX = 0;
 					} else {
-						if (!high)
+						if (!high) {
 							index++;
+						}
 						high = !high;
 					}
 				}
@@ -2225,12 +2279,15 @@ public class IconExe {
 		 * </ul>
 		 */
 		public void setPixels(int x, int y, int putWidth, int[] pixels, int startIndex) {
-			if (pixels == null)
+			if (pixels == null) {
 				SWT.error(SWT.ERROR_NULL_ARGUMENT);
-			if (putWidth < 0 || x >= width || y >= height || x < 0 || y < 0)
+			}
+			if (putWidth < 0 || x >= width || y >= height || x < 0 || y < 0) {
 				SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-			if (putWidth == 0)
+			}
+			if (putWidth == 0) {
 				return;
+			}
 			int index;
 			int theByte;
 			int mask;
@@ -2307,8 +2364,9 @@ public class IconExe {
 						high = true;
 						srcX = 0;
 					} else {
-						if (!high)
+						if (!high) {
 							index++;
+						}
 						high = !high;
 					}
 				}
@@ -2404,8 +2462,9 @@ public class IconExe {
 		 */
 		static int getMSBOffset(int mask) {
 			for (int i = 31; i >= 0; i--) {
-				if (((mask >> i) & 0x1) != 0)
+				if (((mask >> i) & 0x1) != 0) {
 					return i + 1;
+				}
 			}
 			return 0;
 		}
@@ -2431,8 +2490,9 @@ public class IconExe {
 				int distance = r * r + g * g + b * b;
 				if (distance < minDistance) {
 					nearestPixel = j;
-					if (distance == 0)
+					if (distance == 0) {
 						break;
+					}
 					minDistance = distance;
 				}
 			}
@@ -2440,8 +2500,9 @@ public class IconExe {
 		}
 
 		static final ImageData convertMask(ImageData mask) {
-			if (mask.depth == 1)
+			if (mask.depth == 1) {
 				return mask;
+			}
 			PaletteData palette = new PaletteData(new RGB[] {new RGB(0, 0, 0), new RGB(255, 255, 255)});
 			ImageData newMask = new ImageData(mask.width, mask.height, 1, palette);
 			/* Find index of black in mask palette */
@@ -2449,8 +2510,9 @@ public class IconExe {
 			RGB[] rgbs = mask.getRGBs();
 			if (rgbs != null) {
 				while (blackIndex < rgbs.length) {
-					if (rgbs[blackIndex].equals(palette.colors[0]))
+					if (rgbs[blackIndex].equals(palette.colors[0])) {
 						break;
+					}
 					blackIndex++;
 				}
 			}
@@ -2470,8 +2532,9 @@ public class IconExe {
 		}
 
 		static final byte[] convertPad(byte[] data, int width, int height, int depth, int pad, int newPad) {
-			if (pad == newPad)
+			if (pad == newPad) {
 				return data;
+			}
 			int stride = (width * depth + 7) / 8;
 			int bpl = (stride + (pad - 1)) / pad * pad;
 			int newBpl = (stride + (newPad - 1)) / newPad * newPad;
@@ -2533,8 +2596,9 @@ public class IconExe {
 		 * Computes the required channel shift from a mask.
 		 */
 		static int getChannelShift(int mask) {
-			if (mask == 0)
+			if (mask == 0) {
 				return 0;
+			}
 			int i;
 			for (i = 0; ((mask & 1) == 0) && (i < 32); ++i) {
 				mask >>>= 1;
@@ -2546,8 +2610,9 @@ public class IconExe {
 		 * Computes the required channel width (depth) from a mask.
 		 */
 		static int getChannelWidth(int mask, int shift) {
-			if (mask == 0)
+			if (mask == 0) {
 				return 0;
+			}
 			int i;
 			mask >>>= shift;
 			for (i = shift; ((mask & 1) != 0) && (i < 32); ++i) {
@@ -2576,10 +2641,11 @@ public class IconExe {
 					for (int dx = 0, dptr = dp; dx < bandWidth; ++dx, dptr += 4) {
 						final int thresh = DITHER_MATRIX[dy & 7][dx] >>> bits;
 						int temp = val + thresh;
-						if (temp > 0xffffff)
+						if (temp > 0xffffff) {
 							bitmapData[dptr] = -1;
-						else
+						} else {
 							bitmapData[dptr] = (byte) ((temp >>> 16) & mask);
+						}
 					}
 					val += inc;
 				}
@@ -2588,10 +2654,11 @@ public class IconExe {
 					for (int dy = 0, dptr = dp; dy < bandHeight; ++dy, dptr += bytesPerLine) {
 						final int thresh = DITHER_MATRIX[dy][dx & 7] >>> bits;
 						int temp = val + thresh;
-						if (temp > 0xffffff)
+						if (temp > 0xffffff) {
 							bitmapData[dptr] = -1;
-						else
+						} else {
 							bitmapData[dptr] = (byte) ((temp >>> 16) & mask);
+						}
 					}
 					val += inc;
 				}
@@ -2624,8 +2691,9 @@ public class IconExe {
 			if (bufferSize > 0) {
 				buf = new byte[bufferSize];
 				pos = bufferSize;
-			} else
+			} else {
 				throw new IllegalArgumentException();
+			}
 		}
 
 		@Override
@@ -2649,8 +2717,9 @@ public class IconExe {
 		 */
 		@Override
 		public int available() throws IOException {
-			if (buf == null)
+			if (buf == null) {
 				throw new IOException();
+			}
 			return (buf.length - pos) + in.available();
 		}
 
@@ -2659,11 +2728,13 @@ public class IconExe {
 		 */
 		@Override
 		public int read() throws IOException {
-			if (buf == null)
+			if (buf == null) {
 				throw new IOException();
+			}
 			position++;
-			if (pos < buf.length)
+			if (pos < buf.length) {
 				return (buf[pos++] & 0xFF);
+			}
 			return in.read();
 		}
 
@@ -2677,11 +2748,13 @@ public class IconExe {
 			int left = len;
 			result = readData(b, off, len);
 			while (true) {
-				if (result == -1)
+				if (result == -1) {
 					return -1;
+				}
 				position += result;
-				if (result == left)
+				if (result == left) {
 					return len;
+				}
 				left -= result;
 				off += result;
 				result = readData(b, off, left);
@@ -2706,8 +2779,9 @@ public class IconExe {
 		 * @exception java.io.IOException if an IOException occurs.
 		 */
 		private int readData(byte[] buffer, int offset, int length) throws IOException {
-			if (buf == null)
+			if (buf == null) {
 				throw new IOException();
+			}
 			if (offset < 0 || offset > buffer.length || length < 0 || (length > buffer.length - offset)) {
 				throw new ArrayIndexOutOfBoundsException();
 			}
@@ -2725,15 +2799,18 @@ public class IconExe {
 			}
 
 			// Have we copied enough?
-			if (cacheCopied == length)
+			if (cacheCopied == length) {
 				return length;
+			}
 
 			int inCopied = in.read(buffer, newOffset, length - cacheCopied);
 
-			if (inCopied > 0)
+			if (inCopied > 0) {
 				return inCopied + cacheCopied;
-			if (cacheCopied == 0)
+			}
+			if (cacheCopied == 0) {
 				return inCopied;
+			}
 			return cacheCopied;
 		}
 
@@ -2771,8 +2848,9 @@ public class IconExe {
 		 */
 		public void unread(byte[] b) throws IOException {
 			int length = b.length;
-			if (length > pos)
+			if (length > pos) {
 				throw new IOException();
+			}
 			position -= length;
 			pos -= length;
 			System.arraycopy(b, 0, buf, pos, length);
@@ -2809,15 +2887,17 @@ public class IconExe {
 			LEDataInputStream stream = new LEDataInputStream(is);
 			boolean isSupported = false;
 			FileFormat fileFormat = new WinICOFileFormat();
-			if (fileFormat.isFileFormat(stream))
+			if (fileFormat.isFileFormat(stream)) {
 				isSupported = true;
-			else {
+			} else {
 				fileFormat = new WinBMPFileFormat();
-				if (fileFormat.isFileFormat(stream))
+				if (fileFormat.isFileFormat(stream)) {
 					isSupported = true;
+				}
 			}
-			if (!isSupported)
+			if (!isSupported) {
 				SWT.error(SWT.ERROR_UNSUPPORTED_FORMAT);
+			}
 			fileFormat.loader = loader;
 			return fileFormat.loadFromStream(stream);
 		}
@@ -2829,13 +2909,15 @@ public class IconExe {
 
 		void decompressData(byte[] src, byte[] dest, int stride, int cmp) {
 			if (cmp == 1) { // BMP_RLE8_COMPRESSION
-				if (decompressRLE8Data(src, src.length, stride, dest, dest.length) <= 0)
+				if (decompressRLE8Data(src, src.length, stride, dest, dest.length) <= 0) {
 					SWT.error(SWT.ERROR_INVALID_IMAGE);
+				}
 				return;
 			}
 			if (cmp == 2) { // BMP_RLE4_COMPRESSION
-				if (decompressRLE4Data(src, src.length, stride, dest, dest.length) <= 0)
+				if (decompressRLE4Data(src, src.length, stride, dest, dest.length) <= 0) {
 					SWT.error(SWT.ERROR_INVALID_IMAGE);
+				}
 				return;
 			}
 			throw new IllegalArgumentException(MessageFormat.format(
@@ -2860,8 +2942,9 @@ public class IconExe {
 							y++;
 							x = 0;
 							dp = y * stride;
-							if (dp >= de)
+							if (dp >= de) {
 								return -1;
+							}
 							break;
 						case 1 : /* end of bitmap */
 							return 1;
@@ -2871,36 +2954,43 @@ public class IconExe {
 							y += src[sp] & 0xFF;
 							sp++;
 							dp = y * stride + x / 2;
-							if (dp >= de)
+							if (dp >= de) {
 								return -1;
+							}
 							break;
 						default : /* absolute mode run */
-							if ((len & 1) != 0) /* odd run lengths not currently supported */
+							if ((len & 1) != 0) { /* odd run lengths not currently supported */
 								return -1;
+							}
 							x += len;
 							len = len / 2;
-							if (len > (se - sp))
+							if (len > (se - sp)) {
 								return -1;
-							if (len > (de - dp))
+							}
+							if (len > (de - dp)) {
 								return -1;
+							}
 							for (int i = 0; i < len; i++) {
 								dest[dp] = src[sp];
 								dp++;
 								sp++;
 							}
-							if ((sp & 1) != 0)
+							if ((sp & 1) != 0) {
 								sp++; /* word align sp? */
+							}
 							break;
 					}
 				} else {
-					if ((len & 1) != 0)
+					if ((len & 1) != 0) {
 						return -1;
+					}
 					x += len;
 					len = len / 2;
 					byte theByte = src[sp];
 					sp++;
-					if (len > (de - dp))
+					if (len > (de - dp)) {
 						return -1;
+					}
 					for (int i = 0; i < len; i++) {
 						dest[dp] = theByte;
 						dp++;
@@ -2927,8 +3017,9 @@ public class IconExe {
 							y++;
 							x = 0;
 							dp = y * stride;
-							if (dp >= de)
+							if (dp >= de) {
 								return -1;
+							}
 							break;
 						case 1 : /* end of bitmap */
 							return 1;
@@ -2938,29 +3029,34 @@ public class IconExe {
 							y += src[sp] & 0xFF;
 							sp++;
 							dp = y * stride + x;
-							if (dp >= de)
+							if (dp >= de) {
 								return -1;
+							}
 							break;
 						default : /* absolute mode run */
-							if (len > (se - sp))
+							if (len > (se - sp)) {
 								return -1;
-							if (len > (de - dp))
+							}
+							if (len > (de - dp)) {
 								return -1;
+							}
 							for (int i = 0; i < len; i++) {
 								dest[dp] = src[sp];
 								dp++;
 								sp++;
 							}
-							if ((sp & 1) != 0)
+							if ((sp & 1) != 0) {
 								sp++; /* word align sp? */
+							}
 							x += len;
 							break;
 					}
 				} else {
 					byte theByte = src[sp];
 					sp++;
-					if (len > (de - dp))
+					if (len > (de - dp)) {
 						return -1;
+					}
 					for (int i = 0; i < len; i++) {
 						dest[dp] = theByte;
 						dp++;
@@ -3002,8 +3098,9 @@ public class IconExe {
 			int cmp = (infoHeader[16] & 0xFF) | ((infoHeader[17] & 0xFF) << 8) | ((infoHeader[18] & 0xFF) << 16) | ((infoHeader[19] & 0xFF) << 24);
 			if (cmp == 0) { // BMP_NO_COMPRESSION
 				try {
-					if (inputStream.read(data) != dataSize)
+					if (inputStream.read(data) != dataSize) {
 						SWT.error(SWT.ERROR_INVALID_IMAGE);
+					}
 				} catch (IOException e) {
 					SWT.error(SWT.ERROR_IO, e);
 				}
@@ -3011,8 +3108,9 @@ public class IconExe {
 				int compressedSize = (infoHeader[20] & 0xFF) | ((infoHeader[21] & 0xFF) << 8) | ((infoHeader[22] & 0xFF) << 16) | ((infoHeader[23] & 0xFF) << 24);
 				byte[] compressed = new byte[compressedSize];
 				try {
-					if (inputStream.read(compressed) != compressedSize)
+					if (inputStream.read(compressed) != compressedSize) {
 						SWT.error(SWT.ERROR_INVALID_IMAGE);
+					}
 				} catch (IOException e) {
 					SWT.error(SWT.ERROR_IO, e);
 				}
@@ -3032,8 +3130,9 @@ public class IconExe {
 			} catch (IOException e) {
 				SWT.error(SWT.ERROR_IO, e);
 			}
-			if (header[0] != 0x4D42)
+			if (header[0] != 0x4D42) {
 				SWT.error(SWT.ERROR_INVALID_IMAGE);
+			}
 			return header;
 		}
 
@@ -3074,22 +3173,26 @@ public class IconExe {
 				if (numColors == 0) {
 					numColors = 1 << depth;
 				} else {
-					if (numColors > 256)
+					if (numColors > 256) {
 						numColors = 256;
+					}
 				}
 				byte[] buf = new byte[numColors * 4];
 				try {
-					if (inputStream.read(buf) != buf.length)
+					if (inputStream.read(buf) != buf.length) {
 						SWT.error(SWT.ERROR_INVALID_IMAGE);
+					}
 				} catch (IOException e) {
 					SWT.error(SWT.ERROR_IO, e);
 				}
 				return paletteFromBytes(buf, numColors);
 			}
-			if (depth == 16)
+			if (depth == 16) {
 				return new PaletteData(0x7C00, 0x3E0, 0x1F);
-			if (depth == 24)
+			}
+			if (depth == 24) {
 				return new PaletteData(0xFF, 0xFF00, 0xFF0000);
+			}
 			return new PaletteData(0xFF00, 0xFF0000, 0xFF000000);
 		}
 
@@ -3140,8 +3243,9 @@ public class IconExe {
 	static class WinICOFileFormat extends FileFormat {
 
 		static final byte[] convertPad(byte[] data, int width, int height, int depth, int pad, int newPad) {
-			if (pad == newPad)
+			if (pad == newPad) {
 				return data;
+			}
 			int stride = (width * depth + 7) / 8;
 			int bpl = (stride + (pad - 1)) / pad * pad;
 			int newBpl = (stride + (newPad - 1)) / newPad * newPad;
@@ -3184,8 +3288,9 @@ public class IconExe {
 				case 1 :
 				case 4 :
 				case 8 :
-					if (i.palette.isDirect)
+					if (i.palette.isDirect) {
 						return false;
+					}
 					int size = i.palette.colors.length;
 					return size == 2 || size == 16 || size == 32 || size == 256;
 				case 24 :
@@ -3204,11 +3309,13 @@ public class IconExe {
 			} catch (IOException e) {
 				SWT.error(SWT.ERROR_IO, e);
 			}
-			if ((fileHeader[0] != 0) || (fileHeader[1] != 1))
+			if ((fileHeader[0] != 0) || (fileHeader[1] != 1)) {
 				SWT.error(SWT.ERROR_INVALID_IMAGE);
+			}
 			int numIcons = fileHeader[2];
-			if (numIcons <= 0)
+			if (numIcons <= 0) {
 				SWT.error(SWT.ERROR_INVALID_IMAGE);
+			}
 			return numIcons;
 		}
 
@@ -3226,11 +3333,13 @@ public class IconExe {
 			} catch (IOException e) {
 				SWT.error(SWT.ERROR_IO, e);
 			}
-			if ((fileHeader[0] != 0) || (fileHeader[1] != 1))
+			if ((fileHeader[0] != 0) || (fileHeader[1] != 1)) {
 				SWT.error(SWT.ERROR_INVALID_IMAGE);
+			}
 			int numIcons = fileHeader[2];
-			if (numIcons <= 0)
+			if (numIcons <= 0) {
 				SWT.error(SWT.ERROR_INVALID_IMAGE);
+			}
 			return numIcons;
 		}
 
@@ -3287,10 +3396,12 @@ public class IconExe {
 			int width = iconHeader[0];
 			int height = iconHeader[1];
 			int numColors = iconHeader[2]; // the number of colors is in the low byte, but the high byte must be 0
-			if (numColors == 0)
+			if (numColors == 0) {
 				numColors = 256; // this is specified: '00' represents '256' (0x100) colors
-			if ((numColors != 2) && (numColors != 8) && (numColors != 16) && (numColors != 32) && (numColors != 256))
+			}
+			if ((numColors != 2) && (numColors != 8) && (numColors != 16) && (numColors != 32) && (numColors != 256)) {
 				SWT.error(SWT.ERROR_INVALID_IMAGE);
+			}
 			if (inputStream.getPosition() < iconHeader[6]) {
 				// Seek to the specified offset
 				try {
@@ -3306,8 +3417,9 @@ public class IconExe {
 			} catch (IOException e) {
 				SWT.error(SWT.ERROR_IO, e);
 			}
-			if (((infoHeader[12] & 0xFF) | ((infoHeader[13] & 0xFF) << 8)) != 1)
+			if (((infoHeader[12] & 0xFF) | ((infoHeader[13] & 0xFF) << 8)) != 1) {
 				SWT.error(SWT.ERROR_INVALID_IMAGE);
+			}
 			int infoWidth = (infoHeader[4] & 0xFF) | ((infoHeader[5] & 0xFF) << 8) | ((infoHeader[6] & 0xFF) << 16) | ((infoHeader[7] & 0xFF) << 24);
 			int infoHeight = (infoHeader[8] & 0xFF) | ((infoHeader[9] & 0xFF) << 8) | ((infoHeader[10] & 0xFF) << 16) | ((infoHeader[11] & 0xFF) << 24);
 			int bitCount = (infoHeader[14] & 0xFF) | ((infoHeader[15] & 0xFF) << 8);
@@ -3316,14 +3428,18 @@ public class IconExe {
 			 * Images with a width/height >= 256 will have their width/height set to 0 in the icon header; the fix for this case is to read the width/height 
 			 * directly from the image header.
 			 */
-			if (width == 0)
+			if (width == 0) {
 				width = infoWidth;
-			if (height == 0)
+			}
+			if (height == 0) {
 				height = infoHeight / 2;
-			if (height == infoHeight && bitCount == 1)
+			}
+			if (height == infoHeight && bitCount == 1) {
 				height /= 2;
-			if (!((width == infoWidth) && (height * 2 == infoHeight) && (bitCount == 1 || bitCount == 4 || bitCount == 8 || bitCount == 24 || bitCount == 32)))
+			}
+			if (!((width == infoWidth) && (height * 2 == infoHeight) && (bitCount == 1 || bitCount == 4 || bitCount == 8 || bitCount == 24 || bitCount == 32))) {
 				SWT.error(SWT.ERROR_INVALID_IMAGE);
+			}
 			infoHeader[8] = (byte) (height & 0xFF);
 			infoHeader[9] = (byte) ((height >> 8) & 0xFF);
 			infoHeader[10] = (byte) ((height >> 16) & 0xFF);

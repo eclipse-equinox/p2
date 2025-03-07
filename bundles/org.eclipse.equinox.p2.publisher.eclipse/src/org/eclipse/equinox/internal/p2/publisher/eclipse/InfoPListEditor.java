@@ -91,19 +91,22 @@ public class InfoPListEditor {
 	}
 
 	public void setKey(String key, String value) {
-		if (key == null)
+		if (key == null) {
 			throw new IllegalArgumentException("Key can't be null"); //$NON-NLS-1$
-		if (value == null)
+		}
+		if (value == null) {
 			throw new IllegalArgumentException("Value can't be null"); //$NON-NLS-1$
+		}
 
 		String expression = String.format("/plist/dict/key[text() = '%s']/following-sibling::string[1]", key); //$NON-NLS-1$
 		Node node;
 		try {
 			node = getNode(infoPList, expression);
-			if (node != null)
+			if (node != null) {
 				node.getFirstChild().setNodeValue(value);
-			else
+			} else {
 				addKey(key, value);
+			}
 		} catch (XPathExpressionException e) {
 			//Can't happen since we craft the expression carefully
 		}
@@ -171,17 +174,19 @@ public class InfoPListEditor {
 	}
 
 	public void setEclipseArgument(String key, String value) {
-		if (key == null)
+		if (key == null) {
 			throw new IllegalArgumentException("Key can't be null"); //$NON-NLS-1$
+		}
 
 		String expression = "/plist/dict/key[text() = 'Eclipse']/following-sibling::array[1]/string[text() = -keyring'"; //$NON-NLS-1$
 		Node node;
 		try {
 			node = getNode(infoPList, expression);
-			if (node != null)
+			if (node != null) {
 				node.getFirstChild().setNodeValue(value);
-			else
+			} else {
 				addKey(key, value);
+			}
 		} catch (XPathExpressionException e) {
 			//Can't happen since we craft the expression carefully
 		}

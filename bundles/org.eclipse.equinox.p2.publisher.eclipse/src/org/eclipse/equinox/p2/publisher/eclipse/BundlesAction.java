@@ -167,8 +167,9 @@ public class BundlesAction extends AbstractPublisherAction {
 	static IInstallableUnit createBundleConfigurationUnit(String hostId, Version cuVersion,
 			boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor,
 			IMatchExpression<IInstallableUnit> filter, boolean configOnly) {
-		if (configInfo == null)
+		if (configInfo == null) {
 			return null;
+		}
 
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
 		String configUnitId = configurationFlavor + hostId;
@@ -558,8 +559,9 @@ public class BundlesAction extends AbstractPublisherAction {
 			String hostId, String[] hostBundleManifestValues) {
 		Map<Locale, Map<String, String>> hostLocalizations = getHostLocalizations(new File(bd.getLocation()),
 				hostBundleManifestValues);
-		if (hostLocalizations == null || hostLocalizations.isEmpty())
+		if (hostLocalizations == null || hostLocalizations.isEmpty()) {
 			return null;
+		}
 		return createLocalizationFragmentOfHost(bd, hostId, hostBundleManifestValues, hostLocalizations);
 	}
 
@@ -616,8 +618,9 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	private static String createConfigScript(GeneratorBundleInfo configInfo, boolean isBundleFragment) {
-		if (configInfo == null)
+		if (configInfo == null) {
 			return ""; //$NON-NLS-1$
+		}
 
 		String configScript = "";//$NON-NLS-1$
 		if (!isBundleFragment && configInfo.getStartLevel() != BundleInfo.NO_LEVEL) {
@@ -674,8 +677,9 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	private static String createUnconfigScript(GeneratorBundleInfo unconfigInfo, boolean isBundleFragment) {
-		if (unconfigInfo == null)
+		if (unconfigInfo == null) {
 			return ""; //$NON-NLS-1$
+		}
 		String unconfigScript = "";//$NON-NLS-1$
 		if (!isBundleFragment && unconfigInfo.getStartLevel() != BundleInfo.NO_LEVEL) {
 			unconfigScript += "setStartLevel(startLevel:" + BundleInfo.NO_LEVEL + ");"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -701,8 +705,9 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	private static String toManifestString(Map<String, String> p) {
-		if (p == null)
+		if (p == null) {
 			return null;
+		}
 		StringBuilder result = new StringBuilder();
 		// See https://bugs.eclipse.org/329386. We are trying to reduce the size of the
 		// manifest data in
@@ -715,8 +720,9 @@ public class BundlesAction extends AbstractPublisherAction {
 				Constants.FRAGMENT_HOST };
 		for (String key : interestingKeys) {
 			String value = p.get(key);
-			if (value != null)
+			if (value != null) {
 				result.append(key).append(": ").append(value).append('\n'); //$NON-NLS-1$
+			}
 		}
 		return result.length() == 0 ? null : result.toString();
 	}
@@ -754,10 +760,11 @@ public class BundlesAction extends AbstractPublisherAction {
 		for (int i = 1; i < BUNDLE_IU_PROPERTY_MAP.length - 1; i += 2) {
 			if (iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]) != null
 					&& iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]).length() > 0
-					&& iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]).charAt(0) == '%')
+					&& iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]).charAt(0) == '%') {
 				result[j++] = iu.getProperty(BUNDLE_IU_PROPERTY_MAP[i]).substring(1);
-			else
+			} else {
 				j++;
+			}
 		}
 		// The last string is the location
 		result[BUNDLE_LOCALIZATION_INDEX] = iu.getProperty(IInstallableUnit.PROP_BUNDLE_LOCALIZATION);
@@ -770,8 +777,9 @@ public class BundlesAction extends AbstractPublisherAction {
 		for (int j = 0; j < PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES.length; j++) {
 			String value = manifest.get(PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES[j]);
 			if (PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES[j].equals(Constants.BUNDLE_LOCALIZATION)) {
-				if (value == null)
+				if (value == null) {
 					value = DEFAULT_BUNDLE_LOCALIZATION;
+				}
 				cachedValues[j] = value;
 			} else if (value != null && value.length() > 1 && value.charAt(0) == '%') {
 				cachedValues[j] = value.substring(1);
@@ -788,8 +796,9 @@ public class BundlesAction extends AbstractPublisherAction {
 		Map<Locale, Map<String, String>> localizations;
 		Locale defaultLocale = null; // = Locale.ENGLISH; // TODO: get this from GeneratorInfo
 		String hostBundleLocalization = hostBundleManifestValues[BUNDLE_LOCALIZATION_INDEX];
-		if (hostBundleLocalization == null)
+		if (hostBundleLocalization == null) {
 			return null;
+		}
 
 		if ("jar".equalsIgnoreCase(IPath.fromOSString(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
 				bundleLocation.isFile()) {
@@ -846,8 +855,9 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	public static BundleDescription createBundleDescription(File bundleLocation) throws IOException, BundleException {
 		Dictionary<String, String> manifest = loadManifest(bundleLocation);
-		if (manifest == null)
+		if (manifest == null) {
 			return null;
+		}
 		return createBundleDescription(manifest, bundleLocation);
 	}
 
@@ -869,12 +879,14 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	public static Dictionary<String, String> loadManifest(File bundleLocation) throws IOException, BundleException {
 		Dictionary<String, String> manifest = basicLoadManifest(bundleLocation);
-		if (manifest == null)
+		if (manifest == null) {
 			return null;
+		}
 		// if the bundle itself does not define its shape, infer the shape from the
 		// current form
-		if (manifest.get(BUNDLE_SHAPE) == null)
+		if (manifest.get(BUNDLE_SHAPE) == null) {
 			manifest.put(BUNDLE_SHAPE, bundleLocation.isDirectory() ? DIR : JAR);
+		}
 		return manifest;
 	}
 
@@ -957,15 +969,17 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	@Override
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
-		if (bundles == null && locations == null)
+		if (bundles == null && locations == null) {
 			throw new IllegalStateException(Messages.exception_noBundlesOrLocations);
+		}
 
 		setPublisherInfo(publisherInfo);
 		finalStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_bundlesPublisherMultistatus, null);
 
 		try {
-			if (bundles == null)
+			if (bundles == null) {
 				bundles = getBundleDescriptions(expandLocations(locations), monitor);
+			}
 			generateBundleIUs(bundles, publisherInfo, results, monitor);
 			bundles = null;
 		} catch (OperationCanceledException e) {
@@ -980,8 +994,9 @@ public class BundlesAction extends AbstractPublisherAction {
 	protected void publishArtifact(IArtifactDescriptor descriptor, File base, File[] inclusions,
 			IPublisherInfo publisherInfo) {
 		IArtifactRepository destination = publisherInfo.getArtifactRepository();
-		if (descriptor == null || destination == null)
+		if (descriptor == null || destination == null) {
 			return;
+		}
 
 		// publish the given files
 		publishArtifact(descriptor, inclusions, null, publisherInfo, createRootPrefixComputer(base));
@@ -990,13 +1005,15 @@ public class BundlesAction extends AbstractPublisherAction {
 	@Override
 	protected void publishArtifact(IArtifactDescriptor descriptor, File jarFile, IPublisherInfo publisherInfo) {
 		// no files to publish so this is done.
-		if (jarFile == null || publisherInfo == null)
+		if (jarFile == null || publisherInfo == null) {
 			return;
+		}
 
 		// if the destination already contains the descriptor, there is nothing to do.
 		IArtifactRepository destination = publisherInfo.getArtifactRepository();
-		if (destination == null || destination.contains(descriptor))
+		if (destination == null || destination.contains(descriptor)) {
 			return;
+		}
 
 		super.publishArtifact(descriptor, jarFile, publisherInfo);
 
@@ -1009,17 +1026,19 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	private void expandLocations(File[] list, ArrayList<File> result) {
-		if (list == null)
+		if (list == null) {
 			return;
+		}
 		for (File location : list) {
 			if (location.isDirectory()) {
 				// if the location is itself a bundle, just add it. Otherwise r down
-				if (new File(location, JarFile.MANIFEST_NAME).exists())
+				if (new File(location, JarFile.MANIFEST_NAME).exists()) {
 					result.add(location);
-				else if (new File(location, "plugin.xml").exists() || new File(location, "fragment.xml").exists()) //$NON-NLS-1$ //$NON-NLS-2$
+				} else if (new File(location, "plugin.xml").exists() || new File(location, "fragment.xml").exists()) { //$NON-NLS-1$ //$NON-NLS-2$
 					result.add(location); // old style bundle without manifest
-				else
+				} else {
 					expandLocations(location.listFiles(), result);
+				}
 			} else {
 				result.add(location);
 			}
@@ -1124,14 +1143,16 @@ public class BundlesAction extends AbstractPublisherAction {
 	 */
 	protected void createAdviceFileAdvice(BundleDescription bundleDescription, IPublisherInfo publisherInfo) {
 		String location = bundleDescription.getLocation();
-		if (location == null)
+		if (location == null) {
 			return;
+		}
 
 		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(),
 				PublisherHelper.fromOSGiVersion(bundleDescription.getVersion()), IPath.fromOSString(location),
 				AdviceFileAdvice.BUNDLE_ADVICE_FILE);
-		if (advice.containsAdvice())
+		if (advice.containsAdvice()) {
 			publisherInfo.addAdvice(advice);
+		}
 
 	}
 
@@ -1142,8 +1163,9 @@ public class BundlesAction extends AbstractPublisherAction {
 		if (advice != null && !advice.isEmpty()) {
 			// we know there is some advice but if there is more than one, take the first.
 			String shape = advice.iterator().next().getShape();
-			if (shape != null)
+			if (shape != null) {
 				return shape.equals(IBundleShapeAdvice.DIR);
+			}
 		}
 		// otherwise go with whatever we figured out from the manifest or the shape on
 		// disk
@@ -1158,12 +1180,14 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations, IProgressMonitor monitor) {
-		if (bundleLocations == null)
+		if (bundleLocations == null) {
 			return new BundleDescription[0];
+		}
 		List<BundleDescription> result = new ArrayList<>(bundleLocations.length);
 		for (File bundleLocation : bundleLocations) {
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				throw new OperationCanceledException();
+			}
 			BundleDescription description = null;
 			try {
 				description = createBundleDescription(bundleLocation);

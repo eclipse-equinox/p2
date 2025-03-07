@@ -72,24 +72,33 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 		// set properties for other feature attributes
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
-		if (feature.getDescription() != null)
+		if (feature.getDescription() != null) {
 			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION, feature.getDescription());
-		if (feature.getDescriptionURL() != null)
+		}
+		if (feature.getDescriptionURL() != null) {
 			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION_URL, feature.getDescriptionURL());
-		if (feature.getProviderName() != null)
+		}
+		if (feature.getProviderName() != null) {
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
-		if (feature.getLicense() != null)
+		}
+		if (feature.getLicense() != null) {
 			iu.setLicenses(new ILicense[] {MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense())});
-		if (feature.getCopyright() != null)
+		}
+		if (feature.getCopyright() != null) {
 			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
-		if (feature.getApplication() != null)
+		}
+		if (feature.getApplication() != null) {
 			iu.setProperty(UPDATE_FEATURE_APPLICATION_PROP, feature.getApplication());
-		if (feature.getBrandingPlugin() != null)
+		}
+		if (feature.getBrandingPlugin() != null) {
 			iu.setProperty(UPDATE_FEATURE_PLUGIN_PROP, feature.getBrandingPlugin());
-		if (feature.isExclusive())
+		}
+		if (feature.isExclusive()) {
 			iu.setProperty(UPDATE_FEATURE_EXCLUSIVE_PROP, Boolean.TRUE.toString());
-		if (feature.isPrimary())
+		}
+		if (feature.isPrimary()) {
 			iu.setProperty(UPDATE_FEATURE_PRIMARY_PROP, Boolean.TRUE.toString());
+		}
 
 		// The required capabilities are not specified at this level because we don't want the feature jar to be attractive to install.
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
@@ -99,11 +108,13 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (feature.getInstallHandler() != null && feature.getInstallHandler().trim().length() > 0) {
 			String installHandlerProperty = "handler=" + feature.getInstallHandler(); //$NON-NLS-1$
 
-			if (feature.getInstallHandlerLibrary() != null)
+			if (feature.getInstallHandlerLibrary() != null) {
 				installHandlerProperty += ", library=" + feature.getInstallHandlerLibrary(); //$NON-NLS-1$
+			}
 
-			if (feature.getInstallHandlerURL() != null)
+			if (feature.getInstallHandlerURL() != null) {
 				installHandlerProperty += ", url=" + feature.getInstallHandlerURL(); //$NON-NLS-1$
+			}
 
 			iu.setProperty(PublisherHelper.ECLIPSE_INSTALL_HANDLER_PROP, installHandlerProperty);
 		}
@@ -145,8 +156,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 	 * if a well formed URI could not be created.
 	 */
 	private static URI toURIOrNull(String url) {
-		if (url == null)
+		if (url == null) {
 			return null;
+		}
 		try {
 			return URIUtil.fromString(url);
 		} catch (URISyntaxException e) {
@@ -171,8 +183,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (location != null) {
 			String groupId = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
 			AdviceFileAdvice advice = new AdviceFileAdvice(groupId, Version.parseVersion(feature.getVersion()), IPath.fromOSString(location), IPath.fromOSString("p2.inf")); //$NON-NLS-1$
-			if (advice.containsAdvice())
+			if (advice.containsAdvice()) {
 				publisherInfo.addAdvice(advice);
+			}
 		}
 	}
 
@@ -186,8 +199,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 	private void createBundleShapeAdvice(Feature feature, IPublisherInfo publisherInfo) {
 		FeatureEntry entries[] = feature.getEntries();
 		for (FeatureEntry entry : entries) {
-			if (entry.unpackSet() && entry.isUnpack() && entry.isPlugin() && !entry.isRequires())
+			if (entry.unpackSet() && entry.isUnpack() && entry.isPlugin() && !entry.isRequires()) {
 				publisherInfo.addAdvice(new BundleShapeAdvice(entry.getId(), Version.parseVersion(entry.getVersion()), IBundleShapeAdvice.DIR));
+			}
 		}
 	}
 
@@ -201,8 +215,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(id, version)});
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		String configSpec = descriptor.getConfigSpec();
-		if (configSpec != null && configSpec.length() > 0)
+		if (configSpec != null && configSpec.length() > 0) {
 			iu.setFilter(createFilterSpec(configSpec));
+		}
 
 		Map<String, String> touchpointData = new HashMap<>(2);
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
@@ -223,8 +238,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 	}
 
 	protected IInstallableUnit createGroupIU(Feature feature, List<IInstallableUnit> childIUs, IPublisherInfo publisherInfo) {
-		if (isPatch(feature))
+		if (isPatch(feature)) {
 			return createPatchIU(feature, childIUs, publisherInfo);
+		}
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getGroupId(feature.getId());
 		iu.setId(id);
@@ -232,16 +248,21 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setVersion(version);
 
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
-		if (feature.getDescription() != null)
+		if (feature.getDescription() != null) {
 			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION, feature.getDescription());
-		if (feature.getDescriptionURL() != null)
+		}
+		if (feature.getDescriptionURL() != null) {
 			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION_URL, feature.getDescriptionURL());
-		if (feature.getProviderName() != null)
+		}
+		if (feature.getProviderName() != null) {
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
-		if (feature.getLicense() != null)
+		}
+		if (feature.getLicense() != null) {
 			iu.setLicenses(new ILicense[] {MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense())});
-		if (feature.getCopyright() != null)
+		}
+		if (feature.getCopyright() != null) {
 			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
+		}
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, BundlesAction.computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
@@ -304,16 +325,21 @@ public class FeaturesAction extends AbstractPublisherAction {
 		Version version = Version.parseVersion(feature.getVersion());
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
-		if (feature.getDescription() != null)
+		if (feature.getDescription() != null) {
 			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION, feature.getDescription());
-		if (feature.getDescriptionURL() != null)
+		}
+		if (feature.getDescriptionURL() != null) {
 			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION_URL, feature.getDescriptionURL());
-		if (feature.getProviderName() != null)
+		}
+		if (feature.getProviderName() != null) {
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
-		if (feature.getLicense() != null)
+		}
+		if (feature.getLicense() != null) {
 			iu.setLicenses(new ILicense[] {MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense())});
-		if (feature.getCopyright() != null)
+		}
+		if (feature.getCopyright() != null) {
 			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
+		}
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, BundlesAction.computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
@@ -386,15 +412,17 @@ public class FeaturesAction extends AbstractPublisherAction {
 	}
 
 	private void expandLocations(File[] list, ArrayList<File> result) {
-		if (list == null)
+		if (list == null) {
 			return;
+		}
 		for (File location : list) {
 			if (location.isDirectory()) {
 				// if the location is itself a feature, just add it.  Otherwise r down
-				if (new File(location, "feature.xml").exists()) //$NON-NLS-1$
+				if (new File(location, "feature.xml").exists()) { //$NON-NLS-1$
 					result.add(location);
-				else
+				} else {
 					expandLocations(location.listFiles(), result);
+				}
 			} else {
 				result.add(location);
 			}
@@ -411,8 +439,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 			ArrayList<IInstallableUnit> childIUs = new ArrayList<>();
 
 			IInstallableUnit featureJarIU = queryForIU(result, getTransformedId(feature.getId(), false, false), Version.parseVersion(feature.getVersion()));
-			if (featureJarIU == null)
+			if (featureJarIU == null) {
 				featureJarIU = generateFeatureJarIU(feature, info);
+			}
 
 			if (featureJarIU != null) {
 				publishFeatureArtifacts(feature, featureJarIU, info);
@@ -444,8 +473,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 		ArrayList<IInstallableUnit> ius = new ArrayList<>();
 
 		Collection<IFeatureRootAdvice> collection = publisherInfo.getAdvice(null, false, feature.getId(), Version.parseVersion(feature.getVersion()), IFeatureRootAdvice.class);
-		if (collection.size() == 0)
+		if (collection.size() == 0) {
 			return ius;
+		}
 
 		IFeatureRootAdvice advice = collection.iterator().next();
 		String[] configs = advice.getConfigurations();
@@ -458,8 +488,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 				IArtifactKey artifactKey = iu.getArtifacts().iterator().next();
 				IArtifactDescriptor artifactDescriptor = PublisherHelper.createArtifactDescriptor(info, artifactKey, null);
 				IPathComputer computer = advice.getRootFileComputer(config);
-				if (computer == null)
+				if (computer == null) {
 					computer = FileUtils.createDynamicPathComputer(1);
+				}
 				publishArtifact(artifactDescriptor, files, null, publisherInfo, computer);
 
 				result.addIU(iu, IPublisherResult.NON_ROOT);
@@ -495,22 +526,25 @@ public class FeaturesAction extends AbstractPublisherAction {
 	}
 
 	protected void generateSiteReferences(Feature feature, IPublisherResult result, IPublisherInfo publisherInfo) {
-		if (publisherInfo.getMetadataRepository() == null)
+		if (publisherInfo.getMetadataRepository() == null) {
 			return;
+		}
 
 		//publish feature site references
 		URLEntry updateURL = feature.getUpdateSite();
 		//don't enable feature update sites by default since this results in too many
 		//extra sites being loaded and searched (Bug 234177)
 		List<IRepositoryReference> collector = new ArrayList<>();
-		if (updateURL != null)
+		if (updateURL != null) {
 			generateSiteReference(updateURL.getURL(), updateURL.getAnnotation(), feature.getId(), collector);
+		}
 		URLEntry[] discoverySites = feature.getDiscoverySites();
 		for (URLEntry discoverySite : discoverySites) {
 			generateSiteReference(discoverySite.getURL(), discoverySite.getAnnotation(), feature.getId(), collector);
 		}
-		if (!collector.isEmpty())
+		if (!collector.isEmpty()) {
 			publisherInfo.getMetadataRepository().addReferences(collector);
+		}
 	}
 
 	protected Feature[] getFeatures(File[] featureLocations) {
@@ -528,8 +562,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 	private IMatchExpression<IInstallableUnit> getFilter(FeatureEntry entry) {
 		StringBuilder result = new StringBuilder();
 		result.append("(&"); //$NON-NLS-1$
-		if (entry.getFilter() != null)
+		if (entry.getFilter() != null) {
 			result.append(entry.getFilter());
+		}
 		if (entry.isImport()) {
 			result.append("(!(org.eclipse.equinox.p2.exclude.import=true))"); //$NON-NLS-1$
 		}
@@ -537,8 +572,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 		expandFilter(entry.getWS(), "osgi.ws", result); //$NON-NLS-1$
 		expandFilter(entry.getArch(), "osgi.arch", result);//$NON-NLS-1$
 		expandFilter(entry.getNL(), "osgi.nl", result); //$NON-NLS-1$
-		if (result.length() == 2)
+		if (result.length() == 2) {
 			return null;
+		}
 		result.append(')');
 		return InstallableUnit.parseFilter(result.toString());
 	}
@@ -546,9 +582,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 	private void expandFilter(String filter, String osgiFilterValue, StringBuilder result) {
 		if (filter != null && filter.length() != 0) {
 			StringTokenizer token = new StringTokenizer(filter, ","); //$NON-NLS-1$
-			if (token.countTokens() == 1)
+			if (token.countTokens() == 1) {
 				result.append('(' + osgiFilterValue + '=' + filter + ')');
-			else {
+			} else {
 				result.append("(|"); //$NON-NLS-1$
 				while (token.hasMoreElements()) {
 					result.append('(' + osgiFilterValue + '=' + token.nextToken() + ')');
@@ -560,21 +596,27 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 	protected VersionRange getVersionRange(FeatureEntry entry) {
 		String versionSpec = entry.getVersion();
-		if (versionSpec == null)
+		if (versionSpec == null) {
 			return VersionRange.emptyRange;
+		}
 		String match = entry.getMatch();
-		if ("versionRange".equals(match)) //$NON-NLS-1$
+		if ("versionRange".equals(match)) { //$NON-NLS-1$
 			return VersionRange.create(versionSpec);
+		}
 		Version version = Version.parseVersion(versionSpec);
-		if (version.equals(Version.emptyVersion))
+		if (version.equals(Version.emptyVersion)) {
 			return VersionRange.emptyRange;
-		if (!entry.isRequires())
+		}
+		if (!entry.isRequires()) {
 			return new VersionRange(version, true, version, true);
-		if (match == null)
+		}
+		if (match == null) {
 			// TODO should really be returning VersionRange.emptyRange here...
 			return null;
-		if (match.equals("perfect")) //$NON-NLS-1$
+		}
+		if (match.equals("perfect")) { //$NON-NLS-1$
 			return new VersionRange(version, true, version, true);
+		}
 
 		org.osgi.framework.Version osgiVersion = PublisherHelper.toOSGiVersion(version);
 		if (match.equals("equivalent")) { //$NON-NLS-1$
@@ -585,8 +627,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 			Version upper = Version.createOSGi(osgiVersion.getMajor() + 1, 0, 0);
 			return new VersionRange(version, true, upper, false);
 		}
-		if (match.equals("greaterOrEqual")) //$NON-NLS-1$
+		if (match.equals("greaterOrEqual")) { //$NON-NLS-1$
 			return new VersionRange(version, true, Version.MAX_VERSION, true);
+		}
 		return null;
 	}
 
@@ -602,11 +645,13 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 	@Override
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
-		if (features == null && locations == null)
+		if (features == null && locations == null) {
 			throw new IllegalStateException(Messages.exception_noFeaturesOrLocations);
+		}
 		this.info = publisherInfo;
-		if (features == null)
+		if (features == null) {
 			features = getFeatures(expandLocations(locations));
+		}
 		generateFeatureIUs(features, results);
 		return Status.OK_STATUS;
 	}
@@ -630,10 +675,11 @@ public class FeaturesAction extends AbstractPublisherAction {
 			processArtifactPropertiesAdvice(featureIU, ad, publisherInfo);
 			ad.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 			// if the artifact is a dir then zip it up.
-			if (file.isDirectory())
+			if (file.isDirectory()) {
 				publishArtifact(ad, new File[] {file}, null, publisherInfo, createRootPrefixComputer(file));
-			else
+			} else {
 				publishArtifact(ad, file, publisherInfo);
+			}
 		}
 	}
 

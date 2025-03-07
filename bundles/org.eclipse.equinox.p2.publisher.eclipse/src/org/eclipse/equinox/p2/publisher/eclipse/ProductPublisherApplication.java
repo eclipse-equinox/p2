@@ -66,14 +66,18 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo) throws URISyntaxException {
 		super.processParameter(arg, parameter, publisherInfo);
 
-		if (arg.equalsIgnoreCase("-productFile")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-productFile")) { //$NON-NLS-1$
 			product = parameter;
-		if (arg.equalsIgnoreCase("-executables")) //$NON-NLS-1$
+		}
+		if (arg.equalsIgnoreCase("-executables")) { //$NON-NLS-1$
 			executables = parameter;
-		if (arg.equalsIgnoreCase("-flavor")) //$NON-NLS-1$
+		}
+		if (arg.equalsIgnoreCase("-flavor")) { //$NON-NLS-1$
 			flavor = parameter;
-		if (arg.equalsIgnoreCase("-jreLocation")) //$NON-NLS-1$
+		}
+		if (arg.equalsIgnoreCase("-jreLocation")) { //$NON-NLS-1$
 			jreLocation = parameter;
+		}
 		if (arg.equalsIgnoreCase("-pluginVersionsAdvice")) { //$NON-NLS-1$
 			VersionAdvice versionAdvice = new VersionAdvice();
 			versionAdvice.load(IInstallableUnit.NAMESPACE_IU_ID, parameter, null);

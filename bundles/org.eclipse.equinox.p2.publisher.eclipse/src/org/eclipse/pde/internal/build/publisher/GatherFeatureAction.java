@@ -89,22 +89,25 @@ public class GatherFeatureAction extends FeaturesAction {
 
 	@Override
 	protected String getGroupId(String featureId) {
-		if (groupId != null)
+		if (groupId != null) {
 			return groupId;
+		}
 		return super.getGroupId(featureId);
 	}
 
 	@Override
 	protected IInstallableUnit generateFeatureJarIU(Feature feature, IPublisherInfo publisherInfo) {
-		if (computer == null)
+		if (computer == null) {
 			return null;
+		}
 		return createFeatureJarIU(feature, publisherInfo);
 	}
 
 	@Override
 	protected void publishFeatureArtifacts(Feature feature, IInstallableUnit featureIU, IPublisherInfo publisherInfo) {
-		if (computer == null)
+		if (computer == null) {
 			return;
+		}
 
 		// add all the artifacts associated with the feature
 		Collection<IArtifactKey> artifacts = featureIU.getArtifacts();

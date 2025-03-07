@@ -40,12 +40,14 @@ public class AccumulateConfigDataAction extends AbstractPublisherAction {
 
 	protected void storeConfigData(IPublisherInfo publisherInfo, String config, IPublisherResult result) {
 		ConfigData data = loader.getConfigData();
-		if (data == null)
+		if (data == null) {
 			return;
+		}
 		publisherInfo.addAdvice(new ConfigAdvice(data, config));
 		LauncherData launcherData = loader.getLauncherData();
-		if (launcherData == null)
+		if (launcherData == null) {
 			return;
+		}
 		publisherInfo.addAdvice(new LaunchingAdvice(launcherData, config));
 	}
 }

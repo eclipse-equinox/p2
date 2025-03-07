@@ -77,8 +77,9 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 		Collection<IVersionAdvice> advice = info.getAdvice(configSpec, true, id, null, IVersionAdvice.class);
 		for (IVersionAdvice versionSpec : advice) {
 			Version version = versionSpec.getVersion(IInstallableUnit.NAMESPACE_IU_ID, id);
-			if (version == null)
+			if (version == null) {
 				continue;
+			}
 			GeneratorBundleInfo bundle = new GeneratorBundleInfo();
 			bundle.setSymbolicName(id);
 			bundle.setVersion(version.toString());
@@ -91,8 +92,9 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 			}
 			IMatchExpression<IInstallableUnit> filter = configSpec == null ? null : createFilterSpec(configSpec);
 			IInstallableUnit cu = BundlesAction.createBundleConfigurationUnit(id, version, false, bundle, flavor, filter);
-			if (cu != null)
+			if (cu != null) {
 				results.addIU(cu, IPublisherResult.ROOT);
+			}
 		}
 	}
 }

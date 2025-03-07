@@ -57,12 +57,14 @@ public class ExecutablesDescriptor {
 	 */
 	public static ExecutablesDescriptor createExecutablesFromFeature(File executablesFeatureLocation, String configSpec) {
 		// TODO consider handling JAR'd features here...
-		if (executablesFeatureLocation == null || !executablesFeatureLocation.exists())
+		if (executablesFeatureLocation == null || !executablesFeatureLocation.exists()) {
 			return null;
+		}
 		String[] config = AbstractPublisherAction.parseConfigSpec(configSpec);
 		File result = new File(executablesFeatureLocation, "bin/" + config[0] + "/" + config[1] + "/" + config[2]); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		if (!result.exists())
+		if (!result.exists()) {
 			return null;
+		}
 		return new ExecutablesDescriptor(config[1], "launcher", result, new File[] {result}); //$NON-NLS-1$
 	}
 
@@ -73,12 +75,14 @@ public class ExecutablesDescriptor {
 	 * @return the created descriptor
 	 */
 	public static ExecutablesDescriptor createDescriptor(String os, String executable, File location) {
-		if (Constants.OS_MACOSX.equals(os))
+		if (Constants.OS_MACOSX.equals(os)) {
 			return createMacDescriptor(os, executable, location);
+		}
 
 		// if it is not Mac and not Windows it must be a UNIX flavor
-		if (!Constants.OS_WIN32.equals(os))
+		if (!Constants.OS_WIN32.equals(os)) {
 			return createUnixDescriptor(os, executable, location);
+		}
 
 		// Nothing else so it must be Windows
 		return createWindowsDescriptor(os, executable, location);
@@ -92,8 +96,9 @@ public class ExecutablesDescriptor {
 			result.iniFile = new File(location, executable + ".ini"); //$NON-NLS-1$
 		}
 		file = new File(location, "eclipsec.exe"); //$NON-NLS-1$
-		if (file.isFile())
+		if (file.isFile()) {
 			result.addFile(file);
+		}
 		return result;
 	}
 
@@ -102,8 +107,9 @@ public class ExecutablesDescriptor {
 		File[] files = location.listFiles();
 		for (int i = 0; files != null && i < files.length; i++) {
 			String extension = IPath.fromOSString(files[i].getName()).getFileExtension();
-			if (files[i].isFile() && (extension == null || extension.equals("so"))) //$NON-NLS-1$
+			if (files[i].isFile() && (extension == null || extension.equals("so"))) { //$NON-NLS-1$
 				result.addFile(files[i]);
+			}
 		}
 		result.iniFile = new File(location, executable + ".ini"); //$NON-NLS-1$
 		return result;
@@ -123,9 +129,9 @@ public class ExecutablesDescriptor {
 		this.os = os;
 		this.executableName = executable;
 		this.location = location;
-		if (files == null)
+		if (files == null) {
 			this.files = new HashSet<>(11);
-		else {
+		} else {
 			this.files = new HashSet<>(files.length);
 			for (File file : files) {
 				addAllFiles(file);
@@ -142,9 +148,9 @@ public class ExecutablesDescriptor {
 	}
 
 	public void addAllFiles(File file) {
-		if (file.isFile())
+		if (file.isFile()) {
 			files.add(relativize(file));
-		else {
+		} else {
 			File absolute = file.isAbsolute() ? file : new File(location, file.getPath());
 			File[] list = absolute.listFiles();
 			for (File list1 : list) {
@@ -159,15 +165,18 @@ public class ExecutablesDescriptor {
 
 	// do a simple relativization by removing all the bits before the location
 	private File relativize(File file) {
-		if (!file.isAbsolute())
+		if (!file.isAbsolute()) {
 			return file;
+		}
 		String path = file.getPath();
-		if (!path.startsWith(location.getPath()))
+		if (!path.startsWith(location.getPath())) {
 			throw new IllegalArgumentException(file.toString() + " must be related to " + location); //$NON-NLS-1$
+		}
 		path = path.substring(location.getPath().length());
 		// trim off any separator.  This accomodates people who set the location with a trailing /
-		if (path.startsWith("/") || path.startsWith("\\")) //$NON-NLS-1$//$NON-NLS-2$
+		if (path.startsWith("/") || path.startsWith("\\")) { //$NON-NLS-1$//$NON-NLS-2$
 			path = path.substring(1);
+		}
 		return new File(path);
 	}
 
@@ -182,8 +191,9 @@ public class ExecutablesDescriptor {
 
 	public File[] getFiles() {
 		File[] result = files.toArray(new File[files.size()]);
-		for (int i = 0; i < result.length; i++)
+		for (int i = 0; i < result.length; i++) {
 			result[i] = new File(location, result[i].getPath());
+		}
 		return result;
 	}
 
@@ -212,20 +222,23 @@ public class ExecutablesDescriptor {
 	}
 
 	public void setExecutableName(String value, boolean updateFiles) {
-		if (updateFiles)
+		if (updateFiles) {
 			updateExecutableName(value);
+		}
 		executableName = value;
 	}
 
 	public void makeTemporaryCopy() {
-		if (isTemporary())
+		if (isTemporary()) {
 			return;
+		}
 		File tempFile = null;
 		try {
 			tempFile = File.createTempFile("p2.brandingIron", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			tempFile.delete();
-			for (File file : files)
+			for (File file : files) {
 				FileUtils.copy(location, tempFile, file, true);
+			}
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error publishing artifacts", e)); //$NON-NLS-1$
 		}
@@ -240,26 +253,29 @@ public class ExecutablesDescriptor {
 	 * @param newName the new name of the executable.
 	 */
 	private void updateExecutableName(String newName) {
-		if (newName.equalsIgnoreCase(executableName))
+		if (newName.equalsIgnoreCase(executableName)) {
 			return;
+		}
 		Set<File> filesCopy = new HashSet<>(files);
 		for (File file : filesCopy) {
 			String base = file.getParent();
 
 			// use String concatenation here because new File("", "foo") is absolute on at least windows...
 			base = base == null ? "" : base + "/"; //$NON-NLS-1$ //$NON-NLS-2$
-			if (Constants.OS_MACOSX.equals(os) && base.startsWith(executableName + ".app")) //$NON-NLS-1$
+			if (Constants.OS_MACOSX.equals(os) && base.startsWith(executableName + ".app")) { //$NON-NLS-1$
 				base = newName + ".app" + base.substring(executableName.length() + 4); //$NON-NLS-1$
-			if (file.getName().equalsIgnoreCase(executableName))
+			}
+			if (file.getName().equalsIgnoreCase(executableName)) {
 				replace(file, new File(base + newName));
-			else if (file.getName().equalsIgnoreCase(executableName + ".exe")) //$NON-NLS-1$
+			} else if (file.getName().equalsIgnoreCase(executableName + ".exe")) { //$NON-NLS-1$
 				replace(file, new File(base + newName + ".exe")); //$NON-NLS-1$
-			else if (file.getName().equalsIgnoreCase(executableName + "c.exe")) //$NON-NLS-1$
+			} else if (file.getName().equalsIgnoreCase(executableName + "c.exe")) { //$NON-NLS-1$
 				replace(file, new File(base + newName + "c.exe")); //$NON-NLS-1$
-			else if (file.getName().equalsIgnoreCase(executableName + ".ini")) //$NON-NLS-1$
+			} else if (file.getName().equalsIgnoreCase(executableName + ".ini")) { //$NON-NLS-1$
 				replace(file, new File(base + newName + ".ini")); //$NON-NLS-1$
-			else if (Constants.OS_MACOSX.equals(os))
+			} else if (Constants.OS_MACOSX.equals(os)) {
 				replace(file, new File(base + file.getName()));
+			}
 		}
 	}
 }

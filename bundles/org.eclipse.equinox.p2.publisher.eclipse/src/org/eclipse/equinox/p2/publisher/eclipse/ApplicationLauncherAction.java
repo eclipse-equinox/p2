@@ -66,12 +66,14 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 		IPublisherResult innerResult = new PublisherResult();
 		MultiStatus finalStatus = new MultiStatus(ApplicationLauncherAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
 		for (IPublisherAction action : actions) {
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
+			}
 			finalStatus.merge(action.perform(publisherInfo, innerResult, monitor));
 		}
-		if (!finalStatus.isOK())
+		if (!finalStatus.isOK()) {
 			return finalStatus;
+		}
 		// merge the IUs  into the final result as non-roots and create a parent IU that captures them all
 		results.merge(innerResult, IPublisherResult.MERGE_ALL_NON_ROOT);
 		publishApplicationLauncherIU(innerResult.getIUs(null, IPublisherResult.ROOT), results);
@@ -91,27 +93,31 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 	 */
 	private void createLauncherAdvice(IPublisherInfo publisherInfo, IPublisherResult results) {
 		Collection<IInstallableUnit> ius = getIUs(results.getIUs(null, null), EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER);
-		if (publisherInfo.getContextMetadataRepository() != null)
+		if (publisherInfo.getContextMetadataRepository() != null) {
 			ius.addAll(getIUs(publisherInfo.getContextMetadataRepository().query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet(), EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER));
+		}
 		VersionAdvice advice = new VersionAdvice();
 		boolean found = false;
 		for (IInstallableUnit iu : ius) {
 			// skip over source bundles and fragments
 			// TODO should we use the source property here rather than magic name matching?
-			if (iu.getId().endsWith(".source") || QueryUtil.isFragment(iu)) //$NON-NLS-1$
+			if (iu.getId().endsWith(".source") || QueryUtil.isFragment(iu)) { //$NON-NLS-1$
 				continue;
+			}
 			advice.setVersion(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), iu.getVersion());
 			found = true;
 		}
-		if (found)
+		if (found) {
 			publisherInfo.addAdvice(advice);
+		}
 	}
 
 	private Collection<IInstallableUnit> getIUs(Collection<IInstallableUnit> ius, String prefix) {
 		Set<IInstallableUnit> result = new HashSet<>();
 		for (IInstallableUnit tmp : ius) {
-			if (tmp.getId().startsWith(prefix))
+			if (tmp.getId().startsWith(prefix)) {
 				result.add(tmp);
+			}
 		}
 		return result;
 	}
@@ -120,8 +126,9 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 		InstallableUnitDescription descriptor = createParentIU(children, computeIUId(id, flavor), version);
 		descriptor.setSingleton(true);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
-		if (rootIU == null)
+		if (rootIU == null) {
 			return;
+		}
 		result.addIU(rootIU, IPublisherResult.ROOT);
 	}
 
@@ -145,8 +152,9 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 	protected ExecutablesDescriptor computeExecutables(String configSpec) {
 		// See if we know about an executables feature then use it as the source
 		ExecutablesDescriptor result = ExecutablesDescriptor.createExecutablesFromFeature(location, configSpec);
-		if (result != null)
+		if (result != null) {
 			return result;
+		}
 		// otherwise, assume that we are running against an Eclipse install and do the default thing
 		String os = AbstractPublisherAction.parseConfigSpec(configSpec)[1];
 		return ExecutablesDescriptor.createDescriptor(os, executableName, location);

@@ -89,11 +89,13 @@ public class BrandingIron {
 
 	public void brand(ExecutablesDescriptor descriptor) throws Exception {
 		// if the name property is not set it will be ${launcher.name} so just bail.
-		if (name.startsWith("${")) //$NON-NLS-1$
+		if (name.startsWith("${")) { //$NON-NLS-1$
 			return;
+		}
 
-		if (icons == null || icons[0].startsWith("${")) //$NON-NLS-1$
+		if (icons == null || icons[0].startsWith("${")) { //$NON-NLS-1$
 			brandIcons = false;
+		}
 
 		File root = descriptor.getLocation();
 
@@ -101,8 +103,9 @@ public class BrandingIron {
 		// there is already a file with target name and we don't need to update its
 		// icons, don't do anything
 		String testName = os.equals("win32") ? name + ".exe" : name; //$NON-NLS-1$ //$NON-NLS-2$
-		if (!root.exists() || (!brandIcons && new File(root, testName).exists()))
+		if (!root.exists() || (!brandIcons && new File(root, testName).exists())) {
 			return;
+		}
 
 		// make sure the descriptor's location is a canonical path otherwise
 		// removing files from it may fail (this happens notably on Windows)
@@ -114,9 +117,9 @@ public class BrandingIron {
 		}
 		descriptor.setLocation(root);
 
-		if (os == null)
+		if (os == null) {
 			renameLauncher(descriptor);
-		else
+		} else {
 			switch (os) {
 			case "win32": //$NON-NLS-1$
 				brandWindows(descriptor);
@@ -140,6 +143,7 @@ public class BrandingIron {
 				renameLauncher(descriptor);
 				break;
 			}
+		}
 		descriptor.setExecutableName(name, true);
 	}
 
@@ -173,14 +177,16 @@ public class BrandingIron {
 
 	private void brandSolaris(ExecutablesDescriptor descriptor) throws Exception {
 		renameLauncher(descriptor);
-		if (brandIcons == false)
+		if (brandIcons == false) {
 			return;
+		}
 
 		File root = descriptor.getLocation();
 		for (String icon : icons) {
 			int iconNameLength = icon.length();
-			if (iconNameLength < 5)
+			if (iconNameLength < 5) {
 				continue;
+			}
 			String extension = icon.substring(iconNameLength - 5);
 			// check if the extension is one of: .l.pm, .m.pm, .s.pm, .t.pm
 			if (extension.charAt(0) == '.' && extension.endsWith(".pm") && "lmst".indexOf(extension.charAt(1)) >= 0) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -205,14 +211,18 @@ public class BrandingIron {
 		new File(target, "Resources").mkdirs(); //$NON-NLS-1$
 
 		File initialRoot = new File(root, "Launcher.app/Contents"); //$NON-NLS-1$
-		if (!initialRoot.exists())
+		if (!initialRoot.exists()) {
 			initialRoot = new File(root, "launcher.app/Contents"); //$NON-NLS-1$
-		if (!initialRoot.exists())
+		}
+		if (!initialRoot.exists()) {
 			initialRoot = new File(root, "Eclipse.app/Contents"); //$NON-NLS-1$
-		if (!initialRoot.exists())
+		}
+		if (!initialRoot.exists()) {
 			initialRoot = new File(root, "eclipse.app/Contents"); //$NON-NLS-1$
-		if (!initialRoot.exists())
+		}
+		if (!initialRoot.exists()) {
 			throw new FileNotFoundException("cannot find launcher root (Eclipse.app or Launcher.app)"); //$NON-NLS-1$
+		}
 		// use the canonical rep to avoid possible issues from case-insensitive file
 		// systems
 		initialRoot = initialRoot.getCanonicalFile();
@@ -306,8 +316,9 @@ public class BrandingIron {
 		File initialLauncher = findLauncher(new File(initialRoot, splashMacOS));
 		if (initialLauncher != null) {
 			try {
-				if (!initialLauncher.getCanonicalFile().equals(targetLauncher.getCanonicalFile()))
+				if (!initialLauncher.getCanonicalFile().equals(targetLauncher.getCanonicalFile())) {
 					initialLauncher.delete();
+				}
 			} catch (IOException e) {
 				// ignore
 			}
@@ -317,19 +328,22 @@ public class BrandingIron {
 	}
 
 	private File findLauncher(File root, String... candidates) {
-		if (candidates.length == 0)
+		if (candidates.length == 0) {
 			candidates = new String[] { "launcher", "eclipse" }; //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		for (String candidate : candidates) {
 			File launcher = new File(root, candidate);
-			if (launcher.exists())
+			if (launcher.exists()) {
 				return launcher;
+			}
 		}
 		return null;
 	}
 
 	private void moveContents(ExecutablesDescriptor descriptor, File source, File target) {
-		if (!source.exists())
+		if (!source.exists()) {
 			return;
+		}
 		try {
 			source = source.getCanonicalFile();
 			target = target.getCanonicalFile();
@@ -337,8 +351,9 @@ public class BrandingIron {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Could not copy macosx resources.", e)); //$NON-NLS-1$
 			return;
 		}
-		if (source.equals(target))
+		if (source.equals(target)) {
 			return;
+		}
 
 		target.getParentFile().mkdirs();
 		if (source.isDirectory()) {
@@ -400,8 +415,9 @@ public class BrandingIron {
 	private void renameLauncher(ExecutablesDescriptor descriptor) {
 		File root = descriptor.getLocation();
 		File launcher = findLauncher(root);
-		if (launcher == null)
+		if (launcher == null) {
 			return;
+		}
 		File targetLauncher = new File(root, name);
 		launcher.renameTo(targetLauncher);
 		descriptor.replace(launcher, targetLauncher);
@@ -499,8 +515,9 @@ public class BrandingIron {
 				}
 			} else if (ini2.exists()) {
 				ini = ini2;
-			} else
+			} else {
 				return;
+			}
 		}
 
 		StringBuffer buffer;
@@ -550,8 +567,9 @@ public class BrandingIron {
 		infoPListEditor.setKey(InfoPListEditor.BUNDLE_KEY, capitalizedName);
 		infoPListEditor.setKey(InfoPListEditor.BUNDLE_DISPLAYNAME_KEY, capitalizedName);
 		infoPListEditor.setKey(InfoPListEditor.BUNDLE_ID_KEY, id == null ? name : id);
-		if (description != null)
+		if (description != null) {
 			infoPListEditor.setKey(InfoPListEditor.BUNDLE_INFO_KEY, description);
+		}
 
 		if (version != null) {
 			// CFBundleShortVersionString is to be 3 segments only
@@ -584,8 +602,9 @@ public class BrandingIron {
 			return;
 		}
 		try {
-			if (!infoPList.getCanonicalFile().equals(target.getCanonicalFile()))
+			if (!infoPList.getCanonicalFile().equals(target.getCanonicalFile())) {
 				infoPList.delete();
+			}
 		} catch (IOException e) {
 			// ignore
 		}

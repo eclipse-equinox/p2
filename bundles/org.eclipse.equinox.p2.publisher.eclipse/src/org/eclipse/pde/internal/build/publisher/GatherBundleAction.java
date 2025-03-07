@@ -51,8 +51,9 @@ public class GatherBundleAction extends BundlesAction {
 	@Override
 	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations, IProgressMonitor monitor) {
 		Dictionary<String, String> manifest = basicLoadManifestIgnoringExceptions(manifestRoot);
-		if (manifest == null)
+		if (manifest == null) {
 			return null;
+		}
 
 		BundleDescription bundle = createBundleDescription(manifest, bundleLocation);
 		createShapeAdvice(bundle);
