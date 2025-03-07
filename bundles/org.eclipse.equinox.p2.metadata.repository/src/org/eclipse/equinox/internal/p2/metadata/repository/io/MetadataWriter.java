@@ -39,14 +39,16 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 	 * @param size The number of units to write
 	 */
 	public void writeInstallableUnits(Iterator<IInstallableUnit> units, int size) {
-		if (!units.hasNext())
+		if (!units.hasNext()) {
 			return;
+		}
 		start(INSTALLABLE_UNITS_ELEMENT);
 
 		// The size is a bummer. Is it really needed? It forces the use of a collect
 		attribute(COLLECTION_SIZE_ATTRIBUTE, size);
-		while (units.hasNext())
+		while (units.hasNext()) {
 			writeInstallableUnit(units.next());
+		}
 		end(INSTALLABLE_UNITS_ELEMENT);
 	}
 
@@ -59,8 +61,9 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 		//		attribute(FRAGMENT_ATTRIBUTE, iu.isFragment(), false);
 
 		boolean simpleRequirements = hasOnlySimpleRequirements(iu);
-		if (!simpleRequirements)
+		if (!simpleRequirements) {
 			attribute(GENERATION_ATTRIBUTE, 2);
+		}
 
 		if (iu instanceof IInstallableUnitFragment) {
 			IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
@@ -97,44 +100,56 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 	}
 
 	private boolean hasOnlySimpleRequirements(IInstallableUnit iu) {
-		for (IRequirement r : iu.getRequirements())
-			if (r.getMax() == 0 || !RequiredCapability.isVersionRangeRequirement(r.getMatches()))
+		for (IRequirement r : iu.getRequirements()) {
+			if (r.getMax() == 0 || !RequiredCapability.isVersionRangeRequirement(r.getMatches())) {
 				return false;
-
-		if (iu.getUpdateDescriptor() != null) {
-			for (IMatchExpression<IInstallableUnit> m : iu.getUpdateDescriptor().getIUsBeingUpdated()) {
-				if (!RequiredCapability.isVersionRangeRequirement(m))
-					return false;
 			}
 		}
 
-		for (IRequirement r : iu.getMetaRequirements())
-			if (r.getMax() == 0 || !RequiredCapability.isVersionRangeRequirement(r.getMatches()))
+		if (iu.getUpdateDescriptor() != null) {
+			for (IMatchExpression<IInstallableUnit> m : iu.getUpdateDescriptor().getIUsBeingUpdated()) {
+				if (!RequiredCapability.isVersionRangeRequirement(m)) {
+					return false;
+				}
+			}
+		}
+
+		for (IRequirement r : iu.getMetaRequirements()) {
+			if (r.getMax() == 0 || !RequiredCapability.isVersionRangeRequirement(r.getMatches())) {
 				return false;
+			}
+		}
 
 		if (iu instanceof IInstallableUnitFragment) {
-			for (IRequirement r : ((IInstallableUnitFragment) iu).getHost())
-				if (!RequiredCapability.isVersionRangeRequirement(r.getMatches()))
+			for (IRequirement r : ((IInstallableUnitFragment) iu).getHost()) {
+				if (!RequiredCapability.isVersionRangeRequirement(r.getMatches())) {
 					return false;
+				}
+			}
 		}
 
 		if (iu instanceof IInstallableUnitPatch) {
 			IInstallableUnitPatch iuPatch = (IInstallableUnitPatch) iu;
-			for (IRequirement[] rArr : iuPatch.getApplicabilityScope())
-				for (IRequirement r : rArr)
-					if (!RequiredCapability.isVersionRangeRequirement(r.getMatches()))
+			for (IRequirement[] rArr : iuPatch.getApplicabilityScope()) {
+				for (IRequirement r : rArr) {
+					if (!RequiredCapability.isVersionRangeRequirement(r.getMatches())) {
 						return false;
+					}
+				}
+			}
 
 			IRequirement lifeCycle = iuPatch.getLifeCycle();
-			if (lifeCycle != null && !RequiredCapability.isVersionRangeRequirement(lifeCycle.getMatches()))
+			if (lifeCycle != null && !RequiredCapability.isVersionRangeRequirement(lifeCycle.getMatches())) {
 				return false;
+			}
 		}
 		return true;
 	}
 
 	protected void writeLifeCycle(IRequirement capability) {
-		if (capability == null)
+		if (capability == null) {
 			return;
+		}
 		start(LIFECYCLE);
 		writeRequirement(capability);
 		end(LIFECYCLE);
@@ -203,11 +218,13 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 	}
 
 	protected void writeUpdateDescriptor(IInstallableUnit iu, IUpdateDescriptor descriptor) {
-		if (descriptor == null)
+		if (descriptor == null) {
 			return;
+		}
 
-		if (descriptor.getIUsBeingUpdated().size() > 1)
+		if (descriptor.getIUsBeingUpdated().size() > 1) {
 			throw new IllegalStateException();
+		}
 		IMatchExpression<IInstallableUnit> singleUD = descriptor.getIUsBeingUpdated().iterator().next();
 		start(UPDATE_DESCRIPTOR_ELEMENT);
 		if (RequiredCapability.isVersionRangeRequirement(singleUD)) {
@@ -316,8 +333,9 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 		if (params.length > 0) {
 			IExpressionFactory factory = ExpressionUtil.getFactory();
 			IExpression[] constantArray = new IExpression[params.length];
-			for (int idx = 0; idx < params.length; ++idx)
+			for (int idx = 0; idx < params.length; ++idx) {
 				constantArray[idx] = factory.constant(params[idx]);
+			}
 			attribute(MATCH_PARAMETERS_ATTRIBUTE, factory.array(constantArray));
 		}
 	}
@@ -357,8 +375,9 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 						start(TOUCHPOINT_DATA_INSTRUCTION_ELEMENT);
 						attribute(TOUCHPOINT_DATA_INSTRUCTION_KEY_ATTRIBUTE, entry.getKey());
 						ITouchpointInstruction instruction = entry.getValue();
-						if (instruction.getImportAttribute() != null)
+						if (instruction.getImportAttribute() != null) {
 							attribute(TOUCHPOINT_DATA_INSTRUCTION_IMPORT_ATTRIBUTE, instruction.getImportAttribute());
+						}
 						cdata(instruction.getBody(), true);
 						end(TOUCHPOINT_DATA_INSTRUCTION_ELEMENT);
 					}
@@ -386,8 +405,9 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 			start(LICENSES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, licenses.size());
 			for (ILicense license : licenses) {
-				if (license == null)
+				if (license == null) {
 					continue;
+				}
 				start(LICENSE_ELEMENT);
 				if (license.getLocation() != null) {
 					attribute(URI_ATTRIBUTE, license.getLocation().toString());

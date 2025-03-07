@@ -128,8 +128,9 @@ public class IUDeserializer {
 			}
 
 			public IInstallableUnit[] getInstallableUnits() {
-				if (unitsHandler == null)
+				if (unitsHandler == null) {
 					return null;
+				}
 				return unitsHandler.getUnits();
 			}
 		}

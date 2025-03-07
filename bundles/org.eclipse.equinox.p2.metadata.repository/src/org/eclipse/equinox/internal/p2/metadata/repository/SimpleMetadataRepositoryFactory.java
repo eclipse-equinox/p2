@@ -36,8 +36,9 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 
 	@Override
 	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) {
-		if (location.getScheme().equals("file")) //$NON-NLS-1$
+		if (location.getScheme().equals("file")) { //$NON-NLS-1$
 			return new LocalMetadataRepository(getAgent(), location, name, properties);
+		}
 		return new URLMetadataRepository(getAgent(), location, name, properties);
 	}
 
@@ -53,19 +54,22 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 		if (PROTOCOL_FILE.equals(xmlLocation.getScheme())) {
 			//look for a compressed local file
 			localFile = URIUtil.toFile(jarLocation);
-			if (localFile.exists())
+			if (localFile.exists()) {
 				return localFile;
+			}
 			//look for an uncompressed local file
 			localFile = URIUtil.toFile(xmlLocation);
-			if (localFile.exists())
+			if (localFile.exists()) {
 				return localFile;
+			}
 			String msg = NLS.bind(Messages.io_failedRead, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Constants.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
 		// file is not local, create a cache of the repository metadata
 		CacheManager cache = getAgent().getService(CacheManager.class);
-		if (cache == null)
+		if (cache == null) {
 			throw new IllegalArgumentException("Cache manager service not available"); //$NON-NLS-1$
+		}
 		localFile = cache.createCache(location, URLMetadataRepository.CONTENT_FILENAME, monitor);
 		if (localFile == null) {
 			// there is no remote file in either form - this should not really happen as
@@ -99,19 +103,23 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 						jarEntry = jarStream.getNextJarEntry();
 					}
 					//if there is a jar but the entry is missing or invalid, treat this as an invalid repository
-					if (jarEntry == null)
+					if (jarEntry == null) {
 						throw new IOException(NLS.bind(Messages.repoMan_invalidLocation, location));
+					}
 				}
 				//parse the repository descriptor file
 				sub.setWorkRemaining(100);
 				InputStream descriptorStream = jarStream != null ? jarStream : inStream;
 				IMetadataRepository result = new MetadataRepositoryIO(getAgent()).read(localFile.toURL(), descriptorStream, sub.newChild(100));
-				if (result != null && (flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0 && !result.isModifiable())
+				if (result != null && (flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0 && !result.isModifiable()) {
 					return null;
-				if (result instanceof LocalMetadataRepository)
+				}
+				if (result instanceof LocalMetadataRepository) {
 					((LocalMetadataRepository) result).initializeAfterLoad(location);
-				if (result instanceof URLMetadataRepository)
+				}
+				if (result instanceof URLMetadataRepository) {
 					((URLMetadataRepository) result).initializeAfterLoad(location);
+				}
 				if (Tracing.DEBUG_METADATA_PARSING) {
 					time += System.currentTimeMillis();
 					Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$
@@ -128,8 +136,9 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 			String msg = NLS.bind(Messages.io_failedRead, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Constants.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
 		} finally {
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.done();
+			}
 		}
 	}
 
@@ -156,8 +165,9 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 	 * Closes a stream, ignoring any secondary exceptions
 	 */
 	private static void safeClose(InputStream stream) {
-		if (stream == null)
+		if (stream == null) {
 			return;
+		}
 		try {
 			stream.close();
 		} catch (IOException e) {

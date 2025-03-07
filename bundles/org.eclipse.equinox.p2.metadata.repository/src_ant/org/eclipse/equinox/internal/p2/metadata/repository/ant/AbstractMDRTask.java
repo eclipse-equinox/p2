@@ -27,8 +27,9 @@ public class AbstractMDRTask extends Task {
 	 */
 	public static IProvisioningAgent getAgent() throws BuildException {
 		IProvisioningAgent agent = ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.class);
-		if (agent == null)
+		if (agent == null) {
 			throw new BuildException(Messages.no_provisioning_agent);
+		}
 		return agent;
 	}
 

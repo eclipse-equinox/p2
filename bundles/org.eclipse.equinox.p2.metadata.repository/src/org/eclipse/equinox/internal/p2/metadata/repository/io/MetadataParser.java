@@ -90,8 +90,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			int type = checkInteger(elementHandled, TYPE_ATTRIBUTE, values[0]);
 			int options = checkInteger(elementHandled, OPTIONS_ATTRIBUTE, values[1]);
 			URI location = parseURIAttribute(attributes, true);
-			if (location != null)
+			if (location != null) {
 				references.add(new RepositoryReference(location, name, type, options));
+			}
 		}
 
 		@Override
@@ -112,8 +113,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			int size = units.size();
 			IInstallableUnit[] result = new IInstallableUnit[size];
 			int i = 0;
-			for (InstallableUnitDescription desc : units)
+			for (InstallableUnitDescription desc : units) {
 				result[i++] = MetadataFactory.createInstallableUnit(desc);
+			}
 			return result;
 		}
 
@@ -158,8 +160,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			String[] values = parseAttributes(attributes, REQUIRED_IU_ATTRIBUTES, OPTIONAL_IU_ATTRIBUTES);
 			this.units = units;
 			//skip entire IU if the id is missing
-			if (values[0] == null)
+			if (values[0] == null) {
 				return;
+			}
 
 			id = values[0];
 			version = checkVersion(INSTALLABLE_UNIT_ELEMENT, VERSION_ATTRIBUTE, values[1]);
@@ -228,9 +231,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 					duplicateElement(this, name, attributes);
 				}
 			} else if (UPDATE_DESCRIPTOR_ELEMENT.equals(name)) {
-				if (updateDescriptorHandler == null)
+				if (updateDescriptorHandler == null) {
 					updateDescriptorHandler = new UpdateDescriptorHandler(this, attributes);
-				else {
+				} else {
 					duplicateElement(this, name, attributes);
 				}
 			} else if (LICENSES_ELEMENT.equals(name)) {
@@ -274,10 +277,12 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				if (requirementChangesHandler != null) {
 					currentUnit = new MetadataFactory.InstallableUnitPatchDescription();
 					((InstallableUnitPatchDescription) currentUnit).setRequirementChanges(requirementChangesHandler.getRequirementChanges().toArray(new IRequirementChange[requirementChangesHandler.getRequirementChanges().size()]));
-					if (applicabilityScopeHandler != null)
+					if (applicabilityScopeHandler != null) {
 						((InstallableUnitPatchDescription) currentUnit).setApplicabilityScope(applicabilityScopeHandler.getScope());
-					if (lifeCycleHandler != null)
+					}
+					if (lifeCycleHandler != null) {
 						((InstallableUnitPatchDescription) currentUnit).setLifeCycle(lifeCycleHandler.getLifeCycleRequirement());
+					}
 				} else if (hostRequiredCapabilitiesHandler == null || hostRequiredCapabilitiesHandler.getHostRequiredCapabilities().length == 0) {
 					currentUnit = new InstallableUnitDescription();
 				} else {
@@ -306,9 +311,10 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 					currentUnit.setProperty(key, value);
 				}
 				//Backward compatibility
-				if (updateFrom != null && updateRange != null)
+				if (updateFrom != null && updateRange != null) {
 					currentUnit.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(updateFrom, updateRange, IUpdateDescriptor.NORMAL, null));
 				//End of backward compatibility
+				}
 
 				if (licensesHandler != null) {
 					currentUnit.setLicenses(licensesHandler.getLicenses());
@@ -339,8 +345,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				for (ITouchpointData touchpointData1 : touchpointData) {
 					currentUnit.addTouchpointData(touchpointData1);
 				}
-				if (updateDescriptorHandler != null)
+				if (updateDescriptorHandler != null) {
 					currentUnit.setUpdateDescriptor(updateDescriptorHandler.getUpdateDescriptor());
+				}
 				units.add(currentUnit);
 			}
 		}
@@ -458,9 +465,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		@Override
 		public void startElement(String name, Attributes attributes) {
-			if (REQUIREMENT_ELEMENT.equals(name))
+			if (REQUIREMENT_ELEMENT.equals(name)) {
 				new RequirementHandler(this, attributes, requirement);
-			else {
+			} else {
 				invalidElement(name, attributes);
 			}
 		}
@@ -476,8 +483,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public IRequirement getLifeCycleRequirement() {
-			if (lifeCycleRequirement.size() == 0)
+			if (lifeCycleRequirement.size() == 0) {
 				return null;
+			}
 			return lifeCycleRequirement.get(0);
 		}
 
@@ -790,8 +798,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		@Override
 		protected void finished() {
-			if (!isValidXML())
+			if (!isValidXML()) {
 				return;
+			}
 			IMatchExpression<IInstallableUnit> filter = null;
 			if (filterHandler != null) {
 				try {
@@ -816,12 +825,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		private String removeWhiteSpace(String s) {
-			if (s == null)
+			if (s == null) {
 				return ""; //$NON-NLS-1$
+			}
 			StringBuilder builder = new StringBuilder();
 			for (int i = 0; i < s.length(); i++) {
-				if (s.charAt(i) != ' ')
+				if (s.charAt(i) != ' ') {
 					builder.append(s.charAt(i));
+				}
 			}
 			return builder.toString();
 		}
@@ -893,12 +904,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		private String removeWhiteSpace(String s) {
-			if (s == null)
+			if (s == null) {
 				return ""; //$NON-NLS-1$
+			}
 			StringBuilder builder = new StringBuilder();
 			for (int i = 0; i < s.length(); i++) {
-				if (s.charAt(i) != ' ')
+				if (s.charAt(i) != ' ') {
 					builder.append(s.charAt(i));
+				}
 			}
 			return builder.toString();
 		}
@@ -982,8 +995,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public ITouchpointData[] getTouchpointData() {
 			ITouchpointData[] result = new ITouchpointData[data.size()];
-			for (int i = 0; i < result.length; i++)
+			for (int i = 0; i < result.length; i++) {
 				result[i] = data.get(i).getTouchpointData();
+			}
 			return result;
 		}
 
@@ -1113,8 +1127,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public ILicense[] getLicenses() {
-			if (licenses.size() == 0)
+			if (licenses.size() == 0) {
 				return NO_LICENSES;
+			}
 			return licenses.toArray(new ILicense[licenses.size()]);
 		}
 
@@ -1181,13 +1196,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		IExpressionFactory factory = ExpressionUtil.getFactory();
 		IExpression expr = ExpressionUtil.parse(match);
 		Object[] params;
-		if (matchParams == null)
+		if (matchParams == null) {
 			params = new Object[0];
-		else {
+		} else {
 			IExpression[] arrayExpr = ExpressionUtil.getOperands(ExpressionUtil.parse(matchParams));
 			params = new Object[arrayExpr.length];
-			for (int idx = 0; idx < arrayExpr.length; ++idx)
+			for (int idx = 0; idx < arrayExpr.length; ++idx) {
 				params[idx] = arrayExpr[idx].evaluate(null);
+			}
 		}
 		return factory.matchExpression(expr, params);
 	}
