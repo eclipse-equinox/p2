@@ -184,12 +184,10 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		reg.put(id, desc);
 	}
 
-	public ProvisioningSession getSession() {
+	public synchronized ProvisioningSession getSession() {
 		if (session == null) {
-			synchronized (this) {
-				IProvisioningAgent agent = ServiceHelper.getService(getContext(), IProvisioningAgent.class);
-				session = new ProvisioningSession(agent);
-			}
+			IProvisioningAgent agent = ServiceHelper.getService(getContext(), IProvisioningAgent.class);
+			session = new ProvisioningSession(agent);
 		}
 		return session;
 	}
