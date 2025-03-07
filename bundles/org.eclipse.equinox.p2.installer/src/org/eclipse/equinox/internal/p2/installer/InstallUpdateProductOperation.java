@@ -64,8 +64,9 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		IVersionedId roots[] = installDescription.getRoots();
 		for (IVersionedId root : roots) {
 			IInstallableUnit iu = findUnit(root);
-			if (iu != null)
+			if (iu != null) {
 				units.add(iu);
+			}
 		}
 		return units;
 	}
@@ -93,8 +94,9 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			properties.put(IProfile.PROP_NAME, installDescription.getProductName());
 			properties.putAll(installDescription.getProfileProperties());
 			IPath location = installDescription.getBundleLocation();
-			if (location != null)
+			if (location != null) {
 				properties.put(IProfile.PROP_CACHE, location.toOSString());
+			}
 			profile = profileRegistry.addProfile(getProfileId(), properties);
 		}
 		return profile;
@@ -127,8 +129,9 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			request.addAll(toInstall);
 			s = director.provision(request, null, monitor.newChild(90));
 		}
-		if (!s.isOK())
+		if (!s.isOK()) {
 			throw new CoreException(s);
+		}
 	}
 
 	/**
@@ -151,23 +154,27 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 */
 	private IInstallableUnit findUnit(IVersionedId spec) throws CoreException {
 		String id = spec.getId();
-		if (id == null)
+		if (id == null) {
 			throw fail(Messages.Op_NoId);
+		}
 		Version version = spec.getVersion();
 		VersionRange range = VersionRange.emptyRange;
-		if (version != null && !version.equals(Version.emptyVersion))
+		if (version != null && !version.equals(Version.emptyVersion)) {
 			range = new VersionRange(version, true, version, true);
+		}
 		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id, range);
 		Iterator<IInstallableUnit> matches = metadataRepoMan.query(query, null).iterator();
 		// pick the newest match
 		IInstallableUnit newest = null;
 		while (matches.hasNext()) {
 			IInstallableUnit candidate = matches.next();
-			if (newest == null || (newest.getVersion().compareTo(candidate.getVersion()) < 0))
+			if (newest == null || (newest.getVersion().compareTo(candidate.getVersion()) < 0)) {
 				newest = candidate;
+			}
 		}
-		if (newest == null)
+		if (newest == null) {
 			throw fail(Messages.Op_IUNotFound + id);
+		}
 		return newest;
 	}
 
@@ -184,8 +191,9 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 */
 	private String getProfileId() {
 		IPath location = installDescription.getInstallLocation();
-		if (location != null)
+		if (location != null) {
 			return location.toString();
+		}
 		return installDescription.getProductName();
 	}
 
@@ -199,8 +207,9 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 
 	private <T> T getService(Class<T> name) throws CoreException {
 		T service = agent.getService(name);
-		if (service == null)
+		if (service == null) {
 			throw fail(Messages.Op_NoServiceImpl + name);
+		}
 		return service;
 	}
 
@@ -248,8 +257,9 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 
 	private void prepareArtifactRepositories() throws ProvisionException {
 		URI[] repos = installDescription.getArtifactRepositories();
-		if (repos == null)
+		if (repos == null) {
 			return;
+		}
 
 		// Repositories must be registered before they are loaded
 		// This is to avoid them being possibly overridden with the configuration as a
@@ -262,8 +272,9 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 
 	private void prepareMetadataRepositories() throws ProvisionException {
 		URI[] repos = installDescription.getMetadataRepositories();
-		if (repos == null)
+		if (repos == null) {
 			return;
+		}
 
 		// Repositories must be registered before they are loaded
 		// This is to avoid them being possibly overridden with the configuration as a
