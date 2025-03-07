@@ -102,8 +102,9 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		// TODO try and find common properties across platforms
 		String[] configSpecs = publisherInfo.getConfigurations();
 		for (String configSpec1 : configSpecs) {
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
+			}
 			String configSpec = configSpec1;
 			Collection<IConfigAdvice> configAdvice = publisherInfo.getAdvice(configSpec, false, id, version, IConfigAdvice.class);
 			BundleInfo[] bundles = fillInBundles(configAdvice, results);
@@ -127,8 +128,9 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		InstallableUnitDescription descriptor = createParentIU(children, computeIUId(id, flavor), version);
 		descriptor.setSingleton(true);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
-		if (rootIU == null)
+		if (rootIU == null) {
 			return;
+		}
 		result.addIU(rootIU, IPublisherResult.ROOT);
 	}
 
@@ -160,8 +162,9 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 					try {
 						File location = new File(bundleInfo.getLocation());
 						Dictionary<String, String> manifest = BundlesAction.loadManifestIgnoringExceptions(location);
-						if (manifest == null)
+						if (manifest == null) {
 							continue;
+						}
 						GeneratorBundleInfo newInfo = new GeneratorBundleInfo(bundleInfo);
 						ManifestElement[] element = ManifestElement.parseHeader("dummy-bsn", manifest.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
 						newInfo.setSymbolicName(element[0].getValue());
@@ -181,8 +184,9 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	 * Publish the IUs that capture the eclipse.ini information such as vmargs and program args, etc
 	 */
 	private void publishIniIUs(Collection<IExecutableAdvice> launchingAdvice, IPublisherResult results, String configSpec) {
-		if (launchingAdvice.isEmpty())
+		if (launchingAdvice.isEmpty()) {
 			return;
+		}
 
 		String configureData = ""; //$NON-NLS-1$
 		String unconfigureData = ""; //$NON-NLS-1$
@@ -192,8 +196,9 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			unconfigureData += dataStrings[1];
 		}
 		// if there is nothing to configure or unconfigure, then don't even bother generating this IU
-		if (configureData.length() == 0 && unconfigureData.length() == 0)
+		if (configureData.length() == 0 && unconfigureData.length() == 0) {
 			return;
+		}
 
 		Map<String, String> touchpointData = new HashMap<>();
 		touchpointData.put("configure", configureData); //$NON-NLS-1$
@@ -206,8 +211,9 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	 * Publish the IUs that capture the config.ini information such as properties etc
 	 */
 	private void publishConfigIUs(Collection<IConfigAdvice> configAdvice, IPublisherResult results, String configSpec) {
-		if (configAdvice.isEmpty())
+		if (configAdvice.isEmpty()) {
 			return;
+		}
 
 		String configureData = ""; //$NON-NLS-1$
 		String unconfigureData = ""; //$NON-NLS-1$
@@ -217,8 +223,9 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			unconfigureData += dataStrings[1];
 		}
 		// if there is nothing to configure or unconfigure, then don't even bother generating this IU
-		if (configureData.length() == 0 && unconfigureData.length() == 0)
+		if (configureData.length() == 0 && unconfigureData.length() == 0) {
 			return;
+		}
 
 		Map<String, String> touchpointData = new HashMap<>();
 		touchpointData.put("configure", configureData); //$NON-NLS-1$
@@ -315,10 +322,11 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 				}
 			}
 			String[] programArgs = advice.getProgramArguments();
-			for (int i = 0; i < programArgs.length; i++)
+			for (int i = 0; i < programArgs.length; i++) {
 				if (shouldPublishProgramArg(programArgs[i]) && !programSet.contains(programArgs[i])) {
-					if (programArgs[i].startsWith("-")) //$NON-NLS-1$
+					if (programArgs[i].startsWith("-")) { //$NON-NLS-1$
 						programSet.add(programArgs[i]);
+					}
 					touchpointParameters.clear();
 					touchpointParameters.put("programArg", programArgs[i]); //$NON-NLS-1$
 					configurationData += TouchpointInstruction.encodeAction("addProgramArg", touchpointParameters); //$NON-NLS-1$
@@ -328,6 +336,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 					// to this command line arg.
 					i++;
 				}
+			}
 		}
 		return new String[] {configurationData, unconfigurationData};
 	}
@@ -338,8 +347,9 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	 */
 	protected void publishBundleCUs(IPublisherInfo publisherInfo, BundleInfo[] bundles, String configSpec,
 			IPublisherResult result, Set<String> configBundles) {
-		if (bundles == null)
+		if (bundles == null) {
 			return;
+		}
 
 		String cuIdPrefix = ""; //$NON-NLS-1$
 		IMatchExpression<IInstallableUnit> filter = null;
@@ -350,12 +360,14 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 
 		for (BundleInfo bundleInfo : bundles) {
 			GeneratorBundleInfo generatorBundle = createGeneratorBundleInfo(bundleInfo, result);
-			if (generatorBundle == null)
+			if (generatorBundle == null) {
 				continue;
+			}
 			IInstallableUnit iu = generatorBundle.getIU();
 			// If there is no host, or the filters don't match, skip this one.
-			if (iu == null || !filterMatches(iu.getFilter(), configSpec))
+			if (iu == null || !filterMatches(iu.getFilter(), configSpec)) {
 				continue;
+			}
 			if (generatorBundle.getStartLevel() == BundleInfo.NO_LEVEL && !generatorBundle.isMarkedAsStarted()) {
 				// this bundle does not require any particular configuration, the plug-in
 				// default IU will handle installing it
@@ -388,17 +400,19 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		//query for a matching IU
 		IInstallableUnit iu = queryForIU(outerResults, name, Version.create(bundleInfo.getVersion()));
 		if (iu != null) {
-			if (iu.getVersion() == null)
+			if (iu.getVersion() == null) {
 				bundleInfo.setVersion("0.0.0"); //$NON-NLS-1$
-			else
+			} else {
 				bundleInfo.setVersion(iu.getVersion().toString());
+			}
 			GeneratorBundleInfo newInfo = new GeneratorBundleInfo(bundleInfo);
 			newInfo.setIU(iu);
 			return newInfo;
 		}
 
-		if (bundleInfo.getLocation() != null || bundleInfo.getVersion() != null)
+		if (bundleInfo.getLocation() != null || bundleInfo.getVersion() != null) {
 			return new GeneratorBundleInfo(bundleInfo);
+		}
 		//harder: try id_version
 		int i = name.indexOf('_');
 		while (i > -1) {

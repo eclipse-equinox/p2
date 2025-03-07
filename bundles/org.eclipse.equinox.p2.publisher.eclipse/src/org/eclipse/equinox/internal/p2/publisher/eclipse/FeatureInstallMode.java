@@ -29,8 +29,9 @@ enum FeatureInstallMode {
 			return INCLUDE;
 		}
 		for (FeatureInstallMode mode : FeatureInstallMode.values()) {
-			if (mode.attributeValue.equals(value))
+			if (mode.attributeValue.equals(value)) {
 				return mode;
+			}
 		}
 		throw new IllegalArgumentException(NLS.bind(Messages.exception_invalidFeatureInstallMode, value));
 	}

@@ -45,49 +45,59 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 	protected void processFlag(String arg, PublisherInfo publisherInfo) {
 		super.processFlag(arg, publisherInfo);
 
-		if (arg.equalsIgnoreCase("-startAll")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-startAll")) { //$NON-NLS-1$
 			start = true;
+		}
 	}
 
 	@Override
 	protected void initialize(PublisherInfo publisherInfo) throws ProvisionException {
 		super.initialize(publisherInfo);
 
-		if (publisherInfo.getConfigurations().length == 0)
+		if (publisherInfo.getConfigurations().length == 0) {
 			publisherInfo.setConfigurations(new String[] {""}); //$NON-NLS-1$
+		}
 	}
 
 	@Override
 	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo) throws URISyntaxException {
 		super.processParameter(arg, parameter, publisherInfo);
 
-		if (arg.equalsIgnoreCase("-id")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-id")) { //$NON-NLS-1$
 			id = parameter;
+		}
 
-		if (arg.equalsIgnoreCase("-version")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-version")) { //$NON-NLS-1$
 			version = Version.parseVersion(parameter);
+		}
 
-		if (arg.equalsIgnoreCase("-name")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-name")) { //$NON-NLS-1$
 			name = parameter;
+		}
 
-		if (arg.equalsIgnoreCase("-executable")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-executable")) { //$NON-NLS-1$
 			executableName = parameter;
+		}
 
-		if (arg.equalsIgnoreCase("-flavor")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-flavor")) { //$NON-NLS-1$
 			flavor = parameter;
+		}
 
-		if (arg.equalsIgnoreCase("-top")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-top")) { //$NON-NLS-1$
 			topLevel = createVersionedIdList(parameter);
+		}
 
-		if (arg.equalsIgnoreCase("-rootExclusions")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-rootExclusions")) { //$NON-NLS-1$
 			rootExclusions = AbstractPublisherAction.getArrayFromString(parameter, ","); //$NON-NLS-1$
+		}
 	}
 
 	private IVersionedId[] createVersionedIdList(String parameter) {
 		String[] list = AbstractPublisherAction.getArrayFromString(parameter, ","); //$NON-NLS-1$
 		IVersionedId[] result = new IVersionedId[list.length];
-		for (int i = 0; i < result.length; i++)
+		for (int i = 0; i < result.length; i++) {
 			result[i] = VersionedId.parse(list[i]);
+		}
 		return result;
 	}
 

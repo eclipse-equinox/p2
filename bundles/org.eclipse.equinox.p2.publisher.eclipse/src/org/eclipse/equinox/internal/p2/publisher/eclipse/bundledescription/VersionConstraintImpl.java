@@ -45,8 +45,9 @@ abstract class VersionConstraintImpl implements VersionConstraint {
 	@Override
 	public VersionRange getVersionRange() {
 		synchronized (this.monitor) {
-			if (versionRange == null)
+			if (versionRange == null) {
 				return VersionRange.emptyRange;
+			}
 			return versionRange;
 		}
 	}
@@ -114,8 +115,9 @@ abstract class VersionConstraintImpl implements VersionConstraint {
 	@Override
 	public BundleRequirement getRequirement() {
 		String namespace = getInternalNameSpace();
-		if (namespace == null)
+		if (namespace == null) {
 			return null;
+		}
 		return new BundleRequirementImpl(namespace);
 	}
 
@@ -172,10 +174,12 @@ abstract class VersionConstraintImpl implements VersionConstraint {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
-			if (!(obj instanceof BundleRequirementImpl))
+			}
+			if (!(obj instanceof BundleRequirementImpl)) {
 				return false;
+			}
 			return ((BundleRequirementImpl) obj).getVersionConstraint() == VersionConstraintImpl.this;
 		}
 
@@ -225,8 +229,9 @@ abstract class VersionConstraintImpl implements VersionConstraint {
 			char c = output[i];
 			switch (c) {
 				case '*' :
-					if (!escapeWildCard)
+					if (!escapeWildCard) {
 						break;
+					}
 				case '\\' :
 				case '(' :
 				case ')' :

@@ -85,10 +85,11 @@ class GenericDescriptionImpl extends BaseDescriptionImpl implements GenericDescr
 	}
 
 	void setType(String type) {
-		if (type == null || type.equals(GenericDescription.DEFAULT_TYPE))
+		if (type == null || type.equals(GenericDescription.DEFAULT_TYPE)) {
 			this.type = GenericDescription.DEFAULT_TYPE;
-		else
+		} else {
 			this.type = type;
+		}
 	}
 
 	/**
@@ -104,8 +105,9 @@ class GenericDescriptionImpl extends BaseDescriptionImpl implements GenericDescr
 	@Override
 	public Map<String, String> getDeclaredDirectives() {
 		synchronized (this.monitor) {
-			if (directives == null)
+			if (directives == null) {
 				return Collections.emptyMap();
+			}
 			return Collections.unmodifiableMap(directives);
 		}
 	}
@@ -114,14 +116,16 @@ class GenericDescriptionImpl extends BaseDescriptionImpl implements GenericDescr
 	public Map<String, Object> getDeclaredAttributes() {
 		synchronized (this.monitor) {
 			Map<String, Object> result = new HashMap<>(5);
-			if (attributes != null)
+			if (attributes != null) {
 				for (Enumeration<String> keys = attributes.keys(); keys.hasMoreElements();) {
 					String key = keys.nextElement();
 					Object value = attributes.get(key);
-					if (value instanceof List)
+					if (value instanceof List) {
 						value = Collections.unmodifiableList((List<?>) value);
+					}
 					result.put(key, value);
 				}
+			}
 			return Collections.unmodifiableMap(result);
 		}
 	}

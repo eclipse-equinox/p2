@@ -31,13 +31,16 @@ public class FeatureRootAdvice extends AbstractAdvice implements IFeatureRootAdv
 
 	@Override
 	public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
-		if (featureId != null && !featureId.equals(id))
+		if (featureId != null && !featureId.equals(id)) {
 			return false;
-		if (featureVersion != null && !featureVersion.equals(version))
+		}
+		if (featureVersion != null && !featureVersion.equals(version)) {
 			return false;
+		}
 
-		if (configSpec != null && !advice.containsKey(configSpec))
+		if (configSpec != null && !advice.containsKey(configSpec)) {
 			return false;
+		}
 
 		return true;
 	}
@@ -57,17 +60,18 @@ public class FeatureRootAdvice extends AbstractAdvice implements IFeatureRootAdv
 	 */
 	@Override
 	public IPathComputer getRootFileComputer(String config) {
-		if (advice.containsKey(config))
+		if (advice.containsKey(config)) {
 			return (GatheringComputer) advice.get(config)[IDX_COMPUTER];
+		}
 		return null;
 	}
 
 	public void addRootfiles(String config, GatheringComputer computer) {
 		Object[] configAdvice = getConfigAdvice(config);
 
-		if (configAdvice[IDX_COMPUTER] == null)
+		if (configAdvice[IDX_COMPUTER] == null) {
 			configAdvice[IDX_COMPUTER] = computer;
-		else {
+		} else {
 			GatheringComputer existing = (GatheringComputer) configAdvice[IDX_COMPUTER];
 			existing.addAll(computer);
 		}
@@ -101,12 +105,13 @@ public class FeatureRootAdvice extends AbstractAdvice implements IFeatureRootAdv
 		Object[] configAdvice = getConfigAdvice(config);
 		FileSetDescriptor descriptor = null;
 
-		if (configAdvice[IDX_DESCRIPTOR] != null)
+		if (configAdvice[IDX_DESCRIPTOR] != null) {
 			descriptor = (FileSetDescriptor) configAdvice[IDX_DESCRIPTOR];
-		else {
+		} else {
 			String key = "root"; //$NON-NLS-1$
-			if (config.length() > 0)
+			if (config.length() > 0) {
 				key += "." + config; //$NON-NLS-1$
+			}
 			descriptor = new FileSetDescriptor(key, config);
 			configAdvice[IDX_DESCRIPTOR] = descriptor;
 		}

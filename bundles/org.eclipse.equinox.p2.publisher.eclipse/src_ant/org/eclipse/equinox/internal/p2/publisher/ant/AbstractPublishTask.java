@@ -55,8 +55,9 @@ public abstract class AbstractPublishTask extends Task {
 		 * If not set, default is true if we aren't set as an artifact repo
 		 */
 		public boolean isMetadataRepository() {
-			if (metadata != null)
+			if (metadata != null) {
 				return metadata.booleanValue();
+			}
 			return !Boolean.TRUE.equals(artifact);
 		}
 
@@ -64,8 +65,9 @@ public abstract class AbstractPublishTask extends Task {
 		 * If not set, default is true if we aren't set as a metadata repo
 		 */
 		public boolean isArtifactRepository() {
-			if (artifact != null)
+			if (artifact != null) {
 				return artifact.booleanValue();
+			}
 			return !Boolean.TRUE.equals(metadata);
 		}
 
@@ -122,20 +124,24 @@ public abstract class AbstractPublishTask extends Task {
 			if (!append && !isEmpty(repo)) {
 				File repoLocation = URIUtil.toFile(artifactLocation);
 				if (repoLocation != null && source != null) {
-					if (repoLocation.isFile())
+					if (repoLocation.isFile()) {
 						repoLocation = repoLocation.getParentFile();
-					if (repoLocation.equals(new File(source)))
+					}
+					if (repoLocation.equals(new File(source))) {
 						throw new IllegalArgumentException(
 								NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput,
 										URIUtil.toUnencodedString(artifactLocation)));
+					}
 				}
 				repo.removeAll(new NullProgressMonitor());
 			}
 			info.setArtifactRepository(repo);
-		} else if ((info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0)
+		} else if ((info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0) {
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noArtifactRepo));
-		if (metadataLocation == null)
+		}
+		if (metadataLocation == null) {
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noMetadataRepo));
+		}
 		info.setMetadataRepository(Publisher.createMetadataRepository(getProvisioningAgent(), metadataLocation,
 				metadataRepoName, append, compress));
 
@@ -146,26 +152,32 @@ public abstract class AbstractPublishTask extends Task {
 					.createMemoryComposite(getProvisioningAgent());
 
 			for (RepoEntry entry : contextRepositories) {
-				if (contextMetadata != null && entry.isMetadataRepository())
+				if (contextMetadata != null && entry.isMetadataRepository()) {
 					contextMetadata.addChild(entry.getRepositoryLocation());
-				if (contextArtifact != null && entry.isArtifactRepository())
+				}
+				if (contextArtifact != null && entry.isArtifactRepository()) {
 					contextArtifact.addChild(entry.getRepositoryLocation());
+				}
 			}
 
-			if (contextMetadata != null && contextMetadata.getChildren().size() > 0)
+			if (contextMetadata != null && contextMetadata.getChildren().size() > 0) {
 				info.setContextMetadataRepository(contextMetadata);
+			}
 
-			if (contextArtifact != null && contextArtifact.getChildren().size() > 0)
+			if (contextArtifact != null && contextArtifact.getChildren().size() > 0) {
 				info.setContextArtifactRepository(contextArtifact);
+			}
 		}
 	}
 
 	protected PublisherInfo getInfo() {
-		if (provider == null)
+		if (provider == null) {
 			provider = new PublisherInfo();
+		}
 
-		if (publish)
+		if (publish) {
 			provider.setArtifactOptions(provider.getArtifactOptions() | IPublisherInfo.A_PUBLISH);
+		}
 		return provider;
 	}
 

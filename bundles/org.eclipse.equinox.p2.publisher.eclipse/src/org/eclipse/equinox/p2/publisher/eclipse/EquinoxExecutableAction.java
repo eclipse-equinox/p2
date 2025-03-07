@@ -72,12 +72,14 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		setPublisherInfo(publisherinfo);
 		ExecutablesDescriptor brandedExecutables = brandExecutables(executables);
 		try {
-			if (publishExecutableIU(brandedExecutables, result))
+			if (publishExecutableIU(brandedExecutables, result)) {
 				publishExecutableCU(brandedExecutables, result);
+			}
 			publishExecutableSetter(brandedExecutables, result);
 		} finally {
-			if (brandedExecutables.isTemporary())
+			if (brandedExecutables.isTemporary()) {
 				FileUtils.deleteAll(brandedExecutables.getLocation());
+			}
 		}
 		return Status.OK_STATUS;
 	}
@@ -136,8 +138,9 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 			iu.setArtifacts(new IArtifactKey[] {key});
 			IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(info, key, null);
 			publishArtifact(descriptor, execDescriptor.getFiles(), null, info, createRootPrefixComputer(execDescriptor.getLocation()));
-			if (execDescriptor.isTemporary())
+			if (execDescriptor.isTemporary()) {
 				FileUtils.deleteAll(execDescriptor.getLocation());
+			}
 		}
 		// setup a requirement between the executable and the launcher fragment that has the shared library
 		if (config.length > 0 && !CONFIG_ANY.equalsIgnoreCase(config[0])) {
@@ -183,8 +186,9 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	}
 
 	private Map<String, String> computeInstallActions(ExecutablesDescriptor execDescriptor, String os) {
-		if (Constants.OS_MACOSX.equals(os))
+		if (Constants.OS_MACOSX.equals(os)) {
 			return computeMacInstallActions(execDescriptor);
+		}
 
 		Map<String, String> touchpointData = new HashMap<>();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
@@ -216,10 +220,11 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		// magic moved here from BrandingIron.brandMac for bug 342550; PDE build requires appName == execName
 		// TODO the application name for Mac really should be a parameter of the product configuration
 		String appName = execName;
-		if (appName.equals("eclipse")) //$NON-NLS-1$
+		if (appName.equals("eclipse")) { //$NON-NLS-1$
 			appName = "Eclipse"; //$NON-NLS-1$
-		else if (appName.equals("launcher")) //$NON-NLS-1$
+		} else if (appName.equals("launcher")) { //$NON-NLS-1$
 			appName = "Launcher"; //$NON-NLS-1$
+		}
 		return appName;
 	}
 
@@ -235,18 +240,20 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		ExecutablesDescriptor result = new ExecutablesDescriptor(descriptor);
 		result.makeTemporaryCopy();
 		IBrandingAdvice advice = getBrandingAdvice();
-		if (advice == null)
+		if (advice == null) {
 			partialBrandExecutables(result);
-		else
+		} else {
 			fullBrandExecutables(result, advice);
+		}
 		return result;
 	}
 
 	private IBrandingAdvice getBrandingAdvice() {
 		// there is expected to only be one branding advice for a given configspec so
 		// just return the first one we find.
-		for (IBrandingAdvice advice : info.getAdvice(configSpec, true, null, null, IBrandingAdvice.class))
+		for (IBrandingAdvice advice : info.getAdvice(configSpec, true, null, null, IBrandingAdvice.class)) {
 			return advice;
+		}
 		return null;
 	}
 
@@ -257,8 +264,9 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		iron.setIcons(advice.getIcons());
 		iron.setMacOsBundleUrlTypes(advice.getMacOsBundleUrlTypes());
 		String name = advice.getExecutableName();
-		if (name == null)
+		if (name == null) {
 			name = "eclipse"; //$NON-NLS-1$
+		}
 		iron.setName(name);
 		iron.setApplicationName(guessMacAppName(name));
 		iron.setOS(advice.getOS());

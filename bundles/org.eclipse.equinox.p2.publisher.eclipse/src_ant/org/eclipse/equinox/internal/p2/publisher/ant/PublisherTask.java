@@ -58,39 +58,46 @@ public class PublisherTask extends AbstractPublishTask {
 	}
 
 	private IPublisherAction[] createActions() {
-		if (operation == null)
+		if (operation == null) {
 			// TODO what to do in this case?
 			return new IPublisherAction[] {};
-		if (operation.equals("-update")) //$NON-NLS-1$
+		}
+		if (operation.equals("-update")) { //$NON-NLS-1$
 			// TODO fix this up. watch for circularities
 			// return new IPublishingAction[] {new LocalUpdateSiteAction(operationValue)};
 			return new IPublisherAction[] {};
-		if (operation.equals("-source")) //$NON-NLS-1$
+		}
+		if (operation.equals("-source")) { //$NON-NLS-1$
 			// TODO what to do in this case?
 			return new IPublisherAction[] {
-					new EclipseInstallAction(operationValue, root, Version.parseVersion(rootVersion), rootName,
-							executableName, flavor, topLevel, nonRootFiles, start) };
+			new EclipseInstallAction(operationValue, root, Version.parseVersion(rootVersion), rootName,
+			executableName, flavor, topLevel, nonRootFiles, start) };
+		}
 		// TODO what to do in this case?
 		return new IPublisherAction[] {};
 	}
 
 	private void createVersionAdvice() {
-		if (versionAdvice == null)
+		if (versionAdvice == null) {
 			return;
 		// TODO read the version advice and add the IVersionAdvice
+		}
 	}
 
 	protected void initialize(PublisherInfo info) throws ProvisionException {
 		if (inplace) {
 			File sourceLocation = new File(source);
-			if (metadataLocation == null)
+			if (metadataLocation == null) {
 				metadataLocation = sourceLocation.toURI();
-			if (artifactLocation == null)
+			}
+			if (artifactLocation == null) {
 				artifactLocation = sourceLocation.toURI();
+			}
 			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
-		} else
+		} else {
 			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH
 					| IPublisherInfo.A_OVERWRITE);
+		}
 		initializeRepositories(info);
 	}
 

@@ -58,12 +58,14 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 		IPublisherAction[] actions = createActions();
 		MultiStatus finalStatus = new MultiStatus(EclipseInstallAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
 		for (IPublisherAction action : actions) {
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
+			}
 			finalStatus.merge(action.perform(publisherInfo, results, monitor));
 		}
-		if (!finalStatus.isOK())
+		if (!finalStatus.isOK()) {
 			return finalStatus;
+		}
 		return Status.OK_STATUS;
 	}
 
@@ -89,8 +91,9 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 	}
 
 	protected void createRootAdvice() {
-		if (topLevel != null)
+		if (topLevel != null) {
 			info.addAdvice(new RootIUAdvice(getTopLevel()));
+		}
 		info.addAdvice(new RootIUResultFilterAdvice(null));
 	}
 
@@ -116,15 +119,17 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 
 	protected Collection<IPublisherAction> createAccumulateConfigDataActions(String[] configs) {
 		File configuration = new File(source, "configuration/config.ini"); //$NON-NLS-1$
-		if (!configuration.exists())
+		if (!configuration.exists()) {
 			configuration = null;
+		}
 
 		Collection<IPublisherAction> result = new ArrayList<>(configs.length);
 		for (String configSpec : configs) {
 			String os = AbstractPublisherAction.parseConfigSpec(configSpec)[1];
 			File executable = ExecutablesDescriptor.findExecutable(os, computeExecutableLocation(configSpec), "eclipse"); //$NON-NLS-1$
-			if (!executable.exists())
+			if (!executable.exists()) {
 				executable = null;
+			}
 			IPublisherAction action = new AccumulateConfigDataAction(info, configSpec, configuration, executable);
 			result.add(action);
 		}
@@ -156,8 +161,9 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 
 	protected void createRootFilesAdvice() {
 		File[] baseExclusions = computeRootFileExclusions();
-		if (baseExclusions != null)
+		if (baseExclusions != null) {
 			info.addAdvice(new RootFilesAdvice(null, null, baseExclusions, null));
+		}
 		String[] configs = info.getConfigurations();
 		for (String config : configs) {
 			info.addAdvice(computeRootFileAdvice(config));
@@ -181,15 +187,17 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 	}
 
 	protected File[] computeRootFileExclusions() {
-		if (nonRootFiles == null || nonRootFiles.length == 0)
+		if (nonRootFiles == null || nonRootFiles.length == 0) {
 			return null;
+		}
 		ArrayList<File> result = new ArrayList<>();
 		for (String filename : nonRootFiles) {
 			File file = new File(filename);
-			if (file.isAbsolute())
+			if (file.isAbsolute()) {
 				result.add(file);
-			else
+			} else {
 				result.add(new File(source, filename));
+			}
 		}
 		return result.toArray(new File[result.size()]);
 	}

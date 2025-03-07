@@ -56,35 +56,42 @@ public class FeaturesAndBundlesPublisherApplication extends AbstractPublisherApp
 	protected void processParameter(String arg, String parameter, PublisherInfo pinfo) throws URISyntaxException {
 		super.processParameter(arg, parameter, pinfo);
 
-		if (arg.equalsIgnoreCase("-features")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-features")) { //$NON-NLS-1$
 			features = createFiles(parameter);
+		}
 
-		if (arg.equalsIgnoreCase("-bundles")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-bundles")) { //$NON-NLS-1$
 			bundles = createFiles(parameter);
+		}
 
-		if (arg.equalsIgnoreCase("-iu")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-iu")) { //$NON-NLS-1$
 			rootIU = parameter;
+		}
 
-		if (arg.equalsIgnoreCase("-version")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-version")) { //$NON-NLS-1$
 			rootVersion = parameter;
+		}
 	}
 
 	private File[] createFiles(String parameter) {
 		String[] filespecs = AbstractPublisherAction.getArrayFromString(parameter, ","); //$NON-NLS-1$
 		File[] result = new File[filespecs.length];
-		for (int i = 0; i < filespecs.length; i++)
+		for (int i = 0; i < filespecs.length; i++) {
 			result[i] = new File(filespecs[i]);
+		}
 		return result;
 	}
 
 	@Override
 	protected IPublisherAction[] createActions() {
 		ArrayList<IPublisherAction> result = new ArrayList<>();
-		if (features == null)
+		if (features == null) {
 			features = new File[] {new File(source, "features")}; //$NON-NLS-1$
+		}
 		result.add(new FeaturesAction(features));
-		if (bundles == null)
+		if (bundles == null) {
 			bundles = new File[] {new File(source, "plugins")}; //$NON-NLS-1$
+		}
 		result.add(new BundlesAction(bundles));
 
 		if (rootIU != null) {

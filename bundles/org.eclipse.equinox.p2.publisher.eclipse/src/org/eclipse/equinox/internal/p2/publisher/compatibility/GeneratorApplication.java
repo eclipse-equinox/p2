@@ -70,21 +70,26 @@ public class GeneratorApplication implements IApplication {
 		Map<String, Object> applicationMap = new HashMap<>();
 		Map<String, String> args = new HashMap<>(arguments.length);
 		for (int i = 0; i < arguments.length; i++) {
-			if (i == arguments.length - 1 || arguments[i + 1].startsWith(IGeneratorConstants.DASH))
+			if (i == arguments.length - 1 || arguments[i + 1].startsWith(IGeneratorConstants.DASH)) {
 				args.put(arguments[i], null);
-			else
+			} else {
 				args.put(arguments[i], arguments[++i]);
+			}
 		}
 
 		//adjust the short forms
-		if (args.containsKey(IGeneratorConstants.AR))
+		if (args.containsKey(IGeneratorConstants.AR)) {
 			args.put(IGeneratorConstants.ARTIFACT_REPO, args.remove(IGeneratorConstants.AR));
-		if (args.containsKey(IGeneratorConstants.MR))
+		}
+		if (args.containsKey(IGeneratorConstants.MR)) {
 			args.put(IGeneratorConstants.METADATA_REPO, args.remove(IGeneratorConstants.MR));
-		if (args.containsKey(IGeneratorConstants.PA))
+		}
+		if (args.containsKey(IGeneratorConstants.PA)) {
 			args.put(IGeneratorConstants.PUBLISH_ARTIFACTS, args.remove(IGeneratorConstants.PA));
-		if (args.containsKey(IGeneratorConstants.PAR))
+		}
+		if (args.containsKey(IGeneratorConstants.PAR)) {
 			args.put(IGeneratorConstants.PUBLISH_ATIFACT_REPOSITORY, args.remove(IGeneratorConstants.PAR));
+		}
 
 		if (args.containsKey(IGeneratorConstants.ROOT)) {
 			String rootId = args.remove(IGeneratorConstants.ROOT);
@@ -92,25 +97,30 @@ public class GeneratorApplication implements IApplication {
 			args.put(IGeneratorConstants.ID, rootId);
 		}
 
-		if (args.containsKey(IGeneratorConstants.ROOT_VERSION))
+		if (args.containsKey(IGeneratorConstants.ROOT_VERSION)) {
 			args.put(IGeneratorConstants.VERSION, args.remove(IGeneratorConstants.ROOT_VERSION));
+		}
 
 		String source = null;
 		// -inplace and -updateSite become -source, and imply -append
-		if (args.containsKey(IGeneratorConstants.UPDATE_SITE))
+		if (args.containsKey(IGeneratorConstants.UPDATE_SITE)) {
 			source = args.remove(IGeneratorConstants.UPDATE_SITE);
-		if (args.containsKey(IGeneratorConstants.INPLACE))
+		}
+		if (args.containsKey(IGeneratorConstants.INPLACE)) {
 			source = args.remove(IGeneratorConstants.INPLACE);
+		}
 		if (source != null) {
 			args.put(IGeneratorConstants.SOURCE, source);
 			args.put(IGeneratorConstants.APPEND, null);
 
 			//if not specified, repo locations are based on source
 			String repoLocation = URIUtil.toUnencodedString(new File(source).toURI());
-			if (!args.containsKey(IGeneratorConstants.ARTIFACT_REPO))
+			if (!args.containsKey(IGeneratorConstants.ARTIFACT_REPO)) {
 				args.put(IGeneratorConstants.ARTIFACT_REPO, repoLocation);
-			if (!args.containsKey(IGeneratorConstants.METADATA_REPO))
+			}
+			if (!args.containsKey(IGeneratorConstants.METADATA_REPO)) {
 				args.put(IGeneratorConstants.METADATA_REPO, repoLocation);
+			}
 		}
 
 		File base = new File(args.get(IGeneratorConstants.SOURCE));
@@ -134,8 +144,9 @@ public class GeneratorApplication implements IApplication {
 		for (String key : map.keySet()) {
 			String value = map.get(key);
 			list.add(key);
-			if (value != null)
+			if (value != null) {
 				list.add(value);
+			}
 		}
 		return list.toArray(new String[list.size()]);
 	}

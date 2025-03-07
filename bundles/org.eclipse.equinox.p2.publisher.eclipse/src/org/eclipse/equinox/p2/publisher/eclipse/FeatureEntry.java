@@ -54,8 +54,9 @@ public class FeatureEntry implements IPlatformEntry {
 		result.isRequires = true;
 		// for requires we don't care what the form is so leave it as false (JAR'd)
 		result.unpack = false;
-		if (filter != null)
+		if (filter != null) {
 			result.setFilter(filter);
+		}
 		result.isImport = isImport;
 		return result;
 	}
@@ -79,8 +80,9 @@ public class FeatureEntry implements IPlatformEntry {
 		result.isRequires = true;
 		// for requires we don't care what the form is so leave it as false (JAR'd)
 		result.unpack = false;
-		if (filter != null)
+		if (filter != null) {
 			result.setFilter(filter);
+		}
 		result.isImport = isImport;
 		return result;
 	}
@@ -99,28 +101,37 @@ public class FeatureEntry implements IPlatformEntry {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		final FeatureEntry other = (FeatureEntry) obj;
 		if (id == null) {
-			if (other.id != null)
+			if (other.id != null) {
 				return false;
-		} else if (!id.equals(other.id))
+			}
+		} else if (!id.equals(other.id)) {
 			return false;
+		}
 		if (versionOrRange == null) {
-			if (other.versionOrRange != null)
+			if (other.versionOrRange != null) {
 				return false;
-		} else if (!versionOrRange.equals(other.versionOrRange))
+			}
+		} else if (!versionOrRange.equals(other.versionOrRange)) {
 			return false;
+		}
 
-		if (isPlugin() != other.isPlugin())
+		if (isPlugin() != other.isPlugin()) {
 			return false;
-		if (isRequires() != other.isRequires())
+		}
+		if (isRequires() != other.isRequires()) {
 			return false;
+		}
 		return true;
 	}
 

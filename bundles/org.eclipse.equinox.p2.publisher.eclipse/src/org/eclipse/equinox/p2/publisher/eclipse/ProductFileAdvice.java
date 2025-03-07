@@ -71,14 +71,17 @@ public class ProductFileAdvice extends AbstractAdvice
 
 		String[] config = AbstractPublisherAction.parseConfigSpec(configSpec);
 		ws = config[0];
-		if (ws == null)
+		if (ws == null) {
 			ws = AbstractPublisherAction.CONFIG_ANY;
+		}
 		os = config[1];
-		if (os == null)
+		if (os == null) {
 			os = AbstractPublisherAction.CONFIG_ANY;
+		}
 		arch = config[2];
-		if (arch == null)
+		if (arch == null) {
 			arch = AbstractPublisherAction.CONFIG_ANY;
+		}
 
 		configData = getConfigData();
 	}
@@ -200,13 +203,16 @@ public class ProductFileAdvice extends AbstractAdvice
 		addProductFileBundles(data); // these are the bundles specified in the <plugins/> tag
 		addProductFileConfigBundles(data); // these are the bundles specified in the <configurations> tag in the
 											// product file
-		if (product.getProductId() != null)
+		if (product.getProductId() != null) {
 			result.setProperty("eclipse.product", product.getProductId()); //$NON-NLS-1$
-		if (product.getApplication() != null)
+		}
+		if (product.getApplication() != null) {
 			result.setProperty("eclipse.application", product.getApplication()); //$NON-NLS-1$
+		}
 		String location = getSplashLocation();
-		if (location != null)
+		if (location != null) {
 			result.setProperty(OSGI_SPLASH_PATH, SPLASH_PREFIX + location);
+		}
 		return data;
 	}
 
@@ -241,15 +247,17 @@ public class ProductFileAdvice extends AbstractAdvice
 			BundleInfo bundleInfo = new BundleInfo();
 			bundleInfo.setSymbolicName(vid.getId());
 			bundleInfo.setVersion(vid.getVersion().toString());
-			if (!set.contains(bundleInfo))
+			if (!set.contains(bundleInfo)) {
 				productConfigData.data.addBundle(bundleInfo);
+			}
 		}
 	}
 
 	private ConfigData generateConfigData() {
 		ConfigData result = new ConfigData(null, null, null, null);
-		if (product.useFeatures())
+		if (product.useFeatures()) {
 			return result;
+		}
 
 		// Add all the bundles here. We replace / update them later
 		// if we find configuration information
@@ -276,24 +284,27 @@ public class ProductFileAdvice extends AbstractAdvice
 	protected boolean matchConfig(String spec, boolean includeDefault) {
 		if (spec != null) {
 			String targetWS = AbstractPublisherAction.parseConfigSpec(spec)[0];
-			if (targetWS == null)
+			if (targetWS == null) {
 				targetWS = AbstractPublisherAction.CONFIG_ANY;
+			}
 			if (!ws.equals(targetWS) && !ws.equals(AbstractPublisherAction.CONFIG_ANY)
 					&& !targetWS.equals(AbstractPublisherAction.CONFIG_ANY)) {
 				return false;
 			}
 
 			String targetOS = AbstractPublisherAction.parseConfigSpec(spec)[1];
-			if (targetOS == null)
+			if (targetOS == null) {
 				targetOS = AbstractPublisherAction.CONFIG_ANY;
+			}
 			if (!os.equals(targetOS) && !os.equals(AbstractPublisherAction.CONFIG_ANY)
 					&& !targetOS.equals(AbstractPublisherAction.CONFIG_ANY)) {
 				return false;
 			}
 
 			String targetArch = AbstractPublisherAction.parseConfigSpec(spec)[2];
-			if (targetArch == null)
+			if (targetArch == null) {
 				targetArch = AbstractPublisherAction.CONFIG_ANY;
+			}
 			if (!arch.equals(targetArch) && !arch.equals(AbstractPublisherAction.CONFIG_ANY)
 					&& !targetArch.equals(AbstractPublisherAction.CONFIG_ANY)) {
 				return false;
@@ -304,24 +315,28 @@ public class ProductFileAdvice extends AbstractAdvice
 
 	private DataLoader createDataLoader() {
 		String location = product.getConfigIniPath(os);
-		if (location == null)
+		if (location == null) {
 			location = product.getConfigIniPath(null);
-		if (location == null)
+		}
+		if (location == null) {
 			return null;
+		}
 
 		File configFile = new File(location);
 		// We are assuming we are always relative from the product file
 		// However PDE tooling puts us relative from the workspace, that "relative" path
 		// also looks like an absolute path on linux
 		// Build may have copied the file to the correct place for us
-		if (!configFile.isAbsolute() || !configFile.exists())
+		if (!configFile.isAbsolute() || !configFile.exists()) {
 			configFile = new File(product.getLocation().getParentFile(), location);
+		}
 
 		// We don't really have an executable location, get something reasonable based
 		// on the config.ini location
 		File parent = configFile.getParentFile();
-		if (parent.getName().equals("configuration") && parent.getParentFile() != null) //$NON-NLS-1$
+		if (parent.getName().equals("configuration") && parent.getParentFile() != null) { //$NON-NLS-1$
 			parent = parent.getParentFile();
+		}
 		return new DataLoader(configFile, parent);
 	}
 

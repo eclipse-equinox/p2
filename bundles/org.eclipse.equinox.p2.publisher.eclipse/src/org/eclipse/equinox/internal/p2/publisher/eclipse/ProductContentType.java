@@ -51,8 +51,9 @@ public enum ProductContentType {
 	 */
 	public static ProductContentType toProductContentType(String typeAsString) throws IllegalArgumentException {
 		ProductContentType result = mappings.get(typeAsString.toLowerCase(Locale.ENGLISH));
-		if (result == null)
+		if (result == null) {
 			throw new IllegalArgumentException(NLS.bind(Messages.exception_invalidProductContentType, typeAsString, getAllowedSetOfValues()));
+		}
 		return result;
 	}
 

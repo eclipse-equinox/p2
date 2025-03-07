@@ -72,14 +72,16 @@ public final class Utils {
 			return null;
 		}
 		String value = manifest.get(header);
-		if (value != null)
+		if (value != null) {
 			return value;
+		}
 
 		Enumeration<String> keys = manifest.keys();
 		while (keys.hasMoreElements()) {
 			String key = keys.nextElement();
-			if (key.equalsIgnoreCase(header))
+			if (key.equalsIgnoreCase(header)) {
 				return manifest.get(key);
+			}
 		}
 		return null;
 	}
