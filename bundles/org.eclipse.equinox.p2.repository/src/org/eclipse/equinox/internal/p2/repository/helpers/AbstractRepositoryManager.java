@@ -116,8 +116,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	protected void addRepository(IRepository<T> repository, boolean signalAdd, String suffix) {
 		boolean added = false;
 		synchronized (repositoryLock) {
-			if (repositories == null)
+			if (repositories == null) {
 				restoreRepositories();
+			}
 			String key = getKey(repository.getLocation());
 			RepositoryInfo<T> info = repositories.get(key);
 			if (info == null) {
@@ -130,22 +131,25 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			info.description = repository.getDescription();
 			info.location = repository.getLocation();
 			String value = repository.getProperties().get(IRepository.PROP_SYSTEM);
-			if (value != null)
+			if (value != null) {
 				info.isSystem = Boolean.parseBoolean(value);
+			}
 			info.suffix = suffix;
 		}
 		// save the given repository in the preferences.
 		remember(repository, suffix);
-		if (added && signalAdd)
+		if (added && signalAdd) {
 			broadcastChangeEvent(repository.getLocation(), getRepositoryType(), RepositoryEvent.ADDED, true);
+		}
 	}
 
 	@Override
 	public void addRepository(URI location) {
 		checkValidLocation(location);
 		//add the repository, or enable it if already known
-		if (!addRepository(location, true, true))
+		if (!addRepository(location, true, true)) {
 			setEnabled(location, true);
+		}
 	}
 
 	/**
@@ -186,15 +190,18 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	protected IRepository<T> basicGetRepository(URI location) {
 		checkValidLocation(location);
 		synchronized (repositoryLock) {
-			if (repositories == null)
+			if (repositories == null) {
 				restoreRepositories();
+			}
 			RepositoryInfo<T> info = repositories.get(getKey(location));
-			if (info == null || info.repository == null)
+			if (info == null || info.repository == null) {
 				return null;
+			}
 			IRepository<T> repo = info.repository.get();
 			//update our repository info because the repository may have changed
-			if (repo != null)
+			if (repo != null) {
 				addRepository(repo, false, info.suffix);
+			}
 			return repo;
 		}
 	}
@@ -206,8 +213,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		String nick = getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 		String system = getRepositoryProperty(location, IRepository.PROP_SYSTEM);
 		//remove the repository so  event is broadcast and repositories can clear their caches
-		if (!removeRepository(location))
+		if (!removeRepository(location)) {
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+		}
 		boolean loaded = false;
 		try {
 			IRepository<T> result = loadRepository(location, monitor, null, 0);
@@ -221,10 +229,12 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			return result;
 		} finally {
 			//if we failed to load, make sure the repository is not lost
-			if (!loaded)
+			if (!loaded) {
 				addRepository(location, wasEnabled, true);
-			if (nick != null)
+			}
+			if (nick != null) {
 				setRepositoryProperty(location, IRepository.PROP_NICKNAME, nick);
+			}
 			if (system != null) {
 				setRepositoryProperty(location, IRepository.PROP_SYSTEM, system);
 			}
@@ -232,8 +242,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	}
 
 	private void broadcastChangeEvent(URI location, int repositoryType, int kind, boolean isEnabled) {
-		if (eventBus != null)
+		if (eventBus != null) {
 			eventBus.publishEvent(new RepositoryEvent(location, repositoryType, kind, isEnabled));
+		}
 	}
 
 	/**
@@ -243,11 +254,13 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 */
 	private boolean checkNotFound(URI location) {
 		synchronized (repositoryLock) {
-			if (unavailableRepositories == null)
+			if (unavailableRepositories == null) {
 				return false;
+			}
 			List<URI> badRepos = unavailableRepositories.get();
-			if (badRepos == null)
+			if (badRepos == null) {
 				return false;
+			}
 			return badRepos.contains(location);
 		}
 	}
@@ -272,8 +285,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	public boolean contains(URI location) {
 		checkValidLocation(location);
 		synchronized (repositoryLock) {
-			if (repositories == null)
+			if (repositories == null) {
 				restoreRepositories();
+			}
 			return repositories.containsKey(getKey(location));
 		}
 	}
@@ -298,18 +312,21 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			} catch (ProvisionException e) {
 				//expected - fall through and create the new repository
 			}
-			if (loaded)
+			if (loaded) {
 				fail(location, ProvisionException.REPOSITORY_EXISTS);
+			}
 
 			IExtension extension = RegistryFactory.getRegistry().getExtension(getRepositoryProviderExtensionPointId(), type);
-			if (extension == null)
+			if (extension == null) {
 				fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
+			}
 			//		MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 			//		if (factory == null)
 			//			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
 			result = factoryCreate(location, name, type, properties, extension);
-			if (result == null)
+			if (result == null) {
 				fail(location, ProvisionException.REPOSITORY_FAILED_READ);
+			}
 			clearNotFound(location);
 			addRepository(result, false, null);
 		} finally {
@@ -355,10 +372,12 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		synchronized (loadLocks) {
 			while (true) {
 				Thread owner = loadLocks.get(location);
-				if (owner == null || current.equals(owner))
+				if (owner == null || current.equals(owner)) {
 					break;
-				if (monitor.isCanceled())
+				}
+				if (monitor.isCanceled()) {
 					throw new OperationCanceledException();
+				}
 				try {
 					loadLocks.wait(1000);
 				} catch (InterruptedException e) {
@@ -412,8 +431,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 				msg = NLS.bind(Messages.repoManAuthenticationFailedFor_0, location);
 				break;
 		}
-		if (msg == null)
+		if (msg == null) {
 			msg = Messages.repoMan_internalError;
+		}
 		throw new ProvisionException(new Status(IStatus.ERROR, getBundleId(), code, msg, null));
 	}
 
@@ -439,8 +459,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		}
 		IExtension[] results = new IExtension[count];
 		for (IConfigurationElement element : elt) {
-			if (element != null)
+			if (element != null) {
 				results[--count] = element.getDeclaringExtension();
+			}
 		}
 		return results;
 	}
@@ -457,8 +478,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		for (IConfigurationElement element : elements) {
 			if (element.getName().equals(EL_FILTER)) {
 				String suffix = element.getAttribute(ATTR_SUFFIX);
-				if (!result.contains(suffix))
+				if (!result.contains(suffix)) {
 					result.add(suffix);
+				}
 			}
 		}
 		return result.toArray(new String[result.size()]);
@@ -484,8 +506,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	private String getKey(URI location) {
 		String key = location.toString().replace('/', '_');
 		//remove trailing slash
-		if (key.endsWith("_")) //$NON-NLS-1$
+		if (key.endsWith("_")) { //$NON-NLS-1$
 			key = key.substring(0, key.length() - 1);
+		}
 		return key;
 	}
 
@@ -497,12 +520,14 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	@Override
 	public URI[] getKnownRepositories(int flags) {
 		synchronized (repositoryLock) {
-			if (repositories == null)
+			if (repositories == null) {
 				restoreRepositories();
+			}
 			ArrayList<URI> result = new ArrayList<>();
 			for (RepositoryInfo<T> info : repositories.values()) {
-				if (matchesFlags(info, flags))
+				if (matchesFlags(info, flags)) {
 					result.add(info.location);
+				}
 			}
 			return result.toArray(new URI[result.size()]);
 		}
@@ -513,11 +538,13 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 * Returns <code>null</code> if no preferences are available
 	 */
 	Preferences getPreferences() {
-		if (agentLocation == null)
+		if (agentLocation == null) {
 			return null;
+		}
 		IPreferencesService prefService = ServiceHelper.getService(Activator.getContext(), IPreferencesService.class);
-		if (prefService == null)
+		if (prefService == null) {
 			return null;
+		}
 		try {
 			//see ProfileScope for preference path format
 			String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
@@ -528,11 +555,13 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	}
 
 	Preferences getSharedPreferences() {
-		if (agentLocation == null)
+		if (agentLocation == null) {
 			return null;
+		}
 		IPreferencesService prefService = ServiceHelper.getService(Activator.getContext(), IPreferencesService.class);
-		if (prefService == null)
+		if (prefService == null) {
 			return null;
+		}
 		try {
 			//see ProfileScope for preference path format
 			String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
@@ -551,8 +580,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		try {
 			if (locationString != null) {
 				URI result = new URI(locationString);
-				if (result.isAbsolute())
+				if (result.isAbsolute()) {
 					return result;
+				}
 				log("Invalid repository URI: " + locationString, new RuntimeException()); //$NON-NLS-1$
 			}
 		} catch (URISyntaxException e) {
@@ -563,8 +593,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		try {
 			if (locationString != null) {
 				URI result = URIUtil.toURI(new URL(locationString));
-				if (result.isAbsolute())
+				if (result.isAbsolute()) {
 					return result;
+				}
 				log("Invalid repository URL: " + locationString, new RuntimeException()); //$NON-NLS-1$
 			}
 		} catch (MalformedURLException e) {
@@ -579,12 +610,14 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	public String getRepositoryProperty(URI location, String key) {
 		checkValidLocation(location);
 		synchronized (repositoryLock) {
-			if (repositories == null)
+			if (repositories == null) {
 				restoreRepositories();
+			}
 			RepositoryInfo<T> info = repositories.get(getKey(location));
-			if (info == null)
+			if (info == null) {
 				return null;// Repository not found
-			if (null != key)
+			}
+			if (null != key) {
 				switch (key) {
 					case IRepository.PROP_DESCRIPTION:
 						return info.description;
@@ -597,6 +630,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 					default:
 						break;
 				}
+			}
 			// Key not known, return null
 			return null;
 		}
@@ -606,12 +640,14 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	public void setRepositoryProperty(URI location, String key, String value) {
 		checkValidLocation(location);
 		synchronized (repositoryLock) {
-			if (repositories == null)
+			if (repositories == null) {
 				restoreRepositories();
+			}
 			RepositoryInfo<T> info = repositories.get(getKey(location));
-			if (info == null)
+			if (info == null) {
 				return;// Repository not found
-			if (null != key)
+			}
+			if (null != key) {
 				switch (key) {
 		    	case IRepository.PROP_DESCRIPTION:
 			    info.description = value;
@@ -629,6 +665,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		    	default:
 			    break;
 		    }
+			}
 			remember(info, true);
 		}
 	}
@@ -657,11 +694,13 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	@Override
 	public boolean isEnabled(URI location) {
 		synchronized (repositoryLock) {
-			if (repositories == null)
+			if (repositories == null) {
 				restoreRepositories();
+			}
 			RepositoryInfo<T> info = repositories.get(getKey(location));
-			if (info != null)
+			if (info != null) {
 				return info.isEnabled;
+			}
 			// Repository not found, return false
 			return false;
 		}
@@ -676,10 +715,12 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		try {
 			enterLoad(location, sub.newChild(5));
 			result = basicGetRepository(location);
-			if (result != null)
+			if (result != null) {
 				return result;
-			if (checkNotFound(location))
+			}
+			if (checkNotFound(location)) {
 				fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+			}
 			//add the repository first so that it will be enabled, but don't send add event until after the load
 			added = addRepository(location, true, false);
 
@@ -691,8 +732,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			ProvisionException failure = null;
 			try {
 				for (String suffixe : suffixes) {
-					if (sub.isCanceled())
+					if (sub.isCanceled()) {
 						throw new OperationCanceledException();
+					}
 					try {
 						result = loadRepository(location, suffixe, type, flags, sub.newChild(100));
 					} catch (ProvisionException e) {
@@ -709,23 +751,27 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			}
 			if (result == null) {
 				//if we just added the repository, remove it because it cannot be loaded
-				if (added)
+				if (added) {
 					removeRepository(location, false);
+				}
 				//eagerly cleanup missing system repositories
-				if (Boolean.parseBoolean(getRepositoryProperty(location, IRepository.PROP_SYSTEM)))
+				if (Boolean.parseBoolean(getRepositoryProperty(location, IRepository.PROP_SYSTEM))) {
 					removeRepository(location);
-				else if (failure == null || (failure.getStatus().getCode() != ProvisionException.REPOSITORY_FAILED_AUTHENTICATION && failure.getStatus().getCode() != ProvisionException.REPOSITORY_FAILED_READ))
+				} else if (failure == null || (failure.getStatus().getCode() != ProvisionException.REPOSITORY_FAILED_AUTHENTICATION && failure.getStatus().getCode() != ProvisionException.REPOSITORY_FAILED_READ)) {
 					rememberNotFound(location);
-				if (failure != null)
+				}
+				if (failure != null) {
 					throw failure;
+				}
 				fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 			}
 		} finally {
 			exitLoad(location);
 		}
 		//broadcast the add event after releasing lock
-		if (added)
+		if (added) {
 			broadcastChangeEvent(location, getRepositoryType(), RepositoryEvent.ADDED, true);
+		}
 		return result;
 	}
 
@@ -734,8 +780,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 * a NullSafe version is returned.
 	 */
 	private LocationProperties loadIndexFile(URI location, IProgressMonitor monitor) {
-		if (!isInMemoryRepository(location))
+		if (!isInMemoryRepository(location)) {
 			return LocationProperties.createEmptyIndexFile();
+		}
 
 		URI indexFile = getIndexFileURI(location);
 		if ("file".equals(indexFile.getScheme())) { //$NON-NLS-1$
@@ -751,8 +798,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		while (indexFileStatus.getCode() == IArtifactRepository.CODE_RETRY) {
 			indexFileStatus = getTransport().download(indexFileURI, index, monitor);
 		}
-		if (indexFileStatus != null && indexFileStatus.isOK())
+		if (indexFileStatus != null && indexFileStatus.isOK()) {
 			return LocationProperties.create(new ByteArrayInputStream(index.toByteArray()));
+		}
 		return LocationProperties.createEmptyIndexFile();
 	}
 
@@ -774,10 +822,12 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 * Basic sanity checking on location argument
 	 */
 	private URI checkValidLocation(URI location) {
-		if (location == null)
+		if (location == null) {
 			throw new IllegalArgumentException("Location cannot be null"); //$NON-NLS-1$
-		if (!location.isAbsolute())
+		}
+		if (!location.isAbsolute()) {
 			throw new IllegalArgumentException("Location must be absolute: " + location); //$NON-NLS-1$
+		}
 		return location;
 	}
 
@@ -794,14 +844,16 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		IExtension[] providers = findMatchingRepositoryExtensions(suffix, type);
 		// Loop over the candidates and return the first one that successfully loads
 		monitor.beginTask(null, providers.length * 10);
-		for (IExtension provider : providers)
+		for (IExtension provider : providers) {
 			try {
 				IRepository<T> repo = factoryLoad(location, provider, flags, monitor);
-				if (repo != null)
+				if (repo != null) {
 					return repo;
+				}
 			} catch (ProvisionException e) {
-				if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+				if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND) {
 					throw e;
+				}
 			} catch (OperationCanceledException e) {
 				//always propagate cancelation
 				throw e;
@@ -812,6 +864,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 				//catch and log unexpected errors and move onto the next factory
 				log("Unexpected error loading extension: " + provider.getUniqueIdentifier(), e); //$NON-NLS-1$
 			}
+		}
 		return null;
 	}
 
@@ -820,24 +873,32 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	}
 
 	private boolean matchesFlags(RepositoryInfo<T> info, int flags) {
-		if ((flags & REPOSITORIES_SYSTEM) == REPOSITORIES_SYSTEM)
-			if (!info.isSystem)
+		if ((flags & REPOSITORIES_SYSTEM) == REPOSITORIES_SYSTEM) {
+			if (!info.isSystem) {
 				return false;
-		if ((flags & REPOSITORIES_NON_SYSTEM) == REPOSITORIES_NON_SYSTEM)
-			if (info.isSystem)
+			}
+		}
+		if ((flags & REPOSITORIES_NON_SYSTEM) == REPOSITORIES_NON_SYSTEM) {
+			if (info.isSystem) {
 				return false;
+			}
+		}
 		if ((flags & REPOSITORIES_DISABLED) == REPOSITORIES_DISABLED) {
-			if (info.isEnabled)
+			if (info.isEnabled) {
 				return false;
+			}
 		} else {
 			//ignore disabled repositories for all other flag types
-			if (!info.isEnabled)
+			if (!info.isEnabled) {
 				return false;
+			}
 		}
-		if ((flags & REPOSITORIES_LOCAL) == REPOSITORIES_LOCAL)
+		if ((flags & REPOSITORIES_LOCAL) == REPOSITORIES_LOCAL) {
 			return "file".equals(info.location.getScheme()) || info.location.toString().startsWith("jar:file"); //$NON-NLS-1$ //$NON-NLS-2$
-		if ((flags & REPOSITORIES_NON_LOCAL) == REPOSITORIES_NON_LOCAL)
+		}
+		if ((flags & REPOSITORIES_NON_LOCAL) == REPOSITORIES_NON_LOCAL) {
 			return !("file".equals(info.location.getScheme()) || info.location.toString().startsWith("jar:file")); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		return true;
 	}
 
@@ -862,12 +923,14 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 */
 	protected boolean putValue(Preferences node, String key, String newValue) {
 		String oldValue = node.get(key, null);
-		if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue)))
+		if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue))) {
 			return false;
-		if (newValue == null)
+		}
+		if (newValue == null) {
 			node.remove(key);
-		else
+		} else {
 			node.put(key, newValue);
+		}
 		return true;
 	}
 
@@ -878,8 +941,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		boolean changed = false;
 		Preferences node = getPreferences();
 		// Ensure we retrieved preferences
-		if (node == null)
+		if (node == null) {
 			return;
+		}
 		node = node.node(getKey(repository.getLocation()));
 
 		try {
@@ -892,11 +956,13 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			changed |= putValue(node, KEY_VERSION, repository.getVersion());
 			//allow repository manager to define system property if it is undefined in the repository itself
 			String value = repository.getProperties().get(IRepository.PROP_SYSTEM);
-			if (value != null)
+			if (value != null) {
 				changed |= putValue(node, KEY_SYSTEM, value);
+			}
 			changed |= putValue(node, KEY_SUFFIX, suffix);
-			if (changed)
+			if (changed) {
 				saveToPreferences();
+			}
 		} catch (IllegalStateException e) {
 			//the repository was removed concurrently, so we don't need to save it
 		}
@@ -913,8 +979,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		boolean changed = false;
 		Preferences node = getPreferences();
 		// Ensure we retrieved preferences
-		if (node == null)
+		if (node == null) {
 			return changed;
+		}
 		node = node.node(getKey(info.location));
 		try {
 			changed |= putValue(node, KEY_URI, info.location.toString());
@@ -925,8 +992,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			changed |= putValue(node, KEY_NICKNAME, info.nickname);
 			changed |= putValue(node, KEY_SUFFIX, info.suffix);
 			changed |= putValue(node, KEY_ENABLED, Boolean.toString(info.isEnabled));
-			if (changed && flush)
+			if (changed && flush) {
 				saveToPreferences();
+			}
 			return changed;
 		} catch (IllegalStateException e) {
 			//the repository was removed concurrently, so we don't need to save it
@@ -960,10 +1028,12 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		Assert.isNotNull(toRemove);
 		final String repoKey = getKey(toRemove);
 		synchronized (repositoryLock) {
-			if (repositories == null)
+			if (repositories == null) {
 				restoreRepositories();
-			if (repositories.remove(repoKey) == null)
+			}
+			if (repositories.remove(repoKey) == null) {
 				return false;
+			}
 		}
 		// remove the repository from the preference store
 		try {
@@ -982,8 +1052,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			log("Error saving preferences", e); //$NON-NLS-1$
 		}
 		//TODO: compute and pass appropriate isEnabled flag
-		if (signalRemove)
+		if (signalRemove) {
 			broadcastChangeEvent(toRemove, getRepositoryType(), RepositoryEvent.REMOVED, true);
+		}
 		return true;
 	}
 
@@ -992,8 +1063,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 */
 	private void basicRestoreFromPreferences(Preferences node, boolean save) {
 		// restore the list of repositories from the preference store
-		if (node == null)
+		if (node == null) {
 			return;
+		}
 		String[] children;
 		try {
 			children = node.childrenNames();
@@ -1023,8 +1095,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			repositories.put(getKey(info.location), info);
 		}
 		// now that we have loaded everything, remember them
-		if (save)
+		if (save) {
 			saveToPreferences();
+		}
 	}
 
 	private void restoreFromSystemProperty() {
@@ -1067,8 +1140,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	private void saveToPreferences() {
 		try {
 			Preferences node = getPreferences();
-			if (node != null)
+			if (node != null) {
 				node.flush();
+			}
 		} catch (BackingStoreException e) {
 			log("Error while saving repositories in preferences", e); //$NON-NLS-1$
 		}
@@ -1078,11 +1152,13 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	public void setEnabled(URI location, boolean enablement) {
 		checkValidLocation(location);
 		synchronized (repositoryLock) {
-			if (repositories == null)
+			if (repositories == null) {
 				restoreRepositories();
+			}
 			RepositoryInfo<T> info = repositories.get(getKey(location));
-			if (info == null || info.isEnabled == enablement)
+			if (info == null || info.isEnabled == enablement) {
 				return;
+			}
 			info.isEnabled = enablement;
 			remember(info, true);
 		}
@@ -1107,8 +1183,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			}
 		}
 		if (changed) {
-			if (Tracing.DEBUG)
+			if (Tracing.DEBUG) {
 				Tracing.debug("Unsaved preferences when shutting down " + getClass().getName()); //$NON-NLS-1$
+			}
 			saveToPreferences();
 		}
 		repositories = null;
@@ -1126,8 +1203,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		System.arraycopy(suffixes, 0, result, 0, suffixes.length);
 
 		synchronized (repositoryLock) {
-			if (repositories == null)
+			if (repositories == null) {
 				restoreRepositories();
+			}
 			RepositoryInfo<T> info = repositories.get(getKey(location));
 			if (info != null && info.suffix != null) {
 				//move lastSuffix to the front of the list but preserve order of remaining entries
@@ -1192,8 +1270,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 10);
 		for (URI location : locations) {
 			try {
-				if (sub.isCanceled())
+				if (sub.isCanceled()) {
 					throw new OperationCanceledException();
+				}
 				queryables.add(loadRepository(location, sub.newChild(9), null, 0));
 			} catch (ProvisionException e) {
 				//ignore this repository for this query
@@ -1210,8 +1289,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	private static URI getIndexFileURI(URI base) {
 		final String name = INDEX_FILE;
 		String spec = base.toString();
-		if (spec.endsWith(name))
+		if (spec.endsWith(name)) {
 			return base;
+		}
 		return URIUtil.append(base, name);
 	}
 

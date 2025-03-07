@@ -155,8 +155,9 @@ public class XMLWriter implements XMLConstants {
 					// this is the set of legal xml scharacters in unicode excluding high surrogates since they cannot be represented with a char
 					// see http://www.w3.org/TR/REC-xml/#charsets
 					if ((c >= '\u0020' && c <= '\uD7FF') || (c >= '\uE000' && c <= '\uFFFD')) {
-						if (buffer != null)
+						if (buffer != null) {
 							buffer.append(c);
+						}
 						continue;
 					}
 					replace = Character.isWhitespace(c) ? " " : null; //$NON-NLS-1$
@@ -165,12 +166,14 @@ public class XMLWriter implements XMLConstants {
 				buffer = new StringBuilder(txt.length() + 16);
 				buffer.append(txt.substring(0, i));
 			}
-			if (replace != null)
+			if (replace != null) {
 				buffer.append(replace);
+			}
 		}
 
-		if (buffer == null)
+		if (buffer == null) {
 			return txt;
+		}
 
 		return buffer.toString();
 	}

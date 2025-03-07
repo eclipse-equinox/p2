@@ -38,12 +38,14 @@ public class ProgressStatistics {
 
 	private static String convert(long amount) {
 		NumberFormat fmt = NumberFormat.getInstance();
-		if (amount < 1024)
+		if (amount < 1024) {
 			return fmt.format(amount) + "B"; //$NON-NLS-1$
+		}
 
 		fmt.setMaximumFractionDigits(2);
-		if (amount < 1024 * 1024)
+		if (amount < 1024 * 1024) {
 			return fmt.format(((double) amount) / 1024) + "kB"; //$NON-NLS-1$
+		}
 
 		return fmt.format(((double) amount) / (1024 * 1024)) + "MB"; //$NON-NLS-1$
 	}
@@ -94,8 +96,9 @@ public class ProgressStatistics {
 
 	public long getAverageSpeed() {
 		long dur = getDuration();
-		if (dur > 0)
+		if (dur > 0) {
 			return (int) (m_current / (dur / 1000.0));
+		}
 		return 0L;
 	}
 
@@ -104,8 +107,9 @@ public class ProgressStatistics {
 	}
 
 	public double getPercentage() {
-		if (m_total > 0)
+		if (m_total > 0) {
 			return ((double) m_current) / ((double) m_total);
+		}
 
 		return 0.0;
 	}
@@ -123,8 +127,9 @@ public class ProgressStatistics {
 			}
 		}
 
-		if (dur >= 1000)
+		if (dur >= 1000) {
 			return amount / (dur / 1000);
+		}
 
 		return 0L;
 	}
@@ -149,8 +154,9 @@ public class ProgressStatistics {
 
 	private String createReportString() {
 		String uriString = m_uri.toString();
-		if (m_fileName != null && uriString.endsWith(m_fileName))
+		if (m_fileName != null && uriString.endsWith(m_fileName)) {
 			uriString = uriString.substring(0, uriString.lastIndexOf(m_fileName));
+		}
 		if (m_current == 0L || getRecentSpeed() == 0L) {
 			// no meaningful speed data available
 			if (m_total == -1) {
@@ -183,8 +189,9 @@ public class ProgressStatistics {
 		Long keyL = Long.valueOf(key);
 		Long currentValueL = m_recentSpeedMap.get(keyL);
 		long currentValue = 0L;
-		if (currentValueL != null)
+		if (currentValueL != null) {
 			currentValue = currentValueL.longValue();
+		}
 
 		m_recentSpeedMap.put(keyL, Long.valueOf(inc + currentValue));
 

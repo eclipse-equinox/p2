@@ -48,22 +48,24 @@ public class RepositoryHelper {
 	 * @return the converted URI, or the original
 	 */
 	public static URI localRepoURIHelper(URI location) {
-		if (location == null)
+		if (location == null) {
 			return null;
-		if (location.getScheme() == null) // Probably a local path: /home/user/repo
-
+		}
+		if (location.getScheme() == null) { // Probably a local path: /home/user/repo
 			location = (new File(location.getPath())).getAbsoluteFile().toURI();
-		else if (location.getScheme().length() == 1)
+		} else if (location.getScheme().length() == 1) {
 			// Probably a windows path: C:\repo
 			location = (new File(URIUtil.toUnencodedString(location))).toURI();
-		else if (!FILE_SCHEME.equalsIgnoreCase(location.getScheme()))
+		} else if (!FILE_SCHEME.equalsIgnoreCase(location.getScheme())) {
 			// This else must occur last!
 			return location;
+		}
 
 		// Zipped repository?
 		String lowerCase = location.toString().toLowerCase();
-		if (lowerCase.endsWith(".jar") || lowerCase.endsWith(".zip")) //$NON-NLS-1$//$NON-NLS-2$
+		if (lowerCase.endsWith(".jar") || lowerCase.endsWith(".zip")) { //$NON-NLS-1$//$NON-NLS-2$
 			return URIUtil.toJarURI(location, null);
+		}
 		return location;
 	}
 
@@ -75,8 +77,9 @@ public class RepositoryHelper {
 	 * @return the repository
 	 */
 	public static <T> IRepository<T> validDestinationRepository(IRepository<T> repository) {
-		if (!repository.isModifiable())
+		if (!repository.isModifiable()) {
 			throw new IllegalStateException(NLS.bind(Messages.DestinationNotModifiable, repository.getLocation()));
+		}
 		return repository;
 	}
 
@@ -87,10 +90,12 @@ public class RepositoryHelper {
 	 * @throws IllegalArgumentException if location is null
 	 */
 	public static IStatus checkRepositoryLocationSyntax(URI location) {
-		if (location == null)
+		if (location == null) {
 			throw new IllegalArgumentException("Location cannot be null"); //$NON-NLS-1$
-		if (!location.isAbsolute())
+		}
+		if (!location.isAbsolute()) {
 			return new Status(IStatus.ERROR, Activator.ID, Messages.locationMustBeAbsolute);
+		}
 		String scheme = location.getScheme();
 		if (scheme == null) {
 			return Status.error(Messages.schemeNotProvided);

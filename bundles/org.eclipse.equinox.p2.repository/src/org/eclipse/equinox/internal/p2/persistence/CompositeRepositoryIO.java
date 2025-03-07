@@ -76,12 +76,14 @@ public class CompositeRepositoryIO {
 						LogHelper.log(result);
 				}
 				CompositeRepositoryState repositoryState = repositoryParser.getRepositoryState();
-				if (repositoryState == null)
+				if (repositoryState == null) {
 					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, Messages.io_parseError, null));
+				}
 				return repositoryState;
 			} finally {
-				if (bufferedInput != null)
+				if (bufferedInput != null) {
 					bufferedInput.close();
+				}
 			}
 		} catch (IOException ioe) {
 			String msg = NLS.bind(Messages.io_failedRead, location);

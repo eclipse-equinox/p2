@@ -53,15 +53,18 @@ public class FileInfo {
 		contentType = properties.getProperty(PROPERTY_CONTENT_TYPE);
 
 		String v = properties.getProperty(PROPERTY_LAST_MODIFIED);
-		if (v != null)
+		if (v != null) {
 			lastModified = Long.parseLong(v);
+		}
 
 		v = properties.getProperty(PROPERTY_SIZE);
-		if (v != null)
+		if (v != null) {
 			size = Long.parseLong(v);
+		}
 		v = properties.getProperty(PROPERTY_SPEED);
-		if (v != null)
+		if (v != null) {
 			averageSpeed = Long.parseLong(v);
+		}
 	}
 
 	/*
@@ -69,16 +72,21 @@ public class FileInfo {
 	 * properties based method for possible use with resumable download
 	 */
 	public void addProperties(Properties properties) {
-		if (contentType != null)
+		if (contentType != null) {
 			properties.setProperty(PROPERTY_CONTENT_TYPE, contentType);
-		if (lastModified != 0L)
+		}
+		if (lastModified != 0L) {
 			properties.setProperty(PROPERTY_LAST_MODIFIED, Long.toString(lastModified));
-		if (name != null)
+		}
+		if (name != null) {
 			properties.setProperty(PROPERTY_NAME, name);
-		if (size != -1L)
+		}
+		if (size != -1L) {
 			properties.setProperty(PROPERTY_SIZE, Long.toString(size));
-		if (averageSpeed != UNKNOWN_RATE)
+		}
+		if (averageSpeed != UNKNOWN_RATE) {
 			properties.setProperty(PROPERTY_SPEED, Long.toString(averageSpeed));
+		}
 
 	}
 

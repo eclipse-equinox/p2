@@ -67,25 +67,33 @@ public class ProcessingStepDescriptor implements IProcessingStepDescriptor {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof IProcessingStepDescriptor))
+		}
+		if (!(obj instanceof IProcessingStepDescriptor)) {
 			return false;
+		}
 		final IProcessingStepDescriptor other = (IProcessingStepDescriptor) obj;
 		if (data == null) {
-			if (other.getData() != null)
+			if (other.getData() != null) {
 				return false;
-		} else if (!data.equals(other.getData()))
+			}
+		} else if (!data.equals(other.getData())) {
 			return false;
+		}
 		if (processorId == null) {
-			if (other.getProcessorId() != null)
+			if (other.getProcessorId() != null) {
 				return false;
-		} else if (!processorId.equals(other.getProcessorId()))
+			}
+		} else if (!processorId.equals(other.getProcessorId())) {
 			return false;
-		if (required != other.isRequired())
+		}
+		if (required != other.isRequired()) {
 			return false;
+		}
 		return true;
 	}
 

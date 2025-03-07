@@ -31,9 +31,10 @@ public class ChecksumHelper {
 	 *                                  {@link IArtifactDescriptor#DOWNLOAD_CHECKSUM}
 	 */
 	static public Map<String, String> getChecksums(IArtifactDescriptor descriptor, String property) throws IllegalArgumentException {
-		if (!IArtifactDescriptor.ARTIFACT_CHECKSUM.equals(property) && !IArtifactDescriptor.DOWNLOAD_CHECKSUM.equals(property))
+		if (!IArtifactDescriptor.ARTIFACT_CHECKSUM.equals(property) && !IArtifactDescriptor.DOWNLOAD_CHECKSUM.equals(property)) {
 			// TODO provide more details
 			throw new IllegalArgumentException();
+		}
 
 		Map<String, String> checksumsByAlgo = new HashMap<>();
 
@@ -74,8 +75,9 @@ public class ChecksumHelper {
 	public static String toHexString(byte[] digest) {
 		StringBuilder buf = new StringBuilder();
 		for (byte element : digest) {
-			if ((element & 0xFF) < 0x10)
+			if ((element & 0xFF) < 0x10) {
 				buf.append('0');
+			}
 			buf.append(Integer.toHexString(element & 0xFF));
 		}
 		return buf.toString();
