@@ -87,18 +87,21 @@ public class LocationProperties {
 			return new LocationProperties();
 		}
 
-		if (properties.getProperty(VERSION) == null || properties.getProperty(VERSION).length() == 0)
+		if (properties.getProperty(VERSION) == null || properties.getProperty(VERSION).length() == 0) {
 			return new LocationProperties();
+		}
 
 		try {
 			Version version = Version.parseVersion(properties.getProperty(VERSION));
-			if (version.compareTo(Version.createOSGi(1, 0, 0)) < 0)
+			if (version.compareTo(Version.createOSGi(1, 0, 0)) < 0) {
 				return new LocationProperties();
+			}
 
 			LocationProperties locationProperties = new LocationProperties();
 			if (version.compareTo(Version.createOSGi(1, 0, 0)) == 0) {
-				if (locationProperties.initVersion1(properties))
+				if (locationProperties.initVersion1(properties)) {
 					return locationProperties;
+				}
 			}
 		} catch (Throwable t) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, t.getMessage(), t));
@@ -161,8 +164,9 @@ public class LocationProperties {
 	 */
 	public boolean hasMD5Hash(String factoryID) {
 		Boolean result = md5Hashes.get("md5." + factoryID); //$NON-NLS-1$
-		if (result == null)
+		if (result == null) {
 			return false;
+		}
 		return result.booleanValue();
 	}
 
@@ -170,8 +174,9 @@ public class LocationProperties {
 	 * Sets up a set of location properties using the Version 1 format.
 	 */
 	private boolean initVersion1(Properties properties) {
-		if (properties.get(VERSION) == null)
+		if (properties.get(VERSION) == null) {
 			return false;
+		}
 
 		Set<Entry<Object, Object>> entrySet = properties.entrySet();
 		for (Entry<Object, Object> entry : entrySet) {

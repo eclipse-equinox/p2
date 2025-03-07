@@ -35,8 +35,9 @@ public class CompositeWriter extends XMLWriter implements XMLConstants {
 	 * Writes a list of URIs referring to sub repositories
 	 */
 	protected void writeChildren(URI[] children) {
-		if (children == null || children.length == 0)
+		if (children == null || children.length == 0) {
 			return;
+		}
 		start(CHILDREN_ELEMENT);
 		attribute(COLLECTION_SIZE_ATTRIBUTE, children.length);
 		for (URI child : children) {

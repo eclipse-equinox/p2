@@ -34,16 +34,18 @@ public final class ArtifactKeyQuery extends ExpressionMatchQuery<IArtifactKey> {
 	private static final IExpression matchIDClassifierRange = ExpressionUtil.parse("id == $0 && version ~= $2 && (null == $1 || classifier == $1)"); //$NON-NLS-1$
 
 	private static IExpression createMatchExpression(IArtifactKey key) {
-		if (key == null)
+		if (key == null) {
 			return ExpressionUtil.TRUE_EXPRESSION;
+		}
 		return ExpressionUtil.getFactory().matchExpression(matchKey, key);
 	}
 
 	private static IExpression createMatchExpression(String classifier, String id, VersionRange range) {
 		if (range == null) {
 			if (classifier == null) {
-				if (id == null)
+				if (id == null) {
 					return ExpressionUtil.TRUE_EXPRESSION;
+				}
 				return ExpressionUtil.getFactory().matchExpression(matchID, id);
 			}
 			range = VersionRange.emptyRange;

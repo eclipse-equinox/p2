@@ -128,8 +128,9 @@ public class Credentials {
 				String nodeName = IRepository.PREFERENCE_NODE + '/' + nodeKey;
 				ISecurePreferences prefNode = null;
 				try {
-					if (securePreferences.nodeExists(nodeName))
+					if (securePreferences.nodeExists(nodeName)) {
 						prefNode = securePreferences.node(nodeName);
+					}
 				} catch (IllegalArgumentException e) {
 					// if the node name is illegal/malformed (should not happen).
 					throw internalError(e);
@@ -150,8 +151,9 @@ public class Credentials {
 							}
 
 							// if we don't have stored connection data just return a null auth info
-							if (username != null && password != null)
+							if (username != null && password != null) {
 								return new UIServices.AuthenticationInfo(username, password, true);
+							}
 						}
 						if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 							DebugHelper.debug("Credentials", "forLocation:PREFNODE NOT FOUND - RETURN FROM MEMORY", // //$NON-NLS-1$ //$NON-NLS-2$
@@ -171,18 +173,23 @@ public class Credentials {
 				if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 					UIServices.AuthenticationInfo latest = restoreFromMemory(nodeName);
 					boolean useLatest = false;
-					if (latest != null && lastUsed != null)
-						if (!(latest.getUserName().equals(lastUsed.getUserName()) && latest.getPassword().equals(lastUsed.getPassword())))
+					if (latest != null && lastUsed != null) {
+						if (!(latest.getUserName().equals(lastUsed.getUserName()) && latest.getPassword().equals(lastUsed.getPassword()))) {
 							useLatest = true;
-					if (useLatest)
+						}
+					}
+					if (useLatest) {
 						DebugHelper.debug("Credentials", "forLocation:LATER INFO AVAILABLE - RETURNING IT", // //$NON-NLS-1$ //$NON-NLS-2$
 								new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 				}
 
 				UIServices.AuthenticationInfo latest = restoreFromMemory(nodeName);
-				if (latest != null)
-					if (lastUsed == null || !(latest.getUserName().equals(lastUsed.getUserName()) && latest.getPassword().equals(lastUsed.getPassword())))
+				if (latest != null) {
+					if (lastUsed == null || !(latest.getUserName().equals(lastUsed.getUserName()) && latest.getPassword().equals(lastUsed.getPassword()))) {
 						return latest;
+					}
+				}
 
 				// check if number of prompts have been exceeded for the host - if so
 				// do a synthetic Login canceled by user
@@ -190,9 +197,10 @@ public class Credentials {
 				// authentication failed - but that would waste time).
 				if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 					if (getPromptCount(host) >= RepositoryPreferences.getLoginRetryCount()) {
-						if (lastUsed == null && latest == null)
+						if (lastUsed == null && latest == null) {
 							DebugHelper.debug("Credentials", "forLocation:NO INFO - SYNTHETIC CANCEL", // //$NON-NLS-1$ //$NON-NLS-2$
 									new Object[] {"host", location}); //$NON-NLS-1$
+						}
 						return latest == null ? lastUsed : latest; // keep client failing on the latest known
 					}
 					DebugHelper.debug("Credentials", "forLocation:LATER INFO AVAILABLE - RETURNING IT", // //$NON-NLS-1$ //$NON-NLS-2$
@@ -200,14 +208,15 @@ public class Credentials {
 
 				}
 				if (getPromptCount(host) >= RepositoryPreferences.getLoginRetryCount()) {
-					if (lastUsed == null && latest == null)
+					if (lastUsed == null && latest == null) {
 						throw new LoginCanceledException();
+					}
 					return latest == null ? lastUsed : latest; // keep client failing on the latest known
 				}
 				IProvisioningAgent agent = ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.class);
 				UIServices adminUIService = agent.getService(UIServices.class);
 
-				if (adminUIService != null)
+				if (adminUIService != null) {
 					synchronized (promptLock) {
 						try {
 							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
@@ -219,9 +228,10 @@ public class Credentials {
 							loginDetails = lastUsed != null ? adminUIService.getUsernamePassword(host, lastUsed) : adminUIService.getUsernamePassword(host);
 							//null result means user canceled password dialog
 							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-								if (loginDetails == UIServices.AUTHENTICATION_PROMPT_CANCELED)
+								if (loginDetails == UIServices.AUTHENTICATION_PROMPT_CANCELED) {
 									DebugHelper.debug("Credentials", "forLocation:PROMPTED - USER CANCELED (PROMPT LOCK RELEASED)", // //$NON-NLS-1$ //$NON-NLS-2$
 											new Object[] {"host", location}); //$NON-NLS-1$
+								}
 							}
 							if (loginDetails == UIServices.AUTHENTICATION_PROMPT_CANCELED) {
 								rememberCancel(host);
@@ -231,14 +241,16 @@ public class Credentials {
 							}
 							//save user name and password if requested by user
 							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-								if (loginDetails.saveResult())
+								if (loginDetails.saveResult()) {
 									DebugHelper.debug("Credentials", "forLocation:SAVING RESULT", // //$NON-NLS-1$ //$NON-NLS-2$
 											new Object[] {"host", location}); //$NON-NLS-1$
+								}
 							}
 
 							if (loginDetails.saveResult()) {
-								if (prefNode == null)
+								if (prefNode == null) {
 									prefNode = securePreferences.node(nodeName);
+								}
 								try {
 									prefNode.put(IRepository.PROP_USERNAME, loginDetails.getUserName(), true);
 									prefNode.put(IRepository.PROP_PASSWORD, loginDetails.getPassword(), true);
@@ -273,6 +285,7 @@ public class Credentials {
 							}
 						}
 					}
+				}
 				incrementPromptCount(host);
 			} finally {
 				if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
@@ -291,16 +304,17 @@ public class Credentials {
 		String host = location.getHost();
 		if (host == null) {
 			String scheme = location.getScheme();
-			if (URIUtil.isFileURI(location) || scheme == null)
+			if (URIUtil.isFileURI(location) || scheme == null) {
 				// If the URI references a file, a password could possibly be needed for the directory
 				// (it could be a protected zip file representing a compressed directory) - in this
 				// case the key is the path without the last segment.
 				// Using "Path" this way may result in an empty string - which later will result in
 				// an invalid key.
 				host = IPath.fromOSString(location.toString()).removeLastSegments(1).toString();
-			else
+			} else {
 				// it is an opaque URI - details are unknown - can only use entire string.
 				host = location.toString();
+			}
 		}
 		return host;
 	}
@@ -325,8 +339,9 @@ public class Credentials {
 	 */
 	private static void rememberCancel(String host) {
 		Map<String, HostEntry> r = getRemembered();
-		if (r != null)
+		if (r != null) {
 			r.put(host, new HostEntry(-1));
+		}
 	}
 
 	/**
@@ -337,7 +352,7 @@ public class Credentials {
 		Map<String, HostEntry> r = getRemembered();
 		if (r != null) {
 			Object x = r.get(host);
-			if (x != null && x instanceof HostEntry)
+			if (x != null && x instanceof HostEntry) {
 				if (((HostEntry) x).isCanceled()) {
 					if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 						DebugHelper.debug("Credentials", "checkRememberCancel:PREVIOUSLY CANCELED", // //$NON-NLS-1$ //$NON-NLS-2$
@@ -346,6 +361,7 @@ public class Credentials {
 
 					throw new LoginCanceledException();
 				}
+			}
 		}
 
 	}
@@ -358,11 +374,12 @@ public class Credentials {
 		Map<String, HostEntry> r = getRemembered();
 		if (r != null) {
 			HostEntry value = r.get(host);
-			if (value == null)
+			if (value == null) {
 				r.put(host, value = new HostEntry(1));
-			else {
-				if (value.isStale())
+			} else {
+				if (value.isStale()) {
 					value.reset();
+				}
 				value.increment();
 			}
 		}
@@ -376,8 +393,9 @@ public class Credentials {
 		Map<String, HostEntry> r = getRemembered();
 		if (r != null) {
 			HostEntry value = r.get(host);
-			if (value != null && !value.isStale())
+			if (value != null && !value.isStale()) {
 				return value.getCount();
+			}
 		}
 		return 0;
 
@@ -388,15 +406,18 @@ public class Credentials {
 	 * canceled logins.
 	 */
 	public static synchronized void clearPromptCache() {
-		if (remembered == null)
+		if (remembered == null) {
 			return;
+		}
 		Map<String, HostEntry> r = remembered;
-		if (r == null || r.isEmpty())
+		if (r == null || r.isEmpty()) {
 			return;
+		}
 		// reset entries rather than creating a new empty map since the entries
 		// are also used as locks
-		for (HostEntry entry : r.values())
+		for (HostEntry entry : r.values()) {
 			entry.reset();
+		}
 	}
 
 	/**
@@ -414,19 +435,23 @@ public class Credentials {
 	 * @param host a host as returned from uriToHost for a location
 	 */
 	public static synchronized void clearPromptCache(String host) {
-		if (remembered == null)
+		if (remembered == null) {
 			return;
+		}
 		Map<String, HostEntry> r = remembered;
-		if (r == null)
+		if (r == null) {
 			return;
+		}
 		HostEntry value = r.get(host);
-		if (value != null)
+		if (value != null) {
 			value.reset();
+		}
 	}
 
 	private static synchronized Map<String, HostEntry> getRemembered() {
-		if (remembered == null)
+		if (remembered == null) {
 			remembered = Collections.synchronizedMap(new HashMap<>());
+		}
 		return remembered;
 	}
 
@@ -453,8 +478,9 @@ public class Credentials {
 		}
 
 		public void increment() {
-			if (count != -1)
+			if (count != -1) {
 				count++;
+			}
 		}
 
 		public void reset() {

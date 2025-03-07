@@ -60,8 +60,9 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 		this.location = location;
 		this.description = description == null ? "" : description; //$NON-NLS-1$
 		this.provider = provider == null ? "" : provider; //$NON-NLS-1$
-		if (properties != null)
+		if (properties != null) {
 			this.properties.putAll(properties);
+		}
 	}
 
 	/**
@@ -70,8 +71,9 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 	 * to write to a repository.
 	 */
 	protected void assertModifiable() {
-		if (!isModifiable())
+		if (!isModifiable()) {
 			throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
+		}
 	}
 
 	/**

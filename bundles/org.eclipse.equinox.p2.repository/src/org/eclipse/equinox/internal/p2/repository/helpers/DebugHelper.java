@@ -54,12 +54,13 @@ public class DebugHelper {
 	}
 
 	public static void debug(String name, String message, Object... keyValueArray) {
-		if (keyValueArray == null || keyValueArray.length == 0)
+		if (keyValueArray == null || keyValueArray.length == 0) {
 			debug(name, message);
-		else {
+		} else {
 			Map<Object, Object> params = new LinkedHashMap<>(keyValueArray.length / 2);
-			for (int i = 0; i < keyValueArray.length; i += 2)
+			for (int i = 0; i < keyValueArray.length; i += 2) {
 				params.put(keyValueArray[i], keyValueArray[i + 1]);
+			}
 			StringBuilder buffer = new StringBuilder();
 			buffer.append(message);
 			buffer.append(formatMap(params, true, true));
@@ -79,50 +80,57 @@ public class DebugHelper {
 	}
 
 	public static String formatArray(Object[] array, boolean toString, boolean newLines) {
-		if (array == null || array.length == 0)
+		if (array == null || array.length == 0) {
 			return "[]"; //$NON-NLS-1$
+		}
 
 		StringBuilder buffer = new StringBuilder();
 		buffer.append('[');
 		int i = 0;
 		for (;;) {
-			if (toString)
+			if (toString) {
 				buffer.append(array[i].toString());
-			else
+			} else {
 				buffer.append(array[i].getClass().getName());
+			}
 			i++;
-			if (i == array.length)
+			if (i == array.length) {
 				break;
+			}
 			buffer.append(',');
-			if (newLines)
+			if (newLines) {
 				buffer.append(DebugHelper.LINE_SEPARATOR);
-			else
+			} else {
 				buffer.append(' ');
+			}
 		}
 		buffer.append(']');
 		return buffer.toString();
 	}
 
 	public static String formatMap(Map<?, ?> map, boolean toString, boolean newLines) {
-		if (map == null || map.size() == 0)
+		if (map == null || map.size() == 0) {
 			return "[]"; //$NON-NLS-1$
+		}
 
 		StringBuilder buffer = new StringBuilder();
 		buffer.append('[');
 		for (Entry<?, ?> e : map.entrySet()) {
 			buffer.append(e.getKey());
 			buffer.append('=');
-			if (toString)
+			if (toString) {
 				buffer.append(e.getValue().toString());
-			else
+			} else {
 				buffer.append(e.getValue().getClass().getName());
+			}
 
 			buffer.append(',');
 			if (newLines) {
 				buffer.append(DebugHelper.LINE_SEPARATOR);
 				buffer.append("    "); //$NON-NLS-1$
-			} else
+			} else {
 				buffer.append(' ');
+			}
 		}
 		buffer.append(']');
 		return buffer.toString();

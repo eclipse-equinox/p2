@@ -73,8 +73,9 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 			String[] values = parseAttributes(attributes, required, optional);
 			this.repos = repos;
 			//skip entire subrepository if the location is missing
-			if (values[0] == null)
+			if (values[0] == null) {
 				return;
+			}
 			currentRepo = checkURI(REQUIRED_CAPABILITY_ELEMENT, URI_ATTRIBUTE, values[0]);
 
 		}
@@ -86,8 +87,9 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 
 		@Override
 		protected void finished() {
-			if (currentRepo != null)
+			if (currentRepo != null) {
 				repos.add(currentRepo);
+			}
 		}
 	}
 
@@ -138,24 +140,26 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 		public void startElement(String name, Attributes attributes) {
 			if (name==null) {
 				invalidElement(name, attributes);
-			} else switch (name) {
-				case PROPERTIES_ELEMENT:
-					if (propertiesHandler == null) {
-						propertiesHandler = new PropertiesHandler(this, attributes);
-					} else {
-						duplicateElement(this, name, attributes);
-					}
-					break;
-				case CHILDREN_ELEMENT:
-					if (childrenHandler == null) {
-						childrenHandler = new ChildrenHandler(this, attributes);
-					} else {
-						duplicateElement(this, name, attributes);
-					}
-					break;
-				default:
-					invalidElement(name, attributes);
-					break;
+			} else {
+				switch (name) {
+					case PROPERTIES_ELEMENT:
+						if (propertiesHandler == null) {
+							propertiesHandler = new PropertiesHandler(this, attributes);
+						} else {
+							duplicateElement(this, name, attributes);
+						}
+						break;
+					case CHILDREN_ELEMENT:
+						if (childrenHandler == null) {
+							childrenHandler = new ChildrenHandler(this, attributes);
+						} else {
+							duplicateElement(this, name, attributes);
+						}
+						break;
+					default:
+						invalidElement(name, attributes);
+						break;
+				}
 			}
 		}
 
@@ -186,8 +190,9 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 
 	public void parse(File file) throws IOException {
 		// don't overwrite if we already have a filename/location
-		if (errorContext == null)
+		if (errorContext == null) {
 			setErrorContext(file.getAbsolutePath());
+		}
 		parse(new FileInputStream(file));
 	}
 

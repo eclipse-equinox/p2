@@ -33,17 +33,19 @@ public final class ArtifactDescriptorQuery extends ExpressionMatchQuery<IArtifac
 			"artifactKey.id == $0 && artifactKey.version ~= $1 && ($2.empty || $2.all(x | properties[x.key] == x.value))"); //$NON-NLS-1$
 
 	private static IMatchExpression<IArtifactDescriptor> createExpression(String id, VersionRange range, String format, Map<String, String> properties) {
-		if (range == null)
+		if (range == null) {
 			range = VersionRange.emptyRange;
+		}
 		if (format != null) {
-			if (properties == null || properties.isEmpty())
+			if (properties == null || properties.isEmpty()) {
 				properties = Collections.singletonMap(IArtifactDescriptor.FORMAT, format);
-			else {
+			} else {
 				properties = new HashMap<>(properties);
 				properties.put(IArtifactDescriptor.FORMAT, format);
 			}
-		} else if (properties == null)
+		} else if (properties == null) {
 			properties = Collections.emptyMap();
+		}
 
 		IExpressionFactory factory = ExpressionUtil.getFactory();
 		return factory.matchExpression(descriptorMatch, id, range, properties);

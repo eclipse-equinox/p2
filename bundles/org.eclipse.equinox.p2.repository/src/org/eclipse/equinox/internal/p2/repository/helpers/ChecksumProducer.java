@@ -94,12 +94,14 @@ public class ChecksumProducer {
 	}
 
 	public static MessageDigest getMessageDigest(String algorithm, String providerName) throws NoSuchAlgorithmException, NoSuchProviderException {
-		if (providerName == null)
+		if (providerName == null) {
 			return MessageDigest.getInstance(algorithm);
+		}
 
 		Provider provider = ServiceHelper.getService(Activator.getContext(), Provider.class, "(providerName=" + providerName + ")"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (provider == null)
+		if (provider == null) {
 			throw new NoSuchProviderException(NLS.bind(Messages.noSuchProvider, providerName));
+		}
 
 		return MessageDigest.getInstance(algorithm, provider);
 	}

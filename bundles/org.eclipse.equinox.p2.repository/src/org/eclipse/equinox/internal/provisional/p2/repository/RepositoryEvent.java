@@ -208,14 +208,16 @@ public class RepositoryEvent extends EventObject {
 				buffer.append("REMOVED "); //$NON-NLS-1$
 				break;
 		}
-		if (type == IRepository.TYPE_ARTIFACT)
+		if (type == IRepository.TYPE_ARTIFACT) {
 			buffer.append("Artifact "); //$NON-NLS-1$
-		else
+		} else {
 			buffer.append("Metadata "); //$NON-NLS-1$
+		}
 		// uri
 		buffer.append(getSource().toString());
-		if (nickname != null)
+		if (nickname != null) {
 			buffer.append("Nickname: " + nickname); //$NON-NLS-1$
+		}
 		buffer.append(" Enabled: " + Boolean.toString(isEnabled)); //$NON-NLS-1$
 		buffer.append("] "); //$NON-NLS-1$
 		return buffer.toString();

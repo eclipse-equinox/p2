@@ -196,8 +196,9 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 		if (!(o instanceof AbstractArtifactRepository)) {
 			return false;
 		}
-		if (URIUtil.sameURI(getLocation(), ((AbstractArtifactRepository) o).getLocation()))
+		if (URIUtil.sameURI(getLocation(), ((AbstractArtifactRepository) o).getLocation())) {
 			return true;
+		}
 		return false;
 	}
 

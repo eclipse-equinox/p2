@@ -107,8 +107,9 @@ public class CacheManager {
 			// bug 269588 - server may return 0 when file exists, so extra flag is needed
 			try {
 				lastModifiedRemote = transport.getLastModified(remoteFile, submonitor.newChild(1));
-				if (lastModifiedRemote <= 0)
+				if (lastModifiedRemote <= 0) {
 					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified <= 0 for " + remoteFile)); //$NON-NLS-1$
+				}
 			} catch (AuthenticationFailedException e) {
 				// it is not meaningful to continue - the credentials are for the server
 				// do not pass the exception - it gives no additional meaningful user information
@@ -117,24 +118,26 @@ public class CacheManager {
 				throw new FileNotFoundException(NLS.bind(Messages.CacheManager_Repository_not_found, remoteFile));
 			} catch (CoreException e) {
 				IStatus status = e.getStatus();
-				if (status == null)
+				if (status == null) {
 					throw new ProvisionException(
 							new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND,
 									NLS.bind(Messages.CacheManager_FailedCommunicationWithRepo_0, remoteFile), e));
-				else if (status.getException() instanceof FileNotFoundException)
+				} else if (status.getException() instanceof FileNotFoundException) {
 					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID,
 							ProvisionException.REPOSITORY_NOT_FOUND, status.getMessage(), status.getException()));
-				else if (status.getException() != null) {
+				} else if (status.getException() != null) {
 					Throwable ex = status.getException();
-					if (ex.getClass() == java.net.SocketTimeoutException.class)
+					if (ex.getClass() == java.net.SocketTimeoutException.class) {
 						throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, NLS.bind(Messages.CacheManager_FailedCommunicationWithRepo_0, remoteFile), ex));
+					}
 				}
 				throw new ProvisionException(status);
 			}
 
 			stale = lastModifiedRemote != lastModified;
-			if (!stale)
+			if (!stale) {
 				return cacheFile;
+			}
 
 			// The cache is stale or missing, so we need to update it from the remote location
 			updateCache(cacheFile, remoteFile, lastModifiedRemote, submonitor);
@@ -193,8 +196,9 @@ public class CacheManager {
 			boolean useJar = true;
 			try {
 				lastModifiedRemote = getLastModified(jarLocation, submonitor.newChild(1));
-				if (lastModifiedRemote <= 0)
+				if (lastModifiedRemote <= 0) {
 					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified <= 0 for " + jarLocation)); //$NON-NLS-1$
+				}
 			} catch (AuthenticationFailedException e) {
 				// it is not meaningful to continue - the credentials are for the server
 				// do not pass the exception - it gives no additional meaningful user information
@@ -205,8 +209,9 @@ public class CacheManager {
 				// by (almost certainly) also timing out on the xml.
 				if (e.getStatus() != null && e.getStatus().getException() != null) {
 					Throwable ex = e.getStatus().getException();
-					if (ex.getClass() == java.net.SocketTimeoutException.class)
+					if (ex.getClass() == java.net.SocketTimeoutException.class) {
 						throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, NLS.bind(Messages.CacheManager_FailedCommunicationWithRepo_0, repositoryLocation), ex));
+					}
 				}
 			} catch (OperationCanceledException e) {
 				// must pass this on
@@ -216,8 +221,9 @@ public class CacheManager {
 				// the xml.
 				useJar = false;
 			}
-			if (submonitor.isCanceled())
+			if (submonitor.isCanceled()) {
 				throw new OperationCanceledException();
+			}
 
 			if (useJar) {
 				// There is a jar, and it should be used - cache is stale if it is xml based or
@@ -233,8 +239,9 @@ public class CacheManager {
 					// if lastModifiedRemote is 0 - something is wrong in the communication stack, as
 					// a FileNotFound exception should have been thrown.
 					// bug 269588 - server may return 0 when file exists - site is not correctly configured
-					if (lastModifiedRemote <= 0)
+					if (lastModifiedRemote <= 0) {
 						LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified <= 0 for " + xmlLocation)); //$NON-NLS-1$
+					}
 
 				} catch (FileNotFoundException e) {
 					throw new FileNotFoundException(NLS.bind(Messages.CacheManager_Neither_0_nor_1_found, jarLocation, xmlLocation));
@@ -243,10 +250,11 @@ public class CacheManager {
 					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, NLS.bind(Messages.CacheManager_AuthenticationFaileFor_0, repositoryLocation), null));
 				} catch (CoreException e) {
 					IStatus status = e.getStatus();
-					if (status == null)
+					if (status == null) {
 						throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.CacheManager_FailedCommunicationWithRepo_0, repositoryLocation), e));
-					else if (status.getException() instanceof FileNotFoundException)
+					} else if (status.getException() instanceof FileNotFoundException) {
 						throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, status.getMessage(), status.getException()));
+					}
 					throw new ProvisionException(status);
 
 				}
@@ -258,8 +266,9 @@ public class CacheManager {
 				remoteFile = xmlLocation;
 			}
 
-			if (!stale)
+			if (!stale) {
 				return cacheFile;
+			}
 
 			// The cache is stale or missing, so we need to update it from the remote location
 			cacheFile = new File(getCacheDirectory(), prefix + hashCode + useExtension);
@@ -283,8 +292,9 @@ public class CacheManager {
 				exception = e;
 			}
 		} while (exception != null && exception.getStatus() != null && exception.getStatus().getCode() == IArtifactRepository.CODE_RETRY);
-		if (exception != null)
+		if (exception != null) {
 			throw exception;
+		}
 		return lastModifiedRemote;
 	}
 
@@ -312,8 +322,9 @@ public class CacheManager {
 	 */
 	protected File getCache(URI repositoryLocation, String prefix) {
 		File[] files = getCacheFiles(repositoryLocation, prefix);
-		if (files[0].exists())
+		if (files[0].exists()) {
 			return files[0];
+		}
 		return files[1].exists() ? files[1] : null;
 	}
 
@@ -396,19 +407,22 @@ public class CacheManager {
 	 * cache file from the event bus.
 	 */
 	private void unregisterRepoEventListener(IProvisioningEventBus bus) {
-		if (bus != null && busListener != null)
+		if (bus != null && busListener != null) {
 			bus.removeListener(busListener);
+		}
 	}
 
 	protected void updateCache(File cacheFile, URI remoteFile, long lastModifiedRemote, SubMonitor submonitor) throws FileNotFoundException, IOException, ProvisionException {
 		cacheFile.getParentFile().mkdirs();
 		File downloadDir = new File(cacheFile.getParentFile(), DOWNLOADING);
-		if (!downloadDir.exists())
+		if (!downloadDir.exists()) {
 			downloadDir.mkdir();
+		}
 		File tempFile = new File(downloadDir, cacheFile.getName());
 		// Ensure that the file from a previous download attempt is removed
-		if (tempFile.exists())
+		if (tempFile.exists()) {
 			safeDelete(tempFile);
+		}
 
 		tempFile.createNewFile();
 
@@ -432,12 +446,14 @@ public class CacheManager {
 		} finally {
 			stream.close();
 			// If there was any problem fetching the file, delete the temp file
-			if (result == null || !result.isOK())
+			if (result == null || !result.isOK()) {
 				safeDelete(tempFile);
+			}
 		}
 		if (result.isOK()) {
-			if (cacheFile.exists())
+			if (cacheFile.exists()) {
 				safeDelete(cacheFile);
+			}
 			if (tempFile.renameTo(cacheFile)) {
 				if (lastModifiedRemote != -1 && lastModifiedRemote != 0) {
 					//local cache file should have the same lastModified as the server's file. bug 324200
@@ -448,8 +464,9 @@ public class CacheManager {
 			result = new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CacheManage_ErrorRenamingCache, new Object[] {remoteFile.toString(), tempFile.getAbsolutePath(), cacheFile.getAbsolutePath()}));
 		}
 
-		if (result.getSeverity() == IStatus.CANCEL || submonitor.isCanceled())
+		if (result.getSeverity() == IStatus.CANCEL || submonitor.isCanceled()) {
 			throw new OperationCanceledException();
+		}
 		throw new ProvisionException(result);
 	}
 }
