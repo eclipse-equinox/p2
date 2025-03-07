@@ -41,11 +41,13 @@ public class CleanupzipAction extends ProvisioningAction {
 
 	public static IStatus cleanupzip(Map<String, Object> parameters, boolean restoreable) {
 		String source = (String) parameters.get(ActionConstants.PARM_SOURCE);
-		if (source == null)
+		if (source == null) {
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_SOURCE, ACTION_CLEANUPZIP));
+		}
 		String target = (String) parameters.get(ActionConstants.PARM_TARGET);
-		if (target == null)
+		if (target == null) {
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_TARGET, ACTION_CLEANUPZIP));
+		}
 
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(ActionConstants.PARM_IU);
 		Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
@@ -64,13 +66,15 @@ public class CleanupzipAction extends ProvisioningAction {
 						iuPropertyKey = key;
 						String storedTarget = key.substring(sourcePrefix.length());
 						unzipped = substituteTarget(storedTarget, target, iuProperties.get(key));
-					} else
+					} else {
 						return Status.OK_STATUS; // possible two unzips of this source - give up on best effort
+					}
 				}
 			}
 			// no match
-			if (unzipped == null)
+			if (unzipped == null) {
 				return Status.OK_STATUS;
+			}
 		}
 
 		IBackupStore store = restoreable ? (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP) : null;
@@ -79,32 +83,37 @@ public class CleanupzipAction extends ProvisioningAction {
 		while (tokenizer.hasMoreTokens()) {
 			String fileName = tokenizer.nextToken();
 			File file = new File(fileName);
-			if (!file.exists())
+			if (!file.exists()) {
 				continue;
+			}
 
-			if (file.isDirectory())
+			if (file.isDirectory()) {
 				directories.add(file);
-			else {
-				if (store != null)
+			} else {
+				if (store != null) {
 					try {
 						store.backup(file);
 					} catch (IOException e) {
 						return new Status(IStatus.ERROR, Activator.ID, IStatus.OK,
 								NLS.bind(Messages.backup_file_failed, file.getPath()), e);
 					}
-				else
+				} else {
 					file.delete();
+				}
 			}
 		}
 		// sort directories by path length longest path is in top
 		// this will make sure that a sub folder will be removed before its parent
 		directories.sort((f1, f2) -> {
-			if (f1 == f2)
+			if (f1 == f2) {
 				return 0;
-			if (f1 != null && f2 == null)
+			}
+			if (f1 != null && f2 == null) {
 				return -1;
-			if (f1 == null)
+			}
+			if (f1 == null) {
 				return 1;
+			}
 			try {
 				return Integer.valueOf(f2.getCanonicalPath().length()).compareTo(f1.getCanonicalPath().length());
 			} catch (IOException e) {
@@ -116,15 +125,17 @@ public class CleanupzipAction extends ProvisioningAction {
 			if (store != null) {
 				File[] children = directory.listFiles();
 				// Since backup will deny backup of non empty directory a check must be made
-				if (children == null || children.length == 0)
+				if (children == null || children.length == 0) {
 					try {
 						store.backupDirectory(directory);
 					} catch (IOException e) {
 						return new Status(IStatus.ERROR, Activator.ID, IStatus.OK,
 								NLS.bind(Messages.backup_file_failed, directory.getPath()), e);
 					}
-			} else
+				}
+			} else {
 				directory.delete();
+			}
 		}
 
 		profile.removeInstallableUnitProperty(iu, iuPropertyKey);
@@ -136,10 +147,12 @@ public class CleanupzipAction extends ProvisioningAction {
 		StringTokenizer tokenizer = new StringTokenizer(value, ActionConstants.PIPE);
 		while (tokenizer.hasMoreTokens()) {
 			String fileName = tokenizer.nextToken().trim();
-			if (fileName.length() == 0)
+			if (fileName.length() == 0) {
 				continue;
-			if (fileName.startsWith(oldTarget))
+			}
+			if (fileName.startsWith(oldTarget)) {
 				fileName = newTarget + fileName.substring(oldTarget.length());
+			}
 
 			buffer.append(fileName).append(ActionConstants.PIPE);
 		}

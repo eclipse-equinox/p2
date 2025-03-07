@@ -33,8 +33,9 @@ public class CheckAndPromptNativePackageWindowsRegistry extends ProvisioningActi
 	@Override
 	public IStatus execute(Map<String, Object> parameters) {
 		// If we are not running on Windows, do nothing and return
-		if (!IS_WINDOWS)
+		if (!IS_WINDOWS) {
 			return Status.OK_STATUS;
+		}
 
 		// Get and check the paremeters
 		String packageName = (String) parameters.get(ActionConstants.PARM_LINUX_PACKAGE_NAME);
@@ -44,14 +45,16 @@ public class CheckAndPromptNativePackageWindowsRegistry extends ProvisioningActi
 		String attValue = (String) parameters.get(ActionConstants.PARM_WINDOWS_REGISTRY_ATTRIBUTE_VALUE);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(ActionConstants.PARM_IU);
 
-		if (key == null || (attName != null && attValue == null))
+		if (key == null || (attName != null && attValue == null)) {
 			return new Status(IStatus.ERROR, Activator.ID, Messages.Incorrect_Command);
+		}
 
 		// Check if the desired package is installed and collect information in the
 		// touchpoint
 		File scriptToExecute = NativeTouchpoint.getFileFromBundle(WINDOWS_DISTRO, IS_INSTALLED);
-		if (scriptToExecute == null)
+		if (scriptToExecute == null) {
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cannot_Find_status, WINDOWS_DISTRO));
+		}
 
 		try {
 			List<String> cmd = new ArrayList<>(6);

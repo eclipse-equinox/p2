@@ -90,10 +90,11 @@ public class NativePackageExtractionApplication implements IApplication {
 
 			if (OPTION_TO_ANALYZE.equals(opt)) {
 				installation = new File(getRequiredArgument(args, ++i));
-				if (!installation.exists())
+				if (!installation.exists()) {
 					throw new CoreException(new Status(IStatus.ERROR, Activator.ID,
 							Messages.NativePackageExtractionApplication_FolderNotFound
 									+ installation.getAbsolutePath()));
+				}
 				continue;
 			}
 
@@ -107,8 +108,9 @@ public class NativePackageExtractionApplication implements IApplication {
 	private static String getRequiredArgument(String[] args, int argIdx) throws CoreException {
 		if (argIdx < args.length) {
 			String arg = args[argIdx];
-			if (!arg.startsWith("-")) //$NON-NLS-1$
+			if (!arg.startsWith("-")) { //$NON-NLS-1$
 				return arg;
+			}
 		}
 		throw new ProvisionException(
 				NLS.bind(Messages.NativePackageExtractionApplication_MissingValue, args[argIdx - 1]));
@@ -133,8 +135,9 @@ public class NativePackageExtractionApplication implements IApplication {
 
 	private void collectLauncherName(IProfile p) {
 		String launcherName = p.getProperty("eclipse.touchpoint.launcherName"); //$NON-NLS-1$
-		if (launcherName == null)
+		if (launcherName == null) {
 			launcherName = ""; //$NON-NLS-1$
+		}
 		extractedData.put(PROP_LAUNCHER_NAME, launcherName);
 	}
 
@@ -146,8 +149,9 @@ public class NativePackageExtractionApplication implements IApplication {
 				int i = entry.indexOf('=');
 				String key = entry.substring(0, i).trim();
 				String value = entry.substring(i + 1).trim();
-				if (!key.equals("osgi.arch")) //$NON-NLS-1$
+				if (!key.equals("osgi.arch")) { //$NON-NLS-1$
 					continue;
+				}
 
 				if ("x86_64".equals(value)) { //$NON-NLS-1$
 					extractedData.put(PROP_ARCH, "amd64"); //$NON-NLS-1$
@@ -189,16 +193,18 @@ public class NativePackageExtractionApplication implements IApplication {
 			}
 		}
 		// pre-prend a comma, and remove the last one
-		if (depends.length() > 0)
+		if (depends.length() > 0) {
 			depends = ',' + depends.substring(0, depends.length() - 1);
+		}
 
 		extractedData.put(PROP_DEPENDS, depends);
 	}
 
 	private String formatAsDependsEntry(String packageId, String version, String versionComparator) {
 		String result = packageId;
-		if (versionComparator == null)
+		if (versionComparator == null) {
 			versionComparator = DEFAULT_VERSION_CONSTRAINT;
+		}
 		if (version != null) {
 			result += '(' + getUserFriendlyComparator(versionComparator) + ' ' + version + ')';
 		}
@@ -215,20 +221,23 @@ public class NativePackageExtractionApplication implements IApplication {
 
 		int openBracket = statement.indexOf('(');
 		int closeBracket = statement.lastIndexOf(')');
-		if (openBracket == -1 || closeBracket == -1 || openBracket > closeBracket)
+		if (openBracket == -1 || closeBracket == -1 || openBracket > closeBracket) {
 			return null;
+		}
 		instructions.put(_ACTION_ID, statement.substring(0, openBracket).trim());
 
 		String nameValuePairs = statement.substring(openBracket + 1, closeBracket);
-		if (nameValuePairs.length() == 0)
+		if (nameValuePairs.length() == 0) {
 			return instructions;
+		}
 
 		StringTokenizer tokenizer = new StringTokenizer(nameValuePairs, ","); //$NON-NLS-1$
 		while (tokenizer.hasMoreTokens()) {
 			String nameValuePair = tokenizer.nextToken();
 			int colonIndex = nameValuePair.indexOf(":"); //$NON-NLS-1$
-			if (colonIndex == -1)
+			if (colonIndex == -1) {
 				return null;
+			}
 			String name = nameValuePair.substring(0, colonIndex).trim();
 			String value = nameValuePair.substring(colonIndex + 1).trim();
 			instructions.put(name, value);
@@ -256,23 +265,27 @@ public class NativePackageExtractionApplication implements IApplication {
 				} catch (IOException e) {
 					// Ignore
 				}
-				if (profileId == null)
+				if (profileId == null) {
 					profileId = installation.toString();
+				}
 			}
 		}
-		if (profileId != null)
+		if (profileId != null) {
 			targetAgent.registerService(PROP_P2_PROFILE, profileId);
+		}
 	}
 
 	private static void appendLevelPrefix(PrintStream strm, int level) {
-		for (int idx = 0; idx < level; ++idx)
+		for (int idx = 0; idx < level; ++idx) {
 			strm.print(' ');
+		}
 	}
 
 	private void deeplyPrint(CoreException ce, PrintStream strm, int level) {
 		appendLevelPrefix(strm, level);
-		if (stackTrace)
+		if (stackTrace) {
 			ce.printStackTrace(strm);
+		}
 		deeplyPrint(ce.getStatus(), strm, level);
 	}
 
@@ -283,8 +296,9 @@ public class NativePackageExtractionApplication implements IApplication {
 		Throwable cause = status.getException();
 		if (cause != null) {
 			strm.print("Caused by: "); //$NON-NLS-1$
-			if (stackTrace || !(msg.equals(cause.getMessage()) || msg.equals(cause.toString())))
+			if (stackTrace || !(msg.equals(cause.getMessage()) || msg.equals(cause.toString()))) {
 				deeplyPrint(cause, strm, level);
+			}
 		}
 
 		if (status.isMultiStatus()) {
@@ -296,13 +310,13 @@ public class NativePackageExtractionApplication implements IApplication {
 	}
 
 	private void deeplyPrint(Throwable t, PrintStream strm, int level) {
-		if (t instanceof CoreException)
+		if (t instanceof CoreException) {
 			deeplyPrint((CoreException) t, strm, level);
-		else {
+		} else {
 			appendLevelPrefix(strm, level);
-			if (stackTrace)
+			if (stackTrace) {
 				t.printStackTrace(strm);
-			else {
+			} else {
 				strm.println(t.toString());
 				Throwable cause = t.getCause();
 				if (cause != null) {
