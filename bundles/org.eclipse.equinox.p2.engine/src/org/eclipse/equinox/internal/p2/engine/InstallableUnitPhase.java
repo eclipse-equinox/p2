@@ -77,8 +77,9 @@ public abstract class InstallableUnitPhase extends Phase {
 
 	@Override
 	final protected List<ProvisioningAction> getActions(Operand operand) {
-		if (!(operand instanceof InstallableUnitOperand))
+		if (!(operand instanceof InstallableUnitOperand)) {
 			return null;
+		}
 
 		InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
 		return getActions(iuOperand);
@@ -88,8 +89,9 @@ public abstract class InstallableUnitPhase extends Phase {
 
 	@Override
 	final public boolean isApplicable(Operand operand) {
-		if (!(operand instanceof InstallableUnitOperand))
+		if (!(operand instanceof InstallableUnitOperand)) {
 			return false;
+		}
 
 		InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
 		return isApplicable(iuOperand);
@@ -102,8 +104,9 @@ public abstract class InstallableUnitPhase extends Phase {
 	protected final List<ProvisioningAction> getActions(IInstallableUnit unit, String key) {
 		List<ITouchpointInstruction> instructions = getInstructions(unit, key);
 		int instrSize = instructions.size();
-		if (instrSize == 0)
+		if (instrSize == 0) {
 			return null;
+		}
 
 		List<ProvisioningAction> actions = new ArrayList<>();
 		InstructionParser instructionParser = new InstructionParser(getActionManager());
@@ -116,14 +119,16 @@ public abstract class InstallableUnitPhase extends Phase {
 	private final static List<ITouchpointInstruction> getInstructions(IInstallableUnit unit, String key) {
 		Collection<ITouchpointData> data = unit.getTouchpointData();
 		int dataSize = data.size();
-		if (dataSize == 0)
+		if (dataSize == 0) {
 			return Collections.emptyList();
+		}
 
 		ArrayList<ITouchpointInstruction> matches = new ArrayList<>(dataSize);
 		for (ITouchpointData td : data) {
 			ITouchpointInstruction instructions = td.getInstruction(key);
-			if (instructions != null)
+			if (instructions != null) {
 				matches.add(instructions);
+			}
 		}
 		return matches;
 	}

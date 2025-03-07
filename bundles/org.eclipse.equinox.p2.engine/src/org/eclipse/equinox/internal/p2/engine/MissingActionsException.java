@@ -31,8 +31,9 @@ public class MissingActionsException extends ProvisionException {
 
 	private static String getMissingActionsMessage(MissingAction[] missingActions) {
 
-		if (missingActions.length == 0)
+		if (missingActions.length == 0) {
 			throw new IllegalArgumentException("Bad exception: No missing actions"); //$NON-NLS-1$
+		}
 
 		StringBuilder buffer = new StringBuilder();
 		for (int i = 0; i < missingActions.length; i++) {
@@ -42,8 +43,9 @@ public class MissingActionsException extends ProvisionException {
 				buffer.append("/"); //$NON-NLS-1$
 				buffer.append(missingAction.getVersionRange().toString());
 			}
-			if (i + 1 != missingActions.length)
+			if (i + 1 != missingActions.length) {
 				buffer.append(", "); //$NON-NLS-1$
+			}
 		}
 
 		return NLS.bind(Messages.actions_not_found, buffer.toString());

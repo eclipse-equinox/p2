@@ -107,24 +107,28 @@ public abstract class ProfileParser extends MetadataParser implements ProfileXML
 		}
 
 		public Map<String, String> getProperties() {
-			if (propertiesHandler == null)
+			if (propertiesHandler == null) {
 				return null;
+			}
 			return propertiesHandler.getProperties();
 		}
 
 		public IInstallableUnit[] getInstallableUnits() {
-			if (unitsHandler == null)
+			if (unitsHandler == null) {
 				return null;
+			}
 			return unitsHandler.getUnits();
 		}
 
 		public Map<String, String> getIUProperties(IInstallableUnit iu) {
-			if (iusPropertiesHandler == null)
+			if (iusPropertiesHandler == null) {
 				return null;
+			}
 
 			Map<String, Map<String, String>> iusPropertiesMap = iusPropertiesHandler.getIUsPropertiesMap();
-			if (iusPropertiesMap == null)
+			if (iusPropertiesMap == null) {
 				return null;
+			}
 
 			String iuIdentity = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
 			return iusPropertiesMap.get(iuIdentity);

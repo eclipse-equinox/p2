@@ -62,12 +62,14 @@ public class ProfileLock {
 	 */
 	public void checkLocked() {
 		synchronized (lock) {
-			if (lockHolder == null)
+			if (lockHolder == null) {
 				throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_not_locked);
+			}
 
 			Thread current = Thread.currentThread();
-			if (lockHolder != current)
+			if (lockHolder != current) {
 				throw new IllegalStateException(Messages.thread_not_owner);
+			}
 		}
 	}
 
@@ -85,8 +87,9 @@ public class ProfileLock {
 	public boolean lock() {
 		synchronized (lock) {
 			Thread current = Thread.currentThread();
-			if (lockHolder == current)
+			if (lockHolder == current) {
 				throw new IllegalStateException(Messages.profile_lock_not_reentrant);
+			}
 
 			boolean locationLocked = (waiting != 0);
 			while (lockHolder != null) {
@@ -100,13 +103,15 @@ public class ProfileLock {
 				} finally {
 					waiting--;
 					// if interrupted restore interrupt to thread state
-					if (interrupted)
+					if (interrupted) {
 						current.interrupt();
+					}
 				}
 			}
 			try {
-				if (!locationLocked && !location.lock())
+				if (!locationLocked && !location.lock()) {
 					return false;
+				}
 
 				lockHolder = current;
 			} catch (IOException e) {
@@ -122,18 +127,21 @@ public class ProfileLock {
 	 */
 	public void unlock() {
 		synchronized (lock) {
-			if (lockHolder == null)
+			if (lockHolder == null) {
 				throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_not_locked);
+			}
 
 			Thread current = Thread.currentThread();
-			if (lockHolder != current)
+			if (lockHolder != current) {
 				throw new IllegalStateException(Messages.thread_not_owner);
+			}
 
 			lockHolder = null;
-			if (waiting == 0)
+			if (waiting == 0) {
 				location.release();
-			else
+			} else {
 				lock.notify();
+			}
 		}
 	}
 

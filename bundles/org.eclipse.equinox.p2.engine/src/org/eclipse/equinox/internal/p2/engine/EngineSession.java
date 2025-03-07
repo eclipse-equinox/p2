@@ -88,8 +88,9 @@ public class EngineSession {
 	 */
 	public Object getxService(String serviceName) {
 		Object result = sessionServices.get(serviceName);
-		if (result != null)
+		if (result != null) {
 			return result;
+		}
 		return agent.getService(serviceName);
 	}
 
@@ -124,8 +125,9 @@ public class EngineSession {
 		for (Touchpoint touchpoint : touchpoints) {
 			try {
 				IStatus result = touchpoint.commit(profile);
-				if (!result.isOK())
+				if (!result.isOK()) {
 					status.add(result);
+				}
 			} catch (RuntimeException e) {
 				// "touchpoint.commit" calls user code and might throw an unchecked exception
 				// we catch the error here to gather information on where the problem occurred.
@@ -145,11 +147,13 @@ public class EngineSession {
 	}
 
 	IStatus rollback(IProgressMonitor monitor, int severity) {
-		if (severity == IStatus.CANCEL)
+		if (severity == IStatus.CANCEL) {
 			monitor.subTask(Messages.rollingback_cancel);
+		}
 
-		if (severity == IStatus.ERROR)
+		if (severity == IStatus.ERROR) {
 			monitor.subTask(Messages.rollingback_error);
+		}
 
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		SubMonitor sub = SubMonitor.convert(monitor, 100 * (phaseActionRecordsPairs.size() + (currentPhaseActive ? 1 : 0) + 1 /* for touchpoint */));
@@ -157,8 +161,9 @@ public class EngineSession {
 		if (currentPhaseActive) {
 			try {
 				IStatus result = rollBackPhase(currentPhase, currentActionRecords, sub.newChild(100));
-				if (!result.isOK())
+				if (!result.isOK()) {
 					status.add(result);
+				}
 			} catch (RuntimeException e) {
 				// "phase.prePerform and phase.postPerform" calls user code and might throw an unchecked exception
 				// we catch the error here to gather information on where the problem occurred.
@@ -180,8 +185,9 @@ public class EngineSession {
 			List<ActionsRecord> actionRecords = (List<ActionsRecord>) pair[1];
 			try {
 				final IStatus result = rollBackPhase(phase, actionRecords, sub.newChild(100));
-				if (!result.isOK())
+				if (!result.isOK()) {
 					status.add(result);
+				}
 			} catch (RuntimeException e) {
 				// "phase.prePerform and phase.postPerform" calls user code and might throw an unchecked exception
 				// we catch the error here to gather information on where the problem occurred.
@@ -197,8 +203,9 @@ public class EngineSession {
 		for (Touchpoint touchpoint : touchpoints) {
 			try {
 				IStatus result = touchpoint.rollback(profile);
-				if (!result.isOK())
+				if (!result.isOK()) {
 					status.add(result);
+				}
 			} catch (RuntimeException e) {
 				// "touchpoint.rollback" calls user code and might throw an unchecked exception
 				// we catch the error here to gather information on where the problem occurred.
@@ -229,8 +236,9 @@ public class EngineSession {
 		try {
 			phase.actionManager = agent.getService(ActionManager.class);
 
-			if (!currentPhaseActive)
+			if (!currentPhaseActive) {
 				phase.prePerform(result, this, sub.newChild(10));
+			}
 
 			for (ListIterator<ActionsRecord> it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
 				ActionsRecord record = it.previous();
@@ -258,35 +266,42 @@ public class EngineSession {
 	}
 
 	void recordPhaseEnter(Phase phase) {
-		if (phase == null)
+		if (phase == null) {
 			throw new IllegalArgumentException(Messages.null_phase);
+		}
 
-		if (currentPhase != null)
+		if (currentPhase != null) {
 			throw new IllegalStateException(Messages.phase_started);
+		}
 
 		currentPhase = phase;
 
-		if (DebugHelper.DEBUG_ENGINE_SESSION)
+		if (DebugHelper.DEBUG_ENGINE_SESSION) {
 			debugPhaseEnter(phase);
+		}
 	}
 
 	void recordPhaseStart(Phase phase) {
-		if (phase == null)
+		if (phase == null) {
 			throw new IllegalArgumentException(Messages.null_phase);
+		}
 
-		if (currentPhase != phase)
+		if (currentPhase != phase) {
 			throw new IllegalArgumentException(Messages.not_current_phase);
+		}
 
 		currentPhaseActive = true;
 		currentActionRecords = new ArrayList<>();
 	}
 
 	void recordPhaseEnd(Phase phase) {
-		if (currentPhase == null)
+		if (currentPhase == null) {
 			throw new IllegalStateException(Messages.phase_not_started);
+		}
 
-		if (currentPhase != phase)
+		if (currentPhase != phase) {
 			throw new IllegalArgumentException(Messages.not_current_phase);
+		}
 
 		phaseActionRecordsPairs.add(new Object[] {currentPhase, currentActionRecords});
 		currentActionRecords = null;
@@ -294,61 +309,74 @@ public class EngineSession {
 	}
 
 	void recordPhaseExit(Phase phase) {
-		if (currentPhase == null)
+		if (currentPhase == null) {
 			throw new IllegalStateException(Messages.phase_not_started);
+		}
 
-		if (currentPhase != phase)
+		if (currentPhase != phase) {
 			throw new IllegalArgumentException(Messages.not_current_phase);
+		}
 
 		currentPhase = null;
-		if (DebugHelper.DEBUG_ENGINE_SESSION)
+		if (DebugHelper.DEBUG_ENGINE_SESSION) {
 			debugPhaseExit(phase);
+		}
 	}
 
 	void recordOperandStart(Operand operand) {
-		if (operand == null)
+		if (operand == null) {
 			throw new IllegalArgumentException(Messages.null_operand);
+		}
 
-		if (currentRecord != null)
+		if (currentRecord != null) {
 			throw new IllegalStateException(Messages.operand_started);
+		}
 
 		currentRecord = new ActionsRecord(operand);
 		currentActionRecords.add(currentRecord);
 
-		if (DebugHelper.DEBUG_ENGINE_SESSION)
+		if (DebugHelper.DEBUG_ENGINE_SESSION) {
 			debugOperandStart(operand);
+		}
 	}
 
 	void recordOperandEnd(Operand operand) {
-		if (currentRecord == null)
+		if (currentRecord == null) {
 			throw new IllegalStateException(Messages.operand_not_started);
+		}
 
-		if (currentRecord.operand != operand)
+		if (currentRecord.operand != operand) {
 			throw new IllegalArgumentException(Messages.not_current_operand);
+		}
 
 		currentRecord = null;
 
-		if (DebugHelper.DEBUG_ENGINE_SESSION)
+		if (DebugHelper.DEBUG_ENGINE_SESSION) {
 			debugOperandEnd(operand);
+		}
 	}
 
 	void recordActionExecute(ProvisioningAction action, Map<String, Object> parameters) {
-		if (action == null)
+		if (action == null) {
 			throw new IllegalArgumentException(Messages.null_action);
+		}
 
 		currentRecord.actions.add(action);
 
 		Touchpoint touchpoint = action.getTouchpoint();
-		if (touchpoint != null)
+		if (touchpoint != null) {
 			touchpoints.add(touchpoint);
+		}
 
-		if (DebugHelper.DEBUG_ENGINE_SESSION)
+		if (DebugHelper.DEBUG_ENGINE_SESSION) {
 			debugActionExecute(action, parameters);
+		}
 	}
 
 	public void recordActionUndo(ProvisioningAction action, Map<String, Object> parameters) {
-		if (DebugHelper.DEBUG_ENGINE_SESSION)
+		if (DebugHelper.DEBUG_ENGINE_SESSION) {
 			debugActionUndo(action, parameters);
+		}
 	}
 
 	public String getContextString(Phase phase, Operand operand, ProvisioningAction action) {
@@ -366,8 +394,9 @@ public class EngineSession {
 	}
 
 	private Object getCurrentActionId() {
-		if (currentRecord == null || currentRecord.actions.isEmpty())
+		if (currentRecord == null || currentRecord.actions.isEmpty()) {
 			return EMPTY_STRING;
+		}
 
 		Object currentAction = currentRecord.actions.get(currentRecord.actions.size() - 1);
 		if (currentAction instanceof ParameterizedProvisioningAction) {
@@ -378,14 +407,16 @@ public class EngineSession {
 	}
 
 	private String getCurrentPhaseId() {
-		if (currentPhase == null)
+		if (currentPhase == null) {
 			return EMPTY_STRING;
+		}
 		return currentPhase.getClass().getName();
 	}
 
 	private String getCurrentOperandId() {
-		if (currentRecord == null)
+		if (currentRecord == null) {
 			return EMPTY_STRING;
+		}
 		return currentRecord.operand.toString();
 	}
 

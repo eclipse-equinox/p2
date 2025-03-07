@@ -125,15 +125,18 @@ public class PhaseSet implements IPhaseSet {
 			try {
 				for (Operand operand : operands) {
 					try {
-						if (!phase.isApplicable(operand))
+						if (!phase.isApplicable(operand)) {
 							continue;
+						}
 
 						List<ProvisioningAction> actions = phase.getActions(operand);
-						if (actions == null)
+						if (actions == null) {
 							continue;
+						}
 						for (ProvisioningAction action : actions) {
-							if (action instanceof MissingAction)
+							if (action instanceof MissingAction) {
 								missingActions.add((MissingAction) action);
+							}
 						}
 					} catch (RuntimeException e) {
 						// "perform" calls user code and might throw an unchecked exception
@@ -162,19 +165,21 @@ public class PhaseSet implements IPhaseSet {
 
 	private int getTotalWork(int[] weights) {
 		int sum = 0;
-		for (int weight : weights)
+		for (int weight : weights) {
 			sum += weight;
+		}
 		return sum;
 	}
 
 	private int[] getProgressWeights(Operand[] operands, Phase[] array) {
 		int[] weights = new int[array.length];
 		for (int i = 0; i < array.length; i += 1) {
-			if (operands.length > 0)
+			if (operands.length > 0) {
 				//alter weights according to the number of operands applicable to that phase
 				weights[i] = (array[i].weight * countApplicable(array[i], operands) / operands.length);
-			else
+			} else {
 				weights[i] = array[i].weight;
+			}
 		}
 		return weights;
 	}
@@ -182,8 +187,9 @@ public class PhaseSet implements IPhaseSet {
 	private int countApplicable(Phase phase, Operand[] operands) {
 		int count = 0;
 		for (Operand operand : operands) {
-			if (phase.isApplicable(operand))
+			if (phase.isApplicable(operand)) {
 				count++;
+			}
 		}
 		return count;
 	}
@@ -205,20 +211,27 @@ public class PhaseSet implements IPhaseSet {
 					.parseBoolean(EngineActivator.getProperty("org.eclipse.equinox.p2.engine.forcedUninstall", agent)); //$NON-NLS-1$
 			List<String> includeList = Arrays.asList(phaseIds);
 			List<Phase> list = new ArrayList<>();
-			if (includeList.contains(PhaseSetFactory.PHASE_COLLECT))
+			if (includeList.contains(PhaseSetFactory.PHASE_COLLECT)) {
 				list.add(new Collect(100));
-			if (includeList.contains(PhaseSetFactory.PHASE_CHECK_TRUST))
+			}
+			if (includeList.contains(PhaseSetFactory.PHASE_CHECK_TRUST)) {
 				list.add(new CheckTrust(10));
-			if (includeList.contains(PhaseSetFactory.PHASE_UNCONFIGURE))
+			}
+			if (includeList.contains(PhaseSetFactory.PHASE_UNCONFIGURE)) {
 				list.add(new Unconfigure(10, forcedUninstall));
-			if (includeList.contains(PhaseSetFactory.PHASE_UNINSTALL))
+			}
+			if (includeList.contains(PhaseSetFactory.PHASE_UNINSTALL)) {
 				list.add(new Uninstall(50, forcedUninstall));
-			if (includeList.contains(PhaseSetFactory.PHASE_PROPERTY))
+			}
+			if (includeList.contains(PhaseSetFactory.PHASE_PROPERTY)) {
 				list.add(new Property(1));
-			if (includeList.contains(PhaseSetFactory.PHASE_INSTALL))
+			}
+			if (includeList.contains(PhaseSetFactory.PHASE_INSTALL)) {
 				list.add(new Install(50));
-			if (includeList.contains(PhaseSetFactory.PHASE_CONFIGURE))
+			}
+			if (includeList.contains(PhaseSetFactory.PHASE_CONFIGURE)) {
 				list.add(new Configure(10));
+			}
 			this.phases = list.toArray(Phase[]::new);
 		}
 		return phases;

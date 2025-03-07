@@ -67,12 +67,14 @@ public class CheckTrust extends InstallableUnitPhase {
 	protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 		IInstallableUnit unit = operand.second();
 		List<ProvisioningAction> parsedActions = getActions(unit, phaseId);
-		if (parsedActions != null)
+		if (parsedActions != null) {
 			return parsedActions;
+		}
 
 		ITouchpointType type = unit.getTouchpointType();
-		if (type == null || type == ITouchpointType.NONE)
+		if (type == null || type == ITouchpointType.NONE) {
 			return null;
+		}
 
 		String actionId = getActionManager().getTouchpointQualifiedActionId(phaseId, type);
 		ProvisioningAction action = getActionManager().getAction(actionId, null);

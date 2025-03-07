@@ -34,8 +34,9 @@ public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants
 		ArrayList<IInstallableUnit> ius = new ArrayList<>(profile.query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet());
 		ius.sort((iu1, iu2) -> {
 			int IdCompare = iu1.getId().compareTo(iu2.getId());
-			if (IdCompare != 0)
+			if (IdCompare != 0) {
 				return IdCompare;
+			}
 
 			return iu1.getVersion().compareTo(iu2.getVersion());
 		});
@@ -46,15 +47,17 @@ public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants
 	}
 
 	private void writeInstallableUnitsProperties(Iterator<IInstallableUnit> it, int size, IProfile profile) {
-		if (size == 0)
+		if (size == 0) {
 			return;
+		}
 		start(IUS_PROPERTIES_ELEMENT);
 		attribute(COLLECTION_SIZE_ATTRIBUTE, size);
 		while (it.hasNext()) {
 			IInstallableUnit iu = it.next();
 			Map<String, String> properties = profile.getInstallableUnitProperties(iu);
-			if (properties.isEmpty())
+			if (properties.isEmpty()) {
 				continue;
+			}
 
 			start(IU_PROPERTIES_ELEMENT);
 			attribute(ID_ATTRIBUTE, iu.getId());

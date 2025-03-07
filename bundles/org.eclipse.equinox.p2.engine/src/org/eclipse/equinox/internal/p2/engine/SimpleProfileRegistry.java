@@ -99,14 +99,17 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	private void findSelf() {
 		//the location for the currently running system is registered as a service
 		final BundleContext context = EngineActivator.getContext();
-		if (context == null)
+		if (context == null) {
 			return;
+		}
 		ServiceReference<IAgentLocation> ref = context.getServiceReference(IAgentLocation.class);
-		if (ref == null)
+		if (ref == null) {
 			return;
+		}
 		IAgentLocation location = context.getService(ref);
-		if (location == null)
+		if (location == null) {
 			return;
+		}
 		if (store.equals(getDefaultRegistryDirectory(location))) {
 			//we are the registry for the currently running system
 			self = context.getProperty("eclipse.p2.profile"); //$NON-NLS-1$
@@ -116,15 +119,17 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				self = context.getProperty("eclipse.p2.profile"); //$NON-NLS-1$
 			}
 		}
-		if (self == null)
+		if (self == null) {
 			self = (String) agent.getService("FORCED_SELF"); //$NON-NLS-1$
+		}
 		context.ungetService(ref);
 	}
 
 	public static File getDefaultRegistryDirectory(IAgentLocation agent) {
 		File registryDirectory = null;
-		if (agent == null)
+		if (agent == null) {
 			throw new IllegalStateException("Profile Registry inialization failed: Agent Location is not available"); //$NON-NLS-1$
+		}
 		final URI engineDataArea = agent.getDataArea(EngineActivator.ID);
 		URI registryURL = URIUtil.append(engineDataArea, DEFAULT_STORAGE_DIR);
 		registryDirectory = new File(registryURL);
@@ -137,30 +142,36 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	 * to update its install and bundle pool locations.
 	 */
 	private void updateSelfProfile(Map<String, Profile> profileMap) {
-		if (profileMap == null)
+		if (profileMap == null) {
 			return;
+		}
 		Profile selfProfile = profileMap.get(self);
-		if (selfProfile == null)
+		if (selfProfile == null) {
 			return;
+		}
 
 		//register default locale provider where metadata translations are found
 		//TODO ideally this should not be hard-coded to the current profile
 		TranslationSupport.getInstance().setTranslationSource(selfProfile);
 
-		if (DebugHelper.DEBUG_PROFILE_REGISTRY)
+		if (DebugHelper.DEBUG_PROFILE_REGISTRY) {
 			DebugHelper.debug(PROFILE_REGISTRY, "SimpleProfileRegistry.updateSelfProfile"); //$NON-NLS-1$
+		}
 		boolean changed = false;
 		//only update if self is a roaming profile
-		if (Boolean.parseBoolean(selfProfile.getProperty(IProfile.PROP_ROAMING)))
+		if (Boolean.parseBoolean(selfProfile.getProperty(IProfile.PROP_ROAMING))) {
 			changed = updateRoamingProfile(selfProfile);
+		}
 
-		if (changed)
+		if (changed) {
 			saveProfile(selfProfile);
+		}
 	}
 
 	private boolean updateRoamingProfile(Profile selfProfile) {
-		if (DebugHelper.DEBUG_PROFILE_REGISTRY)
+		if (DebugHelper.DEBUG_PROFILE_REGISTRY) {
 			DebugHelper.debug(PROFILE_REGISTRY, "SimpleProfileRegistry.updateRoamingProfile"); //$NON-NLS-1$
+		}
 		Location installLocation = ServiceHelper.getService(EngineActivator.getContext(), Location.class, Location.INSTALL_FILTER);
 		File location = URLUtil.toFile(installLocation.getURL());
 		if (location == null) {
@@ -177,8 +188,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			selfProfile.setProperty(IProfile.PROP_CACHE, location.getAbsolutePath());
 			changed = true;
 		}
-		if (DebugHelper.DEBUG_PROFILE_REGISTRY)
+		if (DebugHelper.DEBUG_PROFILE_REGISTRY) {
 			DebugHelper.debug(PROFILE_REGISTRY, "SimpleProfileRegistry.updateRoamingProfile(changed=" + changed + ')'); //$NON-NLS-1$
+		}
 		return changed;
 	}
 
@@ -190,31 +202,36 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	@Override
 	public synchronized IProfile getProfile(String id) {
 		Profile profile = internalGetProfile(id);
-		if (profile == null)
+		if (profile == null) {
 			return null;
+		}
 		return profile.snapshot();
 	}
 
 	@Override
 	public synchronized IProfile getProfile(String id, long timestamp) {
-		if (SELF.equals(id))
+		if (SELF.equals(id)) {
 			id = self;
+		}
 
 		if (profiles != null) {
 			IProfile profile = getProfile(id);
-			if (profile != null && profile.getTimestamp() == timestamp)
+			if (profile != null && profile.getTimestamp() == timestamp) {
 				return profile;
+			}
 		}
 
 		File profileDirectory = getProfileFolder(id);
-		if (!profileDirectory.isDirectory())
+		if (!profileDirectory.isDirectory()) {
 			return null;
+		}
 
 		File profileFile = new File(profileDirectory, Long.toString(timestamp) + PROFILE_GZ_EXT);
 		if (!profileFile.exists()) {
 			profileFile = new File(profileDirectory, Long.toString(timestamp) + PROFILE_EXT);
-			if (!profileFile.exists())
+			if (!profileFile.exists()) {
 				return null;
+			}
 		}
 
 		Parser parser = new Parser(EngineActivator.ID);
@@ -228,15 +245,18 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 	@Override
 	public synchronized long[] listProfileTimestamps(String id) {
-		if (SELF.equals(id))
+		if (SELF.equals(id)) {
 			id = self;
+		}
 		//guard against null self profile
-		if (id == null)
+		if (id == null) {
 			return new long[0];
+		}
 
 		File profileDirectory = getProfileFolder(id);
-		if (!profileDirectory.isDirectory())
+		if (!profileDirectory.isDirectory()) {
 			return new long[0];
+		}
 
 		File[] profileFiles = profileDirectory.listFiles((FileFilter) pathname -> (pathname.getName().endsWith(PROFILE_EXT) || pathname.getName().endsWith(PROFILE_GZ_EXT)) && pathname.isFile() && !pathname.getName().startsWith("._")); //$NON-NLS-1$
 
@@ -258,8 +278,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	 * Returns the profile with the given ID, or {@code null} if no such profile exists.
 	 */
 	private Profile internalGetProfile(String id) {
-		if (SELF.equals(id))
+		if (SELF.equals(id)) {
 			id = self;
+		}
 		Profile profile = getProfileMap().get(id);
 		if (self != null && self.equals(id)) {
 			boolean resetProfile = false;
@@ -270,8 +291,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			}
 			if (profile == null) {
 				profile = createSurrogateProfile(id);
-				if (profile == null)
+				if (profile == null) {
 					return null;
+				}
 
 				if (resetProfile) {
 					//Now that we created a new profile. Tag it, override the property and register the timestamp in the agent registry for pickup by other
@@ -284,8 +306,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 					//This is the first time we create the shared profile. Tag it as such and also remember the timestamp of the base
 					internalSetProfileStateProperty(profile, profile.getTimestamp(), IProfile.STATE_PROP_SHARED_INSTALL, IProfile.STATE_SHARED_INSTALL_VALUE_INITIAL);
 					String baseTimestamp = getBaseTimestamp(id);
-					if (baseTimestamp != null)
+					if (baseTimestamp != null) {
 						internalSetProfileStateProperty(profile, profile.getTimestamp(), SIMPLE_PROFILE_REGISTRY_INTERNAL + baseTimestamp, baseTimestamp);
+					}
 					String extTimestamp = getExtTimeStamp();
 					internalSetProfileStateProperty(profile, profile.getTimestamp(), SIMPLE_PROFILE_REGISTRY_INTERNAL + extTimestamp, extTimestamp);
 				}
@@ -310,8 +333,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	private boolean ignoreExistingProfile(IProfile profile) {
-		if (agent.getService(SERVICE_SHARED_INSTALL_NEW_TIMESTAMP) != null)
+		if (agent.getService(SERVICE_SHARED_INSTALL_NEW_TIMESTAMP) != null) {
 			return false;
+		}
 
 		String baseTimestamp = getBaseTimestamp(profile.getProfileId());
 		String extTimestamp = getExtTimeStamp();
@@ -324,19 +348,22 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			extensionOK = (internalGetProfileStateProperties(profile, SIMPLE_PROFILE_REGISTRY_INTERNAL + extTimestamp, false).size() != 0);
 		}
 
-		if ((internalGetProfileStateProperties(profile, SIMPLE_PROFILE_REGISTRY_INTERNAL + baseTimestamp, false).size() != 0) && extensionOK)
+		if ((internalGetProfileStateProperties(profile, SIMPLE_PROFILE_REGISTRY_INTERNAL + baseTimestamp, false).size() != 0) && extensionOK) {
 			return false;
+		}
 
 		return true;
 	}
 
 	private String getBaseTimestamp(String id) {
 		IProvisioningAgent baseAgent = (IProvisioningAgent) agent.getService(IProvisioningAgent.SHARED_BASE_AGENT);
-		if (baseAgent == null)
+		if (baseAgent == null) {
 			return null;
+		}
 		IProfileRegistry registry = baseAgent.getService(IProfileRegistry.class);
-		if (registry == null)
+		if (registry == null) {
 			return null;
+		}
 		long[] revisions = registry.listProfileTimestamps(id);
 		if (revisions.length >= 1) {
 			return Long.toString(revisions[revisions.length - 1]);
@@ -345,12 +372,14 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	private Profile createSurrogateProfile(String id) {
-		if (surrogateProfileHandler == null)
+		if (surrogateProfileHandler == null) {
 			return null;
+		}
 
 		Profile profile = (Profile) surrogateProfileHandler.createProfile(id);
-		if (profile == null)
+		if (profile == null) {
 			return null;
+		}
 
 		saveProfile(profile);
 		resetProfiles();
@@ -374,12 +403,14 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	protected Map<String, Profile> getProfileMap() {
 		if (profiles != null) {
 			Map<String, Profile> result = profiles.get();
-			if (result != null)
+			if (result != null) {
 				return result;
+			}
 		}
 		Map<String, Profile> result = restore();
-		if (result == null)
+		if (result == null) {
 			result = new LinkedHashMap<>(8);
+		}
 		profiles = new SoftReference<>(result);
 		if (updateSelfProfile) {
 			//update self profile on first load
@@ -391,8 +422,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	public synchronized void updateProfile(Profile profile) {
 		String id = profile.getProfileId();
 		Profile current = getProfileMap().get(id);
-		if (current == null)
+		if (current == null) {
 			throw new IllegalArgumentException(NLS.bind(Messages.profile_does_not_exist, id));
+		}
 
 		ProfileLock lock = profileLocks.get(id);
 		lock.checkLocked();
@@ -405,8 +437,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		for (IInstallableUnit iu : queryResult) {
 			current.addInstallableUnit(iu);
 			Map<String, String> iuProperties = profile.getInstallableUnitProperties(iu);
-			if (iuProperties != null)
+			if (iuProperties != null) {
 				current.addInstallableUnitProperties(iu, iuProperties);
+			}
 		}
 		saveProfile(current);
 		profile.clearOrphanedInstallableUnitProperties();
@@ -425,24 +458,29 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	public synchronized IProfile addProfile(String id, Map<String, String> profileProperties, String parentId) throws ProvisionException {
-		if (SELF.equals(id))
+		if (SELF.equals(id)) {
 			id = self;
+		}
 		Map<String, Profile> profileMap = getProfileMap();
-		if (profileMap.get(id) != null)
+		if (profileMap.get(id) != null) {
 			throw new ProvisionException(NLS.bind(Messages.Profile_Duplicate_Root_Profile_Id, id));
+		}
 
 		Profile parent = null;
 		if (parentId != null) {
-			if (SELF.equals(parentId))
+			if (SELF.equals(parentId)) {
 				parentId = self;
+			}
 			parent = profileMap.get(parentId);
-			if (parent == null)
+			if (parent == null) {
 				throw new ProvisionException(NLS.bind(Messages.Profile_Parent_Not_Found, parentId));
+			}
 		}
 
 		Profile profile = new Profile(agent, id, parent, profileProperties);
-		if (surrogateProfileHandler != null && surrogateProfileHandler.isSurrogate(profile))
+		if (surrogateProfileHandler != null && surrogateProfileHandler.isSurrogate(profile)) {
 			profile.setSurrogateProfileHandler(surrogateProfileHandler);
+		}
 		profileMap.put(id, profile);
 		saveProfile(profile);
 		broadcastChangeEvent(id, IProfileEvent.ADDED);
@@ -451,13 +489,15 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 	@Override
 	public synchronized void removeProfile(String profileId) {
-		if (SELF.equals(profileId))
+		if (SELF.equals(profileId)) {
 			profileId = self;
+		}
 		//note we need to maintain a reference to the profile map until it is persisted to prevent gc
 		Map<String, Profile> profileMap = getProfileMap();
 		Profile profile = profileMap.get(profileId);
-		if (profile == null)
+		if (profile == null) {
 			return;
+		}
 
 		List<String> subProfileIds = profile.getSubProfileIds();
 		for (String subProfileId : subProfileIds) {
@@ -485,25 +525,29 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 	@Override
 	public synchronized void removeProfile(String id, long timestamp) throws ProvisionException {
-		if (SELF.equals(id))
+		if (SELF.equals(id)) {
 			id = self;
+		}
 
 		if (profiles != null) {
 			IProfile profile = getProfile(id);
-			if (profile != null && profile.getTimestamp() == timestamp)
+			if (profile != null && profile.getTimestamp() == timestamp) {
 				throw new ProvisionException(
 						NLS.bind(Messages.SimpleProfileRegistry_CannotRemoveCurrentSnapshot, profile));
+			}
 		}
 
 		File profileDirectory = getProfileFolder(id);
-		if (!profileDirectory.isDirectory())
+		if (!profileDirectory.isDirectory()) {
 			return;
+		}
 
 		File profileFile = new File(profileDirectory, Long.toString(timestamp) + PROFILE_GZ_EXT);
 		if (!profileFile.exists()) {
 			profileFile = new File(profileDirectory, Long.toString(timestamp) + PROFILE_EXT);
-			if (!profileFile.exists())
+			if (!profileFile.exists()) {
 				return;
+			}
 		}
 		FileUtils.deleteAll(profileFile);
 		// Ignore the return value here. If there was a problem removing the profile state
@@ -513,8 +557,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	private void broadcastChangeEvent(String profileId, int reason) {
-		if (eventBus != null)
+		if (eventBus != null) {
 			eventBus.publishEvent(new ProfileEvent(profileId, reason));
+		}
 	}
 
 	/**
@@ -522,8 +567,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	 * Returns <code>null</code> if unable to read the registry.
 	 */
 	private Map<String, Profile> restore() {
-		if (store == null || !store.isDirectory())
+		if (store == null || !store.isDirectory()) {
 			throw new IllegalStateException(NLS.bind(Messages.reg_dir_not_available, store));
+		}
 
 		Parser parser = new Parser(EngineActivator.ID);
 		File[] profileDirectories = store.listFiles((FileFilter) pathname -> pathname.getName().endsWith(PROFILE_EXT) && pathname.isDirectory());
@@ -553,8 +599,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 						}
 					}
 				} finally {
-					if (locked)
+					if (locked) {
 						lock.unlock();
+					}
 				}
 			} else {
 				// could not lock the profile, so add a place holder
@@ -569,8 +616,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		long latestTimestamp = 0;
 		File[] profileFiles = profileDirectory.listFiles((FileFilter) pathname -> (pathname.getName().endsWith(PROFILE_GZ_EXT) || pathname.getName().endsWith(PROFILE_EXT)) && !pathname.isDirectory());
 		// protect against NPE
-		if (profileFiles == null)
+		if (profileFiles == null) {
 			return null;
+		}
 		for (File profileFile : profileFiles) {
 			String fileName = profileFile.getName();
 			try {
@@ -599,8 +647,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		File profileFile = new File(profileDirectory, Long.toString(currentTimestamp) + (shouldGzipFile ? PROFILE_GZ_EXT : PROFILE_EXT));
 
 		// Log a stack trace to see who is writing the profile.
-		if (DebugHelper.DEBUG_PROFILE_REGISTRY)
+		if (DebugHelper.DEBUG_PROFILE_REGISTRY) {
 			DebugHelper.debug(PROFILE_REGISTRY, "Saving profile to: " + profileFile.getAbsolutePath()); //$NON-NLS-1$
+		}
 
 		profile.setTimestamp(currentTimestamp);
 		profile.setChanged(false);
@@ -636,8 +685,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	private boolean shouldGzipFile(Profile profile) {
 		//check system property controlling compression
 		String format = EngineActivator.getProperty(EngineActivator.PROP_PROFILE_FORMAT, agent);
-		if (format != null && format.equals(EngineActivator.PROFILE_FORMAT_UNCOMPRESSED))
+		if (format != null && format.equals(EngineActivator.PROFILE_FORMAT_UNCOMPRESSED)) {
 			return false;
+		}
 
 		//check whether the profile contains the p2 engine from 3.5.0 or earlier
 		return profile.available(QueryUtil.createIUQuery("org.eclipse.equinox.p2.engine", VersionRange.create("[0.0.0, 1.0.101)")), null).isEmpty(); //$NON-NLS-1$//$NON-NLS-2$
@@ -677,8 +727,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	public static String unescape(String text) {
-		if (text.indexOf('%') == -1)
+		if (text.indexOf('%') == -1) {
 			return text;
+		}
 
 		StringBuilder buffer = new StringBuilder();
 		int length = text.length();
@@ -686,8 +737,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			char ch = text.charAt(i);
 			if (ch == '%') {
 				int colon = text.indexOf(';', i);
-				if (colon == -1)
+				if (colon == -1) {
 					throw new IllegalStateException("error unescaping the sequence at character (" + i + ") for " + text + ". Expected %{int};."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				}
 				ch = (char) Integer.parseInt(text.substring(i + 1, colon));
 				i = colon;
 			}
@@ -769,8 +821,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		}
 
 		private void addProfile(String profileId, Map<String, Profile> profileMap) {
-			if (profileMap.containsKey(profileId))
+			if (profileMap.containsKey(profileId)) {
 				return;
+			}
 
 			ProfileHandler profileHandler = profileHandlers.get(profileId);
 			Profile parentProfile = null;
@@ -782,8 +835,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			}
 
 			Profile profile = new Profile(agent, profileId, parentProfile, profileHandler.getProperties());
-			if (surrogateProfileHandler != null && surrogateProfileHandler.isSurrogate(profile))
+			if (surrogateProfileHandler != null && surrogateProfileHandler.isSurrogate(profile)) {
 				profile.setSurrogateProfileHandler(surrogateProfileHandler);
+			}
 
 			profile.setTimestamp(profileHandler.getTimestamp());
 
@@ -836,11 +890,13 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	@Override
 	public synchronized boolean isCurrent(IProfile profile) {
 		Profile internalProfile = getProfileMap().get(profile.getProfileId());
-		if (internalProfile == null)
+		if (internalProfile == null) {
 			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, profile.getProfileId()));
+		}
 
-		if (!internalLockProfile(internalProfile))
+		if (!internalLockProfile(internalProfile)) {
 			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+		}
 
 		try {
 			return (!((Profile) profile).isChanged() && checkTimestamps(profile, internalProfile));
@@ -851,29 +907,34 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 	public synchronized void lockProfile(Profile profile) {
 		Profile internalProfile = internalGetProfile(profile.getProfileId());
-		if (internalProfile == null)
+		if (internalProfile == null) {
 			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, profile.getProfileId()));
+		}
 
-		if (!internalLockProfile(internalProfile))
+		if (!internalLockProfile(internalProfile)) {
 			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+		}
 
 		boolean isCurrent = false;
 		try {
 			if (profile.isChanged()) {
-				if (DebugHelper.DEBUG_PROFILE_REGISTRY)
+				if (DebugHelper.DEBUG_PROFILE_REGISTRY) {
 					DebugHelper.debug(PROFILE_REGISTRY, "Profile is marked as changed."); //$NON-NLS-1$
+				}
 				throw new IllegalStateException(NLS.bind(Messages.profile_changed, profile.getProfileId()));
 			}
 			if (!checkTimestamps(profile, internalProfile)) {
-				if (DebugHelper.DEBUG_PROFILE_REGISTRY)
+				if (DebugHelper.DEBUG_PROFILE_REGISTRY) {
 					DebugHelper.debug(PROFILE_REGISTRY, "Unexpected timestamp difference in profile."); //$NON-NLS-1$
+				}
 				throw new IllegalStateException(NLS.bind(Messages.profile_not_current, new String[] {profile.getProfileId(), Long.toString(internalProfile.getTimestamp()), Long.toString(profile.getTimestamp())}));
 			}
 			isCurrent = true;
 		} finally {
 			// this check is done here to ensure we unlock even if a runtime exception is thrown
-			if (!isCurrent)
+			if (!isCurrent) {
 				internalUnlockProfile(internalProfile);
+			}
 		}
 	}
 
@@ -889,18 +950,21 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	private boolean checkTimestamps(IProfile profile, IProfile internalProfile) {
 		long[] timestamps = listProfileTimestamps(profile.getProfileId());
 		if (timestamps.length == 0) {
-			if (DebugHelper.DEBUG_PROFILE_REGISTRY)
+			if (DebugHelper.DEBUG_PROFILE_REGISTRY) {
 				DebugHelper.debug(PROFILE_REGISTRY, "check timestamp: expected " + profile.getTimestamp() + " but no profiles were found"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			resetProfiles();
 			return false;
 		}
 
 		long currentTimestamp = timestamps[timestamps.length - 1];
 		if (profile.getTimestamp() != currentTimestamp) {
-			if (DebugHelper.DEBUG_PROFILE_REGISTRY)
+			if (DebugHelper.DEBUG_PROFILE_REGISTRY) {
 				DebugHelper.debug(PROFILE_REGISTRY, "check timestamp: expected " + profile.getTimestamp() + " but was " + currentTimestamp); //$NON-NLS-1$ //$NON-NLS-2$
-			if (internalProfile.getTimestamp() != currentTimestamp)
+			}
+			if (internalProfile.getTimestamp() != currentTimestamp) {
 				resetProfiles();
+			}
 			return false;
 		}
 
@@ -909,20 +973,25 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 	@Override
 	public synchronized boolean containsProfile(String id) {
-		if (SELF.equals(id))
+		if (SELF.equals(id)) {
 			id = self;
+		}
 		//null check done after self check, because self can be null
-		if (id == null)
+		if (id == null) {
 			return false;
+		}
 
 		// check profiles to avoid restoring the profile registry
-		if (profiles != null)
-			if (getProfile(id) != null)
+		if (profiles != null) {
+			if (getProfile(id) != null) {
 				return true;
+			}
+		}
 
 		File profileDirectory = getProfileFolder(id);
-		if (!profileDirectory.isDirectory())
+		if (!profileDirectory.isDirectory()) {
 			return false;
+		}
 		File[] profileFiles = profileDirectory.listFiles((FileFilter) pathname -> (pathname.getName().endsWith(PROFILE_GZ_EXT) || pathname.getName().endsWith(PROFILE_EXT)) && pathname.isFile());
 		return profileFiles.length > 0;
 	}
@@ -932,8 +1001,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	public synchronized void unlockProfile(IProfile profile) {
-		if (profile == null)
+		if (profile == null) {
 			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, "")); //$NON-NLS-1$
+		}
 		internalUnlockProfile(profile);
 	}
 
@@ -943,19 +1013,22 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	public Profile validate(IProfile candidate) {
-		if (candidate instanceof Profile)
+		if (candidate instanceof Profile) {
 			return (Profile) candidate;
+		}
 
 		throw new IllegalArgumentException("Profile incompatible: expected " + Profile.class.getName() + " but was " + ((candidate != null) ? candidate.getClass().getName() : "null") + "."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	}
 
 	public synchronized File getProfileDataDirectory(String id) {
-		if (SELF.equals(id))
+		if (SELF.equals(id)) {
 			id = self;
+		}
 		File profileDirectory = getProfileFolder(id);
 		File profileDataArea = new File(profileDirectory, DATA_EXT);
-		if (!profileDataArea.isDirectory() && !profileDataArea.mkdir())
+		if (!profileDataArea.isDirectory() && !profileDataArea.mkdir()) {
 			throw new IllegalStateException("Could not create profile data area " + profileDataArea.getAbsolutePath() + "for: " + id); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		return profileDataArea;
 	}
 
@@ -991,8 +1064,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 		// return true if the cached timestamp is the same as the one on disk
 		boolean isCurrent() {
-			if (!file.exists())
+			if (!file.exists()) {
 				return true;
+			}
 			return file.lastModified() == timestamp;
 		}
 
@@ -1018,17 +1092,20 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	 * If there were problems reading the file then return throw an exception.
 	 */
 	private Properties readStateProperties(String id) throws ProvisionException {
-		if (SELF.equals(id))
+		if (SELF.equals(id)) {
 			id = self;
+		}
 
 		// if the last cached value is the one we are interested in and up-to-date
 		// then don't bother reading from disk
-		if (lastAccessedProperties != null && id.equals(lastAccessedProperties.getId()) && lastAccessedProperties.isCurrent())
+		if (lastAccessedProperties != null && id.equals(lastAccessedProperties.getId()) && lastAccessedProperties.isCurrent()) {
 			return lastAccessedProperties.getProperties();
+		}
 
 		File profileDirectory = getProfileFolder(id);
-		if (!profileDirectory.isDirectory())
+		if (!profileDirectory.isDirectory()) {
 			throw new ProvisionException(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.SimpleProfileRegistry_Bad_profile_location, profileDirectory.getPath())));
+		}
 
 		File file = new File(profileDirectory, PROFILE_PROPERTIES_FILE);
 		Properties properties = new Properties();
@@ -1051,8 +1128,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	 * Write the given state properties to disk for the specified profile.
 	 */
 	private IStatus writeStateProperties(String id, Properties properties) {
-		if (SELF.equals(id))
+		if (SELF.equals(id)) {
 			id = self;
+		}
 
 		File profileDirectory = getProfileFolder(id);
 		File file = new File(profileDirectory, PROFILE_PROPERTIES_FILE);
@@ -1100,30 +1178,36 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	 */
 	private IStatus validateState(String id, long timestamp) {
 		long[] states = listProfileTimestamps(id);
-		for (long ts : states)
-			if (ts == timestamp)
+		for (long ts : states) {
+			if (ts == timestamp) {
 				return Status.OK_STATUS;
+			}
+		}
 		return new Status(IStatus.ERROR, EngineActivator.ID, (NLS.bind(Messages.SimpleProfileRegistry_state_not_found, timestamp, id)));
 	}
 
 	@Override
 	public IStatus setProfileStateProperties(String id, long timestamp, Map<String, String> propertiesToAdd) {
-		if (id == null || propertiesToAdd == null)
+		if (id == null || propertiesToAdd == null) {
 			throw new NullPointerException();
+		}
 
 		Profile internalProfile = internalGetProfile(id);
-		if (internalProfile == null)
+		if (internalProfile == null) {
 			throw new IllegalArgumentException(id);
+		}
 		return internalSetProfileStateProperties(internalProfile, timestamp, propertiesToAdd);
 	}
 
 	private IStatus internalSetProfileStateProperties(IProfile profile, long timestamp, Map<String, String> propertiesToAdd) {
 		IStatus result = validateState(profile.getProfileId(), timestamp);
-		if (!result.isOK())
+		if (!result.isOK()) {
 			return result;
+		}
 
-		if (!internalLockProfile(profile))
+		if (!internalLockProfile(profile)) {
 			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+		}
 
 		try {
 			Properties properties = readStateProperties(profile.getProfileId());
@@ -1142,17 +1226,20 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 	@Override
 	public IStatus setProfileStateProperty(String id, long timestamp, String key, String value) {
-		if (id == null)
+		if (id == null) {
 			throw new NullPointerException();
+		}
 		Profile internalProfile = internalGetProfile(id);
-		if (internalProfile == null)
+		if (internalProfile == null) {
 			throw new IllegalArgumentException(id);
+		}
 		return internalSetProfileStateProperty(internalProfile, timestamp, key, value);
 	}
 
 	private IStatus internalSetProfileStateProperty(IProfile profile, long timestamp, String key, String value) {
-		if (key == null || value == null)
+		if (key == null || value == null) {
 			throw new NullPointerException();
+		}
 		Map<String, String> properties = new HashMap<>();
 		properties.put(key, value);
 
@@ -1161,11 +1248,13 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 	@Override
 	public Map<String, String> getProfileStateProperties(String id, long timestamp) {
-		if (id == null)
+		if (id == null) {
 			throw new NullPointerException();
+		}
 		Profile internalProfile = internalGetProfile(id);
-		if (internalProfile == null)
+		if (internalProfile == null) {
 			return Collections.emptyMap();
+		}
 		return internalGetProfileStateProperties(internalProfile, timestamp, true);
 	}
 
@@ -1174,43 +1263,51 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		String timestampString = String.valueOf(timestamp);
 		int keyOffset = timestampString.length() + 1;
 		lock = lock || lastAccessedProperties == null;
-		if (lock)
-			if (!internalLockProfile(profile))
+		if (lock) {
+			if (!internalLockProfile(profile)) {
 				throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+			}
+		}
 		try {
 			Properties properties = readStateProperties(profile.getProfileId());
 			Iterator<Object> keys = properties.keySet().iterator();
 			while (keys.hasNext()) {
 				String key = (String) keys.next();
-				if (key.indexOf(timestampString) == 0)
+				if (key.indexOf(timestampString) == 0) {
 					result.put(key.substring(keyOffset), properties.getProperty(key));
+				}
 			}
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 		} finally {
-			if (lock)
+			if (lock) {
 				internalUnlockProfile(profile);
+			}
 		}
 		return result;
 	}
 
 	@Override
 	public Map<String, String> getProfileStateProperties(String id, String userKey) {
-		if (id == null || userKey == null)
+		if (id == null || userKey == null) {
 			throw new NullPointerException();
+		}
 
 		Profile internalProfile = internalGetProfile(id);
-		if (internalProfile == null)
+		if (internalProfile == null) {
 			return Collections.emptyMap();
+		}
 		return internalGetProfileStateProperties(internalProfile, userKey, true);
 	}
 
 	private Map<String, String> internalGetProfileStateProperties(IProfile profile, String userKey, boolean lock) {
 		Map<String, String> result = new HashMap<>();
 		lock = lock || lastAccessedProperties == null;
-		if (lock)
-			if (!internalLockProfile(profile))
+		if (lock) {
+			if (!internalLockProfile(profile)) {
 				throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+			}
+		}
 		try {
 			Properties properties = readStateProperties(profile.getProfileId());
 			Iterator<Object> keys = properties.keySet().iterator();
@@ -1225,26 +1322,31 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 		} finally {
-			if (lock)
+			if (lock) {
 				internalUnlockProfile(profile);
+			}
 		}
 		return result;
 	}
 
 	@Override
 	public IStatus removeProfileStateProperties(String id, long timestamp, Collection<String> keys) {
-		if (id == null)
+		if (id == null) {
 			throw new NullPointerException();
+		}
 		// return if there is no work to do
-		if (keys != null && keys.size() == 0)
+		if (keys != null && keys.size() == 0) {
 			return Status.OK_STATUS;
+		}
 
 		Profile internalProfile = internalGetProfile(id);
-		if (internalProfile == null)
+		if (internalProfile == null) {
 			return Status.OK_STATUS;
+		}
 
-		if (!internalLockProfile(internalProfile))
+		if (!internalLockProfile(internalProfile)) {
 			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+		}
 
 		try {
 			Properties properties = readStateProperties(id);
@@ -1254,14 +1356,16 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				for (Iterator<Object> already = properties.keySet().iterator(); already.hasNext();) {
 					String key = (String) already.next();
 					// property key is timestamp.key
-					if (key.startsWith(timestampString))
+					if (key.startsWith(timestampString)) {
 						already.remove();
+					}
 				}
 			} else {
 				for (String key : keys) {
 					// property key format is timestamp.key
-					if (key != null)
+					if (key != null) {
 						properties.remove(timestampString + "." + key); //$NON-NLS-1$
+					}
 				}
 			}
 			writeStateProperties(id, properties);

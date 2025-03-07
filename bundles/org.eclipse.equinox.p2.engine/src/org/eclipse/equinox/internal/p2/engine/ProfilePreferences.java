@@ -97,21 +97,25 @@ public class ProfilePreferences extends EclipsePreferences {
 		String path = absolutePath();
 		segmentCount = getSegmentCount(path);
 
-		if (segmentCount <= 2)
+		if (segmentCount <= 2) {
 			return;
+		}
 
-		if (segmentCount == 3)
+		if (segmentCount == 3) {
 			profileLock = new Object();
+		}
 
-		if (segmentCount < 4)
+		if (segmentCount < 4) {
 			return;
+		}
 		// cache the qualifier
 		qualifier = getQualifierSegment();
 	}
 
 	private boolean containsProfile(IProfileRegistry profileRegistry, String profileId) {
-		if (profileId == null || profileRegistry == null)
+		if (profileId == null || profileRegistry == null) {
 			return false;
+		}
 		return profileRegistry.containsProfile(profileId);
 	}
 
@@ -123,8 +127,9 @@ public class ProfilePreferences extends EclipsePreferences {
 			String profileId = getProfileIdSegment();
 			IProfileRegistry registry = agent.getService(IProfileRegistry.class);
 			//can't save anything without a profile registry
-			if (registry == null)
+			if (registry == null) {
 				return;
+			}
 			if (!containsProfile(registry, profileId)) {
 				//use the default location for the self profile, otherwise just do nothing and return
 				if (IProfileRegistry.SELF.equals(profileId)) {
@@ -134,8 +139,9 @@ public class ProfilePreferences extends EclipsePreferences {
 						return;
 					}
 				}
-				if (Tracing.DEBUG_PROFILE_PREFERENCES)
+				if (Tracing.DEBUG_PROFILE_PREFERENCES) {
 					Tracing.debug("Not saving preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
+				}
 				return;
 			}
 			super.save(getProfileLocation(registry, profileId));
@@ -207,14 +213,16 @@ public class ProfilePreferences extends EclipsePreferences {
 	@Override
 	protected IEclipsePreferences getLoadLevel() {
 		if (loadLevel == null) {
-			if (qualifier == null)
+			if (qualifier == null) {
 				return null;
+			}
 			// Make it relative to this node rather than navigating to it from the root.
 			// Walk backwards up the tree starting at this node.
 			// This is important to avoid a chicken/egg thing on startup.
 			IEclipsePreferences node = this;
-			for (int i = 4; i < segmentCount; i++)
+			for (int i = 4; i < segmentCount; i++) {
 				node = (EclipsePreferences) node.parent();
+			}
 			loadLevel = node;
 		}
 		return loadLevel;
@@ -253,8 +261,9 @@ public class ProfilePreferences extends EclipsePreferences {
 	protected void load() throws BackingStoreException {
 		synchronized (((ProfilePreferences) parent).profileLock) {
 			IProvisioningAgent agent = getAgent(getAgentLocationSegment());
-			if (agent == null)
+			if (agent == null) {
 				return;
+			}
 			IProfileRegistry registry = agent.getService(IProfileRegistry.class);
 			String profileId = getProfileIdSegment();
 			if (!containsProfile(registry, profileId)) {
@@ -266,8 +275,9 @@ public class ProfilePreferences extends EclipsePreferences {
 						return;
 					}
 				}
-				if (Tracing.DEBUG_PROFILE_PREFERENCES)
+				if (Tracing.DEBUG_PROFILE_PREFERENCES) {
 					Tracing.debug("Not loading preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
+				}
 				return;
 			}
 			load(getProfileLocation(registry, profileId));
@@ -295,21 +305,25 @@ public class ProfilePreferences extends EclipsePreferences {
 	protected synchronized void save() throws BackingStoreException {
 		try {
 			IProvisioningAgent agent = getAgent(getAgentLocationSegment());
-			if (saveJob == null || saveJob.agent != agent)
+			if (saveJob == null || saveJob.agent != agent) {
 				saveJob = new SaveJob(agent);
+			}
 		} catch (BackingStoreException e) {
-			if (Tracing.DEBUG_PROFILE_PREFERENCES)
+			if (Tracing.DEBUG_PROFILE_PREFERENCES) {
 				e.printStackTrace();
 			//get agent has already gone away so we can't save preferences
 			//TODO see bug 300450
+			}
 		}
 		//only schedule a save if the engine bundle is still running
 		BundleContext context = EngineActivator.getContext();
-		if (context == null || saveJob == null)
+		if (context == null || saveJob == null) {
 			return;
+		}
 		try {
-			if (context.getBundle().getState() == Bundle.ACTIVE)
+			if (context.getBundle().getState() == Bundle.ACTIVE) {
 				saveJob.schedule(SAVE_SCHEDULE_DELAY);
+			}
 		} catch (IllegalStateException e) {
 			//bundle has been stopped concurrently, so don't save
 		}

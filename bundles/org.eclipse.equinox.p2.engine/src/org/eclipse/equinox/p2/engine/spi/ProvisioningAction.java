@@ -28,8 +28,9 @@ public abstract class ProvisioningAction {
 	private Touchpoint touchpoint;
 
 	protected Memento getMemento() {
-		if (memento == null)
+		if (memento == null) {
 			memento = new Memento();
+		}
 		return memento;
 	}
 

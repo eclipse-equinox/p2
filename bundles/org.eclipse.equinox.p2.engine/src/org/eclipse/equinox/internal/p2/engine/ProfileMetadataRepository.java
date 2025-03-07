@@ -59,8 +59,9 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		List<URI> artifactRepos = findArtifactRepos();
 
 		IProvisioningEventBus bus = getProvisioningAgent().getService(IProvisioningEventBus.class);
-		if (bus == null)
+		if (bus == null) {
 			return;
+		}
 		for (URI repo : artifactRepos) {
 			repositories.add(new RepositoryReference(repo, null, IRepository.TYPE_ARTIFACT, IRepository.ENABLED));
 			bus.publishEvent(new RepositoryEvent(repo, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED, true));
@@ -75,29 +76,32 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		// Currently this is used by the Native Touchpoint to store artifacts however
 		// other touchpoints might use this as well.
 		File agentArtifactRepository = findAgentArtifactRepositoryDirectory(p2Directory);
-		if (agentArtifactRepository != null)
+		if (agentArtifactRepository != null) {
 			artifactRepos.add(agentArtifactRepository.toURI());
+		}
 
 		// bundle pool
 		String bundlePool = profile.getProperty(IProfile.PROP_CACHE);
 		if (bundlePool != null) {
 			File bundlePoolFile = new File(bundlePool);
-			if (bundlePoolFile.exists())
+			if (bundlePoolFile.exists()) {
 				artifactRepos.add(bundlePoolFile.toURI());
-			else if (Boolean.parseBoolean(profile.getProperty(IProfile.PROP_ROAMING))) {
+			} else if (Boolean.parseBoolean(profile.getProperty(IProfile.PROP_ROAMING))) {
 				// the profile has not been used yet but is a roaming profile
 				// best effort to add "just" the default bundle pool
 				bundlePoolFile = findDefaultBundlePool(p2Directory);
-				if (bundlePoolFile != null)
+				if (bundlePoolFile != null) {
 					artifactRepos.add(bundlePoolFile.toURI());
+				}
 				return artifactRepos;
 			}
 		}
 
 		// shared bundle pool
 		String sharedBundlePool = profile.getProperty(IProfile.PROP_SHARED_CACHE);
-		if (sharedBundlePool != null)
+		if (sharedBundlePool != null) {
 			artifactRepos.add(new File(sharedBundlePool).toURI());
+		}
 
 		// cache extensions
 		// Currently set exclusively by dropins
@@ -118,41 +122,48 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	private File findAgentArtifactRepositoryDirectory(File p2Directory) {
-		if (p2Directory == null)
+		if (p2Directory == null) {
 			return null;
+		}
 
 		File agentArtifactRepositoryDirectory = new File(p2Directory, DEFAULT_ARTIFACT_REPO_DIRECTORY);
-		if (!agentArtifactRepositoryDirectory.isDirectory())
+		if (!agentArtifactRepositoryDirectory.isDirectory()) {
 			return null;
+		}
 
 		return agentArtifactRepositoryDirectory;
 	}
 
 	private File findDefaultBundlePool(File p2Directory) {
-		if (p2Directory == null)
+		if (p2Directory == null) {
 			return null;
+		}
 
 		File productDirectory = p2Directory.getParentFile();
-		if (productDirectory == null || !(new File(productDirectory, ARTIFACTS_XML).exists()))
+		if (productDirectory == null || !(new File(productDirectory, ARTIFACTS_XML).exists())) {
 			return null;
+		}
 
 		return productDirectory;
 	}
 
 	private File findP2Directory() {
 		File target = new File(getLocation());
-		if (target.isFile())
+		if (target.isFile()) {
 			target = target.getParentFile();
+		}
 
 		// by default the profile registry is in {product}/p2/org.eclipse.equinox.p2.engine/profileRegistry
 		// the default bundle pool is in the {product} folder
 		File profileRegistryDirectory = target.getParentFile();
-		if (profileRegistryDirectory == null)
+		if (profileRegistryDirectory == null) {
 			return null;
+		}
 
 		File p2EngineDirectory = profileRegistryDirectory.getParentFile();
-		if (p2EngineDirectory == null)
+		if (p2EngineDirectory == null) {
 			return null;
+		}
 
 		return p2EngineDirectory.getParentFile();
 	}
@@ -178,17 +189,20 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	private static IProfile getProfile(IProvisioningAgent agent, URI location) throws ProvisionException {
-		if (!FILE_SCHEME.equalsIgnoreCase(location.getScheme()))
+		if (!FILE_SCHEME.equalsIgnoreCase(location.getScheme())) {
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+		}
 
 		File target = new File(location);
-		if (!target.exists())
+		if (!target.exists()) {
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+		}
 
 		long timestamp = -1;
 		int index = target.getName().lastIndexOf(DOT_PROFILE);
-		if (index == -1)
+		if (index == -1) {
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+		}
 		String profileId = target.getName().substring(0, index);
 		if (target.isFile()) {
 			try {
@@ -197,24 +211,27 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 				fail(location, ProvisionException.REPOSITORY_FAILED_READ);
 			}
 			target = target.getParentFile();
-			if (target == null)
+			if (target == null) {
 				fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+			}
 			index = target.getName().lastIndexOf(DOT_PROFILE);
 			profileId = target.getName().substring(0, index);
 		}
 		profileId = SimpleProfileRegistry.unescape(profileId);
 
 		File registryDirectory = target.getParentFile();
-		if (registryDirectory == null)
+		if (registryDirectory == null) {
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+		}
 		SimpleProfileRegistry profileRegistry = new SimpleProfileRegistry(agent, registryDirectory, null, false);
 		if (timestamp == -1) {
 			long[] timestamps = profileRegistry.listProfileTimestamps(profileId);
 			timestamp = timestamps[timestamps.length - 1];
 		}
 		IProfile profile = profileRegistry.getProfile(profileId, timestamp);
-		if (profile == null)
+		if (profile == null) {
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+		}
 
 		return profile;
 	}

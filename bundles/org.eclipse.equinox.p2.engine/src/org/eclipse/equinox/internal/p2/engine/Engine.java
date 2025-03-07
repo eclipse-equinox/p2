@@ -34,14 +34,17 @@ public class Engine implements IEngine {
 	}
 
 	private void checkArguments(IProfile iprofile, PhaseSet phaseSet, Operand[] operands) {
-		if (iprofile == null)
+		if (iprofile == null) {
 			throw new IllegalArgumentException(Messages.null_profile);
+		}
 
-		if (phaseSet == null)
+		if (phaseSet == null) {
 			throw new IllegalArgumentException(Messages.null_phaseset);
+		}
 
-		if (operands == null)
+		if (operands == null) {
 			throw new IllegalArgumentException(Messages.null_operands);
+		}
 	}
 
 	@Override
@@ -57,16 +60,19 @@ public class Engine implements IEngine {
 	public IStatus perform(IProfile iprofile, IPhaseSet phases, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		PhaseSet phaseSet = (PhaseSet) phases;
 		checkArguments(iprofile, phaseSet, operands);
-		if (operands.length == 0)
+		if (operands.length == 0) {
 			return Status.OK_STATUS;
+		}
 		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) agent.getService(IProfileRegistry.class);
 		IProvisioningEventBus eventBus = agent.getService(IProvisioningEventBus.class);
 
-		if (context == null)
+		if (context == null) {
 			context = new ProvisioningContext(agent);
+		}
 
-		if (monitor == null)
+		if (monitor == null) {
 			monitor = new NullProgressMonitor();
+		}
 
 		Profile profile = profileRegistry.validate(iprofile);
 
@@ -74,8 +80,9 @@ public class Engine implements IEngine {
 		SubMonitor subMon = SubMonitor.convert(monitor, 3);
 		try {
 			eventBus.publishEvent(new BeginOperationEvent(profile, phaseSet, operands, this));
-			if (DebugHelper.DEBUG_ENGINE)
+			if (DebugHelper.DEBUG_ENGINE) {
 				DebugHelper.debug(ENGINE, "Beginning engine operation for profile=" + profile.getProfileId() + " [" + profile.getTimestamp() + "]:" + DebugHelper.LINE_SEPARATOR + DebugHelper.formatOperation(phaseSet, operands, context)); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			}
 
 			EngineSession session = new EngineSession(agent, profile, context);
 
@@ -94,26 +101,32 @@ public class Engine implements IEngine {
 			}
 			MultiStatus result = phaseSet.perform(session, operands, subMon.split(1));
 			if (result.isOK() || result.matches(IStatus.INFO | IStatus.WARNING)) {
-				if (DebugHelper.DEBUG_ENGINE)
+				if (DebugHelper.DEBUG_ENGINE) {
 					DebugHelper.debug(ENGINE, "Preparing to commit engine operation for profile=" + profile.getProfileId()); //$NON-NLS-1$
+				}
 				result.merge(session.prepare(subMon.split(1)));
 			}
 			subMon.setWorkRemaining(1);
 			if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
-				if (DebugHelper.DEBUG_ENGINE)
+				if (DebugHelper.DEBUG_ENGINE) {
 					DebugHelper.debug(ENGINE, "Rolling back engine operation for profile=" + profile.getProfileId() + ". Reason was: " + result.toString()); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 				IStatus status = session.rollback(subMon.split(1), result.getSeverity());
-				if (status.matches(IStatus.ERROR))
+				if (status.matches(IStatus.ERROR)) {
 					LogHelper.log(status);
+				}
 				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
 			} else {
-				if (DebugHelper.DEBUG_ENGINE)
+				if (DebugHelper.DEBUG_ENGINE) {
 					DebugHelper.debug(ENGINE, "Committing engine operation for profile=" + profile.getProfileId()); //$NON-NLS-1$
-				if (profile.isChanged())
+				}
+				if (profile.isChanged()) {
 					profileRegistry.updateProfile(profile);
+				}
 				IStatus status = session.commit(subMon.split(1));
-				if (status.matches(IStatus.ERROR))
+				if (status.matches(IStatus.ERROR)) {
 					LogHelper.log(status);
+				}
 				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, operands, this));
 			}
 			//if there is only one child status, return that status instead because it will have more context
@@ -129,11 +142,13 @@ public class Engine implements IEngine {
 	protected IStatus validate(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		checkArguments(iprofile, phaseSet, operands);
 
-		if (context == null)
+		if (context == null) {
 			context = new ProvisioningContext(agent);
+		}
 
-		if (monitor == null)
+		if (monitor == null) {
 			monitor = new NullProgressMonitor();
+		}
 
 		ActionManager actionManager = agent.getService(ActionManager.class);
 		return phaseSet.validate(actionManager, iprofile, operands, context, agent, monitor);

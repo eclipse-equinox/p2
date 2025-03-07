@@ -29,10 +29,11 @@ public class Property extends Phase {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			PropertyOperand propertyOperand = (PropertyOperand) parameters.get(PARM_OPERAND);
 
-			if (propertyOperand.second() == null)
+			if (propertyOperand.second() == null) {
 				removeProfileProperty(profile, propertyOperand);
-			else
+			} else {
 				setProfileProperty(profile, propertyOperand, false);
+			}
 
 			return null;
 		}
@@ -42,10 +43,11 @@ public class Property extends Phase {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			PropertyOperand propertyOperand = (PropertyOperand) parameters.get(PARM_OPERAND);
 
-			if (propertyOperand.first() == null)
+			if (propertyOperand.first() == null) {
 				removeProfileProperty(profile, propertyOperand);
-			else
+			} else {
 				setProfileProperty(profile, propertyOperand, true);
+			}
 
 			return null;
 		}
@@ -149,8 +151,9 @@ public class Property extends Phase {
 
 	@Override
 	protected List<ProvisioningAction> getActions(Operand operand) {
-		if (operand instanceof PropertyOperand)
+		if (operand instanceof PropertyOperand) {
 			return Collections.singletonList(new ProfilePropertyAction());
+		}
 
 		if (operand instanceof InstallableUnitOperand) {
 			InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;

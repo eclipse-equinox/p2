@@ -70,8 +70,9 @@ public final class ProfileScope implements IScopeContext {
 	 */
 	@Override
 	public IEclipsePreferences getNode(String qualifier) {
-		if (qualifier == null)
+		if (qualifier == null) {
 			throw new IllegalArgumentException();
+		}
 		String locationString = SlashEncode.encode(location.getRootLocation().toString());
 		//format is /profile/{agentLocationURI}/{profileId}/qualifier
 		return (IEclipsePreferences) PreferencesService.getDefault().getRootNode().node(getName()).node(locationString).node(profileId).node(qualifier);
@@ -79,12 +80,15 @@ public final class ProfileScope implements IScopeContext {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (!(obj instanceof ProfileScope))
+		}
+		if (!(obj instanceof ProfileScope)) {
 			return false;
+		}
 		ProfileScope other = (ProfileScope) obj;
 		return profileId.equals(other.profileId);
 	}

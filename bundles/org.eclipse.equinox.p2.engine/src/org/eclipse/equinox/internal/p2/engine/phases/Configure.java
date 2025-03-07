@@ -104,8 +104,9 @@ public class Configure extends InstallableUnitPhase {
 		actions.add(beforeAction);
 		if (!QueryUtil.isFragment(unit)) {
 			List<ProvisioningAction> parsedActions = getActions(unit, phaseId);
-			if (parsedActions != null)
+			if (parsedActions != null) {
 				actions.addAll(parsedActions);
+			}
 		}
 		actions.add(afterAction);
 		return actions;
@@ -123,8 +124,9 @@ public class Configure extends InstallableUnitPhase {
 		parameters.put(PARM_IU, iu);
 
 		Collection<IArtifactKey> artifacts = iu.getArtifacts();
-		if (artifacts != null && artifacts.size() > 0)
+		if (artifacts != null && artifacts.size() > 0) {
 			parameters.put(PARM_ARTIFACT, artifacts.iterator().next());
+		}
 
 		return Status.OK_STATUS;
 	}

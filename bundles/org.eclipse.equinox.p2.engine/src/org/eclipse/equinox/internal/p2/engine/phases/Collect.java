@@ -54,12 +54,14 @@ public class Collect extends InstallableUnitPhase {
 	protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 		IInstallableUnit unit = operand.second();
 		List<ProvisioningAction> parsedActions = getActions(unit, phaseId);
-		if (parsedActions != null)
+		if (parsedActions != null) {
 			return parsedActions;
+		}
 
 		ITouchpointType type = unit.getTouchpointType();
-		if (type == null || type == ITouchpointType.NONE)
+		if (type == null || type == ITouchpointType.NONE) {
 			return null;
+		}
 
 		String actionId = getActionManager().getTouchpointQualifiedActionId(phaseId, type);
 		ProvisioningAction action = getActionManager().getAction(actionId, null);
@@ -77,13 +79,15 @@ public class Collect extends InstallableUnitPhase {
 	@Override
 	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		// do nothing for rollback if the provisioning has been cancelled
-		if (monitor.isCanceled())
+		if (monitor.isCanceled()) {
 			return Status.OK_STATUS;
+		}
 		@SuppressWarnings("unchecked")
 		List<IArtifactRequest[]> artifactRequests = (List<IArtifactRequest[]>) parameters.get(PARM_ARTIFACT_REQUESTS);
 		// it happens when rollbacking
-		if (artifactRequests.size() == 0)
+		if (artifactRequests.size() == 0) {
 			return Status.OK_STATUS;
+		}
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
 		synchronized (this) {
 			agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
@@ -106,8 +110,9 @@ public class Collect extends InstallableUnitPhase {
 			} catch (InterruptedException e) {
 				return new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.phase_thread_interrupted_error, phaseId), e);
 			}
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
+			}
 		}
 
 		List<IArtifactRequest> totalArtifactRequests = new ArrayList<>(artifactRequests.size());
@@ -119,14 +124,16 @@ public class Collect extends InstallableUnitPhase {
 			}
 		}
 		IProvisioningEventBus bus = agent.getService(IProvisioningEventBus.class);
-		if (bus != null)
+		if (bus != null) {
 			bus.publishEvent(new CollectEvent(CollectEvent.TYPE_OVERALL_START, null, context, totalArtifactRequests.toArray(new IArtifactRequest[totalArtifactRequests.size()])));
+		}
 		IStatus downloadStatus = dm.start(monitor);
 		try {
 			return downloadStatus;
 		} finally {
-			if (downloadStatus.isOK() && bus != null)
+			if (downloadStatus.isOK() && bus != null) {
 				bus.publishEvent(new CollectEvent(CollectEvent.TYPE_OVERALL_END, null, context, totalArtifactRequests.toArray(new IArtifactRequest[totalArtifactRequests.size()])));
+			}
 			synchronized (this) {
 				agent = null;
 			}
@@ -150,8 +157,9 @@ public class Collect extends InstallableUnitPhase {
 		synchronized (this) {
 			if (agent != null) {
 				IProvisioningEventBus bus = agent.getService(IProvisioningEventBus.class);
-				if (bus != null)
+				if (bus != null) {
 					bus.publishEvent(new DownloadPauseResumeEvent(isPaused ? DownloadPauseResumeEvent.TYPE_PAUSE : DownloadPauseResumeEvent.TYPE_RESUME));
+				}
 			}
 		}
 	}

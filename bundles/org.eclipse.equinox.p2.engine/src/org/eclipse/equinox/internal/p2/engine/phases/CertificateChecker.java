@@ -419,14 +419,16 @@ public class CertificateChecker {
 		trustEngineTracker.open();
 		Object[] trustEngines = trustEngineTracker.getServices();
 		try {
-			if (trustEngines == null)
+			if (trustEngines == null) {
 				return null;
+			}
 			for (Iterator<? extends Certificate> it = unsavedTrustedCertificates.iterator(); it.hasNext();) {
 				Certificate trustedCertificate = it.next();
 				for (Object engine : trustEngines) {
 					TrustEngine trustEngine = (TrustEngine) engine;
-					if (trustEngine.isReadOnly())
+					if (trustEngine.isReadOnly()) {
 						continue;
+					}
 					try {
 						trustEngine.addTrustAnchor(trustedCertificate, trustedCertificate.toString());
 						// this should mean we added an anchor successfully; continue to next
@@ -491,8 +493,9 @@ public class CertificateChecker {
 	 */
 	private String getUnsignedContentPolicy() {
 		String policy = EngineActivator.getProperty(EngineActivator.PROP_UNSIGNED_POLICY, agent);
-		if (policy == null)
+		if (policy == null) {
 			policy = EngineActivator.UNSIGNED_PROMPT;
+		}
 		return policy;
 
 	}
