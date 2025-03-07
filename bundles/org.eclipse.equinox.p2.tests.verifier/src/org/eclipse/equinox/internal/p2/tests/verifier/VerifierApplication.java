@@ -74,8 +74,9 @@ public class VerifierApplication implements IApplication {
 			try (PrintWriter out = new PrintWriter(new OutputStreamWriter(System.err))) {
 				out.println("Error from dropin verifier application: " + result.getMessage()); //$NON-NLS-1$
 				Throwable t = result.getException();
-				if (t != null)
+				if (t != null) {
 					t.printStackTrace(out);
+				}
 			}
 			LogHelper.log(result);
 		}
@@ -87,14 +88,16 @@ public class VerifierApplication implements IApplication {
 	 * consumption.
 	 */
 	private void processArguments(String[] args) {
-		if (args == null)
+		if (args == null) {
 			return;
+		}
 
 		for (int i = 1; i < args.length; i++) {
 			if (ARG_PROPERTIES.equals(args[i - 1])) {
 				String filename = args[i];
-				if (filename.startsWith("-")) //$NON-NLS-1$
+				if (filename.startsWith("-")) { //$NON-NLS-1$
 					continue;
+				}
 				try {
 					properties = readProperties(new File(filename));
 				} catch (IOException e) {
@@ -109,15 +112,17 @@ public class VerifierApplication implements IApplication {
 		// problems loading properties file or none specified so look for a default
 		if (properties == null) {
 			try {
-				if (DEFAULT_PROPERTIES_FILE.exists())
+				if (DEFAULT_PROPERTIES_FILE.exists()) {
 					properties = readProperties(DEFAULT_PROPERTIES_FILE);
+				}
 			} catch (IOException e) {
 				// TODO
 				e.printStackTrace();
 			}
 		}
-		if (properties == null)
+		if (properties == null) {
 			properties = new Properties();
+		}
 	}
 
 	/*
@@ -146,14 +151,17 @@ public class VerifierApplication implements IApplication {
 		if (ignoreResolved == null) {
 			ignoreResolved = new ArrayList<>();
 			String list = properties.getProperty("ignore.unresolved");
-			if (list == null)
+			if (list == null) {
 				return true;
-			for (StringTokenizer tokenizer = new StringTokenizer(list, ","); tokenizer.hasMoreTokens();)
+			}
+			for (StringTokenizer tokenizer = new StringTokenizer(list, ","); tokenizer.hasMoreTokens();) {
 				ignoreResolved.add(tokenizer.nextToken().trim());
+			}
 		}
 		for (String string : ignoreResolved) {
-			if (bundle.equals(string))
+			if (bundle.equals(string)) {
 				return false;
+			}
 		}
 		return true;
 	}
@@ -207,8 +215,9 @@ public class VerifierApplication implements IApplication {
 
 		MultiStatus result = new MultiStatus(SYMBOLIC_NAME, IStatus.OK, "Problems checking resolved bundles.", //$NON-NLS-1$
 				null);
-		for (IStatus status : allProblems)
+		for (IStatus status : allProblems) {
 			result.add(status);
+		}
 		return result;
 	}
 
@@ -290,16 +299,19 @@ public class VerifierApplication implements IApplication {
 	 */
 	private IStatus checkProfileRegistry() {
 		IProfileRegistry registry = agent.getService(IProfileRegistry.class);
-		if (registry == null)
+		if (registry == null) {
 			return Status.error("Profile registry service not available."); //$NON-NLS-1$
+		}
 		IProfile profile = registry.getProfile(IProfileRegistry.SELF);
-		if (profile == null)
+		if (profile == null) {
 			return Status.error("SELF profile not available in profile registry."); //$NON-NLS-1$
+		}
 		if (properties.get("checkPresenceOfVerifier") != null
 				&& !Boolean.FALSE.toString().equals(properties.get("checkPresenceOfVerifier"))) {
 			IQueryResult<IInstallableUnit> results = profile.query(QueryUtil.createIUQuery(SYMBOLIC_NAME), null);
-			if (results.isEmpty())
+			if (results.isEmpty()) {
 				return Status.error(NLS.bind("IU for {0} not found in SELF profile.", SYMBOLIC_NAME)); //$NON-NLS-1$
+			}
 		}
 		return Status.OK_STATUS;
 	}
@@ -313,33 +325,40 @@ public class VerifierApplication implements IApplication {
 
 		// ensure all the bundles are resolved
 		IStatus temp = checkResolved();
-		if (!temp.isOK())
+		if (!temp.isOK()) {
 			result.merge(temp);
+		}
 
 		// ensure we have a profile registry
 		temp = checkProfileRegistry();
-		if (!temp.isOK())
+		if (!temp.isOK()) {
 			result.merge(temp);
+		}
 
 		temp = hasProfileFlag();
-		if (!temp.isOK())
+		if (!temp.isOK()) {
 			result.merge(temp);
+		}
 
 		temp = checkAbsenceOfBundles();
-		if (!temp.isOK())
+		if (!temp.isOK()) {
 			result.merge(temp);
+		}
 
 		temp = checkPresenceOfBundles();
-		if (!temp.isOK())
+		if (!temp.isOK()) {
 			result.merge(temp);
+		}
 
 		temp = checkSystemProperties();
-		if (!temp.isOK())
+		if (!temp.isOK()) {
 			result.merge(temp);
+		}
 
 		temp = checkMigrationWizard();
-		if (!temp.isOK())
+		if (!temp.isOK()) {
 			result.merge(temp);
+		}
 
 		assumeMigrated();
 
@@ -348,8 +367,9 @@ public class VerifierApplication implements IApplication {
 	}
 
 	private void handleWizardCancellation() {
-		if (properties.getProperty("checkMigration.cancelAnswer") == null)
+		if (properties.getProperty("checkMigration.cancelAnswer") == null) {
 			return;
+		}
 		new Display();
 		IProfileRegistry reg = agent.getService(IProfileRegistry.class);
 		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
@@ -378,35 +398,40 @@ public class VerifierApplication implements IApplication {
 			String key = (String) entry.getKey();
 			if (key.startsWith(ABSENT_SYS_PROPERTY)) {
 				String property = key.substring(ABSENT_SYS_PROPERTY.length());
-				if (System.getProperty(property) != null)
+				if (System.getProperty(property) != null) {
 					result.add(Status.error("Property " + property + " should not be set."));
+				}
 			}
 			if (key.startsWith(PRESENT_SYS_PROPERTY)) {
 				String property = key.substring(PRESENT_SYS_PROPERTY.length());
 				String foundValue = System.getProperty(property);
-				if (!entry.getValue().equals(foundValue))
+				if (!entry.getValue().equals(foundValue)) {
 					result.add(Status.error("Property " + property + " should be set to " + entry.getValue()
 							+ " and is set to " + foundValue + "."));
+				}
 			}
 		}
-		if (result.getChildren().length == 0)
+		if (result.getChildren().length == 0) {
 			return Status.OK_STATUS;
+		}
 		return result;
 	}
 
 	private IStatus checkAbsenceOfBundles() {
 		MultiStatus result = new MultiStatus(SYMBOLIC_NAME, IStatus.ERROR, "Some bundles should not be there", null);
 		String unexpectedBundlesString = properties.getProperty("unexpectedBundleList");
-		if (unexpectedBundlesString == null)
+		if (unexpectedBundlesString == null) {
 			return Status.OK_STATUS;
+		}
 		String[] unexpectedBundles = unexpectedBundlesString.split(",");
 		for (String bsn : unexpectedBundles) {
 			if (containsBundle(bsn)) {
 				result.add(Status.error(bsn + " should not have been found in the install"));
 			}
 		}
-		if (result.getChildren().length == 0)
+		if (result.getChildren().length == 0) {
 			return Status.OK_STATUS;
+		}
 		return result;
 	}
 
@@ -442,23 +467,26 @@ public class VerifierApplication implements IApplication {
 	private IStatus checkPresenceOfBundles() {
 		MultiStatus result = new MultiStatus(SYMBOLIC_NAME, IStatus.ERROR, "Some bundles should not be there", null);
 		String expectedBundlesString = properties.getProperty("expectedBundleList");
-		if (expectedBundlesString == null)
+		if (expectedBundlesString == null) {
 			return Status.OK_STATUS;
+		}
 		String[] expectedBundles = expectedBundlesString.split(",");
 		for (String bsn : expectedBundles) {
 			if (!containsBundle(bsn)) {
 				result.add(Status.error(bsn + " is missing from the install"));
 			}
 		}
-		if (result.getChildren().length == 0)
+		if (result.getChildren().length == 0) {
 			return Status.OK_STATUS;
+		}
 		return result;
 	}
 
 	private IStatus hasProfileFlag() {
 		if (properties.getProperty("checkProfileResetFlag") == null
-				|| "false".equals(properties.getProperty("checkProfileResetFlag")))
+				|| "false".equals(properties.getProperty("checkProfileResetFlag"))) {
 			return Status.OK_STATUS;
+		}
 		// Make sure that the profile is already loaded
 		IProfileRegistry reg = agent.getService(IProfileRegistry.class);
 		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
@@ -485,8 +513,9 @@ public class VerifierApplication implements IApplication {
 	}
 
 	private IStatus checkMigrationWizard() {
-		if (properties.getProperty("checkMigrationWizard") == null)
+		if (properties.getProperty("checkMigrationWizard") == null) {
 			return Status.OK_STATUS;
+		}
 
 		IProfileRegistry reg = agent.getService(IProfileRegistry.class);
 		IProfile profile = reg.getProfile(IProfileRegistry.SELF);
@@ -496,15 +525,17 @@ public class VerifierApplication implements IApplication {
 		migrationSupport.performMigration(agent, reg, profile);
 
 		boolean wizardExpectedToOpen = Boolean.parseBoolean(properties.getProperty("checkMigrationWizard.open"));
-		if (migrationSupport.wizardOpened == wizardExpectedToOpen)
+		if (migrationSupport.wizardOpened == wizardExpectedToOpen) {
 			return Status.OK_STATUS;
+		}
 
 		return Status.error("The migration wizard did " + (wizardExpectedToOpen ? "not" : "") + " open");
 	}
 
 	private void assumeMigrated() {
-		if (properties.getProperty("checkMigrationWizard.simulate.reinstall") == null)
+		if (properties.getProperty("checkMigrationWizard.simulate.reinstall") == null) {
 			return;
+		}
 
 		new MigrationWizardTestHelper().rememberMigrationCompleted();
 	}
