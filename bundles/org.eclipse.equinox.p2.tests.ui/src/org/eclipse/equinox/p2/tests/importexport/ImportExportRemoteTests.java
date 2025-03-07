@@ -91,17 +91,20 @@ public class ImportExportRemoteTests extends ServerBasedTestCase {
 	}
 
 	protected File getTestData(String message, String entry) {
-		if (entry == null)
+		if (entry == null) {
 			fail(message + " entry is null.");
+		}
 		URL base = TestActivator.getContext().getBundle().getEntry(entry);
-		if (base == null)
+		if (base == null) {
 			fail(message + " entry not found in bundle: " + entry);
+		}
 		try {
 			String osPath = IPath.fromOSString(FileLocator.toFileURL(base).getPath()).toOSString();
 			File result = new File(osPath);
-			if (!result.getCanonicalPath().equals(result.getPath()))
+			if (!result.getCanonicalPath().equals(result.getPath())) {
 				fail(message + " result path: " + result.getPath() + " does not match canonical path: "
 						+ result.getCanonicalFile().getPath());
+			}
 			return result;
 		} catch (IOException e) {
 			fail(message);

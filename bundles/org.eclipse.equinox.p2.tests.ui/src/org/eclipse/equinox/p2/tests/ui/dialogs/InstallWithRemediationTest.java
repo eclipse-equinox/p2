@@ -300,8 +300,9 @@ public class InstallWithRemediationTest extends WizardTest {
 
 		} finally {
 			dialog.close();
-			if (longOp != null)
+			if (longOp != null) {
 				longOp.cancel();
+			}
 		}
 	}
 }

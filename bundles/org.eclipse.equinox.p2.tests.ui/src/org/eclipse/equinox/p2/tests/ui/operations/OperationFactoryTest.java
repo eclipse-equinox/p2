@@ -131,10 +131,11 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			expectedException = e;
 		}
-		if (shouldFail)
+		if (shouldFail) {
 			assertNotNull(expectedException);
-		else
+		} else {
 			assertNull(expectedException);
+		}
 	}
 
 	public void testUpdateOperation() {

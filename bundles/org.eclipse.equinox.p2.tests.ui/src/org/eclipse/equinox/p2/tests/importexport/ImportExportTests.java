@@ -118,9 +118,11 @@ public class ImportExportTests extends AbstractProvisioningTest {
 				assertFalse("Not expected return result.", status.isOK());
 				assertTrue("Should be a multiple status", status.isMultiStatus());
 				boolean hasFeaturesIgnored = false;
-				for (IStatus s : getChildren(status))
-					if (s.getCode() == ImportExportImpl.IGNORE_LOCAL_REPOSITORY)
+				for (IStatus s : getChildren(status)) {
+					if (s.getCode() == ImportExportImpl.IGNORE_LOCAL_REPOSITORY) {
 						hasFeaturesIgnored = true;
+					}
+				}
 				assertTrue("Should have features ignored due to they're installed from local repository.",
 						hasFeaturesIgnored);
 			}

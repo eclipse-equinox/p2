@@ -47,8 +47,9 @@ public class CategoryElementWrapperTest extends AbstractQueryTest {
 		collector.accept("AnObjectThatIsNotAnIU");
 		Iterator<?> results = wrapper.getElements(collector).iterator();
 		// Collection should either be empty or explain its emptiness.
-		while (results.hasNext())
+		while (results.hasNext()) {
 			assertTrue("1.0", results.next() instanceof EmptyElementExplanation);
+		}
 	}
 
 	/**

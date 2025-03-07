@@ -101,8 +101,9 @@ public class InstallWizardTest extends WizardTest {
 			assertFalse("1.5", finishButton.isEnabled());
 		} finally {
 			dialog.getShell().close();
-			if (longOp != null)
+			if (longOp != null) {
 				longOp.cancel();
+			}
 		}
 	}
 
@@ -131,8 +132,9 @@ public class InstallWizardTest extends WizardTest {
 					opField.get(page) instanceof MyNewInstallOperation);
 		} finally {
 			dialog.getShell().close();
-			if (longOp != null)
+			if (longOp != null) {
 				longOp.cancel();
+			}
 		}
 	}
 
@@ -162,8 +164,9 @@ public class InstallWizardTest extends WizardTest {
 
 		} finally {
 			dialog.getShell().close();
-			if (longOp != null)
+			if (longOp != null) {
 				longOp.cancel();
+			}
 		}
 	}
 
@@ -192,8 +195,9 @@ public class InstallWizardTest extends WizardTest {
 
 		} finally {
 			dialog.getShell().close();
-			if (longOp != null)
+			if (longOp != null) {
 				longOp.cancel();
+			}
 		}
 	}
 
@@ -276,8 +280,9 @@ public class InstallWizardTest extends WizardTest {
 
 		} finally {
 			dialog.close();
-			if (longOp != null)
+			if (longOp != null) {
 				longOp.cancel();
+			}
 		}
 	}
 }

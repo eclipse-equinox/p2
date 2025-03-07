@@ -32,8 +32,9 @@ public class LatestIUVersionElementWrapperTest extends AvailableIUWrapperTest {
 	 */
 	@Override
 	protected IInstallableUnit getIU(Object collected) {
-		if (collected instanceof IInstallableUnit)
+		if (collected instanceof IInstallableUnit) {
 			return (IInstallableUnit) collected;
+		}
 		return ((IIUElement) collected).getIU();
 	}
 
