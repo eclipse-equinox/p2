@@ -258,8 +258,9 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 			final Set<String> installableUnitIdsThisRepository = getDescriptorIds(repository);
 			for (IInstallableUnit iu : repository.query(createInstalledIUsQuery(), monitor.newChild(1))) {
 				String id = iu.getId();
-				if (installableUnitIdsThisRepository.contains(id))
+				if (installableUnitIdsThisRepository.contains(id)) {
 					installableUnits.add(iu);
+				}
 			}
 		}
 		return installableUnits;
