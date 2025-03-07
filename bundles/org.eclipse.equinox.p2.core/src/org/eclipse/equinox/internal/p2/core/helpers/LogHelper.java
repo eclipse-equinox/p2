@@ -26,8 +26,9 @@ public class LogHelper {
 	public static void log(IStatus status) {
 		if (!doOSGiLog(status)) {
 			System.out.println(status.getMessage());
-			if (status.getException() != null)
+			if (status.getException() != null) {
 				status.getException().printStackTrace();
+			}
 		}
 	}
 

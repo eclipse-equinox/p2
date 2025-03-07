@@ -68,8 +68,9 @@ public class ProvisioningEventBus implements EventDispatcher<ProvisioningListene
 	@Override
 	public void publishEvent(EventObject event) {
 		synchronized (dispatchEventLock) {
-			if (closed)
+			if (closed) {
 				return;
+			}
 		}
 		/* queue to hold set of listeners */
 		ListenerQueue<ProvisioningListener, ProvisioningListener, EventObject> listeners = new ListenerQueue<>(eventManager);
@@ -86,8 +87,9 @@ public class ProvisioningEventBus implements EventDispatcher<ProvisioningListene
 		synchronized (asyncListeners) {
 			listeners.queueListeners(asyncListeners.entrySet(), this);
 			synchronized (dispatchEventLock) {
-				if (!closed)
+				if (!closed) {
 					listeners.dispatchEventAsynchronous(0, event);
+				}
 			}
 		}
 	}
@@ -95,8 +97,9 @@ public class ProvisioningEventBus implements EventDispatcher<ProvisioningListene
 	@Override
 	public void dispatchEvent(ProvisioningListener eventListener, ProvisioningListener listenerObject, int eventAction, EventObject eventObject) {
 		synchronized (dispatchEventLock) {
-			if (closed)
+			if (closed) {
 				return;
+			}
 			dispatchingEvents++;
 		}
 		try {
@@ -106,8 +109,9 @@ public class ProvisioningEventBus implements EventDispatcher<ProvisioningListene
 		} finally {
 			synchronized (dispatchEventLock) {
 				dispatchingEvents--;
-				if (dispatchingEvents == 0)
+				if (dispatchingEvents == 0) {
 					dispatchEventLock.notifyAll();
+				}
 			}
 		}
 	}
@@ -128,8 +132,9 @@ public class ProvisioningEventBus implements EventDispatcher<ProvisioningListene
 				}
 			}
 		}
-		if (interrupted)
+		if (interrupted) {
 			Thread.currentThread().interrupt();
+		}
 	}
 
 	@Override

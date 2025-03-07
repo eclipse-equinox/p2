@@ -48,13 +48,17 @@ public class CollectionUtils {
 		public int indexOf(Object o) {
 			int size = array.length;
 			if (o == null) {
-				for (int i = 0; i < size; i++)
-					if (array[i] == null)
+				for (int i = 0; i < size; i++) {
+					if (array[i] == null) {
 						return i;
+					}
+				}
 			} else {
-				for (int i = 0; i < size; i++)
-					if (o.equals(array[i]))
+				for (int i = 0; i < size; i++) {
+					if (o.equals(array[i])) {
 						return i;
+					}
+				}
 			}
 			return -1;
 		}
@@ -80,8 +84,9 @@ public class CollectionUtils {
 
 				@Override
 				public E next() {
-					if (index >= array.length)
+					if (index >= array.length) {
 						throw new NoSuchElementException();
+					}
 					return array[index++];
 				}
 
@@ -130,13 +135,17 @@ public class CollectionUtils {
 		public int lastIndexOf(Object o) {
 			int idx = array.length;
 			if (o == null) {
-				while (--idx >= 0)
-					if (array[idx] == null)
+				while (--idx >= 0) {
+					if (array[idx] == null) {
 						return idx;
+					}
+				}
 			} else {
-				while (--idx >= 0)
-					if (o.equals(array[idx]))
+				while (--idx >= 0) {
+					if (o.equals(array[idx])) {
 						return idx;
+					}
+				}
 			}
 			return -1;
 		}
@@ -160,11 +169,13 @@ public class CollectionUtils {
 		@SuppressWarnings("unchecked")
 		public <T> T[] toArray(T[] a) {
 			int size = array.length;
-			if (a.length < size)
+			if (a.length < size) {
 				a = (T[]) Array.newInstance(a.getClass().getComponentType(), size);
+			}
 			System.arraycopy(this.array, 0, a, 0, size);
-			while (size < a.length)
+			while (size < a.length) {
 				a[size++] = null;
+			}
 			return a;
 		}
 	}
@@ -175,8 +186,9 @@ public class CollectionUtils {
 	 * @return The combined hashCode of the objects.
 	 */
 	public static int hashCode(Object objects[]) {
-		if (objects == null)
+		if (objects == null) {
 			return 0;
+		}
 
 		int result = 1;
 		int idx = objects.length;
@@ -215,8 +227,9 @@ public class CollectionUtils {
 	 * @return The map containing all elements
 	 */
 	public static Map<String, String> toMap(Properties properties) {
-		if (properties == null || properties.isEmpty())
+		if (properties == null || properties.isEmpty()) {
 			return Collections.emptyMap();
+		}
 
 		Map<String, String> props = new HashMap<>(properties.size());
 		putAll(properties, props);

@@ -32,21 +32,24 @@ public class URLUtil {
 	 */
 	public static File toFile(URL url) {
 
-		if (!"file".equalsIgnoreCase(url.getProtocol())) //$NON-NLS-1$
+		if (!"file".equalsIgnoreCase(url.getProtocol())) { //$NON-NLS-1$
 			return null;
-		//assume all illegal characters have been properly encoded, so use URI class to unencode
+			//assume all illegal characters have been properly encoded, so use URI class to unencode
+		}
 
 		String externalForm = url.toExternalForm();
 		String pathString = externalForm.substring(5);
 
 		try {
 			if (pathString.indexOf('/') == 0) {
-				if (pathString.indexOf("//") == 0) //$NON-NLS-1$
+				if (pathString.indexOf("//") == 0) { //$NON-NLS-1$
 					externalForm = "file:" + ensureUNCPath(pathString); //$NON-NLS-1$
+				}
 				return new File(new URI(externalForm));
 			}
-			if (pathString.indexOf(':') == 1)
+			if (pathString.indexOf(':') == 1) {
 				return new File(new URI("file:/" + pathString)); //$NON-NLS-1$
+			}
 
 			return new File(new URI(pathString).getSchemeSpecificPart());
 		} catch (Exception e) {
@@ -63,8 +66,9 @@ public class URLUtil {
 		StringBuilder result = new StringBuilder(len);
 		for (int i = 0; i < 4; i++) {
 			//	if we have hit the first non-slash character, add another leading slash
-			if (i >= len || result.length() > 0 || path.charAt(i) != '/')
+			if (i >= len || result.length() > 0 || path.charAt(i) != '/') {
 				result.append('/');
+			}
 		}
 		result.append(path);
 		return result.toString();

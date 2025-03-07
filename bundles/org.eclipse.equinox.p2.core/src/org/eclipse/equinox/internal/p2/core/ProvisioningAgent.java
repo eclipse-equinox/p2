@@ -50,8 +50,9 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 		synchronized (agentServices) {
 			checkRunning();
 			Object service = agentServices.get(serviceName);
-			if (service != null)
+			if (service != null) {
 				return service;
+			}
 			//attempt to get factory service from service registry
 			Collection<ServiceReference<IAgentServiceFactory>> refs;
 			try {
@@ -62,8 +63,9 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 				e.printStackTrace();
 				return null;
 			}
-			if (refs == null || refs.isEmpty())
+			if (refs == null || refs.isEmpty()) {
 				return null;
+			}
 			ServiceReference<IAgentServiceFactory> firstRef = Collections.max(refs);
 			//track the factory so that we can automatically remove the service when the factory goes away
 			ServiceTracker<IAgentServiceFactory, Object> tracker = new ServiceTracker<>(context, firstRef, this);
@@ -85,16 +87,18 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 	}
 
 	private void checkRunning() {
-		if (stopped)
+		if (stopped) {
 			throw new IllegalStateException("Attempt to access stopped agent: " + this); //$NON-NLS-1$
+		}
 	}
 
 	@Override
 	public void registerService(String serviceName, Object service) {
 		checkRunning();
 		agentServices.put(serviceName, service);
-		if (service instanceof IAgentService)
+		if (service instanceof IAgentService) {
 			((IAgentService) service).start();
+		}
 	}
 
 	public void setBundleContext(BundleContext context) {
@@ -119,13 +123,16 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 	@Override
 	public void unregisterService(String serviceName, Object service) {
 		synchronized (agentServices) {
-			if (stopped)
+			if (stopped) {
 				return;
-			if (agentServices.get(serviceName) == service)
+			}
+			if (agentServices.get(serviceName) == service) {
 				agentServices.remove(serviceName);
+			}
 		}
-		if (service instanceof IAgentService)
+		if (service instanceof IAgentService) {
 			((IAgentService) service).stop();
+		}
 	}
 
 	@Override
@@ -136,15 +143,18 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 		}
 		//give services a chance to do their own shutdown
 		for (Object service : toStop) {
-			if (service instanceof IAgentService)
-				if (service != this)
+			if (service instanceof IAgentService) {
+				if (service != this) {
 					((IAgentService) service).stop();
+				}
+			}
 		}
 		stopped = true;
 		//close all service trackers
 		synchronized (trackers) {
-			for (ServiceTracker<IAgentServiceFactory, Object> t : trackers.values())
+			for (ServiceTracker<IAgentServiceFactory, Object> t : trackers.values()) {
 				t.close();
+			}
 			trackers.clear();
 		}
 		if (reg != null) {
@@ -159,8 +169,9 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 
 	@Override
 	public Object addingService(ServiceReference<IAgentServiceFactory> reference) {
-		if (stopped)
+		if (stopped) {
 			return null;
+		}
 		return context.getService(reference);
 	}
 
@@ -171,20 +182,24 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 
 	@Override
 	public void removedService(ServiceReference<IAgentServiceFactory> reference, Object factoryService) {
-		if (stopped)
+		if (stopped) {
 			return;
+		}
 		String serviceName = getAgentServiceName(reference);
-		if (serviceName == null)
+		if (serviceName == null) {
 			return;
+		}
 		Object registered = agentServices.get(serviceName);
-		if (registered == null)
+		if (registered == null) {
 			return;
+		}
 		if (FrameworkUtil.getBundle(registered.getClass()) == FrameworkUtil.getBundle(factoryService.getClass())) {
 			//the service we are holding is going away
 			unregisterService(serviceName, registered);
 			ServiceTracker<IAgentServiceFactory, Object> toRemove = trackers.remove(reference);
-			if (toRemove != null)
+			if (toRemove != null) {
 				toRemove.close();
+			}
 		}
 	}
 
