@@ -57,7 +57,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	private AutomaticUpdater updater;
 	private ScopedPreferenceStore preferenceStore;
 
-	private volatile ProvisioningSession session;
+	private ProvisioningSession session;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk.scheduler"; //$NON-NLS-1$
 
