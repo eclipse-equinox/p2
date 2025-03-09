@@ -94,8 +94,9 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	}
 
 	private void initialize() {
-		if (defaultCategory != null)
+		if (defaultCategory != null) {
 			return;
+		}
 		defaultCategory = new SiteCategory();
 		defaultCategory.setDescription("Default category for otherwise uncategorized features"); //$NON-NLS-1$
 		defaultCategory.setLabel("Uncategorized"); //$NON-NLS-1$
@@ -134,8 +135,9 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		SiteFeature[] features = site.getStatsFeatures();
 		if (features != null && artifactRepo != null) {
 			for (SiteFeature feature : features) {
-				if (monitor.isCanceled())
+				if (monitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
+				}
 				Collection<IInstallableUnit> ius = getFeatureIU(feature, publisherInfo, results);
 				if (ius != null) {
 					for (IInstallableUnit iu : ius) {
@@ -155,8 +157,9 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		SiteBundle[] bundles = site.getStatsBundles();
 		if (bundles != null && artifactRepo != null) {
 			for (SiteBundle bundle : bundles) {
-				if (monitor.isCanceled())
+				if (monitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
+				}
 				Collection<IInstallableUnit> ius = getBundleIU(bundle, publisherInfo, results);
 				if (ius != null) {
 					for (IInstallableUnit iu : ius) {
@@ -177,9 +180,10 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		// a warning.
 		boolean markingBundles = bundles != null && bundles.length > 0;
 		boolean markingFeatures = features != null && features.length > 0;
-		if (artifactRepo == null && (markingBundles || markingFeatures))
+		if (artifactRepo == null && (markingBundles || markingFeatures)) {
 			return new Status(IStatus.WARNING, Activator.ID,
 					"Artifact repository was not specified so stats properties could not be published."); //$NON-NLS-1$
+		}
 		return Status.OK_STATUS;
 
 	}
@@ -189,16 +193,19 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		Map<SiteCategory, Set<IInstallableUnit>> categoriesToIUs = new HashMap<>();
 		Map<SiteFeature, Set<SiteCategory>> featuresToCategories = getFeatureToCategoryMappings(publisherInfo);
 		for (SiteFeature feature : featuresToCategories.keySet()) {
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
+			}
 			Collection<IInstallableUnit> ius = getFeatureIU(feature, publisherInfo, results);
-			if (ius == null)
+			if (ius == null) {
 				continue;
+			}
 			Set<SiteCategory> categories = featuresToCategories.get(feature);
 			// if there are no categories for this feature then add it to the default
 			// category.
-			if (categories == null || categories.isEmpty())
+			if (categories == null || categories.isEmpty()) {
 				categories = defaultCategorySet;
+			}
 			for (SiteCategory category : categories) {
 				Set<IInstallableUnit> iusInCategory = categoriesToIUs.get(category);
 				if (iusInCategory == null) {
@@ -211,16 +218,19 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		// Bundles -- bug 378338
 		Map<SiteBundle, Set<SiteCategory>> bundlesToCategories = getBundleToCategoryMappings(publisherInfo);
 		for (SiteBundle bundle : bundlesToCategories.keySet()) {
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
+			}
 			Collection<IInstallableUnit> ius = getBundleIU(bundle, publisherInfo, results);
-			if (ius == null)
+			if (ius == null) {
 				continue;
+			}
 			Set<SiteCategory> categories = bundlesToCategories.get(bundle);
 			// if there are no categories for this feature then add it to the default
 			// category.
-			if (categories == null || categories.isEmpty())
+			if (categories == null || categories.isEmpty()) {
 				categories = defaultCategorySet;
+			}
 			for (SiteCategory category : categories) {
 				Set<IInstallableUnit> iusInCategory = categoriesToIUs.get(category);
 				if (iusInCategory == null) {
@@ -240,18 +250,21 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			IPublisherInfo publisherInfo, IPublisherResult results) {
 		Map<SiteIU, Set<SiteCategory>> iusToCategories = getIUToCategoryMappings(publisherInfo);
 		SiteModel site = updateSite.getSite();
-		if (site == null)
+		if (site == null) {
 			return;
+		}
 		SiteIU[] siteIUs = site.getIUs();
 		for (SiteIU siteIU : siteIUs) {
 			Collection<IInstallableUnit> ius = getIUs(siteIU, publisherInfo, results);
-			if (ius == null)
+			if (ius == null) {
 				continue;
+			}
 			Set<SiteCategory> categories = iusToCategories.get(siteIU);
 			// if there are no categories for this feature then add it to the default
 			// category.
-			if (categories == null || categories.isEmpty())
+			if (categories == null || categories.isEmpty()) {
 				categories = defaultCategorySet;
+			}
 			for (SiteCategory category : categories) {
 				Set<IInstallableUnit> iusInCategory = categoriesToIUs.get(category);
 				if (iusInCategory == null) {
@@ -265,11 +278,13 @@ public class SiteXMLAction extends AbstractPublisherAction {
 
 	private Map<SiteIU, Set<SiteCategory>> getIUToCategoryMappings(IPublisherInfo publisherInfo) {
 		HashMap<SiteIU, Set<SiteCategory>> mappings = new HashMap<>();
-		if (updateSite == null)
+		if (updateSite == null) {
 			return mappings;
+		}
 		SiteModel site = updateSite.getSite();
-		if (site == null)
+		if (site == null) {
 			return mappings;
+		}
 
 		SiteIU[] ius = site.getIUs();
 		for (SiteIU iu : ius) {
@@ -279,8 +294,9 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			mappings.put(iu, categories);
 			for (String categoryName : categoryNames) {
 				SiteCategory category = site.getCategory(categoryName);
-				if (category != null)
+				if (category != null) {
 					categories.add(category);
+				}
 			}
 		}
 		return mappings;
@@ -293,23 +309,28 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		String type = siteIU.getQueryType();
 		String expression = siteIU.getQueryExpression();
 		Object[] params = siteIU.getQueryParams();
-		if (id == null && (type == null || expression == null))
+		if (id == null && (type == null || expression == null)) {
 			return Collections.emptyList();
+		}
 		IQuery<IInstallableUnit> query = null;
 		if (id != null) {
 			VersionRange vRange = VersionRange.create(range);
 			query = QueryUtil.createIUQuery(id, vRange);
 		} else if (type.equals("context")) { //$NON-NLS-1$
 			query = QueryUtil.createQuery(expression, params);
-		} else if (type.equals("match")) //$NON-NLS-1$
+		} else if (type.equals("match")) { //$NON-NLS-1$
 			query = QueryUtil.createMatchQuery(expression, params);
-		if (query == null)
+		}
+		if (query == null) {
 			return Collections.emptyList();
+		}
 		IQueryResult<IInstallableUnit> queryResult = results.query(query, null);
-		if (queryResult.isEmpty())
+		if (queryResult.isEmpty()) {
 			queryResult = publisherInfo.getMetadataRepository().query(query, null);
-		if (queryResult.isEmpty() && publisherInfo.getContextMetadataRepository() != null)
+		}
+		if (queryResult.isEmpty() && publisherInfo.getContextMetadataRepository() != null) {
 			queryResult = publisherInfo.getContextMetadataRepository().query(query, null);
+		}
 
 		return queryResult.toUnmodifiableSet();
 	}
@@ -342,13 +363,16 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		}
 
 		IQueryResult<IInstallableUnit> queryResult = results.query(query, null);
-		if (queryResult.isEmpty())
+		if (queryResult.isEmpty()) {
 			queryResult = publisherInfo.getMetadataRepository().query(query, null);
-		if (queryResult.isEmpty() && publisherInfo.getContextMetadataRepository() != null)
+		}
+		if (queryResult.isEmpty() && publisherInfo.getContextMetadataRepository() != null) {
 			queryResult = publisherInfo.getContextMetadataRepository().query(query, null);
+		}
 
-		if (!queryResult.isEmpty())
+		if (!queryResult.isEmpty()) {
 			return queryResult.toUnmodifiableSet();
+		}
 		return null;
 	}
 
@@ -378,38 +402,43 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		}
 
 		IQueryResult<IInstallableUnit> queryResult = results.query(query, null);
-		if (queryResult.isEmpty())
+		if (queryResult.isEmpty()) {
 			queryResult = publisherInfo.getMetadataRepository().query(query, null);
-		if (queryResult.isEmpty() && publisherInfo.getContextMetadataRepository() != null)
+		}
+		if (queryResult.isEmpty() && publisherInfo.getContextMetadataRepository() != null) {
 			queryResult = publisherInfo.getContextMetadataRepository().query(query, null);
+		}
 
-		if (!queryResult.isEmpty())
+		if (!queryResult.isEmpty()) {
 			return queryResult.toUnmodifiableSet();
+		}
 		return null;
 	}
 
 	protected VersionRange createVersionRange(String versionId) {
 		VersionRange range = null;
-		if (versionId == null || "0.0.0".equals(versionId)) //$NON-NLS-1$
+		if (versionId == null || "0.0.0".equals(versionId)) { //$NON-NLS-1$
 			range = VersionRange.emptyRange;
-		else {
+		} else {
 			int qualifierIdx = versionId.indexOf(QUALIFIER);
 			if (qualifierIdx != -1) {
 				String newVersion = versionId.substring(0, qualifierIdx);
-				if (newVersion.endsWith(".")) //$NON-NLS-1$
+				if (newVersion.endsWith(".")) { //$NON-NLS-1$
 					newVersion = newVersion.substring(0, newVersion.length() - 1);
+				}
 
 				Version lower = Version.parseVersion(newVersion);
 				Version upper = null;
 				String newQualifier = VersionSuffixGenerator
 						.incrementQualifier(PublisherHelper.toOSGiVersion(lower).getQualifier());
 				org.osgi.framework.Version osgiVersion = PublisherHelper.toOSGiVersion(lower);
-				if (newQualifier == null)
+				if (newQualifier == null) {
 					upper = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor(),
 							osgiVersion.getMicro() + 1);
-				else
+				} else {
 					upper = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor(), osgiVersion.getMicro(),
 							newQualifier);
+				}
 				range = new VersionRange(lower, true, upper, false);
 			} else {
 				range = new VersionRange(Version.parseVersion(versionId), true, Version.parseVersion(versionId), true);
@@ -426,11 +455,13 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 */
 	protected Map<SiteFeature, Set<SiteCategory>> getFeatureToCategoryMappings(IPublisherInfo publisherInfo) {
 		HashMap<SiteFeature, Set<SiteCategory>> mappings = new HashMap<>();
-		if (updateSite == null)
+		if (updateSite == null) {
 			return mappings;
+		}
 		SiteModel site = updateSite.getSite();
-		if (site == null)
+		if (site == null) {
 			return mappings;
+		}
 
 		SiteFeature[] features = site.getFeatures();
 		for (SiteFeature feature : features) {
@@ -443,8 +474,9 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			}
 			for (String categoryName : categoryNames) {
 				SiteCategory category = site.getCategory(categoryName);
-				if (category != null)
+				if (category != null) {
 					categories.add(category);
+				}
 			}
 		}
 		return mappings;
@@ -458,11 +490,13 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 */
 	protected Map<SiteBundle, Set<SiteCategory>> getBundleToCategoryMappings(IPublisherInfo publisherInfo) {
 		HashMap<SiteBundle, Set<SiteCategory>> mappings = new HashMap<>();
-		if (updateSite == null)
+		if (updateSite == null) {
 			return mappings;
+		}
 		SiteModel site = updateSite.getSite();
-		if (site == null)
+		if (site == null) {
 			return mappings;
+		}
 
 		SiteBundle[] bundles = site.getBundles();
 		for (SiteBundle bundle : bundles) {
@@ -472,8 +506,9 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			mappings.put(bundle, categories);
 			for (String categoryName : categoryNames) {
 				SiteCategory category = site.getCategory(categoryName);
-				if (category != null)
+				if (category != null) {
 					categories.add(category);
+				}
 			}
 		}
 		return mappings;
@@ -492,13 +527,15 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		if (mirrors != null) {
 			// remove site.xml file reference
 			int index = mirrors.indexOf("site.xml"); //$NON-NLS-1$
-			if (index != -1)
+			if (index != -1) {
 				mirrors = mirrors.substring(0, index) + mirrors.substring(index + "site.xml".length()); //$NON-NLS-1$
+			}
 			publisherInfo.getMetadataRepository().setProperty(IRepository.PROP_MIRRORS_URL, mirrors);
 			// there does not really need to be an artifact repo but if there is, setup its
 			// mirrors.
-			if (publisherInfo.getArtifactRepository() != null)
+			if (publisherInfo.getArtifactRepository() != null) {
 				publisherInfo.getArtifactRepository().setProperty(IRepository.PROP_MIRRORS_URL, mirrors);
+			}
 		}
 
 		// publish associate sites as repository references
@@ -532,8 +569,9 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		// publish download stats URL from category file
 		String statsURI = site.getStatsURI();
 		if (statsURI != null && statsURI.length() > 0) {
-			if (publisherInfo.getArtifactRepository() != null)
+			if (publisherInfo.getArtifactRepository() != null) {
 				publisherInfo.getArtifactRepository().setProperty(P_STATS_URI, statsURI);
+			}
 		}
 
 		File siteFile = URIUtil.toFile(updateSite.getLocation());
@@ -677,10 +715,10 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		cat.setSingleton(true);
 		String categoryId = buildCategoryId(category.getName());
 		cat.setId(categoryId);
-		if (categoryVersion == null)
+		if (categoryVersion == null) {
 			cat.setVersion(Version.createOSGi(1, 0, 0,
 					versionSuffixGenerator.generateSuffix(childrenIUs, Collections.emptyList())));
-		else {
+		} else {
 			if (categoryVersion.isOSGiCompatible()) {
 				org.osgi.framework.Version osgiVersion = PublisherHelper.toOSGiVersion(categoryVersion);
 				String qualifier = osgiVersion.getQualifier();
@@ -735,21 +773,25 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 */
 	private String buildCategoryId(String categoryName) {
 		if (categoryQualifier != null) {
-			if (categoryQualifier.length() > 0)
+			if (categoryQualifier.length() > 0) {
 				return categoryQualifier + "." + categoryName; //$NON-NLS-1$
+			}
 			return categoryName;
 		}
-		if (updateSite != null)
+		if (updateSite != null) {
 			return URIUtil.toUnencodedString(updateSite.getLocation()) + "." + categoryName; //$NON-NLS-1$
+		}
 		return categoryName;
 	}
 
 	protected Transport getTransport(IPublisherInfo publisherInfo) {
 		IRepository<?> repo = publisherInfo.getMetadataRepository();
-		if (repo == null)
+		if (repo == null) {
 			repo = publisherInfo.getArtifactRepository();
-		if (repo == null)
+		}
+		if (repo == null) {
 			throw new IllegalStateException("The transport service can not be found."); //$NON-NLS-1$
+		}
 		return repo.getProvisioningAgent().getService(Transport.class);
 	}
 }

@@ -35,8 +35,9 @@ public class VersionSuffixGenerator {
 
 		for (; idx >= 0; idx--) {
 			//finding last non-'z' character
-			if (qualifier.charAt(idx) != 'z')
+			if (qualifier.charAt(idx) != 'z') {
 				break;
+			}
 		}
 
 		if (idx >= 0) {
@@ -80,18 +81,20 @@ public class VersionSuffixGenerator {
 		int lshift = 20;
 		for (int idx = 0; idx < top; ++idx) {
 			int c = name.charAt(idx) & 0xffff;
-			if (c == '.' && lshift > 0)
+			if (c == '.' && lshift > 0) {
 				lshift -= 4;
-			else
+			} else {
 				sum += c << lshift;
+			}
 		}
 		return sum;
 	}
 
 	private static int getIntSegment(Version v, int segment) {
 		int segCount = v.getSegmentCount();
-		if (segCount <= segment)
+		if (segCount <= segment) {
 			return 0;
+		}
 		Object seg = v.getSegment(segment);
 		return seg instanceof Integer ? ((Integer) seg).intValue() : 0;
 	}
@@ -110,8 +113,9 @@ public class VersionSuffixGenerator {
 
 	private static String getQualifier(Version v) {
 		int segCount = v.getSegmentCount();
-		if (segCount == 0)
+		if (segCount == 0) {
 			return null;
+		}
 		Object seg = v.getSegment(segCount - 1);
 		return seg instanceof String ? (String) seg : null;
 	}
@@ -173,8 +177,9 @@ public class VersionSuffixGenerator {
 	 * @return The generated suffix or <code>null</code>
 	 */
 	public String generateSuffix(Collection<? extends IVersionedId> features, Collection<? extends IVersionedId> others) {
-		if (maxVersionSuffixLength <= 0 || (features.isEmpty() && others.isEmpty()))
+		if (maxVersionSuffixLength <= 0 || (features.isEmpty() && others.isEmpty())) {
 			return null; // do nothing
+		}
 
 		long majorSum = 0L;
 		long minorSum = 0L;
@@ -217,11 +222,13 @@ public class VersionSuffixGenerator {
 			if (qualifier != null && qualifier.endsWith(VERSION_QUALIFIER)) {
 				int resultingLength = qualifier.length() - VERSION_QUALIFIER.length();
 				if (resultingLength > 0) {
-					if (qualifier.charAt(resultingLength - 1) == '.')
+					if (qualifier.charAt(resultingLength - 1) == '.') {
 						resultingLength--;
+					}
 					qualifier = resultingLength > 0 ? qualifier.substring(0, resultingLength) : null;
-				} else
+				} else {
 					qualifier = null;
+				}
 			}
 			qualifiers.add(qualifier);
 		}
@@ -233,15 +240,17 @@ public class VersionSuffixGenerator {
 		int idx = qualifiers.size();
 		while (--idx >= 0) {
 			String qualifier = qualifiers.get(idx);
-			if (qualifier == null)
+			if (qualifier == null) {
 				continue;
+			}
 
 			if (qualifier.length() > significantDigits) {
 				qualifier = qualifier.substring(0, significantDigits);
 				qualifiers.set(idx, qualifier);
 			}
-			if (qualifier.length() > longestQualifier)
+			if (qualifier.length() > longestQualifier) {
 				longestQualifier = qualifier.length();
+			}
 		}
 
 		StringBuffer result = new StringBuffer();
@@ -258,12 +267,14 @@ public class VersionSuffixGenerator {
 			int top = qualifiers.size();
 			for (idx = 0; idx < top; ++idx) {
 				String qualifier = qualifiers.get(idx);
-				if (qualifier == null)
+				if (qualifier == null) {
 					continue;
+				}
 
 				int qlen = qualifier.length();
-				for (int j = 0; j < qlen; ++j)
+				for (int j = 0; j < qlen; ++j) {
 					qualifierSums[j] += charValue(qualifier.charAt(j));
+				}
 			}
 
 			// Normalize the sums to be base 65.
@@ -278,22 +289,25 @@ public class VersionSuffixGenerator {
 			// Always use one character for overflow. This will be handled
 			// correctly even when the overflow character itself overflows.
 			result.append(lengthPrefixBase64(qualifierSums[0]));
-			for (int m = 1; m < longestQualifier; ++m)
+			for (int m = 1; m < longestQualifier; ++m) {
 				appendEncodedCharacter(result, qualifierSums[m]);
+			}
 		}
 
 		// If the resulting suffix is too long, shorten it to the designed length.
 		//
-		if (result.length() > maxVersionSuffixLength)
+		if (result.length() > maxVersionSuffixLength) {
 			result.setLength(maxVersionSuffixLength);
+		}
 
 		// It is safe to strip any '-' characters from the end of the suffix.
 		// (This won't happen very often, but it will save us a character or
 		// two when it does.)
 		//
 		int len = result.length();
-		while (len > 0 && result.charAt(len - 1) == '-')
+		while (len > 0 && result.charAt(len - 1) == '-') {
 			result.setLength(--len);
+		}
 		return result.toString();
 	}
 }

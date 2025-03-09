@@ -120,14 +120,16 @@ public class CategoryParser extends DefaultHandler {
 			log(e);
 		}
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("Created"); //$NON-NLS-1$
+		}
 	}
 
 	public int currentState() {
 		Integer state = stateStack.peek();
-		if (state != null)
+		if (state != null) {
 			return state.intValue();
+		}
 		return STATE_IGNORED_ELEMENT;
 	}
 
@@ -151,10 +153,12 @@ public class CategoryParser extends DefaultHandler {
 			case STATE_PARAM :
 				text = text.trim();
 				String existing = null;
-				if (objectStack.peek() instanceof String)
+				if (objectStack.peek() instanceof String) {
 					existing = (String) objectStack.pop();
-				if (existing != null)
+				}
+				if (existing != null) {
 					text = existing + text;
+				}
 				objectStack.push(text);
 				break;
 			default :
@@ -211,8 +215,9 @@ public class CategoryParser extends DefaultHandler {
 				SiteIU completeIU = (SiteIU) objectStack.pop();
 				String id = completeIU.getID();
 				String expression = completeIU.getQueryExpression();
-				if (id == null && expression == null)
+				if (id == null && expression == null) {
 					internalError("The IU must specify an id or an expression to match against."); //$NON-NLS-1$
+				}
 				break;
 
 			case STATE_EXPRESSION :
@@ -221,8 +226,9 @@ public class CategoryParser extends DefaultHandler {
 					text = (String) objectStack.pop();
 					SiteIU iu = (SiteIU) objectStack.peek();
 					iu.setQueryExpression(text);
-					if (Tracing.DEBUG_GENERATOR_PARSING)
+					if (Tracing.DEBUG_GENERATOR_PARSING) {
 						debug("Found Expression: " + text); //$NON-NLS-1$
+					}
 				}
 				break;
 			case STATE_PARAM :
@@ -231,8 +237,9 @@ public class CategoryParser extends DefaultHandler {
 					text = (String) objectStack.pop();
 					SiteIU iu = (SiteIU) objectStack.peek();
 					iu.addQueryParams(text);
-					if (Tracing.DEBUG_GENERATOR_PARSING)
+					if (Tracing.DEBUG_GENERATOR_PARSING) {
 						debug("Found Param: " + text); //$NON-NLS-1$
+					}
 				}
 				break;
 
@@ -273,15 +280,17 @@ public class CategoryParser extends DefaultHandler {
 				text = text.trim();
 
 				info = (URLEntry) objectStack.pop();
-				if (text != null)
+				if (text != null) {
 					info.setAnnotation(text);
+				}
 
 				SiteModel siteModel = (SiteModel) objectStack.peek();
 				// override description.
 				// do not raise error as previous description may be default one
 				// when parsing site tag
-				if (DESCRIPTION_SITE_ALREADY_SEEN)
+				if (DESCRIPTION_SITE_ALREADY_SEEN) {
 					debug(NLS.bind(Messages.DefaultSiteParser_ElementAlreadySet, (new String[] {getState(state)})));
+				}
 				siteModel.setDescription(info);
 				DESCRIPTION_SITE_ALREADY_SEEN = true;
 				break;
@@ -303,13 +312,14 @@ public class CategoryParser extends DefaultHandler {
 				text = text.trim();
 
 				info = (URLEntry) objectStack.pop();
-				if (text != null)
+				if (text != null) {
 					info.setAnnotation(text);
+				}
 
 				SiteCategory category = (SiteCategory) objectStack.peek();
-				if (category.getDescription() != null)
+				if (category.getDescription() != null) {
 					internalError(NLS.bind(Messages.DefaultSiteParser_ElementAlreadySet, (new String[] {getState(state), category.getLabel()})));
-				else {
+				} else {
 					checkTranslated(info.getAnnotation());
 					category.setDescription(info.getAnnotation());
 				}
@@ -320,8 +330,9 @@ public class CategoryParser extends DefaultHandler {
 				break;
 		}
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End Element:" + uri + ":" + localName + ":" + qName);//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
 	}
 
 	/*
@@ -337,8 +348,9 @@ public class CategoryParser extends DefaultHandler {
 		}
 
 		status.add(error);
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			LogHelper.log(error);
+		}
 	}
 
 	/**
@@ -447,16 +459,18 @@ public class CategoryParser extends DefaultHandler {
 		if (elementName.equals(CATEGORY)) {
 			stateStack.push(Integer.valueOf(STATE_CATEGORY));
 			processCategory(attributes);
-		} else
+		} else {
 			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
+		}
 	}
 
 	private void handleBundleState(String elementName, Attributes attributes) {
 		if (elementName.equals(CATEGORY)) {
 			stateStack.push(Integer.valueOf(STATE_CATEGORY));
 			processCategory(attributes);
-		} else
+		} else {
 			internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownElement, (new String[] {elementName, getState(currentState())})));
+		}
 	}
 
 	private void handleInitialState(String elementName, Attributes attributes) throws SAXException {
@@ -591,15 +605,16 @@ public class CategoryParser extends DefaultHandler {
 	 */
 	private void logStatus(SAXParseException ex) {
 		String name = ex.getSystemId();
-		if (name == null)
+		if (name == null) {
 			name = ""; //$NON-NLS-1$
-		else
+		} else {
 			name = name.substring(1 + name.lastIndexOf("/")); //$NON-NLS-1$
+		}
 
 		String msg;
-		if (name.equals("")) //$NON-NLS-1$
+		if (name.equals("")) { //$NON-NLS-1$
 			msg = NLS.bind(Messages.DefaultSiteParser_ErrorParsing, (new String[] {ex.getMessage()}));
-		else {
+		} else {
 			String[] values = new String[] {name, Integer.toString(ex.getLineNumber()), Integer.toString(ex.getColumnNumber()), ex.getMessage()};
 			msg = NLS.bind(Messages.DefaultSiteParser_ErrorlineColumnMessage, values);
 		}
@@ -619,8 +634,9 @@ public class CategoryParser extends DefaultHandler {
 	public SiteModel parse(InputStream in) throws SAXException, IOException {
 		stateStack.push(Integer.valueOf(STATE_INITIAL));
 		parser.parse(new InputSource(in), this);
-		if (objectStack.isEmpty())
+		if (objectStack.isEmpty()) {
 			throw new SAXException(Messages.DefaultSiteParser_NoSiteTag);
+		}
 		if (objectStack.peek() instanceof SiteModel) {
 			SiteModel site = (SiteModel) objectStack.pop();
 			site.setMessageKeys(messageKeys);
@@ -639,8 +655,9 @@ public class CategoryParser extends DefaultHandler {
 	 */
 	private void processArchive(Attributes attributes) {
 		// don't care about archives in category xml
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End processing Archive"); //$NON-NLS-1$
+		}
 	}
 
 	/*
@@ -660,8 +677,9 @@ public class CategoryParser extends DefaultHandler {
 			((SiteCategory) obj).addCategoryName(category);
 		}
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End processing Category: name:" + category); //$NON-NLS-1$
+		}
 	}
 
 	/*
@@ -679,8 +697,9 @@ public class CategoryParser extends DefaultHandler {
 		site.addCategory(category);
 		objectStack.push(category);
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End processing CategoryDef: name:" + name + " label:" + label); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 
 	/*
@@ -722,8 +741,9 @@ public class CategoryParser extends DefaultHandler {
 			// Ignore if not valid.
 		}
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End processing Repository Reference: location:" + location); //$NON-NLS-1$
+		}
 	}
 
 	/*
@@ -739,8 +759,9 @@ public class CategoryParser extends DefaultHandler {
 		boolean noId = (id == null || id.trim().equals("")); //$NON-NLS-1$
 
 		// We need to have id and version, or the url, or both.
-		if (noId)
+		if (noId) {
 			internalError(NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] {"url", getState(currentState())}))); //$NON-NLS-1$
+		}
 
 		feature.setFeatureIdentifier(id);
 		feature.setFeatureVersion(ver);
@@ -750,8 +771,9 @@ public class CategoryParser extends DefaultHandler {
 		objectStack.push(feature);
 		feature.setSiteModel(site);
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End Processing Stats Feature Tag: id:" + id + " version:" + ver); //$NON-NLS-1$ //$NON-NLS-2$	}
+		}
 	}
 
 	/*
@@ -767,8 +789,9 @@ public class CategoryParser extends DefaultHandler {
 		boolean noId = (id == null || id.trim().equals("")); //$NON-NLS-1$
 
 		// We need to have id and version, or the url, or both.
-		if (noId)
+		if (noId) {
 			internalError(NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] {"url", getState(currentState())}))); //$NON-NLS-1$
+		}
 
 		bundle.setBundleIdentifier(id);
 		bundle.setBundleVersion(ver);
@@ -778,8 +801,9 @@ public class CategoryParser extends DefaultHandler {
 		objectStack.push(bundle);
 		bundle.setSiteModel(site);
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End Processing Stats Bundle Tag: id:" + id + " version:" + ver); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 
 	/*
@@ -798,8 +822,9 @@ public class CategoryParser extends DefaultHandler {
 		boolean noId = (id == null || id.trim().equals("")); //$NON-NLS-1$
 
 		// We need to have id and version, or the url, or both.
-		if (noId)
+		if (noId) {
 			internalError(NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] {"url", getState(currentState())}))); //$NON-NLS-1$
+		}
 
 		feature.setFeatureIdentifier(id);
 		feature.setFeatureVersion(ver);
@@ -813,8 +838,9 @@ public class CategoryParser extends DefaultHandler {
 
 		objectStack.push(feature);
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End Processing Feature Tag: id:" + id + " version:" + ver); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 
 	/*
@@ -833,8 +859,9 @@ public class CategoryParser extends DefaultHandler {
 		boolean noId = (id == null || id.trim().equals("")); //$NON-NLS-1$
 
 		// We need to have id and version, or the url, or both.
-		if (noId)
+		if (noId) {
 			internalError(NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] {"url", getState(currentState())}))); //$NON-NLS-1$
+		}
 
 		bundle.setBundleIdentifier(id);
 		bundle.setBundleVersion(ver);
@@ -848,8 +875,9 @@ public class CategoryParser extends DefaultHandler {
 
 		objectStack.push(bundle);
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End Processing Bundle Tag: id:" + id + " version:" + ver); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 
 	/*
@@ -871,8 +899,9 @@ public class CategoryParser extends DefaultHandler {
 		site.addIU(iu);
 		objectStack.push(iu);
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End processing iu."); //$NON-NLS-1$
+		}
 	}
 
 	/*
@@ -882,8 +911,9 @@ public class CategoryParser extends DefaultHandler {
 		SiteIU iu = (SiteIU) objectStack.peek();
 		iu.setQueryType(attributes.getValue("type")); //$NON-NLS-1$
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End processing Expression: " + iu.getQueryType()); //$NON-NLS-1$
+		}
 	}
 
 	/*
@@ -891,16 +921,18 @@ public class CategoryParser extends DefaultHandler {
 	 */
 	private void processQuery(Attributes attributes) {
 		// TODO may have simple attriutes for id and range
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End processing Query."); //$NON-NLS-1$
+		}
 	}
 
 	/*
 	 * process param info
 	 */
 	private void processParam(Attributes attributes) {
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End processing Param."); //$NON-NLS-1$
+		}
 	}
 
 	/*
@@ -911,8 +943,9 @@ public class CategoryParser extends DefaultHandler {
 		String infoURL = attributes.getValue("url"); //$NON-NLS-1$
 		inf.setURL(infoURL);
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("Processed Info: url:" + infoURL); //$NON-NLS-1$
+		}
 
 		objectStack.push(inf);
 	}
@@ -925,8 +958,9 @@ public class CategoryParser extends DefaultHandler {
 		SiteModel site = new SiteModel();
 		objectStack.push(site);
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End process Site tag."); //$NON-NLS-1$
+		}
 
 	}
 
@@ -1020,7 +1054,8 @@ public class CategoryParser extends DefaultHandler {
 	// Add translatable strings from the site.xml
 	// to the list of message keys.
 	private void checkTranslated(String value) {
-		if (value != null && value.length() > 1 && value.startsWith("%")) //$NON-NLS-1$
+		if (value != null && value.length() > 1 && value.startsWith("%")) { //$NON-NLS-1$
 			messageKeys.add(value.substring(1));
+		}
 	}
 }

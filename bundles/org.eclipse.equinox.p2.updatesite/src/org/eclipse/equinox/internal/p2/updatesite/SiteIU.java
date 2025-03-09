@@ -68,8 +68,9 @@ public class SiteIU {
 	 * @return an array of query params.
 	 */
 	public String[] getQueryParams() {
-		if (queryParams == null)
+		if (queryParams == null) {
 			return new String[0];
+		}
 
 		return queryParams.toArray(new String[0]);
 	}
@@ -80,8 +81,9 @@ public class SiteIU {
 	 * @return an array of names, or an empty array.
 	 */
 	public String[] getCategoryNames() {
-		if (categoryNames == null)
+		if (categoryNames == null) {
 			return new String[0];
+		}
 
 		return categoryNames.toArray(new String[0]);
 	}
@@ -126,10 +128,12 @@ public class SiteIU {
 	 * @param categoryName category name
 	 */
 	public void addCategoryName(String categoryName) {
-		if (this.categoryNames == null)
+		if (this.categoryNames == null) {
 			this.categoryNames = new ArrayList<>();
-		if (!this.categoryNames.contains(categoryName))
+		}
+		if (!this.categoryNames.contains(categoryName)) {
 			this.categoryNames.add(categoryName);
+		}
 	}
 
 	/**
@@ -138,8 +142,9 @@ public class SiteIU {
 	 * @param queryParam a query param.
 	 */
 	public void addQueryParams(String queryParam) {
-		if (this.queryParams == null)
+		if (this.queryParams == null) {
 			this.queryParams = new ArrayList<>();
+		}
 		// don't do contains check, order matters and there may be duplicates
 		this.queryParams.add(queryParam);
 	}

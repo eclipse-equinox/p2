@@ -42,10 +42,12 @@ public class SiteBundle {
 	 * Compares two URL for equality
 	 */
 	public static boolean sameURL(URL url1, URL url2) {
-		if (url1 == url2)
+		if (url1 == url2) {
 			return true;
-		if (url1 == null ^ url2 == null)
+		}
+		if (url1 == null ^ url2 == null) {
 			return false;
+		}
 
 		// check if URL are file: URL as we may
 		// have 2 URL pointing to the same bundleReference
@@ -60,8 +62,9 @@ public class SiteBundle {
 		}
 		// URL1 xor URL2 is a file, return false. (They either both need to be files, or
 		// neither)
-		if (isFile1 ^ isFile2)
+		if (isFile1 ^ isFile2) {
 			return false;
+		}
 		return getExternalForm(url1).equals(getExternalForm(url2));
 	}
 
@@ -71,8 +74,9 @@ public class SiteBundle {
 	 */
 	private static String getExternalForm(URL url) {
 		String externalForm = url.toExternalForm();
-		if (externalForm == null)
+		if (externalForm == null) {
 			return ""; //$NON-NLS-1$
+		}
 		externalForm = externalForm.trim();
 		if (externalForm.endsWith("/")) { //$NON-NLS-1$
 			// Remove the trailing slash
@@ -96,17 +100,20 @@ public class SiteBundle {
 	 * @param categoryName category name
 	 */
 	public void addCategoryName(String categoryName) {
-		if (this.categoryNames == null)
+		if (this.categoryNames == null) {
 			this.categoryNames = new ArrayList<>();
-		if (!this.categoryNames.contains(categoryName))
+		}
+		if (!this.categoryNames.contains(categoryName)) {
 			this.categoryNames.add(categoryName);
+		}
 	}
 
 	private void delayedResolve() {
 
 		// PERF: delay resolution
-		if (resolved)
+		if (resolved) {
 			return;
+		}
 
 		// resolve local elements
 		try {
@@ -125,26 +132,34 @@ public class SiteBundle {
 	 */
 	@Override
 	public boolean equals(Object object) {
-		if (object == null)
+		if (object == null) {
 			return false;
-		if (!(object instanceof SiteBundle))
+		}
+		if (!(object instanceof SiteBundle)) {
 			return false;
+		}
 		SiteBundle that = (SiteBundle) object;
 		if (this.bundleId == null) {
-			if (that.bundleId != null)
+			if (that.bundleId != null) {
 				return false;
-		} else if (!this.bundleId.equals(that.bundleId))
+			}
+		} else if (!this.bundleId.equals(that.bundleId)) {
 			return false;
+		}
 		if (this.bundleVersion == null) {
-			if (that.bundleVersion != null)
+			if (that.bundleVersion != null) {
 				return false;
-		} else if (!this.bundleVersion.equals(that.bundleVersion))
+			}
+		} else if (!this.bundleVersion.equals(that.bundleVersion)) {
 			return false;
+		}
 		if (this.label == null) {
-			if (that.label != null)
+			if (that.label != null) {
 				return false;
-		} else if (!this.label.equals(that.label))
+			}
+		} else if (!this.label.equals(that.label)) {
 			return false;
+		}
 		return sameURL(this.getURL(), that.getURL());
 	}
 
@@ -154,17 +169,20 @@ public class SiteBundle {
 		int result = 1;
 		result = prime * result + (bundleId == null ? 0 : bundleId.hashCode());
 		result = prime * result + (bundleVersion == null ? 0 : bundleVersion.hashCode());
-		if (this.getURL() == null)
+		if (this.getURL() == null) {
 			return result;
+		}
 
 		if ("file".equalsIgnoreCase(getURL().getProtocol())) {//$NON-NLS-1$
 			// If the URL is a file, then create the HashCode from the file
 			File f = new File(getURL().getFile());
-			if (f != null)
+			if (f != null) {
 				result = prime * result + f.hashCode();
-		} else
+			}
+		} else {
 			// Otherwise create it from the External form of the URL (in lower case)
 			result = prime * result + getExternalForm(this.getURL()).hashCode();
+		}
 		return result;
 	}
 
@@ -174,8 +192,9 @@ public class SiteBundle {
 	 * @return an array of names, or an empty array.
 	 */
 	public String[] getCategoryNames() {
-		if (categoryNames == null)
+		if (categoryNames == null) {
 			return new String[0];
+		}
 
 		return categoryNames.toArray(new String[0]);
 	}
@@ -330,10 +349,11 @@ public class SiteBundle {
 	 * @param categoryNames an array of category names
 	 */
 	public void setCategoryNames(String[] categoryNames) {
-		if (categoryNames == null)
+		if (categoryNames == null) {
 			this.categoryNames = null;
-		else
+		} else {
 			this.categoryNames = new ArrayList<>(Arrays.asList(categoryNames));
+		}
 	}
 
 	/**
@@ -441,8 +461,9 @@ public class SiteBundle {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append(getClass().toString() + " :"); //$NON-NLS-1$
 		buffer.append(" at "); //$NON-NLS-1$
-		if (url != null)
+		if (url != null) {
 			buffer.append(url.toExternalForm());
+		}
 		return buffer.toString();
 	}
 

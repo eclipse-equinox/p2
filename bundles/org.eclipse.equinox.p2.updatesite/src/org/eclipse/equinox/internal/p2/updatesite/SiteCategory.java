@@ -47,8 +47,9 @@ public class SiteCategory {
 			 */
 			comp = (cat1, cat2) -> {
 
-				if (cat1.equals(cat2))
+				if (cat1.equals(cat2)) {
 					return 0;
+				}
 				return cat1.getName().compareTo(cat2.getName());
 			};
 		}
@@ -217,8 +218,9 @@ public class SiteCategory {
 	 * @return an array of names, or an empty array.
 	 */
 	public String[] getCategoryNames() {
-		if (categoryNames == null)
+		if (categoryNames == null) {
 			return new String[0];
+		}
 
 		return categoryNames.toArray(new String[0]);
 	}

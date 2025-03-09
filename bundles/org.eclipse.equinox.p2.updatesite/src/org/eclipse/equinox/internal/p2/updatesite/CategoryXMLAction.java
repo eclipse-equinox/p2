@@ -38,8 +38,9 @@ public class CategoryXMLAction extends SiteXMLAction {
 		} catch (ProvisionException e) {
 			return new Status(IStatus.ERROR, Activator.ID, Messages.Error_generating_category, e);
 		}
-		if (updateSite == null)
+		if (updateSite == null) {
 			return new Status(IStatus.ERROR, Activator.ID, Messages.Error_generating_category);
+		}
 		return super.perform(publisherInfo, results, monitor);
 	}
 }

@@ -108,8 +108,9 @@ public class DefaultSiteParser extends DefaultHandler {
 			DocumentBuilderFactory domFactory = SecureXMLUtil.newSecureDocumentBuilderFactory();
 			DocumentBuilder builder = domFactory.newDocumentBuilder();
 			Document document = builder.parse(associateSitesURL);
-			if (document == null)
+			if (document == null) {
 				return null;
+			}
 			NodeList mirrorNodes = document.getElementsByTagName(ASSOCIATE_SITE);
 			URLEntry[] mirrors = new URLEntry[mirrorNodes.getLength()];
 			for (int i = 0; i < mirrorNodes.getLength(); i++) {
@@ -120,8 +121,9 @@ public class DefaultSiteParser extends DefaultHandler {
 				mirrors[i].setURL(infoURL);
 				mirrors[i].setAnnotation(label);
 
-				if (Tracing.DEBUG_GENERATOR_PARSING)
+				if (Tracing.DEBUG_GENERATOR_PARSING) {
 					debug("Processed mirror: url:" + infoURL + " label:" + label); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 			}
 			return mirrors;
 		} catch (Exception e) {
@@ -130,8 +132,9 @@ public class DefaultSiteParser extends DefaultHandler {
 					|| associateSitesURL.startsWith("https://") //$NON-NLS-1$
 					|| associateSitesURL.startsWith("file://") //$NON-NLS-1$
 					|| associateSitesURL.startsWith("ftp://") //$NON-NLS-1$
-					|| associateSitesURL.startsWith("jar://"))) //$NON-NLS-1$
+					|| associateSitesURL.startsWith("jar://"))) { //$NON-NLS-1$
 				log(Messages.DefaultSiteParser_mirrors, e);
+			}
 			return null;
 		}
 	}
@@ -168,8 +171,9 @@ public class DefaultSiteParser extends DefaultHandler {
 			log(e);
 		}
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("Created"); //$NON-NLS-1$
+		}
 	}
 
 	/**
@@ -183,8 +187,9 @@ public class DefaultSiteParser extends DefaultHandler {
 		String text = new String(ch, start, length);
 		// only push if description
 		int state = stateStack.peek().intValue();
-		if (state == STATE_DESCRIPTION_SITE || state == STATE_DESCRIPTION_CATEGORY_DEF)
+		if (state == STATE_DESCRIPTION_SITE || state == STATE_DESCRIPTION_CATEGORY_DEF) {
 			objectStack.push(text);
+		}
 
 	}
 
@@ -259,15 +264,17 @@ public class DefaultSiteParser extends DefaultHandler {
 			text = text.trim();
 
 			info = (URLEntry) objectStack.pop();
-			if (text != null)
+			if (text != null) {
 				info.setAnnotation(text);
+			}
 
 			SiteModel siteModel = (SiteModel) objectStack.peek();
 			// override description.
 			// do not raise error as previous description may be default one
 			// when parsing site tag
-			if (DESCRIPTION_SITE_ALREADY_SEEN)
+			if (DESCRIPTION_SITE_ALREADY_SEEN) {
 				debug(NLS.bind(Messages.DefaultSiteParser_ElementAlreadySet, (new String[] { getState(state) })));
+			}
 			siteModel.setDescription(info);
 			DESCRIPTION_SITE_ALREADY_SEEN = true;
 			break;
@@ -289,14 +296,15 @@ public class DefaultSiteParser extends DefaultHandler {
 			text = text.trim();
 
 			info = (URLEntry) objectStack.pop();
-			if (text != null)
+			if (text != null) {
 				info.setAnnotation(text);
+			}
 
 			SiteCategory category = (SiteCategory) objectStack.peek();
-			if (category.getDescription() != null)
+			if (category.getDescription() != null) {
 				internalError(NLS.bind(Messages.DefaultSiteParser_ElementAlreadySet,
 						(new String[] { getState(state), category.getLabel() })));
-			else {
+			} else {
 				checkTranslated(info.getAnnotation());
 				category.setDescription(info.getAnnotation());
 			}
@@ -307,8 +315,9 @@ public class DefaultSiteParser extends DefaultHandler {
 			break;
 		}
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End Element:" + uri + ":" + localName + ":" + qName);//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
 	}
 
 	/*
@@ -324,8 +333,9 @@ public class DefaultSiteParser extends DefaultHandler {
 		}
 
 		status.add(error);
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			LogHelper.log(error);
+		}
 	}
 
 	/**
@@ -585,14 +595,16 @@ public class DefaultSiteParser extends DefaultHandler {
 	 */
 	private void logStatus(SAXParseException ex) {
 		String name = ex.getSystemId();
-		if (name == null)
+		if (name == null) {
 			name = ""; //$NON-NLS-1$
-		else
+		} else {
 			name = name.substring(1 + name.lastIndexOf("/")); //$NON-NLS-1$
+		}
 
 		String msg;
-		if (name.equals("")) //$NON-NLS-1$
+		if (name.equals("")) { //$NON-NLS-1$
 			name = siteLocation.toString();
+		}
 		String[] values = new String[] { name, Integer.toString(ex.getLineNumber()),
 				Integer.toString(ex.getColumnNumber()), ex.getMessage() };
 		msg = NLS.bind(Messages.DefaultSiteParser_ErrorlineColumnMessage, values);
@@ -613,8 +625,9 @@ public class DefaultSiteParser extends DefaultHandler {
 		stateStack.push(Integer.valueOf(STATE_INITIAL));
 		currentState = stateStack.peek().intValue();
 		parser.parse(new InputSource(in), this);
-		if (objectStack.isEmpty())
+		if (objectStack.isEmpty()) {
 			throw new SAXException(Messages.DefaultSiteParser_NoSiteTag);
+		}
 		if (objectStack.peek() instanceof SiteModel) {
 			SiteModel site = (SiteModel) objectStack.pop();
 			site.setMessageKeys(messageKeys);
@@ -651,8 +664,9 @@ public class DefaultSiteParser extends DefaultHandler {
 			SiteModel site = (SiteModel) objectStack.peek();
 			site.addArchive(archive);
 		}
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End processing Archive: path:" + id + " url:" + url);//$NON-NLS-1$ //$NON-NLS-2$
+		}
 
 	}
 
@@ -670,8 +684,9 @@ public class DefaultSiteParser extends DefaultHandler {
 			bundle.addCategoryName(category);
 		}
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End processing Category: name:" + category); //$NON-NLS-1$
+		}
 	}
 
 	/*
@@ -689,8 +704,9 @@ public class DefaultSiteParser extends DefaultHandler {
 		site.addCategory(category);
 		objectStack.push(category);
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End processing CategoryDef: name:" + name + " label:" + label); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 
 	/*
@@ -711,12 +727,13 @@ public class DefaultSiteParser extends DefaultHandler {
 
 		// We need to have id and version, or the url, or both.
 		if (noURL) {
-			if (noId || noVersion)
+			if (noId || noVersion) {
 				internalError(
 						NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] { "url", getState(currentState) }))); //$NON-NLS-1$
-			else
+			} else {
 				// default url
 				urlInfo = FEATURES + id + '_' + ver; //
+			}
 		}
 
 		feature.setURLString(urlInfo);
@@ -736,8 +753,9 @@ public class DefaultSiteParser extends DefaultHandler {
 		// get label if it exists
 		String label = attributes.getValue("label"); //$NON-NLS-1$
 		if (label != null) {
-			if ("".equals(label.trim())) //$NON-NLS-1$
+			if ("".equals(label.trim())) { //$NON-NLS-1$
 				label = null;
+			}
 			checkTranslated(label);
 		}
 		feature.setLabel(label);
@@ -768,8 +786,9 @@ public class DefaultSiteParser extends DefaultHandler {
 
 		objectStack.push(feature);
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End Processing DefaultFeature Tag: url:" + urlInfo + " type:" + type); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 
 	}
 
@@ -791,12 +810,13 @@ public class DefaultSiteParser extends DefaultHandler {
 
 		// We need to have id and version, or the url, or both.
 		if (noURL) {
-			if (noId || noVersion)
+			if (noId || noVersion) {
 				internalError(
 						NLS.bind(Messages.DefaultSiteParser_Missing, (new String[] { "url", getState(currentState) }))); //$NON-NLS-1$
-			else
+			} else {
 				// default url
 				urlInfo = PLUGINS + id + '_' + ver; //
+			}
 		}
 
 		bundle.setURLString(urlInfo);
@@ -816,8 +836,9 @@ public class DefaultSiteParser extends DefaultHandler {
 		// get label if it exists
 		String label = attributes.getValue("label"); //$NON-NLS-1$
 		if (label != null) {
-			if ("".equals(label.trim())) //$NON-NLS-1$
+			if ("".equals(label.trim())) { //$NON-NLS-1$
 				label = null;
+			}
 			checkTranslated(label);
 		}
 		bundle.setLabel(label);
@@ -848,8 +869,9 @@ public class DefaultSiteParser extends DefaultHandler {
 
 		objectStack.push(bundle);
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End Processing DefaultFeature Tag: url:" + urlInfo + " type:" + type); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 
 	}
 
@@ -861,8 +883,9 @@ public class DefaultSiteParser extends DefaultHandler {
 		String infoURL = attributes.getValue("url"); //$NON-NLS-1$
 		inf.setURL(infoURL);
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("Processed Info: url:" + infoURL); //$NON-NLS-1$
+		}
 
 		objectStack.push(inf);
 	}
@@ -910,8 +933,9 @@ public class DefaultSiteParser extends DefaultHandler {
 		}
 
 		String digestURL = attributes.getValue("digestURL"); //$NON-NLS-1$
-		if (digestURL != null)
+		if (digestURL != null) {
 			site.setDigestURIString(digestURL);
+		}
 
 		// TODO: Digest locales
 		// if ((attributes.getValue("availableLocales") != null) &&
@@ -938,8 +962,9 @@ public class DefaultSiteParser extends DefaultHandler {
 
 		objectStack.push(site);
 
-		if (Tracing.DEBUG_GENERATOR_PARSING)
+		if (Tracing.DEBUG_GENERATOR_PARSING) {
 			debug("End process Site tag: siteURL:" + siteURL + " type:" + type);//$NON-NLS-1$ //$NON-NLS-2$
+		}
 
 	}
 
@@ -1004,8 +1029,9 @@ public class DefaultSiteParser extends DefaultHandler {
 			break;
 		}
 		int newState = stateStack.peek().intValue();
-		if (newState != STATE_IGNORED_ELEMENT)
+		if (newState != STATE_IGNORED_ELEMENT) {
 			currentState = newState;
+		}
 
 	}
 
@@ -1019,7 +1045,8 @@ public class DefaultSiteParser extends DefaultHandler {
 	// Add translatable strings from the site.xml
 	// to the list of message keys.
 	private void checkTranslated(String value) {
-		if (value != null && value.length() > 1 && value.startsWith("%")) //$NON-NLS-1$
+		if (value != null && value.length() > 1 && value.startsWith("%")) { //$NON-NLS-1$
 			messageKeys.add(value.substring(1));
+		}
 	}
 }

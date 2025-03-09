@@ -43,11 +43,13 @@ public class UpdateSitePublisherApplication extends AbstractPublisherApplication
 	protected void processParameter(String arg, String parameter, PublisherInfo pinfo) throws URISyntaxException {
 		super.processParameter(arg, parameter, pinfo);
 
-		if (arg.equalsIgnoreCase("-categoryQualifier")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-categoryQualifier")) { //$NON-NLS-1$
 			categoryQualifier = parameter;
+		}
 
-		if (arg.equalsIgnoreCase("-categoryVersion")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-categoryVersion")) { //$NON-NLS-1$
 			categoryVersion = parameter;
+		}
 	}
 
 	@Override

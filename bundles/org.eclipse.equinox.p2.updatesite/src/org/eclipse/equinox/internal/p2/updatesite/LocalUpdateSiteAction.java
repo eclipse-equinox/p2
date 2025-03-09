@@ -71,12 +71,14 @@ public class LocalUpdateSiteAction implements IPublisherAction {
 		IPublisherAction[] actions = createActions();
 		MultiStatus finalStatus = new MultiStatus(LocalUpdateSiteAction.class.getName(), 0, NLS.bind(Messages.Error_Generation, source != null ? source : (updateSite != null ? updateSite.getLocation().toString() : "Unknown")), null); //$NON-NLS-1$
 		for (IPublisherAction action : actions) {
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
+			}
 			finalStatus.merge(action.perform(info, results, monitor));
 		}
-		if (!finalStatus.isOK())
+		if (!finalStatus.isOK()) {
 			return finalStatus;
+		}
 		return Status.OK_STATUS;
 	}
 
@@ -92,13 +94,14 @@ public class LocalUpdateSiteAction implements IPublisherAction {
 
 	private IPublisherAction createSiteXMLAction() {
 		SiteXMLAction action = null;
-		if (updateSite != null)
+		if (updateSite != null) {
 			action = new SiteXMLAction(updateSite, categoryQualifier);
-		else if (source != null) {
+		} else if (source != null) {
 			action = new SiteXMLAction(new File(source, "site.xml").toURI(), categoryQualifier); //$NON-NLS-1$
 		}
-		if (action != null && categoryVersion != null)
+		if (action != null && categoryVersion != null) {
 			action.setCategoryVersion(categoryVersion);
+		}
 		return action;
 	}
 
