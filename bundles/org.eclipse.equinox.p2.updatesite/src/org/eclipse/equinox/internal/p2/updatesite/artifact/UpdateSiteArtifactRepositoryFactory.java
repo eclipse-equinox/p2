@@ -61,10 +61,12 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 			initializeRepository(repository, location, monitor);
 		} catch (Exception e) {
 			resetCache(repository);
-			if (e instanceof ProvisionException)
+			if (e instanceof ProvisionException) {
 				throw (ProvisionException) e;
-			if (e instanceof OperationCanceledException)
+			}
+			if (e instanceof OperationCanceledException) {
 				throw (OperationCanceledException) e;
+			}
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID,
 					NLS.bind(Messages.Unexpected_exception, location.toString()), e));
 		}
@@ -102,14 +104,17 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 			throws ProvisionException {
 		UpdateSite updateSite = UpdateSite.load(location, getAgent().getService(Transport.class), monitor);
 		String savedChecksum = repository.getProperties().get(PROP_SITE_CHECKSUM);
-		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
+		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum())) {
 			return;
+		}
 
-		if (!location.getScheme().equals(PROTOCOL_FILE))
+		if (!location.getScheme().equals(PROTOCOL_FILE)) {
 			repository.setProperty(PROP_FORCE_THREADING, "true"); //$NON-NLS-1$
+		}
 		repository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
-		if (updateSite.getSite().getMirrorsURI() != null)
+		if (updateSite.getSite().getMirrorsURI() != null) {
 			repository.setProperty(IRepository.PROP_MIRRORS_URL, updateSite.getSite().getMirrorsURI());
+		}
 		repository.removeAll(new NullProgressMonitor());
 		generateArtifactDescriptors(updateSite, repository, monitor);
 	}

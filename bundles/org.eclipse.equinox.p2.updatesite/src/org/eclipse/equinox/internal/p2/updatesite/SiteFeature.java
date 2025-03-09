@@ -48,10 +48,12 @@ public class SiteFeature {
 	 * Compares two URL for equality
 	 */
 	public static boolean sameURL(URL url1, URL url2) {
-		if (url1 == url2)
+		if (url1 == url2) {
 			return true;
-		if (url1 == null ^ url2 == null)
+		}
+		if (url1 == null ^ url2 == null) {
 			return false;
+		}
 
 		// check if URL are file: URL as we may
 		// have 2 URL pointing to the same featureReference
@@ -66,8 +68,9 @@ public class SiteFeature {
 		}
 		// URL1 xor URL2 is a file, return false. (They either both need to be files, or
 		// neither)
-		if (isFile1 ^ isFile2)
+		if (isFile1 ^ isFile2) {
 			return false;
+		}
 		return getExternalForm(url1).equals(getExternalForm(url2));
 	}
 
@@ -77,8 +80,9 @@ public class SiteFeature {
 	 */
 	private static String getExternalForm(URL url) {
 		String externalForm = url.toExternalForm();
-		if (externalForm == null)
+		if (externalForm == null) {
 			return ""; //$NON-NLS-1$
+		}
 		externalForm = externalForm.trim();
 		if (externalForm.endsWith("/")) { //$NON-NLS-1$
 			// Remove the trailing slash
@@ -102,17 +106,20 @@ public class SiteFeature {
 	 * @param categoryName category name
 	 */
 	public void addCategoryName(String categoryName) {
-		if (this.categoryNames == null)
+		if (this.categoryNames == null) {
 			this.categoryNames = new ArrayList<>();
-		if (!this.categoryNames.contains(categoryName))
+		}
+		if (!this.categoryNames.contains(categoryName)) {
 			this.categoryNames.add(categoryName);
+		}
 	}
 
 	private void delayedResolve() {
 
 		// PERF: delay resolution
-		if (resolved)
+		if (resolved) {
 			return;
+		}
 
 		// resolve local elements
 		try {
@@ -131,26 +138,34 @@ public class SiteFeature {
 	 */
 	@Override
 	public boolean equals(Object object) {
-		if (object == null)
+		if (object == null) {
 			return false;
-		if (!(object instanceof SiteFeature))
+		}
+		if (!(object instanceof SiteFeature)) {
 			return false;
+		}
 		SiteFeature that = (SiteFeature) object;
 		if (this.featureId == null) {
-			if (that.featureId != null)
+			if (that.featureId != null) {
 				return false;
-		} else if (!this.featureId.equals(that.featureId))
+			}
+		} else if (!this.featureId.equals(that.featureId)) {
 			return false;
+		}
 		if (this.featureVersion == null) {
-			if (that.featureVersion != null)
+			if (that.featureVersion != null) {
 				return false;
-		} else if (!this.featureVersion.equals(that.featureVersion))
+			}
+		} else if (!this.featureVersion.equals(that.featureVersion)) {
 			return false;
+		}
 		if (this.label == null) {
-			if (that.label != null)
+			if (that.label != null) {
 				return false;
-		} else if (!this.label.equals(that.label))
+			}
+		} else if (!this.label.equals(that.label)) {
 			return false;
+		}
 		return sameURL(this.getURL(), that.getURL());
 	}
 
@@ -160,17 +175,20 @@ public class SiteFeature {
 		int result = 1;
 		result = prime * result + (featureId == null ? 0 : featureId.hashCode());
 		result = prime * result + (featureVersion == null ? 0 : featureVersion.hashCode());
-		if (this.getURL() == null)
+		if (this.getURL() == null) {
 			return result;
+		}
 
 		if ("file".equalsIgnoreCase(getURL().getProtocol())) {//$NON-NLS-1$
 			// If the URL is a file, then create the HashCode from the file
 			File f = new File(getURL().getFile());
-			if (f != null)
+			if (f != null) {
 				result = prime * result + f.hashCode();
-		} else
+			}
+		} else {
 			// Otherwise create it from the External form of the URL (in lower case)
 			result = prime * result + getExternalForm(this.getURL()).hashCode();
+		}
 		return result;
 	}
 
@@ -180,8 +198,9 @@ public class SiteFeature {
 	 * @return an array of names, or an empty array.
 	 */
 	public String[] getCategoryNames() {
-		if (categoryNames == null)
+		if (categoryNames == null) {
 			return new String[0];
+		}
 
 		return categoryNames.toArray(new String[0]);
 	}
@@ -336,10 +355,11 @@ public class SiteFeature {
 	 * @param categoryNames an array of category names
 	 */
 	public void setCategoryNames(String[] categoryNames) {
-		if (categoryNames == null)
+		if (categoryNames == null) {
 			this.categoryNames = null;
-		else
+		} else {
 			this.categoryNames = new ArrayList<>(Arrays.asList(categoryNames));
+		}
 	}
 
 	/**
@@ -445,10 +465,12 @@ public class SiteFeature {
 	@Override
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
-		if (featureId != null)
+		if (featureId != null) {
 			buffer.append(featureId).append(' ');
-		if (featureVersion != null)
+		}
+		if (featureVersion != null) {
 			buffer.append(featureVersion).append(' ');
+		}
 		if (url != null) {
 			buffer.append(" at "); //$NON-NLS-1$
 			buffer.append(url.toExternalForm());

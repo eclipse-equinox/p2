@@ -68,8 +68,9 @@ public class UpdateSite {
 	 */
 	private static URI getSiteURI(URI baseLocation) {
 		String segment = URIUtil.lastSegment(baseLocation);
-		if (constainsUpdateSiteFileName(segment))
+		if (constainsUpdateSiteFileName(segment)) {
 			return baseLocation;
+		}
 		return URIUtil.append(baseLocation, SITE_FILE);
 	}
 
@@ -87,13 +88,15 @@ public class UpdateSite {
 	 */
 	public static synchronized UpdateSite loadCategoryFile(URI location, Transport transport, IProgressMonitor monitor)
 			throws ProvisionException {
-		if (location == null)
+		if (location == null) {
 			return null;
+		}
 		UpdateSite result = null;
 		if (!PROTOCOL_FILE.equals(location.getScheme()) && categoryCache.containsKey(location.toString())) {
 			result = categoryCache.get(location.toString()).get();
-			if (result != null)
+			if (result != null) {
 				return result;
+			}
 			// else soft reference has been cleared, take it out of the cache
 			categoryCache.remove(location.toString());
 		}
@@ -107,8 +110,9 @@ public class UpdateSite {
 			SiteModel siteModel = siteParser.parse(input);
 			String checksumString = Long.toString(checksum.getValue());
 			result = new UpdateSite(siteModel, location, transport, checksumString);
-			if (!PROTOCOL_FILE.equals(location.getScheme()))
+			if (!PROTOCOL_FILE.equals(location.getScheme())) {
 				categoryCache.put(location.toString(), new SoftReference<>(result));
+			}
 			return result;
 		} catch (SAXException e) {
 			String msg = NLS.bind(Messages.ErrorReadingSite, location);
@@ -120,13 +124,15 @@ public class UpdateSite {
 					new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
 		} finally {
 			try {
-				if (input != null)
+				if (input != null) {
 					input.close();
+				}
 			} catch (IOException e) {
 				// ignore
 			}
-			if (!PROTOCOL_FILE.equals(location.getScheme()))
+			if (!PROTOCOL_FILE.equals(location.getScheme())) {
 				siteFile.delete();
+			}
 		}
 	}
 
@@ -135,15 +141,17 @@ public class UpdateSite {
 	 */
 	public static synchronized UpdateSite load(URI location, Transport transport, IProgressMonitor monitor)
 			throws ProvisionException {
-		if (location == null)
+		if (location == null) {
 			return null;
+		}
 
 		UpdateSite result = null;
 		// only caching remote sites
 		if (!PROTOCOL_FILE.equals(location.getScheme()) && siteCache.containsKey(location.toString())) {
 			result = siteCache.get(location.toString()).get();
-			if (result != null)
+			if (result != null) {
 				return result;
+			}
 			// else soft reference has been cleared, take it out of the cache
 			siteCache.remove(location.toString());
 		}
@@ -157,8 +165,9 @@ public class UpdateSite {
 			SiteModel siteModel = siteParser.parse(input);
 			String checksumString = Long.toString(checksum.getValue());
 			result = new UpdateSite(siteModel, getSiteURI(location), transport, checksumString);
-			if (!PROTOCOL_FILE.equals(location.getScheme()))
+			if (!PROTOCOL_FILE.equals(location.getScheme())) {
 				siteCache.put(location.toString(), new SoftReference<>(result));
+			}
 			return result;
 		} catch (SAXException e) {
 			String msg = NLS.bind(Messages.ErrorReadingSite, location);
@@ -170,13 +179,15 @@ public class UpdateSite {
 					new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
 		} finally {
 			try {
-				if (input != null)
+				if (input != null) {
 					input.close();
+				}
 			} catch (IOException e) {
 				// ignore
 			}
-			if (!PROTOCOL_FILE.equals(location.getScheme()))
+			if (!PROTOCOL_FILE.equals(location.getScheme())) {
 				siteFile.delete();
+			}
 		}
 	}
 
@@ -194,9 +205,9 @@ public class UpdateSite {
 			try {
 				if (PROTOCOL_FILE.equals(actualLocation.getScheme())) {
 					siteFile = URIUtil.toFile(actualLocation);
-					if (siteFile.exists())
+					if (siteFile.exists()) {
 						transferResult = Status.OK_STATUS;
-					else {
+					} else {
 						String msg = NLS.bind(Messages.ErrorReadingSite, location);
 						transferResult = new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND,
 								msg, new FileNotFoundException(siteFile.getAbsolutePath()));
@@ -223,8 +234,9 @@ public class UpdateSite {
 						}
 					}
 				}
-				if (monitor.isCanceled())
+				if (monitor.isCanceled()) {
 					throw new OperationCanceledException();
+				}
 				if (transferResult.isOK()) {
 					// successful. If the siteFile is the download of a remote site.xml it will get
 					// cleaned up later
@@ -238,7 +250,7 @@ public class UpdateSite {
 				// REPOSITORY_NOT_FOUND as the download does not know what the file represents.
 				//
 				IStatus ms = null;
-				if (transferResult.getException() instanceof FileNotFoundException)
+				if (transferResult.getException() instanceof FileNotFoundException) {
 					ms = new MultiStatus(Activator.ID, //
 							ProvisionException.REPOSITORY_NOT_FOUND,
 							// (code == ProvisionException.ARTIFACT_NOT_FOUND || code ==
@@ -247,17 +259,20 @@ public class UpdateSite {
 							// ProvisionException.REPOSITORY_FAILED_READ), //
 							new IStatus[] { transferResult }, //
 							NLS.bind(Messages.ErrorReadingSite, location), null);
-				else
+				} else {
 					ms = transferResult;
+				}
 				throw new ProvisionException(ms);
 
 			} finally {
-				if (deleteSiteFile && siteFile != null)
+				if (deleteSiteFile && siteFile != null) {
 					siteFile.delete();
+				}
 			}
 		} finally {
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.done();
+			}
 		}
 	}
 
@@ -277,8 +292,9 @@ public class UpdateSite {
 			IStatus transferResult = null;
 			// try the download twice in case of transient network problems
 			for (int i = 0; i < RETRY_COUNT; i++) {
-				if (monitor.isCanceled())
+				if (monitor.isCanceled()) {
 					throw new OperationCanceledException();
+				}
 				OutputStream destination = new BufferedOutputStream(new FileOutputStream(featureFile));
 				try {
 					transferResult = transport.download(featureURI, destination, monitor);
@@ -291,11 +307,13 @@ public class UpdateSite {
 						return null;
 					}
 				}
-				if (transferResult.isOK())
+				if (transferResult.isOK()) {
 					break;
+				}
 			}
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				throw new OperationCanceledException();
+			}
 			if (!transferResult.isOK()) {
 				LogHelper.log(new ProvisionException(transferResult));
 				return null;
@@ -305,8 +323,9 @@ public class UpdateSite {
 			LogHelper.log(
 					new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURI), e));
 		} finally {
-			if (featureFile != null)
+			if (featureFile != null) {
 				featureFile.delete();
+			}
 		}
 		return null;
 	}
@@ -326,8 +345,9 @@ public class UpdateSite {
 	private URI getRootLocation() {
 		String locationString = location.toString();
 		int slashIndex = locationString.lastIndexOf('/');
-		if (slashIndex == -1 || slashIndex == (locationString.length() - 1))
+		if (slashIndex == -1 || slashIndex == (locationString.length() - 1)) {
 			return location;
+		}
 
 		return URI.create(locationString.substring(0, slashIndex + 1));
 	}
@@ -340,8 +360,9 @@ public class UpdateSite {
 		URLEntry[] archives = site.getArchives();
 		for (int i = 0; archives != null && i < archives.length; i++) {
 			URLEntry entry = archives[i];
-			if (identifier.equals(entry.getAnnotation()))
+			if (identifier.equals(entry.getAnnotation())) {
 				return internalGetURI(base, entry.getURL());
+			}
 		}
 		return null;
 	}
@@ -359,8 +380,9 @@ public class UpdateSite {
 	public URI getSiteFeatureURI(SiteFeature siteFeature) {
 		URL url = siteFeature.getURL();
 		try {
-			if (url != null)
+			if (url != null) {
 				return URIUtil.toURI(url);
+			}
 		} catch (URISyntaxException e) {
 			// fall through and resolve the URI ourselves
 		}
@@ -375,8 +397,9 @@ public class UpdateSite {
 	public URI getSiteBundleURI(SiteBundle siteBundle) {
 		URL url = siteBundle.getURL();
 		try {
-			if (url != null)
+			if (url != null) {
 				return URIUtil.toURI(url);
+			}
 		} catch (URISyntaxException e) {
 			// fall through and resolve the URI ourselves
 		}
@@ -398,8 +421,9 @@ public class UpdateSite {
 
 		URI base = getBaseURI();
 		URI url = getArchiveURI(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
-		if (url != null)
+		if (url != null) {
 			return url;
+		}
 		return URIUtil.append(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
 	}
 
@@ -416,8 +440,9 @@ public class UpdateSite {
 
 		URI base = getBaseURI();
 		URI url = getArchiveURI(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
-		if (url != null)
+		if (url != null) {
 			return url;
+		}
 		return URIUtil.append(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
 	}
 
@@ -431,12 +456,14 @@ public class UpdateSite {
 	public String getMirrorsURI() {
 		// copy mirror information from update site to p2 repositories
 		String mirrors = site.getMirrorsURI();
-		if (mirrors == null)
+		if (mirrors == null) {
 			return null;
+		}
 		// remove site.xml file reference
 		int index = mirrors.indexOf("site.xml"); //$NON-NLS-1$
-		if (index != -1)
+		if (index != -1) {
 			mirrors = mirrors.substring(0, index) + mirrors.substring(index + "site.xml".length()); //$NON-NLS-1$
+		}
 		return mirrors;
 	}
 
@@ -447,8 +474,9 @@ public class UpdateSite {
 		URI base = getBaseURI();
 		String path = PLUGIN_DIR + plugin.getId() + VERSION_SEPARATOR + plugin.getVersion() + JAR_EXTENSION;
 		URI url = getArchiveURI(base, path);
-		if (url != null)
+		if (url != null) {
 			return url;
+		}
 		return URIUtil.append(base, path);
 	}
 
@@ -456,12 +484,14 @@ public class UpdateSite {
 		URI base = null;
 		String siteURIString = site.getLocationURIString();
 		if (siteURIString != null) {
-			if (!siteURIString.endsWith("/")) //$NON-NLS-1$
+			if (!siteURIString.endsWith("/")) { //$NON-NLS-1$
 				siteURIString += "/"; //$NON-NLS-1$
+			}
 			base = internalGetURI(rootLocation, siteURIString);
 		}
-		if (base == null)
+		if (base == null) {
 			base = rootLocation;
+		}
 		return base;
 	}
 
@@ -478,8 +508,9 @@ public class UpdateSite {
 	 * it. If it is relative, then make it relative to the given base url.
 	 */
 	private URI internalGetURI(URI base, String trailing) {
-		if (trailing == null)
+		if (trailing == null) {
 			return null;
+		}
 		return URIUtil.makeAbsolute(URI.create(trailing), base);
 	}
 
@@ -487,8 +518,9 @@ public class UpdateSite {
 	 * Load and return the features references in this update site.
 	 */
 	public synchronized Feature[] loadFeatures(IProgressMonitor monitor) throws ProvisionException {
-		if (!featureCache.isEmpty())
+		if (!featureCache.isEmpty()) {
 			return featureCache.values().toArray(new Feature[featureCache.size()]);
+		}
 		Feature[] result = loadFeaturesFromDigest(monitor);
 		return result == null ? loadFeaturesFromSite(monitor) : result;
 	}
@@ -497,8 +529,9 @@ public class UpdateSite {
 	 * Load and return the bundle references in this update site.
 	 */
 	public synchronized BundleDescription[] loadBundles(IProgressMonitor monitor) {
-		if (!bundleCache.isEmpty())
+		if (!bundleCache.isEmpty()) {
 			return bundleCache.values().toArray(new BundleDescription[bundleCache.size()]);
+		}
 		BundleDescription[] result = null; // TODO loadBundlesFromDigest(monitor);
 		return result == null ? loadBundlesFromSite(monitor) : result;
 	}
@@ -514,8 +547,9 @@ public class UpdateSite {
 			URI digestURI = getDigestURI();
 			if (PROTOCOL_FILE.equals(digestURI.getScheme())) {
 				digestFile = URIUtil.toFile(digestURI);
-				if (!digestFile.exists())
+				if (!digestFile.exists()) {
 					return null;
+				}
 				local = true;
 			} else {
 				digestFile = File.createTempFile("digest", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -532,14 +566,17 @@ public class UpdateSite {
 						return null;
 					}
 				}
-				if (result.getSeverity() == IStatus.CANCEL || monitor.isCanceled())
+				if (result.getSeverity() == IStatus.CANCEL || monitor.isCanceled()) {
 					throw new OperationCanceledException();
-				if (!result.isOK())
+				}
+				if (!result.isOK()) {
 					return null;
+				}
 			}
 			Feature[] features = new DigestParser().parse(digestFile, digestURI);
-			if (features == null)
+			if (features == null) {
 				return null;
+			}
 			Map<String, Feature> tmpFeatureCache = new HashMap<>(features.length);
 			for (Feature feature : features) {
 				String key = feature.getId() + VERSION_SEPARATOR + feature.getVersion();
@@ -553,8 +590,9 @@ public class UpdateSite {
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingDigest, location), e));
 		} finally {
-			if (!local && digestFile != null)
+			if (!local && digestFile != null) {
 				digestFile.delete();
+			}
 		}
 		return null;
 	}
@@ -563,13 +601,15 @@ public class UpdateSite {
 		URI digestBase = null;
 		String digestURIString = site.getDigestURIString();
 		if (digestURIString != null) {
-			if (!digestURIString.endsWith("/")) //$NON-NLS-1$
+			if (!digestURIString.endsWith("/")) { //$NON-NLS-1$
 				digestURIString += "/"; //$NON-NLS-1$
+			}
 			digestBase = internalGetURI(rootLocation, digestURIString);
 		}
 
-		if (digestBase == null)
+		if (digestBase == null) {
 			digestBase = rootLocation;
+		}
 
 		return URIUtil.append(digestBase, "digest.zip"); //$NON-NLS-1$
 	}
@@ -591,8 +631,9 @@ public class UpdateSite {
 			String key = null;
 			if (siteFeature.getFeatureIdentifier() != null && siteFeature.getFeatureVersion() != null) {
 				key = siteFeature.getFeatureIdentifier() + VERSION_SEPARATOR + siteFeature.getFeatureVersion();
-				if (tmpFeatureCache.containsKey(key))
+				if (tmpFeatureCache.containsKey(key)) {
 					continue;
+				}
 			}
 			URI featureURI = getSiteFeatureURI(siteFeature);
 			Feature feature = parseFeature(featureParser, featureURI, new NullProgressMonitor());
@@ -620,14 +661,17 @@ public class UpdateSite {
 			IProgressMonitor monitor) throws ProvisionException {
 		FeatureEntry[] featureEntries = feature.getEntries();
 		for (FeatureEntry featureEntry : featureEntries) {
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				throw new OperationCanceledException();
+			}
 			FeatureEntry entry = featureEntry;
-			if (entry.isRequires() || entry.isPlugin())
+			if (entry.isRequires() || entry.isPlugin()) {
 				continue;
+			}
 			String key = entry.getId() + VERSION_SEPARATOR + entry.getVersion();
-			if (features.containsKey(key))
+			if (features.containsKey(key)) {
 				continue;
+			}
 			URI includedFeatureURI = getFeatureURI(entry.getId(), entry.getVersion());
 			Feature includedFeature = parseFeature(featureParser, includedFeatureURI, monitor);
 			if (includedFeature == null) {
@@ -655,8 +699,9 @@ public class UpdateSite {
 			String key = null;
 			if (siteBundle.getBundleIdentifier() != null && siteBundle.getBundleVersion() != null) {
 				key = siteBundle.getBundleIdentifier() + VERSION_SEPARATOR + siteBundle.getBundleVersion();
-				if (tmpBundleCache.containsKey(key))
+				if (tmpBundleCache.containsKey(key)) {
 					continue;
+				}
 			}
 			URI bundleURI = getSiteBundleURI(siteBundle);
 			BundleDescription bundle = parseBundleDescription(bundleURI, monitor);
@@ -691,8 +736,9 @@ public class UpdateSite {
 			IStatus transferResult = null;
 			// try the download twice in case of transient network problems
 			for (int i = 0; i < RETRY_COUNT; i++) {
-				if (monitor.isCanceled())
+				if (monitor.isCanceled()) {
 					throw new OperationCanceledException();
+				}
 				OutputStream destination = new BufferedOutputStream(new FileOutputStream(bundleFile));
 				try {
 					transferResult = transport.download(bundleURI, destination, monitor);
@@ -705,11 +751,13 @@ public class UpdateSite {
 						return null;
 					}
 				}
-				if (transferResult.isOK())
+				if (transferResult.isOK()) {
 					break;
+				}
 			}
-			if (monitor.isCanceled())
+			if (monitor.isCanceled()) {
 				throw new OperationCanceledException();
+			}
 			if (!transferResult.isOK()) {
 				LogHelper.log(new ProvisionException(transferResult));
 				return null;
@@ -718,8 +766,9 @@ public class UpdateSite {
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingBundle, bundleURI), e));
 		} finally {
-			if (bundleFile != null)
+			if (bundleFile != null) {
 				bundleFile.delete();
+			}
 		}
 		return null;
 	}

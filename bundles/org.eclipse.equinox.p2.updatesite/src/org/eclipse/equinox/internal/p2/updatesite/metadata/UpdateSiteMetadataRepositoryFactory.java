@@ -66,10 +66,12 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 			} catch (RuntimeException rte) {
 				e.addSuppressed(rte);
 			}
-			if (e instanceof ProvisionException)
+			if (e instanceof ProvisionException) {
 				throw (ProvisionException) e;
-			if (e instanceof OperationCanceledException)
+			}
+			if (e instanceof OperationCanceledException) {
 				throw (OperationCanceledException) e;
+			}
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID,
 					NLS.bind(Messages.Unexpected_exception, location.toString()), e));
 		}
@@ -107,18 +109,22 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 			throws ProvisionException {
 		UpdateSite updateSite = UpdateSite.load(location, getAgent().getService(Transport.class), monitor);
 		String savedChecksum = repository.getProperties().get(PROP_SITE_CHECKSUM);
-		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
+		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum())) {
 			return;
+		}
 		repository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 		repository.removeAll();
 		IStatus status = generateMetadata(updateSite, repository, monitor);
 		// site references should be published on load
-		if (repository instanceof LocalMetadataRepository)
+		if (repository instanceof LocalMetadataRepository) {
 			((LocalMetadataRepository) repository).publishRepositoryReferences();
-		if (monitor.isCanceled())
+		}
+		if (monitor.isCanceled()) {
 			throw new OperationCanceledException();
-		if (!status.isOK())
+		}
+		if (!status.isOK()) {
 			throw new ProvisionException(status);
+		}
 	}
 
 	private IStatus generateMetadata(UpdateSite updateSite, IMetadataRepository repository, IProgressMonitor monitor) {

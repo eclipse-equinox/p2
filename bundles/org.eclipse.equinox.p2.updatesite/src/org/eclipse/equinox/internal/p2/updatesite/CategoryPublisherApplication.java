@@ -78,11 +78,13 @@ public class CategoryPublisherApplication extends AbstractPublisherApplication {
 
 		this.append = true; // Always append, otherwise we will end up with nothing
 
-		if (arg.equalsIgnoreCase("-categoryQualifier")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-categoryQualifier")) { //$NON-NLS-1$
 			categoryQualifier = parameter;
+		}
 
-		if (arg.equalsIgnoreCase("-categoryDefinition")) //$NON-NLS-1$
+		if (arg.equalsIgnoreCase("-categoryDefinition")) { //$NON-NLS-1$
 			categoryDefinition = URIUtil.fromString(parameter);
+		}
 
 	}
 

@@ -68,24 +68,28 @@ public class DigestParser extends DefaultHandler {
 		if ("feature".equals(localName)) { //$NON-NLS-1$
 			Feature feature = featureHandler.getResult();
 			features.add(feature);
-		} else
+		} else {
 			featureHandler.endElement(uri, localName, qName);
+		}
 	}
 
 	public Feature[] parse(File localFile, URI location) {
-		if (!localFile.exists())
+		if (!localFile.exists()) {
 			return null;
+		}
 
-		if (location == null)
+		if (location == null) {
 			location = localFile.toURI();
+		}
 
 		JarFile jar = null;
 		InputStream is = null;
 		try {
 			jar = new JarFile(localFile);
 			JarEntry entry = jar.getJarEntry("digest.xml"); //$NON-NLS-1$
-			if (entry == null)
+			if (entry == null) {
 				return null;
+			}
 			is = new BufferedInputStream(jar.getInputStream(entry));
 			parser.parse(new InputSource(is), this);
 			return features.toArray(new Feature[features.size()]);
@@ -95,14 +99,16 @@ public class DigestParser extends DefaultHandler {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingDigest, location), e));
 		} finally {
 			try {
-				if (is != null)
+				if (is != null) {
 					is.close();
+				}
 			} catch (IOException e1) {
 				//
 			}
 			try {
-				if (jar != null)
+				if (jar != null) {
 					jar.close();
+				}
 			} catch (IOException e) {
 				//
 			}

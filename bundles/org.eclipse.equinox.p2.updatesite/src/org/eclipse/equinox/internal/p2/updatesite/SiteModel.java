@@ -73,10 +73,12 @@ public class SiteModel {
 	 * @since 2.0
 	 */
 	public void addArchive(URLEntry archiveReference) {
-		if (this.archiveReferences == null)
+		if (this.archiveReferences == null) {
 			this.archiveReferences = new ArrayList<>();
-		if (!this.archiveReferences.contains(archiveReference))
+		}
+		if (!this.archiveReferences.contains(archiveReference)) {
 			this.archiveReferences.add(archiveReference);
+		}
 	}
 
 	/**
@@ -85,12 +87,14 @@ public class SiteModel {
 	 * @param category category model
 	 */
 	public void addCategory(SiteCategory category) {
-		if (categories == null)
+		if (categories == null) {
 			categories = new HashMap<>();
+		}
 		if (!categories.containsKey(category.getName())) {
 			categories.put(category.getName(), category);
-			if (localizations != null && !localizations.isEmpty())
+			if (localizations != null && !localizations.isEmpty()) {
 				category.setLocalizations(localizations);
+			}
 		}
 	}
 
@@ -100,8 +104,9 @@ public class SiteModel {
 	 * @param featureReference feature reference model
 	 */
 	public void addFeature(SiteFeature featureReference) {
-		if (this.features == null)
+		if (this.features == null) {
 			this.features = new ArrayList<>();
+		}
 		this.features.add(featureReference);
 	}
 
@@ -111,8 +116,9 @@ public class SiteModel {
 	 * @param bundleReference bundle reference model
 	 */
 	public void addBundle(SiteBundle bundleReference) {
-		if (this.bundles == null)
+		if (this.bundles == null) {
 			this.bundles = new ArrayList<>();
+		}
 		this.bundles.add(bundleReference);
 	}
 
@@ -122,8 +128,9 @@ public class SiteModel {
 	 * @param featureReference feature reference model
 	 */
 	public void addStatsFeature(SiteFeature featureReference) {
-		if (this.statsFeatures == null)
+		if (this.statsFeatures == null) {
 			this.statsFeatures = new ArrayList<>();
+		}
 		this.statsFeatures.add(featureReference);
 	}
 
@@ -133,8 +140,9 @@ public class SiteModel {
 	 * @param bundleReference bundle reference model
 	 */
 	public void addStatsBundle(SiteBundle bundleReference) {
-		if (this.statsBundles == null)
+		if (this.statsBundles == null) {
 			this.statsBundles = new ArrayList<>();
+		}
 		this.statsBundles.add(bundleReference);
 	}
 
@@ -144,8 +152,9 @@ public class SiteModel {
 	 * @param iu iu model
 	 */
 	public void addIU(SiteIU iu) {
-		if (this.ius == null)
+		if (this.ius == null) {
 			this.ius = new ArrayList<>();
+		}
 		this.ius.add(iu);
 	}
 
@@ -155,8 +164,9 @@ public class SiteModel {
 	 * @param ref repository reference
 	 */
 	public void addRepositoryReference(RepositoryReference ref) {
-		if (this.repositoryReferences == null)
+		if (this.repositoryReferences == null) {
 			this.repositoryReferences = new ArrayList<>();
+		}
 		this.repositoryReferences.add(ref);
 	}
 
@@ -169,8 +179,9 @@ public class SiteModel {
 	 * @since 2.0
 	 */
 	public URLEntry[] getArchives() {
-		if (archiveReferences == null || archiveReferences.size() == 0)
+		if (archiveReferences == null || archiveReferences.size() == 0) {
 			return new URLEntry[0];
+		}
 
 		return archiveReferences.toArray(new URLEntry[0]);
 	}
@@ -186,8 +197,9 @@ public class SiteModel {
 	 * @since 2.0
 	 */
 	public SiteCategory[] getCategories() {
-		if (categories == null || categories.size() == 0)
+		if (categories == null || categories.size() == 0) {
 			return new SiteCategory[0];
+		}
 		return categories.values().toArray(new SiteCategory[0]);
 	}
 
@@ -215,8 +227,9 @@ public class SiteModel {
 	 * @return an array of feature reference models, or an empty array.
 	 */
 	public SiteFeature[] getFeatures() {
-		if (features == null || features.size() == 0)
+		if (features == null || features.size() == 0) {
 			return new SiteFeature[0];
+		}
 		return features.toArray(new SiteFeature[0]);
 	}
 
@@ -226,8 +239,9 @@ public class SiteModel {
 	 * @return an array of bundle reference models, or an empty array.
 	 */
 	public SiteBundle[] getBundles() {
-		if (bundles == null || bundles.size() == 0)
+		if (bundles == null || bundles.size() == 0) {
 			return new SiteBundle[0];
+		}
 		return bundles.toArray(new SiteBundle[0]);
 	}
 
@@ -237,8 +251,9 @@ public class SiteModel {
 	 * @return an array of feature reference models, or an empty array.
 	 */
 	public SiteFeature[] getStatsFeatures() {
-		if (statsFeatures == null || statsFeatures.size() == 0)
+		if (statsFeatures == null || statsFeatures.size() == 0) {
 			return new SiteFeature[0];
+		}
 		return statsFeatures.toArray(new SiteFeature[0]);
 	}
 
@@ -248,8 +263,9 @@ public class SiteModel {
 	 * @return an array of bundle reference models, or an empty array.
 	 */
 	public SiteBundle[] getStatsBundles() {
-		if (statsBundles == null || statsBundles.size() == 0)
+		if (statsBundles == null || statsBundles.size() == 0) {
 			return new SiteBundle[0];
+		}
 		return statsBundles.toArray(new SiteBundle[0]);
 	}
 
@@ -259,8 +275,9 @@ public class SiteModel {
 	 * @return an array of IU models, or an empty array.
 	 */
 	public SiteIU[] getIUs() {
-		if (ius == null || ius.size() == 0)
+		if (ius == null || ius.size() == 0) {
 			return new SiteIU[0];
+		}
 		return ius.toArray(new SiteIU[0]);
 	}
 
@@ -270,8 +287,9 @@ public class SiteModel {
 	 * @return an array of repository references, or an empty array.
 	 */
 	public RepositoryReference[] getRepositoryReferences() {
-		if (repositoryReferences == null || repositoryReferences.size() == 0)
+		if (repositoryReferences == null || repositoryReferences.size() == 0) {
 			return new RepositoryReference[0];
+		}
 		return repositoryReferences.toArray(new RepositoryReference[repositoryReferences.size()]);
 	}
 
