@@ -70,8 +70,9 @@ public class DirectorTask extends Task implements ILog {
 		}
 
 		public void setVersion(String version) {
-			if (version.length() > 0 && !version.startsWith(ANT_PREFIX))
+			if (version.length() > 0 && !version.startsWith(ANT_PREFIX)) {
 				this.version = version;
+			}
 		}
 	}
 
@@ -79,8 +80,9 @@ public class DirectorTask extends Task implements ILog {
 	public void execute() throws BuildException {
 		Object result = null;
 		try {
-			if (outputProperty != null)
+			if (outputProperty != null) {
 				outputBuffer = new StringBuffer();
+			}
 
 			// collect the arguments and call the application
 			DirectorApplication application = new DirectorApplication();
@@ -104,8 +106,9 @@ public class DirectorTask extends Task implements ILog {
 
 	private String[] getArguments() {
 		List<String> result = new ArrayList<>();
-		if (roaming)
+		if (roaming) {
 			result.add("-roaming"); //$NON-NLS-1$
+		}
 		if (profile != null) {
 			result.add("-profile"); //$NON-NLS-1$
 			result.add(profile);
@@ -146,8 +149,9 @@ public class DirectorTask extends Task implements ILog {
 			for (Iterator<IUDescription> iterator = ius.iterator(); iterator.hasNext();) {
 				IUDescription object = iterator.next();
 				arg.append(object.getVersionedId().toString());
-				if (iterator.hasNext())
+				if (iterator.hasNext()) {
 					arg.append(',');
+				}
 			}
 			result.add(arg.toString());
 		}
@@ -199,13 +203,15 @@ public class DirectorTask extends Task implements ILog {
 	}
 
 	public void setFlavor(String value) {
-		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX))
+		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX)) {
 			flavor = value;
+		}
 	}
 
 	public void setList(String value) {
-		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX))
+		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX)) {
 			list = Boolean.parseBoolean(value);
+		}
 	}
 
 	public void setMetadataRepository(String value) {
@@ -217,18 +223,21 @@ public class DirectorTask extends Task implements ILog {
 	}
 
 	public void setNl(String value) {
-		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX))
+		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX)) {
 			nl = value;
+		}
 	}
 
 	public void setOs(String value) {
-		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX))
+		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX)) {
 			os = value;
+		}
 	}
 
 	public void setProfile(String value) {
-		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX))
+		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX)) {
 			profile = value;
+		}
 	}
 
 	public void setExtraArguments(String value) {
@@ -239,23 +248,27 @@ public class DirectorTask extends Task implements ILog {
 	}
 
 	public void setRoaming(String value) {
-		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX))
+		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX)) {
 			roaming = Boolean.parseBoolean(value);
+		}
 	}
 
 	public void setUninstallIU(String value) {
-		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX))
+		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX)) {
 			uninstallIU = value;
+		}
 	}
 
 	public void setWs(String value) {
-		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX))
+		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX)) {
 			ws = value;
+		}
 	}
 
 	public void setAgentLocation(String value) {
-		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX))
+		if (value != null && value.length() > 0 && !value.startsWith(ANT_PREFIX)) {
 			agentLocation = new File(value);
+		}
 	}
 
 	@Override
@@ -263,8 +276,9 @@ public class DirectorTask extends Task implements ILog {
 	public void log(String msg) {
 		if (outputBuffer != null) {
 			outputBuffer.append(msg);
-			if (!msg.endsWith("\n")) //$NON-NLS-1$
+			if (!msg.endsWith("\n")) { //$NON-NLS-1$
 				outputBuffer.append('\n');
+			}
 		}
 		super.log(msg, Project.MSG_INFO);
 	}
@@ -283,10 +297,11 @@ public class DirectorTask extends Task implements ILog {
 	private void log(int depth, IStatus status) {
 		log(status.getMessage(), status.getException(), Project.MSG_ERR);
 		if (outputBuffer != null) {
-			if (depth == 0)
+			if (depth == 0) {
 				outputBuffer.append(ENTRY);
-			else
+			} else {
 				outputBuffer.append(SUBENTRY);
+			}
 			outputBuffer.append(NLS.bind(logEntry, new String[] {status.getPlugin(), Integer.toString(status.getSeverity()), Integer.toString(status.getCode())}));
 			outputBuffer.append(MESSAGE);
 			outputBuffer.append(status.getMessage());
@@ -295,16 +310,18 @@ public class DirectorTask extends Task implements ILog {
 	}
 
 	private void log(StringBuffer buffer) {
-		if (outputBuffer == null)
+		if (outputBuffer == null) {
 			return;
+		}
 
 		String logString = outputBuffer.toString();
 		getProject().setNewProperty(outputProperty, logString);
 
 		if (logFile != null) {
 			File parentFile = logFile.getParentFile();
-			if (parentFile != null && !parentFile.exists())
+			if (parentFile != null && !parentFile.exists()) {
 				parentFile.mkdirs();
+			}
 
 			try (FileWriter writer = new FileWriter(logFile)) {
 

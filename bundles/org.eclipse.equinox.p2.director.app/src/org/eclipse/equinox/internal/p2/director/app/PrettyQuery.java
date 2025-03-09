@@ -42,8 +42,9 @@ public class PrettyQuery<T> implements IQuery<T> {
 
 	@Override
 	public String toString() {
-		if (userString != null)
+		if (userString != null) {
 			return userString;
+		}
 		return decorated.toString();
 	}
 }
