@@ -275,9 +275,11 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 		boolean isOption(String opt) {
 			int idx = identifiers.length;
-			while (--idx >= 0)
-				if (identifiers[idx].equalsIgnoreCase(opt))
+			while (--idx >= 0) {
+				if (identifiers[idx].equalsIgnoreCase(opt)) {
 					return true;
+				}
+			}
 			return false;
 		}
 
@@ -463,8 +465,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private static void getURIs(List<URI> uris, String spec) throws CoreException {
-		if (spec == null)
+		if (spec == null) {
 			return;
+		}
 		String[] urlSpecs = StringHelper.getArrayFromString(spec, ',');
 		for (String urlSpec : urlSpecs) {
 			try {
@@ -483,8 +486,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private static String getRequiredArgument(String[] args, int argIdx) throws CoreException {
 		if (argIdx < args.length) {
 			String arg = args[argIdx];
-			if (!arg.startsWith("-")) //$NON-NLS-1$
+			if (!arg.startsWith("-")) { //$NON-NLS-1$
 				return arg;
+			}
 		}
 		throw new ProvisionException(NLS.bind(Messages.option_0_requires_an_argument, args[argIdx - 1]));
 	}
@@ -494,8 +498,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		++argIdx;
 		if (argIdx < args.length) {
 			String arg = args[argIdx];
-			if (!arg.startsWith("-")) //$NON-NLS-1$
+			if (!arg.startsWith("-")) { //$NON-NLS-1$
 				return arg;
+			}
 		}
 		return null;
 	}
@@ -522,8 +527,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private static File processFileArgument(String arg) {
-		if (arg.startsWith("file:")) //$NON-NLS-1$
+		if (arg.startsWith("file:")) { //$NON-NLS-1$
 			arg = arg.substring(5);
+		}
 
 		// we create a path object here to handle ../ entries in the middle of paths
 		return IPath.fromOSString(arg).toFile();
@@ -617,13 +623,15 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		final String KEYWORD_VALUE = "value"; //$NON-NLS-1$
 		final String KEYWORD_VERSION = "version"; //$NON-NLS-1$
 
-		if (iuProfileProperties == null)
+		if (iuProfileProperties == null) {
 			return;
+		}
 
 		// read the file into a Properties object for easier processing
 		Properties properties = loadProperties(new File(iuProfileProperties));
-		if (properties == null)
+		if (properties == null) {
 			return;
+		}
 
 		// format for a line in the properties input file is
 		// <id>.<keyword>.<uniqueNumber>=value
@@ -634,16 +642,18 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		for (Object object : properties.keySet()) {
 			String line = (String) object;
 			int index = line.lastIndexOf('.');
-			if (index == -1)
+			if (index == -1) {
 				continue;
+			}
 			int num = -1;
 			String id = null;
 			try {
 				num = Integer.parseInt(line.substring(index + 1));
 				line = line.substring(0, index);
 				index = line.lastIndexOf('.');
-				if (index == -1)
+				if (index == -1) {
 					continue;
+				}
 				// skip over the keyword
 				id = line.substring(0, index);
 			} catch (NumberFormatException e) {
@@ -659,8 +669,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			String valueLine = id + '.' + KEYWORD_VALUE + '.' + num;
 
 			if (alreadyProcessed.contains(versionLine) || alreadyProcessed.contains(keyLine)
-					|| alreadyProcessed.contains(valueLine))
+					|| alreadyProcessed.contains(valueLine)) {
 				continue;
+			}
 
 			// skip over this key/value pair next time we see it
 			alreadyProcessed.add(versionLine);
@@ -680,8 +691,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			// lookup the IU - a null version matches all versions
 			IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id, version);
 			// if we don't have a version the choose the latest.
-			if (version == null)
+			if (version == null) {
 				query = QueryUtil.createLatestQuery(query);
+			}
 			IQueryResult<IInstallableUnit> qr = getInstallableUnits(null, query, null);
 			if (qr.isEmpty()) {
 				String msg = NLS.bind(Messages.Cannot_set_iu_profile_property_iu_does_not_exist, id + '/' + version);
@@ -711,12 +723,14 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		IProgressMonitor nullMonitor = new NullProgressMonitor();
 
 		int top = metadataRepositoryLocations.size();
-		if (top == 0)
+		if (top == 0) {
 			return getInstallableUnits(null, query, nullMonitor);
+		}
 
 		List<IQueryable<IInstallableUnit>> locationQueryables = new ArrayList<>(top);
-		for (int i = 0; i < top; i++)
+		for (int i = 0; i < top; i++) {
 			locationQueryables.add(new LocationQueryable(metadataRepositoryLocations.get(i)));
+		}
 		return QueryUtil.compoundQueryable(locationQueryables).query(query, nullMonitor);
 	}
 
@@ -725,15 +739,18 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		ArrayList<IInstallableUnit> allRoots = new ArrayList<>();
 		for (IQuery<IInstallableUnit> rootQuery : rootNames) {
 			IQueryResult<IInstallableUnit> roots = null;
-			if (forInstall)
+			if (forInstall) {
 				roots = collectRootIUs(QueryUtil.createLatestQuery(rootQuery));
+			}
 
-			if (roots == null || roots.isEmpty())
+			if (roots == null || roots.isEmpty()) {
 				roots = profile.query(rootQuery, new NullProgressMonitor());
+			}
 
 			Iterator<IInstallableUnit> itor = roots.iterator();
-			if (!itor.hasNext())
+			if (!itor.hasNext()) {
 				throw new CoreException(new Status(ERROR, ID, NLS.bind(Messages.Missing_IU, rootQuery)));
+			}
 			do {
 				allRoots.add(itor.next());
 			} while (itor.hasNext());
@@ -743,14 +760,18 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	private String getEnvironmentProperty() {
 		HashMap<String, String> values = new HashMap<>();
-		if (os != null)
+		if (os != null) {
 			values.put("osgi.os", os); //$NON-NLS-1$
-		if (nl != null)
+		}
+		if (nl != null) {
 			values.put("osgi.nl", nl); //$NON-NLS-1$
-		if (ws != null)
+		}
+		if (ws != null) {
 			values.put("osgi.ws", ws); //$NON-NLS-1$
-		if (arch != null)
+		}
+		if (arch != null) {
 			values.put("osgi.arch", arch); //$NON-NLS-1$
+		}
 		return values.isEmpty() ? null : toString(values);
 	}
 
@@ -766,41 +787,50 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private IProfile initializeProfile() throws CoreException {
 		IProfile profile = getProfile();
 		if (profile == null) {
-			if (destination == null)
+			if (destination == null) {
 				missingArgument("destination"); //$NON-NLS-1$
-			if (flavor == null)
+			}
+			if (flavor == null) {
 				flavor = System.getProperty("eclipse.p2.configurationFlavor", FLAVOR_DEFAULT); //$NON-NLS-1$
+			}
 
 			Map<String, String> props = new HashMap<>();
 			props.put(IProfile.PROP_INSTALL_FOLDER, destination.toString());
-			if (bundlePool == null)
+			if (bundlePool == null) {
 				props.put(IProfile.PROP_CACHE,
 						sharedLocation == null ? destination.getAbsolutePath() : sharedLocation.getAbsolutePath());
-			else
+			} else {
 				props.put(IProfile.PROP_CACHE, bundlePool.getAbsolutePath());
-			if (roamingProfile)
+			}
+			if (roamingProfile) {
 				props.put(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
+			}
 
 			String env = getEnvironmentProperty();
-			if (env != null)
+			if (env != null) {
 				props.put(IProfile.PROP_ENVIRONMENTS, env);
-			if (profileProperties != null)
+			}
+			if (profileProperties != null) {
 				putProperties(profileProperties, props);
+			}
 			profile = targetAgent.getService(IProfileRegistry.class).addProfile(profileId, props);
 		}
 		return profile;
 	}
 
 	private void initializeRepositories() throws CoreException {
-		if (rootsToInstall.isEmpty() && revertToPreviousState == NOTHING_TO_REVERT_TO && !printIUList)
+		if (rootsToInstall.isEmpty() && revertToPreviousState == NOTHING_TO_REVERT_TO && !printIUList) {
 			// Not much point initializing repositories if we have nothing to install
 			return;
-		if (artifactRepositoryLocations == null)
+		}
+		if (artifactRepositoryLocations == null) {
 			missingArgument("-artifactRepository"); //$NON-NLS-1$
+		}
 
 		artifactManager = targetAgent.getService(IArtifactRepositoryManager.class);
-		if (artifactManager == null)
+		if (artifactManager == null) {
 			throw new ProvisionException(Messages.Application_NoManager);
+		}
 
 		int removalIdx = 0;
 		boolean anyValid = false; // do we have any valid repos or did they all fail to load?
@@ -817,15 +847,18 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				log.log(e.getStatus());
 			}
 		}
-		if (!anyValid)
+		if (!anyValid) {
 			noArtifactRepositorySpecified = true;
+		}
 
-		if (metadataRepositoryLocations == null)
+		if (metadataRepositoryLocations == null) {
 			missingArgument("metadataRepository"); //$NON-NLS-1$
+		}
 
 		metadataManager = targetAgent.getService(IMetadataRepositoryManager.class);
-		if (metadataManager == null)
+		if (metadataManager == null) {
 			throw new ProvisionException(Messages.Application_NoManager);
+		}
 
 		removalIdx = 0;
 		anyValid = false; // do we have any valid repos or did they all fail to load?
@@ -844,12 +877,14 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				log.log(e.getStatus());
 			}
 		}
-		if (!anyValid)
+		if (!anyValid) {
 			// all repositories failed to load
 			throw new ProvisionException(Messages.Application_NoRepositories);
+		}
 
-		if (!EngineActivator.EXTENDED)
+		if (!EngineActivator.EXTENDED) {
 			return;
+		}
 
 		File[] extensions = EngineActivator.getExtensionsDirectories();
 
@@ -867,11 +902,13 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	private void adjustDestination() {
 		// Detect the desire to have a bundled mac application and tweak the environment
-		if (destination == null)
+		if (destination == null) {
 			return;
+		}
 		if (org.eclipse.osgi.service.environment.Constants.OS_MACOSX.equals(os)
-				&& destination.getName().endsWith(".app")) //$NON-NLS-1$
+				&& destination.getName().endsWith(".app")) { //$NON-NLS-1$
 			destination = new File(destination, "Contents/Eclipse"); //$NON-NLS-1$
+		}
 	}
 
 	// Implement something here to position "p2 folder" correctly
@@ -896,34 +933,40 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				} catch (IOException e) {
 					// Ignore
 				}
-				if (profileId == null)
+				if (profileId == null) {
 					profileId = destination.toString();
+				}
 			}
 		}
-		if (profileId != null)
+		if (profileId != null) {
 			targetAgent.registerService(PROP_P2_PROFILE, profileId);
-		else
+		} else {
 			targetAgent.unregisterService(PROP_P2_PROFILE, null);
+		}
 
 		IDirector director = targetAgent.getService(IDirector.class);
-		if (director == null)
+		if (director == null) {
 			throw new ProvisionException(Messages.Missing_director);
+		}
 
 		planner = targetAgent.getService(IPlanner.class);
-		if (planner == null)
+		if (planner == null) {
 			throw new ProvisionException(Messages.Missing_planner);
+		}
 
 		engine = targetAgent.getService(IEngine.class);
-		if (engine == null)
+		if (engine == null) {
 			throw new ProvisionException(Messages.Missing_Engine);
+		}
 
 		trustService = new AvoidTrustPromptService(verboseTrust, trustSignedContentOnly, trustedAuthorityURIs,
 				trustedPGPKeys, trustedCertificates);
 		targetAgent.registerService(UIServices.SERVICE_NAME, trustService);
 
 		IProvisioningEventBus eventBus = targetAgent.getService(IProvisioningEventBus.class);
-		if (eventBus == null)
+		if (eventBus == null) {
 			return;
+		}
 		eventBus.addListener(this);
 
 	}
@@ -983,11 +1026,13 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	 */
 	@Override
 	public void notify(EventObject o) {
-		if (!(o instanceof RepositoryEvent))
+		if (!(o instanceof RepositoryEvent)) {
 			return;
+		}
 		RepositoryEvent event = (RepositoryEvent) o;
-		if (RepositoryEvent.ADDED != event.getKind())
+		if (RepositoryEvent.ADDED != event.getKind()) {
 			return;
+		}
 
 		// TODO BE CAREFUL SINCE WE ARE MODIFYING THE SELF PROFILE
 		int type = event.getRepositoryType();
@@ -1025,17 +1070,20 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private void performList() throws CoreException {
-		if (metadataRepositoryLocations.isEmpty())
+		if (metadataRepositoryLocations.isEmpty()) {
 			missingArgument("metadataRepository"); //$NON-NLS-1$
+		}
 
 		ArrayList<IInstallableUnit> allRoots = new ArrayList<>();
 		if (rootsToList.size() == 0) {
-			for (IInstallableUnit element : collectRootIUs(QueryUtil.createIUAnyQuery()))
+			for (IInstallableUnit element : collectRootIUs(QueryUtil.createIUAnyQuery())) {
 				allRoots.add(element);
+			}
 		} else {
 			for (IQuery<IInstallableUnit> root : rootsToList) {
-				for (IInstallableUnit element : collectRootIUs(root))
+				for (IInstallableUnit element : collectRootIUs(root)) {
 					allRoots.add(element);
+				}
 			}
 		}
 
@@ -1099,13 +1147,14 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		}
 
 		IStatus operationStatus;
-		if (!downloadOnly)
+		if (!downloadOnly) {
 			operationStatus = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
-		else
+		} else {
 			operationStatus = PlanExecutionHelper.executePlan(result, engine,
 					PhaseSetFactory.createPhaseSetIncluding(
 							new String[] { PhaseSetFactory.PHASE_COLLECT, PhaseSetFactory.PHASE_CHECK_TRUST }),
 					context, new NullProgressMonitor());
+		}
 
 		switch (operationStatus.getSeverity()) {
 		case OK:
@@ -1133,12 +1182,14 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	private boolean hasNoRepositoryFound(IStatus status) {
 		if (status.getException() != null
-				&& NO_ARTIFACT_REPOSITORIES_AVAILABLE.equals(status.getException().getMessage()))
+				&& NO_ARTIFACT_REPOSITORIES_AVAILABLE.equals(status.getException().getMessage())) {
 			return true;
+		}
 		if (status.isMultiStatus()) {
 			for (IStatus child : status.getChildren()) {
-				if (hasNoRepositoryFound(child))
+				if (hasNoRepositoryFound(child)) {
 					return true;
+				}
 			}
 		}
 		return false;
@@ -1230,14 +1281,16 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			if (OPTION_SHARED.isOption(opt)) {
 				if (++i < args.length) {
 					String nxt = args[i];
-					if (nxt.startsWith("-")) //$NON-NLS-1$
+					if (nxt.startsWith("-")) { //$NON-NLS-1$
 						--i; // Oops, that's the next option, not an argument
-					else
+					} else {
 						sharedLocation = processFileArgument(nxt);
+					}
 				}
-				if (sharedLocation == null)
+				if (sharedLocation == null) {
 					// -shared without an argument means "Use default shared area"
 					sharedLocation = IPath.fromOSString(System.getProperty("user.home")).append(".p2/").toFile(); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 				continue;
 			}
 
@@ -1374,8 +1427,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				continue;
 			}
 
-			if (opt != null && opt.length() > 0)
+			if (opt != null && opt.length() > 0) {
 				throw new ProvisionException(NLS.bind(Messages.unknown_option_0, opt));
+			}
 		}
 
 		if (listFormat != null && !printIUList && !printRootIUList) {
@@ -1404,14 +1458,17 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		String[] propPairs = StringHelper.getArrayFromString(pairs, ',');
 		for (String propPair : propPairs) {
 			int eqIdx = propPair.indexOf('=');
-			if (eqIdx < 0)
+			if (eqIdx < 0) {
 				continue;
+			}
 			String tagKey = propPair.substring(0, eqIdx).trim();
-			if (tagKey.length() == 0)
+			if (tagKey.length() == 0) {
 				continue;
+			}
 			String tagValue = propPair.substring(eqIdx + 1).trim();
-			if (tagValue.length() > 0)
+			if (tagValue.length() > 0) {
 				properties.put(tagKey, tagValue);
+			}
 		}
 	}
 
@@ -1428,9 +1485,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 		try {
 			processArguments(args);
-			if (printHelpInfo)
+			if (printHelpInfo) {
 				performHelpInfo(false);
-			else {
+			} else {
 				adjustDestination();
 				initializeServices();
 				if (!(printIUList || printRootIUList || printTags)) {
@@ -1443,16 +1500,21 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 				if (revertToPreviousState != NOTHING_TO_REVERT_TO) {
 					revertToPreviousState();
-				} else if (!(rootsToInstall.isEmpty() && rootsToUninstall.isEmpty()))
+				} else if (!(rootsToInstall.isEmpty() && rootsToUninstall.isEmpty())) {
 					performProvisioningActions();
-				if (printIUList)
+				}
+				if (printIUList) {
 					performList();
-				if (printRootIUList)
+				}
+				if (printRootIUList) {
 					performListInstalledRoots();
-				if (printTags)
+				}
+				if (printTags) {
 					performPrintTags();
-				if (purgeRegistry)
+				}
+				if (purgeRegistry) {
 					purgeRegistry();
+				}
 				log.printOut(NLS.bind(Messages.Operation_complete, Long.valueOf(System.currentTimeMillis() - time)));
 			}
 			return IApplication.EXIT_OK;
@@ -1482,8 +1544,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	}
 
 	private void purgeRegistry() throws ProvisionException {
-		if (getProfile() == null)
+		if (getProfile() == null) {
 			return;
+		}
 		IProfileRegistry registry = targetAgent.getService(IProfileRegistry.class);
 		long[] allProfiles = registry.listProfileTimestamps(profileId);
 		for (int i = 0; i < allProfiles.length - 1; i++) {
@@ -1497,16 +1560,18 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		IProfile targetProfile = null;
 		if (revertToPreviousState == REVERT_TO_PREVIOUS) {
 			long[] profiles = profileRegistry.listProfileTimestamps(profile.getProfileId());
-			if (profiles.length == 0)
+			if (profiles.length == 0) {
 				return;
+			}
 			targetProfile = profileRegistry.getProfile(profile.getProfileId(), profiles[profiles.length - 1]);
 		} else {
 			targetProfile = profileRegistry.getProfile(profile.getProfileId(),
 					getTimestampToRevertTo(profileRegistry, profile.getProfileId()));
 		}
 
-		if (targetProfile == null)
+		if (targetProfile == null) {
 			throw new CoreException(new Status(ERROR, ID, Messages.Missing_profile));
+		}
 		IProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
 
 		ProvisioningContext context = new ProvisioningContext(targetAgent);
@@ -1529,14 +1594,16 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			Map<String, String> tags = profileRegistry.getProfileStateProperties(profId, IProfile.STATE_PROP_TAG);
 			Set<Entry<String, String>> entries = tags.entrySet();
 			for (Entry<String, String> entry : entries) {
-				if (entry.getValue().equals(revertToPreviousState))
+				if (entry.getValue().equals(revertToPreviousState)) {
 					try {
 						long tmp = Long.valueOf(entry.getKey()).longValue();
-						if (tmp > timestampToRevertTo)
+						if (tmp > timestampToRevertTo) {
 							timestampToRevertTo = tmp;
+						}
 					} catch (NumberFormatException e2) {
 						// Not expected since the value is supposed to be a timestamp as per API
 					}
+				}
 			}
 		}
 		return timestampToRevertTo;
@@ -1566,8 +1633,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 				// repository is not available - just return empty result
 			}
 		}
-		if (queryable != null)
+		if (queryable != null) {
 			return queryable.query(query, monitor);
+		}
 		return Collector.emptyCollector();
 	}
 
@@ -1639,8 +1707,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	private String toString(Map<String, String> context) {
 		StringBuilder result = new StringBuilder();
 		for (Map.Entry<String, String> entry : context.entrySet()) {
-			if (result.length() > 0)
+			if (result.length() > 0) {
 				result.append(',');
+			}
 			result.append(entry.getKey());
 			result.append('=');
 			result.append(entry.getValue());
@@ -1652,32 +1721,39 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		// if the user didn't specify a destination path on the command-line
 		// then we assume they are installing into the currently running
 		// instance and we don't have anything to update
-		if (destination == null)
+		if (destination == null) {
 			return;
+		}
 
 		// if the user didn't set a profile id on the command-line this is ok if they
 		// also didn't set the destination path. (handled in the case above) otherwise
 		// throw an error.
-		if (noProfileId) // && destination != null
+		if (noProfileId) { // && destination != null
 			throw new ProvisionException(Messages.Missing_profileid);
+		}
 
 		// make sure that we are set to be roaming before we update the values
-		if (!Boolean.parseBoolean(profile.getProperty(IProfile.PROP_ROAMING)))
+		if (!Boolean.parseBoolean(profile.getProperty(IProfile.PROP_ROAMING))) {
 			return;
+		}
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		if (!destination.equals(new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER))))
+		if (!destination.equals(new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER)))) {
 			request.setProfileProperty(IProfile.PROP_INSTALL_FOLDER, destination.getAbsolutePath());
+		}
 
 		File cacheLocation = null;
-		if (bundlePool == null)
+		if (bundlePool == null) {
 			cacheLocation = sharedLocation == null ? destination.getAbsoluteFile() : sharedLocation.getAbsoluteFile();
-		else
+		} else {
 			cacheLocation = bundlePool.getAbsoluteFile();
-		if (!cacheLocation.equals(new File(profile.getProperty(IProfile.PROP_CACHE))))
+		}
+		if (!cacheLocation.equals(new File(profile.getProperty(IProfile.PROP_CACHE)))) {
 			request.setProfileProperty(IProfile.PROP_CACHE, cacheLocation.getAbsolutePath());
-		if (request.getProfileProperties().size() == 0)
+		}
+		if (request.getProfileProperties().size() == 0) {
 			return;
+		}
 
 		// otherwise we have to make a change so set the profile to be non-roaming so
 		// the
@@ -1691,9 +1767,10 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		context.setArtifactRepositories(new URI[0]);
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		IStatus status = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
-		if (!status.isOK())
+		if (!status.isOK()) {
 			throw new CoreException(new MultiStatus(ID, ERROR, new IStatus[] { status },
 					NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()), null));
+		}
 	}
 
 	@Override
@@ -1716,8 +1793,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		IProfile profile = initializeProfile();
 		IQueryResult<IInstallableUnit> roots = profile.query(new UserVisibleRootQuery(), null);
 		Set<IInstallableUnit> sorted = new TreeSet<>(roots.toUnmodifiableSet());
-		for (IInstallableUnit iu : sorted)
+		for (IInstallableUnit iu : sorted) {
 			System.out.println(iu.getId() + '/' + iu.getVersion());
+		}
 	}
 
 	private void performPrintTags() throws CoreException {
@@ -1790,10 +1868,12 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 	private boolean canInstallInDestination() throws CoreException {
 		// When we are provisioning what we are running. We can always install.
-		if (targetAgentIsSelfAndUp)
+		if (targetAgentIsSelfAndUp) {
 			return true;
-		if (destination == null)
+		}
+		if (destination == null) {
 			missingArgument("destination"); //$NON-NLS-1$
+		}
 		return canWrite(destination);
 	}
 
