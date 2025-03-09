@@ -74,8 +74,9 @@ public class DirectoryWatcher {
 
 	public DirectoryWatcher(Map<String, String> properties, BundleContext context) {
 		String dir = properties.get(DIR);
-		if (dir == null)
+		if (dir == null) {
 			dir = "./load"; //$NON-NLS-1$
+		}
 
 		File targetDirectory = new File(dir);
 		targetDirectory.mkdirs();
@@ -83,15 +84,17 @@ public class DirectoryWatcher {
 	}
 
 	public DirectoryWatcher(File directory) {
-		if (directory == null)
+		if (directory == null) {
 			throw new IllegalArgumentException(Messages.null_folder);
+		}
 
 		this.directories = new File[] {directory};
 	}
 
 	public DirectoryWatcher(File[] directories) {
-		if (directories == null)
+		if (directories == null) {
 			throw new IllegalArgumentException(Messages.null_folder);
+		}
 		this.directories = directories;
 	}
 
@@ -114,16 +117,18 @@ public class DirectoryWatcher {
 	}
 
 	public synchronized void start(final long pollFrequency) {
-		if (watcher != null)
+		if (watcher != null) {
 			throw new IllegalStateException(Messages.thread_started);
+		}
 
 		watcher = new WatcherThread(pollFrequency);
 		watcher.start();
 	}
 
 	public synchronized void stop() {
-		if (watcher == null)
+		if (watcher == null) {
 			throw new IllegalStateException(Messages.thread_not_started);
+		}
 
 		watcher.done();
 		watcher = null;
@@ -137,15 +142,17 @@ public class DirectoryWatcher {
 		removals = scannedFiles;
 		scannedFiles = new HashSet<>();
 		pendingDeletions = new HashSet<>();
-		for (DirectoryChangeListener listener : listeners)
+		for (DirectoryChangeListener listener : listeners) {
 			listener.startPoll();
+		}
 	}
 
 	private void scanDirectories() {
 		for (File directory : directories) {
 			File list[] = directory.listFiles();
-			if (list == null)
+			if (list == null) {
 				continue;
+			}
 			for (File file : list) {
 				// if this is a deletion marker then add to the list of pending deletions.
 				if (file.getPath().endsWith(DEL_EXT)) {
@@ -158,8 +165,9 @@ public class DirectoryWatcher {
 					scannedFiles.add(file);
 					removals.remove(file);
 					for (DirectoryChangeListener listener : listeners) {
-						if (isInterested(listener, file))
+						if (isInterested(listener, file)) {
 							processFile(file, listener);
+						}
 					}
 				}
 			}
@@ -169,8 +177,9 @@ public class DirectoryWatcher {
 	private void stopPoll() {
 		notifyRemovals();
 		removals = scannedFiles;
-		for (DirectoryChangeListener listener : listeners)
+		for (DirectoryChangeListener listener : listeners) {
 			listener.stopPoll();
+		}
 		processPendingDeletions();
 	}
 
@@ -185,8 +194,9 @@ public class DirectoryWatcher {
 		Set<File> removed = removals;
 		for (DirectoryChangeListener listener : listeners) {
 			for (File file : removed) {
-				if (isInterested(listener, file))
+				if (isInterested(listener, file)) {
 					listener.removed(file);
+				}
 			}
 		}
 	}
@@ -200,8 +210,9 @@ public class DirectoryWatcher {
 			} else {
 				// The file is not new but may have changed
 				long lastModified = file.lastModified();
-				if (oldTimestamp.longValue() != lastModified)
+				if (oldTimestamp.longValue() != lastModified) {
 					listener.changed(file);
+				}
 			}
 		} catch (Exception e) {
 			log(NLS.bind(Messages.error_processing, listener), e);
@@ -214,8 +225,9 @@ public class DirectoryWatcher {
 	private void processPendingDeletions() {
 		for (Iterator<File> iterator = pendingDeletions.iterator(); iterator.hasNext();) {
 			File file = iterator.next();
-			if (!file.exists() || file.delete())
+			if (!file.exists() || file.delete()) {
 				iterator.remove();
+			}
 			new File(file.getPath() + DEL_EXT).delete();
 		}
 	}

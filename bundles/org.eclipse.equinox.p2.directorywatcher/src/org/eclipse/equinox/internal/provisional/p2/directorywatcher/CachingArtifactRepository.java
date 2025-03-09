@@ -51,14 +51,16 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 	}
 
 	void saveRemovals() {
-		for (IArtifactDescriptor desc : descriptorsToRemove)
+		for (IArtifactDescriptor desc : descriptorsToRemove) {
 			innerRepo.removeDescriptor(desc);
+		}
 		descriptorsToRemove.clear();
 	}
 
 	void saveAdditions() {
-		if (descriptorsToAdd.isEmpty())
+		if (descriptorsToAdd.isEmpty()) {
 			return;
+		}
 		innerRepo.addDescriptors(descriptorsToAdd.toArray(new IArtifactDescriptor[descriptorsToAdd.size()]));
 		descriptorsToAdd.clear();
 		artifactMap.clear();
@@ -93,8 +95,9 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 		}
 
 		descriptors.remove(descriptor);
-		if (descriptors.isEmpty())
+		if (descriptors.isEmpty()) {
 			artifactMap.remove(key);
+		}
 	}
 
 	@Override
@@ -108,8 +111,9 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 				subMonitor.worked(1);
 			}
 		} finally {
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.done();
+			}
 		}
 	}
 
@@ -129,8 +133,9 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 			mapDescriptor(toAdd);
 			subMonitor.worked(1);
 		} finally {
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.done();
+			}
 		}
 	}
 
@@ -143,8 +148,9 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 	@Override
 	public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 		List<IArtifactDescriptor> result = artifactMap.get(key);
-		if (result == null)
+		if (result == null) {
 			return innerRepo.getArtifactDescriptors(key);
+		}
 		result = new ArrayList<>(result);
 		result.addAll(Arrays.asList(innerRepo.getArtifactDescriptors(key)));
 		return result.toArray(new IArtifactDescriptor[result.size()]);
@@ -190,8 +196,9 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 			}
 			subMonitor.worked(1);
 		} finally {
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.done();
+			}
 		}
 	}
 
@@ -208,8 +215,9 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 			doRemoveArtifact(descriptor);
 			subMonitor.worked(1);
 		} finally {
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.done();
+			}
 		}
 	}
 
@@ -229,8 +237,9 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 				subMonitor.worked(1);
 			}
 		} finally {
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.done();
+			}
 		}
 	}
 
@@ -249,8 +258,9 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 				subMonitor.worked(1);
 			}
 		} finally {
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.done();
+			}
 		}
 	}
 
@@ -269,8 +279,9 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 				subMonitor.worked(1);
 			}
 		} finally {
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.done();
+			}
 		}
 	}
 
@@ -287,8 +298,9 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 	private boolean doRemoveArtifact(IArtifactDescriptor descriptor) {
 		// if the descriptor is already in the pending additoins, remove it
 		boolean result = descriptorsToAdd.remove(descriptor);
-		if (result)
+		if (result) {
 			unmapDescriptor(descriptor);
+		}
 		// either way, note this as a descriptor to remove from the inner repo
 		descriptorsToRemove.add(descriptor);
 		return result;
@@ -352,8 +364,9 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 			propertyChanges.put(key, value == null ? NULL : value);
 			return result;
 		} finally {
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.done();
+			}
 		}
 	}
 
@@ -369,15 +382,17 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 
 	@Override
 	public File getArtifactFile(IArtifactKey key) {
-		if (innerRepo instanceof IFileArtifactRepository)
+		if (innerRepo instanceof IFileArtifactRepository) {
 			return ((IFileArtifactRepository) innerRepo).getArtifactFile(key);
+		}
 		return null;
 	}
 
 	@Override
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
-		if (innerRepo instanceof IFileArtifactRepository)
+		if (innerRepo instanceof IFileArtifactRepository) {
 			return ((IFileArtifactRepository) innerRepo).getArtifactFile(descriptor);
+		}
 		return null;
 	}
 

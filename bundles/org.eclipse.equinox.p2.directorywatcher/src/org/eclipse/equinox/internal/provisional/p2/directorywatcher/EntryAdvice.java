@@ -45,19 +45,22 @@ public class EntryAdvice implements IPropertyAdvice {
 	}
 
 	void setProperties(File location, long timestamp, URI reference, String linkFile) {
-		if (reference == null)
+		if (reference == null) {
 			artifactProps.remove(RepositoryListener.ARTIFACT_REFERENCE);
-		else
+		} else {
 			artifactProps.put(RepositoryListener.ARTIFACT_REFERENCE, reference.toString());
-		if (location.isDirectory())
+		}
+		if (location.isDirectory()) {
 			artifactProps.put(RepositoryListener.ARTIFACT_FOLDER, Boolean.TRUE.toString());
-		else
+		} else {
 			artifactProps.remove(RepositoryListener.ARTIFACT_FOLDER);
+		}
 		artifactProps.put(RepositoryListener.FILE_NAME, location.getAbsolutePath());
 		metadataProps.put(RepositoryListener.FILE_NAME, location.getAbsolutePath());
 		metadataProps.put(RepositoryListener.FILE_LAST_MODIFIED, Long.toString(timestamp));
-		if (linkFile != null)
+		if (linkFile != null) {
 			metadataProps.put(Site.PROP_LINK_FILE, linkFile);
+		}
 	}
 
 	@Override
