@@ -143,10 +143,9 @@ public class Site {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof Site)) {
+		if (!(obj instanceof Site other)) {
 			return false;
 		}
-		Site other = (Site) obj;
 		if (isEnabled() != other.isEnabled()) {
 			return false;
 		}
