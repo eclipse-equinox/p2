@@ -91,10 +91,9 @@ public class PreviousConfigurationFinder {
 
 		@Override
 		public boolean equals(Object other) {
-			if (!(other instanceof Identifier)) {
+			if (!(other instanceof Identifier o)) {
 				return false;
 			}
-			Identifier o = (Identifier) other;
 			if (major == o.major && minor == o.minor && service == o.service) {
 				return true;
 			}
