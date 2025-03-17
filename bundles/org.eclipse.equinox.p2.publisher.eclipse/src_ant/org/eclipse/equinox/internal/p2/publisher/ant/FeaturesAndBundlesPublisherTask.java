@@ -56,9 +56,7 @@ public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
 	private File[] getLocations(List<Object> collection) {
 		ArrayList<Object> results = new ArrayList<>();
 		for (Object obj : collection) {
-			if (obj instanceof FileSet) {
-				FileSet set = (FileSet) obj;
-
+			if (obj instanceof FileSet set) {
 				DirectoryScanner scanner = set.getDirectoryScanner(getProject());
 				String[][] elements = new String[][] {scanner.getIncludedDirectories(), scanner.getIncludedFiles()};
 				for (int i = 0; i < 2; i++) {

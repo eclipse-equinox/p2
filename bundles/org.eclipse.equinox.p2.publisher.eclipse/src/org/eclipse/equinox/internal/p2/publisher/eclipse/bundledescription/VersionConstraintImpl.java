@@ -206,8 +206,7 @@ abstract class VersionConstraintImpl implements VersionConstraint {
 	}
 
 	static StringBuilder addFilterAttribute(StringBuilder filter, String attr, Object value, boolean escapeWildCard) {
-		if (value instanceof VersionRange) {
-			VersionRange range = (VersionRange) value;
+		if (value instanceof VersionRange range) {
 			filter.append(range.toFilterString(attr));
 		} else {
 			filter.append('(').append(attr).append('=').append(escapeValue(value, escapeWildCard)).append(')');

@@ -537,8 +537,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	private Object convertScalarAttribute(Object attr) {
-		if (attr instanceof org.osgi.framework.Version) {
-			org.osgi.framework.Version osgiVer = (org.osgi.framework.Version) attr;
+		if (attr instanceof org.osgi.framework.Version osgiVer) {
 			return Version.createOSGi(osgiVer.getMajor(), osgiVer.getMinor(), osgiVer.getMicro(),
 					osgiVer.getQualifier());
 		}
