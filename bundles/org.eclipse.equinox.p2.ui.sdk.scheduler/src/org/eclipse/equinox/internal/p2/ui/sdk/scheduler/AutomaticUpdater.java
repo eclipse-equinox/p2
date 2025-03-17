@@ -70,8 +70,7 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	private void createProfileListener() {
 		profileListener = o -> {
-			if (o instanceof IProfileEvent) {
-				IProfileEvent event = (IProfileEvent) o;
+			if (o instanceof IProfileEvent event) {
 				if (event.getReason() == IProfileEvent.CHANGED && sameProfile(event.getProfileId())) {
 					triggerNewUpdateNotification();
 				}
