@@ -148,8 +148,7 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 		if (o == this) {
 			return true;
 		}
-		if (o instanceof OrderedProperties) {
-			OrderedProperties rhs = (OrderedProperties) o;
+		if (o instanceof OrderedProperties rhs) {
 			if (rhs.propertyMap == this.propertyMap) {
 				return true;
 			}
