@@ -129,9 +129,8 @@ public class CatalogViewer extends FilteredViewer {
 		public boolean select(Viewer filteredViewer, Object parentElement, Object element) {
 			if (element instanceof CatalogItem) {
 				return doFilter((CatalogItem) element);
-			} else if (element instanceof CatalogCategory) {
+			} else if (element instanceof CatalogCategory category) {
 				// only show categories if at least one child is visible
-				CatalogCategory category = (CatalogCategory) element;
 				for (CatalogItem item : category.getItems()) {
 					if (doFilter(item)) {
 						return true;
@@ -164,8 +163,7 @@ public class CatalogViewer extends FilteredViewer {
 
 		@Override
 		protected boolean isLeafMatch(Viewer filteredViewer, Object element) {
-			if (element instanceof CatalogItem) {
-				CatalogItem descriptor = (CatalogItem) element;
+			if (element instanceof CatalogItem descriptor) {
 				if (!(filterMatches(descriptor.getName()) || filterMatches(descriptor.getDescription()) || filterMatches(descriptor.getProvider()) || filterMatches(descriptor.getLicense()))) {
 					return false;
 				}
