@@ -213,8 +213,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	protected Collection<IRequirement> createIURequirements(Collection<? extends IVersionedId> children) {
 		ArrayList<IRequirement> result = new ArrayList<>(children.size());
 		for (IVersionedId next : children) {
-			if (next instanceof IInstallableUnit) {
-				IInstallableUnit iu = (IInstallableUnit) next;
+			if (next instanceof IInstallableUnit iu) {
 				VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
 				result.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range,
 						iu.getFilter() == null ? null : iu.getFilter(), false, false));
@@ -471,11 +470,10 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	protected static IRequiredCapability toRequiredCapability(IRequirement requirement) {
-		if (!(requirement instanceof IRequiredCapability)) {
+		if (!(requirement instanceof IRequiredCapability requiredCapability)) {
 			return null;
 		}
 
-		IRequiredCapability requiredCapability = (IRequiredCapability) requirement;
 		if (!RequiredCapability.isVersionRangeRequirement(requiredCapability.getMatches())) {
 			return null;
 		}
