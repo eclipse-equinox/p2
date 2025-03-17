@@ -374,11 +374,10 @@ public class Projector {
 
 	private void determinePotentialHostsForFragment(IInstallableUnit iu) {
 		// determine matching hosts only for fragments
-		if (!(iu instanceof IInstallableUnitFragment)) {
+		if (!(iu instanceof IInstallableUnitFragment fragment)) {
 			return;
 		}
 
-		IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
 		// for each host requirement, find matches and remember them
 		for (IRequirement req : fragment.getHost()) {
 			List<IInstallableUnit> matches = getApplicableMatches(req);
@@ -805,10 +804,9 @@ public class Projector {
 	}
 
 	private void expandLifeCycle(IInstallableUnit iu, boolean isRootIu) throws ContradictionException {
-		if (!(iu instanceof IInstallableUnitPatch)) {
+		if (!(iu instanceof IInstallableUnitPatch patch)) {
 			return;
 		}
-		IInstallableUnitPatch patch = (IInstallableUnitPatch) iu;
 		IRequirement req = patch.getLifeCycle();
 		if (req == null) {
 			return;
@@ -1031,8 +1029,7 @@ public class Projector {
 		IVec<Object> sat4jSolution = dependencyHelper.getSolution();
 		for (Iterator<Object> iter = sat4jSolution.iterator(); iter.hasNext();) {
 			Object var = iter.next();
-			if (var instanceof IInstallableUnit) {
-				IInstallableUnit iu = (IInstallableUnit) var;
+			if (var instanceof IInstallableUnit iu) {
 				if (iu == entryPoint) {
 					continue;
 				}
