@@ -427,8 +427,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 			public String getText(Object element) {
 				if (element instanceof TreeNode) {
 					Object o = ((TreeNode) element).getValue();
-					if (o instanceof PGPPublicKey) {
-						PGPPublicKey key = (PGPPublicKey) o;
+					if (o instanceof PGPPublicKey key) {
 						String userFriendlyFingerPrint = userFriendlyFingerPrint(key);
 						java.util.List<String> users = new ArrayList<>();
 						key.getUserIDs().forEachRemaining(users::add);

@@ -99,9 +99,8 @@ public class InstalledIUGroup extends StructuredIUGroup {
 			public Object[] getChildren(Object element) {
 				Object[] objects = elementChildren.get(element);
 				if (objects == null) {
-					if (element instanceof InstalledIUElement) {
+					if (element instanceof InstalledIUElement installedIUElement) {
 						// Special case handling.
-						InstalledIUElement installedIUElement = (InstalledIUElement) element;
 						if (!installedIUElement.shouldShowChildren()) {
 							// If the element shouldn't show children because that would create a cycle,
 							// don't show any.
@@ -134,13 +133,11 @@ public class InstalledIUGroup extends StructuredIUGroup {
 
 					// If there are children and this is an InstalledIUElement, cache the mapping
 					// from the IU to the child IUs for reuse above.
-					if (objects.length != 0 && element instanceof InstalledIUElement) {
-						InstalledIUElement installedIUElement = (InstalledIUElement) element;
+					if (objects.length != 0 && element instanceof InstalledIUElement installedIUElement) {
 						IInstallableUnit iu = installedIUElement.getIU();
 						Set<IInstallableUnit> children = new LinkedHashSet<>();
 						for (Object object : objects) {
-							if (object instanceof InstalledIUElement) {
-								InstalledIUElement childInstalledIUElement = (InstalledIUElement) object;
+							if (object instanceof InstalledIUElement childInstalledIUElement) {
 								IInstallableUnit childIU = childInstalledIUElement.getIU();
 								children.add(childIU);
 							} else {

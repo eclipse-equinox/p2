@@ -47,8 +47,7 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 		IProfile profile = getProfile();
 		if (selectionArray.length > 0) {
 			for (Object selection : selectionArray) {
-				if (selection instanceof InstalledIUElement) {
-					InstalledIUElement element = (InstalledIUElement) selection;
+				if (selection instanceof InstalledIUElement element) {
 					// If the parents are different, then they are either from
 					// different profiles or are nested in different parts of the tree.
 					// Either way, this makes the selection invalid.

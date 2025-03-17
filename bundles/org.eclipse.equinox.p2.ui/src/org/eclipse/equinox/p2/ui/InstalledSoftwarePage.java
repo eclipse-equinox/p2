@@ -350,8 +350,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 				return true;
 			}
 
-			if (element instanceof InstalledIUElement) {
-				InstalledIUElement data = (InstalledIUElement) element;
+			if (element instanceof InstalledIUElement data) {
 				IInstallableUnit iu = data.getIU();
 				boolean match = false;
 				if (iu != null) {

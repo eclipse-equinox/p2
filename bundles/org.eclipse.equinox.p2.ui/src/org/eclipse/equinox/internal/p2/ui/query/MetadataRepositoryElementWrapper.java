@@ -56,8 +56,7 @@ public class MetadataRepositoryElementWrapper extends QueriedElementWrapper {
 		// Assume the item is enabled
 
 		// if the parent is a queried element then use its provisioning UI to find out about enablement
-		if (parent instanceof QueriedElement) {
-			QueriedElement qe = (QueriedElement) parent;
+		if (parent instanceof QueriedElement qe) {
 			ProvisioningUI provisioningUI = qe.getProvisioningUI();
 			ProvisioningSession session = provisioningUI.getSession();
 			boolean enabled = ProvUI.getMetadataRepositoryManager(session).isEnabled((URI) item);

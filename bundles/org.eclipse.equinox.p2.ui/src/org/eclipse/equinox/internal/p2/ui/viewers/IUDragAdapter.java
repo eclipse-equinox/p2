@@ -105,11 +105,9 @@ public class IUDragAdapter extends DragSourceAdapter {
 		List<IInstallableUnit> ius = new ArrayList<>();
 
 		ISelection selection = selectionProvider.getSelection();
-		if (!(selection instanceof IStructuredSelection) || selection.isEmpty()) {
+		if (!(selection instanceof IStructuredSelection structuredSelection) || selection.isEmpty()) {
 			return null;
 		}
-		IStructuredSelection structuredSelection = (IStructuredSelection) selection;
-
 		Iterator<?> iter = structuredSelection.iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit iu = ProvUI.getAdapter(iter.next(), IInstallableUnit.class);

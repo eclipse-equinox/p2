@@ -247,8 +247,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		ArrayList<Object> selections = new ArrayList<>(initialSelections.length);
 
 		for (Object initialSelection : initialSelections) {
-			if (initialSelection instanceof AvailableUpdateElement) {
-				AvailableUpdateElement element = (AvailableUpdateElement) initialSelection;
+			if (initialSelection instanceof AvailableUpdateElement element) {
 				if (element.isLockedForUpdate()) {
 					continue;
 				}

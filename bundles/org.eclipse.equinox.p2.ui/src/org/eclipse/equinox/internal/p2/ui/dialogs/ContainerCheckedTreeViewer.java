@@ -111,8 +111,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	 */
 	protected void doCheckStateChanged(Object element) {
 		Widget item = findItem(element);
-		if (item instanceof TreeItem) {
-			TreeItem treeItem = (TreeItem) item;
+		if (item instanceof TreeItem treeItem) {
 			treeItem.setGrayed(false);
 			// BEGIN MODIFICATION OF COPIED CLASS
 			if (element instanceof QueriedElement && treeItem.getChecked()) {

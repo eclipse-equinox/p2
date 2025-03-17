@@ -121,8 +121,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 			isPatch = iuInformation.isPatch;
 		}
 		// subclass already made this an element, just set the install flag
-		if (item instanceof AvailableIUElement) {
-			AvailableIUElement element = (AvailableIUElement) item;
+		if (item instanceof AvailableIUElement element) {
 			element.setIsInstalled(isInstalled);
 			element.setIsUpdate(isUpdate);
 			element.setIsPatch(isPatch);
@@ -139,8 +138,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 		}
 
 		IIUElement element = makeDefaultElement(iu);
-		if (element instanceof AvailableIUElement) {
-			AvailableIUElement availableElement = (AvailableIUElement) element;
+		if (element instanceof AvailableIUElement availableElement) {
 			availableElement.setIsInstalled(isInstalled);
 			availableElement.setIsUpdate(isUpdate);
 			availableElement.setIsPatch(isPatch);

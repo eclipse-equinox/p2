@@ -83,8 +83,7 @@ public class RemediationGroup {
 
 		@Override
 		public Object[] getChildren(Object parentElement) {
-			if (parentElement instanceof RemedyElementCategory) {
-				RemedyElementCategory category = (RemedyElementCategory) parentElement;
+			if (parentElement instanceof RemedyElementCategory category) {
 				return category.getElements().toArray();
 			}
 			return null;
@@ -231,8 +230,7 @@ public class RemediationGroup {
 				if (element instanceof RemedyElementCategory) {
 					return ((RemedyElementCategory) element).getName();
 				}
-				if (element instanceof RemedyIUDetail) {
-					RemedyIUDetail iu = (RemedyIUDetail) element;
+				if (element instanceof RemedyIUDetail iu) {
 					String label = iu.getIu().getProperty(IInstallableUnit.PROP_NAME, null);
 					if (label == null) {
 						label = iu.getIu().getId();
@@ -244,8 +242,7 @@ public class RemediationGroup {
 
 			@Override
 			public Image getImage(Object element) {
-				if (element instanceof RemedyElementCategory) {
-					RemedyElementCategory category = (RemedyElementCategory) element;
+				if (element instanceof RemedyElementCategory category) {
 					if (category.getName().equals(ProvUIMessages.RemedyCategoryAdded)) {
 						return ProvUIImages.getImage(ProvUIImages.IMG_ADDED);
 					}
@@ -258,8 +255,7 @@ public class RemediationGroup {
 					if (category.getName().equals(ProvUIMessages.RemedyCategoryRemoved)) {
 						return ProvUIImages.getImage(ProvUIImages.IMG_REMOVED);
 					}
-				} else if (element instanceof RemedyIUDetail) {
-					RemedyIUDetail iuDetail = (RemedyIUDetail) element;
+				} else if (element instanceof RemedyIUDetail iuDetail) {
 					int status = compare(iuDetail);
 					if (compare(iuDetail.getBeingInstalledVersion(), iuDetail.getRequestedVersion()) < 0 && containerPage != null && containerPage.getWizard() instanceof UpdateWizard) {
 						Image img = ProvUIImages.getImage(ProvUIImages.IMG_UPGRADED_IU);
@@ -286,8 +282,7 @@ public class RemediationGroup {
 
 			@Override
 			public String getToolTipText(Object element) {
-				if (element instanceof RemedyIUDetail) {
-					RemedyIUDetail iuDetail = (RemedyIUDetail) element;
+				if (element instanceof RemedyIUDetail iuDetail) {
 					String toolTipText = ""; //$NON-NLS-1$
 					List<String> versions = new ArrayList<>();
 					if (iuDetail.getInstalledVersion() != null) {
@@ -334,8 +329,7 @@ public class RemediationGroup {
 		versionColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				if (element instanceof RemedyIUDetail) {
-					RemedyIUDetail iu = (RemedyIUDetail) element;
+				if (element instanceof RemedyIUDetail iu) {
 					if (iu.getBeingInstalledVersion() != null) {
 						return iu.getBeingInstalledVersion().toString();
 					}
@@ -351,8 +345,7 @@ public class RemediationGroup {
 		idColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				if (element instanceof RemedyIUDetail) {
-					RemedyIUDetail iu = (RemedyIUDetail) element;
+				if (element instanceof RemedyIUDetail iu) {
 					return iu.getIu().getId();
 				}
 				return ""; //$NON-NLS-1$
@@ -467,8 +460,7 @@ public class RemediationGroup {
 			IInstallableUnit iu1 = ((RemedyIUDetail) e1).getIu();
 			IInstallableUnit iu2 = ((RemedyIUDetail) e2).getIu();
 			if (iu1 != null && iu2 != null) {
-				if (viewer1 instanceof TreeViewer) {
-					TreeViewer theTreeViewer = (TreeViewer) viewer1;
+				if (viewer1 instanceof TreeViewer theTreeViewer) {
 					ColumnLabelProvider labelProvider = (ColumnLabelProvider) theTreeViewer.getLabelProvider(sortColumn);
 					String e1p = labelProvider.getText(e1);
 					String e2p = labelProvider.getText(e2);

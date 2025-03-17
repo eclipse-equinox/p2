@@ -112,8 +112,7 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 
 	@Override
 	public Object[] getChildren(final Object parent) {
-		if (parent instanceof RemoteQueriedElement) {
-			RemoteQueriedElement element = (RemoteQueriedElement) parent;
+		if (parent instanceof RemoteQueriedElement element) {
 			// We rely on the assumption that the queryable is the most expensive
 			// thing to get vs. the query itself being expensive.
 			// (loading a repo vs. querying a repo afterward)
