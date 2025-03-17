@@ -1026,10 +1026,9 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 	 */
 	@Override
 	public void notify(EventObject o) {
-		if (!(o instanceof RepositoryEvent)) {
+		if (!(o instanceof RepositoryEvent event)) {
 			return;
 		}
-		RepositoryEvent event = (RepositoryEvent) o;
 		if (RepositoryEvent.ADDED != event.getKind()) {
 			return;
 		}
