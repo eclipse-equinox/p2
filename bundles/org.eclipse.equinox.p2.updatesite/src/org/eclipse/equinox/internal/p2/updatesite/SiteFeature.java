@@ -141,10 +141,9 @@ public class SiteFeature {
 		if (object == null) {
 			return false;
 		}
-		if (!(object instanceof SiteFeature)) {
+		if (!(object instanceof SiteFeature that)) {
 			return false;
 		}
-		SiteFeature that = (SiteFeature) object;
 		if (this.featureId == null) {
 			if (that.featureId != null) {
 				return false;

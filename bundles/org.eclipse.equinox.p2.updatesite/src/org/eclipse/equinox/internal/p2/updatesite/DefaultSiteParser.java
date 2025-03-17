@@ -676,11 +676,9 @@ public class DefaultSiteParser extends DefaultHandler {
 	private void processCategory(Attributes attributes) {
 		String category = attributes.getValue("name"); //$NON-NLS-1$
 		Object item = objectStack.peek();
-		if (item instanceof SiteFeature) {
-			SiteFeature feature = (SiteFeature) item;
+		if (item instanceof SiteFeature feature) {
 			feature.addCategoryName(category);
-		} else if (item instanceof SiteBundle) {
-			SiteBundle bundle = (SiteBundle) item;
+		} else if (item instanceof SiteBundle bundle) {
 			bundle.addCategoryName(category);
 		}
 
