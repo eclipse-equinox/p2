@@ -145,8 +145,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 
 	@Override
 	public void notify(EventObject o) {
-		if (o instanceof InstallableUnitEvent) {
-			InstallableUnitEvent event = (InstallableUnitEvent) o;
+		if (o instanceof InstallableUnitEvent event) {
 			if (event.isUninstall() && event.isPost()) {
 				uninstallEventProfileId = event.getProfile().getProfileId();
 			}
