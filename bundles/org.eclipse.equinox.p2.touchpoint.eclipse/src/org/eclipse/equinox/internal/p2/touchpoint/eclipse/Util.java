@@ -251,8 +251,7 @@ public class Util {
 	private static String getFragmentHost(IInstallableUnit unit, String fragmentName) {
 		Collection<IRequirement> requires = unit.getRequirements();
 		for (IRequirement iRequirement : requires) {
-			if (iRequirement instanceof IRequiredCapability) {
-				IRequiredCapability requiredCapability = (IRequiredCapability) iRequirement;
+			if (iRequirement instanceof IRequiredCapability requiredCapability) {
 				if (fragmentName.equals(requiredCapability.getName())) {
 					String fragmentHost = requiredCapability.getName();
 					if (!requiredCapability.getRange().toString().equals("0.0.0")) { //$NON-NLS-1$

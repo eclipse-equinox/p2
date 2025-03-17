@@ -108,10 +108,9 @@ public class Feature {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof Feature)) {
+		if (!(obj instanceof Feature other)) {
 			return false;
 		}
-		Feature other = (Feature) obj;
 		if (!equals(getId(), other.getId())) {
 			return false;
 		}
