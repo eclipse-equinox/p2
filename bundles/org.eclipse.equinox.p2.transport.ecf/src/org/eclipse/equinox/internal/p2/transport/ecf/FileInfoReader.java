@@ -73,8 +73,7 @@ class FileInfoReader {
 					Exception e = event.getException();
 					if (e != null) {
 						exception.set(e);
-					} else if (event instanceof IRemoteFileSystemBrowseEvent) {
-						IRemoteFileSystemBrowseEvent fsbe = (IRemoteFileSystemBrowseEvent) event;
+					} else if (event instanceof IRemoteFileSystemBrowseEvent fsbe) {
 						IRemoteFile[] remoteFiles = fsbe.getRemoteFiles();
 						if (remoteFiles != null && remoteFiles.length > 0) {
 							remote.set(remoteFiles[0]);

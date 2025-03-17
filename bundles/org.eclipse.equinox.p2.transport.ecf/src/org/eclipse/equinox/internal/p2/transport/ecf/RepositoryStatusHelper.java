@@ -311,14 +311,12 @@ public abstract class RepositoryStatusHelper {
 	 * @throws FileNotFoundException if 't' represents a file not found
 	 */
 	public static void checkFileNotFound(Throwable t, URI toDownload) throws FileNotFoundException {
-		if (t instanceof IncomingFileTransferException) {
-			IncomingFileTransferException e = (IncomingFileTransferException) t;
+		if (t instanceof IncomingFileTransferException e) {
 			if (e.getErrorCode() == 404 || e.getErrorCode() == 403 || e.getErrorCode() == 300) {
 				throw new FileNotFoundException(toDownload.toString());
 			}
 		}
-		if (t instanceof BrowseFileTransferException) {
-			BrowseFileTransferException e = (BrowseFileTransferException) t;
+		if (t instanceof BrowseFileTransferException e) {
 			if (e.getErrorCode() == 404 || e.getErrorCode() == 403 || e.getErrorCode() == 300) {
 				throw new FileNotFoundException(toDownload.toString());
 			}
