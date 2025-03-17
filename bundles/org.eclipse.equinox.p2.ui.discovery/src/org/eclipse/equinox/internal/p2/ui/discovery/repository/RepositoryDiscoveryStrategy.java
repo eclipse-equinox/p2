@@ -85,8 +85,7 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 				IInstallableUnit categoryIU = (IInstallableUnit) category.getData();
 				Collection<IRequirement> required = categoryIU.getRequirements();
 				for (IRequirement requirement : required) {
-					if (requirement instanceof IRequiredCapability) {
-						IRequiredCapability capability = (IRequiredCapability) requirement;
+					if (requirement instanceof IRequiredCapability capability) {
 						CatalogItem item = catalogItemById.get(capability.getName());
 						if (item != null) {
 							item.setCategoryId(category.getId());
