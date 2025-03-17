@@ -64,10 +64,9 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 		Map<String, InstallableUnitOperand> result = new HashMap<>();
 		Operand[] operands = ((ProvisioningPlan) plan).getOperands();
 		for (Operand oper : operands) {
-			if (!(oper instanceof InstallableUnitOperand)) {
+			if (!(oper instanceof InstallableUnitOperand operand)) {
 				continue;
 			}
-			InstallableUnitOperand operand = (InstallableUnitOperand) oper;
 			String id = operand.first() == null ? operand.second().getId() : operand.first().getId();
 			InstallableUnitOperand existing = result.get(id);
 			if (existing == null) {
@@ -177,10 +176,9 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 			// see if there is an operand in the actual plan which involved this IU.
 			boolean found = false;
 			for (Operand actualOperand : actualOperands) {
-				if (!(actualOperand instanceof InstallableUnitOperand)) {
+				if (!(actualOperand instanceof InstallableUnitOperand actual)) {
 					continue;
 				}
-				InstallableUnitOperand actual = (InstallableUnitOperand) actualOperand;
 				// handle removals
 				if (second == null) {
 					if (actual.second() != null) {

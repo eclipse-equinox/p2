@@ -192,10 +192,9 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		final boolean[] wasEnabled = new boolean[] {false};
 		//add a listener to ensure we receive add events with the repository enabled
 		SynchronousProvisioningListener listener = o -> {
-			if (!(o instanceof RepositoryEvent)) {
+			if (!(o instanceof RepositoryEvent event)) {
 				return;
 			}
-			RepositoryEvent event = (RepositoryEvent) o;
 			if (event.getKind() != RepositoryEvent.ADDED) {
 				return;
 			}
@@ -235,10 +234,9 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		final boolean[] wasEnabled = new boolean[] {false};
 		//add a listener to ensure we receive add events with the repository enabled
 		SynchronousProvisioningListener listener = o -> {
-			if (!(o instanceof RepositoryEvent)) {
+			if (!(o instanceof RepositoryEvent event)) {
 				return;
 			}
-			RepositoryEvent event = (RepositoryEvent) o;
 			if (event.getKind() != RepositoryEvent.ADDED) {
 				return;
 			}

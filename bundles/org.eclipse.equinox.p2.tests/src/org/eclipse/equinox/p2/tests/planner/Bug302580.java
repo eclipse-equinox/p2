@@ -47,8 +47,7 @@ public class Bug302580 extends AbstractPlannerTest {
 
 		String message = "The plan:\n";
 		for (Operand op : ops) {
-			if (op instanceof InstallableUnitOperand) {
-				InstallableUnitOperand iuo = (InstallableUnitOperand) op;
+			if (op instanceof InstallableUnitOperand iuo) {
 				if (iuo.first() == null) {
 					message += iuo.second() + " will be installed\n";
 				}
@@ -63,8 +62,7 @@ public class Bug302580 extends AbstractPlannerTest {
 		System.out.println(message);
 
 		for (Operand op : ops) {
-			if (op instanceof InstallableUnitOperand) {
-				InstallableUnitOperand iuo = (InstallableUnitOperand) op;
+			if (op instanceof InstallableUnitOperand iuo) {
 				if (iuo.second() == null) {
 					String id = iuo.first().getId();
 					if (id.equals("toolingorg.eclipse.equinox.launcher") || id.equals("toolingorg.eclipse.equinox.p2.reconciler.dropins") || id.equals("toolingorg.eclipse.equinox.simpleconfigurator")) {
