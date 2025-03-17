@@ -109,10 +109,9 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 	}
 
 	public IPublisherAdvice merge(IPublisherAdvice advice) {
-		if (!(advice instanceof VersionAdvice)) {
+		if (!(advice instanceof VersionAdvice source)) {
 			return this;
 		}
-		VersionAdvice source = (VersionAdvice) advice;
 		for (String namespace : source.versions.keySet()) {
 			Map<String, Version> myValues = versions.get(namespace);
 			Map<String, Version> sourceValues = source.versions.get(namespace);

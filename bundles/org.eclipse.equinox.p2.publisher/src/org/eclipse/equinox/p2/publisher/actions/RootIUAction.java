@@ -141,8 +141,7 @@ public class RootIUAction extends AbstractPublisherAction {
 				for (Object object : list) {
 					// if the advice is a string, look it up in the result.  if not there then 
 					// query the known metadata repos
-					if (object instanceof String) {
-						String childId = (String) object;
+					if (object instanceof String childId) {
 						IInstallableUnit iu = queryForIU(result, childId, getVersionAdvice(childId));
 						if (iu != null) {
 							children.add(iu);
