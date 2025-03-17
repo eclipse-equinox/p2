@@ -245,8 +245,7 @@ public class ProfileGroup {
 	}
 
 	private void setEditable(Control control, boolean editable, ModifyListener listener) {
-		if (control instanceof Text) {
-			Text text = (Text) control;
+		if (control instanceof Text text) {
 			text.setEditable(editable);
 			if (listener != null && editable) {
 				text.addModifyListener(listener);
