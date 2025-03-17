@@ -372,8 +372,7 @@ public class CacheManager {
 	private void registerRepoEventListener(IProvisioningEventBus eventBus) {
 		if (busListener == null) {
 			busListener = o -> {
-				if (o instanceof RepositoryEvent) {
-					RepositoryEvent event = (RepositoryEvent) o;
+				if (o instanceof RepositoryEvent event) {
 					if (RepositoryEvent.REMOVED == event.getKind() && IRepository.TYPE_METADATA == event.getRepositoryType()) {
 						deleteCache(event.getRepositoryLocation());
 					}

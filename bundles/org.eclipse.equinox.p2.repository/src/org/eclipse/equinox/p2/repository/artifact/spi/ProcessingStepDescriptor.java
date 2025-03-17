@@ -73,10 +73,9 @@ public class ProcessingStepDescriptor implements IProcessingStepDescriptor {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof IProcessingStepDescriptor)) {
+		if (!(obj instanceof final IProcessingStepDescriptor other)) {
 			return false;
 		}
-		final IProcessingStepDescriptor other = (IProcessingStepDescriptor) obj;
 		if (data == null) {
 			if (other.getData() != null) {
 				return false;
