@@ -904,8 +904,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 
 	@Override
 	public void notify(EventObject o) {
-		if (o instanceof RepositoryEvent) {
-			RepositoryEvent event = (RepositoryEvent) o;
+		if (o instanceof RepositoryEvent event) {
 			if (event.getKind() == RepositoryEvent.DISCOVERED && event.getRepositoryType() == getRepositoryType()) {
 				RepositoryInfo<T> info = new RepositoryInfo<>();
 				info.location = event.getRepositoryLocation();
