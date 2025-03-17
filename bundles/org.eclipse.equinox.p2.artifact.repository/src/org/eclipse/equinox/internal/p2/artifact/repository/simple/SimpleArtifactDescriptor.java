@@ -86,11 +86,9 @@ public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || !(obj instanceof SimpleArtifactDescriptor)) {
+		if (obj == null || !(obj instanceof SimpleArtifactDescriptor other)) {
 			return false;
 		}
-
-		SimpleArtifactDescriptor other = (SimpleArtifactDescriptor) obj;
 
 		//Properties affecting SimpleArtifactRepository#getLocation
 		String locationProperty = getRepositoryProperty(ARTIFACT_REFERENCE);
