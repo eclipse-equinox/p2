@@ -40,9 +40,7 @@ public class EclipsePublisherHelper {
 	}
 
 	private static void addExtraProperties(IInstallableUnit iiu, Map<String, String> extraProperties) {
-		if (iiu instanceof InstallableUnit) {
-			InstallableUnit iu = (InstallableUnit) iiu;
-
+		if (iiu instanceof InstallableUnit iu) {
 			for (Entry<String, String> entry : extraProperties.entrySet()) {
 				iu.setProperty(entry.getKey(), entry.getValue());
 			}

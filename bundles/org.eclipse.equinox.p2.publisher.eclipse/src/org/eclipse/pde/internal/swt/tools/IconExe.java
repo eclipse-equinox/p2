@@ -1022,10 +1022,9 @@ public class IconExe {
 			if (object == this) {
 				return true;
 			}
-			if (!(object instanceof RGB)) {
+			if (!(object instanceof RGB rgb)) {
 				return false;
 			}
-			RGB rgb = (RGB) object;
 			return (rgb.red == this.red) && (rgb.green == this.green) && (rgb.blue == this.blue);
 		}
 

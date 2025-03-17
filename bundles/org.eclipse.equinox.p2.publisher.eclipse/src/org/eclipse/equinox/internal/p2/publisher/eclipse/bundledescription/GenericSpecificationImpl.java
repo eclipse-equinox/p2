@@ -57,10 +57,9 @@ class GenericSpecificationImpl extends VersionConstraintImpl implements GenericS
 
 	@Override
 	public boolean isSatisfiedBy(BaseDescription supplier) {
-		if (!(supplier instanceof GenericDescription)) {
+		if (!(supplier instanceof GenericDescription candidate)) {
 			return false;
 		}
-		GenericDescription candidate = (GenericDescription) supplier;
 		if (!getType().equals(candidate.getType())) {
 			return false;
 		}

@@ -49,10 +49,9 @@ class HostSpecificationImpl extends VersionConstraintImpl implements HostSpecifi
 
 	@Override
 	public boolean isSatisfiedBy(BaseDescription supplier) {
-		if (!(supplier instanceof BundleDescriptionImpl)) {
+		if (!(supplier instanceof BundleDescriptionImpl candidate)) {
 			return false;
 		}
-		BundleDescriptionImpl candidate = (BundleDescriptionImpl) supplier;
 		if (candidate.getHost() != null) {
 			return false;
 		}

@@ -429,10 +429,9 @@ final class BundleDescriptionImpl extends BaseDescriptionImpl implements BundleD
 
 	@Override
 	public boolean compare(KeyedElement other) {
-		if (!(other instanceof BundleDescriptionImpl)) {
+		if (!(other instanceof BundleDescriptionImpl otherBundleDescription)) {
 			return false;
 		}
-		BundleDescriptionImpl otherBundleDescription = (BundleDescriptionImpl) other;
 		return bundleId == otherBundleDescription.bundleId;
 	}
 
@@ -733,10 +732,9 @@ final class BundleDescriptionImpl extends BaseDescriptionImpl implements BundleD
 
 		@Override
 		public boolean equals(Object obj) {
-			if (!(obj instanceof BundleWireImpl)) {
+			if (!(obj instanceof BundleWireImpl other)) {
 				return false;
 			}
-			BundleWireImpl other = (BundleWireImpl) obj;
 			return capability.equals(other.getCapability()) && requirement.equals(other.getRequirement()) && provider.equals(other.getProviderWiring()) && requirer.equals(other.getRequirerWiring());
 		}
 
