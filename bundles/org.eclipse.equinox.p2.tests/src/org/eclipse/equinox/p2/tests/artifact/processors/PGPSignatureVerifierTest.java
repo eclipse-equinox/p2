@@ -49,8 +49,7 @@ public class PGPSignatureVerifierTest {
 	public void initialize() {
 		try {
 			PGPPublicKeyService keyService = agentProvider.getService(PGPPublicKeyService.class);
-			if (keyService instanceof DefaultPGPPublicKeyService) {
-				DefaultPGPPublicKeyService defaultPGPPublicKeyService = (DefaultPGPPublicKeyService) keyService;
+			if (keyService instanceof DefaultPGPPublicKeyService defaultPGPPublicKeyService) {
 				defaultPGPPublicKeyService.setKeyServers(Set.of());
 				defaultPGPPublicKeyService.setGPG(false);
 			}

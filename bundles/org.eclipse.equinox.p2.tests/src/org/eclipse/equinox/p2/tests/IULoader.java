@@ -34,8 +34,8 @@ public class IULoader {
 		for (Field field : fields) {
 			Annotation[] a = field.getAnnotations();
 			for (Annotation a1 : a) {
-				if (a1 instanceof IUDescription) {
-					IUDescription ml = (IUDescription) a1; // here it is !!!
+				if (a1 instanceof IUDescription ml) {
+					 // here it is !!!
 					ReducedCUDFParser parser = new ReducedCUDFParser();
 					try (final InputStream is = new ByteArrayInputStream(ml.content().getBytes())) {
 						parser.parse(is, false, null);

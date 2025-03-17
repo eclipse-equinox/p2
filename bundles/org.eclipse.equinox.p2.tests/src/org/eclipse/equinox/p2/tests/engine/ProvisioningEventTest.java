@@ -153,8 +153,7 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 
 			@Override
 			public void notify(EventObject o) {
-				if (o instanceof PhaseEvent) {
-					PhaseEvent event = (PhaseEvent) o;
+				if (o instanceof PhaseEvent event) {
 					if (event.getType() == PhaseEvent.TYPE_START) {
 						if (!phaseStartEventToBePublised.remove(event.getPhaseId())) {
 							publishUnWantedPhaseEvent = event.getPhaseId();
@@ -209,8 +208,7 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 
 			@Override
 			public void notify(EventObject o) {
-				if (o instanceof InstallableUnitEvent) {
-					InstallableUnitEvent event = (InstallableUnitEvent) o;
+				if (o instanceof InstallableUnitEvent event) {
 					if (event.getPhase().equals(PhaseSetFactory.PHASE_CONFIGURE) && event.isConfigure() && event.getInstallableUnit().getId().equals(iuId)) {
 						if (event.isPre()) {
 							preConfigureEvent++;
@@ -304,8 +302,7 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 
 			@Override
 			public void notify(EventObject o) {
-				if (o instanceof InstallableUnitEvent) {
-					InstallableUnitEvent event = (InstallableUnitEvent) o;
+				if (o instanceof InstallableUnitEvent event) {
 					if (event.getPhase().equals(PhaseSetFactory.PHASE_CONFIGURE) && event.getInstallableUnit().getId().equals(iuId)) {
 						if (event.isConfigure() && event.isPre()) {
 							preConfigureEvent++;

@@ -37,10 +37,9 @@ public class TestRepositoryListener implements SynchronousProvisioningListener {
 
 	@Override
 	public void notify(EventObject o) {
-		if (!(o instanceof RepositoryEvent)) {
+		if (!(o instanceof RepositoryEvent event)) {
 			return;
 		}
-		RepositoryEvent event = (RepositoryEvent) o;
 		if (repoLocation != null && !event.getRepositoryLocation().equals(repoLocation)) {
 			return;
 		}

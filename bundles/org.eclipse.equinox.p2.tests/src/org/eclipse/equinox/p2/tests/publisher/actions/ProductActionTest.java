@@ -425,8 +425,7 @@ public class ProductActionTest extends ActionTest {
 		IInstallableUnit aJre = publisherResult.getIUs("a.jre.javase", IPublisherResult.ROOT).iterator().next();
 		boolean found = false;
 		for (IRequirement req : productIU.getRequirements()) {
-			if (req instanceof RequiredCapability) {
-				RequiredCapability required = (RequiredCapability) req;
+			if (req instanceof RequiredCapability required) {
 				if (JREAction.NAMESPACE_OSGI_EE.equals(required.getNamespace())) {
 					found = true;
 					assertEquals("OSGi/Minimum", required.getName());

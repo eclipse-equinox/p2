@@ -308,11 +308,10 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 			if (obj == null) {
 				return false;
 			}
-			if (!(obj instanceof IArtifactDescriptor)) {
+			if (!(obj instanceof IArtifactDescriptor other)) {
 				return false;
 			}
 
-			IArtifactDescriptor other = (IArtifactDescriptor) obj;
 			if (!artifactKey.equals(other.getArtifactKey())) {
 				return false;
 			}

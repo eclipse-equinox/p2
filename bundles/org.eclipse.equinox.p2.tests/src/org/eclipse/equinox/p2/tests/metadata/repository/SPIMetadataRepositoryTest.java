@@ -141,11 +141,10 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 				return true;
 			}
 
-			if (!(obj instanceof IRequirement)) {
+			if (!(obj instanceof IRequirement other)) {
 				return false;
 			}
 
-			IRequirement other = (IRequirement) obj;
 			if (filter == null) {
 				if (other.getFilter() != null) {
 					return false;
@@ -197,11 +196,10 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		@Override
 		public boolean equals(Object other) {
-			if (!(other instanceof IProvidedCapability)) {
+			if (!(other instanceof IProvidedCapability otherCapability)) {
 				return false;
 			}
 
-			IProvidedCapability otherCapability = (IProvidedCapability) other;
 			if (!(namespace.equals(otherCapability.getNamespace()))) {
 				return false;
 			}
@@ -418,10 +416,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			if (obj == null) {
 				return false;
 			}
-			if (!(obj instanceof ITouchpointData)) {
+			if (!(obj instanceof final ITouchpointData other)) {
 				return false;
 			}
-			final ITouchpointData other = (ITouchpointData) obj;
 			if (instructions == null) {
 				if (other.getInstructions() != null) {
 					return false;
@@ -461,10 +458,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			if (obj == null) {
 				return false;
 			}
-			if (!(obj instanceof ITouchpointInstruction)) {
+			if (!(obj instanceof ITouchpointInstruction other)) {
 				return false;
 			}
-			ITouchpointInstruction other = (ITouchpointInstruction) obj;
 			if (body == null) {
 				if (other.getBody() != null) {
 					return false;
@@ -511,10 +507,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			if (super.equals(obj)) {
 				return true;
 			}
-			if (obj == null || !(obj instanceof ITouchpointType)) {
+			if (obj == null || !(obj instanceof ITouchpointType other)) {
 				return false;
 			}
-			ITouchpointType other = (ITouchpointType) obj;
 			return id.equals(other.getId()) && version.equals(other.getVersion());
 		}
 	}
@@ -614,10 +609,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			if (obj == null) {
 				return false;
 			}
-			if (!(obj instanceof IRequirementChange)) {
+			if (!(obj instanceof final IRequirementChange other)) {
 				return false;
 			}
-			final IRequirementChange other = (IRequirementChange) obj;
 			if (applyOn == null) {
 				if (other.applyOn() != null) {
 					return false;
@@ -679,8 +673,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			if (obj == null) {
 				return false;
 			}
-			if (obj instanceof ILicense) {
-				ILicense other = (ILicense) obj;
+			if (obj instanceof ILicense other) {
 				if (other.getUUID().equals(getUUID())) {
 					return true;
 				}

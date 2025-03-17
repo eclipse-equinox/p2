@@ -485,10 +485,9 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		URI location = site.toURI();
 		final List<URI> references = new ArrayList<>();
 		SynchronousProvisioningListener referenceCollector = o -> {
-			if (!(o instanceof RepositoryEvent)) {
+			if (!(o instanceof RepositoryEvent event)) {
 				return;
 			}
-			RepositoryEvent event = (RepositoryEvent) o;
 			if (event.getKind() == RepositoryEvent.DISCOVERED) {
 				references.add(event.getRepositoryLocation());
 			}

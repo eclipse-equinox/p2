@@ -59,10 +59,9 @@ public class GenerateTestData {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (!(obj instanceof TestBundle)) {
+			if (!(obj instanceof TestBundle other)) {
 				return false;
 			}
-			TestBundle other = (TestBundle) obj;
 			return id.equals(other.id) && version.equals(other.version);
 		}
 
