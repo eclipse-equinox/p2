@@ -53,10 +53,9 @@ public class QueryDescriptorTest {
 			if (obj == null) {
 				return false;
 			}
-			if (!(obj instanceof WrappedString)) {
+			if (!(obj instanceof WrappedString other)) {
 				return false;
 			}
-			WrappedString other = (WrappedString) obj;
 			return this.string.equals(other.string);
 		}
 
