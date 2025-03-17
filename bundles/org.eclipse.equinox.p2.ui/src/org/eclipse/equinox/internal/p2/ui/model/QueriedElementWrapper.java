@@ -49,8 +49,7 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 	 */
 	@Override
 	protected Object wrap(Object item) {
-		if (item instanceof QueriedElement) {
-			QueriedElement element = (QueriedElement) item;
+		if (item instanceof QueriedElement element) {
 			if (!element.knowsQueryable()) {
 				element.setQueryable(queryable);
 			}
@@ -69,15 +68,13 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 			// All we can do is look for the most common reasons and guess.  If the collection
 			// is empty and the parent is an IU, then being empty is not a big deal, it means
 			// we are in drilldown.
-			if (parent instanceof MetadataRepositoryElement) {
-				MetadataRepositoryElement repo = (MetadataRepositoryElement) parent;
+			if (parent instanceof MetadataRepositoryElement repo) {
 				RepositoryTracker manipulator = repo.getProvisioningUI().getRepositoryTracker();
 				if (manipulator.hasNotFoundStatusBeenReported(repo.getLocation())) {
 					return emptyExplanation(IStatus.ERROR, NLS.bind(ProvUIMessages.QueriedElementWrapper_SiteNotFound, URIUtil.toUnencodedString(repo.getLocation())), ""); //$NON-NLS-1$
 				}
 			}
-			if (parent instanceof QueriedElement) {
-				QueriedElement element = (QueriedElement) parent;
+			if (parent instanceof QueriedElement element) {
 				IUViewQueryContext context = element.getQueryContext();
 				if (context == null) {
 					context = ProvUI.getQueryContext(element.getPolicy());

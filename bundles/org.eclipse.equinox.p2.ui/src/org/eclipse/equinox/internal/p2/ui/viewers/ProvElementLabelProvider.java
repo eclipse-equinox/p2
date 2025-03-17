@@ -53,8 +53,7 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 			}
 			return ((IProfile) obj).getProfileId();
 		}
-		if (obj instanceof IInstallableUnit) {
-			IInstallableUnit iu = (IInstallableUnit) obj;
+		if (obj instanceof IInstallableUnit iu) {
 			return iu.getId();
 		}
 		if (obj instanceof IRepository<?>) {
@@ -71,12 +70,10 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 			}
 			return URIUtil.toUnencodedString(((IRepositoryElement<?>) obj).getLocation());
 		}
-		if (obj instanceof IArtifactKey) {
-			IArtifactKey key = (IArtifactKey) obj;
+		if (obj instanceof IArtifactKey key) {
 			return key.getId() + " [" + key.getClassifier() + "]"; //$NON-NLS-1$//$NON-NLS-2$
 		}
-		if (obj instanceof IProcessingStepDescriptor) {
-			IProcessingStepDescriptor descriptor = (IProcessingStepDescriptor) obj;
+		if (obj instanceof IProcessingStepDescriptor descriptor) {
 			return descriptor.getProcessorId();
 		}
 		if (obj instanceof IRequiredCapability) {
@@ -153,8 +150,7 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 				if (element instanceof IRepositoryElement<?>) {
 					return URIUtil.toUnencodedString(((IRepositoryElement<?>) element).getLocation());
 				}
-				if (element instanceof IArtifactKey) {
-					IArtifactKey key = (IArtifactKey) element;
+				if (element instanceof IArtifactKey key) {
 					return key.getVersion().toString();
 				}
 				if (element instanceof IRequiredCapability) {

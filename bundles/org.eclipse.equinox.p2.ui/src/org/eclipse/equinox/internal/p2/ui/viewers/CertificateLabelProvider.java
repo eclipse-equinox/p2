@@ -36,8 +36,7 @@ public class CertificateLabelProvider implements ILabelProvider {
 	public String getText(Object element) {
 		if (element instanceof TreeNode) {
 			Object o = ((TreeNode) element).getValue();
-			if (o instanceof X509Certificate) {
-				X509Certificate cert = (X509Certificate) o;
+			if (o instanceof X509Certificate cert) {
 				return getText(cert);
 			}
 		}

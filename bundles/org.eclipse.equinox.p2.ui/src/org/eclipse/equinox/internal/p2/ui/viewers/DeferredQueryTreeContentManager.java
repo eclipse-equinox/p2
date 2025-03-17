@@ -100,8 +100,7 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 
 	@Override
 	protected void runClearPlaceholderJob(final PendingUpdateAdapter placeholder) {
-		if (placeholder instanceof ElementPendingUpdateAdapter) {
-			ElementPendingUpdateAdapter pendingUpdate = (ElementPendingUpdateAdapter) placeholder;
+		if (placeholder instanceof ElementPendingUpdateAdapter pendingUpdate) {
 			if (pendingUpdate.isRemoved()) {
 				return;
 			}

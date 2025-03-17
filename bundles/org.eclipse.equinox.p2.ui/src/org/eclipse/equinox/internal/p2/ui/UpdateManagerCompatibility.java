@@ -165,8 +165,7 @@ public class UpdateManagerCompatibility {
 	}
 
 	private static void writeObject(String indent, Object obj, PrintWriter writer) {
-		if (obj instanceof MetadataRepositoryElement) {
-			MetadataRepositoryElement element = (MetadataRepositoryElement) obj;
+		if (obj instanceof MetadataRepositoryElement element) {
 			String sel = element.isEnabled() ? "true" : "false"; //$NON-NLS-1$ //$NON-NLS-2$
 			String name = element.getName();
 			writer.print(indent + "<site url=\"" + URIUtil.toUnencodedString(element.getLocation()) + "\" selected=\"" + sel + "\" name=\"" + getWritableXMLString(name) + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$

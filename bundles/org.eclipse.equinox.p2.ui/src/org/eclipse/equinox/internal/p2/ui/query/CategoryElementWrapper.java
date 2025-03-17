@@ -40,8 +40,7 @@ public class CategoryElementWrapper extends QueriedElementWrapper {
 
 	@Override
 	protected boolean shouldWrap(Object match) {
-		if (match instanceof IInstallableUnit) {
-			IInstallableUnit iu = (IInstallableUnit) match;
+		if (match instanceof IInstallableUnit iu) {
 			Collection<IRequirement> requirements = iu.getRequirements();
 			for (IRequirement requirement : requirements) {
 				if (requirement instanceof IRequiredCapability) {

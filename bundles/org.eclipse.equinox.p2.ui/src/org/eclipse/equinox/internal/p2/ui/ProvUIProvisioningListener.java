@@ -51,9 +51,7 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 			if (Tracing.DEBUG_EVENTS_CLIENT) {
 				Tracing.debug("Batch Eventing:  Ignore Following Events. " + getReceiverString()); //$NON-NLS-1$
 			}
-		} else if (o instanceof RepositoryOperationEndingEvent) {
-			RepositoryOperationEndingEvent event = (RepositoryOperationEndingEvent) o;
-
+		} else if (o instanceof RepositoryOperationEndingEvent event) {
 			if (Tracing.DEBUG_EVENTS_CLIENT) {
 				Tracing.debug("Batch Eventing:  Batch Ended. " + getReceiverString()); //$NON-NLS-1$
 			}

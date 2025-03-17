@@ -102,8 +102,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 		@Override
 		protected void setValue(Object element, Object value) {
-			if (element instanceof RollbackProfileElement && value instanceof String) {
-				RollbackProfileElement ele = ((RollbackProfileElement) element);
+			if (element instanceof RollbackProfileElement ele && value instanceof String) {
 				ele.setProfileTag((String) value);
 				// save
 				IProfileRegistry registry = ProvUI.getProfileRegistry(ui.getSession());
@@ -490,9 +489,8 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 				Object selected = iter.next();
 				// If it is a recognized element and it is not the current profile, then it can
 				// be deleted.
-				if (selected instanceof RollbackProfileElement
+				if (selected instanceof RollbackProfileElement snapshot
 						&& !((RollbackProfileElement) selected).isCurrentProfile()) {
-					RollbackProfileElement snapshot = (RollbackProfileElement) selected;
 					IProfileRegistry registry = ProvUI.getProfileRegistry(getSession());
 					if (registry != null) {
 						try {
