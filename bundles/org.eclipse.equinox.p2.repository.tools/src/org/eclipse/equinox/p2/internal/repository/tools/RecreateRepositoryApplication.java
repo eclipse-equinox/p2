@@ -126,11 +126,10 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 
 		IArtifactRepository repository = manager.createRepository(repoLocation, repoName,
 				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, repoProperties);
-		if (!(repository instanceof IFileArtifactRepository)) {
+		if (!(repository instanceof IFileArtifactRepository simple)) {
 			throw new ProvisionException(NLS.bind(Messages.exception_notLocalFileRepo, repository.getLocation()));
 		}
 
-		IFileArtifactRepository simple = (IFileArtifactRepository) repository;
 		for (IArtifactKey key : repoMap.keySet()) {
 			IArtifactDescriptor[] descriptors = repoMap.get(key);
 
