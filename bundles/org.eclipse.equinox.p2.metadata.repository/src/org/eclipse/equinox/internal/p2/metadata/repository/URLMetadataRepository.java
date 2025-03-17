@@ -133,10 +133,9 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 
 	@Override
 	public synchronized Object getManagedProperty(Object client, String memberName, Object key) {
-		if (!(client instanceof IInstallableUnit)) {
+		if (!(client instanceof IInstallableUnit iu)) {
 			return null;
 		}
-		IInstallableUnit iu = (IInstallableUnit) client;
 		if (InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(memberName)) {
 			if (translationSupport == null) {
 				translationSupport = new TranslationSupport(this);

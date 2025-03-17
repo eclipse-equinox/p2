@@ -65,13 +65,11 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 			attribute(GENERATION_ATTRIBUTE, 2);
 		}
 
-		if (iu instanceof IInstallableUnitFragment) {
-			IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
+		if (iu instanceof IInstallableUnitFragment fragment) {
 			writeHostRequirements(fragment.getHost());
 		}
 
-		if (iu instanceof IInstallableUnitPatch) {
-			IInstallableUnitPatch patch = (IInstallableUnitPatch) iu;
+		if (iu instanceof IInstallableUnitPatch patch) {
 			writeApplicabilityScope(patch.getApplicabilityScope());
 			writeRequirementsChange(patch.getRequirementsChange());
 			writeLifeCycle(patch.getLifeCycle());
@@ -128,8 +126,7 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 			}
 		}
 
-		if (iu instanceof IInstallableUnitPatch) {
-			IInstallableUnitPatch iuPatch = (IInstallableUnitPatch) iu;
+		if (iu instanceof IInstallableUnitPatch iuPatch) {
 			for (IRequirement[] rArr : iuPatch.getApplicabilityScope()) {
 				for (IRequirement r : rArr) {
 					if (!RequiredCapability.isVersionRangeRequirement(r.getMatches())) {
