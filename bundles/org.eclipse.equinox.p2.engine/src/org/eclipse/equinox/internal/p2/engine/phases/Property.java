@@ -56,8 +56,7 @@ public class Property extends Phase {
 
 			String value = (String) (undo ? propertyOperand.first() : propertyOperand.second());
 
-			if (propertyOperand instanceof InstallableUnitPropertyOperand) {
-				InstallableUnitPropertyOperand iuPropertyOperand = (InstallableUnitPropertyOperand) propertyOperand;
+			if (propertyOperand instanceof InstallableUnitPropertyOperand iuPropertyOperand) {
 				profile.setInstallableUnitProperty(iuPropertyOperand.getInstallableUnit(), iuPropertyOperand.getKey(), value);
 			} else {
 				profile.setProperty(propertyOperand.getKey(), value);
@@ -65,8 +64,7 @@ public class Property extends Phase {
 		}
 
 		private void removeProfileProperty(Profile profile, PropertyOperand propertyOperand) {
-			if (propertyOperand instanceof InstallableUnitPropertyOperand) {
-				InstallableUnitPropertyOperand iuPropertyOperand = (InstallableUnitPropertyOperand) propertyOperand;
+			if (propertyOperand instanceof InstallableUnitPropertyOperand iuPropertyOperand) {
 				profile.removeInstallableUnitProperty(iuPropertyOperand.getInstallableUnit(), iuPropertyOperand.getKey());
 			} else {
 				profile.removeProperty(propertyOperand.getKey());
@@ -155,8 +153,7 @@ public class Property extends Phase {
 			return Collections.singletonList(new ProfilePropertyAction());
 		}
 
-		if (operand instanceof InstallableUnitOperand) {
-			InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
+		if (operand instanceof InstallableUnitOperand iuOperand) {
 			if (iuOperand.first() != null) {
 				if (iuOperand.second() != null) {
 					return Collections.singletonList(new UpdateInstallableUnitProfilePropertiesAction());

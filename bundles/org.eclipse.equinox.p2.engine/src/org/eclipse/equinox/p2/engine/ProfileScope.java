@@ -86,10 +86,9 @@ public final class ProfileScope implements IScopeContext {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		if (!(obj instanceof ProfileScope)) {
+		if (!(obj instanceof ProfileScope other)) {
 			return false;
 		}
-		ProfileScope other = (ProfileScope) obj;
 		return profileId.equals(other.profileId);
 	}
 

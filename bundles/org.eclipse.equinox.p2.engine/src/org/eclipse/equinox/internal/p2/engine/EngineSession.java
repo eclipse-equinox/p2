@@ -380,8 +380,7 @@ public class EngineSession {
 	}
 
 	public String getContextString(Phase phase, Operand operand, ProvisioningAction action) {
-		if (action instanceof ParameterizedProvisioningAction) {
-			ParameterizedProvisioningAction parameterizedAction = (ParameterizedProvisioningAction) action;
+		if (action instanceof ParameterizedProvisioningAction parameterizedAction) {
 			action = parameterizedAction.getAction();
 		}
 		String message = NLS.bind(Messages.session_context, new Object[] {profile.getProfileId(), phase.getClass().getName(), operand.toString(), getCurrentActionId()});
@@ -399,8 +398,7 @@ public class EngineSession {
 		}
 
 		Object currentAction = currentRecord.actions.get(currentRecord.actions.size() - 1);
-		if (currentAction instanceof ParameterizedProvisioningAction) {
-			ParameterizedProvisioningAction parameterizedAction = (ParameterizedProvisioningAction) currentAction;
+		if (currentAction instanceof ParameterizedProvisioningAction parameterizedAction) {
 			currentAction = parameterizedAction.getAction();
 		}
 		return currentAction.getClass().getName();
