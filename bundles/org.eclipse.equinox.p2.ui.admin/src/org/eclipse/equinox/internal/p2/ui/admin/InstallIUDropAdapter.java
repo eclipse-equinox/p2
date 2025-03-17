@@ -191,11 +191,9 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
 		List<IInstallableUnit> ius = new ArrayList<>();
 
-		if (!(selection instanceof IStructuredSelection) || selection.isEmpty()) {
+		if (!(selection instanceof IStructuredSelection structuredSelection) || selection.isEmpty()) {
 			return null;
 		}
-		IStructuredSelection structuredSelection = (IStructuredSelection) selection;
-
 		Iterator<?> iter = structuredSelection.iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit iu = ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
