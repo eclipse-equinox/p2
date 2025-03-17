@@ -77,11 +77,10 @@ public abstract class InstallableUnitPhase extends Phase {
 
 	@Override
 	final protected List<ProvisioningAction> getActions(Operand operand) {
-		if (!(operand instanceof InstallableUnitOperand)) {
+		if (!(operand instanceof InstallableUnitOperand iuOperand)) {
 			return null;
 		}
 
-		InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
 		return getActions(iuOperand);
 	}
 
@@ -89,11 +88,10 @@ public abstract class InstallableUnitPhase extends Phase {
 
 	@Override
 	final public boolean isApplicable(Operand operand) {
-		if (!(operand instanceof InstallableUnitOperand)) {
+		if (!(operand instanceof InstallableUnitOperand iuOperand)) {
 			return false;
 		}
 
-		InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
 		return isApplicable(iuOperand);
 	}
 

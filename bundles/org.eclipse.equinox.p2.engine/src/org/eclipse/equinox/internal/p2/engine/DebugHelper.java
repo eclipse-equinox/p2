@@ -109,8 +109,7 @@ public class DebugHelper {
 	public static String formatOperands(Operand[] operands) {
 		String[] operandStrings = new String[operands.length];
 		for (int i = 0; i < operands.length; i++) {
-			if (operands[i] instanceof InstallableUnitOperand) {
-				InstallableUnitOperand iuOperand = (InstallableUnitOperand) operands[i];
+			if (operands[i] instanceof InstallableUnitOperand iuOperand) {
 				operandStrings[i] = formatInstallableUnitOperand(iuOperand);
 			} else {
 				operandStrings[i] = operands[i].toString();
@@ -146,8 +145,7 @@ public class DebugHelper {
 	public static String formatAction(ProvisioningAction action, Map<String, Object> parameters) {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append(action.getClass().getName());
-		if (action instanceof ParameterizedProvisioningAction) {
-			ParameterizedProvisioningAction parameterizedAction = (ParameterizedProvisioningAction) action;
+		if (action instanceof ParameterizedProvisioningAction parameterizedAction) {
 			buffer.append("{action=" + parameterizedAction.getAction().getClass().getName()); //$NON-NLS-1$
 			buffer.append(", actionText=" + parameterizedAction.getActionText() + "}"); //$NON-NLS-1$ //$NON-NLS-2$
 		}

@@ -216,10 +216,9 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 
 	@Override
 	public Object getManagedProperty(Object client, String memberName, Object key) {
-		if (!(client instanceof IInstallableUnit)) {
+		if (!(client instanceof IInstallableUnit iu)) {
 			return null;
 		}
-		IInstallableUnit iu = (IInstallableUnit) client;
 		if (InstallableUnit.MEMBER_PROFILE_PROPERTIES.equals(memberName) && key instanceof String) {
 			return getInstallableUnitProperty(iu, (String) key);
 		}
