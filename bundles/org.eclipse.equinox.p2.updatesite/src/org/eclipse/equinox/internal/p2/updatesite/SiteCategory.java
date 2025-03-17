@@ -74,8 +74,7 @@ public class SiteCategory {
 	@Override
 	public boolean equals(Object obj) {
 		boolean result = false;
-		if (obj instanceof SiteCategory) {
-			SiteCategory otherCategory = (SiteCategory) obj;
+		if (obj instanceof SiteCategory otherCategory) {
 			result = getName().equalsIgnoreCase(otherCategory.getName());
 		}
 		return result;

@@ -135,10 +135,9 @@ public class SiteBundle {
 		if (object == null) {
 			return false;
 		}
-		if (!(object instanceof SiteBundle)) {
+		if (!(object instanceof SiteBundle that)) {
 			return false;
 		}
-		SiteBundle that = (SiteBundle) object;
 		if (this.bundleId == null) {
 			if (that.bundleId != null) {
 				return false;
