@@ -30,7 +30,6 @@ import org.eclipse.jface.viewers.*;
  * @see org.eclipse.ui.dialogs.FilteredTree
  * @since 3.2
  */
-@SuppressWarnings("restriction")
 public class PatternFilter extends ViewerFilter {
 	/*
 	 * Cache of filtered elements in the tree
