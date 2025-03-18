@@ -151,11 +151,9 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 			IInstallableUnit iu1 = ProvUI.getAdapter(e1, IInstallableUnit.class);
 			IInstallableUnit iu2 = ProvUI.getAdapter(e2, IInstallableUnit.class);
 			if (iu1 != null && iu2 != null) {
-				if (viewer1 instanceof TreeViewer) {
-					TreeViewer treeViewer = (TreeViewer) viewer1;
+				if (viewer1 instanceof TreeViewer treeViewer) {
 					IBaseLabelProvider baseLabel = treeViewer.getLabelProvider();
-					if (baseLabel instanceof ITableLabelProvider) {
-						ITableLabelProvider tableProvider = (ITableLabelProvider) baseLabel;
+					if (baseLabel instanceof ITableLabelProvider tableProvider) {
 						String e1p = tableProvider.getColumnText(e1, getSortColumn());
 						String e2p = tableProvider.getColumnText(e2, getSortColumn());
 						// don't suppress this warning as it will cause build-time warning
