@@ -106,9 +106,8 @@ public class PublisherHelper {
 
 	private static IArtifactDescriptor createArtifactDescriptor(IPublisherInfo info, IArtifactRepository artifactRepo, IArtifactKey key, File pathOnDisk) {
 		IArtifactDescriptor result = artifactRepo != null ? artifactRepo.createArtifactDescriptor(key) : new ArtifactDescriptor(key);
-		if (result instanceof ArtifactDescriptor) {
+		if (result instanceof ArtifactDescriptor descriptor) {
 			if (pathOnDisk != null && pathOnDisk.isFile()) {
-				ArtifactDescriptor descriptor = (ArtifactDescriptor) result;
 				descriptor.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, Long.toString(pathOnDisk.length()));
 				descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
 
