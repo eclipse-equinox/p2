@@ -149,9 +149,8 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 			if (event.isUninstall() && event.isPost()) {
 				uninstallEventProfileId = event.getProfile().getProfileId();
 			}
-		} else if (o instanceof CommitOperationEvent) {
+		} else if (o instanceof CommitOperationEvent event) {
 			if (uninstallEventProfileId != null) {
-				CommitOperationEvent event = (CommitOperationEvent) o;
 				if (uninstallEventProfileId.equals(event.getProfile().getProfileId()) && getBooleanPreference(GarbageCollectorHelper.GC_ENABLED, true)) {
 					runGC(event.getProfile());
 				}
