@@ -91,11 +91,10 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 				Tracing.debug(name + " Ignoring: " + o.toString()); //$NON-NLS-1$
 			}
 			return;
-		} else if (o instanceof IProfileEvent && (((eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU) || ((eventTypes & PROV_EVENT_PROFILE) == PROV_EVENT_PROFILE))) {
+		} else if (o instanceof IProfileEvent event && (((eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU) || ((eventTypes & PROV_EVENT_PROFILE) == PROV_EVENT_PROFILE))) {
 			if (Tracing.DEBUG_EVENTS_CLIENT) {
 				Tracing.debug(o.toString() + getReceiverString());
 			}
-			IProfileEvent event = (IProfileEvent) o;
 			if (event.getReason() == IProfileEvent.CHANGED) {
 				profileChanged(event.getProfileId());
 			} else if (event.getReason() == IProfileEvent.ADDED) {
