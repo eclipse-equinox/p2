@@ -123,7 +123,7 @@ public class ChmodAction extends ProvisioningAction {
 		String optionsString = (String) parameters.get(ActionConstants.PARM_OPTIONS);
 
 		String[] filesToProcess = absoluteFiles != null
-				? ((absoluteFiles instanceof String) ? new String[] { (String) absoluteFiles }
+				? ((absoluteFiles instanceof String s) ? new String[] { s }
 						: (String[]) absoluteFiles)
 				: makeFilesAbsolute(targetDir, targetFile);
 
