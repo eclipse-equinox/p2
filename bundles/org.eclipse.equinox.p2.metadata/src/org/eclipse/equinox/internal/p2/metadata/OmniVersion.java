@@ -110,11 +110,10 @@ public class OmniVersion extends BasicVersion {
 			return true;
 		}
 
-		if (!(o instanceof BasicVersion)) {
+		if (!(o instanceof BasicVersion ov)) {
 			return false;
 		}
 
-		BasicVersion ov = (BasicVersion) o;
 		return VersionVector.equals(vector, padValue, ov.getVector(), ov.getPad());
 	}
 

@@ -299,12 +299,10 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 
 	@Override
 	public IExpression not(IExpression operand) {
-		if (operand instanceof Equals) {
-			Equals eq = (Equals) operand;
+		if (operand instanceof Equals eq) {
 			return new Equals(eq.lhs, eq.rhs, !eq.negate);
 		}
-		if (operand instanceof Compare) {
-			Compare cmp = (Compare) operand;
+		if (operand instanceof Compare cmp) {
 			return new Compare(cmp.lhs, cmp.rhs, !cmp.compareLess, !cmp.equalOK);
 		}
 		if (operand instanceof Not) {

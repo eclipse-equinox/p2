@@ -361,13 +361,12 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 
 		@Override
 		public boolean visit(IExpression expression) {
-			if (expression instanceof Matches) {
+			if (expression instanceof Matches matches) {
 				if (IInstallableUnit.class.isAssignableFrom(elementClass)) {
 					// This one is a bit special since an
 					// IInstallableUnit ~= IRequirement often
 					// means that we can reuse the requirement
 					// expression.
-					Matches matches = (Matches) expression;
 					if (matches.lhs == operand) {
 						if (members == null) {
 							members = new ArrayList<>();
@@ -382,8 +381,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 				return false;
 			}
 
-			if (expression instanceof Member) {
-				Member member = (Member) expression;
+			if (expression instanceof Member member) {
 				if (member.getOperand() == operand) {
 					String name = member.getName();
 					if (members == null) {

@@ -83,12 +83,10 @@ public class ExpressionQuery<T> implements IQueryWithIndex<T> {
 			}
 			parameters = new Object[0];
 		} else {
-			if (expr instanceof MatchExpression<?>) {
-				MatchExpression<?> matchExpr = (MatchExpression<?>) expr;
+			if (expr instanceof MatchExpression<?> matchExpr) {
 				parameters = matchExpr.getParameters();
 				expr = factory.select(ExpressionFactory.EVERYTHING, factory.lambda(ExpressionFactory.THIS, matchExpr.operand));
-			} else if (expr instanceof ContextExpression<?>) {
-				ContextExpression<?> contextExpr = (ContextExpression<?>) expr;
+			} else if (expr instanceof ContextExpression<?> contextExpr) {
 				parameters = contextExpr.getParameters();
 				expr = contextExpr.operand;
 			} else {

@@ -38,10 +38,9 @@ public class TouchpointType implements ITouchpointType {
 		if (super.equals(obj)) {
 			return true;
 		}
-		if (obj == null || !(obj instanceof ITouchpointType)) {
+		if (obj == null || !(obj instanceof ITouchpointType other)) {
 			return false;
 		}
-		ITouchpointType other = (ITouchpointType) obj;
 		return id.equals(other.getId()) && version.equals(other.getVersion());
 	}
 

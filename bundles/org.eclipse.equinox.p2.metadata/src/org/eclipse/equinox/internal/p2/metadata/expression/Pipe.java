@@ -47,9 +47,8 @@ public class Pipe extends NAry {
 			if (indexProvider != null) {
 				return indexProvider.getManagedProperty(client, memberName, key);
 			}
-			if (client instanceof IInstallableUnit && memberName.equals(InstallableUnit.MEMBER_TRANSLATED_PROPERTIES)) {
-				IInstallableUnit iu = (IInstallableUnit) client;
-				return key instanceof KeyWithLocale ? iu.getProperty(((KeyWithLocale) key).getKey()) : iu.getProperty(key.toString());
+			if (client instanceof IInstallableUnit iu && memberName.equals(InstallableUnit.MEMBER_TRANSLATED_PROPERTIES)) {
+				return key instanceof KeyWithLocale k ? iu.getProperty(k.getKey()) : iu.getProperty(key.toString());
 			}
 			return null;
 		}
@@ -121,8 +120,7 @@ public class Pipe extends NAry {
 	private static Expression makePipeableOfBooleans(IExpressionFactory factory, ArrayList<Expression> booleans) {
 		Expression boolExpr = normalizeBoolean(factory, booleans);
 		Object[] params = null;
-		if (boolExpr instanceof MatchExpression<?>) {
-			MatchExpression<?> matchExpr = (MatchExpression<?>) boolExpr;
+		if (boolExpr instanceof MatchExpression<?> matchExpr) {
 			boolExpr = (Expression) matchExpr.getPredicate();
 			params = matchExpr.getParameters();
 			if (params.length == 0) {

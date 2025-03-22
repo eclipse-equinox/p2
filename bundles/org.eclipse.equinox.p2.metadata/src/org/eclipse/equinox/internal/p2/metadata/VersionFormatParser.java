@@ -205,10 +205,9 @@ class VersionFormatParser {
 			if (o == this) {
 				return true;
 			}
-			if (!(o instanceof Qualifier)) {
+			if (!(o instanceof Qualifier oq)) {
 				return false;
 			}
-			Qualifier oq = (Qualifier) o;
 			return min == oq.min && max == oq.max;
 		}
 
@@ -267,9 +266,8 @@ class VersionFormatParser {
 						}
 					}
 				} else {
-					if (fragment instanceof StringFragment) {
+					if (fragment instanceof StringFragment stringFrag) {
 						// Check for translations if we default to for MINS or MAXS
-						StringFragment stringFrag = (StringFragment) fragment;
 						Comparable<?> opposite = stringFrag.getOppositeDefaultValue();
 						if (opposite != null) {
 							idx = segments.size() - 1;
@@ -1166,8 +1164,7 @@ class VersionFormatParser {
 		}
 
 		public boolean isOppositeTranslation(Object val) {
-			if (val instanceof String) {
-				String str = (String) val;
+			if (val instanceof String str) {
 				int idx = oppositeTranslationRepeat;
 				if (str.length() == idx) {
 					while (--idx >= 0) {

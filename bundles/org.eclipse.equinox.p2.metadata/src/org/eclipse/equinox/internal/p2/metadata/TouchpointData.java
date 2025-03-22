@@ -50,10 +50,9 @@ public class TouchpointData implements ITouchpointData {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof ITouchpointData)) {
+		if (!(obj instanceof final ITouchpointData other)) {
 			return false;
 		}
-		final ITouchpointData other = (ITouchpointData) obj;
 		if (instructions == null) {
 			if (other.getInstructions() != null) {
 				return false;

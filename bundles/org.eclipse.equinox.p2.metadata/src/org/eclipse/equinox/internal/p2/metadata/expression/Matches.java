@@ -79,13 +79,11 @@ public class Matches extends Binary {
 			return false;
 		}
 
-		if (rval instanceof IRequirement) {
-			IRequirement requirement = (IRequirement) rval;
+		if (rval instanceof IRequirement requirement) {
 			if (lval instanceof IInstallableUnit) {
 				return Boolean.valueOf(((IInstallableUnit) lval).satisfies(requirement));
 			}
-		} else if (rval instanceof VersionRange) {
-			VersionRange range = (VersionRange) rval;
+		} else if (rval instanceof VersionRange range) {
 			if (lval instanceof Version) {
 				return Boolean.valueOf(range.isIncluded((Version) lval));
 			}
@@ -134,8 +132,7 @@ public class Matches extends Binary {
 			if (lval instanceof Character || lval instanceof Number || lval instanceof Boolean) {
 				return ((LDAPApproximation) rval).isMatch(lval.toString());
 			}
-		} else if (rval instanceof Class<?>) {
-			Class<?> rclass = (Class<?>) rval;
+		} else if (rval instanceof Class<?> rclass) {
 			return lval instanceof Class<?> ? rclass.isAssignableFrom((Class<?>) lval) : rclass.isInstance(lval);
 		}
 		throw new IllegalArgumentException(

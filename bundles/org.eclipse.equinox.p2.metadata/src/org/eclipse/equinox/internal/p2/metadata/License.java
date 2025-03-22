@@ -104,8 +104,7 @@ public class License implements ILicense {
 		if (obj == null) {
 			return false;
 		}
-		if (obj instanceof ILicense) {
-			ILicense other = (ILicense) obj;
+		if (obj instanceof ILicense other) {
 			if (other.getUUID().equals(getUUID())) {
 				return true;
 			}

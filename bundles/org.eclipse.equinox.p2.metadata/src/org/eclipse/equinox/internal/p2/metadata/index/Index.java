@@ -22,8 +22,7 @@ import org.eclipse.equinox.p2.metadata.index.IIndex;
 public abstract class Index<T> implements IIndex<T> {
 
 	protected static boolean isIndexedMember(IExpression expr, IExpression variable, String memberName) {
-		if (expr instanceof Member) {
-			Member member = (Member) expr;
+		if (expr instanceof Member member) {
 			return member.getOperand() == variable && member.getName().equals(memberName);
 		}
 		return false;

@@ -32,8 +32,7 @@ class At extends Binary {
 	@Override
 	public Object evaluate(org.eclipse.equinox.p2.metadata.expression.IEvaluationContext context) {
 		Object lval;
-		if (lhs instanceof DynamicMember) {
-			DynamicMember lm = (DynamicMember) lhs;
+		if (lhs instanceof DynamicMember lm) {
 			Object instance = lm.operand.evaluate(context);
 			if (instance instanceof IInstallableUnit) {
 				String name = lm.getName();
