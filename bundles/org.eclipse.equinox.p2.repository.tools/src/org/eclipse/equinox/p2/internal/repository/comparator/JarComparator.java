@@ -45,7 +45,7 @@ public class JarComparator implements IArtifactComparator {
 
 		@Override
 		public boolean equals(Object o) {
-			FeatureEntry otherEntry = (o instanceof FeatureEntryWrapper) ? ((FeatureEntryWrapper) o).getEntry() : null;
+			FeatureEntry otherEntry = (o instanceof FeatureEntryWrapper f) ? f.getEntry() : null;
 
 			if (otherEntry == null || !entry.equals(otherEntry)) {
 				return false;
