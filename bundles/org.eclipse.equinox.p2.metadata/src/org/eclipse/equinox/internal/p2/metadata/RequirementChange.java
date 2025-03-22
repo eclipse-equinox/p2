@@ -69,10 +69,9 @@ public class RequirementChange implements IRequirementChange {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof IRequirementChange)) {
+		if (!(obj instanceof final IRequirementChange other)) {
 			return false;
 		}
-		final IRequirementChange other = (IRequirementChange) obj;
 		if (applyOn == null) {
 			if (other.applyOn() != null) {
 				return false;

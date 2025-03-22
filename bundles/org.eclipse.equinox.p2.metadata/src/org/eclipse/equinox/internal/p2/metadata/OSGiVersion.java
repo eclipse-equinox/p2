@@ -56,11 +56,10 @@ public class OSGiVersion extends BasicVersion {
 			return true;
 		}
 
-		if (!(e instanceof String)) {
+		if (!(e instanceof String s)) {
 			return false;
 		}
 
-		String s = (String) e;
 		int idx = s.length();
 		boolean[] allowed = allowedOSGiChars;
 		while (--idx >= 0) {
@@ -110,11 +109,10 @@ public class OSGiVersion extends BasicVersion {
 	@Override
 	public int compareTo(Version v) {
 		int result;
-		if (!(v instanceof OSGiVersion)) {
+		if (!(v instanceof OSGiVersion ov)) {
 			BasicVersion ov = (BasicVersion) v;
 			result = VersionVector.compare(getVector(), null, ov.getVector(), ov.getPad());
 		} else {
-			OSGiVersion ov = (OSGiVersion) v;
 			result = major - ov.major;
 			if (result == 0) {
 				result = minor - ov.minor;
@@ -135,15 +133,13 @@ public class OSGiVersion extends BasicVersion {
 			return true;
 		}
 
-		if (!(object instanceof OSGiVersion)) {
-			if (object instanceof BasicVersion) {
-				BasicVersion ov = (BasicVersion) object;
+		if (!(object instanceof OSGiVersion other)) {
+			if (object instanceof BasicVersion ov) {
 				return VersionVector.equals(getVector(), null, ov.getVector(), ov.getPad());
 			}
 			return false;
 		}
 
-		OSGiVersion other = (OSGiVersion) object;
 		return micro == other.micro && minor == other.minor && major == other.major && qualifier.equals(other.qualifier);
 	}
 

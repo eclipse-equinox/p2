@@ -31,10 +31,9 @@ final class Latest extends UnaryCollectionFilter {
 	@Override
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		HashMap<String, IVersionedId> greatestIUVersion;
-		if (operand instanceof Select) {
+		if (operand instanceof Select select) {
 			// Inline element evaluation here so that we don't build a map that is
 			// larger then it has to be
-			Select select = (Select) operand;
 			Iterator<?> iterator = select.operand.evaluateAsIterator(context);
 			if (!iterator.hasNext()) {
 				return Collections.EMPTY_SET.iterator();
@@ -77,11 +76,10 @@ final class Latest extends UnaryCollectionFilter {
 			greatestIUVersion = new HashMap<>();
 			while (iterator.hasNext()) {
 				Object next = iterator.next();
-				if (!(next instanceof IVersionedId)) {
+				if (!(next instanceof IVersionedId versionedID)) {
 					continue;
 				}
 
-				IVersionedId versionedID = (IVersionedId) next;
 				String id = versionedID.getId();
 
 				IVersionedId prev = greatestIUVersion.put(id, versionedID);

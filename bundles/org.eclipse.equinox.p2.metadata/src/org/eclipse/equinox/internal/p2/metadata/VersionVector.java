@@ -252,14 +252,14 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 		}
 
 		if (a instanceof VersionVector) {
-			return (b instanceof VersionVector) ? ((VersionVector) a).compareTo((VersionVector) b) : 1;
+			return (b instanceof VersionVector v) ? ((VersionVector) a).compareTo(v) : 1;
 		}
 		if (b instanceof VersionVector) {
 			return -1;
 		}
 
 		if (a instanceof EnumDefinition.EnumSegment) {
-			return (b instanceof EnumDefinition.EnumSegment) ? ((EnumDefinition.EnumSegment) a).compareTo((EnumDefinition.EnumSegment) b) : 1;
+			return (b instanceof EnumDefinition.EnumSegment e) ? ((EnumDefinition.EnumSegment) a).compareTo(e) : 1;
 		}
 		if (b instanceof EnumDefinition.EnumSegment) {
 			return -1;
@@ -292,11 +292,10 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 			return true;
 		}
 
-		if (!(o instanceof VersionVector)) {
+		if (!(o instanceof VersionVector ov)) {
 			return false;
 		}
 
-		VersionVector ov = (VersionVector) o;
 		return equals(vector, padValue, ov.vector, ov.padValue);
 	}
 

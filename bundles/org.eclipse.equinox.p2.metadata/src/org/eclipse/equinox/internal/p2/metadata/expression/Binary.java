@@ -84,8 +84,7 @@ public abstract class Binary extends Expression {
 	 * LDAP filter binary expression
 	 */
 	void appendLDAPAttribute(StringBuilder buf) {
-		if (lhs instanceof DynamicMember) {
-			DynamicMember attr = (DynamicMember) lhs;
+		if (lhs instanceof DynamicMember attr) {
 			if (attr.operand instanceof Variable) {
 				buf.append(attr.getName());
 				return;

@@ -112,10 +112,9 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof ITouchpointInstruction)) {
+		if (!(obj instanceof ITouchpointInstruction other)) {
 			return false;
 		}
-		ITouchpointInstruction other = (ITouchpointInstruction) obj;
 		if (body == null) {
 			if (other.getBody() != null) {
 				return false;

@@ -95,11 +95,10 @@ public class VersionedId implements IVersionedId {
 			return true;
 		}
 
-		if (!(obj instanceof VersionedId)) {
+		if (!(obj instanceof VersionedId vname)) {
 			return false;
 		}
 
-		VersionedId vname = (VersionedId) obj;
 		return id.equals(vname.id) && version.equals(vname.version);
 	}
 
