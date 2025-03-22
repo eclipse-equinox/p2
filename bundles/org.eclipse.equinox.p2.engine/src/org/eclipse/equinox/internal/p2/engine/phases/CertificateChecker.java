@@ -146,8 +146,8 @@ public class CertificateChecker {
 			return Status.OK_STATUS;
 		}
 
-		IArtifactUIServices artifactServiceUI = serviceUI instanceof IArtifactUIServices
-				? (IArtifactUIServices) serviceUI
+		IArtifactUIServices artifactServiceUI = serviceUI instanceof IArtifactUIServices i
+				? i
 				: (untrustedCertificateChains, untrustedPGPKeys, unsignedArtifacts,
 						artifactFiles) -> IArtifactUIServices.getTrustInfo(serviceUI, untrustedCertificateChains,
 								untrustedPGPKeys, unsignedArtifacts, artifactFiles);
