@@ -57,7 +57,7 @@ public abstract class RepositoryStatusHelper {
 	}
 
 	public static IStatus createExceptionStatus(Throwable cause) {
-		return (cause instanceof CoreException) ? ((CoreException) cause).getStatus() : new Status(IStatus.ERROR, Activator.ID, IStatus.OK, cause.getMessage(), cause);
+		return (cause instanceof CoreException c) ? c.getStatus() : new Status(IStatus.ERROR, Activator.ID, IStatus.OK, cause.getMessage(), cause);
 	}
 
 	public static IStatus createExceptionStatus(Throwable cause, String nlsMessage, Object[] args) {
