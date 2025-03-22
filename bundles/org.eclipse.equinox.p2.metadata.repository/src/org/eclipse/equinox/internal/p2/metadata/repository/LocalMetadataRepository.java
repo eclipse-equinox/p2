@@ -166,7 +166,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 			if (translationSupport == null) {
 				translationSupport = new TranslationSupport(this);
 			}
-			return key instanceof KeyWithLocale ? translationSupport.getIUProperty(iu, (KeyWithLocale) key) : translationSupport.getIUProperty(iu, key.toString());
+			return key instanceof KeyWithLocale k ? translationSupport.getIUProperty(iu, k) : translationSupport.getIUProperty(iu, key.toString());
 		}
 		return null;
 	}
