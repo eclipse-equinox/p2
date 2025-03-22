@@ -75,7 +75,7 @@ class GenericDescriptionImpl extends BaseDescriptionImpl implements GenericDescr
 	public String getName() {
 		synchronized (this.monitor) {
 			Object name = attributes != null ? attributes.get(getType()) : null;
-			return name instanceof String ? (String) name : null;
+			return name instanceof String s ? s : null;
 		}
 	}
 
@@ -99,7 +99,7 @@ class GenericDescriptionImpl extends BaseDescriptionImpl implements GenericDescr
 	@Override
 	public Version getVersion() {
 		Object version = attributes != null ? attributes.get(Constants.VERSION_ATTRIBUTE) : null;
-		return version instanceof Version ? (Version) version : super.getVersion();
+		return version instanceof Version v ? v : super.getVersion();
 	}
 
 	@Override
