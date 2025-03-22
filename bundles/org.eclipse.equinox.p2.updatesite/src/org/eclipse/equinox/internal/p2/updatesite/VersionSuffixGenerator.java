@@ -96,7 +96,7 @@ public class VersionSuffixGenerator {
 			return 0;
 		}
 		Object seg = v.getSegment(segment);
-		return seg instanceof Integer ? ((Integer) seg).intValue() : 0;
+		return seg instanceof Integer i ? i.intValue() : 0;
 	}
 
 	private static int getMajor(Version v) {
@@ -117,7 +117,7 @@ public class VersionSuffixGenerator {
 			return null;
 		}
 		Object seg = v.getSegment(segCount - 1);
-		return seg instanceof String ? (String) seg : null;
+		return seg instanceof String s ? s : null;
 	}
 
 	// Encode a non-negative number as a variable length string, with the
