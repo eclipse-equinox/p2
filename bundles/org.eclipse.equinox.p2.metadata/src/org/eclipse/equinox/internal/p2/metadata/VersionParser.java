@@ -83,7 +83,7 @@ public abstract class VersionParser {
 		}
 
 		if (!isLetter(c)) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(NLS.bind(Messages.expected_letter_at_position, pos, version));
 		}
 
 		if (version.startsWith(Version.RAW_PREFIX, pos)) {
