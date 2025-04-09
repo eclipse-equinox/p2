@@ -98,11 +98,11 @@ public class QueryUtil {
 	 * @return A compound query
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> IQuery<T> createCompoundQuery(Collection<? extends IQuery<? extends T>> queries, boolean and) {
+	public static <T> IQuery<T> createCompoundQuery(Collection<? extends IQuery<T>> queries, boolean and) {
 		IExpressionFactory factory = ExpressionUtil.getFactory();
 		int top = queries.size();
 		if (top == 1) {
-			return (IQuery<T>) queries.iterator().next();
+			return queries.iterator().next();
 		}
 
 		Class<? extends T> elementClass = (Class<T>) Object.class;
@@ -178,8 +178,8 @@ public class QueryUtil {
 	 * a logical 'or'.
 	 * @return A compound query
 	 */
-	public static <T> IQuery<T> createCompoundQuery(IQuery<? extends T> query1, IQuery<T> query2, boolean and) {
-		ArrayList<IQuery<? extends T>> queries = new ArrayList<>(2);
+	public static <T> IQuery<T> createCompoundQuery(IQuery<T> query1, IQuery<T> query2, boolean and) {
+		ArrayList<IQuery<T>> queries = new ArrayList<>(2);
 		queries.add(query1);
 		queries.add(query2);
 		return createCompoundQuery(queries, and);
@@ -425,7 +425,7 @@ public class QueryUtil {
 	 * @return A query pipe
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> IQuery<T> createPipeQuery(Collection<? extends IQuery<? extends T>> queries) {
+	public static <T> IQuery<T> createPipeQuery(Collection<? extends IQuery<T>> queries) {
 		IExpressionFactory factory = ExpressionUtil.getFactory();
 		int top = queries.size();
 		IExpression[] expressions = new IExpression[top];
@@ -453,8 +453,8 @@ public class QueryUtil {
 	 * @param query2 the second query
 	 * @return A query pipe
 	 */
-	public static <T> IQuery<T> createPipeQuery(IQuery<? extends T> query1, IQuery<? extends T> query2) {
-		ArrayList<IQuery<? extends T>> queries = new ArrayList<>(2);
+	public static <T> IQuery<T> createPipeQuery(IQuery<T> query1, IQuery<T> query2) {
+		ArrayList<IQuery<T>> queries = new ArrayList<>(2);
 		queries.add(query1);
 		queries.add(query2);
 		return createPipeQuery(queries);
