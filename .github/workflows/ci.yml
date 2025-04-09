@@ -12,3 +12,7 @@ on:
 jobs:
   build:
     uses: eclipse-platform/eclipse.platform.releng.aggregator/.github/workflows/mavenBuild.yml@master
+  javac:
+    uses: eclipse-platform/eclipse.platform.releng.aggregator/.github/workflows/mavenBuild.yml@master
+    with:
+      maven-goals: clean verify -DskipTest=true -Pjavac
