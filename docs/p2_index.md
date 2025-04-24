@@ -5,16 +5,16 @@ Equinox/p2/p2 index
 Contents
 --------
 
-*   [1 What is the p2.index file?](#What-is-the-p2.index-file.3F)
-*   [2 How does it help me?](#How-does-it-help-me.3F)
-*   [3 What happens if I get it wrong ?](#What-happens-if-I-get-it-wrong-.3F)
-*   [4 How many files for composite repositories?](#How-many-files-for-composite-repositories.3F)
-*   [5 Why say 'xml' instead of 'jar' in factory name?](#Why-say-.27xml.27-instead-of-.27jar.27-in-factory-name.3F)
-*   [6 Examples](#Examples)
-    *   [6.1 Example for composite repository](#Example-for-composite-repository)
-    *   [6.2 Example for simple repository](#Example-for-simple-repository)
-    *   [6.3 New in Mars Release: XZ Example for simple repository](#New-in-Mars-Release:-XZ-Example-for-simple-repository)
-    *   [6.4 Example for a mixed repository](#Example-for-a-mixed-repository)
+*   [1 What is the p2.index file?](#what-is-the-p2index-file)
+*   [2 How does it help me?](#how-does-it-help-me)
+*   [3 What happens if I get it wrong ?](#what-happens-if-i-get-it-wrong)
+*   [4 How many files for composite repositories?](#how-many-files-for-composite-repositories)
+*   [5 Why say 'xml' instead of 'jar' in factory name?](#why-say-xml-instead-of-jar-in-factory-name)
+*   [6 Examples](#examples)
+    *   [6.1 Example for composite repository](#example-for-composite-repository)
+    *   [6.2 Example for simple repository](#example-for-simple-repository)
+    *   [6.3 New in Mars Release: XZ Example for simple repository](#new-in-mars-release-xz-example-for-simple-repository)
+    *   [6.4 Example for a mixed repository](#example-for-a-mixed-repository)
 
 What is the p2.index file?
 --------------------------
