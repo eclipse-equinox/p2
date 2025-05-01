@@ -28,11 +28,12 @@ pipeline {
 			post {
 				always {
 					archiveArtifacts artifacts: '*.log,**/target/**/*.log', allowEmptyArchive: true
-					junit '**/target/surefire-reports/TEST-*.xml'
 					discoverGitReferenceBuild referenceJob: 'p2/master'
-					recordIssues(publishAllIssues:false, ignoreQualityGate:true,
-						tool: eclipse(name: 'Compiler and API Tools', pattern: '**/target/compilelogs/*.xml'),
-						qualityGates: [[threshold: 1, type: 'DELTA', unstable: true]])
+					junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+					recordIssues publishAllIssues: true, ignoreQualityGate: true, enabledForFailure: true, tools: [
+							eclipse(name: 'Compiler', pattern: '**/target/compilelogs/*.xml'),
+							issues(name: 'API Tools', id: 'apitools', pattern: '**/target/apianalysis/*.xml'),
+						], qualityGates: [[threshold: 1, type: 'DELTA', unstable: true]]
 					recordIssues tools: [javaDoc(), mavenConsole()]
 				}
 			}
