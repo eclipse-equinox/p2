@@ -129,7 +129,7 @@ public class BaseChangeExtendedConfigured extends BaseChange {
 		setReadOnly(extensions, true);
 	}
 
-	public void testBaseWithExtensionsChange() {
+	public void testBaseWithExtensionsChange() throws IOException {
 		assertInitialized();
 		setupReadOnlyInstall();
 
