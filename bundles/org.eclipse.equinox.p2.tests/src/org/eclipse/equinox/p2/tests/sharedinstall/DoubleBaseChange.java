@@ -8,12 +8,13 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *     Ericsson AB - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.sharedinstall;
 
+import java.io.IOException;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -32,7 +33,7 @@ public class DoubleBaseChange extends AbstractSharedInstallTest {
 		super(name);
 	}
 
-	public void testTwoChanges() {
+	public void testTwoChanges() throws IOException {
 		assertInitialized();
 		setupReadOnlyInstall();
 		System.out.println(readOnlyBase);
