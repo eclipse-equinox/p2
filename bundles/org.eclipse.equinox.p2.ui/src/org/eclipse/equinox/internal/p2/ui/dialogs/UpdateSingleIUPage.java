@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import java.net.MalformedURLException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
@@ -37,7 +36,8 @@ public class UpdateSingleIUPage extends ProvisioningWizardPage {
 		super("UpdateSingleIUPage", ui, null); //$NON-NLS-1$
 		setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		IProduct product = Platform.getProduct();
-		String productName = product != null && product.getName() != null ? product.getName() : ProvUIMessages.ApplicationInRestartDialog;
+		String productName = product != null && product.getName() != null ? product.getName()
+				: ProvUIMessages.ApplicationInRestartDialog;
 		setDescription(NLS.bind(ProvUIMessages.UpdateSingleIUPage_SingleUpdateDescription, productName));
 		Assert.isNotNull(operation);
 		Assert.isTrue(operation.hasResolved());
@@ -51,11 +51,7 @@ public class UpdateSingleIUPage extends ProvisioningWizardPage {
 		IInstallableUnit updateIU = getUpdate().replacement;
 		String url = null;
 		if (updateIU.getUpdateDescriptor().getLocation() != null) {
-			try {
-				url = URIUtil.toURL(updateIU.getUpdateDescriptor().getLocation()).toExternalForm();
-			} catch (MalformedURLException e) {
-				// ignore and null URL will be ignored below
-			}
+			url = updateIU.getUpdateDescriptor().getLocation().toString();
 		}
 		if (url != null) {
 			Browser browser = null;
