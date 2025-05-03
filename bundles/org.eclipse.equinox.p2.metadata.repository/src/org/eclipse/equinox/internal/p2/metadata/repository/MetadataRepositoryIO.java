@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2022 IBM Corporation and others.
+ * Copyright (c) 2007, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,7 +17,6 @@ package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Set;
@@ -166,14 +165,9 @@ public class MetadataRepositoryIO {
 		private void writeRepositoryReference(IRepositoryReference reference) {
 			start(REPOSITORY_REFERENCE_ELEMENT);
 			attribute(URI_ATTRIBUTE, reference.getLocation().toString());
-
-			try {
-				// we write the URL attribute for backwards compatibility with 3.4.x
-				// this attribute should be removed if we make a breaking format change.
-				attribute(URL_ATTRIBUTE, URIUtil.toURL(reference.getLocation()).toExternalForm());
-			} catch (MalformedURLException e) {
-				attribute(URL_ATTRIBUTE, reference.getLocation().toString());
-			}
+			// we write the URL attribute for backwards compatibility with 3.4.x
+			// this attribute should be removed if we make a breaking format change.
+			attribute(URL_ATTRIBUTE, reference.getLocation().toString());
 
 			attribute(TYPE_ATTRIBUTE, Integer.toString(reference.getType()));
 			attribute(OPTIONS_ATTRIBUTE, Integer.toString(reference.getOptions()));

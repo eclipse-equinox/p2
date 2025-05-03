@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2025 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Genuitec, LLC - added license support
@@ -15,9 +15,9 @@
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.util.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.RequiredPropertiesMatch;
@@ -396,7 +396,7 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 
 	private void writeLicenses(Collection<ILicense> licenses) {
 		if (licenses != null && licenses.size() > 0) {
-			// In the future there may be more than one license, so we write this 
+			// In the future there may be more than one license, so we write this
 			// as a collection of one.
 			// See bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=216911
 			start(LICENSES_ELEMENT);
@@ -408,14 +408,9 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 				start(LICENSE_ELEMENT);
 				if (license.getLocation() != null) {
 					attribute(URI_ATTRIBUTE, license.getLocation().toString());
-
-					try {
-						// we write the URL attribute for backwards compatibility with 3.4.x
-						// this attribute should be removed if we make a breaking format change.
-						attribute(URL_ATTRIBUTE, URIUtil.toURL(license.getLocation()).toExternalForm());
-					} catch (MalformedURLException e) {
-						attribute(URL_ATTRIBUTE, license.getLocation().toString());
-					}
+					// we write the URL attribute for backwards compatibility with 3.4.x
+					// this attribute should be removed if we make a breaking format change.
+					attribute(URL_ATTRIBUTE, license.getLocation().toString());
 				}
 				cdata(license.getBody(), true);
 				end(LICENSE_ELEMENT);
@@ -430,13 +425,9 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 			try {
 				if (copyright.getLocation() != null) {
 					attribute(URI_ATTRIBUTE, copyright.getLocation().toString());
-					try {
-						// we write the URL attribute for backwards compatibility with 3.4.x
-						// this attribute should be removed if we make a breaking format change.
-						attribute(URL_ATTRIBUTE, URIUtil.toURL(copyright.getLocation()).toExternalForm());
-					} catch (MalformedURLException e) {
-						attribute(URL_ATTRIBUTE, copyright.getLocation().toString());
-					}
+					// we write the URL attribute for backwards compatibility with 3.4.x
+					// this attribute should be removed if we make a breaking format change.
+					attribute(URL_ATTRIBUTE, copyright.getLocation().toString());
 				}
 			} catch (IllegalStateException ise) {
 				LogHelper.log(new Status(IStatus.INFO, Constants.ID, "Error writing the copyright URL: " + copyright.getLocation())); //$NON-NLS-1$
