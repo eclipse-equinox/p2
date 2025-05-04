@@ -8,13 +8,14 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *     Ericsson AB - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.sharedinstall;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
 //See InitialSharedInstall
@@ -24,7 +25,7 @@ public class InitialSharedInstallRealTest extends AbstractSharedInstallTest {
 		super(name);
 	}
 
-	public void testImportFromPreviousInstall() {
+	public void testImportFromPreviousInstall() throws IOException {
 		assertInitialized();
 		replaceDotEclipseProductFile(new File(output, getRootFolder()), "p2.automated.test", "1.0.1");
 		installVerifierInBase();

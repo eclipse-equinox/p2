@@ -17,7 +17,10 @@ package org.eclipse.equinox.p2.tests.sharedinstall;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
@@ -126,7 +129,7 @@ public class BaseChangeExtendedConflicts extends BaseChange {
 		setReadOnly(extFolder, true);
 	}
 
-	public void testBundlesSpecifiedMultipleTimes() {
+	public void testBundlesSpecifiedMultipleTimes() throws IOException {
 		assertInitialized();
 		setupReadOnlyInstall();
 

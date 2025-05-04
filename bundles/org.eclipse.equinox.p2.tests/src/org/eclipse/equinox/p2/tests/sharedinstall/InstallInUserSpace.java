@@ -8,12 +8,13 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *     Ericsson AB - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.sharedinstall;
 
+import java.io.IOException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -32,7 +33,7 @@ public class InstallInUserSpace extends AbstractSharedInstallTest {
 		super(name);
 	}
 
-	public void testInstallInUserSpace() {
+	public void testInstallInUserSpace() throws IOException {
 		assertInitialized();
 		setupReadOnlyInstall();
 		System.out.println(readOnlyBase);
@@ -40,7 +41,7 @@ public class InstallInUserSpace extends AbstractSharedInstallTest {
 
 		installFeature1AndVerifierInUser();
 		assertTrue(isInUserBundlesInfo("p2TestBundle1"));
-		assertTrue(isInUserBundlesInfo("org.eclipse.swt")); //this verifies that we have the bundles from the base installed in the user bundles.info 
+		assertTrue(isInUserBundlesInfo("org.eclipse.swt")); //this verifies that we have the bundles from the base installed in the user bundles.info
 
 		assertTrue(getUserBundleInfoTimestamp().exists());
 		assertTrue(getConfigIniTimestamp().exists());

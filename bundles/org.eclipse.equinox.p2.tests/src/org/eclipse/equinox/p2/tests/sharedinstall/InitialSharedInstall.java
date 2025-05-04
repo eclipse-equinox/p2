@@ -16,6 +16,7 @@ package org.eclipse.equinox.p2.tests.sharedinstall;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.p2.tests.reconciler.dropins.ReconcilerTestSuite;
@@ -45,7 +46,7 @@ public class InitialSharedInstall extends AbstractSharedInstallTest {
 		super(name);
 	}
 
-	public void setupRun() {
+	public void setupRun() throws IOException {
 		cleanupDotEclipseFolder();
 		assertInitialized();
 		replaceDotEclipseProductFile(new File(output, getRootFolder()), "p2.automated.test", "1.0.0");

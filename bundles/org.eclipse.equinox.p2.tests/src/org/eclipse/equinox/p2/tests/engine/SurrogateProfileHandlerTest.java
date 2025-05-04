@@ -14,6 +14,7 @@
 package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -97,7 +98,7 @@ public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 		assertEquals(2, queryResultSize(surrogateProfile.available(QueryUtil.createIUAnyQuery(), null)));
 	}
 
-	public void testDropletsCanDetectFeatureGroup() throws ProvisionException {
+	public void testDropletsCanDetectFeatureGroup() throws ProvisionException, IOException {
 		// Droplet containing 'org.foo.bar', 'org.foo.bar.feature.feature.jar' and 'org.foo.bar.feature.feature.group'
 		File fragTestData = getTestData("0.1", "/testData/testRepos/foo-droplet");
 		File fragDir = getTempFolder();

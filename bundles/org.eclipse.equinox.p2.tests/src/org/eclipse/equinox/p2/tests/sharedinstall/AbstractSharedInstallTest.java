@@ -80,40 +80,30 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		return getMostRecentProfileTimestamp(getBaseProfileRegistryFolder());
 	}
 
-	protected void assertProfileStatePropertiesHasValue(File profileFolder, String value) {
-		try {
-			Properties p = loadProperties(new File(profileFolder, "state.properties").toPath());
-			Collection<Object> values = p.values();
-			for (Object v : values) {
-				if (((String) v).contains(value)) {
-					return;
-				}
+	protected void assertProfileStatePropertiesHasValue(File profileFolder, String value) throws IOException {
+		Properties p = loadProperties(new File(profileFolder, "state.properties").toPath());
+		Collection<Object> values = p.values();
+		for (Object v : values) {
+			if (((String) v).contains(value)) {
+				return;
 			}
-			fail("Value: " + value + " not found.");
-		} catch (IOException e) {
-			fail("exception while loading profile state properties in " + profileFolder.getAbsolutePath());
 		}
-
+		fail("Value: " + value + " not found.");
 	}
 
 	protected File getConfigIniTimestamp() {
 		return new File(userBase, "configuration/.baseConfigIniTimestamp");
 	}
 
-	protected void assertProfileStatePropertiesHasKey(File profileFolder, String key) {
-		try {
-			Properties p = loadProperties(new File(profileFolder, "state.properties").toPath());
-			Set<Object> keys = p.keySet();
-			for (Object k : keys) {
-				if (((String) k).contains(key)) {
-					return;
-				}
+	protected void assertProfileStatePropertiesHasKey(File profileFolder, String key) throws IOException {
+		Properties p = loadProperties(new File(profileFolder, "state.properties").toPath());
+		Set<Object> keys = p.keySet();
+		for (Object k : keys) {
+			if (((String) k).contains(key)) {
+				return;
 			}
-			fail("Key: " + key + " not found.");
-		} catch (IOException e) {
-			fail("exception while loading profile state properties in " + profileFolder.getAbsolutePath());
 		}
-
+		fail("Key: " + key + " not found.");
 	}
 
 	protected void installFeature1AndVerifierInUser() {
@@ -167,14 +157,8 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		setReadOnly(readOnlyBase, true);
 	}
 
-	protected boolean isInUserBundlesInfo(String bundleId) {
-		try {
-			return isInBundlesInfo(getUserBundlesInfo(), bundleId, null, null);
-		} catch (IOException e) {
-			fail("Problem reading bundles.info");
-		}
-		//should never be reached
-		return false;
+	protected boolean isInUserBundlesInfo(String bundleId) throws IOException {
+		return isInBundlesInfo(getUserBundlesInfo(), bundleId, null, null);
 	}
 
 	protected File getUserBundlesInfo() {
@@ -185,17 +169,13 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		runEclipse("Running eclipse", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-listInstalledRoots"});
 	}
 
-	protected void executeVerifierWithoutSpecifyingConfiguration(Properties verificationProperties) {
+	protected void executeVerifierWithoutSpecifyingConfiguration(Properties verificationProperties) throws IOException {
 		realExecuteVerifier(verificationProperties, false);
 	}
 
-	protected void realExecuteVerifier(Properties verificationProperties, boolean withConfigFlag) {
+	protected void realExecuteVerifier(Properties verificationProperties, boolean withConfigFlag) throws IOException {
 		File verifierConfig = new File(getTempFolder(), "verification.properties");
-		try {
-			writeProperties(verifierConfig, verificationProperties);
-		} catch (IOException e) {
-			fail("Failing to write out properties to configure verifier", e);
-		}
+		writeProperties(verifierConfig, verificationProperties);
 
 		String[] args = null;
 		if (withConfigFlag) {
@@ -207,11 +187,11 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		assertEquals(0, runEclipse("Running verifier", output, args));
 	}
 
-	protected void executeVerifier(Properties verificationProperties) {
+	protected void executeVerifier(Properties verificationProperties) throws IOException {
 		realExecuteVerifier(verificationProperties, true);
 	}
 
-	public static void reallyReadOnly(File folder, boolean recurse) {
+	public static void reallyReadOnly(File folder, boolean recurse) throws IOException {
 		reallyReadOnly(folder);
 		if (folder.exists() && recurse) {
 			File[] dirs = folder.listFiles((FileFilter) File::isDirectory);
@@ -221,12 +201,8 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		}
 	}
 
-	public static void reallyReadOnly(File folder) {
-		if (!Platform.getOS().equals(Platform.OS_WIN32)) {
-			return;
-		}
-
-		try {
+	public static void reallyReadOnly(File folder) throws IOException {
+		if (Platform.OS.isWindows()) {
 			Path path = folder.toPath();
 			AclFileAttributeView view = Files.getFileAttributeView(path, AclFileAttributeView.class);
 			AclEntry newEntry = AclEntry.newBuilder().setFlags(AclEntryFlag.FILE_INHERIT, AclEntryFlag.DIRECTORY_INHERIT).setPermissions(AclEntryPermission.WRITE_DATA, AclEntryPermission.APPEND_DATA, AclEntryPermission.WRITE_NAMED_ATTRS, AclEntryPermission.WRITE_ATTRIBUTES).setPrincipal(view.getOwner()).setType(AclEntryType.DENY).build();
@@ -234,12 +210,10 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 			List<AclEntry> acl = view.getAcl();
 			acl.add(0, newEntry); // insert before any DENY entries
 			view.setAcl(acl);
-		} catch (IOException e) {
-			fail("can't mark the folder " + folder + " read-only.");
 		}
 	}
 
-	public static void removeReallyReadOnly(File folder, boolean recurse) {
+	public static void removeReallyReadOnly(File folder, boolean recurse) throws IOException {
 		removeReallyReadOnly(folder);
 		if (folder.exists() && recurse) {
 			File[] dirs = folder.listFiles((FileFilter) File::isDirectory);
@@ -249,20 +223,14 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		}
 	}
 
-	public static void removeReallyReadOnly(File folder) {
-		if (!Platform.getOS().equals(Platform.OS_WIN32)) {
-			return;
-		}
-
-		try {
+	public static void removeReallyReadOnly(File folder) throws IOException {
+		if (Platform.OS.isWindows()) {
 			Path path = folder.toPath();
 			AclFileAttributeView view = Files.getFileAttributeView(path, AclFileAttributeView.class);
 
 			List<AclEntry> acl = view.getAcl();
 			acl.remove(0);
 			view.setAcl(acl);
-		} catch (IOException e) {
-			fail("oh shit");
 		}
 	}
 
@@ -309,7 +277,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		super(name);
 	}
 
-	public void replaceDotEclipseProductFile(File base, String id, String version) {
+	public void replaceDotEclipseProductFile(File base, String id, String version) throws IOException {
 		File eclipseProductFile = new File(base, ".eclipseproduct");
 		eclipseProductFile.delete();
 
@@ -318,8 +286,6 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		newProps.put("version", version);
 		try (BufferedWriter os = Files.newBufferedWriter(eclipseProductFile.toPath())) {
 			newProps.store(os, "file generated for tests " + getName());
-		} catch (IOException e) {
-			fail("Failing setting up the .eclipseproduct file at:" + eclipseProductFile.getAbsolutePath());
 		}
 	}
 
