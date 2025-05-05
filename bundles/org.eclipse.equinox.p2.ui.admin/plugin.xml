@@ -23,7 +23,7 @@
       </category>
       <view
             name="%MetadataRepositories.name"
-            icon="$nl$/icons/obj/metadata_repo_obj.png"
+            icon="$nl$/icons/obj/metadata_repo_obj.svg"
             category="org.eclipse.p2.ui.admin"
             class="org.eclipse.equinox.internal.p2.ui.admin.MetadataRepositoriesView"
             id="org.eclipse.p2.ui.admin.MetadataRepositoriesView">
@@ -33,7 +33,7 @@
          point="org.eclipse.ui.views">
      <view
             name="%ArtifactRepositories.name"
-            icon="$nl$/icons/obj/artifact_repo_obj.png"
+            icon="$nl$/icons/obj/artifact_repo_obj.svg"
             category="org.eclipse.p2.ui.admin"
             class="org.eclipse.equinox.internal.p2.ui.admin.ArtifactRepositoriesView"
             id="org.eclipse.p2.ui.admin.ArtifactRepositoriesView">
@@ -43,7 +43,7 @@
          point="org.eclipse.ui.views">
      <view
             name="%Profiles.name"
-            icon="$nl$/icons/obj/profile_obj.png"
+            icon="$nl$/icons/obj/profile_obj.svg"
             category="org.eclipse.p2.ui.admin"
             class="org.eclipse.equinox.internal.p2.ui.admin.ProfilesView"
             id="org.eclipse.p2.ui.admin.ProfilesView">
@@ -54,7 +54,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             name="%perspectiveName"
-            icon="$nl$/icons/view/provision.png"
+            icon="$nl$/icons/view/provision.svg"
             class="org.eclipse.equinox.internal.p2.ui.admin.ProvisioningPerspective"
             id="org.eclipse.equinox.p2.ui.admin.ProvisioningPerspective">
       </perspective>
