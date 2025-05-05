@@ -35,3 +35,4 @@ Service-Component: OSGI-INF/policy_component.xml, OSGI-INF/licenseManager_compon
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.eclipse.equinox.p2.ui.sdk
+Require-Capability: eclipse.swt;filter:="(image.format=svg)"

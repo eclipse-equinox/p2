@@ -77,7 +77,7 @@ public class MigrationWizard extends InstallWizard implements IImportWizard {
 		setWindowTitle(firstTime ? ProvUIMessages.MigrationWizard_WINDOWTITLE_FIRSTRUN
 				: ProvUIMessages.MigrationWizard_WINDOWTITLE);
 		setDefaultPageImageDescriptor(ImageDescriptor
-				.createFromURL(Platform.getBundle(ProvUIActivator.PLUGIN_ID).getEntry("icons/install_wiz.png"))); //$NON-NLS-1$
+				.createFromURL(Platform.getBundle(ProvUIActivator.PLUGIN_ID).getEntry("icons/wizban/install_wiz.svg"))); //$NON-NLS-1$
 		setNeedsProgressMonitor(true);
 	}
 
