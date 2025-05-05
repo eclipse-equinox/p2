@@ -66,12 +66,12 @@ public class TextSearchControl extends Composite {
 	 */
 	static {
 		ImageDescriptor descriptor = AbstractUIPlugin.imageDescriptorFromPlugin(PlatformUI.PLUGIN_ID,
-				"$nl$/icons/full/etool16/clear_co.png"); //$NON-NLS-1$
+				"$nl$/icons/full/etool16/clear_co.svg"); //$NON-NLS-1$
 		if (descriptor != null) {
 			JFaceResources.getImageRegistry().put(CLEAR_ICON, descriptor);
 		}
 
-		descriptor = AbstractUIPlugin.imageDescriptorFromPlugin(DiscoveryUi.ID_PLUGIN, "$nl$/icons/etool16/find.png"); //$NON-NLS-1$
+		descriptor = AbstractUIPlugin.imageDescriptorFromPlugin(DiscoveryUi.ID_PLUGIN, "$nl$/icons/etool16/find.svg"); //$NON-NLS-1$
 		if (descriptor != null) {
 			JFaceResources.getImageRegistry().put(FIND_ICON, descriptor);
 		}

@@ -80,3 +80,4 @@ Service-Component: OSGI-INF/repositoryTracker_component.xml, OSGI-INF/serviceui.
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: org.eclipse.equinox.p2.ui
+Require-Capability: eclipse.swt;filter:="(image.format=svg)"

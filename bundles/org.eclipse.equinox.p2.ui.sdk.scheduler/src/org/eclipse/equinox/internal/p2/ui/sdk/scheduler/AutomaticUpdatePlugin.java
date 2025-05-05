@@ -45,10 +45,10 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	public final static String ICON_PATH = "$nl$/icons/"; //$NON-NLS-1$
 
 	// tool icons
-	public final static String IMG_TOOL_UPDATE = "tool/update.png"; //$NON-NLS-1$
-	public final static String IMG_TOOL_UPDATE_PROBLEMS = "tool/update_problems.png"; //$NON-NLS-1$
-	public final static String IMG_TOOL_CLOSE = "tool/close.png"; //$NON-NLS-1$
-	public final static String IMG_TOOL_CLOSE_HOT = "tool/close_hot.png"; //$NON-NLS-1$
+	public final static String IMG_TOOL_UPDATE = "tool/update.svg"; //$NON-NLS-1$
+	public final static String IMG_TOOL_UPDATE_PROBLEMS = "tool/update_problems.svg"; //$NON-NLS-1$
+	public final static String IMG_TOOL_CLOSE = "tool/close.svg"; //$NON-NLS-1$
+	public final static String IMG_TOOL_CLOSE_HOT = "tool/close_hot.svg"; //$NON-NLS-1$
 
 	private static AutomaticUpdatePlugin plugin;
 	private static BundleContext context;
