@@ -49,7 +49,7 @@ public class ExportWizard extends AbstractWizard implements IExportWizard {
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		setWindowTitle(Messages.ExportWizard_WizardTitle);
 		setDefaultPageImageDescriptor(ImageDescriptor
-				.createFromURL(Platform.getBundle(Constants.Bundle_ID).getEntry("icons/wizban/install_wiz.png"))); //$NON-NLS-1$
+				.createFromURL(Platform.getBundle(Constants.Bundle_ID).getEntry("icons/wizban/install_wiz.svg"))); //$NON-NLS-1$
 		setNeedsProgressMonitor(true);
 	}
 

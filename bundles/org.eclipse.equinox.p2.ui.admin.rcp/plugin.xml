@@ -25,7 +25,7 @@
                value="%aboutText"/>
          <property
                name="windowImages"
-               value="platform:/plugin/org.eclipse.equinox.p2.ui.admin/icons/view/provision.png"/>
+               value="platform:/plugin/org.eclipse.equinox.p2.ui.admin/icons/view/provision.svg"/>
 
     </product>
     </extension>
@@ -34,7 +34,7 @@
          point="org.eclipse.ui.views">
       <view
             name="%Views.Progress"
-            icon="$nl$/icons/view/pview.png"
+            icon="$nl$/icons/view/pview.svg"
             category="org.eclipse.ui"
             class="org.eclipse.ui.internal.progress.ProgressView"
             id="org.eclipse.ui.views.ProgressView">
