@@ -33,7 +33,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.artifactRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = 1;
-	public static final List<String> STANDARD_P2_REPOSITORY_FILE_NAMES = Arrays.asList(new String[] {"artifacts.xml", "content.xml", "compositeArtifacts.xml", "compositeContent.xml"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	public static final List<String> STANDARD_P2_REPOSITORY_FILE_NAMES = Arrays.asList("artifacts.xml", "content.xml", "compositeArtifacts.xml", "compositeContent.xml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 	IFileArtifactRepository artifactRepository;
 	private File base;
