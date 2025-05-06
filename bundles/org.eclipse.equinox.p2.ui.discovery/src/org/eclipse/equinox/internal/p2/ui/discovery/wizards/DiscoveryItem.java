@@ -142,7 +142,7 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 		// always disabled color to make it less prominent
 		providerLabel.setForeground(resources.getColorDisabled());
 		if (item.getCertification() != null) {
-			providerLabel.setText(NLS.bind(Messages.DiscoveryViewer_Certification_Label0, new String[] {item.getProvider(), item.getLicense(), item.getCertification().getName()}));
+			providerLabel.setText(NLS.bind(Messages.DiscoveryViewer_Certification_Label0, item.getProvider(), item.getLicense(), item.getCertification().getName()));
 			if (item.getCertification().getUrl() != null) {
 				providerLabel.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> WorkbenchUtil.openUrl(item.getCertification().getUrl(), IWorkbenchBrowserSupport.AS_EXTERNAL)));
 			}
