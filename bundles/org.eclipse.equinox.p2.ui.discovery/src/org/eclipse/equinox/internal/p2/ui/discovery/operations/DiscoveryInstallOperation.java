@@ -198,7 +198,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 					detailedMessage += Messages.InstallConnectorsJob_commaSeparator;
 				}
 				detailedMessage += NLS.bind(Messages.PrepareInstallProfileJob_notFoundDescriptorDetail,
-						new Object[] { descriptor.getName(), unavailableIds.toString(), descriptor.getSiteUrl() });
+						descriptor.getName(), unavailableIds.toString(), descriptor.getSiteUrl());
 			}
 		}
 
