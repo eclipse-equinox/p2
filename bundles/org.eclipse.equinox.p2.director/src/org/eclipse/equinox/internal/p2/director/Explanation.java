@@ -55,7 +55,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 		@Override
 		public String toString() {
-			return NLS.bind(Messages.Explanation_patchedHardDependency, new Object[] {patch, iu, req});
+			return NLS.bind(Messages.Explanation_patchedHardDependency, patch, iu, req);
 		}
 
 		@Override
@@ -212,7 +212,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 			if (req.getFilter() == null) {
 				return NLS.bind(Messages.Explanation_missingRequired, iu, req);
 			}
-			return NLS.bind(Messages.Explanation_missingRequiredFilter, new Object[] {req.getFilter(), iu, req});
+			return NLS.bind(Messages.Explanation_missingRequiredFilter, req.getFilter(), iu, req);
 		}
 
 		@Override
@@ -224,7 +224,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 				return Status.error(NLS.bind(Messages.Explanation_missingRequired, getUserReadableName(iu), req));
 			}
 			return Status.error(NLS.bind(Messages.Explanation_missingRequiredFilter,
-					new Object[] { req.getFilter(), getUserReadableName(iu), req }));
+					req.getFilter(), getUserReadableName(iu), req));
 		}
 	}
 

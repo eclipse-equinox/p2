@@ -885,7 +885,7 @@ public class Projector {
 			Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		for (Object r : right) {
-			dependencyHelper.implication(new Object[] {left}).impliesNot(r).named(name);
+			dependencyHelper.implication(left).impliesNot(r).named(name);
 		}
 	}
 
@@ -893,7 +893,7 @@ public class Projector {
 		if (DEBUG) {
 			Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		dependencyHelper.implication(new Object[] {left}).implies(right.toArray()).named(name);
+		dependencyHelper.implication(left).implies(right.toArray()).named(name);
 	}
 
 	private void createImplication(Object[] left, List<?> right, Explanation name) throws ContradictionException {
