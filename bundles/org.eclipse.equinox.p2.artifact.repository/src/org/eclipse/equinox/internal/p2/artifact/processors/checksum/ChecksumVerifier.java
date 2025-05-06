@@ -86,7 +86,7 @@ public final class ChecksumVerifier extends MessageDigestProcessingStep {
 		// if the hashes don't line up set the status to error.
 		if (!digestString.equals(expectedChecksum)) {
 			// TODO like ProvisionException.ARTIFACT_MD5_NOT_MATCH but for any checksum
-			setStatus(new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_MD5_NOT_MATCH, NLS.bind(Messages.Error_unexpected_checksum, new Object[] {algorithmName, expectedChecksum, digestString}), null));
+			setStatus(new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_MD5_NOT_MATCH, NLS.bind(Messages.Error_unexpected_checksum, algorithmName, expectedChecksum, digestString), null));
 		}
 	}
 

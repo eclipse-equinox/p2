@@ -124,7 +124,7 @@ public class ChecksumUtilities {
 				digestMap.put(producer, producer.getMessageDigest());
 			} catch (GeneralSecurityException e) {
 				String message = NLS.bind(Messages.calculateChecksum_providerError,
-						new Object[] { id, algorithm, providerName });
+						id, algorithm, providerName);
 				status.add(new Status(IStatus.ERROR, Activator.ID, message, e));
 			}
 		}
@@ -149,7 +149,7 @@ public class ChecksumUtilities {
 				String checksum = ChecksumHelper.toHexString(entry.getValue().digest());
 				String id = producer.getId();
 				String message = NLS.bind(Messages.calculateChecksum_ok,
-						new Object[] { id, producer.getAlgorithm(), producer.getProviderName(), checksum });
+						id, producer.getAlgorithm(), producer.getProviderName(), checksum);
 				status.add(new Status(IStatus.OK, Activator.ID, message));
 				checksums.put(id, checksum);
 			}
