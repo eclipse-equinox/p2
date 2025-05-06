@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2024 IBM Corporation and others.
+ * Copyright (c) 2005, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,6 +17,7 @@
  *     Rapicorp - additional features
  *     Red Hat Inc. - Bug 460967
  *     SAP SE - support macOS bundle URL types
+ *     Tue Ton - support for FreeBSD
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
@@ -74,12 +75,14 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String PROPERTY_ECLIPSE_PRODUCT = "eclipse.product"; //$NON-NLS-1$
 
 	private static final String PROGRAM_ARGS = "programArgs"; //$NON-NLS-1$
+	private static final String PROGRAM_ARGS_FREEBSD = "programArgsFbsd"; //$NON-NLS-1$
 	private static final String PROGRAM_ARGS_LINUX = "programArgsLin"; //$NON-NLS-1$
 	private static final String PROGRAM_ARGS_MAC = "programArgsMac"; //$NON-NLS-1$
 	private static final String PROGRAM_ARGS_SOLARIS = "programArgsSol"; //$NON-NLS-1$
 	private static final String PROGRAM_ARGS_WIN = "programArgsWin"; //$NON-NLS-1$
 	private static final String VM = "vm"; //$NON-NLS-1$
 	private static final String VM_ARGS = "vmArgs"; //$NON-NLS-1$
+	private static final String VM_ARGS_FREEBSD = "vmArgsFbsd"; //$NON-NLS-1$
 	private static final String VM_ARGS_LINUX = "vmArgsLin"; //$NON-NLS-1$
 	private static final String VM_ARGS_MAC = "vmArgsMac"; //$NON-NLS-1$
 	private static final String VM_ARGS_SOLARIS = "vmArgsSol"; //$NON-NLS-1$
@@ -99,6 +102,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String WIN32_256_HIGH = "winExtraLargeHigh"; //$NON-NLS-1$
 
 	private static final String OS_WIN32 = "win32";//$NON-NLS-1$
+	private static final String OS_FREEBSD = "freebsd";//$NON-NLS-1$
 	private static final String OS_LINUX = "linux";//$NON-NLS-1$
 	private static final String OS_SOLARIS = "solaris";//$NON-NLS-1$
 	private static final String OS_MACOSX = "macosx";//$NON-NLS-1$
@@ -177,6 +181,10 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final int STATE_VM_WINDOWS = 33;
 	private static final int STATE_LAUNCHER_MAC = 34;
 	private static final int STATE_LAUNCHER_MAC_BUNDLE_URL_TYPES = 35;
+	//for FreeBSD
+	private static final int STATE_PROGRAM_ARGS_FREEBSD = 36;
+	private static final int STATE_VM_ARGS_FREEBSD = 37;
+	private static final int STATE_VM_FREEBSD = 38;
 
 	private static final String PI_PDEBUILD = "org.eclipse.pde.build"; //$NON-NLS-1$
 	private final static int EXCEPTION_PRODUCT_FORMAT = 23;
@@ -555,6 +563,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			case OS_WIN32:
 				key = VM_ARGS_WIN;
 				break;
+			case OS_FREEBSD:
+				key = VM_ARGS_FREEBSD;
+				break;
 			case OS_LINUX:
 				key = VM_ARGS_LINUX;
 				break;
@@ -654,6 +665,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		switch (os) {
 			case OS_WIN32:
 				key = PROGRAM_ARGS_WIN;
+				break;
+			case OS_FREEBSD:
+				key = PROGRAM_ARGS_FREEBSD;
 				break;
 			case OS_LINUX:
 				key = PROGRAM_ARGS_LINUX;
@@ -812,6 +826,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 						case "win": //$NON-NLS-1$
 							processWin(attributes);
 							break;
+						case OS_FREEBSD:
+							processFreeBSD(attributes);
+							break;
 						case OS_LINUX:
 							processLinux(attributes);
 							break;
@@ -853,6 +870,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 						case PROGRAM_ARGS:
 							state = STATE_PROGRAM_ARGS;
 							break;
+						case PROGRAM_ARGS_FREEBSD:
+							state = STATE_PROGRAM_ARGS_FREEBSD;
+							break;
 						case PROGRAM_ARGS_LINUX:
 							state = STATE_PROGRAM_ARGS_LINUX;
 							break;
@@ -867,6 +887,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 							break;
 						case VM_ARGS:
 							state = STATE_VM_ARGS;
+							break;
+						case VM_ARGS_FREEBSD:
+							state = STATE_VM_ARGS_FREEBSD;
 							break;
 						case VM_ARGS_LINUX:
 							state = STATE_VM_ARGS_LINUX;
@@ -895,6 +918,11 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				setArchState(localName);
 				break;
 
+			case STATE_PROGRAM_ARGS_FREEBSD :
+				platformKeyPrefix = PROGRAM_ARGS_FREEBSD;
+				setArchState(localName);
+				break;
+
 			case STATE_PROGRAM_ARGS_LINUX :
 				platformKeyPrefix = PROGRAM_ARGS_LINUX;
 				setArchState(localName);
@@ -917,6 +945,11 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 			case STATE_VM_ARGS :
 				platformKeyPrefix = VM_ARGS;
+				setArchState(localName);
+				break;
+
+			case STATE_VM_ARGS_FREEBSD :
+				platformKeyPrefix = VM_ARGS_FREEBSD;
 				setArchState(localName);
 				break;
 
@@ -977,6 +1010,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			case STATE_VM :
 				if (null != localName) {
 					switch (localName) {
+						case OS_FREEBSD:
+							state = STATE_VM_FREEBSD;
+							break;
 						case OS_LINUX:
 							state = STATE_VM_LINUX;
 							break;
@@ -1151,6 +1187,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			case STATE_VM :
 				state = STATE_PRODUCT;
 				break;
+			case STATE_VM_FREEBSD :
 			case STATE_VM_LINUX :
 			case STATE_VM_WINDOWS :
 			case STATE_VM_MACOS :
@@ -1158,11 +1195,13 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				break;
 
 			case STATE_PROGRAM_ARGS :
+			case STATE_PROGRAM_ARGS_FREEBSD :
 			case STATE_PROGRAM_ARGS_LINUX :
 			case STATE_PROGRAM_ARGS_MAC :
 			case STATE_PROGRAM_ARGS_SOLARIS :
 			case STATE_PROGRAM_ARGS_WIN :
 			case STATE_VM_ARGS :
+			case STATE_VM_ARGS_FREEBSD :
 			case STATE_VM_ARGS_LINUX :
 			case STATE_VM_ARGS_MAC :
 			case STATE_VM_ARGS_SOLARIS :
@@ -1207,6 +1246,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			case STATE_PROGRAM_ARGS :
 				addLaunchArgumentToMap(PROGRAM_ARGS, String.valueOf(ch, start, length));
 				break;
+			case STATE_PROGRAM_ARGS_FREEBSD :
+				addLaunchArgumentToMap(PROGRAM_ARGS_FREEBSD, String.valueOf(ch, start, length));
+				break;
 			case STATE_PROGRAM_ARGS_LINUX :
 				addLaunchArgumentToMap(PROGRAM_ARGS_LINUX, String.valueOf(ch, start, length));
 				break;
@@ -1221,6 +1263,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				break;
 			case STATE_VM_ARGS :
 				addLaunchArgumentToMap(VM_ARGS, String.valueOf(ch, start, length));
+				break;
+			case STATE_VM_ARGS_FREEBSD :
+				addLaunchArgumentToMap(VM_ARGS_FREEBSD, String.valueOf(ch, start, length));
 				break;
 			case STATE_VM_ARGS_LINUX :
 				addLaunchArgumentToMap(VM_ARGS_LINUX, String.valueOf(ch, start, length));
@@ -1267,6 +1312,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				if (licenseText != null) {
 					licenseText += String.valueOf(ch, start, length);
 				}
+				break;
+			case STATE_VM_FREEBSD :
+				addVM(OS_FREEBSD, String.valueOf(ch, start, length));
 				break;
 			case STATE_VM_LINUX :
 				addVM(OS_LINUX, String.valueOf(ch, start, length));
@@ -1443,6 +1491,10 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		addIcon(OS_WIN32, attributes.getValue(WIN32_48_HIGH));
 		addIcon(OS_WIN32, attributes.getValue(WIN32_48_LOW));
 		addIcon(OS_WIN32, attributes.getValue(WIN32_256_HIGH));
+	}
+
+	private void processFreeBSD(Attributes attributes) {
+		addIcon(OS_FREEBSD, attributes.getValue(ATTRIBUTE_ICON));
 	}
 
 	private void processLinux(Attributes attributes) {
