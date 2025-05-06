@@ -217,7 +217,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 		url.setLayoutData(data);
 		DropTarget target = new DropTarget(url, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
-		target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
+		target.setTransfer(URLTransfer.getInstance(), FileTransfer.getInstance());
 		target.addDropListener(new TextURLDropAdapter(url, true));
 		url.addModifyListener(e -> validateRepositoryURL(false));
 		initialURL = getInitialLocationText();
