@@ -160,7 +160,7 @@ public class PhaseSet implements IPhaseSet {
 	}
 
 	private String getContextString(IProfile profile, Phase phase, Operand operand) {
-		return NLS.bind(Messages.session_context, new Object[] {profile.getProfileId(), phase.getClass().getName(), operand.toString(), ""}); //$NON-NLS-1$
+		return NLS.bind(Messages.session_context, profile.getProfileId(), phase.getClass().getName(), operand.toString(), ""); //$NON-NLS-1$
 	}
 
 	private int getTotalWork(int[] weights) {

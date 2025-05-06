@@ -383,12 +383,12 @@ public class EngineSession {
 		if (action instanceof ParameterizedProvisioningAction parameterizedAction) {
 			action = parameterizedAction.getAction();
 		}
-		String message = NLS.bind(Messages.session_context, new Object[] {profile.getProfileId(), phase.getClass().getName(), operand.toString(), getCurrentActionId()});
+		String message = NLS.bind(Messages.session_context, profile.getProfileId(), phase.getClass().getName(), operand.toString(), getCurrentActionId());
 		return message;
 	}
 
 	public String getContextString() {
-		String message = NLS.bind(Messages.session_context, new Object[] {profile.getProfileId(), getCurrentPhaseId(), getCurrentOperandId(), getCurrentActionId()});
+		String message = NLS.bind(Messages.session_context, profile.getProfileId(), getCurrentPhaseId(), getCurrentOperandId(), getCurrentActionId());
 		return message;
 	}
 

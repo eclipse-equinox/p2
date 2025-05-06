@@ -71,7 +71,7 @@ public class PhaseSetFactory {
 	 */
 	public static final String NATIVE_ARTIFACTS = "nativeArtifacts"; //$NON-NLS-1$
 
-	private static final List<String> ALL_PHASES_LIST = Arrays.asList(new String[] {PHASE_COLLECT, PHASE_UNCONFIGURE, PHASE_UNINSTALL, PHASE_PROPERTY, PHASE_CHECK_TRUST, PHASE_INSTALL, PHASE_CONFIGURE});
+	private static final List<String> ALL_PHASES_LIST = Arrays.asList(PHASE_COLLECT, PHASE_UNCONFIGURE, PHASE_UNINSTALL, PHASE_PROPERTY, PHASE_CHECK_TRUST, PHASE_INSTALL, PHASE_CONFIGURE);
 
 	/**
 	 * Creates a default phase set that covers all the provisioning operations.
