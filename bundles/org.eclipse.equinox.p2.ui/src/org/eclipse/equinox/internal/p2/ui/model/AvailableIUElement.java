@@ -256,7 +256,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	private ProvisioningContext getProvisioningContext() {
 		ProvisioningContext context = new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent());
 		if (hasQueryable() && getQueryable() instanceof IRepository<?>) {
-			context.setMetadataRepositories(new URI[] { ((IRepository<?>) getQueryable()).getLocation() });
+			context.setMetadataRepositories(((IRepository<?>) getQueryable()).getLocation());
 		}
 		return context;
 	}

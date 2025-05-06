@@ -282,7 +282,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	// Now we restore checked state.
 	private void restoreCheckedState() {
 		setCheckedElements(new Object[0]);
-		setGrayedElements(new Object[0]);
+		setGrayedElements();
 		Object element = null;
 		for (Object element2 : savedCheckState) {
 			element = element2;
