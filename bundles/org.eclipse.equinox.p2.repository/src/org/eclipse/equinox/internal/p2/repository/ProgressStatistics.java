@@ -162,9 +162,9 @@ public class ProgressStatistics {
 			if (m_total == -1) {
 				return NLS.bind(Messages.fetching_0_from_1, new String[] {m_fileName, uriString});
 			}
-			return NLS.bind(Messages.fetching_0_from_1_2, new String[] {m_fileName, uriString, convert(m_total)});
+			return NLS.bind(Messages.fetching_0_from_1_2, m_fileName, uriString, convert(m_total));
 		}
-		return m_total != -1 ? NLS.bind(Messages.fetching_0_from_1_2_of_3_at_4, new String[] {m_fileName, uriString, convert(m_current), convert(m_total), convert(getRecentSpeed())}) : NLS.bind(Messages.fetching_0_from_1_2_at_3, new String[] {m_fileName, uriString, convert(m_current), convert(getRecentSpeed())});
+		return m_total != -1 ? NLS.bind(Messages.fetching_0_from_1_2_of_3_at_4, m_fileName, uriString, convert(m_current), convert(m_total), convert(getRecentSpeed())) : NLS.bind(Messages.fetching_0_from_1_2_at_3, m_fileName, uriString, convert(m_current), convert(getRecentSpeed()));
 	}
 
 	public void setReportInterval(int reportInterval) {
