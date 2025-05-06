@@ -231,7 +231,7 @@ public class CacheManager {
 				return;
 			}
 			result = new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CacheManage_ErrorRenamingCache,
-					new Object[] { remoteFile.toString(), tempFile.getAbsolutePath(), cacheFile.getAbsolutePath() }));
+					remoteFile.toString(), tempFile.getAbsolutePath(), cacheFile.getAbsolutePath()));
 		}
 
 		if (result != null && result.getSeverity() == IStatus.CANCEL || submonitor.isCanceled()) {
