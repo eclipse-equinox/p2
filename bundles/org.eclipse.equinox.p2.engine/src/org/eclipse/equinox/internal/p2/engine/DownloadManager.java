@@ -186,10 +186,9 @@ public class DownloadManager {
 				if (unit != null) {
 					String dependencyPath = computeDependency(unit);
 					result.add(Status.error(NLS.bind(Messages.DownloadManager_cant_find_artifact,
-							new Object[] { request.getArtifactKey().toString(), dependencyPath,
-									Arrays.stream(repositories).map(repo -> repo.getLocation()).filter(Objects::nonNull)
-											.map(URI::toString).collect(Collectors.joining(System.lineSeparator(),
-													System.lineSeparator(), "")) }))); //$NON-NLS-1$
+							request.getArtifactKey().toString(), dependencyPath, Arrays.stream(repositories).map(repo -> repo.getLocation()).filter(Objects::nonNull)
+									.map(URI::toString).collect(Collectors.joining(System.lineSeparator(),
+											System.lineSeparator(), ""))))); //$NON-NLS-1$
 				}
 			}
 		}
