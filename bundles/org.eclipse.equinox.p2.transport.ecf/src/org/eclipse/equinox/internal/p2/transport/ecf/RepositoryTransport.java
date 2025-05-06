@@ -335,7 +335,7 @@ public class RepositoryTransport extends Transport {
 				if (retryCount <= retry) {
 					return new DownloadStatus(IStatus.ERROR, Activator.ID, IArtifactRepository.CODE_RETRY, NLS.bind(
 							Messages.connection_to_0_failed_on_1_retry_attempt_2,
-							new String[] { toDownload.toString(), t.getMessage(), Integer.toString(retryCount) }), t);
+							toDownload.toString(), t.getMessage(), Integer.toString(retryCount)), t);
 				}
 			}
 		}
