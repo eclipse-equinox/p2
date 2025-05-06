@@ -42,8 +42,8 @@ public class InstallOperationTests extends AbstractProvisioningUITest {
 		InstallOperation op = new InstallOperation(getSession(), ius);
 		op.setProfileId(TESTPROFILE);
 		ProvisioningContext pc = new ProvisioningContext(getAgent());
-		pc.setArtifactRepositories(new URI[] { uri });
-		pc.setMetadataRepositories(new URI[] { uri });
+		pc.setArtifactRepositories(uri);
+		pc.setMetadataRepositories(uri);
 		op.setProvisioningContext(pc);
 		assertTrue("Should resolve", op.resolveModal(getMonitor()).isOK());
 		assertTrue("Should install", op.getProvisioningJob(null).runModal(getMonitor()).isOK());
@@ -81,8 +81,8 @@ public class InstallOperationTests extends AbstractProvisioningUITest {
 		String id = "TestProfileIDForMissingRequirement";
 		createProfile(id);
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setMetadataRepositories(new URI[] { repoA.getLocation() });
-		context.setArtifactRepositories(new URI[0]);
+		context.setMetadataRepositories(repoA.getLocation());
+		context.setArtifactRepositories();
 		IInstallableUnit[] units = repoA.query(QueryUtil.createIUQuery("A"), getMonitor())
 				.toArray(IInstallableUnit.class);
 		assertTrue("should find A in main repo", units.length > 0);
