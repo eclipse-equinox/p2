@@ -546,7 +546,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 				try {
 					LogHelper.log(new Status(IStatus.WARNING, Activator.ID,
 							NLS.bind(Messages.connection_to_0_failed_on_1_retry_attempt_2,
-									new String[] { uri.toString(), t.getMessage(), String.valueOf(attemptCounter) }),
+									uri.toString(), t.getMessage(), String.valueOf(attemptCounter)),
 							t));
 
 					Thread.sleep(connectionRetryDelay);
