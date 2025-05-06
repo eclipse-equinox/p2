@@ -29,8 +29,7 @@ import org.osgi.framework.Constants;
 
 public class EquinoxFwConfigFileParser {
 	private static final Set<String> KNOWN_PROPERTIES = new HashSet<>(
-			Arrays.asList(new String[] { EquinoxConstants.PROP_BUNDLES, EquinoxConstants.PROP_FW_EXTENSIONS,
-					EquinoxConstants.PROP_INITIAL_STARTLEVEL, EquinoxConstants.PROP_BUNDLES_STARTLEVEL }));
+			Arrays.asList(EquinoxConstants.PROP_BUNDLES, EquinoxConstants.PROP_FW_EXTENSIONS, EquinoxConstants.PROP_INITIAL_STARTLEVEL, EquinoxConstants.PROP_BUNDLES_STARTLEVEL));
 	private static final String CONFIG_DIR = "@config.dir/"; //$NON-NLS-1$
 	private static final String KEY_ECLIPSE_PROV_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
 	private static final String KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
