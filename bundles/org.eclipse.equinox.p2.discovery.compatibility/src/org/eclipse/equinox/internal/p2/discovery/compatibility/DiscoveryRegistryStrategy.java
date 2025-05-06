@@ -79,8 +79,7 @@ class DiscoveryRegistryStrategy extends RegistryStrategy {
 				processBundle(registry, bundleFile.getValue(), bundleFile.getKey());
 			} catch (Exception e) {
 				LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN,
-						NLS.bind(Messages.DiscoveryRegistryStrategy_cannot_load_bundle, new Object[] {
-								bundleFile.getKey().getName(), bundleFile.getValue().getLocation(), e.getMessage() }),
+						NLS.bind(Messages.DiscoveryRegistryStrategy_cannot_load_bundle, bundleFile.getKey().getName(), bundleFile.getValue().getLocation(), e.getMessage()),
 						e));
 			}
 		}
