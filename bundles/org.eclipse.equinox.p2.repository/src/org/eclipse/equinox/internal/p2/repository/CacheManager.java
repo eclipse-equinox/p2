@@ -460,7 +460,7 @@ public class CacheManager {
 				}
 				return;
 			}
-			result = new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CacheManage_ErrorRenamingCache, new Object[] {remoteFile.toString(), tempFile.getAbsolutePath(), cacheFile.getAbsolutePath()}));
+			result = new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CacheManage_ErrorRenamingCache, remoteFile.toString(), tempFile.getAbsolutePath(), cacheFile.getAbsolutePath()));
 		}
 
 		if (result.getSeverity() == IStatus.CANCEL || submonitor.isCanceled()) {

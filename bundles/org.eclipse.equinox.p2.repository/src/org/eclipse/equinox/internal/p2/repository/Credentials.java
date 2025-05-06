@@ -95,7 +95,7 @@ public class Credentials {
 		String nodeKey = URLEncoder.encode(host, StandardCharsets.UTF_8);
 		if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 			DebugHelper.debug("Credentials", "forLocation:ENTER", // //$NON-NLS-1$ //$NON-NLS-2$
-					new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
+								"host", location, "prompt", Boolean.toString(prompt)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		// Must serialize getting stored permissions per host as the location may
@@ -122,7 +122,7 @@ public class Credentials {
 			try {
 				if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 					DebugHelper.debug("Credentials", "forLocation:HOSTLOCK OBTAINED", // //$NON-NLS-1$ //$NON-NLS-2$
-							new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
+												"host", location, "prompt", Boolean.toString(prompt)); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 
 				String nodeName = IRepository.PREFERENCE_NODE + '/' + nodeKey;
@@ -146,7 +146,7 @@ public class Credentials {
 							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 								if (username != null && password != null) {
 									DebugHelper.debug("Credentials", "forLocation:PREFNODE FOUND - USING STORED INFO", // //$NON-NLS-1$ //$NON-NLS-2$
-											new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
+																				"host", location, "prompt", Boolean.toString(prompt)); //$NON-NLS-1$ //$NON-NLS-2$
 								}
 							}
 
@@ -157,7 +157,7 @@ public class Credentials {
 						}
 						if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 							DebugHelper.debug("Credentials", "forLocation:PREFNODE NOT FOUND - RETURN FROM MEMORY", // //$NON-NLS-1$ //$NON-NLS-2$
-									new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
+																"host", location, "prompt", Boolean.toString(prompt)); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 						return restoreFromMemory(nodeName);
 					} catch (StorageException e) {
@@ -180,7 +180,7 @@ public class Credentials {
 					}
 					if (useLatest) {
 						DebugHelper.debug("Credentials", "forLocation:LATER INFO AVAILABLE - RETURNING IT", // //$NON-NLS-1$ //$NON-NLS-2$
-								new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
+														"host", location, "prompt", Boolean.toString(prompt)); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				}
 
@@ -199,12 +199,12 @@ public class Credentials {
 					if (getPromptCount(host) >= RepositoryPreferences.getLoginRetryCount()) {
 						if (lastUsed == null && latest == null) {
 							DebugHelper.debug("Credentials", "forLocation:NO INFO - SYNTHETIC CANCEL", // //$NON-NLS-1$ //$NON-NLS-2$
-									new Object[] {"host", location}); //$NON-NLS-1$
+																"host", location); //$NON-NLS-1$
 						}
 						return latest == null ? lastUsed : latest; // keep client failing on the latest known
 					}
 					DebugHelper.debug("Credentials", "forLocation:LATER INFO AVAILABLE - RETURNING IT", // //$NON-NLS-1$ //$NON-NLS-2$
-							new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
+												"host", location, "prompt", Boolean.toString(prompt)); //$NON-NLS-1$ //$NON-NLS-2$
 
 				}
 				if (getPromptCount(host) >= RepositoryPreferences.getLoginRetryCount()) {
@@ -221,7 +221,7 @@ public class Credentials {
 						try {
 							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 								DebugHelper.debug("Credentials", "forLocation:PROMPTLOCK OBTAINED", // //$NON-NLS-1$ //$NON-NLS-2$
-										new Object[] {"host", location}); //$NON-NLS-1$
+																		"host", location); //$NON-NLS-1$
 							}
 
 							// serialize the popping of the dialog itself
@@ -230,7 +230,7 @@ public class Credentials {
 							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 								if (loginDetails == UIServices.AUTHENTICATION_PROMPT_CANCELED) {
 									DebugHelper.debug("Credentials", "forLocation:PROMPTED - USER CANCELED (PROMPT LOCK RELEASED)", // //$NON-NLS-1$ //$NON-NLS-2$
-											new Object[] {"host", location}); //$NON-NLS-1$
+																				"host", location); //$NON-NLS-1$
 								}
 							}
 							if (loginDetails == UIServices.AUTHENTICATION_PROMPT_CANCELED) {
@@ -243,7 +243,7 @@ public class Credentials {
 							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 								if (loginDetails.saveResult()) {
 									DebugHelper.debug("Credentials", "forLocation:SAVING RESULT", // //$NON-NLS-1$ //$NON-NLS-2$
-											new Object[] {"host", location}); //$NON-NLS-1$
+																				"host", location); //$NON-NLS-1$
 								}
 							}
 
@@ -265,7 +265,7 @@ public class Credentials {
 								if (securePreferences.nodeExists(nodeName)) {
 									if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 										DebugHelper.debug("Credentials", "forLocation:REMOVING PREVIOUSLY SAVED INFO", // //$NON-NLS-1$ //$NON-NLS-2$
-												new Object[] {"host", location}); //$NON-NLS-1$
+																						"host", location); //$NON-NLS-1$
 									}
 
 									prefNode = securePreferences.node(nodeName);
@@ -281,7 +281,7 @@ public class Credentials {
 						} finally {
 							if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 								DebugHelper.debug("Credentials", "forLocation:PROMPTLOCK RELEASED", // //$NON-NLS-1$ //$NON-NLS-2$
-										new Object[] {"host", location}); //$NON-NLS-1$
+																		"host", location); //$NON-NLS-1$
 							}
 						}
 					}
@@ -290,7 +290,7 @@ public class Credentials {
 			} finally {
 				if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 					DebugHelper.debug("Credentials", "forLocation:HOSTLOCK RELEASED", // //$NON-NLS-1$ //$NON-NLS-2$
-							new Object[] {"host", location}); //$NON-NLS-1$
+												"host", location); //$NON-NLS-1$
 				}
 			}
 
@@ -356,7 +356,7 @@ public class Credentials {
 				if (((HostEntry) x).isCanceled()) {
 					if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 						DebugHelper.debug("Credentials", "checkRememberCancel:PREVIOUSLY CANCELED", // //$NON-NLS-1$ //$NON-NLS-2$
-								new Object[] {"host", host}); //$NON-NLS-1$
+														"host", host); //$NON-NLS-1$
 					}
 
 					throw new LoginCanceledException();
