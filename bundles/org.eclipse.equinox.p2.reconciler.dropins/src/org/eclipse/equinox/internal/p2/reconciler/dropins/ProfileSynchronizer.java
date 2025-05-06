@@ -451,7 +451,7 @@ public class ProfileSynchronizer {
 		}
 		ProvisioningContext result = new ProvisioningContext(agent);
 		result.setMetadataRepositories(repoURLs.toArray(new URI[repoURLs.size()]));
-		result.setArtifactRepositories(new URI[0]);
+		result.setArtifactRepositories();
 		return result;
 	}
 
