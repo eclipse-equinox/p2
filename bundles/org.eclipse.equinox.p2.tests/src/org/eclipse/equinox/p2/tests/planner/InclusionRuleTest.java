@@ -52,7 +52,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 	public void testMultipleInstallations() {
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req = new ProfileChangeRequest(profile1);
-		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		req.addInstallableUnits(a1);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(plan, null);
@@ -70,7 +70,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 
 		//Install b1 (this should not change anything for a1)
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
-		req3.addInstallableUnits(new IInstallableUnit[] {b1});
+		req3.addInstallableUnits(b1);
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
 		engine.perform(plan3, null);
@@ -79,7 +79,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 
 		//Add a2, this removes a1.
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile1);
-		req4.addInstallableUnits(new IInstallableUnit[] {a2});
+		req4.addInstallableUnits(a2);
 		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		assertEquals(IStatus.OK, plan4.getStatus().getSeverity());
 		engine.perform(plan4, null);
@@ -89,7 +89,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 
 		//Try to add a1 again. This will fail because since a1 has been uninstalled in the previous step and we no longer know about its optional inclusion
 		ProfileChangeRequest req5 = new ProfileChangeRequest(profile1);
-		req5.addInstallableUnits(new IInstallableUnit[] {a1});
+		req5.addInstallableUnits(a1);
 		IProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
 		assertEquals(IStatus.ERROR, plan5.getStatus().getSeverity());
 	}
@@ -98,7 +98,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		profile2 = createProfile("TestProfile2." + getName());
 		//Install a1
 		ProfileChangeRequest req = new ProfileChangeRequest(profile2);
-		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		req.addInstallableUnits(a1);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(plan, null);
@@ -116,7 +116,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 
 		//Install b1 (this should not change anything for a1)
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile2);
-		req3.addInstallableUnits(new IInstallableUnit[] {b1});
+		req3.addInstallableUnits(b1);
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
 		engine.perform(plan3, null);
@@ -138,7 +138,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 	public void testRemoveIUandInclusionRule() {
 		profile3 = createProfile("TestProfile3." + getName());
 		ProfileChangeRequest req = new ProfileChangeRequest(profile3);
-		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		req.addInstallableUnits(a1);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(plan, null);
@@ -156,7 +156,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 
 		//Install b1 (this should not change anything for a1)
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile3);
-		req3.addInstallableUnits(new IInstallableUnit[] {b1});
+		req3.addInstallableUnits(b1);
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
 		engine.perform(plan3, null);
@@ -178,13 +178,13 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		profile4 = createProfile("TestProfile4." + getName());
 		//Try to Install a1 and a2
 		ProfileChangeRequest req5 = new ProfileChangeRequest(profile4);
-		req5.addInstallableUnits(new IInstallableUnit[] {a1, a2});
+		req5.addInstallableUnits(a1, a2);
 		IProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
 		assertEquals(IStatus.ERROR, plan5.getStatus().getSeverity());
 
 		//Install a1 and a2 marking a1 optional
 		ProfileChangeRequest req = new ProfileChangeRequest(profile4);
-		req.addInstallableUnits(new IInstallableUnit[] {a1, a2});
+		req.addInstallableUnits(a1, a2);
 		req.setInstallableUnitInclusionRules(a1, ProfileInclusionRules.createOptionalInclusionRule(a1));
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
@@ -203,7 +203,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 
 		//Install a1, this is expected to fail
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile4);
-		req3.addInstallableUnits(new IInstallableUnit[] {a1});
+		req3.addInstallableUnits(a1);
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
 	}

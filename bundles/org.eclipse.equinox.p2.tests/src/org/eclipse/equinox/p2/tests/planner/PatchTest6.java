@@ -65,25 +65,25 @@ public class PatchTest6 extends AbstractProvisioningTest {
 	public void testInstall() {
 		//Confirm that a1 and c1 can't be installed
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {a1, c1});
+		req1.addInstallableUnits(a1, c1);
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
 
 		//Verify that the installation of c1 and pp1 succeed
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
-		req2.addInstallableUnits(new IInstallableUnit[] {c1, pp1});
+		req2.addInstallableUnits(c1, pp1);
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 
 		//Verify that p1 can be installed alone (kind of meaningless)
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
-		req3.addInstallableUnits(new IInstallableUnit[] {p1});
+		req3.addInstallableUnits(p1);
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
 
 		//Install a1 and p1.
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile1);
-		req4.addInstallableUnits(new IInstallableUnit[] {a1, p1});
+		req4.addInstallableUnits(a1, p1);
 		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		assertEquals(IStatus.OK, plan4.getStatus().getSeverity());
 		assertInstallOperand(plan4, a1);
@@ -93,7 +93,7 @@ public class PatchTest6 extends AbstractProvisioningTest {
 
 		//Install a1, c1 and p1.
 		ProfileChangeRequest req5 = new ProfileChangeRequest(profile1);
-		req5.addInstallableUnits(new IInstallableUnit[] {a1, c1, p1});
+		req5.addInstallableUnits(a1, c1, p1);
 		IProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
 		assertEquals(IStatus.OK, plan5.getStatus().getSeverity());
 		assertInstallOperand(plan4, a1);
@@ -107,7 +107,7 @@ public class PatchTest6 extends AbstractProvisioningTest {
 	public void testExplanation1() {
 		//Confirm that a1 and c1 can't be installed
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {a1, c1});
+		req1.addInstallableUnits(a1, c1);
 		ProvisioningPlan plan1 = (ProvisioningPlan) planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
 		final RequestStatus requestStatus = ((PlannerStatus) plan1.getStatus()).getRequestStatus();

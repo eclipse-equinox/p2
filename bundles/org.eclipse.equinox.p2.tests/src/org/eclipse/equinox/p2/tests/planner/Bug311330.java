@@ -48,8 +48,8 @@ public class Bug311330 extends AbstractProvisioningTest {
 		request.addExtraRequirements(reqs);
 
 		ProvisioningContext pc = new ProvisioningContext(agent);
-		pc.setMetadataRepositories(new URI[0]);
-		pc.setArtifactRepositories(new URI[0]);
+		pc.setMetadataRepositories();
+		pc.setArtifactRepositories();
 
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, pc, new NullProgressMonitor());
 		assertFalse("should remove rap.jface", plan.getRemovals().query(QueryUtil.createIUQuery("org.eclipse.rap.jface"), null).isEmpty());

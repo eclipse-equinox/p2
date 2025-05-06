@@ -50,7 +50,7 @@ public class GreedyRequirement extends AbstractProvisioningTest {
 	public void testInstall() {
 		//The plan contains B because the requirement from A on B is non greedy, but we are installing C that has a greedy requirement on the B
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a1, c1});
+		req.addInstallableUnits(a1, c1);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);

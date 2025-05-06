@@ -184,7 +184,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createIU(id, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TOUCHPOINT_OSGI, tpData, true, createUpdateDescriptor(id, version), null);
 		IProfile profile = createProfile(id);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {iu});
+		request.addInstallableUnits(iu);
 
 		assertTrue("0.1", !getArtifactRepositoryManager().contains(locationURI));
 

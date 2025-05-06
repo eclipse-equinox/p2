@@ -45,7 +45,7 @@ public class ExplanationForPartialInstallation extends AbstractProvisioningTest 
 		engine = createEngine();
 
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
-		pcr.addInstallableUnits(new IInstallableUnit[] {sdk});
+		pcr.addInstallableUnits(sdk);
 		engine.perform(planner.getProvisioningPlan(pcr, null, null), null);
 
 	}
@@ -59,7 +59,7 @@ public class ExplanationForPartialInstallation extends AbstractProvisioningTest 
 
 		createTestMetdataRepository(new IInstallableUnit[] {cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
-		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
+		pcr.addInstallableUnits(cdt, emf);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		// System.out.println(plan.getRequestStatus().getExplanations());
 		RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
@@ -87,7 +87,7 @@ public class ExplanationForPartialInstallation extends AbstractProvisioningTest 
 
 		createTestMetdataRepository(new IInstallableUnit[] {cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
-		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
+		pcr.addInstallableUnits(cdt, emf);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		// System.out.println(plan.getRequestStatus().getExplanations());
 		RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();

@@ -49,7 +49,7 @@ public class Bug270656 extends AbstractProvisioningTest {
 	public void testInstall() {
 		//The requirement from A to B is broken because there is no B satisfying. Therefore A can only install if the P is installed as well
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
+		req1.addInstallableUnits(a1, p1);
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 	}

@@ -48,7 +48,7 @@ public class Bug300572Small2 extends AbstractProvisioningTest {
 	public void testInstall() {
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {featureBeingPatched});
+		req1.addInstallableUnits(featureBeingPatched);
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 	}
@@ -56,7 +56,7 @@ public class Bug300572Small2 extends AbstractProvisioningTest {
 	public void testInstallAandP1() {
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {featureBeingPatched, p1});
+		req1.addInstallableUnits(featureBeingPatched, p1);
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 	}
@@ -64,7 +64,7 @@ public class Bug300572Small2 extends AbstractProvisioningTest {
 	public void testInstallAandP2() {
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {featureBeingPatched, p2});
+		req1.addInstallableUnits(featureBeingPatched, p2);
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 	}
@@ -72,7 +72,7 @@ public class Bug300572Small2 extends AbstractProvisioningTest {
 	public void testInstallAandP1AndP2() {
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {featureBeingPatched, p1, p2});
+		req1.addInstallableUnits(featureBeingPatched, p1, p2);
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
 	}
@@ -80,7 +80,7 @@ public class Bug300572Small2 extends AbstractProvisioningTest {
 	public void testInstallAandP1ThenP2() {
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {featureBeingPatched, p1});
+		req1.addInstallableUnits(featureBeingPatched, p1);
 		req1.setInstallableUnitInclusionRules(p1, ProfileInclusionRules.createOptionalInclusionRule(p1));
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
@@ -89,7 +89,7 @@ public class Bug300572Small2 extends AbstractProvisioningTest {
 		assertOK("plan execution", engine.perform(plan1, null));
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
-		req2.addInstallableUnits(new IInstallableUnit[] {p2});
+		req2.addInstallableUnits(p2);
 		req2.setInstallableUnitInclusionRules(p2, ProfileInclusionRules.createOptionalInclusionRule(p2));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertOK("Planning for installing P2", plan2.getStatus());
