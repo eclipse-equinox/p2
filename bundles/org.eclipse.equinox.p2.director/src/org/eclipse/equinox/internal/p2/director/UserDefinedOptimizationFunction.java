@@ -161,13 +161,13 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
 			Object notlatest = dependencyHelper.not(toSort.get(0));
 			try {
 				// notuptodate <=> not iuvn and (iuv1 or iuv2 or ... iuvn-1)
-				dependencyHelper.implication(new Object[] {abs}).implies(notlatest).named(FakeExplanation.getInstance());
+				dependencyHelper.implication(abs).implies(notlatest).named(FakeExplanation.getInstance());
 				Object[] clause = new Object[toSort.size()];
 				toSort.toArray(clause);
 				clause[0] = dependencyHelper.not(abs);
 				dependencyHelper.clause(FakeExplanation.getInstance(), clause);
 				for (int i = 1; i < toSort.size(); i++) {
-					dependencyHelper.implication(new Object[] {notlatest, toSort.get(i)}).implies(abs).named(FakeExplanation.getInstance());
+					dependencyHelper.implication(notlatest, toSort.get(i)).implies(abs).named(FakeExplanation.getInstance());
 				}
 			} catch (ContradictionException e) {
 				// should never happen

@@ -128,7 +128,7 @@ public class OperationGenerator {
 
 			//TODO we eventually need to handle the case where an IU is a merge of several others.
 
-			IQuery<IInstallableUnit> updateQuery = QueryUtil.createMatchQuery(iuTo.getUpdateDescriptor().getIUsBeingUpdated().iterator().next(), new Object[0]);
+			IQuery<IInstallableUnit> updateQuery = QueryUtil.createMatchQuery(iuTo.getUpdateDescriptor().getIUsBeingUpdated().iterator().next());
 			iuTo.getUpdateDescriptor().getIUsBeingUpdated();
 			IQueryResult<IInstallableUnit> updates = indexedFromElements.query(updateQuery, null);
 
