@@ -136,7 +136,7 @@ public class MigrationPage extends WizardPage implements ISelectableIUsPage, Lis
 							}
 
 							viewer.setCheckedElements(new Object[0]);
-							viewer.setGrayedElements(new Object[0]);
+							viewer.setGrayedElements();
 							// Now we are only going to set the check state of the leaf nodes
 							// and rely on our container checked code to update the parents properly.
 							Iterator<Object> iter = checkState.iterator();
