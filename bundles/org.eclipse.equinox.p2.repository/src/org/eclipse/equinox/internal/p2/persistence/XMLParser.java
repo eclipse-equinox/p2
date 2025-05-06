@@ -737,7 +737,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	}
 
 	public void invalidAttributeValue(String element, String attribute, String value, Throwable exception) {
-		addError(IStatus.WARNING, NLS.bind(Messages.XMLParser_Illegal_Value_For_Attribute, new Object[] {attribute, element, value}), exception);
+		addError(IStatus.WARNING, NLS.bind(Messages.XMLParser_Illegal_Value_For_Attribute, attribute, element, value), exception);
 	}
 
 	public void unexpectedElement(AbstractHandler handler, String element, Attributes attributes) {
@@ -747,7 +747,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	}
 
 	public void duplicateElement(AbstractHandler handler, String element, Attributes attributes) {
-		addError(IStatus.WARNING, NLS.bind(Messages.XMLParser_Duplicate_Element, new Object[] {handler.getName(), element, toString(attributes)}), null);
+		addError(IStatus.WARNING, NLS.bind(Messages.XMLParser_Duplicate_Element, handler.getName(), element, toString(attributes)), null);
 		//ignore the duplicate element entirely because we have already logged it
 		new IgnoringHandler(handler);
 	}
