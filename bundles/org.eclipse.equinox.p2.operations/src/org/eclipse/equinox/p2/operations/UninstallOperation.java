@@ -86,8 +86,8 @@ public class UninstallOperation extends ProfileChangeOperation {
 	@Override
 	ProvisioningContext getFirstPassProvisioningContext() {
 		ProvisioningContext pc = new ProvisioningContext(session.getProvisioningAgent());
-		pc.setMetadataRepositories(new URI[0]);
-		pc.setArtifactRepositories(new URI[0]);
+		pc.setMetadataRepositories();
+		pc.setArtifactRepositories();
 		return pc;
 	}
 
