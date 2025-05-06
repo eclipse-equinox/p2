@@ -183,8 +183,8 @@ public class StatsTest extends AbstractTestServerClientCase {
 		req.addInstallableUnits(metaRepo.query(QueryUtil.ALL_UNITS, null).toArray(IInstallableUnit.class));
 		IPlanner planner = getAgent().getService(IPlanner.class);
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setArtifactRepositories(new URI[] {repositoryURI});
-		context.setMetadataRepositories(new URI[] {repositoryURI});
+		context.setArtifactRepositories(repositoryURI);
+		context.setMetadataRepositories(repositoryURI);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, context, null);
 		IEngine engine = getAgent().getService(IEngine.class);
 		assertTrue("Failed on install test iu.", engine.perform(plan, null).isOK());

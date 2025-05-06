@@ -74,8 +74,8 @@ public class ProvisioningContextTest extends AbstractProvisioningTest {
 
 	public void testContextOneRepoNoFollow() {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setMetadataRepositories(new URI[] {repoA.getLocation()});
-		context.setArtifactRepositories(new URI[0]);
+		context.setMetadataRepositories(repoA.getLocation());
+		context.setArtifactRepositories();
 		IQueryable<IInstallableUnit> queryable = context.getMetadata(getMonitor());
 		assertEquals("Only IUs from A", A_UNITCOUNT, queryable.query(QueryUtil.ALL_UNITS, getMonitor()).toUnmodifiableSet().size());
 		IQuery<IArtifactRepository> all = new ExpressionMatchQuery<>(IArtifactRepository.class, ExpressionUtil.TRUE_EXPRESSION);
@@ -86,8 +86,8 @@ public class ProvisioningContextTest extends AbstractProvisioningTest {
 
 	public void testContextOneRepoWithFollow() {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setMetadataRepositories(new URI[] {repoA.getLocation()});
-		context.setArtifactRepositories(new URI[0]);
+		context.setMetadataRepositories(repoA.getLocation());
+		context.setArtifactRepositories();
 		context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, "true");
 		IQueryable<IInstallableUnit> queryable = context.getMetadata(getMonitor());
 		assertTrue("More IUs", queryable.query(QueryUtil.ALL_UNITS, getMonitor()).toUnmodifiableSet().size() >= A_UNITCOUNT + 2);
@@ -103,8 +103,8 @@ public class ProvisioningContextTest extends AbstractProvisioningTest {
 
 	public void testContextTwoRepoNoFollow() {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setMetadataRepositories(new URI[] {repoA.getLocation(), repoB.getLocation()});
-		context.setArtifactRepositories(new URI[0]);
+		context.setMetadataRepositories(repoA.getLocation(), repoB.getLocation());
+		context.setArtifactRepositories();
 		IQueryable<IInstallableUnit> queryable = context.getMetadata(getMonitor());
 		assertTrue("IUs from A and B", queryable.query(QueryUtil.ALL_UNITS, getMonitor()).toUnmodifiableSet().size() > A_UNITCOUNT);
 		IInstallableUnit[] units = queryable.query(QueryUtil.createIUQuery("B"), getMonitor()).toArray(IInstallableUnit.class);
@@ -119,8 +119,8 @@ public class ProvisioningContextTest extends AbstractProvisioningTest {
 
 	public void testContextTwoRepoWithFollow() {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setMetadataRepositories(new URI[] {repoA.getLocation(), repoB.getLocation()});
-		context.setArtifactRepositories(new URI[0]);
+		context.setMetadataRepositories(repoA.getLocation(), repoB.getLocation());
+		context.setArtifactRepositories();
 		context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, "true");
 		IQueryable<IInstallableUnit> queryable = context.getMetadata(getMonitor());
 		assertTrue("More IUs", queryable.query(QueryUtil.ALL_UNITS, getMonitor()).toUnmodifiableSet().size() >= A_UNITCOUNT + 2);
@@ -136,8 +136,8 @@ public class ProvisioningContextTest extends AbstractProvisioningTest {
 
 	public void testContextThreeRepoNoFollow() {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setMetadataRepositories(new URI[] {repoA.getLocation(), repoB.getLocation(), repoC.getLocation()});
-		context.setArtifactRepositories(new URI[0]);
+		context.setMetadataRepositories(repoA.getLocation(), repoB.getLocation(), repoC.getLocation());
+		context.setArtifactRepositories();
 		IQueryable<IInstallableUnit> queryable = context.getMetadata(getMonitor());
 		assertTrue("More IUs", queryable.query(QueryUtil.ALL_UNITS, getMonitor()).toUnmodifiableSet().size() >= A_UNITCOUNT + 2);
 		IInstallableUnit[] units = queryable.query(QueryUtil.createIUQuery("B"), getMonitor()).toArray(IInstallableUnit.class);
@@ -152,8 +152,8 @@ public class ProvisioningContextTest extends AbstractProvisioningTest {
 
 	public void testContextThreeRepoWithFollow() {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setMetadataRepositories(new URI[] {repoA.getLocation(), repoB.getLocation(), repoC.getLocation()});
-		context.setArtifactRepositories(new URI[0]);
+		context.setMetadataRepositories(repoA.getLocation(), repoB.getLocation(), repoC.getLocation());
+		context.setArtifactRepositories();
 		context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, "true");
 		IQueryable<IInstallableUnit> queryable = context.getMetadata(getMonitor());
 		assertTrue("More IUs", queryable.query(QueryUtil.ALL_UNITS, getMonitor()).toUnmodifiableSet().size() >= A_UNITCOUNT + 2);
@@ -169,8 +169,8 @@ public class ProvisioningContextTest extends AbstractProvisioningTest {
 
 	public void testContextNoReposNoFollow() {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setArtifactRepositories(new URI[0]);
-		context.setMetadataRepositories(new URI[0]);
+		context.setArtifactRepositories();
+		context.setMetadataRepositories();
 		context.getMetadata(getMonitor());
 		IQuery<IArtifactRepository> all = new ExpressionMatchQuery<>(IArtifactRepository.class, ExpressionUtil.TRUE_EXPRESSION);
 		IArtifactRepository[] followed = context.getArtifactRepositories(getMonitor()).query(all, getMonitor()).toArray(IArtifactRepository.class);
@@ -180,8 +180,8 @@ public class ProvisioningContextTest extends AbstractProvisioningTest {
 	public void testContextNoReposWithFollow() {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
 		context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, "true");
-		context.setArtifactRepositories(new URI[0]);
-		context.setMetadataRepositories(new URI[0]);
+		context.setArtifactRepositories();
+		context.setMetadataRepositories();
 		context.getMetadata(getMonitor());
 		IQuery<IArtifactRepository> all = new ExpressionMatchQuery<>(IArtifactRepository.class, ExpressionUtil.TRUE_EXPRESSION);
 		IArtifactRepository[] followed = context.getArtifactRepositories(getMonitor()).query(all, getMonitor()).toArray(IArtifactRepository.class);
@@ -195,8 +195,8 @@ public class ProvisioningContextTest extends AbstractProvisioningTest {
 		assertTrue("should find A in main repo", units.length > 0);
 		request.add(units[0]);
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setMetadataRepositories(new URI[] {repoA.getLocation()});
-		context.setArtifactRepositories(new URI[0]);
+		context.setMetadataRepositories(repoA.getLocation());
+		context.setArtifactRepositories();
 		IProvisioningPlan plan = getPlanner(getAgent()).getProvisioningPlan(request, context, getMonitor());
 		assertFalse("resolve should fail with missing requirements", plan.getStatus().isOK());
 		context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, "true");

@@ -28,7 +28,7 @@ public class TopLevelFilterTest extends AbstractProvisioningTest {
 		IProfile p = createProfile(getClass().getName());
 		createTestMetdataRepository(new IInstallableUnit[] {iu});
 		ProfileChangeRequest req = new ProfileChangeRequest(p);
-		req.addInstallableUnits(new IInstallableUnit[] {iu});
+		req.addInstallableUnits(iu);
 		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
 		assertNotOK(plan.getStatus());
 		assertTrue("Explanation does not mention filter!", plan.getStatus().getChildren()[0].getMessage().contains("filter"));

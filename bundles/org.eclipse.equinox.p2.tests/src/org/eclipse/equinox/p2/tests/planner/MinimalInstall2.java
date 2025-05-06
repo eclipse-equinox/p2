@@ -60,7 +60,7 @@ public class MinimalInstall2 extends AbstractProvisioningTest {
 
 	public void testInstallUserRegion() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {userRegionRoot});
+		req.addInstallableUnits(userRegionRoot);
 		IProvisioningPlan pplan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, pplan.getStatus().getSeverity());
 		assertEquals(3, pplan.getAdditions().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet().size());
@@ -68,7 +68,7 @@ public class MinimalInstall2 extends AbstractProvisioningTest {
 
 	public void testInstallUserRegion2() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {userRegionRoot2});
+		req.addInstallableUnits(userRegionRoot2);
 		IProvisioningPlan pplan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, pplan.getStatus().getSeverity());
 		assertEquals(3, pplan.getAdditions().query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet().size());

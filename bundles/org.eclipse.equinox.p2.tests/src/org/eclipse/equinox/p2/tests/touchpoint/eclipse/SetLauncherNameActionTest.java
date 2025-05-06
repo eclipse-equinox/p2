@@ -128,7 +128,7 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 		manipulator.getConfigData().addBundle(new BundleInfo(bundle.toURI()));
 		manipulator.save(false);
 
-		assertLogContainsLines(new File(tempFolder, "foo.ini"), new String[] {"-startup", "plugins/org.eclipse.equinox.launcher_1.2.4.v1234.jar"});
+		assertLogContainsLines(new File(tempFolder, "foo.ini"), "-startup", "plugins/org.eclipse.equinox.launcher_1.2.4.v1234.jar");
 		assertFalse(eclipseIni.exists());
 	}
 }

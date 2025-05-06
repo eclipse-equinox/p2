@@ -55,7 +55,7 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 		super.setUp();
 		actionResult = new PublisherResult();
 		PublisherInfo info = new PublisherInfo();
-		metadataRepository = new TestMetadataRepository(getAgent(), new IInstallableUnit[0]);
+		metadataRepository = new TestMetadataRepository(getAgent());
 		info.setMetadataRepository(metadataRepository);
 		File siteLocationFile = TestData.getFile("updatesite", "SiteXMLActionTest/site.xml");
 		siteLocation = siteLocationFile.toURI();

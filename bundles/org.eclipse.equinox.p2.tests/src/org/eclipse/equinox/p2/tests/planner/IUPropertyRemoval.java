@@ -49,7 +49,7 @@ public class IUPropertyRemoval extends AbstractProvisioningTest {
 
 	public void testRemoveIUProperty() {
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile);
-		req1.addInstallableUnits(new IInstallableUnit[] {a1});
+		req1.addInstallableUnits(a1);
 		req1.setInstallableUnitProfileProperty(a1, "FOO", "BAR");
 		req1.setInstallableUnitProfileProperty(b1, "FOO", "BAR");
 		IProvisioningPlan pp1 = planner.getProvisioningPlan(req1, null, null);
