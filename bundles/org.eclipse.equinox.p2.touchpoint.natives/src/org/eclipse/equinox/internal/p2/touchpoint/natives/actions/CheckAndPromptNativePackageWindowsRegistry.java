@@ -82,10 +82,10 @@ public class CheckAndPromptNativePackageWindowsRegistry extends ProvisioningActi
 			}
 		} catch (IOException e) {
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cannot_Check_Package,
-					new String[] { packageName, packageVersion, WINDOWS_DISTRO }));
+					packageName, packageVersion, WINDOWS_DISTRO));
 		} catch (InterruptedException e) {
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cannot_Check_Package,
-					new String[] { packageName, packageVersion, WINDOWS_DISTRO }));
+					packageName, packageVersion, WINDOWS_DISTRO));
 		}
 	}
 

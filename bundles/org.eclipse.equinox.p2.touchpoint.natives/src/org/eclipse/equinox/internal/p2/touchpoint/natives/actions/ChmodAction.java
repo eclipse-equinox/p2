@@ -141,7 +141,7 @@ public class ChmodAction extends ProvisioningAction {
 				}
 			} catch (IOException e) {
 				rStatus.add(Util.createError(NLS.bind(Messages.action_0_failed_on_file_1_reason_2,
-						new String[] { ACTION_CHMOD, fileToChmod, e.getMessage() }), e));
+						ACTION_CHMOD, fileToChmod, e.getMessage()), e));
 				continue;
 			}
 			IStatus chmodStatus = doChmod(fileToChmod, permissions, optionsString);
@@ -216,7 +216,7 @@ public class ChmodAction extends ProvisioningAction {
 			}
 		} catch (IOException e) {
 			return Util.createError(NLS.bind(Messages.action_0_failed_on_file_1_reason_2,
-					new String[] { ACTION_CHMOD, fileToChmod, e.getMessage() }), e);
+					ACTION_CHMOD, fileToChmod, e.getMessage()), e);
 		}
 		return Status.OK_STATUS;
 	}

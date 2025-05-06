@@ -82,10 +82,10 @@ public class CheckAndPromptNativePackage extends ProvisioningAction {
 			}
 		} catch (IOException e) {
 			return new Status(IStatus.ERROR, Activator.ID,
-					NLS.bind(Messages.Cannot_Check_Package, new String[] { packageName, packageVersion, distro }));
+					NLS.bind(Messages.Cannot_Check_Package, packageName, packageVersion, distro));
 		} catch (InterruptedException e) {
 			return new Status(IStatus.ERROR, Activator.ID,
-					NLS.bind(Messages.Cannot_Check_Package, new String[] { packageName, packageVersion, distro }));
+					NLS.bind(Messages.Cannot_Check_Package, packageName, packageVersion, distro));
 		}
 		return Status.OK_STATUS;
 	}
