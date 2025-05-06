@@ -90,7 +90,7 @@ public class PatchTest7 extends AbstractProvisioningTest {
 
 		//Verify that the installation of f1 and p1 succeed
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
-		req3.addInstallableUnits(new IInstallableUnit[] {f1, pp1});
+		req3.addInstallableUnits(f1, pp1);
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
 		assertInstallOperand(plan3, f1);

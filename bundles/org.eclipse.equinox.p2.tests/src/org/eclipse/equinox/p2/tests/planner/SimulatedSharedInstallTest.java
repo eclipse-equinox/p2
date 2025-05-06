@@ -54,7 +54,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		IProvisioningPlan plan = engine.createPlan(profile, context);
 		plan.addInstallableUnit(a1);
 		plan.setInstallableUnitProfileProperty(a1, SimplePlanner.INCLUSION_RULES, ProfileInclusionRules.createStrictInclusionRule(a1));
-		context.setMetadataRepositories(new URI[0]);
+		context.setMetadataRepositories();
 		assertEquals(IStatus.OK, engine.perform(plan, new NullProgressMonitor()).getSeverity());
 		assertContains(profile.query(QueryUtil.createIUAnyQuery(), null), a1);
 
@@ -71,7 +71,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		IProvisioningPlan plan = engine.createPlan(profile, context);
 		plan.addInstallableUnit(c1);
 		plan.setInstallableUnitProfileProperty(c1, SimplePlanner.INCLUSION_RULES, ProfileInclusionRules.createStrictInclusionRule(c1));
-		context.setMetadataRepositories(new URI[0]);
+		context.setMetadataRepositories();
 		assertEquals(IStatus.OK, engine.perform(plan, new NullProgressMonitor()).getSeverity());
 		assertContains(profile.query(QueryUtil.createIUAnyQuery(), null), c1);
 
@@ -131,7 +131,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		};
 
 		ProfileChangeRequest req = new ProfileChangeRequest(availableWrapper);
-		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		req.addInstallableUnits(a1);
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 

@@ -55,13 +55,13 @@ public class OracleTest extends AbstractProvisioningTest {
 
 	public void testInstallA1() {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {a1});
+		request.addInstallableUnits(a1);
 		assertEquals(IStatus.OK, director.provision(request, null, null).getSeverity());
 
 		createTestMetdataRepository(new IInstallableUnit[] {d2});
 		//		assertEquals(new Oracle().canInstall(new IInstallableUnit[] {b1}, profile, null), true);
 		request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {b1});
+		request.addInstallableUnits(b1);
 		assertEquals(IStatus.OK, director.provision(request, null, null).getSeverity());
 	}
 }

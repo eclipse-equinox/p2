@@ -53,7 +53,7 @@ public class UpdateTest extends AbstractProvisioningTest {
 		director = createDirector();
 		planner = createPlanner();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {fa});
+		request.addInstallableUnits(fa);
 		assertOK("1.0", director.provision(request, null, null));
 		assertProfileContains("Profile setup", profile, new IInstallableUnit[] {f1, fa});
 		createTestMetdataRepository(new IInstallableUnit[] {f1_1, f1_4});
@@ -61,12 +61,12 @@ public class UpdateTest extends AbstractProvisioningTest {
 
 	public void testInstall() {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {f1_1});
+		request.addInstallableUnits(f1_1);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(getAgent()), new NullProgressMonitor());
 		assertOK("1.0", plan.getStatus());
 		assertOK("1.1", director.provision(request, null, null));
 		request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {f1_4});
+		request.addInstallableUnits(f1_4);
 		assertEquals(IStatus.ERROR, director.provision(request, null, new NullProgressMonitor()).getSeverity());
 	}
 }

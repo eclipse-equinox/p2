@@ -52,7 +52,7 @@ public class AllOptional extends AbstractProvisioningTest {
 
 	public void testInstallation() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a1, c1});
+		req.addInstallableUnits(a1, c1);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);

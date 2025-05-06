@@ -54,8 +54,8 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		source = mgr.loadRepository(uri, null);
 
 		context = new ProvisioningContext(getAgent());
-		context.setMetadataRepositories(new URI[] {metaRepo.getLocation()});
-		context.setArtifactRepositories(new URI[] {source.getLocation()});
+		context.setMetadataRepositories(metaRepo.getLocation());
+		context.setArtifactRepositories(source.getLocation());
 		engine = getEngine();
 	}
 

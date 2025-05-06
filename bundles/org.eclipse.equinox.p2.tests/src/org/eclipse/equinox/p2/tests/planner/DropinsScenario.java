@@ -55,7 +55,7 @@ public class DropinsScenario extends AbstractProvisioningTest {
 
 	public void testInstallation() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {as, bs});
+		req.addInstallableUnits(as, bs);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
