@@ -1317,11 +1317,11 @@ class VersionFormatParser {
 	}
 
 	private VersionFormatException formatException(String message) {
-		return new VersionFormatException(NLS.bind(Messages.syntax_error_in_version_format_0_1_2, new Object[] {format.substring(start, eos), Integer.valueOf(current), message}));
+		return new VersionFormatException(NLS.bind(Messages.syntax_error_in_version_format_0_1_2, format.substring(start, eos), Integer.valueOf(current), message));
 	}
 
 	private VersionFormatException formatException(String found, String expected) {
-		return new VersionFormatException(NLS.bind(Messages.syntax_error_in_version_format_0_1_found_2_expected_3, new Object[] {format.substring(start, eos), Integer.valueOf(current), found, expected}));
+		return new VersionFormatException(NLS.bind(Messages.syntax_error_in_version_format_0_1_found_2_expected_3, format.substring(start, eos), Integer.valueOf(current), found, expected));
 	}
 
 	private VersionFormatException illegalControlCharacter(char c) {
