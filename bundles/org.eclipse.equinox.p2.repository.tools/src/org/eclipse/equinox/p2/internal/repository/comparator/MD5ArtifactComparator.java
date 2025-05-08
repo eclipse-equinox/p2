@@ -64,8 +64,8 @@ public class MD5ArtifactComparator implements IArtifactComparator {
 
 		return new Status(IStatus.WARNING, Activator.ID,
 				NLS.bind(Messages.warning_different_checksum,
-						new Object[] { URIUtil.toUnencodedString(sourceDescriptor.getRepository().getLocation()),
-								URIUtil.toUnencodedString(destDescriptor.getRepository().getLocation()), "MD-5", //$NON-NLS-1$
-								sourceDescriptor }));
+										URIUtil.toUnencodedString(sourceDescriptor.getRepository().getLocation()),
+												URIUtil.toUnencodedString(destDescriptor.getRepository().getLocation()), "MD-5", //$NON-NLS-1$
+												sourceDescriptor));
 	}
 }

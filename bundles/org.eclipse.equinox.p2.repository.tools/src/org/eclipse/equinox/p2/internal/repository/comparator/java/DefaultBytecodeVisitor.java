@@ -798,7 +798,7 @@ public class DefaultBytecodeVisitor {
 	 */
 	public void _getfield(int pc, int index, ConstantPoolEntry constantFieldref) {
 		dumpPcNumber(pc);
-		this.buffer.append(NLS.bind(Messages.classformat_getfield, new String[] {OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.GETFIELD], returnDeclaringClassName(constantFieldref), new String(constantFieldref.getFieldName()), returnClassName(Signature.toCharArray(constantFieldref.getFieldDescriptor()))}));
+		this.buffer.append(NLS.bind(Messages.classformat_getfield, OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.GETFIELD], returnDeclaringClassName(constantFieldref), new String(constantFieldref.getFieldName()), returnClassName(Signature.toCharArray(constantFieldref.getFieldDescriptor()))));
 		writeNewLine();
 	}
 
@@ -807,7 +807,7 @@ public class DefaultBytecodeVisitor {
 	 */
 	public void _getstatic(int pc, int index, ConstantPoolEntry constantFieldref) {
 		dumpPcNumber(pc);
-		this.buffer.append(NLS.bind(Messages.classformat_getstatic, new String[] {OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.GETSTATIC], returnDeclaringClassName(constantFieldref), new String(constantFieldref.getFieldName()), returnClassName(Signature.toCharArray(constantFieldref.getFieldDescriptor()))}));
+		this.buffer.append(NLS.bind(Messages.classformat_getstatic, OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.GETSTATIC], returnDeclaringClassName(constantFieldref), new String(constantFieldref.getFieldName()), returnClassName(Signature.toCharArray(constantFieldref.getFieldDescriptor()))));
 		writeNewLine();
 	}
 
@@ -1140,7 +1140,7 @@ public class DefaultBytecodeVisitor {
 	 */
 	public void _iinc(int pc, int index, int _const) {
 		dumpPcNumber(pc);
-		this.buffer.append(NLS.bind(Messages.classformat_iinc, new String[] {OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IINC], Integer.toString(index), Integer.toString(_const), EMPTY_LOCAL_NAME}));
+		this.buffer.append(NLS.bind(Messages.classformat_iinc, OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IINC], Integer.toString(index), Integer.toString(_const), EMPTY_LOCAL_NAME));
 		writeNewLine();
 	}
 
@@ -1222,7 +1222,7 @@ public class DefaultBytecodeVisitor {
 	public void _invokeinterface(int pc, int index, byte nargs, ConstantPoolEntry constantInterfaceMethodref) {
 
 		dumpPcNumber(pc);
-		this.buffer.append(NLS.bind(Messages.classformat_invokeinterface, new String[] {OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKEINTERFACE], Integer.toString(nargs), Utility.toString(constantInterfaceMethodref.getClassName(), constantInterfaceMethodref.getMethodName(), constantInterfaceMethodref.getMethodDescriptor(), true, isCompact())}));
+		this.buffer.append(NLS.bind(Messages.classformat_invokeinterface, OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKEINTERFACE], Integer.toString(nargs), Utility.toString(constantInterfaceMethodref.getClassName(), constantInterfaceMethodref.getMethodName(), constantInterfaceMethodref.getMethodDescriptor(), true, isCompact())));
 		writeNewLine();
 	}
 
@@ -1845,7 +1845,7 @@ public class DefaultBytecodeVisitor {
 	 */
 	public void _putfield(int pc, int index, ConstantPoolEntry constantFieldref) {
 		dumpPcNumber(pc);
-		this.buffer.append(NLS.bind(Messages.classformat_putfield, new String[] {OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.PUTFIELD], returnDeclaringClassName(constantFieldref), new String(constantFieldref.getFieldName()), returnClassName(Signature.toCharArray(constantFieldref.getFieldDescriptor()))}));
+		this.buffer.append(NLS.bind(Messages.classformat_putfield, OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.PUTFIELD], returnDeclaringClassName(constantFieldref), new String(constantFieldref.getFieldName()), returnClassName(Signature.toCharArray(constantFieldref.getFieldDescriptor()))));
 		writeNewLine();
 	}
 
@@ -1854,7 +1854,7 @@ public class DefaultBytecodeVisitor {
 	 */
 	public void _putstatic(int pc, int index, ConstantPoolEntry constantFieldref) {
 		dumpPcNumber(pc);
-		this.buffer.append(NLS.bind(Messages.classformat_putstatic, new String[] {OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.PUTSTATIC], returnDeclaringClassName(constantFieldref), new String(constantFieldref.getFieldName()), returnClassName(Signature.toCharArray(constantFieldref.getFieldDescriptor()))}));
+		this.buffer.append(NLS.bind(Messages.classformat_putstatic, OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.PUTSTATIC], returnDeclaringClassName(constantFieldref), new String(constantFieldref.getFieldName()), returnClassName(Signature.toCharArray(constantFieldref.getFieldDescriptor()))));
 		writeNewLine();
 	}
 
