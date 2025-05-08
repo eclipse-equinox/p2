@@ -329,12 +329,10 @@ public class Mirroring {
 						if (!srcProperties.get(key).equals(destMap.get(key))) {
 							if (verbose) {
 								System.out.println(NLS.bind(Messages.Mirroring_differentDescriptorProperty,
-										new Object[] { destDescriptors[dest], key, srcProperties.get(key),
-												destMap.get(key) }));
+										destDescriptors[dest], key, srcProperties.get(key), destMap.get(key)));
 							}
 							status.add(new Status(IStatus.WARNING, Activator.ID,
-									NLS.bind(Messages.Mirroring_differentDescriptorProperty, new Object[] {
-											destDescriptors[dest], key, srcProperties.get(key), destMap.get(key) })));
+									NLS.bind(Messages.Mirroring_differentDescriptorProperty, destDescriptors[dest], key, srcProperties.get(key), destMap.get(key))));
 						}
 					}
 					src++;

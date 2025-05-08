@@ -51,18 +51,18 @@ final public class ArtifactChecksumComparator implements IArtifactComparator {
 		}
 
 		if (sourceChecksum == null) {
-			return new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.info_noChecksumInRepository, new Object[] {source, name, sourceDescriptor}));
+			return new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.info_noChecksumInRepository, source, name, sourceDescriptor));
 		}
 
 		if (destChecksum == null) {
-			return new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.info_noChecksumInRepository, new Object[] {destination, name, destDescriptor}));
+			return new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.info_noChecksumInRepository, destination, name, destDescriptor));
 		}
 
 		if (sourceChecksum.equals(destChecksum)) {
 			return Status.OK_STATUS;
 		}
 
-		return new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.warning_different_checksum, new Object[] {URIUtil.toUnencodedString(sourceDescriptor.getRepository().getLocation()), URIUtil.toUnencodedString(destDescriptor.getRepository().getLocation()), name, sourceDescriptor}));
+		return new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.warning_different_checksum, URIUtil.toUnencodedString(sourceDescriptor.getRepository().getLocation()), URIUtil.toUnencodedString(destDescriptor.getRepository().getLocation()), name, sourceDescriptor));
 	}
 
 }
