@@ -272,7 +272,6 @@ public class DirectorTask extends Task implements ILog {
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public void log(String msg) {
 		if (outputBuffer != null) {
 			outputBuffer.append(msg);
@@ -302,7 +301,7 @@ public class DirectorTask extends Task implements ILog {
 			} else {
 				outputBuffer.append(SUBENTRY);
 			}
-			outputBuffer.append(NLS.bind(logEntry, new String[] {status.getPlugin(), Integer.toString(status.getSeverity()), Integer.toString(status.getCode())}));
+			outputBuffer.append(NLS.bind(logEntry, status.getPlugin(), Integer.toString(status.getSeverity()), Integer.toString(status.getCode())));
 			outputBuffer.append(MESSAGE);
 			outputBuffer.append(status.getMessage());
 			outputBuffer.append('\n');
