@@ -514,7 +514,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 			}
 			if (root.startsWith(QUERY_SEPARATOR) || root.startsWith(QUERY_SEPARATOR_SMALL)) {
 				String queryString = root.substring(2);
-				vnames.add(new PrettyQuery<>(QueryUtil.createQuery(queryString, new Object[0]), queryString));
+				vnames.add(new PrettyQuery<>(QueryUtil.createQuery(queryString), queryString));
 				continue;
 			}
 			IVersionedId vId = VersionedId.parse(root);
@@ -1433,8 +1433,7 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 
 		if (listFormat != null && !printIUList && !printRootIUList) {
 			throw new ProvisionException(NLS.bind(Messages.ArgRequiresOtherArgs, //
-					new String[] { OPTION_LIST_FORMAT.identifiers[0], OPTION_LIST.identifiers[0],
-							OPTION_LIST_INSTALLED.identifiers[0] }));
+					OPTION_LIST_FORMAT.identifiers[0], OPTION_LIST.identifiers[0], OPTION_LIST_INSTALLED.identifiers[0]));
 		}
 
 		else if (!printHelpInfo && !printIUList && !printRootIUList && !printTags && !purgeRegistry
@@ -1692,8 +1691,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.setProfileProperty(IProfile.PROP_ROAMING, "true"); //$NON-NLS-1$
 		ProvisioningContext context = new ProvisioningContext(targetAgent);
-		context.setMetadataRepositories(new URI[0]);
-		context.setArtifactRepositories(new URI[0]);
+		context.setMetadataRepositories();
+		context.setArtifactRepositories();
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		return PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 	}
@@ -1762,8 +1761,8 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		request.setProfileProperty(IProfile.PROP_ROAMING, "false"); //$NON-NLS-1$
 
 		ProvisioningContext context = new ProvisioningContext(targetAgent);
-		context.setMetadataRepositories(new URI[0]);
-		context.setArtifactRepositories(new URI[0]);
+		context.setMetadataRepositories();
+		context.setArtifactRepositories();
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		IStatus status = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 		if (!status.isOK()) {
