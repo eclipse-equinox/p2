@@ -111,7 +111,6 @@ public abstract class AbstractPublisherApplication implements IApplication {
 
 	protected void initializeRepositories(PublisherInfo publisherInfo) throws ProvisionException {
 		if (artifactLocation != null) {
-			@SuppressWarnings("removal")
 			IArtifactRepository repo = Publisher.createArtifactRepository(agent, artifactLocation, artifactRepoName,
 					compress);
 			if (!append && !isEmpty(repo)) {
