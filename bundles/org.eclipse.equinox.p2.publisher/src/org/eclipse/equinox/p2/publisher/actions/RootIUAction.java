@@ -61,7 +61,7 @@ public class RootIUAction extends AbstractPublisherAction {
 		processLicense(descriptor, info);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
 		if (rootIU == null) {
-			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_rootIU_generation, new Object[] {name, id, version}));
+			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_rootIU_generation, name, id, version));
 		}
 		result.addIU(rootIU, IPublisherResult.NON_ROOT);
 
