@@ -147,7 +147,7 @@ public class JarComparator implements IArtifactComparator {
 		Feature feature1 = parser.parse(sourceFile);
 		Feature feature2 = parser.parse(destinationFile);
 
-		MultiStatus parent = new MultiStatus(PLUGIN_ID, 0, NLS.bind(Messages.differentEntry, new String[] {descriptorString, sourceLocation, destinationLocation}), null);
+		MultiStatus parent = new MultiStatus(PLUGIN_ID, 0, NLS.bind(Messages.differentEntry, descriptorString, sourceLocation, destinationLocation), null);
 
 		if (!feature1.getId().equals(feature2.getId())) {
 			parent.add(newErrorStatus(NLS.bind(Messages.featureIdsDontMatch, feature1.getId(), feature2.getId())));
@@ -198,10 +198,10 @@ public class JarComparator implements IArtifactComparator {
 			secondFile = new ZipFile(destinationFile);
 			final int firstFileSize = firstFile.size();
 			final int secondFileSize = secondFile.size();
-			MultiStatus parent = new MultiStatus(PLUGIN_ID, 0, NLS.bind(Messages.differentEntry, new String[] {descriptorString, sourceLocation, destinationLocation}), null);
+			MultiStatus parent = new MultiStatus(PLUGIN_ID, 0, NLS.bind(Messages.differentEntry, descriptorString, sourceLocation, destinationLocation), null);
 
 			if (firstFileSize != secondFileSize) {
-				parent.add(newErrorStatus(NLS.bind(Messages.differentNumberOfEntries, new String[] {descriptorString, sourceLocation, Integer.toString(firstFileSize), destinationLocation, Integer.toString(secondFileSize)})));
+				parent.add(newErrorStatus(NLS.bind(Messages.differentNumberOfEntries, descriptorString, sourceLocation, Integer.toString(firstFileSize), destinationLocation, Integer.toString(secondFileSize))));
 				return parent;
 			}
 			for (Enumeration<? extends ZipEntry> enumeration = firstFile.entries(); enumeration.hasMoreElements();) {
@@ -243,7 +243,7 @@ public class JarComparator implements IArtifactComparator {
 					}
 				} else if (!entry.isDirectory()) {
 					// missing entry, entry2 == null
-					result = newErrorStatus(NLS.bind(Messages.missingEntry, new String[] {entryName, descriptorString, sourceLocation}));
+					result = newErrorStatus(NLS.bind(Messages.missingEntry, entryName, descriptorString, sourceLocation));
 				}
 
 				if (result != null && !result.isOK()) {
@@ -358,11 +358,11 @@ public class JarComparator implements IArtifactComparator {
 			String prop2 = props2.getProperty(key);
 			if (!prop1.equals(prop2)) {
 				if (prop1.length() < 15 && prop2.length() < 15) {
-					return newErrorStatus(NLS.bind(Messages.differentPropertyValueFull, new String[] {entryName, key, prop1, prop2}));
+					return newErrorStatus(NLS.bind(Messages.differentPropertyValueFull, entryName, key, prop1, prop2));
 				}
 				// strings are too long, report the first bit that is different
 				String[] diff = extractDifference(prop1, prop2);
-				return newErrorStatus(NLS.bind(Messages.differentPropertyValueFull, new String[] {entryName, key, diff[0], diff[1]}));
+				return newErrorStatus(NLS.bind(Messages.differentPropertyValueFull, entryName, key, diff[0], diff[1]));
 			}
 
 		}
