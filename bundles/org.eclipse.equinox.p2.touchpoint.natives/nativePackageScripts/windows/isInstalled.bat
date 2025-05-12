@@ -18,7 +18,7 @@ Set attribute=%2
 Set value=%3
 
 :: query registry and get the second and third token, which is the type and the value
-For /F "usebackq tokens=2,3" %%A In (`reg query "%key%" /v "%attribute%" 2^>nul ^| find "%attribute%"`) Do (
+For /F "usebackq tokens=2,3" %%A In (`%COMSPEC%\..\reg query "%key%" /v "%attribute%" 2^>nul ^| %COMSPEC%\..\find "%attribute%"`) Do (
   Set type=%%A
   Set value_actual=%%B
 )
