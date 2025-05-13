@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2023 IBM Corporation and others.
+ * Copyright (c) 2007, 2025 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -32,7 +32,6 @@ import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.metadata.index.IIndex;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.osgi.util.NLS;
 
 public class Profile extends IndexProvider<IInstallableUnit> implements IProfile {
 
@@ -80,7 +79,7 @@ public class Profile extends IndexProvider<IInstallableUnit> implements IProfile
 	public Profile(IProvisioningAgent agent, String profileId, Profile parent, Map<String, String> properties) {
 		this.agent = agent;
 		if (profileId == null || profileId.length() == 0) {
-			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Null_Profile_Id, null));
+			throw new IllegalArgumentException(Messages.Profile_Null_Profile_Id);
 		}
 		this.profileId = profileId;
 		setParent(parent);

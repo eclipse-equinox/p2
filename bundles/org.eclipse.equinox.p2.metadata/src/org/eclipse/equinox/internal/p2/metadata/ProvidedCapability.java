@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2023 IBM Corporation and others.
+ * Copyright (c) 2007, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -48,7 +48,7 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 	private final Map<String, Object> properties;
 
 	public ProvidedCapability(String namespace, Map<String, Object> props) {
-		Assert.isNotNull(namespace, NLS.bind(Messages.provided_capability_namespace_not_defined, null));
+		Assert.isNotNull(namespace, Messages.provided_capability_namespace_not_defined);
 		this.namespace = namespace;
 
 		Assert.isNotNull(props);
@@ -72,7 +72,7 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 	}
 
 	public ProvidedCapability(String namespace, String name, Version version) {
-		Assert.isNotNull(namespace, NLS.bind(Messages.provided_capability_namespace_not_defined, null));
+		Assert.isNotNull(namespace, Messages.provided_capability_namespace_not_defined);
 		Assert.isNotNull(name, NLS.bind(Messages.provided_capability_name_not_defined, namespace));
 		this.namespace = namespace;
 		this.properties = Map.of(namespace, name, //

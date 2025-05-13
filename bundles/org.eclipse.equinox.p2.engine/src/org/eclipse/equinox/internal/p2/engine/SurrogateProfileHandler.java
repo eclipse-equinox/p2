@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2025 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -100,7 +100,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 			iuRequirements.add(MetadataFactory.createRequirement(iuMatcher, null, 0, 1, true));
 		}
 		iuDescription.addRequirements(iuRequirements);
-		iuDescription.setProperty(IInstallableUnit.PROP_NAME, NLS.bind(Messages.Shared_Profile, null));
+		iuDescription.setProperty(IInstallableUnit.PROP_NAME, Messages.Shared_Profile);
 
 		IInstallableUnit sharedProfileIU = MetadataFactory.createInstallableUnit(iuDescription);
 		return sharedProfileIU;
