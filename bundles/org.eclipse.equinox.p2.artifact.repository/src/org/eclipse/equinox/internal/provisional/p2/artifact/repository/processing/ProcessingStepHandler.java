@@ -101,7 +101,7 @@ public class ProcessingStepHandler {
 	 * step has not yet executed. If the step has executed the returned status
 	 * indicates the success or failure of the step.
 	 * @param deep whether or not to aggregate the status of any linked steps
-	 * @return the requested status 
+	 * @return the requested status
 	 */
 	public static IStatus getStatus(OutputStream stream, boolean deep) {
 		if (!deep) {
@@ -231,7 +231,7 @@ public class ProcessingStepHandler {
 		if (steps.length == 0) {
 			return previous;
 		}
-		// now link the artifact stream to the first stream in the new chain 
+		// now link the artifact stream to the first stream in the new chain
 		ArtifactOutputStream lastLink = getArtifactStream(previous);
 		if (lastLink != null) {
 			lastLink.setFirstLink(previous);

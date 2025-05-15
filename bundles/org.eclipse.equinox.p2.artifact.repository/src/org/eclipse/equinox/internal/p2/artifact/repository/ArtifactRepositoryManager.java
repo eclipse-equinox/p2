@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *   IBM Corporation - initial API and implementation
  *   Genuitec LLC - various bug fixes
@@ -30,7 +30,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
 
 /**
  * Default implementation of {@link IArtifactRepositoryManager}.
- * 
+ *
  * TODO the current assumption that the "location" is the dir/root limits us to
  * having just one repository in a given URL..
  */

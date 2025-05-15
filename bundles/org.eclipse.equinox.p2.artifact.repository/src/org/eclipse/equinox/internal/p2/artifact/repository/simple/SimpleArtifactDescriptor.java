@@ -51,7 +51,7 @@ public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 				// first value => store in singletonMap (most repositoryProperties have at most 1 entry)
 				repositoryProperties = Collections.singletonMap(key.intern(), value);
 			} else {
-				// if current size is 1 then it is an immutable singletonMap 
+				// if current size is 1 then it is an immutable singletonMap
 				// => copy to mutable map for more entries
 				if (repositoryProperties.size() == 1) {
 					repositoryProperties = new OrderedProperties(repositoryProperties);

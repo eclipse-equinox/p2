@@ -8,7 +8,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing;
@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 public class ZipVerifierStep extends ProcessingStep {
 	static final int[] ZIP_HEADER = new int[] {0x50, 0x4b, 0x03, 0x04};
 
-	private int valid = 0; //-1 indicates that it is not a zip, >3 indicates that we are done the verification 
+	private int valid = 0; //-1 indicates that it is not a zip, >3 indicates that we are done the verification
 
 	@Override
 	public void write(int b) throws IOException {

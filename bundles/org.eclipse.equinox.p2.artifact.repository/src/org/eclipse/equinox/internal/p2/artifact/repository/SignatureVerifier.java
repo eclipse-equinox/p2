@@ -26,7 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.osgi.signedcontent.*;
 
 /**
- * Processing step validating the signature of the artifact being downloaded  
+ * Processing step validating the signature of the artifact being downloaded
  */
 public class SignatureVerifier extends ProcessingStep {
 	private File inputFile;
