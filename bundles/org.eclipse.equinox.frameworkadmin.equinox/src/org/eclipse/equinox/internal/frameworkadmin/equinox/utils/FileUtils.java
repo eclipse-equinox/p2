@@ -146,7 +146,7 @@ public class FileUtils {
 
 	/**
 	 * Find the named plugin in the given bundlesDir
-	 * 
+	 *
 	 * @return a URL string for the found plugin, or null
 	 */
 	// Based on org.eclipse.core.runtime.adaptor.EclipseStarter#searchFor
@@ -232,7 +232,7 @@ public class FileUtils {
 	 * Loads an ini file, returning a list of all non-blank lines in the file. Like
 	 * eclipseConfig.c/readConfigFile() comment lines ('#' its first character) are
 	 * skipped too.
-	 * 
+	 *
 	 * This must load the content using the native system encoding because that's
 	 * what the native launcher executable does.
 	 */
