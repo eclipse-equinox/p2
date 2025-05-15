@@ -19,7 +19,7 @@ import org.osgi.framework.Version;
 
 /**
  * This object represents information of a bundle.
- * 
+ *
  * @since 2.0
  */
 public class BundleInfo {
@@ -48,7 +48,7 @@ public class BundleInfo {
 
 	/**
 	 * Create a new BundleInfo object
-	 * 
+	 *
 	 * @param location
 	 *            - the location of the bundle
 	 */
@@ -58,7 +58,7 @@ public class BundleInfo {
 
 	/**
 	 * Create a new BundleInfo object
-	 * 
+	 *
 	 * @param location
 	 *            - the location of the bundle
 	 * @param startLevel
@@ -74,7 +74,7 @@ public class BundleInfo {
 
 	/**
 	 * Create a new BundleInfo object
-	 * 
+	 *
 	 * @param symbolic
 	 *            The Bundle-SymbolicName name for this bundle
 	 * @param version
@@ -98,7 +98,7 @@ public class BundleInfo {
 
 	/**
 	 * Get the bundle id
-	 * 
+	 *
 	 * @return the bundle id or {@link #NO_BUNDLEID}
 	 */
 	public long getBundleId() {
@@ -108,7 +108,7 @@ public class BundleInfo {
 	/**
 	 * The base location An absolute URI which may be used to resolve relative
 	 * {@link #getLocation()} URIs
-	 * 
+	 *
 	 * @return absolute URI or null if not set
 	 */
 	public URI getBaseLocation() {
@@ -118,7 +118,7 @@ public class BundleInfo {
 	/**
 	 * The location of this bundle. A location is required if this bundle will be
 	 * persisted into a configuration file
-	 * 
+	 *
 	 * @return URI location or null if not set
 	 */
 	public URI getLocation() {
@@ -127,7 +127,7 @@ public class BundleInfo {
 
 	/**
 	 * The manifest for this bundle
-	 * 
+	 *
 	 * @return the manifest or null if not set
 	 */
 	public String getManifest() {
@@ -136,7 +136,7 @@ public class BundleInfo {
 
 	/**
 	 * The start level for this bundle
-	 * 
+	 *
 	 * @return the start level or {@link #NO_LEVEL}
 	 */
 	public int getStartLevel() {
@@ -146,7 +146,7 @@ public class BundleInfo {
 	/**
 	 * The Bundle-SymbolicName for this bundle. A symbolic name is required if this
 	 * bundle will be persisted into a configuration file
-	 * 
+	 *
 	 * @return the symbolic name or null if not set
 	 */
 	public String getSymbolicName() {
@@ -155,7 +155,7 @@ public class BundleInfo {
 
 	/**
 	 * Return the version
-	 * 
+	 *
 	 * @return an {@link Version} string, or "0.0.0" if not set
 	 */
 	public String getVersion() {
@@ -167,7 +167,7 @@ public class BundleInfo {
 
 	/**
 	 * Return the host if this bundle is a fragment
-	 * 
+	 *
 	 * @return the host, or null if this is not a fragment
 	 */
 	public String getFragmentHost() {
@@ -176,7 +176,7 @@ public class BundleInfo {
 
 	/**
 	 * Whether or not this bundle is marked to be started Default is false
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public boolean isMarkedAsStarted() {
@@ -185,7 +185,7 @@ public class BundleInfo {
 
 	/**
 	 * Whether or not this bundle is resolved Default is false
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public boolean isResolved() {
@@ -194,7 +194,7 @@ public class BundleInfo {
 
 	/**
 	 * Set the bundle id.
-	 * 
+	 *
 	 * @param bundleId
 	 *            The bundle id.
 	 */
@@ -205,7 +205,7 @@ public class BundleInfo {
 	/**
 	 * Set a base location against which relative {@link #getLocation()} URIs may be
 	 * resolved
-	 * 
+	 *
 	 * @param baseLocation
 	 *            - an absolute URI
 	 */
@@ -215,7 +215,7 @@ public class BundleInfo {
 
 	/**
 	 * Set the location for this bundle.
-	 * 
+	 *
 	 * @param location
 	 *            The location of the bundle.
 	 */
@@ -225,7 +225,7 @@ public class BundleInfo {
 
 	/**
 	 * Set the manifest for this bundle
-	 * 
+	 *
 	 * @param manifest
 	 *            The manifest.
 	 */
@@ -235,7 +235,7 @@ public class BundleInfo {
 
 	/**
 	 * Set whether or not this bundle should be started
-	 * 
+	 *
 	 * @param markedAsStarted
 	 *            Whether the bundle should be started.
 	 */
@@ -245,7 +245,7 @@ public class BundleInfo {
 
 	/**
 	 * Set whether or not the bundle is resolved
-	 * 
+	 *
 	 * @param resolved
 	 *            If the bundle is resolved or not.
 	 */
@@ -255,7 +255,7 @@ public class BundleInfo {
 
 	/**
 	 * Set the start level.
-	 * 
+	 *
 	 * @param level
 	 *            if a value &lt; 0 is passed, the start level will be set to
 	 *            {@link #NO_LEVEL}
@@ -266,7 +266,7 @@ public class BundleInfo {
 
 	/**
 	 * Set the Bundle-SymbolicName
-	 * 
+	 *
 	 * @param symbolicName
 	 *            The Bundle-SymbolicName.
 	 */
@@ -276,7 +276,7 @@ public class BundleInfo {
 
 	/**
 	 * Set the version, should be a valid {@link Version} string
-	 * 
+	 *
 	 * @param value
 	 *            The version. A valid {@link Version} string.
 	 */
@@ -290,7 +290,7 @@ public class BundleInfo {
 
 	/**
 	 * Set the host if this bundle is a fragment
-	 * 
+	 *
 	 * @param fragmentHost
 	 *            The host for this fragment.
 	 */

@@ -18,7 +18,7 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdmin;
 
 /**
  * Factory class for creating ConfiguratorManipulator object from Java programs.
- * 
+ *
  * @see FrameworkAdmin
  */
 public abstract class ConfiguratorManipulatorFactory {

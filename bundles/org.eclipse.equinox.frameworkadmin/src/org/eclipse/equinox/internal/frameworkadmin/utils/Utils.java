@@ -33,7 +33,7 @@ public class Utils {
 	/**
 	 * Overwrite all properties of from to the properties of to. Return the result
 	 * of to.
-	 * 
+	 *
 	 * @param to
 	 *            Properties whose keys and values of other Properties will be
 	 *            appended to.
@@ -290,7 +290,7 @@ public class Utils {
 
 	/**
 	 * This method will be called for create a backup file.
-	 * 
+	 *
 	 * @param file
 	 *            target file
 	 * @return File backup file whose filename consists of
@@ -354,7 +354,7 @@ public class Utils {
 
 	/**
 	 * Just used for debug.
-	 * 
+	 *
 	 * @param ps
 	 *            printstream
 	 * @param name
@@ -395,7 +395,7 @@ public class Utils {
 
 	/**
 	 * Sort by increasing order of startlevels.
-	 * 
+	 *
 	 * @param bInfos
 	 *            array of BundleInfos to be sorted.
 	 * @param initialBSL
@@ -430,7 +430,7 @@ public class Utils {
 
 	/**
 	 * get String representing the given properties.
-	 * 
+	 *
 	 * @param name
 	 *            name of properties
 	 * @param props

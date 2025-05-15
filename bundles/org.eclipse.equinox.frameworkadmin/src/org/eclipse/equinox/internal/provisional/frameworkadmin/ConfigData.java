@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -21,7 +21,7 @@ import org.eclipse.equinox.frameworkadmin.BundleInfo;
  * This object is instantiated by {@link Manipulator#getConfigData()}; The class
  * that keeps some parameters of the {@link Manipulator} created this object.
  * The manipulating of the parameters will affect the {@link Manipulator}.
- * 
+ *
  * @see Manipulator
  */
 public class ConfigData {
