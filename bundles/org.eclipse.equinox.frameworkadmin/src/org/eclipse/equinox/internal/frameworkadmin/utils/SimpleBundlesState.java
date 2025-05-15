@@ -23,7 +23,7 @@ import org.osgi.framework.Constants;
 /**
  * This implementation of BundlesState doesn't support any of - resolving
  * bundles, - retrieving fw persistent data.
- * 
+ *
  * This implementation can be used for those cases.
  */
 public class SimpleBundlesState implements BundlesState {
@@ -40,7 +40,7 @@ public class SimpleBundlesState implements BundlesState {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return File of fwJar to be used.
 	 */
 	static File getFwJar(LauncherData launcherData) {
@@ -111,7 +111,7 @@ public class SimpleBundlesState implements BundlesState {
 
 	/*
 	 * Just return required bundles.
-	 * 
+	 *
 	 * @see org.eclipse.equinox.internal.provisional.frameworkadmin.BundlesState#
 	 * getPrerequisteBundles(org.eclipse.equinox.internal.provisional.frameworkadmin
 	 * .BundleInfo)

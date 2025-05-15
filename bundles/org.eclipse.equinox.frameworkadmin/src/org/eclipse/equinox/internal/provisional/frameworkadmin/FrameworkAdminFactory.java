@@ -17,7 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * Factory class for creating FrameworkAdmin object from Java programs.
- * 
+ *
  * @see FrameworkAdmin
  */
 public abstract class FrameworkAdminFactory {
