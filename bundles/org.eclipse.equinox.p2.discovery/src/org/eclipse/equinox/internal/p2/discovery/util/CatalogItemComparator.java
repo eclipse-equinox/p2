@@ -19,14 +19,14 @@ import org.eclipse.equinox.internal.p2.discovery.model.*;
 
 /**
  * A comparator that orders connectors by group and alphabetically by their name.
- * 
+ *
  * @author David Green
  */
 public class CatalogItemComparator implements Comparator<CatalogItem> {
 
 	/**
 	 * compute the index of the group id
-	 * 
+	 *
 	 * @param groupId
 	 *            the group id or null
 	 * @return the index, or -1 if not found

@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
@@ -29,7 +29,7 @@ public abstract class AbstractCatalogSource {
 
 	/**
 	 * get a resource by an URL relative to the root of the source.
-	 * 
+	 *
 	 * @param resourceName
 	 *            the relative resource name
 	 * @return an URL to the resource, or null if it is known that the resource does not exist.

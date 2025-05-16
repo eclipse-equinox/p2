@@ -16,7 +16,7 @@ package org.eclipse.equinox.internal.p2.discovery.model;
 
 /**
  * Provides means to tag items in the catalog.
- * 
+ *
  * @author David Green
  * @author Steffen Pingel
  */
@@ -40,7 +40,7 @@ public class Tag extends AbstractCatalogItem {
 
 	/**
 	 * the classifier, which places the tag in a logical category
-	 * 
+	 *
 	 * @return the classifier or null if this tag is not in any category
 	 */
 	public Object getTagClassifier() {

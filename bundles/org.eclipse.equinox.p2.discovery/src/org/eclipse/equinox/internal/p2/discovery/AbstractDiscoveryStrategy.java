@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.p2.discovery.model.*;
 /**
  * An abstraction of a strategy for discovering connectors and categories. Strategy design pattern. Note that strategies
  * are not reusable and must be disposed.
- * 
+ *
  * @author David Green
  * @author Steffen Pingel
  */

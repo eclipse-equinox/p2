@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
@@ -23,7 +23,7 @@ import org.osgi.framework.*;
 
 /**
  * A means of discovering connectors.
- * 
+ *
  * @author David Green
  */
 public class Catalog {
@@ -108,7 +108,7 @@ public class Catalog {
 
 	/**
 	 * get the top-level categories
-	 * 
+	 *
 	 * @return the categories, or an empty list if there are none.
 	 */
 	public List<CatalogCategory> getCategories() {
@@ -117,7 +117,7 @@ public class Catalog {
 
 	/**
 	 * get the connectors that were discovered and not filtered
-	 * 
+	 *
 	 * @return the connectors, or an empty list if there are none.
 	 */
 	public List<CatalogItem> getItems() {
@@ -130,7 +130,7 @@ public class Catalog {
 
 	/**
 	 * get the connectors that were discovered but filtered
-	 * 
+	 *
 	 * @return the filtered connectors, or an empty list if there were none.
 	 */
 	public List<CatalogItem> getFilteredItems() {
@@ -139,7 +139,7 @@ public class Catalog {
 
 	/**
 	 * get a list of known certifications
-	 * 
+	 *
 	 * @return the certifications, or an empty list if there are none.
 	 */
 	public List<Certification> getCertifications() {
@@ -167,7 +167,7 @@ public class Catalog {
 
 	/**
 	 * indicate if update site availability should be verified. The default is false.
-	 * 
+	 *
 	 * @see CatalogItem#getAvailable()
 	 * @see #setVerifyUpdateSiteAvailability(boolean)
 	 */
@@ -177,7 +177,7 @@ public class Catalog {
 
 	/**
 	 * indicate if update site availability should be verified. The default is false.
-	 * 
+	 *
 	 * @see CatalogItem#getAvailable()
 	 * @see #isVerifyUpdateSiteAvailability()
 	 */
