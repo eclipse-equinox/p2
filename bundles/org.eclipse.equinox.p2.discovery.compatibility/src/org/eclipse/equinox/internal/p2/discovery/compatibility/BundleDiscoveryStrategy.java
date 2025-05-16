@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
@@ -22,7 +22,7 @@ import org.osgi.framework.Bundle;
 
 /**
  * A strategy for discovering via installed platform {@link Bundle bundles}.
- * 
+ *
  * @author David Green
  */
 public class BundleDiscoveryStrategy extends AbstractDiscoveryStrategy {

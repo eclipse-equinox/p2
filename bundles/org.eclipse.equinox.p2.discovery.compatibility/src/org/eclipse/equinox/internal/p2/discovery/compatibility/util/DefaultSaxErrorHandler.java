@@ -18,7 +18,7 @@ import org.xml.sax.*;
 
 /**
  * A default implementation of an error handler that throws exceptions on all errors.
- * 
+ *
  * @author David Green
  */
 public class DefaultSaxErrorHandler implements ErrorHandler {

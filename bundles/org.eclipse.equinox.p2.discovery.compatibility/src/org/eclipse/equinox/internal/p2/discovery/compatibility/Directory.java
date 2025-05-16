@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  * A directory representing locations of discovery sources.
- * 
+ *
  * @author David Green
  */
 public class Directory {

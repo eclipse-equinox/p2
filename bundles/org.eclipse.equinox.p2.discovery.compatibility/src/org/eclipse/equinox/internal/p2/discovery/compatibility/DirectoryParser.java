@@ -26,13 +26,13 @@ import org.xml.sax.*;
 
 /**
  * A parser for {@link Directory directories}.
- * 
+ *
  * @author David Green
  */
 public class DirectoryParser {
 	/**
 	 * parse the contents of a directory. The caller must close the given reader.
-	 * 
+	 *
 	 * @param directoryContents
 	 *            the contents of the directory
 	 * @return a directory with 0 or more entries
@@ -69,7 +69,7 @@ public class DirectoryParser {
 		Directory directory;
 
 		/**
-		 * @throws SAXException - required by contract, not really thrown 
+		 * @throws SAXException - required by contract, not really thrown
 		 */
 		@Override
 		public void characters(char[] ch, int start, int length) throws SAXException {
@@ -77,7 +77,7 @@ public class DirectoryParser {
 		}
 
 		/**
-		 * @throws SAXException - required by contract, not really thrown 
+		 * @throws SAXException - required by contract, not really thrown
 		 */
 		@Override
 		public void endDocument() throws SAXException {
@@ -85,7 +85,7 @@ public class DirectoryParser {
 		}
 
 		/**
-		 * @throws SAXException - required by contract, not really thrown 
+		 * @throws SAXException - required by contract, not really thrown
 		 */
 		@Override
 		public void endElement(String uri, String localName, String qName) throws SAXException {
@@ -93,7 +93,7 @@ public class DirectoryParser {
 		}
 
 		/**
-		 * @throws SAXException - required by contract, not really thrown 
+		 * @throws SAXException - required by contract, not really thrown
 		 */
 		@Override
 		public void endPrefixMapping(String prefix) throws SAXException {
@@ -101,7 +101,7 @@ public class DirectoryParser {
 		}
 
 		/**
-		 * @throws SAXException - required by contract, not really thrown 
+		 * @throws SAXException - required by contract, not really thrown
 		 */
 		@Override
 		public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
@@ -109,7 +109,7 @@ public class DirectoryParser {
 		}
 
 		/**
-		 * @throws SAXException - required by contract, not really thrown 
+		 * @throws SAXException - required by contract, not really thrown
 		 */
 		@Override
 		public void processingInstruction(String target, String data) throws SAXException {
@@ -122,7 +122,7 @@ public class DirectoryParser {
 		}
 
 		/**
-		 * @throws SAXException - required by contract, not really thrown 
+		 * @throws SAXException - required by contract, not really thrown
 		 */
 		@Override
 		public void skippedEntity(String name) throws SAXException {
@@ -130,7 +130,7 @@ public class DirectoryParser {
 		}
 
 		/**
-		 * @throws SAXException - required by contract, not really thrown 
+		 * @throws SAXException - required by contract, not really thrown
 		 */
 		@Override
 		public void startDocument() throws SAXException {
@@ -161,7 +161,7 @@ public class DirectoryParser {
 		}
 
 		/**
-		 * @throws SAXException - required by contract, not really thrown 
+		 * @throws SAXException - required by contract, not really thrown
 		 */
 		@Override
 		public void startPrefixMapping(String prefix, String uri) throws SAXException {

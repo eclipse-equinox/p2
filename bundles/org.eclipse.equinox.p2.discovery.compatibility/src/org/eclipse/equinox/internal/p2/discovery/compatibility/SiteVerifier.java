@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
@@ -27,7 +27,7 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * Verifies if site URIs point to valid P2 repositories.
- * 
+ *
  * @author David Green
  * @author Steffen Pingel
  */

@@ -77,7 +77,7 @@ public class CacheManager {
 	/**
 	 * Returns a local cache file with the contents of the given remote location, or
 	 * <code>null</code> if a local cache could not be created.
-	 * 
+	 *
 	 * @param location the remote location to be cached
 	 * @param monitor  a progress monitor
 	 * @return A {@link File} object pointing to the cache file or <code>null</code>
@@ -157,7 +157,7 @@ public class CacheManager {
 
 	/**
 	 * Determines the local file paths of the locations potential cache file.
-	 * 
+	 *
 	 * @param location The location to compute the cache for
 	 * @return A {@link File} array with the cache files for JAR and XML extensions.
 	 */
