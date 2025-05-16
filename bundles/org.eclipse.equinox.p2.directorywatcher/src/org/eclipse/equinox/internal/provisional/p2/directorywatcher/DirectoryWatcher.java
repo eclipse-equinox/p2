@@ -7,9 +7,9 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
- *  aQute - initial implementation and ideas 
+ *  aQute - initial implementation and ideas
  *  IBM Corporation - initial adaptation to Equinox provisioning use
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
@@ -160,7 +160,7 @@ public class DirectoryWatcher {
 					removals.add(target);
 					pendingDeletions.add(target);
 				} else {
-					// else remember that we saw the file and remove it from this list of files to be 
+					// else remember that we saw the file and remove it from this list of files to be
 					// removed at the end.  Then notify all the listeners as needed.
 					scannedFiles.add(file);
 					removals.remove(file);

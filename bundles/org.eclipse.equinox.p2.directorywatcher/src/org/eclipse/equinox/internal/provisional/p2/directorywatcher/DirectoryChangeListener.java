@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- * IBM Corporation - initial implementation and ideas 
+ * IBM Corporation - initial implementation and ideas
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
