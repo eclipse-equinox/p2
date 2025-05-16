@@ -27,7 +27,7 @@ public class PropertyOperand extends Operand {
 	 * Creates a new operand that represents replacing a property value
 	 * with another.  At least one of the provided property values must be
 	 * non-null.
-	 * 
+	 *
 	 * @param key The key of the property being modified
 	 * @param first The property value being removed, or <code>null</code>
 	 * @param second The property value being added, or <code>null</code>

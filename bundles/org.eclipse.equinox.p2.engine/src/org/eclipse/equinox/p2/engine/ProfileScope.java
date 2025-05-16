@@ -30,7 +30,7 @@ import org.eclipse.equinox.p2.core.IAgentLocation;
 public final class ProfileScope implements IScopeContext {
 
 	/**
-	 * String constant (value of <code>"profile"</code>) used for the 
+	 * String constant (value of <code>"profile"</code>) used for the
 	 * scope name for this preference scope.
 	 */
 	public static final String SCOPE = "profile"; //$NON-NLS-1$
@@ -65,7 +65,7 @@ public final class ProfileScope implements IScopeContext {
 
 	/*
 	 * Default path hierarchy for profile nodes is /profile/<profileId>/<qualifier>.
-	 * 
+	 *
 	 * @see org.eclipse.core.runtime.preferences.IScopeContext#getNode(java.lang.String)
 	 */
 	@Override

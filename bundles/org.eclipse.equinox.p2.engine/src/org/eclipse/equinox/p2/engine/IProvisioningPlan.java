@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
  * may represent a set of changes that would cause errors if executed. In this
  * case the plan contains information about the severity and explanation for the
  * problems.
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
@@ -32,38 +32,38 @@ public interface IProvisioningPlan {
 
 	/**
 	 * Returns the proposed set of installable units to be added to the profile.
-	 * 
+	 *
 	 * @return The proposed profile additions
 	 */
 	public IQueryable<IInstallableUnit> getAdditions();
 
 	/**
 	 * Returns the provisioning context in which this plan was created.
-	 * 
+	 *
 	 * @return The plan's provisioning context
 	 */
 	public ProvisioningContext getContext();
 
 	/**
 	 * Returns a plan describing the proposed set of changes to the provisioning infrastructure
-	 * required by this plan.  The installer changes must be performed before this plan 
+	 * required by this plan.  The installer changes must be performed before this plan
 	 * can be successfully executed.
-	 * 
+	 *
 	 * @return The installer plan.
 	 */
 	public IProvisioningPlan getInstallerPlan();
 
 	/**
 	 * Returns the profile that this plan will operate on.
-	 * 
+	 *
 	 * @return The target profile for this plan
 	 */
 	public IProfile getProfile();
 
 	/**
 	 * Returns the set of IUs that will constitute the profile if the plan is executed successfully.
-	 * 
-	 * @return The set of the IUs that will constitute the profile after the plan is executed successfully, or @null if the 
+	 *
+	 * @return The set of the IUs that will constitute the profile after the plan is executed successfully, or @null if the
 	 * plan is in error or the value has not been set.
 	 * @since 2.2
 	 */
@@ -71,7 +71,7 @@ public interface IProvisioningPlan {
 
 	/**
 	 * Returns the proposed set of installable units to be removed from this profile.
-	 * 
+	 *
 	 * @return The proposed profile removals.
 	 */
 	public IQueryable<IInstallableUnit> getRemovals();
@@ -88,7 +88,7 @@ public interface IProvisioningPlan {
 	 * <li>A status of {@link IStatus#CANCEL} indicates that the plan computation was
 	 * canceled and is incomplete. A canceled plan cannot be executed.</li>
 	 * </ul>
-	 * 
+	 *
 	 * @return The overall plan status.
 	 */
 	public IStatus getStatus();
@@ -102,7 +102,7 @@ public interface IProvisioningPlan {
 
 	/**
 	 * Adds an installable unit to the plan. This will cause the given installable unit
-	 * to be installed into the profile when this plan is executed by the engine. 
+	 * to be installed into the profile when this plan is executed by the engine.
 	 * <p>
 	 * This is an advanced operation that should only be performed by clients crafting
 	 * their own custom plan. Most clients should instead use a planner service
@@ -114,7 +114,7 @@ public interface IProvisioningPlan {
 
 	/**
 	 * Removes an installable unit from the plan. This will cause the given installable unit
-	 * to be remove from the profile when this plan is executed by the engine. 
+	 * to be remove from the profile when this plan is executed by the engine.
 	 * <p>
 	 * This is an advanced operation that should only be performed by clients crafting
 	 * their own custom plan. Most clients should instead use a planner service
@@ -125,9 +125,9 @@ public interface IProvisioningPlan {
 	public void removeInstallableUnit(IInstallableUnit iu);
 
 	/**
-	 * Adds a profile property corresponding to the given installable unit to the plan. 
-	 * This will cause the given installable unit property to be installed into the profile 
-	 * when this plan is executed by the engine. 
+	 * Adds a profile property corresponding to the given installable unit to the plan.
+	 * This will cause the given installable unit property to be installed into the profile
+	 * when this plan is executed by the engine.
 	 * <p>
 	 * This is an advanced operation that should only be performed by clients crafting
 	 * their own custom plan. Most clients should instead use a planner service
@@ -154,7 +154,7 @@ public interface IProvisioningPlan {
 
 	/**
 	 * Sets a profile property in the plan. This will cause the given property
-	 * to be added to the profile when this plan is executed by the engine. 
+	 * to be added to the profile when this plan is executed by the engine.
 	 * <p>
 	 * This is an advanced operation that should only be performed by clients crafting
 	 * their own custom plan. Most clients should instead use a planner service
@@ -180,9 +180,9 @@ public interface IProvisioningPlan {
 
 	/**
 	 * Adds an instruction to replace one installable unit in the profile with another.
-	 * This will cause the 'from' installable unit property to be uninstalled from the profile 
-	 * and the 'to' installable unit to be added to the profile when this plan is executed 
-	 * by the engine. 
+	 * This will cause the 'from' installable unit property to be uninstalled from the profile
+	 * and the 'to' installable unit to be added to the profile when this plan is executed
+	 * by the engine.
 	 * <p>
 	 * This is an advanced operation that should only be performed by clients crafting
 	 * their own custom plan. Most clients should instead use a planner service
@@ -196,9 +196,9 @@ public interface IProvisioningPlan {
 	/**
 	 * Sets the value that is returned by the method getFutureState.
 	 * Note that this method is a simple setter and will not cause any update to the other fields of this object.
-	 * This field can be set to @null.   
+	 * This field can be set to @null.
 	 * @param futureState A set of IU representing the future plan if the plan is executed successfully.
-	 * @since 2.2 
+	 * @since 2.2
 	 */
 	public void setFuturePlan(IQueryable<IInstallableUnit> futureState);
 }

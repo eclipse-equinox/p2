@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
  ******************************************************************************/
@@ -80,7 +80,7 @@ public class ProfileLock {
 	 * the lock becomes available. If the lock is currently held by another process,
 	 * this method returns <code>false</code>. Re-entrant attempts to acquire the
 	 * same profile lock multiple times in the same thread is not allowed.
-	 * 
+	 *
 	 * @return <code>true</code> if the lock was successfully obtained by this thread,
 	 * and <code>false</code> if another process is currently holding the lock.
 	 */
@@ -147,7 +147,7 @@ public class ProfileLock {
 
 	/**
 	 * Returns whether a thread in this process currently holds the profile lock.
-	 * 
+	 *
 	 * @return <code>true</code> if a thread in this process owns the profile lock,
 	 * and <code>false</code> otherwise
 	 */
