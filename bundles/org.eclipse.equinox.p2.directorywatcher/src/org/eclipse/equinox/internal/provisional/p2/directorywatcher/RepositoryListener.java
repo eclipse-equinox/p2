@@ -7,9 +7,9 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
- *   IBM Corporation - initial implementation and ideas 
+ *   IBM Corporation - initial implementation and ideas
  *   Code 9 - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
@@ -44,7 +44,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	public static final String FILE_NAME = "file.name"; //$NON-NLS-1$
 	private final IMetadataRepository metadataRepository;
 	private final CachingArtifactRepository artifactRepository;
-	// at any point in time currentFiles is the list of files/dirs that the watcher has seen and 
+	// at any point in time currentFiles is the list of files/dirs that the watcher has seen and
 	// believes to be on disk.
 	private final Map<File, Long> currentFiles = new HashMap<>();
 	private final Collection<File> polledSeenFiles = new HashSet<>();
@@ -246,7 +246,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	/**
-	 * Prime the list of current files that the listener knows about.  This traverses the 
+	 * Prime the list of current files that the listener knows about.  This traverses the
 	 * repos and looks for the related filename and modified timestamp information.
 	 */
 	private void synchronizeCurrentFiles() {

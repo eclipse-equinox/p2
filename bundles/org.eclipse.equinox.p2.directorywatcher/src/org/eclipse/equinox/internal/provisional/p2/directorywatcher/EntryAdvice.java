@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Code 9 and others. 
+ * Copyright (c) 2008, 2017 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -29,7 +29,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 /**
  * Entry advice captures the name, location, modified time, shape etc of something
  * discovered by the repository listener.  It is a simplified structure intended to represent
- * only one entry at a time and that entry is the the only entry being published.  
+ * only one entry at a time and that entry is the the only entry being published.
  */
 public class EntryAdvice implements IPropertyAdvice {
 	private final Map<String, String> metadataProps = new HashMap<>();
