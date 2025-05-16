@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *     Sonatype, Inc. - added caching support
@@ -30,7 +30,7 @@ import org.eclipse.osgi.util.NLS;
 /**
  * A discovery strategy that downloads a simple directory of remote jars. The directory is first downloaded, then each
  * remote jar is downloaded.
- * 
+ *
  * @author David Green
  */
 @SuppressWarnings("restriction")
@@ -227,7 +227,7 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 	/**
 	 * walk the exception chain to determine if the given exception or any of its underlying causes are an
 	 * {@link UnknownHostException}.
-	 * 
+	 *
 	 * @return true if the exception or one of its causes are {@link UnknownHostException}.
 	 */
 	private boolean isUnknownHostException(Throwable t) {
@@ -294,7 +294,7 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 
 	/**
 	 * indicate how many times discovyer jar downloads should be attempted
-	 * 
+	 *
 	 * @param maxDiscoveryJarDownloadAttempts
 	 *            a number >= 1
 	 */

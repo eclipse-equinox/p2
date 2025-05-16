@@ -18,7 +18,7 @@ import java.io.IOException;
 
 /**
  * An IO Exception that allows for {@link #getCause() a cause}.
- * 
+ *
  * @author David Green
  */
 public class IOWithCauseException extends IOException {

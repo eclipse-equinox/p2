@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *     Sonatype, Inc. - transport split and caching support
@@ -25,14 +25,14 @@ import org.eclipse.equinox.internal.p2.transport.ecf.RepositoryTransport;
 
 /**
  * A utility for accessing web resources
- * 
+ *
  * @author David Green
  */
 public class TransportUtil {
 
 	/**
 	 * Extend to process character content.
-	 * 
+	 *
 	 * @see TransportUtil#readResource(URI, TextContentProcessor, IProgressMonitor)
 	 */
 	public interface TextContentProcessor {
@@ -43,7 +43,7 @@ public class TransportUtil {
 
 	/**
 	 * Download an HTTP-based resource
-	 * 
+	 *
 	 * @param target   the target file to which the content is saved
 	 * @param location the web location of the content
 	 * @param monitor  the monitor
@@ -87,7 +87,7 @@ public class TransportUtil {
 	/**
 	 * Read a web-based resource at the specified location using the given
 	 * processor.
-	 * 
+	 *
 	 * @param location  the web location of the content
 	 * @param processor the processor that will handle content
 	 * @param monitor   the monitor
@@ -110,7 +110,7 @@ public class TransportUtil {
 	/**
 	 * Verify availability of resources at the given web locations. Normally this
 	 * would be done using an HTTP HEAD.
-	 * 
+	 *
 	 * @param locations the locations of the resource to verify
 	 * @param one       indicate if only one of the resources must exist
 	 * @param monitor   the monitor

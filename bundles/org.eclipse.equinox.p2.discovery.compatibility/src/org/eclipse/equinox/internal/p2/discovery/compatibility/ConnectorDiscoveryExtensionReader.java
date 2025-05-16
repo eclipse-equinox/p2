@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
@@ -20,7 +20,7 @@ import org.eclipse.equinox.internal.p2.discovery.model.*;
 /**
  * Connector Discovery extension point reader, for extension points of type
  * {@code org.eclipse.mylyn.discovery.core.connectorDiscovery}
- * 
+ *
  * @author David Green
  */
 public class ConnectorDiscoveryExtensionReader {
@@ -60,7 +60,7 @@ public class ConnectorDiscoveryExtensionReader {
 	/**
 	 * return the enum constant whose {@link Tag#getValue() value} is the same as
 	 * the given value.
-	 * 
+	 *
 	 * @param value the string value, or null
 	 * @return the corresponding enum constant or null if the given value was null
 	 * @throws IllegalArgumentException if the given value does not correspond to
