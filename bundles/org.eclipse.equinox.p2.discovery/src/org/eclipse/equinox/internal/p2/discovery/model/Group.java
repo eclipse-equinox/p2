@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
@@ -15,7 +15,7 @@ package org.eclipse.equinox.internal.p2.discovery.model;
 
 /**
  * groups provide a way to anchor connectors in a grouping with other like entries.
- * 
+ *
  * @author David Green
  */
 public class Group {

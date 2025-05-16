@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
@@ -98,7 +98,7 @@ public class CatalogItem extends AbstractCatalogItem {
 
 	/**
 	 * support selection
-	 * 
+	 *
 	 * @return true if the item is selected, otherwise false
 	 */
 	public boolean isSelected() {
@@ -107,7 +107,7 @@ public class CatalogItem extends AbstractCatalogItem {
 
 	/**
 	 * support selection
-	 * 
+	 *
 	 * @param selected true if the item is selected, otherwise false
 	 */
 	public void setSelected(boolean selected) {
@@ -116,7 +116,7 @@ public class CatalogItem extends AbstractCatalogItem {
 
 	/**
 	 * indicate if this connector is available
-	 * 
+	 *
 	 * @return true if available, false if not, or null if availability is unknown
 	 */
 	public Boolean getAvailable() {
@@ -125,7 +125,7 @@ public class CatalogItem extends AbstractCatalogItem {
 
 	/**
 	 * indicate if this connector is available
-	 * 
+	 *
 	 * @param available true if available, false if not, or null if availability is
 	 *                  unknown
 	 */

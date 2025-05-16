@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
@@ -16,7 +16,7 @@ package org.eclipse.equinox.internal.p2.discovery.model;
 /**
  * A means of specifying that a feature must be present in order for the connectorDescriptor to be presented to the
  * user.
- * 
+ *
  * @author David Green
  */
 public class FeatureFilter {

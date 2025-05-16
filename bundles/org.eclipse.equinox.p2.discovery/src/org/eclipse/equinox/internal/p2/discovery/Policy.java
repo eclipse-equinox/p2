@@ -16,7 +16,7 @@ package org.eclipse.equinox.internal.p2.discovery;
 
 /**
  * A policy defines what is permitted.
- * 
+ *
  * @author David Green
  */
 public class Policy {
