@@ -28,7 +28,7 @@ import org.eclipse.core.runtime.IStatus;
  * customize the set of phases that are executed, or else the engine will execute
  * a default set of phases. During each phase the changes described by the provisioning
  * plan are performed against the profile being provisioned.
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
@@ -44,7 +44,7 @@ public interface IEngine {
 	 * This is an advanced method for clients that know they are creating changes that do
 	 * not require validation by a planner. Most clients should instead obtain a validated plan
 	 * from a planner.
-	 * 
+	 *
 	 * @param profile The profile to operate against
 	 * @param context The provisioning context for the plan
 	 * @return A provisioning plan
@@ -54,7 +54,7 @@ public interface IEngine {
 
 	/**
 	 * Executes a provisioning plan.
-	 * 
+	 *
 	 * @param plan The plan describing the changes to be made
 	 * @param phaseSet The phases to run, or <code>null</code> to run default phases
 	 * @param monitor A progress monitor, or <code>null</code> if progress reporting is not required
@@ -64,7 +64,7 @@ public interface IEngine {
 
 	/**
 	 * Executes a provisioning plan with a default phase set and context.
-	 * 
+	 *
 	 * @param plan The plan describing the changes to be made
 	 * @param monitor A progress monitor, or <code>null</code> if progress reporting is not required
 	 * @return The result of executing the plan

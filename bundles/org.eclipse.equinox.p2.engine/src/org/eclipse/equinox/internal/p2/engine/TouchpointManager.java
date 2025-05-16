@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -90,7 +90,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 		}
 	}
 
-	// TODO: Do we really want to store the touchpoints? The danger is 
+	// TODO: Do we really want to store the touchpoints? The danger is
 	//	     that if two installations are performed simultaneously, then...
 	// TODO: Figure out locking, concurrency requirements for touchpoints.
 	private Map<String, TouchpointEntry> touchpointEntries;

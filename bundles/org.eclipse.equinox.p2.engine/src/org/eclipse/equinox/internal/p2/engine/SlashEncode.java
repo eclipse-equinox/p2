@@ -6,11 +6,11 @@ package org.eclipse.equinox.internal.p2.engine;
  * the responsibility of the consumer to manually encode such strings before
  * attempting to obtain corresponding nodes from secure preferences.
  * <p>
- * Internally, the class uses a subset of JIT encoding. The forward slashes 
+ * Internally, the class uses a subset of JIT encoding. The forward slashes
  * and backward slashes are encoded.
  * </p><p>
  * This class is not intended to be instantiated or subclassed by users.
- * </p>  
+ * </p>
  */
 final public class SlashEncode {
 

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc. - converted into expression based query
@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
- * A query matching all the {@link IInstallableUnit}s that are marked visible to the user. 
+ * A query matching all the {@link IInstallableUnit}s that are marked visible to the user.
  * @since 2.0
  */
 public class UserVisibleRootQuery extends IUProfilePropertyQuery {
@@ -31,7 +31,7 @@ public class UserVisibleRootQuery extends IUProfilePropertyQuery {
 	}
 
 	/**
-	 * Test if the {@link IInstallableUnit}, in the context of a {@link IProfile} is visible to the user 
+	 * Test if the {@link IInstallableUnit}, in the context of a {@link IProfile} is visible to the user
 	 * @param iu the element being tested.
 	 * @param profile the context in which the iu is tested
 	 * @return <code>true</code> if the element is visible to the user.

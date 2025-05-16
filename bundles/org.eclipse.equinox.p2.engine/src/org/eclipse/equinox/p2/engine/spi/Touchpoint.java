@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -19,13 +19,13 @@ import org.eclipse.equinox.p2.engine.*;
 
 /**
  * A touchpoint is responsible for executing the required provisioning steps
- * for each phase corresponding to a particular targeted system (eclipse, native). 
- * The order of phases is defined in the {@link IPhaseSet}.  
+ * for each phase corresponding to a particular targeted system (eclipse, native).
+ * The order of phases is defined in the {@link IPhaseSet}.
  * @since 2.0
  */
 public abstract class Touchpoint {
 
-	/** 
+	/**
 	 * This method is for backwards compatibility only, to be used by touchpoints
 	 * that existed prior to action ids being fully qualified by the engine.
 	 * @param actionId the unqualified action id
@@ -50,7 +50,7 @@ public abstract class Touchpoint {
 	 *    reporting and cancellation are not desired
 	 * @param profile the profile that is being operated on
 	 * @param phaseId the id of the phase
-	 * @param parameters data provided by the engine to the touchpoint 
+	 * @param parameters data provided by the engine to the touchpoint
 	 * @return the result of phase initialization
 	 */
 	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map<String, Object> parameters) {
@@ -71,7 +71,7 @@ public abstract class Touchpoint {
 	 *    reporting and cancellation are not desired
 	 * @param profile the profile that is being operated on
 	 * @param phaseId the id of the phase
-	 * @param parameters data provided by the engine to the touchpoint 
+	 * @param parameters data provided by the engine to the touchpoint
 	 * @return the result of phase completion
 	 */
 	public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map<String, Object> parameters) {
@@ -90,7 +90,7 @@ public abstract class Touchpoint {
 	 * and returned to the caller of {@link IEngine#perform(org.eclipse.equinox.p2.engine.IProvisioningPlan, IProgressMonitor)}.
 	 * </p>
 	 * @param profile the profile that is being operated on
-	 * @param parameters data provided by the engine to the touchpoint 
+	 * @param parameters data provided by the engine to the touchpoint
 	 * @return the result of initialization
 	 */
 	public IStatus initializeOperand(IProfile profile, Map<String, Object> parameters) {
@@ -109,7 +109,7 @@ public abstract class Touchpoint {
 	 * and returned to the caller of {@link IEngine#perform(org.eclipse.equinox.p2.engine.IProvisioningPlan, IProgressMonitor)}.
 	 * </p>
 	 * @param profile the profile that is being operated on
-	 * @param parameters data provided by the engine to the touchpoint 
+	 * @param parameters data provided by the engine to the touchpoint
 	 * @return the result of the completion work
 	 */
 	public IStatus completeOperand(IProfile profile, Map<String, Object> parameters) {
@@ -117,7 +117,7 @@ public abstract class Touchpoint {
 	}
 
 	/**
-	 * This method is called at the end of an engine operation after all phases have 
+	 * This method is called at the end of an engine operation after all phases have
 	 * been executed but prior to the operation being formally committed/persisted. This is an opportunity to perform any final checks
 	 * against the profile, or log any information that might be needed to recover if the operation fails to complete in a regular
 	 * manner.
@@ -127,7 +127,7 @@ public abstract class Touchpoint {
 	 * The result can also contain warnings or informational status that will be aggregated
 	 * and returned to the caller of {@link IEngine#perform(org.eclipse.equinox.p2.engine.IProvisioningPlan, IProgressMonitor)}.
 	 * </p>
-	 * 
+	 *
 	 * @param profile the profile about to be modified
 	 * @return the result of preparation work
 	 */
@@ -136,7 +136,7 @@ public abstract class Touchpoint {
 	}
 
 	/**
-	 * This method is called at the end of an engine operation after all phases have 
+	 * This method is called at the end of an engine operation after all phases have
 	 * been executed and after the touchpoint has had prepare called. When this method is invoked,
 	 * it signals that the engine operation was a complete success, and the touchpoint should commit
 	 * or persist any changes it has made to some persistent storage (for
@@ -147,7 +147,7 @@ public abstract class Touchpoint {
 	 * to fail, and the result returned from this method will not prevent the engine
 	 * from completing its work.
 	 * </p>
-	 * 
+	 *
 	 * @param profile the profile that was modified
 	 * @return the result of commit work
 	 */
@@ -156,7 +156,7 @@ public abstract class Touchpoint {
 	}
 
 	/**
-	 * This method is called at the end of an engine operation after all phases have 
+	 * This method is called at the end of an engine operation after all phases have
 	 * been executed. When this method is invoked, it signals that the engine
 	 * operation was a failure, and the touchpoint should discard any
 	 * changes it has made.
@@ -166,7 +166,7 @@ public abstract class Touchpoint {
 	 * to be stopped, and the result returned from this method will not prevent the engine
 	 * from completing its rollback work.
 	 * </p>
-	 * 
+	 *
 	 * @param profile the profile that was modified
 	 * @return the result of commit work
 	 */

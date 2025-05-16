@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -26,7 +26,7 @@ public class InstallableUnitPropertyOperand extends PropertyOperand {
 	 * Creates a new operand that represents replacing a property value associated
 	 * with an IU with another.  At least one of the provided property values must be
 	 * non-null.
-	 * 
+	 *
 	 * @param iu The IInstallableUnit with which the property is associated
 	 * @param key The key of the property being modified
 	 * @param first The property value being removed, or <code>null</code>

@@ -16,7 +16,7 @@ package org.eclipse.equinox.internal.p2.engine;
 
 /**
  * The common base class for engine operands.
- * 
+ *
  * @since 2.0
  */
 public class Operand {

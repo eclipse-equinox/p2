@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ericsson AB - ongoing development
@@ -26,7 +26,7 @@ import org.eclipse.equinox.p2.query.*;
  * never be updated if subsequent changes are made to this profile. A client should
  * never retain an {@link IProfile} instance, but rather retain the profile id and obtain
  * the current state of the profile from the profile registry only when required.
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
@@ -55,9 +55,9 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	 * A property key (value <code>"org.eclipse.equinox.p2.type.lock"</code>) for an
 	 * integer property indicating how an installable unit is locked in its profile.
 	 * The integer is a bit-mask indicating the different locks defined on the installable
-	 * unit.  The property should be obtained from a profile using 
+	 * unit.  The property should be obtained from a profile using
 	 * IProfile#getInstallableUnitProperty(IInstallableUnit, String).
-	 * 
+	 *
 	 * @see #LOCK_UNINSTALL
 	 * @see #LOCK_UPDATE
 	 * @see #LOCK_NONE
@@ -68,9 +68,9 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	 * A property key (value <code>"org.eclipse.equinox.p2.type.root"</code>) for a
 	 * boolean property indicating whether an installable unit should be considered
 	 * a root of the install. Typically this means the unit will appear to the end user
-	 * as a top-level installed item. The property should be obtained from a profile using 
+	 * as a top-level installed item. The property should be obtained from a profile using
 	 * IProfile#getInstallableUnitProperty(IInstallableUnit, String).
-	 * 
+	 *
 	 * @see #LOCK_UNINSTALL
 	 * @see #LOCK_UPDATE
 	 * @see #LOCK_NONE
@@ -95,8 +95,8 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	 */
 	public static final String PROP_NL = "org.eclipse.equinox.p2.nl"; //$NON-NLS-1$
 	/**
-	 * Profile property constant for a string property indicating a user visible short 
-	 * textual description of this profile. May be empty or <code>null</code>, and 
+	 * Profile property constant for a string property indicating a user visible short
+	 * textual description of this profile. May be empty or <code>null</code>, and
 	 * generally will be for non-top level install contexts.
 	 */
 	public static final String PROP_DESCRIPTION = "org.eclipse.equinox.p2.description"; //$NON-NLS-1$
@@ -105,7 +105,7 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	 * May be empty or <code>null</code>, and generally will be for non-top level
 	 * install contexts.
 	 */
-	public static final String PROP_NAME = "org.eclipse.equinox.p2.name"; //$NON-NLS-1$	
+	public static final String PROP_NAME = "org.eclipse.equinox.p2.name"; //$NON-NLS-1$
 	/**
 	 * Profile property constant indicating the list of environments
 	 * (e.g., OS, WS, ...) in which a profile can operate. The value of the property
@@ -138,7 +138,7 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	  * Profile state meta property key.  Can be used to mark a profile state that should be hidden.
 	  * The value of the property is not relevant as the property's existence is enough.  Although <code>true</code>
 	  * would be a typical value.
-	  * 
+	  *
 	  * @since 2.1
 	  */
 	public static final String STATE_PROP_HIDDEN = "org.eclipse.equinox.p2.state.hidden"; //$NON-NLS-1$
@@ -174,7 +174,7 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 
 	/**
 	 * Profile property constant for additional parameters of the downloading stats(e.g., package=jee&amp;os=linux).
-	 * @since 2.2 
+	 * @since 2.2
 	 */
 	public static final String PROP_STATS_PARAMETERS = "org.eclipse.equinox.p2.stats.parameters"; //$NON-NLS-1$
 

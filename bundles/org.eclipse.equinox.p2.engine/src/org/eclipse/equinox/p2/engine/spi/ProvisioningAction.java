@@ -50,10 +50,10 @@ public abstract class ProvisioningAction {
 	public abstract IStatus undo(Map<String, Object> parameters);
 
 	/**
-	 * This method is meant for provisioning actions that need to communicate the result of their execution  
+	 * This method is meant for provisioning actions that need to communicate the result of their execution
 	 * to subsequent actions.
-	 * This method is only invoked by p2 once execute() has been executed.  
-	 * @return the result of the action execution. 
+	 * This method is only invoked by p2 once execute() has been executed.
+	 * @return the result of the action execution.
 	 * @since 2.3
 	 */
 	public Value<?> getResult() {
