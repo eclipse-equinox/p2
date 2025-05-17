@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -27,14 +27,14 @@ public interface IInstallOperation {
 	/**
 	 * Performs the install.
 	 * <p>
-	 * The provided monitor can be used to report progress and respond to 
+	 * The provided monitor can be used to report progress and respond to
 	 * cancellation.  If the progress monitor has been canceled, the job
 	 * should finish its execution at the earliest convenience and return a result
 	 * status of severity {@link IStatus#CANCEL}.  The singleton
 	 * cancel status {@link Status#CANCEL_STATUS} can be used for
 	 * this purpose.  The monitor is only valid for the duration of the invocation
 	 * of this method.
-	 * 
+	 *
 	 * @param monitor the monitor to be used for reporting progress and
 	 * responding to cancelation, or <code>null</code> if progress reporting
 	 * and cancelation are not desired.
