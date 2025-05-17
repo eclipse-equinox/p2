@@ -35,8 +35,8 @@ public class UninstallOperationTests extends AbstractProvisioningUITest {
 		UninstallOperation op = new UninstallOperation(getSession(), ius);
 		// We set the provisioning context to the same one we use for install
 		ProvisioningContext pc = new ProvisioningContext(getAgent());
-		pc.setArtifactRepositories(new URI[] {testRepoLocation});
-		pc.setMetadataRepositories(new URI[] {testRepoLocation});
+		pc.setArtifactRepositories(testRepoLocation);
+		pc.setMetadataRepositories(testRepoLocation);
 		op.setProvisioningContext(pc);
 		op.setProfileId(TESTPROFILE);
 		assertTrue("Should resolve", op.resolveModal(getMonitor()).isOK());
