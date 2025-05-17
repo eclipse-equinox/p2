@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - ongoing development
@@ -49,7 +49,7 @@ public class SiteListener extends DirectoryChangeListener {
 	private String[] toBeRemoved;
 
 	/*
-	 * Return true if the given list contains the full path of the given file 
+	 * Return true if the given list contains the full path of the given file
 	 * handle. Return false otherwise.
 	 */
 	private static boolean contains(String[] plugins, File file) {
@@ -73,9 +73,9 @@ public class SiteListener extends DirectoryChangeListener {
 	}
 
 	/**
-	 * Given one repo and a base location, ensure cause the other repo to be loaded and then 
-	 * poll the base location once updating the repositories accordingly.  This method is used to 
-	 * ensure that both the metadata and artifact repos corresponding to one location are 
+	 * Given one repo and a base location, ensure cause the other repo to be loaded and then
+	 * poll the base location once updating the repositories accordingly.  This method is used to
+	 * ensure that both the metadata and artifact repos corresponding to one location are
 	 * synchronized in one go.  It is expected that both repos have been previously created
 	 * so simply loading them here will work and that all their properties etc have been configured
 	 * previously.
@@ -105,7 +105,7 @@ public class SiteListener extends DirectoryChangeListener {
 		File plugins = new File(base, PLUGINS);
 		File features = new File(base, FEATURES);
 		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
-		//  here we have to sync with the inner repos as the extension location repos are 
+		//  here we have to sync with the inner repos as the extension location repos are
 		// read-only wrappers.
 		DirectoryChangeListener listener = new RepositoryListener(metadataRepository.metadataRepository, artifactRepository.artifactRepository);
 		if (metadataRepository.getProperties().get(SiteListener.SITE_POLICY) != null) {
@@ -136,7 +136,7 @@ public class SiteListener extends DirectoryChangeListener {
 
 	@Override
 	public boolean isInterested(File file) {
-		// make sure that our delegate and super-class are both interested in 
+		// make sure that our delegate and super-class are both interested in
 		// the file before we consider it
 		if (!delegate.isInterested(file)) {
 			return false;
@@ -188,7 +188,7 @@ public class SiteListener extends DirectoryChangeListener {
 	}
 
 	/*
-	 * Parse and return the feature.xml file in the given location. 
+	 * Parse and return the feature.xml file in the given location.
 	 * Can return null.
 	 */
 	private Feature getFeature(File location) {
@@ -295,7 +295,7 @@ public class SiteListener extends DirectoryChangeListener {
 	}
 
 	/*
-	 * Iterate over the feature directory and return a map of 
+	 * Iterate over the feature directory and return a map of
 	 * File to Feature objects (from the generator bundle)
 	 */
 	private Map<File, Feature> getFeatures(File location) {
