@@ -61,7 +61,7 @@ public class JarProcessor {
 	/**
 	 * Recreate a jar file. The replacements map specifies entry names to be
 	 * replaced, the replacements are expected to be found in directory.
-	 * 
+	 *
 	 * @param jar          - The input jar
 	 * @param outputJar    - the output
 	 * @param replacements - map of entryName -> new entryName

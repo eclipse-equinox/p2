@@ -73,7 +73,7 @@ public class SignCommandStep extends CommandStep {
 			if (inf.containsKey(Utils.MARK_EXCLUDE_CHILDREN_SIGN)) {
 				if (Boolean.parseBoolean(inf.getProperty(Utils.MARK_EXCLUDE_CHILDREN_SIGN))) {
 					if (verbose) {
-						System.out.println(input.getName() + "is excluded from signing by its containers."); //$NON-NLS-1$ 
+						System.out.println(input.getName() + "is excluded from signing by its containers."); //$NON-NLS-1$
 					}
 					return false;
 				}

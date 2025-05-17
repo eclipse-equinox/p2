@@ -166,7 +166,7 @@ public class Utils {
 	 * Get the properties from the eclipse.inf file from the given jar. If the file
 	 * is not a jar, null is returned. If the file is a jar, but does not contain an
 	 * eclipse.inf file, an empty Properties object is returned.
-	 * 
+	 *
 	 * @return The eclipse.inf properties for the given jar file
 	 */
 	public static Properties getEclipseInf(File jarFile, boolean verbose) {
