@@ -17,7 +17,7 @@ import java.util.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 
 /**
- * n-ary <code>intersect</code> operator. The result is the set of elements that were found in all operands. 
+ * n-ary <code>intersect</code> operator. The result is the set of elements that were found in all operands.
  */
 final class Intersect extends Binary {
 	Intersect(Expression operand, Expression param) {

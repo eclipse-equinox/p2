@@ -77,7 +77,7 @@ public interface IExpression {
 	/**
 	 * Appends the string representation of this expression to the collector
 	 * <code>collector</code>.
-	 * 
+	 *
 	 * @deprecated use {@link #toString(StringBuilder)} instead
 	 */
 	@Deprecated(since = "2.9")
@@ -90,7 +90,7 @@ public interface IExpression {
 	/**
 	 * Appends the string representation of this expression to the collector
 	 * <code>collector</code>.
-	 * 
+	 *
 	 * @since 2.9
 	 */
 	void toString(StringBuilder collector);
@@ -98,7 +98,7 @@ public interface IExpression {
 	/**
 	 * Appends the an LDAP filter representation of this expression to the
 	 * <code>collector</code>.
-	 * 
+	 *
 	 * @throws UnsupportedOperationException if the expression contains nodes that
 	 *                                       cannot be represented in an LDAP filter
 	 * @deprecated use {@link #toLDAPString(StringBuilder)} instead
@@ -113,7 +113,7 @@ public interface IExpression {
 	/**
 	 * Appends the an LDAP filter representation of this expression to the
 	 * <code>collector</code>.
-	 * 
+	 *
 	 * @throws UnsupportedOperationException if the expression contains nodes that
 	 *                                       cannot be represented in an LDAP filter
 	 * @since 2.9

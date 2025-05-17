@@ -18,7 +18,7 @@ import java.io.Serializable;
 /**
  * The VersionVector represents an array of Comparable objects. The array can be
  * nested since a VersionVector is Comparable in itself.
- *  
+ *
  * @Immutable
  */
 public class VersionVector implements Comparable<VersionVector>, Serializable {
@@ -148,7 +148,7 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 
 	static boolean equals(Comparable<?>[] vectorA, Comparable<?> padValueA, Comparable<?>[] vectorB, Comparable<?> padValueB) {
 		// We compare pad first since it is impossible for versions with
-		// different pad to be equal (versions are padded to infinity) 
+		// different pad to be equal (versions are padded to infinity)
 		if (padValueA == null) {
 			if (padValueB != null) {
 				return false;

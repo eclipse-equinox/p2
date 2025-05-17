@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc. - converted into expression based query
@@ -21,8 +21,8 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
 import org.eclipse.equinox.p2.metadata.expression.*;
 
 /**
- * A query that finds all IUs that are considered an "Update" of the 
- * specified IU.  
+ * A query that finds all IUs that are considered an "Update" of the
+ * specified IU.
  */
 public final class UpdateQuery extends ExpressionMatchQuery<IInstallableUnit> {
 	private static final IExpression expr1;

@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2009, 2023 EclipseSource and others.
 *
 * This
@@ -35,7 +35,7 @@ import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 /**
  * A queryable that holds a number of other IQueryables and provides a mechanism
  * for querying the entire set.
- * 
+ *
  * @since 2.0
  */
 public final class CompoundQueryable<T> extends IndexProvider<T> {
@@ -61,7 +61,7 @@ public final class CompoundQueryable<T> extends IndexProvider<T> {
 
 	/**
 	 * Creates a queryable that combines the given collection of input queryables
-	 * 
+	 *
 	 * @param queryables The collection of queryables to be combined
 	 * @since 2.8
 	 */
@@ -71,7 +71,7 @@ public final class CompoundQueryable<T> extends IndexProvider<T> {
 
 	/**
 	 * Creates a queryable that combines the two provided input queryables
-	 * 
+	 *
 	 * @param query1 The first queryable
 	 * @param query2 The second queryable
 	 */

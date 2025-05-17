@@ -130,7 +130,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 	/**
 	 * Let the visitor visit this instance and all expressions that this instance
 	 * contains.
-	 * 
+	 *
 	 * @param visitor The visiting visitor.
 	 * @return <code>true</code> if the visitor should continue visiting,
 	 *         <code>false</code> otherwise.
@@ -164,7 +164,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 
 	/**
 	 * Evaluate this expression with given context and variables.
-	 * 
+	 *
 	 * @param context The evaluation context
 	 * @return The result of the evaluation.
 	 */
@@ -550,7 +550,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 	/**
 	 * Checks if the expression will make repeated requests for the 'everything'
 	 * iterator.
-	 * 
+	 *
 	 * @return <code>true</code> if repeated requests will be made,
 	 *         <code>false</code> if not.
 	 */

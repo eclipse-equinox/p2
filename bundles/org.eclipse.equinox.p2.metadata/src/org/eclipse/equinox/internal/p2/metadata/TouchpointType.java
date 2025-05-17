@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing Development
@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.metadata.ITouchpointType;
 import org.eclipse.equinox.p2.metadata.Version;
 
 /**
- * Identifies a particular touchpoint. A touchpoint is identified by an id 
+ * Identifies a particular touchpoint. A touchpoint is identified by an id
  * and a version.
  */
 public class TouchpointType implements ITouchpointType {

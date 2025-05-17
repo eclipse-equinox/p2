@@ -1,5 +1,5 @@
-/******************************************************************************* 
-* Copyright (c) 2008, 2017 EclipseSource and others. 
+/*******************************************************************************
+* Copyright (c) 2008, 2017 EclipseSource and others.
 *
 * This
 * program and the accompanying materials are made available under the terms of
@@ -15,9 +15,9 @@
 package org.eclipse.equinox.p2.metadata;
 
 /**
- * Identifies a particular touchpoint. A touchpoint is identified by an id 
+ * Identifies a particular touchpoint. A touchpoint is identified by an id
  * and a version.
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
@@ -47,13 +47,13 @@ public interface ITouchpointType {
 
 	/**
 	 * Returns whether this TouchpointInstruction is equal to the given object.
-	 * 
+	 *
 	 * This method returns <i>true</i> if:
 	 * <ul>
 	 *  <li> Both this object and the given object are of type ITouchpointType
 	 *  <li> The result of <b>getId()</b> on both objects are equal
 	 *  <li> The result of <b>getVersion()</b> on both objects are equal
-	 * </ul> 
+	 * </ul>
 	 */
 	@Override
 	public boolean equals(Object obj);

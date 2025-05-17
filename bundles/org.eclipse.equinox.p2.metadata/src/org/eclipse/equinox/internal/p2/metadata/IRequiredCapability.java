@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2008, 2010 EclipseSource and others.
  *
  * This
@@ -23,12 +23,12 @@ import org.eclipse.equinox.p2.metadata.*;
  * entirely generic, and are intended to be capable of representing anything that
  * an {@link IInstallableUnit} may need either at install time, or at runtime.
  * <p>
- * Capabilities are segmented into namespaces.  Anyone can introduce new 
+ * Capabilities are segmented into namespaces.  Anyone can introduce new
  * capability namespaces. Some well-known namespaces are introduced directly
  * by the provisioning framework.
- * 
+ *
  * @see IInstallableUnit#NAMESPACE_IU_ID
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  */

@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2008, 2017 EclipseSource and others.
  *
  * This
@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.metadata.expression.IFilterExpression;
  * entities that exist in any particular profile or repository. These handle
  * objects can be created using {@link MetadataFactory}.
  * </p>
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
@@ -37,23 +37,23 @@ import org.eclipse.equinox.p2.metadata.expression.IFilterExpression;
 public interface IProvidedCapability {
 	/**
 	 * The name of the property under which the capability version is stored.
-	 * 
+	 *
 	 * Can be used with {@link #getProperties()}. The same value can be obtained
 	 * with {@link #getVersion()}
-	 * 
+	 *
 	 * @since 2.4
 	 */
 	String PROPERTY_VERSION = "version"; //$NON-NLS-1$
 
 	/**
-	 * 
+	 *
 	 * @return String the namespace of this capability.
 	 * @since 2.9
 	 */
 	String getNamespace();
 
 	/**
-	 * 
+	 *
 	 * @return String the attribute stored under a key equal to the
 	 *         {@link #getNamespace()} attribute of this capability.
 	 * @since 2.9
@@ -61,7 +61,7 @@ public interface IProvidedCapability {
 	String getName();
 
 	/**
-	 * 
+	 *
 	 * @return String the special {@link #PROPERTY_VERSION} attribute of this
 	 *         capability.
 	 * @since 2.9
@@ -73,7 +73,7 @@ public interface IProvidedCapability {
 	 * <p>
 	 * Such a description can be used to match this capability with an
 	 * {@link IFilterExpression LDAP filter} for example.
-	 * 
+	 *
 	 * @return An unmodifiable map
 	 * @since 2.9
 	 */
@@ -81,7 +81,7 @@ public interface IProvidedCapability {
 
 	/**
 	 * Returns whether this provided capability is equal to the given object.
-	 * 
+	 *
 	 * This method returns <i>true</i> if:
 	 * <ul>
 	 * <li>Both this object and the given object are of type

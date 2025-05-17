@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Genuitec, LLC - added license support
@@ -162,7 +162,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	/**
 	 * Get an <i>unmodifiable copy</i> of the properties associated with the
 	 * installable unit.
-	 * 
+	 *
 	 * @return an <i>unmodifiable copy</i> of the IU properties.
 	 */
 	@Override

@@ -1,5 +1,5 @@
-/******************************************************************************* 
-* Copyright (c) 2009, 2017 EclipseSource and others. 
+/*******************************************************************************
+* Copyright (c) 2009, 2017 EclipseSource and others.
 *
 * This
 * program and the accompanying materials are made available under the terms of
@@ -29,7 +29,7 @@ import org.eclipse.equinox.p2.metadata.expression.IExpression;
  * remote execution. This class is intended for simple queries against small data
  * sources where indexed lookup and remote query execution are not needed.
  * </p>
- * @deprecated If possible, use one of the predefined queries in {@link QueryUtil} 
+ * @deprecated If possible, use one of the predefined queries in {@link QueryUtil}
  * or use the {@link QueryUtil#createMatchQuery(String, Object...)}
  * to create a custom expression based query. If the query cannot be expressed using
  * the p2QL, then use a predefined or custom expression query as a first filter
@@ -45,11 +45,11 @@ public abstract class MatchQuery<T> implements IMatchQuery<T> {
 
 	/**
 	 * Returns whether the given object satisfies the parameters of this query.
-	 * 
+	 *
 	 * @param candidate The object to perform the query against
 	 * @return <code>true</code> if the unit satisfies the parameters
 	 * of this query, and <code>false</code> otherwise
-	 * 
+	 *
 	 * @noreference This method is not intended to be referenced by clients.
 	 * Clients should call {@link #perform(Iterator)}
 	 * @since 2.0
@@ -58,7 +58,7 @@ public abstract class MatchQuery<T> implements IMatchQuery<T> {
 	public abstract boolean isMatch(T candidate);
 
 	/**
-	 * Performs this query on the given iterator, passing all objects in the iterator 
+	 * Performs this query on the given iterator, passing all objects in the iterator
 	 * that match the criteria of this query to the given result.
 	 */
 	@Override
@@ -82,7 +82,7 @@ public abstract class MatchQuery<T> implements IMatchQuery<T> {
 	 * <p>
 	 * This method is internal to the framework.  Subclasses may override this method, but
 	 * should not call this method.
-	 * 
+	 *
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public void prePerform() {
@@ -92,13 +92,13 @@ public abstract class MatchQuery<T> implements IMatchQuery<T> {
 	/**
 	 * Execute any post-processing that must be done after this query has been performed against
 	 * a particular iterator.  This method may be used by subclasses to clear caches or any other
-	 * cleanup that should occur after a query.  
+	 * cleanup that should occur after a query.
 	 * <p>
 	 * This method will be called even if the query does not complete successfully.
 	 * <p>
 	 * This method is internal to the framework.  Subclasses may override this method, but
 	 * should not call this method.
-	 * 
+	 *
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public void postPerform() {

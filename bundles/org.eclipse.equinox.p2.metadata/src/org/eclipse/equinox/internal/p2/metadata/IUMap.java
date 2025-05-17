@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc. - rewrite for smaller memory footprint
@@ -260,7 +260,7 @@ public class IUMap implements Cloneable {
 	 * Replace all instances of the IInstallableUnits in the receiver
 	 * with the shared IInstallableUnits from the provided iuPool.
 	 * This operation is a no-op if iuPool is null.
-	 * 
+	 *
 	 * @param iuPool an IPool containing the shared IInstallableUnits
 	 */
 	public void compress(IPool<IInstallableUnit> iuPool) {

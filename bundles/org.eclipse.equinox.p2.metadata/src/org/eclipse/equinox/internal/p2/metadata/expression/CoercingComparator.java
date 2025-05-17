@@ -23,7 +23,7 @@ import org.osgi.framework.FrameworkUtil;
 
 /**
  * A comparator that performs coercion if needed before comparison.
- * 
+ *
  * @param <T> The type for the comparator.
  */
 public abstract class CoercingComparator<T> {
@@ -286,7 +286,7 @@ public abstract class CoercingComparator<T> {
 	/**
 	 * Finds the comparator for <code>a</code> and <code>b</code> and delegates the
 	 * coercion/comparison to the comparator according to priority.
-	 * 
+	 *
 	 * @param o1 the first object to be compared.
 	 * @param o2 the second object to be compared.
 	 * @return The result of the comparison
@@ -317,7 +317,7 @@ public abstract class CoercingComparator<T> {
 	/**
 	 * Finds the comparator for <code>a</code> and <code>b</code> and delegates the
 	 * coercion/equal to the comparator according to priority.
-	 * 
+	 *
 	 * @param o1 the first object to be compared.
 	 * @param o2 the second object to be compared.
 	 * @return The result of the equality test
@@ -354,7 +354,7 @@ public abstract class CoercingComparator<T> {
 
 	/**
 	 * Obtains the coercing comparator for the given <code>value</code>.
-	 * 
+	 *
 	 * @param value The value
 	 * @return The coercing comparator
 	 */

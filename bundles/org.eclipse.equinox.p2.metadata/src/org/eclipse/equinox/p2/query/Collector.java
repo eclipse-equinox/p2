@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
@@ -33,7 +33,7 @@ import org.eclipse.equinox.internal.p2.metadata.expression.QueryResult;
  * <p>
  * This default collector just accepts all objects passed to it. Clients may
  * subclass to perform different processing on the objects passed to it.
- * 
+ *
  * @param <T> The type of object accepted by this collector
  * @since 2.0
  */
@@ -59,7 +59,7 @@ public class Collector<T> implements IQueryResult<T> {
 	 * this method to perform additional filtering, add different objects to the
 	 * list, short-circuit the traversal, or process the objects directly without
 	 * collecting them.
-	 * 
+	 *
 	 * @param object the object to collect or visit
 	 * @return <code>true</code> if the traversal should continue, or
 	 *         <code>false</code> to indicate the traversal should stop.
@@ -71,7 +71,7 @@ public class Collector<T> implements IQueryResult<T> {
 
 	/**
 	 * Adds the elements from one collector to this collector
-	 * 
+	 *
 	 * @param queryResult The collector from which the elements should be retrieved
 	 */
 	public void addAll(IQueryResult<T> queryResult) {
@@ -86,7 +86,7 @@ public class Collector<T> implements IQueryResult<T> {
 	 * {@linkplain #toSet()}, this returns the actual modifiable collection that is
 	 * being used to store results. The return value is only intended to be used
 	 * within subclasses and should not be exposed outside of a collection class.
-	 * 
+	 *
 	 * @return the collection being used to collect results.
 	 */
 	protected Collection<T> getCollection() {
@@ -98,7 +98,7 @@ public class Collector<T> implements IQueryResult<T> {
 
 	/**
 	 * Returns whether this collector is empty.
-	 * 
+	 *
 	 * @return <code>true</code> if this collector has accepted any results, and
 	 *         <code>false</code> otherwise.
 	 */
@@ -109,7 +109,7 @@ public class Collector<T> implements IQueryResult<T> {
 
 	/**
 	 * Returns an iterator on the collected objects.
-	 * 
+	 *
 	 * @return an iterator of the collected objects.
 	 */
 	@Override
@@ -126,7 +126,7 @@ public class Collector<T> implements IQueryResult<T> {
 
 	/**
 	 * Returns the collected objects as an array
-	 * 
+	 *
 	 * @param clazz The type of array to return
 	 * @return The array of results
 	 * @throws ArrayStoreException the runtime type of the specified array is not a
@@ -140,7 +140,7 @@ public class Collector<T> implements IQueryResult<T> {
 
 	/**
 	 * Returns a copy of the collected objects.
-	 * 
+	 *
 	 * @return An modifiable collection of the collected objects
 	 */
 	@Override
@@ -169,7 +169,7 @@ public class Collector<T> implements IQueryResult<T> {
 
 	/**
 	 * Returns the collected objects as an immutable collection.
-	 * 
+	 *
 	 * @return An unmodifiable collection of the collected objects
 	 */
 	@Override

@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.metadata.expression.IExpression;
  * that has performed a query can freely cache the result as long as they know the
  * query input has not changed.
  * </p>
- * 
+ *
  * @param <T> The type of input object that this query accepts
  * @noimplement This interface is not intended to be implemented directly by clients.
  * @noextend This interface is not intended to be extended directly by clients.
@@ -35,8 +35,8 @@ import org.eclipse.equinox.p2.metadata.expression.IExpression;
  */
 public interface IQuery<T> {
 	/**
-	 * Evaluates the query for a specific input.  
-	 * 
+	 * Evaluates the query for a specific input.
+	 *
 	 * @param iterator The elements for which to evaluate the query on
 	 * @return The results of the query.
 	 */

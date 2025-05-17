@@ -19,7 +19,7 @@ public interface IRepeatableIterator<T> extends Iterator<T> {
 	/**
 	 * Returns a copy that will iterate over the same elements
 	 * as this iterator. The contents or position of this iterator
-	 * is left unchanged. 
+	 * is left unchanged.
 	 * @return A re-initialized copy of this iterator.
 	 */
 	IRepeatableIterator<T> getCopy();

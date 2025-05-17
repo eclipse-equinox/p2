@@ -1,5 +1,5 @@
-/******************************************************************************* 
-* Copyright (c) 2008, 2017 EclipseSource and others. 
+/*******************************************************************************
+* Copyright (c) 2008, 2017 EclipseSource and others.
 *
 * This
 * program and the accompanying materials are made available under the terms of
@@ -24,21 +24,21 @@ import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 public interface IRequirementChange {
 
 	/**
-	 * 
+	 *
 	 * @noreference This method is not intended to be referenced by clients.
 	 * @since 2.0
 	 */
 	public IRequiredCapability applyOn();
 
 	/**
-	 * 
+	 *
 	 * @noreference This method is not intended to be referenced by clients.
 	 * @since 2.0
 	 */
 	public IRequiredCapability newValue();
 
 	/**
-	 * 
+	 *
 	 * @noreference This method is not intended to be referenced by clients.
 	 * @since 2.0
 	 */
@@ -46,13 +46,13 @@ public interface IRequirementChange {
 
 	/**
 	 * Returns whether this requirement change is equal to the given object.
-	 * 
+	 *
 	 * This method returns <i>true</i> if:
 	 * <ul>
 	 *  <li> Both this object and the given object are of type IRequiredCapability
 	 *  <li> The result of <b>applyOn()</b> on both objects are equal
 	 *  <li> The result of <b>newValue()</b> on both objects are equal
-	 * </ul> 
+	 * </ul>
 	 * @noreference This method is not intended to be referenced by clients.
 	 * @since 2.0
 	 */

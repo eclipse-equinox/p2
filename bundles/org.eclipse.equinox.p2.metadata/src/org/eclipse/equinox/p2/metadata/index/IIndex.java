@@ -27,9 +27,9 @@ public interface IIndex<T> {
 	 * using the given <code>variable</code> as <code>this</code>.
 	 * The returned set of elements are the elements that must be present in order for the expression
 	 * to evaluate to <code>true</code>. The set may contain false positives.
-	 * 
+	 *
 	 * TODO: Write more about how the valid set of elements is determined.
-	 * 
+	 *
 	 * @param ctx The evaluation context used when examining the <code>booleanExpr</code>.
 	 * @param variable The variable used as <code>this</code>.
 	 * @param booleanExpr The boolean expression.

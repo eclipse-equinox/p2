@@ -1,5 +1,5 @@
-/******************************************************************************* 
-* Copyright (c) 2008, 2017 EclipseSource and others. 
+/*******************************************************************************
+* Copyright (c) 2008, 2017 EclipseSource and others.
 *
 * This
 * program and the accompanying materials are made available under the terms of
@@ -31,7 +31,7 @@ public interface ITouchpointData {
 
 	/**
 	 * Returns the touchpoint instruction corresponding to the given key.
-	 * 
+	 *
 	 * @return the touchpoint instruction corresponding to the given key,
 	 * or <code>null</code> if no such instruction exists.
 	 */
@@ -47,12 +47,12 @@ public interface ITouchpointData {
 
 	/**
 	 * Returns whether this TouchpointData is equal to the given object.
-	 * 
+	 *
 	 * This method returns <i>true</i> if:
 	 * <ul>
 	 *  <li> Both this object and the given object are of type ITouchpointData
 	 *  <li> The result of <b>getInstructions()</b> on both objects are equal
-	 * </ul> 
+	 * </ul>
 	 */
 	@Override
 	public boolean equals(Object obj);

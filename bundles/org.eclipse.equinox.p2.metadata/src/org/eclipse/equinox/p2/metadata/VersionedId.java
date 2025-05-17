@@ -20,11 +20,11 @@ import org.eclipse.equinox.internal.p2.core.helpers.StringHelper;
 
 /**
  * An object representing a (id,version) pair. An instance of this class can be constructed
- * by invoking the constructor or calling {@link VersionedId#parse(String)} with a string 
+ * by invoking the constructor or calling {@link VersionedId#parse(String)} with a string
  * representation of this VersionedID.
- * 
+ *
  * @noextend This class is not intended to be subclassed by clients.
- * 
+ *
  * @since 2.0
  */
 public class VersionedId implements IVersionedId {
@@ -32,13 +32,13 @@ public class VersionedId implements IVersionedId {
 	private final Version version;
 
 	/**
-	 * Creates and returns a new {@link VersionedId} from the given string specification.  
+	 * Creates and returns a new {@link VersionedId} from the given string specification.
 	 * The specification must be of the form "id/version", or just "id" if the version is absent
 	 * <p>
 	 * This factory method can be used to reconstruct a {@link VersionedId}
-	 * instance from the string representation produced by a previous invocation of 
+	 * instance from the string representation produced by a previous invocation of
 	 * {@link #toString()}.
-	 * 
+	 *
 	 * @param spec the specification for the versioned id to create
 	 * @return the parsed versioned id
 	 * @throws IllegalArgumentException If <code>spec</code> is improperly
@@ -51,7 +51,7 @@ public class VersionedId implements IVersionedId {
 
 	/**
 	 * Creates a new versioned id with the given id and version.
-	 * 
+	 *
 	 * @param id The identifier
 	 * @param version The version
 	 * @throws IllegalArgumentException If <code>version</code> is improperly
@@ -64,7 +64,7 @@ public class VersionedId implements IVersionedId {
 
 	/**
 	 * Creates a new versioned id with the given id and version.
-	 * 
+	 *
 	 * @param id The identifier
 	 * @param version The version
 	 */
