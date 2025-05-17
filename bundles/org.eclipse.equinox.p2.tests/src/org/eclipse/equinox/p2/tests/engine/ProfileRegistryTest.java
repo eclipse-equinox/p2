@@ -998,7 +998,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		stateProperties2.put("a", "c");
 		stateProperties2.put("zz", "yy");
 
-		List<String> keys = Arrays.asList(new String[] {"one", "a", "none"});
+		List<String> keys = Arrays.asList("one", "a", "none");
 
 		// Test removing before any sets. (I.E. file does not exist)
 		assertOK(registry.removeProfileStateProperties(profile.getProfileId(), 1, keys));

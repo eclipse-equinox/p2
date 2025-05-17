@@ -38,7 +38,7 @@ public class CategoryXMLActionTest extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		actionResult = new PublisherResult();
-		metadataRepository = new TestMetadataRepository(getAgent(), new IInstallableUnit[0]);
+		metadataRepository = new TestMetadataRepository(getAgent());
 	}
 
 	public void testCategoryCreation() throws Exception {

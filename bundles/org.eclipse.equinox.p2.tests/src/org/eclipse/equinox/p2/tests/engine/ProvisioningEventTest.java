@@ -121,8 +121,8 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			IArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 			bundlePool.removeAll(new NullProgressMonitor());
 			ProvisioningContext context = new ProvisioningContext(getAgent());
-			context.setArtifactRepositories(new URI[] {repoLoc});
-			context.setMetadataRepositories(new URI[] {repoLoc});
+			context.setArtifactRepositories(repoLoc);
+			context.setMetadataRepositories(repoLoc);
 			IProvisioningPlan plan = engine.createPlan(profile, context);
 			IQueryResult<IInstallableUnit> allIUs = getMetadataRepositoryManager().loadRepository(repoLoc, null).query(QueryUtil.ALL_UNITS, null);
 			for (IInstallableUnit iu : allIUs.toSet()) {
@@ -176,8 +176,8 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			URI repoLoc = getTestData("Load test data.", "/testData/testRepos/updateSite").toURI();
 			IProfile profile = createProfile("test");
 			ProvisioningContext context = new ProvisioningContext(getAgent());
-			context.setArtifactRepositories(new URI[] {repoLoc});
-			context.setMetadataRepositories(new URI[] {repoLoc});
+			context.setArtifactRepositories(repoLoc);
+			context.setMetadataRepositories(repoLoc);
 			IProvisioningPlan plan = engine.createPlan(profile, context);
 			IQueryResult<IInstallableUnit> allIUs = getMetadataRepositoryManager().loadRepository(repoLoc, null).query(QueryUtil.ALL_UNITS, null);
 			for (IInstallableUnit iu : allIUs.toSet()) {

@@ -51,7 +51,7 @@ public class LocalizationTests extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		info = new PublisherInfo();
-		info.setMetadataRepository(new TestMetadataRepository(getAgent(), new IInstallableUnit[0]));
+		info.setMetadataRepository(new TestMetadataRepository(getAgent()));
 		results = new PublisherResult();
 		monitor = new NullProgressMonitor();
 	}

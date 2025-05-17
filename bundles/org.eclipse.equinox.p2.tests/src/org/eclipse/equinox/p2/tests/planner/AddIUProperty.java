@@ -49,7 +49,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 
 	public void testWithoutIUProperty() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		req.addInstallableUnits(a1);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
@@ -57,7 +57,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 
 	public void testWithIUProperty() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		req.addInstallableUnits(a1);
 		req.setInstallableUnitInclusionRules(a1, ProfileInclusionRules.createOptionalInclusionRule(a1));
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
@@ -67,7 +67,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 	public void testChangeIUProperty() {
 		//Add a1, strictly ;
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		req.addInstallableUnits(a1);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(plan, null);
@@ -77,14 +77,14 @@ public class AddIUProperty extends AbstractProvisioningTest {
 
 		//Add a2 with a1. This is an error
 		ProfileChangeRequest req4 = ProfileChangeRequest.createByProfileId(getAgent(), profile.getProfileId());
-		req4.addInstallableUnits(new IInstallableUnit[] {a2});
+		req4.addInstallableUnits(a2);
 		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		assertEquals(IStatus.ERROR, plan4.getStatus().getSeverity());
 
 		//Add a2, making a1 optional;
 		ProfileChangeRequest req2 = ProfileChangeRequest.createByProfileId(getAgent(), profile.getProfileId());
 		req2.setInstallableUnitInclusionRules(a1, ProfileInclusionRules.createOptionalInclusionRule(a1));
-		req2.addInstallableUnits(new IInstallableUnit[] {a2});
+		req2.addInstallableUnits(a2);
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan2, a2);

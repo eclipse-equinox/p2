@@ -135,7 +135,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 
 	public void test1() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {x});
+		req.addInstallableUnits(x);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(1, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(QueryUtil.createIUQuery("X"), null)));
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
@@ -144,13 +144,13 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 
 	public void test2() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {y});
+		req.addInstallableUnits(y);
 		assertEquals(IStatus.ERROR, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
 	}
 
 	public void testExplanation2() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {y});
+		req.addInstallableUnits(y);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		final RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
@@ -166,20 +166,20 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 	public void test3() {
 		//Test that we can install A3 and A4 together
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {z});
+		req.addInstallableUnits(z);
 		assertEquals(IStatus.OK, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
 	}
 
 	public void test4() {
 		//Ensure that A1 and A3 can't be installed together since one is singleton and the other not
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {w});
+		req.addInstallableUnits(w);
 		assertEquals(IStatus.ERROR, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
 	}
 
 	public void testExplanation4() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {w});
+		req.addInstallableUnits(w);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		final RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
@@ -194,27 +194,27 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 	public void test5b() {
 		//Validate the setup
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {u});
+		req.addInstallableUnits(u);
 		assertEquals(IStatus.OK, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
 	}
 
 	public void test5c() {
 		//Validate the setup
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {v});
+		req.addInstallableUnits(v);
 		assertEquals(IStatus.OK, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
 	}
 
 	public void test5() {
 		//Ensure
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {u, v});
+		req.addInstallableUnits(u, v);
 		assertEquals(IStatus.ERROR, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
 	}
 
 	public void testExplanation5() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {u, v});
+		req.addInstallableUnits(u, v);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		final RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();

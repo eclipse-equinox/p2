@@ -56,7 +56,7 @@ public class PatchTest3 extends AbstractProvisioningTest {
 	public void testCompleteScenario() {
 		//	Install a1
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {f1});
+		req1.addInstallableUnits(f1);
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 		assertInstallOperand(plan1, b1);
@@ -69,7 +69,7 @@ public class PatchTest3 extends AbstractProvisioningTest {
 
 		//Install p1, this should cause b1 to be uninstalled and b2 to be used instead
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
-		req2.addInstallableUnits(new IInstallableUnit[] {p1});
+		req2.addInstallableUnits(p1);
 		req2.setInstallableUnitInclusionRules(p1, ProfileInclusionRules.createOptionalInclusionRule(p1));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertTrue(IStatus.ERROR != plan2.getStatus().getSeverity());
@@ -103,7 +103,7 @@ public class PatchTest3 extends AbstractProvisioningTest {
 		//update from f1 to f2. This should cause p1 to go away
 		ProfileChangeRequest req5 = new ProfileChangeRequest(profile1);
 		req5.removeInstallableUnits(new IInstallableUnit[] {f1});
-		req5.addInstallableUnits(new IInstallableUnit[] {f2});
+		req5.addInstallableUnits(f2);
 		IProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
 		assertTrue(IStatus.ERROR != plan5.getStatus().getSeverity());
 		assertUninstallOperand(plan5, b2);

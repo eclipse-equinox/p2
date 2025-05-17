@@ -84,7 +84,7 @@ public class OracleTest2 extends AbstractProvisioningTest {
 		director = createDirector();
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, c1, c2, b1});
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {a1});
+		request.addInstallableUnits(a1);
 		assertEquals(IStatus.OK, director.provision(request, null, null).getSeverity());
 	}
 }

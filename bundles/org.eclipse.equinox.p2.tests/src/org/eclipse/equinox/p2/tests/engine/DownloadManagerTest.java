@@ -116,7 +116,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 
 	public void testContext() {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setArtifactRepositories(new URI[0]);
+		context.setArtifactRepositories();
 		DownloadManager manager = createDownloadManager(context);
 
 		IArtifactRequest request = createArtifactRequest();
@@ -159,7 +159,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 
 	public void testEmptyArtifactRepositoryListContext() {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setArtifactRepositories(new URI[0]);
+		context.setArtifactRepositories();
 		DownloadManager manager = createDownloadManager(context);
 
 		IArtifactRequest[] requests = new IArtifactRequest[] {createArtifactRequest()};
