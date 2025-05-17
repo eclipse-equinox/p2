@@ -27,7 +27,7 @@ public class DirectorUtil {
 		IPlanner planner = profile.getProvisioningAgent().getService(IPlanner.class);
 		IProfileChangeRequest pcr = planner.createChangeRequest(profile);
 		ProvisioningContext ctx = new ProvisioningContext(profile.getProvisioningAgent());
-		ctx.setMetadataRepositories(new URI[0]);
+		ctx.setMetadataRepositories();
 		return planner.getProvisioningPlan(pcr, ctx, null).getStatus();
 	}
 }
