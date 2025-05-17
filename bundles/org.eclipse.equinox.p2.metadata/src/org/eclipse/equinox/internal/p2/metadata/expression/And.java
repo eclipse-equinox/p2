@@ -17,7 +17,7 @@ import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 
 /**
  * n-ary AND operator. The full evaluation is <code>true</code> if all its operands evaluate to
- * <code>true</code>. 
+ * <code>true</code>.
  */
 final class And extends NAry {
 	And(Expression[] operands) {

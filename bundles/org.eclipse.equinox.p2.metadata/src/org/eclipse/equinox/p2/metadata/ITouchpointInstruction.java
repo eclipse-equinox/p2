@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2008, 2017 EclipseSource and others.
  *
  * This
@@ -20,7 +20,7 @@ package org.eclipse.equinox.p2.metadata;
  * that is needed by a touchpoint to execute its phases.
  * <p>
  * The format of a touchpoint instruction statement sequence is as follows:
- * 
+ *
  *   statement-sequence :
  *     | statement ';'
  *      | statement-sequence statement
@@ -38,12 +38,12 @@ package org.eclipse.equinox.p2.metadata;
  *      | parameters ',' parameter
  *      ;
  *
- *   parameter : 
+ *   parameter :
  *      | paramName ':' paramValue
  *      ;
  *
  * actionName, paramName, paramValue :
- *      | String 
+ *      | String
  *      ;
  *
  * @noimplement This interface is not intended to be implemented by clients.
@@ -56,7 +56,7 @@ public interface ITouchpointInstruction {
 	/**
 	 * Returns the body of this touchpoint instruction. The body is either a sequence
 	 * of instruction statements, or a simple string value.
-	 * 
+	 *
 	 * @return The body of this touchpoint instruction
 	 */
 	public String getBody();
@@ -66,13 +66,13 @@ public interface ITouchpointInstruction {
 
 	/**
 	 * Returns whether this TouchpointInstruction is equal to the given object.
-	 * 
+	 *
 	 * This method returns <i>true</i> if:
 	 * <ul>
 	 *  <li> Both this object and the given object are of type ITouchpointInstruction
 	 *  <li> The result of <b>getBody()</b> on both objects are equal
 	 *  <li> The result of <b>getImportAttribute()</b> on both objects are equal
-	 * </ul> 
+	 * </ul>
 	 */
 	@Override
 	public boolean equals(Object obj);

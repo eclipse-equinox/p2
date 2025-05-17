@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
  * and with an older version. However, this descriptor allows an installable
  * unit to be considered an update for an installable unit with a different name, or
  * even an update for a unit with a higher version than itself.
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
@@ -55,7 +55,7 @@ public interface IUpdateDescriptor {
 
 	/**
 	 * Returns the location of a document containing the description.
-	 * 
+	 *
 	 * @return the location of the document, or <code>null</code>
 	 */
 	public URI getLocation();
@@ -67,7 +67,7 @@ public interface IUpdateDescriptor {
 	public int getSeverity();
 
 	/**
-	 * Helper method indicating whether or not an installable unit is an update for the installable unit passed  
+	 * Helper method indicating whether or not an installable unit is an update for the installable unit passed
 	 * @param iu the installable unit checked
 	 * @return A boolean indicating whether or not an installable unit is an update.
 	 */

@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Hannes Wellmann - Add IQueryable.contains(T) method and implement overrides where suitable 
+ *     Hannes Wellmann - Add IQueryable.contains(T) method and implement overrides where suitable
  *******************************************************************************/
 package org.eclipse.equinox.p2.query;
 
@@ -26,7 +26,7 @@ import org.eclipse.equinox.p2.metadata.expression.IExpression;
  * objects.
  * <p>
  * This interface may be implemented by clients.
- * 
+ *
  * @since 2.0
  */
 public interface IQueryable<T> {
@@ -37,7 +37,7 @@ public interface IQueryable<T> {
 	 * This method is long-running; progress and cancellation are provided by the
 	 * given progress monitor.
 	 * </p>
-	 * 
+	 *
 	 * @param query   The query to perform
 	 * @param monitor a progress monitor, or <code>null</code> if progress reporting
 	 *                is not desired

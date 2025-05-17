@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Genuitec, LLC
@@ -47,7 +47,7 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 
 /**
  * A factory class for instantiating various p2 metadata objects.
- * 
+ *
  * @since 2.0
  */
 public final class MetadataFactory {
@@ -88,7 +88,7 @@ public final class MetadataFactory {
 		 * A property key (value <code>"org.eclipse.equinox.p2.type.product"</code>) for
 		 * a boolean property indicating that an installable unit is the root IU of a
 		 * product.
-		 * 
+		 *
 		 * @since 2.2
 		 */
 		public static final String PROP_TYPE_PRODUCT = "org.eclipse.equinox.p2.type.product"; //$NON-NLS-1$
@@ -99,7 +99,7 @@ public final class MetadataFactory {
 
 		/**
 		 * Add the specified capabilities to the installable unit.
-		 * 
+		 *
 		 * @param additional the capabilities to add.
 		 */
 		public void addProvidedCapabilities(Collection<IProvidedCapability> additional) {
@@ -121,7 +121,7 @@ public final class MetadataFactory {
 
 		/**
 		 * Add the specified requirements to the installable unit.
-		 * 
+		 *
 		 * @param additional the requirements to add
 		 */
 		public void addRequirements(Collection<IRequirement> additional) {
@@ -185,7 +185,7 @@ public final class MetadataFactory {
 		/**
 		 * Returns the current touchpoint data on this installable unit description. The
 		 * touchpoint data may change if further data is added to the description.
-		 * 
+		 *
 		 * @return The current touchpoint data on this description
 		 */
 		public Collection<ITouchpointData> getTouchpointData() {
@@ -202,7 +202,7 @@ public final class MetadataFactory {
 
 		/**
 		 * Returns the UpdateDescriptor for this IU
-		 * 
+		 *
 		 * @since 2.1
 		 */
 		public IUpdateDescriptor getUpdateDescriptor() {
@@ -212,7 +212,7 @@ public final class MetadataFactory {
 		/**
 		 * Set the artifact keys for the installable unit. Previous values will be
 		 * overwritten.
-		 * 
+		 *
 		 * @param value the artifacts to the used.
 		 */
 		public void setArtifacts(IArtifactKey[] value) {
@@ -222,7 +222,7 @@ public final class MetadataFactory {
 		/**
 		 * Set the capabilities for the installable unit. Previous values will be
 		 * overwritten.
-		 * 
+		 *
 		 * @param exportedCapabilities the capabilities to be used.
 		 */
 		public void setCapabilities(IProvidedCapability[] exportedCapabilities) {
@@ -232,7 +232,7 @@ public final class MetadataFactory {
 		/**
 		 * Set the copyright for the installable unit. Previous values will be
 		 * overwritten.
-		 * 
+		 *
 		 * @param copyright the copyright to be used.
 		 */
 		public void setCopyright(ICopyright copyright) {
@@ -264,7 +264,7 @@ public final class MetadataFactory {
 
 		/**
 		 * Set a property with a specified value for this installable unit.
-		 * 
+		 *
 		 * @param key   key with which the specified value is to be associated
 		 * @param value value to be associated with the specified key
 		 */
@@ -281,7 +281,7 @@ public final class MetadataFactory {
 		/**
 		 * Set the requirements for the installable unit. Previous values will be
 		 * overwritten.
-		 * 
+		 *
 		 * @param requirements the requirements to be used.
 		 */
 		public void setRequirements(IRequirement[] requirements) {
@@ -297,7 +297,7 @@ public final class MetadataFactory {
 		/**
 		 * Set the meta requirements for the installable unit. Previous values will be
 		 * overwritten.
-		 * 
+		 *
 		 * @param metaRequirements the meta requirements to be used.
 		 */
 		public void setMetaRequirements(IRequirement[] metaRequirements) {
@@ -327,7 +327,7 @@ public final class MetadataFactory {
 
 		/**
 		 * Set the version of this installable unit.
-		 * 
+		 *
 		 * @param newVersion version to be set on the installable unit.
 		 */
 		public void setVersion(Version newVersion) {
@@ -438,7 +438,7 @@ public final class MetadataFactory {
 	 * Returns an {@link IInstallableUnit} based on the given description. Once the
 	 * installable unit has been created, the information is discarded from the
 	 * description object.
-	 * 
+	 *
 	 * @param description The description of the unit to create
 	 * @return The created installable unit
 	 */
@@ -451,7 +451,7 @@ public final class MetadataFactory {
 	 * Returns an {@link IInstallableUnitFragment} based on the given description.
 	 * Once the fragment has been created, the information is discarded from the
 	 * description object.
-	 * 
+	 *
 	 * @param description The description of the unit to create
 	 * @return The created installable unit fragment
 	 */
@@ -465,7 +465,7 @@ public final class MetadataFactory {
 	 * Returns an {@link IInstallableUnitPatch} based on the given description. Once
 	 * the patch installable unit has been created, the information is discarded
 	 * from the description object.
-	 * 
+	 *
 	 * @param description The description of the unit to create
 	 * @return The created installable unit patch
 	 */
@@ -476,7 +476,7 @@ public final class MetadataFactory {
 
 	/**
 	 * Returns a {@link IProvidedCapability} with the given values.
-	 * 
+	 *
 	 * @param namespace The capability namespace
 	 * @param name      The capability name
 	 * @param version   The capability version
@@ -487,7 +487,7 @@ public final class MetadataFactory {
 
 	/**
 	 * Returns a {@link IProvidedCapability} with the given values.
-	 * 
+	 *
 	 * @param namespace  The capability namespace
 	 * @param properties The description of the capability
 	 * @since 2.4
@@ -499,7 +499,7 @@ public final class MetadataFactory {
 	/**
 	 * Create and return a new requirement ({@link IRequirement}) with the specified
 	 * values.
-	 * 
+	 *
 	 * @param namespace the namespace for the requirement. Must not be
 	 *                  <code>null</code>.
 	 * @param name      the name for the requirement. Must not be <code>null</code>.
@@ -526,7 +526,7 @@ public final class MetadataFactory {
 
 	/**
 	 * Returns a {@link IRequirement} with the given values.
-	 * 
+	 *
 	 * @param namespace The capability namespace
 	 * @param name      The required capability name
 	 * @param range     The range of versions that are required, or
@@ -550,7 +550,7 @@ public final class MetadataFactory {
 	/**
 	 * Create and return a new requirement ({@link IRequirement}) with the specified
 	 * values.
-	 * 
+	 *
 	 * @param namespace the namespace for the requirement. Must not be
 	 *                  <code>null</code>.
 	 * @param name      the name for the requirement. Must not be <code>null</code>.
@@ -574,7 +574,7 @@ public final class MetadataFactory {
 	/**
 	 * Create and return a new requirement ({@link IRequirement}) with the specified
 	 * values.
-	 * 
+	 *
 	 * @param namespace   the namespace for the requirement. Must not be
 	 *                    <code>null</code>.
 	 * @param name        the name for the requirement. Must not be
@@ -600,7 +600,7 @@ public final class MetadataFactory {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param namespace   the namespace for the requirement. Must not be
 	 *                    <code>null</code>.
 	 * @param propsFilter filter applied on
@@ -621,7 +621,7 @@ public final class MetadataFactory {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param namespace   the namespace for the requirement. Must not be
 	 *                    <code>null</code>.
 	 * @param propsFilter filter applied on
@@ -643,7 +643,7 @@ public final class MetadataFactory {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param namespace   the namespace for the requirement. Must not be
 	 *                    <code>null</code>.
 	 * @param propsFilter filter applied on
@@ -668,7 +668,7 @@ public final class MetadataFactory {
 	/**
 	 * Create and return a new requirement ({@link IRequirement}) with the specified
 	 * values.
-	 * 
+	 *
 	 * @param requirement the match expression
 	 * @param envFilter   The filter used to evaluate whether this capability is
 	 *                    applicable in the current environment, or
@@ -688,7 +688,7 @@ public final class MetadataFactory {
 	/**
 	 * Create and return a new requirement ({@link IRequirement}) with the specified
 	 * values.
-	 * 
+	 *
 	 * @param requirement the match expression
 	 * @param envFilter   the filter, or <code>null</code>
 	 * @param minCard     minimum cardinality
@@ -707,7 +707,7 @@ public final class MetadataFactory {
 
 	/**
 	 * Returns a new requirement change.
-	 * 
+	 *
 	 * @param applyOn  The source of the requirement change - the kind of
 	 *                 requirement to apply the change to
 	 * @param newValue The result of the requirement change - the requirement to
@@ -724,7 +724,7 @@ public final class MetadataFactory {
 
 	/**
 	 * Returns a new {@link ICopyright}.
-	 * 
+	 *
 	 * @param location the location of a document containing the copyright notice,
 	 *                 or <code>null</code>
 	 * @param body     the copyright body, cannot be <code>null</code>
@@ -739,7 +739,7 @@ public final class MetadataFactory {
 	 * Return a new {@link ILicense} The body should contain either the full text of
 	 * the license or an summary for a license fully specified in the given
 	 * location.
-	 * 
+	 *
 	 * @param location the location of a document containing the full license, or
 	 *                 <code>null</code>
 	 * @param body     the license body, cannot be <code>null</code>
@@ -753,7 +753,7 @@ public final class MetadataFactory {
 	/**
 	 * Returns an {@link IInstallableUnit} that represents the given unit bound to
 	 * the given fragments.
-	 * 
+	 *
 	 * @see IInstallableUnit#isResolved()
 	 * @param unit      The unit to be bound
 	 * @param fragments The fragments to be bound
@@ -772,7 +772,7 @@ public final class MetadataFactory {
 
 	/**
 	 * Returns an instance of {@link ITouchpointData} with the given instructions.
-	 * 
+	 *
 	 * @param instructions The instructions for the touchpoint data.
 	 * @return The created touchpoint data
 	 */
@@ -800,7 +800,7 @@ public final class MetadataFactory {
 
 	/**
 	 * Merge the given touchpoint instructions with a pre-existing touchpoint data
-	 * 
+	 *
 	 * @param initial              - the initial ITouchpointData
 	 * @param incomingInstructions - Map of ITouchpointInstructions to merge into
 	 *                             the initial touchpoint data
@@ -850,7 +850,7 @@ public final class MetadataFactory {
 
 	/**
 	 * Returns a {@link TouchpointType} with the given id and version.
-	 * 
+	 *
 	 * @param id      The touchpoint id
 	 * @param version The touchpoint version
 	 * @return A touchpoint type instance with the given id and version
@@ -875,7 +875,7 @@ public final class MetadataFactory {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param descriptors The IUs that the descriptor provides updates for.
 	 * @param severity    The update severity (either
 	 *                    {@link IUpdateDescriptor#NORMAL} or
@@ -891,7 +891,7 @@ public final class MetadataFactory {
 
 	/**
 	 * Creates a new update descriptor object.
-	 * 
+	 *
 	 * @param id          The id of the installable unit that the descriptor
 	 *                    provides updates for
 	 * @param range       The version range that the descriptor provides updates for
@@ -909,7 +909,7 @@ public final class MetadataFactory {
 	/**
 	 * Create and return a new update descriptor {@link IUpdateDescriptor} with the
 	 * specified values.
-	 * 
+	 *
 	 * @param id          the identifiter for the update. Must not be
 	 *                    <code>null</code>.
 	 * @param range       the version range. A <code>null</code> range is equivalent

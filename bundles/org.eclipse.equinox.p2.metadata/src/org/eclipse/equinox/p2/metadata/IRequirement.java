@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2009, 2012 IBM and others.
  *
  * This
@@ -24,10 +24,10 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
  * an {@link IInstallableUnit} may need either at install time, or at runtime.
  * <p>
  * Instances of this class are handle objects and do not necessarily
- * reflect entities that exist in any particular profile or repository. These handle 
+ * reflect entities that exist in any particular profile or repository. These handle
  * objects can be created using {@link MetadataFactory}.
  * </p>
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
@@ -39,9 +39,9 @@ public interface IRequirement {
 	/**
 	 * Returns the minimum cardinality of the requirement. That is, the minimum
 	 * number of capabilities that must be provided that match this requirement before
-	 * this requirement is considered fully satisfied.  A minimum cardinality of 0 indicates 
+	 * this requirement is considered fully satisfied.  A minimum cardinality of 0 indicates
 	 * that the requirement is optional.
-	 * 
+	 *
 	 * @return the minimum cardinality of this requirement
 	 */
 	int getMin();
@@ -51,7 +51,7 @@ public interface IRequirement {
 	 * number of capabilities that are permitted to be present that satisfy this requirement.
 	 * A maximum cardinality of 0 indicates that there must <em>not</em> be
 	 * any installable unit in the system that satisfies this requirement.
-	 * 
+	 *
 	 * @return the maximum cardinality of this requirement
 	 */
 	int getMax();
@@ -61,9 +61,9 @@ public interface IRequirement {
 	 * the properties of the environment the requirement is installed into. A requirement
 	 * not applicable, i.e., is ignored, if it has a filter condition that is not satisfied
 	 * by the properties of the environment.
-	 * 
+	 *
 	 * @return The requirement filter for this unit, or <code>null</code>
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	IMatchExpression<IInstallableUnit> getFilter();
@@ -78,7 +78,7 @@ public interface IRequirement {
 	/**
 	 * Returns whether the provided capabilities of the given installable unit satisfy
 	 * this requirement.
-	 * 
+	 *
 	 * @param iu the installable unit to check for matching capabilities
 	 * @return <code>true</code> if the given installable unit satisfies this
 	 * requirement, and <code>false</code> otherwise.
@@ -87,7 +87,7 @@ public interface IRequirement {
 
 	/**
 	 * Returns whether this requirement should cause extra installable units
-	 * to be installed in order to satisfy it. 
+	 * to be installed in order to satisfy it.
 	 * @return <code>true</code> if additional installable units should be installed
 	 * to satisfy this requirement, and <code>false</code> otherwise
 	 */
@@ -95,7 +95,7 @@ public interface IRequirement {
 
 	/**
 	 * Returns a textual description of this requirement.
-	 * 
+	 *
 	 * @return a textual description of this requirement
 	 */
 	String getDescription();

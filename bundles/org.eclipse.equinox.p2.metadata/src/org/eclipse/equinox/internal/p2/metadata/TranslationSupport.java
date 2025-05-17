@@ -44,11 +44,11 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.service.localization.LocaleProvider;
 
 /**
- * TranslationSupport provides string translations for properties of an 
+ * TranslationSupport provides string translations for properties of an
  * IInstallableUnit.  Clients can specify an {@link IQueryable} that should be used
  * to obtain the translation fragment IU's, as well as the locale that
  * should be used for translations.
- * 
+ *
  * @since 2.0
  */
 public class TranslationSupport {
@@ -83,7 +83,7 @@ public class TranslationSupport {
 	 * Create an instance of TranslationSupport for the current locale.
 	 * Unless otherwise specified, the currently running profile will serve
 	 * as the source of the translation fragments.
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	public TranslationSupport() {
@@ -93,7 +93,7 @@ public class TranslationSupport {
 	/**
 	 * Create an instance of TranslationSupport for the current locale.
 	 * using the <code>fragmentSource</code> as the source of the translation fragments.
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	public TranslationSupport(IQueryable<IInstallableUnit> fragmentSource) {
@@ -130,9 +130,9 @@ public class TranslationSupport {
 	}
 
 	/**
-	 * Return the copyright for the specified IInstallableUnit, 
+	 * Return the copyright for the specified IInstallableUnit,
 	 * localized for the receiver's locale.
-	 * 
+	 *
 	 * @param iu the IInstallableUnit in question
 	 * @return the localized copyright defined by the IInstallableUnit
 	 */
@@ -160,7 +160,7 @@ public class TranslationSupport {
 	/**
 	 * Return the localized value for the specified IInstallableUnit
 	 * property.
-	 * 
+	 *
 	 * @param iu the IInstallableUnit in question
 	 * @param propertyKey the name of the property to be retrieved
 	 * @param locale The locale to return the property for
@@ -183,7 +183,7 @@ public class TranslationSupport {
 	/**
 	 * Return the localized value for the specified IInstallableUnit
 	 * property using the locale specified in the <code>propertyKey</code>.
-	 * 
+	 *
 	 * @param iu the IInstallableUnit in question
 	 * @param propertyKey the name and locale of the property to be retrieved
 	 * @return the localized property value, or <code>null</code> if no
@@ -196,7 +196,7 @@ public class TranslationSupport {
 	/**
 	 * Return the localized value for the specified IInstallableUnit
 	 * property using the default locale.
-	 * 
+	 *
 	 * @param iu the IInstallableUnit in question
 	 * @param propertyKey the name of the property to be retrieved
 	 * @return the localized property value, or <code>null</code> if no
@@ -217,9 +217,9 @@ public class TranslationSupport {
 	}
 
 	/**
-	 * Return an array of licenses for the specified IInstallableUnit, 
+	 * Return an array of licenses for the specified IInstallableUnit,
 	 * localized for the receiver's locale.
-	 * 
+	 *
 	 * @param iu the IInstallableUnit in question
 	 * @return the localized licenses defined by the IInstallableUnit
 	 */
@@ -238,7 +238,7 @@ public class TranslationSupport {
 
 	/**
 	 * Return an update descriptor localized for the receiver's locale.
-	 * 
+	 *
 	 * @param iu the IInstallableUnit in question
 	 * @return the localized update descriptor defined by the IInstallableUnit
 	 */
@@ -350,7 +350,7 @@ public class TranslationSupport {
 	/**
 	 * Set the {@link IQueryable} that should be used to obtain translation fragment
 	 * IUs. Returns the previous translation source.
-	 * 
+	 *
 	 * @param queryable an {@link IQueryable} that can supply the appropriate NLS
 	 * translation fragments
 	 */

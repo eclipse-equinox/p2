@@ -56,7 +56,7 @@ public class Messages extends NLS {
 	public static String enum_defined_more_then_once;
 
 	public static String expected_letter_at_position;
-	
+
 	public static String expected_orignal_after_colon_0;
 
 	public static String expected_orignal_after_slash_0;

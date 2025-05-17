@@ -34,7 +34,7 @@ import org.eclipse.osgi.util.NLS;
  * An instance of VersionFormat is immutable and thus thread safe. The parser
  * does not maintain any state.
  * </p>
- * 
+ *
  * @Immutable
  * @noextend This class is not intended to be subclassed by clients.
  */
@@ -152,11 +152,11 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	/**
 	 * Compile a version format string into a compiled format. This method is
 	 * shorthand for:
-	 * 
+	 *
 	 * <pre>
 	 * CompiledFormat.compile(format, 0, format.length())
 	 * </pre>
-	 * 
+	 *
 	 * .
 	 *
 	 * @param format The format to compile.
@@ -229,7 +229,7 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	 * and vice versa). A string that contains both will be written as several
 	 * adjacent quoted strings so that each string is quoted with a quote character
 	 * that it does not contain.
-	 * 
+	 *
 	 * @param sb        The buffer that will receive the string
 	 * @param rangeSafe Set to <code>true</code> if the resulting string will be
 	 *                  used in a range string and hence need to escape the range

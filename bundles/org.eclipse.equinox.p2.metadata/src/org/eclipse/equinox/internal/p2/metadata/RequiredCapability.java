@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
@@ -40,10 +40,10 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
  * entirely generic, and are intended to be capable of representing anything that
  * an {@link IInstallableUnit} may need either at install time, or at runtime.
  * <p>
- * Capabilities are segmented into namespaces.  Anyone can introduce new 
+ * Capabilities are segmented into namespaces.  Anyone can introduce new
  * capability namespaces. Some well-known namespaces are introduced directly
  * by the provisioning framework.
- * 
+ *
  * @see IInstallableUnit#NAMESPACE_IU_ID
  *
  * @noreference This class is not intended to be referenced by clients.

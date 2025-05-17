@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Genuitec, LLC and others. 
+ * Copyright (c) 2008, 2017 Genuitec, LLC and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  * 		Genuitec, LLC - initial API and implementation
  * 		IBM Corporation - ongoing development
  *      EclipseSource - ongoing development
@@ -49,7 +49,7 @@ public class License implements ILicense {
 	 * Creates a new license object which is identified by users using the <code>body</code> field.
 	 * The body should contain either the full text of the license or an summary for a license
 	 * fully specified in the given location.
-	 * 
+	 *
 	 * @param location the location of a document containing the full license, or <code>null</code>
 	 * @param body the license body, cannot be <code>null</code>
 	 * @throws IllegalArgumentException when the <code>body</code> is <code>null</code>
@@ -65,7 +65,7 @@ public class License implements ILicense {
 
 	/**
 	 * Returns the location of a document containing the full license.
-	 * 
+	 *
 	 * @return the location of the license document, or <code>null</code>
 	 */
 	@Override

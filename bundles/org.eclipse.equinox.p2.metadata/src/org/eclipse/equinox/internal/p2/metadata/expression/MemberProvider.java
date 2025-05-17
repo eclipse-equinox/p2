@@ -135,7 +135,7 @@ public abstract class MemberProvider implements IMemberProvider {
 	 * or {@link ServiceReference}.
 	 * @param value The value that provides the members
 	 * @param caseInsensitive <code>true</code> if the members should be retrievable in a case insensitive way.
-	 * @return A member provided that is backed by <code>value</code>. 
+	 * @return A member provided that is backed by <code>value</code>.
 	 */
 	@SuppressWarnings("unchecked")
 	public static MemberProvider create(Object value, boolean caseInsensitive) {

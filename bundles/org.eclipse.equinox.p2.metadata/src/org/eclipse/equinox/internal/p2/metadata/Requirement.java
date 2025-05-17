@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
@@ -31,10 +31,10 @@ import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
  * an {@link IInstallableUnit} may need either at install time, or at runtime.
  * <p>
  * Instances of this class are handle objects and do not necessarily
- * reflect entities that exist in any particular profile or repository. These handle 
+ * reflect entities that exist in any particular profile or repository. These handle
  * objects can be created using {@link MetadataFactory}.
  * </p>
- * 
+ *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0

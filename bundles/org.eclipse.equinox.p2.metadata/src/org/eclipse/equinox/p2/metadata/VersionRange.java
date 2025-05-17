@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc - rewrite to handle non-OSGi versions.
@@ -287,9 +287,9 @@ public class VersionRange implements Serializable {
 	 * Note that this method performs a non thread-safe object pooling. Instances are
 	 * stored in a weak cache, i.e. for multiple calls with the same input it is likely
 	 * but not guaranteed that the same instance is retrieved. Same holds for concurrent
-	 * access on this method. Clients must not assume to get the same instance for 
+	 * access on this method. Clients must not assume to get the same instance for
 	 * subsequent calls.
-	 * 
+	 *
 	 * @param versionRange String representation of the version range. Leading
 	 *        and trailing whitespace will be ignored.
 	 * @return A <code>VersionRange</code> object representing the version range
@@ -414,11 +414,11 @@ public class VersionRange implements Serializable {
 	 * Returns whether the given version is included in this VersionRange.
 	 * This will depend on the minimum and maximum versions of this VersionRange
 	 * and the given version.
-	 * 
-	 * @param version a version to be tested for inclusion in this VersionRange. 
+	 *
+	 * @param version a version to be tested for inclusion in this VersionRange.
 	 * (may be <code>null</code>)
-	 * @return <code>true</code> if the version is include, 
-	 * <code>false</code> otherwise 
+	 * @return <code>true</code> if the version is include,
+	 * <code>false</code> otherwise
 	 */
 	public boolean isIncluded(Version version) {
 		if (version == null) {

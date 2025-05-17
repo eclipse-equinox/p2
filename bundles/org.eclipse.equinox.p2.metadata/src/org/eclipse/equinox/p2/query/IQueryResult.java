@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2009, 2017 EclipseSource and others.
  *
  * This
@@ -22,13 +22,13 @@ import java.util.stream.StreamSupport;
 
 /**
  * An IQueryResult represents the results of a query.
- * 
+ *
  * @since 2.0
  */
 public interface IQueryResult<T> extends IQueryable<T>, Iterable<T> {
 	/**
 	 * Returns whether this QueryResult is empty.
-	 * 
+	 *
 	 * @return <code>true</code> if this QueryResult has accepted any results, and
 	 *         <code>false</code> otherwise.
 	 */
@@ -36,7 +36,7 @@ public interface IQueryResult<T> extends IQueryable<T>, Iterable<T> {
 
 	/**
 	 * Returns an iterator on the collected objects.
-	 * 
+	 *
 	 * @return an iterator of the collected objects.
 	 */
 	@Override
@@ -44,7 +44,7 @@ public interface IQueryResult<T> extends IQueryable<T>, Iterable<T> {
 
 	/**
 	 * Returns the collected objects as an array
-	 * 
+	 *
 	 * @param clazz The type of array to return
 	 * @return The array of results
 	 * @throws ArrayStoreException the runtime type of the specified array is
@@ -55,21 +55,21 @@ public interface IQueryResult<T> extends IQueryable<T>, Iterable<T> {
 	/**
 	 * Creates a new Set copy with the contents of this query result. The copy can
 	 * be altered without any side effects on its origin.
-	 * 
+	 *
 	 * @return A detached copy of the result.
 	 */
 	Set<T> toSet();
 
 	/**
 	 * Returns a Set backed by this query result. The set is immutable.
-	 * 
+	 *
 	 * @return A Set backed by this query result.
 	 */
 	Set<T> toUnmodifiableSet();
 
 	/**
 	 * Returns a sequential {@code Stream} of the collected objects.
-	 * 
+	 *
 	 * @implSpec The default implementation creates a sequential {@code Stream} from
 	 *           this query-results {@code Spliterator}. Implementations backed by a
 	 *           {@code Collection} should override this method and call

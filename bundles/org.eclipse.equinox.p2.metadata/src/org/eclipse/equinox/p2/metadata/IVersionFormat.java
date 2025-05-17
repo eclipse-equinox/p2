@@ -39,7 +39,7 @@ public interface IVersionFormat {
 	/**
 	 * Appends the string representation of this compiled format to the given
 	 * StringBuffer.
-	 * 
+	 *
 	 * @param sb The buffer that will receive the string representation
 	 * @deprecated Use {@link #toString(StringBuilder)} instead
 	 */
@@ -53,7 +53,7 @@ public interface IVersionFormat {
 	/**
 	 * Appends the string representation of this compiled format to the given
 	 * StringBuilder.
-	 * 
+	 *
 	 * @param sb The builder that will receive the string representation
 	 * @since 2.9
 	 */

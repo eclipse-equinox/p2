@@ -23,7 +23,7 @@ public interface IIndexProvider<T> {
 	/**
 	 * Return an index optimized for producing candidates based on values
 	 * for a <code>memberName</code> that denotes a member of the index
-	 * type. 
+	 * type.
 	 * @param memberName A member of type <code>T</code>.
 	 * @return An index or <code>null</code> if this provider does not support
 	 * this index.

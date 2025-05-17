@@ -251,7 +251,7 @@ public interface IExpressionFactory {
 	IExpression indexedParameter(int index);
 
 	/**
-	 * Create an <i>intersection</i> of <code>c1</code> and <code>c2</code> 
+	 * Create an <i>intersection</i> of <code>c1</code> and <code>c2</code>
 	 * @param c1 first collection
 	 * @param c2 second collection
 	 * @return An intersect expression
@@ -387,7 +387,7 @@ public interface IExpressionFactory {
 	IExpression toExpression(IQuery<?> query);
 
 	/**
-	 * Create a <i>union</i> of <code>c1</code> and <code>c2</code> 
+	 * Create a <i>union</i> of <code>c1</code> and <code>c2</code>
 	 * @param c1 first collection
 	 * @param c2 second collection
 	 * @return A union expression

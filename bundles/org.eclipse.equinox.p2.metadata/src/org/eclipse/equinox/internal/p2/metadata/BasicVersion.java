@@ -24,7 +24,7 @@ public abstract class BasicVersion extends Version {
 
 	/**
 	 * Returns the OSGi major component of this version identifier.
-	 * 
+	 *
 	 * @return The major component.
 	 * @throws UnsupportedOperationException if the first element in the
 	 * vector is not a number.
@@ -34,7 +34,7 @@ public abstract class BasicVersion extends Version {
 
 	/**
 	 * Returns the OSGi micro component of this version identifier.
-	 * 
+	 *
 	 * @return The micro component.
 	 * @throws UnsupportedOperationException if the third element in the
 	 * vector is not a number.
@@ -44,7 +44,7 @@ public abstract class BasicVersion extends Version {
 
 	/**
 	 * Returns the OSGi minor component of this version identifier.
-	 * 
+	 *
 	 * @return The minor component.
 	 * @throws UnsupportedOperationException if the second element in the
 	 * vector is not a number.
@@ -54,7 +54,7 @@ public abstract class BasicVersion extends Version {
 
 	/**
 	 * Returns the OSGi qualifier component of this version identifier.
-	 * 
+	 *
 	 * @return The qualifier component or <code>null</code> if not set.
 	 * @throws UnsupportedOperationException if the fourth element in the
 	 * vector is set to something other then a string.

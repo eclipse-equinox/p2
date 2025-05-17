@@ -79,7 +79,7 @@ public abstract class Binary extends Expression {
 
 	/**
 	 * Appends the LDAP filter attribute name from the lhs expression if
-	 * possible. 
+	 * possible.
 	 * @throws UnsupportedOperationException when this expression does not conform to an
 	 * LDAP filter binary expression
 	 */
@@ -128,7 +128,7 @@ public abstract class Binary extends Expression {
 
 	/**
 	 * Appends the LDAP filter value from the rhs expression if
-	 * possible. 
+	 * possible.
 	 * @throws UnsupportedOperationException when this expression does not conform to an
 	 * LDAP filter binary expression
 	 */

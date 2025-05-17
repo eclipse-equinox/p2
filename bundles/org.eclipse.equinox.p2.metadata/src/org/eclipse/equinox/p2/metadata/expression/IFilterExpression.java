@@ -26,7 +26,7 @@ public interface IFilterExpression extends IExpression, Filter {
 	 * Filter using a <code>Map</code>. This <code>Filter</code> is
 	 * executed using the specified <code>Map</code>'s keys and values.
 	 * The keys are case insensitively matched with this <code>Filter</code>.
-	 * 
+	 *
 	 * @param map The <code>Map</code> whose keys are used in the
 	 *        match.
 	 * @return <code>true</code> if the <code>map</code>'s keys and
@@ -41,7 +41,7 @@ public interface IFilterExpression extends IExpression, Filter {
 	 * <code>Filter</code> is executed using the specified
 	 * <code>Map</code>'s keys and values. The keys are case sensitively
 	 * matched with this <code>Filter</code>.
-	 * 
+	 *
 	 * @param map The <code>Map</code> whose keys are used in the
 	 *        match.
 	 * @return <code>true</code> if the <code>map</code>'s keys and

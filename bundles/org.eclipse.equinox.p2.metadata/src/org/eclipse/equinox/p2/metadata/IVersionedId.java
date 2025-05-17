@@ -16,20 +16,20 @@ package org.eclipse.equinox.p2.metadata;
 
 
 /**
- * An interface representing a (id,version) pair. 
+ * An interface representing a (id,version) pair.
  * @since 2.0
  */
 public interface IVersionedId {
 	/**
 	 * Returns the id portion of this versioned id.
-	 * 
+	 *
 	 * @return The id portion of this versioned id.
 	 */
 	String getId();
 
 	/**
 	 * Returns the version portion of this versioned id.
-	 * 
+	 *
 	 * @return the version portion of this versioned id.
 	 */
 	Version getVersion();

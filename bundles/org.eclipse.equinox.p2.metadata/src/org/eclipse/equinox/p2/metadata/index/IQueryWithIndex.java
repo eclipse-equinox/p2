@@ -26,8 +26,8 @@ public interface IQueryWithIndex<T> extends IQuery<T> {
 	 * is first analyzed for index candidates (typically expressions like
 	 * id == &lt;some value&gt;) and if possible, indexes returned by
 	 * {@link IIndexProvider#getIndex(String)} will be used
-	 * in place of the iterator returned by {@link IIndexProvider#everything()}. 
-	 * 
+	 * in place of the iterator returned by {@link IIndexProvider#everything()}.
+	 *
 	 * @param indexProvider The provider of the material to evaluate the query on
 	 * @return The results of the query.
 	 */

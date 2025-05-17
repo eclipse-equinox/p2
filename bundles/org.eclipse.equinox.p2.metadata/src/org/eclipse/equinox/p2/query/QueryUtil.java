@@ -34,7 +34,7 @@ import org.eclipse.equinox.p2.metadata.expression.IExpressionFactory;
 
 /**
  * Helper class for query related tasks.
- * 
+ *
  * @since 2.0
  */
 public class QueryUtil {
@@ -65,7 +65,7 @@ public class QueryUtil {
 
 	/**
 	 * Creates a queryable that combines the given collection of input queryables
-	 * 
+	 *
 	 * @param queryables The collection of queryables to be combined
 	 */
 	public static <T> IQueryable<T> compoundQueryable(Collection<? extends IQueryable<T>> queryables) {
@@ -76,7 +76,7 @@ public class QueryUtil {
 
 	/**
 	 * Creates a queryable that combines the two provided input queryables
-	 * 
+	 *
 	 * @param query1 The first queryable
 	 * @param query2 The second queryable
 	 */
@@ -90,7 +90,7 @@ public class QueryUtil {
 	 * boolean 'and' or a boolean 'or' expression depending on the <code>and</code>
 	 * flag. If at least one query is a full query, all queries will instead be evaluated
 	 * using intersection when <code>and</code> is <code>true</code> or a union.
-	 * 
+	 *
 	 * @param queries The queries to perform
 	 * @param and <code>true</code> if this query represents an intersection or a
 	 * logical 'and', and <code>false</code> if this query represents a union or
@@ -170,7 +170,7 @@ public class QueryUtil {
 	 * boolean 'and' or a boolean 'or' expression depending on the <code>and</code>
 	 * flag. If at least one query is a full query, all queries will instead be evaluated
 	 * using intersection when <code>and</code> is <code>true</code> or a union.
-	 * 
+	 *
 	 * @param query1 the first query
 	 * @param query2 the second query
 	 * @param and <code>true</code> if this query represents an intersection or a
@@ -194,9 +194,9 @@ public class QueryUtil {
 
 	/**
 	 * Creates a new query that will return the members of the
-	 * given <code>category</code>.  If the specified {@link IInstallableUnit} 
-	 * is not a category, then no installable unit will satisfy the query. 
-	 * 
+	 * given <code>category</code>.  If the specified {@link IInstallableUnit}
+	 * is not a category, then no installable unit will satisfy the query.
+	 *
 	 * @param category The category
 	 * @return A query that returns category members
 	 */
@@ -210,14 +210,14 @@ public class QueryUtil {
 	/**
 	 * Creates a query matching every {@link IInstallableUnit} that is a category.
 	 * @return The query that matches categories
-	 * @since 2.0 
+	 * @since 2.0
 	 */
 	public static IQuery<IInstallableUnit> createIUCategoryQuery() {
 		return createIUPropertyQuery(QueryUtil.PROP_TYPE_CATEGORY, Boolean.TRUE.toString());
 	}
 
 	/**
-	 * Creates a query matching every {@link IInstallableUnit} that is a group. 
+	 * Creates a query matching every {@link IInstallableUnit} that is a group.
 	 * @return a query that matches all groups
 	 */
 	public static IQuery<IInstallableUnit> createIUGroupQuery() {
@@ -243,7 +243,7 @@ public class QueryUtil {
 
 	/**
 	 * Creates a query that searches for {@link IInstallableUnit} instances that have
-	 * a property whose value matches the provided value.  If no property name is 
+	 * a property whose value matches the provided value.  If no property name is
 	 * specified, then all {@link IInstallableUnit} instances are accepted.
 	 * @param propertyName The key of the property to match or <code>null</code> to match all
 	 * @param propertyValue The value of the property. Can be {@link #ANY} to match all values
@@ -269,7 +269,7 @@ public class QueryUtil {
 	/**
 	 * Creates a query that will match any {@link IInstallableUnit} with the given
 	 * id and version.
-	 * 
+	 *
 	 * @param versionedId The precise id/version combination that a matching unit must have
 	 * @return a query that matches IU's by id and version
 	 */
@@ -280,7 +280,7 @@ public class QueryUtil {
 	/**
 	 * Creates a query that will match any {@link IInstallableUnit} with the given
 	 * id, regardless of version.
-	 * 
+	 *
 	 * @param id The installable unit id to match, or <code>null</code> to match any id
 	 * @return a query that matches IU's by id
 	 */
@@ -291,7 +291,7 @@ public class QueryUtil {
 	/**
 	 * Creates a query that will match any {@link IInstallableUnit} with the given
 	 * id and version.
-	 * 
+	 *
 	 * @param id The installable unit id to match, or <code>null</code> to match any id
 	 * @param version The precise version that a matching unit must have or <code>null</code>
 	 * to match any version
@@ -310,7 +310,7 @@ public class QueryUtil {
 	/**
 	 * Creates a query that will match any {@link IInstallableUnit} with the given
 	 * id, and whose version falls in the provided range.
-	 * 
+	 *
 	 * @param id The installable unit id to match, or <code>null</code> to match any id
 	 * @param range The version range to match or <code>null</code> to match any range.
 	 * @return a query that matches IU's by id and range
@@ -326,7 +326,7 @@ public class QueryUtil {
 	}
 
 	/**
-	 * Creates a query that returns the latest version for each unique id of an {@link IVersionedId}.  
+	 * Creates a query that returns the latest version for each unique id of an {@link IVersionedId}.
 	 * All other elements are discarded.
 	 * @return A query matching the latest version for each id.
 	 */
@@ -336,7 +336,7 @@ public class QueryUtil {
 
 	/**
 	 * Creates a query that returns the latest version for each unique id of an {@link IVersionedId}
-	 * from the collection produced by <code>query</code>. 
+	 * from the collection produced by <code>query</code>.
 	 * All other elements are discarded.
 	 * @param query The query that precedes the latest query when evaluating.
 	 * @return A query matching the latest version for each id.
@@ -404,7 +404,7 @@ public class QueryUtil {
 	 * all candidates and discriminate all candidates that are not instances of
 	 * <code>matchingClass</code> or for which the boolean <code>matchExpression</code>
 	 * returns false.
-	 * 
+	 *
 	 * @param <T> The type of input object that the created query accepts
 	 * @param matchingClass The class that matching candidates must be an instance of
 	 * @param matchExpression The boolean expression used for filtering one candidate
@@ -417,10 +417,10 @@ public class QueryUtil {
 
 	/**
 	 * <p>Creates a piped query based on the provided input queries.</p>
-	 * <p>A pipe is a composite query in which each sub-query is executed in succession.  
+	 * <p>A pipe is a composite query in which each sub-query is executed in succession.
 	 * The results from the ith sub-query are piped as input into the i+1th sub-query. The
 	 * query will short-circuit if any query returns an empty result set.</p>
-	 * 
+	 *
 	 * @param queries the ordered list of queries to perform
 	 * @return A query pipe
 	 */
@@ -445,7 +445,7 @@ public class QueryUtil {
 
 	/**
 	 * <p>Creates a piped query based on the provided input queries.</p>
-	 * <p>A pipe is a composite query in which each sub-query is executed in succession.  
+	 * <p>A pipe is a composite query in which each sub-query is executed in succession.
 	 * The results from the ith sub-query are piped as input into the i+1th sub-query. The
 	 * query will short-circuit if any query returns an empty result set.</p>
 	 *
@@ -508,7 +508,7 @@ public class QueryUtil {
 	}
 
 	/**
-	 * Test if the {@link IInstallableUnit} is a category. 
+	 * Test if the {@link IInstallableUnit} is a category.
 	 * @param iu the element being tested.
 	 * @return <code>true</code> if the parameter is a category.
 	 */
@@ -521,7 +521,7 @@ public class QueryUtil {
 	}
 
 	/**
-	 * Test if the {@link IInstallableUnit} is a fragment. 
+	 * Test if the {@link IInstallableUnit} is a fragment.
 	 * @param iu the element being tested.
 	 * @return <code>true</code> if the parameter is a fragment.
 	 */
@@ -530,7 +530,7 @@ public class QueryUtil {
 	}
 
 	/**
-	 * Test if the {@link IInstallableUnit} is a group. 
+	 * Test if the {@link IInstallableUnit} is a group.
 	 * @param iu the element being tested.
 	 * @return <code>true</code> if the parameter is a group.
 	 */
@@ -543,7 +543,7 @@ public class QueryUtil {
 	}
 
 	/**
-	 * Test if the {@link IInstallableUnit} is a product. 
+	 * Test if the {@link IInstallableUnit} is a product.
 	 * @param iu the element being tested.
 	 * @return <code>true</code> if the parameter is a group.
 	 * @since 2.2
@@ -557,7 +557,7 @@ public class QueryUtil {
 	}
 
 	/**
-	 * Test if the {@link IInstallableUnit} is a patch. 
+	 * Test if the {@link IInstallableUnit} is a patch.
 	 * @param iu the element being tested.
 	 * @return <code>true</code> if the parameter is a patch.
 	 */
