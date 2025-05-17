@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - ongoing development
@@ -33,7 +33,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.artifactRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = 1;
-	public static final List<String> STANDARD_P2_REPOSITORY_FILE_NAMES = Arrays.asList(new String[] {"artifacts.xml", "content.xml", "compositeArtifacts.xml", "compositeContent.xml"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	public static final List<String> STANDARD_P2_REPOSITORY_FILE_NAMES = Arrays.asList("artifacts.xml", "content.xml", "compositeArtifacts.xml", "compositeContent.xml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 	IFileArtifactRepository artifactRepository;
 	private File base;
@@ -52,7 +52,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 	}
 
 	/*
-	 * Constructor for the class. Return a new extension location repository based on 
+	 * Constructor for the class. Return a new extension location repository based on
 	 * the given url and nested repository.
 	 */
 	public ExtensionLocationArtifactRepository(IProvisioningAgent agent, URI location, IFileArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
