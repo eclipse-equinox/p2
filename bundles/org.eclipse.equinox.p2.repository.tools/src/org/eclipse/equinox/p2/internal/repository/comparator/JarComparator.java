@@ -30,9 +30,9 @@ import org.eclipse.equinox.p2.repository.tools.comparator.IArtifactComparator;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * An artifact comparator that compares two JAR files. Class files are disassembled 
- * and compared for equivalence, properties and manifest files are compared as such, 
- * all other files are compared byte-for-byte. 
+ * An artifact comparator that compares two JAR files. Class files are disassembled
+ * and compared for equivalence, properties and manifest files are compared as such,
+ * all other files are compared byte-for-byte.
  */
 public class JarComparator implements IArtifactComparator {
 

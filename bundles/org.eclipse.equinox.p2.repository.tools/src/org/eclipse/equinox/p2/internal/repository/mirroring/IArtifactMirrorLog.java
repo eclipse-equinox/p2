@@ -18,12 +18,12 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 public interface IArtifactMirrorLog {
 
-	// Log a status associated with a descriptor 
+	// Log a status associated with a descriptor
 	public void log(IArtifactDescriptor descriptor, IStatus status);
 
 	// Log a status
 	public void log(IStatus status);
 
-	// Notify that logging is completed & cleanup resources 
+	// Notify that logging is completed & cleanup resources
 	public void close();
 }

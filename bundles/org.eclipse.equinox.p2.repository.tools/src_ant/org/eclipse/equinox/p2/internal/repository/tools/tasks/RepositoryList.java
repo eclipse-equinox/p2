@@ -18,7 +18,7 @@ import java.util.List;
 import org.apache.tools.ant.types.FileSet;
 
 public class RepositoryList extends RepositoryFileSet {
-	// TODO this class should extend DataType, currently RepoFileSet to support <source location="xxx" /> 
+	// TODO this class should extend DataType, currently RepoFileSet to support <source location="xxx" />
 	List<DestinationRepository> repositories = new ArrayList<>();
 	List<FileSet> sourceFileSets = new ArrayList<>();
 
