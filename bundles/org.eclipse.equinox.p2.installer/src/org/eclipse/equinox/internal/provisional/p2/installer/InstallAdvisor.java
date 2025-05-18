@@ -25,7 +25,7 @@ public abstract class InstallAdvisor {
 	 * monitoring and cancelation. The advisor may perform the install in
 	 * another thread, but must block the calling thread until the install
 	 * completes.
-	 * 
+	 *
 	 * @param operation The install operation to run
 	 * @return IStatus The result of the install operation. This is typically
 	 * just the return value of {@link IInstallOperation#install(IProgressMonitor)},
@@ -34,7 +34,7 @@ public abstract class InstallAdvisor {
 	public abstract IStatus performInstall(IInstallOperation operation);
 
 	/**
-	 * Allows the advisor to modify or fill in missing values in the install description.  
+	 * Allows the advisor to modify or fill in missing values in the install description.
 	 * @param description The initial install description
 	 * @return The install description to be used for the install.
 	 * @exception OperationCanceledException if the install should be canceled.
@@ -44,9 +44,9 @@ public abstract class InstallAdvisor {
 	/**
 	 * Prompts for whether the installed application should be launched immediately.
 	 * This method is only called after a successful install.
-	 * 
+	 *
 	 * @param description The initial install description
-	 * @return <code>true</code> if the product should be launched, and 
+	 * @return <code>true</code> if the product should be launched, and
 	 * <code>false</code> otherwise.
 	 */
 	public abstract boolean promptForLaunch(InstallDescription description);
@@ -58,7 +58,7 @@ public abstract class InstallAdvisor {
 	public abstract void setResult(IStatus status);
 
 	/**
-	 * Initializes the install advisor.  This method must be called before calling any 
+	 * Initializes the install advisor.  This method must be called before calling any
 	 * other methods on the advisor are called.  Subsequent invocations of this
 	 * method are ignored.
 	 */

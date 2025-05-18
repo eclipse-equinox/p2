@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - ongoing development
@@ -48,7 +48,7 @@ public class InstallDescriptionParser {
 	 * @param site The URL of the install properties file.
 	 */
 	public static InstallDescription createDescription(String site, SubMonitor monitor) throws Exception {
-		// if no description URL was given from the outside, look for an "install.properties" file 
+		// if no description URL was given from the outside, look for an "install.properties" file
 		// in relative to where the installer is running.  This allows the installer to be self-contained
 		if (site == null) {
 			site = "installer.properties"; //$NON-NLS-1$
@@ -171,8 +171,8 @@ public class InstallDescriptionParser {
 	}
 
 	/**
-	 * Add all of the given properties to profile properties of the given description 
-	 * after removing the keys known to be for the installer.  This allows install descriptions 
+	 * Add all of the given properties to profile properties of the given description
+	 * after removing the keys known to be for the installer.  This allows install descriptions
 	 * to also set random profile properties.
 	 */
 	private static void initializeProfileProperties(InstallDescription description, Map<String, String> properties) {
@@ -194,7 +194,7 @@ public class InstallDescriptionParser {
 	/**
 	 * Returns an array of URIs from the given comma-separated list
 	 * of URLs. Returns null if the given spec does not contain any URLs.
-	 * @param base 
+	 * @param base
 	 * @return An array of URIs in the given spec, or <code>null</code>
 	 */
 	private static URI[] getURIs(String spec, URI base) {

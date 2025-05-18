@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - ongoing development
@@ -30,7 +30,7 @@ import org.osgi.framework.ServiceReference;
 
 /**
  * This is a simple installer application built using P2.  The application must be given
- * an "install description" as a command line argument or system property 
+ * an "install description" as a command line argument or system property
  * ({@link #SYS_PROP_INSTALL_DESCRIPTION}).  The application reads this
  * install description, and looks for an existing profile in the local install registry that
  * matches it.  If no profile is found, it creates a new profile, and installs the root
