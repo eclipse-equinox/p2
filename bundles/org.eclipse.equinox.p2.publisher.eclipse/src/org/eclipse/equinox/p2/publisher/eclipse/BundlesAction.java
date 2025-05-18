@@ -13,7 +13,7 @@
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   SAP AG - make optional dependencies non-greedy by default; allow setting greedy through directive (bug 247099)
- *   Red Hat Inc. - Bug 460967 
+ *   Red Hat Inc. - Bug 460967
  *   Christoph Läubrich - Bug 574952 p2 should distinguish between "product plugins" and "configuration plugins" (gently sponsored by Compart AG)
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
@@ -86,7 +86,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	/**
 	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE}
 	 * namespace representing and OSGi bundle resource
-	 * 
+	 *
 	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_BUNDLE = "bundle"; //$NON-NLS-1$
@@ -94,7 +94,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	/**
 	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE}
 	 * namespace representing a source bundle
-	 * 
+	 *
 	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_SOURCE = "source"; //$NON-NLS-1$
@@ -136,7 +136,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	/**
 	 * Manifest header directive for specifying how optional runtime requirements
 	 * shall be handled during installation.
-	 * 
+	 *
 	 * @see #INSTALLATION_GREEDY
 	 */
 	public static final String INSTALLATION_DIRECTIVE = "x-installation"; //$NON-NLS-1$
@@ -203,7 +203,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	/**
 	 * Attempts to read the given file (or folder) as a bundle and creates an
 	 * {@link IInstallableUnit} describing it.
-	 * 
+	 *
 	 * @param file the file to read as a bundle
 	 * @return an {@link Optional} describing the result, if anything goes wrong an
 	 *         empty optional is returned
@@ -564,13 +564,13 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	/*
 	 * @param hostId
-	 * 
+	 *
 	 * @param bd
-	 * 
+	 *
 	 * @param locale
-	 * 
+	 *
 	 * @param localizedStrings
-	 * 
+	 *
 	 * @return installableUnitFragment
 	 */
 	private static IInstallableUnitFragment createLocalizationFragmentOfHost(BundleDescription bd, String hostId,
@@ -1044,13 +1044,13 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	/**
 	 * Publishes bundle IUs to the p2 metadata and artifact repositories.
-	 * 
+	 *
 	 * @param bundleDescriptions Equinox framework descriptions of the bundles to
 	 *                           publish.
 	 * @param result             Used to attach status for the publication
 	 *                           operation.
 	 * @param monitor            Used to fire progress events.
-	 * 
+	 *
 	 * @deprecated Use
 	 *             {@link #generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherInfo info, IPublisherResult result, IProgressMonitor monitor)}
 	 *             with {@link IPublisherInfo} set to <code>null</code>
@@ -1063,7 +1063,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	/**
 	 * Publishes bundle IUs to the p2 metadata and artifact repositories.
-	 * 
+	 *
 	 * @param bundleDescriptions Equinox framework descriptions of the bundles to
 	 *                           publish.
 	 * @param publisherInfo               Configuration and publication advice information.

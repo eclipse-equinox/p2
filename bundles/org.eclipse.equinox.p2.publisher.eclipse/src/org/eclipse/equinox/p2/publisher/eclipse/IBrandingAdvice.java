@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   EclipseSource - initial API and implementation
  *   SAP SE - support macOS bundle URL types
  ******************************************************************************/
@@ -29,10 +29,10 @@ public interface IBrandingAdvice extends IPublisherAdvice {
 	public String getOS();
 
 	/**
-	 * Returns the list of icon files to be used in branding an executable. 
+	 * Returns the list of icon files to be used in branding an executable.
 	 * The nature of the returned values and the images they represent is
 	 * platform-specific.
-	 * 
+	 *
 	 * @return the list of icons used in branding an executable or <code>null</code> if none.
 	 */
 	public String[] getIcons();
@@ -40,7 +40,7 @@ public interface IBrandingAdvice extends IPublisherAdvice {
 	/**
 	 * Returns the name of the launcher.  This should be the OS-independent
 	 * name. That is, ".exe" etc. should not be included.
-	 * 
+	 *
 	 * @return the name of the branded launcher or <code>null</code> if none.
 	 */
 	public String getExecutableName();

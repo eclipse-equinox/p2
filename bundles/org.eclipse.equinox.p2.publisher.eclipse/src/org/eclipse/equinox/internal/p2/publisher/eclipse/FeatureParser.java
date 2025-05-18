@@ -38,11 +38,11 @@ public class FeatureParser {
 	private final FeatureManifestParser parser = new FeatureManifestParser();
 
 	/**
-	 * Parses the specified location and constructs a feature. The given location 
+	 * Parses the specified location and constructs a feature. The given location
 	 * should be either the location of the feature JAR or the directory containing
 	 * the feature.
-	 * 
-	 * @param location the location of the feature to parse.  
+	 *
+	 * @param location the location of the feature to parse.
 	 */
 	public Feature parse(File location) {
 		if (!location.exists()) {

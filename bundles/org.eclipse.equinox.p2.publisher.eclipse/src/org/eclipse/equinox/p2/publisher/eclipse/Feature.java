@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     SAP AG - consolidation of publishers for PDE formats
@@ -17,7 +17,7 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 import java.util.*;
 
 /**
- * 
+ *
  * Feature information
  */
 public class Feature implements IPlatformEntry {

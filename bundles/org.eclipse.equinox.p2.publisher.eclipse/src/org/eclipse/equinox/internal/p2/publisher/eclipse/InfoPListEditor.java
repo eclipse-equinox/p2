@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  * 	Rapicorp, Inc. - initial API and implementation
  * 	SAP SE - support macOS bundle URL types

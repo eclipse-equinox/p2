@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Christoph Läubrich - refactor to use a more consistent API that allows error propagation to the caller
@@ -21,13 +21,13 @@ import java.util.function.Consumer;
 
 /**
  * Customize the icon of a Windows exe
- * 
+ *
  * WARNING! This class is not part of SWT API. It is NOT API. It is an internal
  * tool that may be changed or removed at anytime.
- * 
+ *
  * Based on MSDN "An In-Depth Look into the Win32 Portable Executable File Format".
- * 
- * Win x64 support (Bug #238001) based on MSDN "x64 Primer: Everything You Need To 
+ *
+ * Win x64 support (Bug #238001) based on MSDN "x64 Primer: Everything You Need To
  * Know To Start Programming 64-Bit Windows Systems".
  */
 public class IconExe {
@@ -42,7 +42,7 @@ public class IconExe {
 	*
 	* Note 1. Write access to the executable program is required. As a result, that
 	* program must not be currently running or edited elsewhere.
-	* 
+	*
 	* Note 2. The Eclipse 3.4 launcher requires an .ico file with the following 7 images (in any order).
 	* 1. 48x48, 32 bit (RGB / Alpha Channel)
 	* 2. 32x32, 32 bit (RGB / Alpha Channel)
@@ -95,7 +95,7 @@ public class IconExe {
 	/**
 	 * Loads images from files so they are prepared for used in replacing icons in a
 	 * launcher executable
-	 * 
+	 *
 	 * @param icons                the icons to loader
 	 * @param errorMessageConsumer a consumer that is informed about skipable errors
 	 *                             while loading icons
@@ -125,13 +125,13 @@ public class IconExe {
 
 	/* Implementation */
 
-	/** 
+	/**
 	 * Replace the Desktop icons provided in the Windows executable program
 	 * with icons provided by the user.
-	 * 
+	 *
 	 * Note 1. Write access to the executable program is required. As a result, that
 	 * program must not be currently running or edited elsewhere.
-	 * 
+	 *
 	 * Note 2. Use loadIcons to determine which set of icons (width, height, depth)
 	 * is required to replace the icons in the executable program. A user icon
 	 * matching exactly the width/height/depth of an executable icon will be written
@@ -139,7 +139,7 @@ public class IconExe {
 	 * does not match a user icon, it is left as is. Verify the return value matches
 	 * the number of icons to write. Finally, use loadIcons after this operation
 	 * to verify the icons have changed as expected.
-	 * 
+	 *
 	 * Note 3. The Eclipse 3.4 launcher requires the following 7 images (in any order).
 	 * 1. 48x48, 32 bit (RGB / Alpha Channel)
 	 * 2. 32x32, 32 bit (RGB / Alpha Channel)
@@ -159,8 +159,8 @@ public class IconExe {
 	 * 7. 16x16, 8 bit (256 colors)
 	 *
 	 * Note 4. This function modifies the content of the executable program and may cause
-	 * its corruption. 
-	 * 
+	 * its corruption.
+	 *
 	 * @param launcherFile the Windows executable e.g c:/eclipse/eclipse.exe
 	 * @param icons to write to the given executable
 	 * @return the list of icons from the original program that were not successfully replaced (empty if success)
@@ -206,10 +206,10 @@ public class IconExe {
 		int size;
 	}
 
-	/** 
+	/**
 	 * Retrieve the Desktop icons provided in the Windows executable program.
 	 * These icons are typically shown in various places of the Windows desktop.
-	 * 
+	 *
 	 * Note. The Eclipse 3.4 launcher returns the following 7 images (in any order).
 	 * 1. 48x48, 32 bit (RGB / Alpha Channel)
 	 * 2. 32x32, 32 bit (RGB / Alpha Channel)
@@ -963,7 +963,7 @@ public class IconExe {
 		rs.IconCursorId = readU2(raf);
 	}
 
-	/* ImageData and Image Decoder inlining to avoid dependency on SWT 
+	/* ImageData and Image Decoder inlining to avoid dependency on SWT
 	 * The following section can be entirely removed if SWT can be used.
 	 */
 
@@ -1029,8 +1029,8 @@ public class IconExe {
 		}
 
 		/**
-		 * Returns an integer hash code for the receiver. Any two 
-		 * objects which return <code>true</code> when passed to 
+		 * Returns an integer hash code for the receiver. Any two
+		 * objects which return <code>true</code> when passed to
 		 * <code>equals</code> must return the same value for this
 		 * method.
 		 *
@@ -1051,7 +1051,7 @@ public class IconExe {
 		 */
 		@Override
 		public String toString() {
-			return "RGB {" + red + ", " + green + ", " + blue + "}"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+			return "RGB {" + red + ", " + green + ", " + blue + "}"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 			//$NON-NLS-4$
 		}
@@ -1061,7 +1061,7 @@ public class IconExe {
 	static class PaletteData {
 
 		/**
-		 * true if the receiver is a direct palette, 
+		 * true if the receiver is a direct palette,
 		 * and false otherwise
 		 */
 		public boolean isDirect;
@@ -1141,7 +1141,7 @@ public class IconExe {
 		 *
 		 * @param rgb the RGB to get the pixel value for
 		 * @return the pixel value for the given RGB
-		 * 
+		 *
 		 * @exception IllegalArgumentException <ul>
 		 *    <li>ERROR_NULL_ARGUMENT - if the argument is null</li>
 		 *    <li>ERROR_INVALID_ARGUMENT - if the RGB is not found in the palette</li>
@@ -1249,7 +1249,7 @@ public class IconExe {
 		public int logicalScreenHeight;
 
 		/**
-		 * the background pixel for the logical screen (this 
+		 * the background pixel for the logical screen (this
 		 * corresponds to the GIF89a Background Color Index value).
 		 * The default is -1 which means 'unspecified background'
 		 */
@@ -1430,7 +1430,7 @@ public class IconExe {
 
 		/**
 		 * The type of file from which the image was read.
-		 * 
+		 *
 		 * It is expressed as one of the following values:
 		 * <dl>
 		 * <dt><code>IMAGE_BMP</code></dt>
@@ -1466,7 +1466,7 @@ public class IconExe {
 		/**
 		 * A description of how to dispose of the current image
 		 * before displaying the next.
-		 * 
+		 *
 		 * It is expressed as one of the following values:
 		 * <dl>
 		 * <dt><code>DM_UNSPECIFIED</code></dt>
@@ -1564,7 +1564,7 @@ public class IconExe {
 		 * <p>
 		 * This constructor is provided for convenience when loading a single
 		 * image only. If the file contains multiple images, only the first
-		 * one will be loaded. To load multiple images, use 
+		 * one will be loaded. To load multiple images, use
 		 * <code>ImageLoader.load()</code>.
 		 * </p>
 		 *
@@ -1650,7 +1650,7 @@ public class IconExe {
 			this.delayTime = delayTime;
 		}
 
-		/**	 
+		/**
 		 * Invokes internal SWT functionality to create a new instance of
 		 * this class.
 		 * <p>
@@ -2113,7 +2113,7 @@ public class IconExe {
 
 		/**
 		 * Returns the byte order of the receiver.
-		 * 
+		 *
 		 * @return MSB_FIRST or LSB_FIRST
 		 */
 		int getByteOrder() {
@@ -2628,7 +2628,7 @@ public class IconExe {
 			return ANY_TO_EIGHT[getChannelWidth(mask, shift)][(data & mask) >>> shift];
 		}
 
-		/* 
+		/*
 		 * Fill in dithered gradated values for a color channel
 		 */
 		static final void buildDitheredGradientChannel(int from, int to, int steps, int bandWidth, int bandHeight, boolean vertical, byte[] bitmapData, int dp, int bytesPerLine, int bits) {
@@ -2761,11 +2761,11 @@ public class IconExe {
 		}
 
 		/**
-		 * Reads at most <code>length</code> bytes from this LEDataInputStream and 
+		 * Reads at most <code>length</code> bytes from this LEDataInputStream and
 		 * stores them in byte array <code>buffer</code> starting at <code>offset</code>.
 		 * <p>
-		 * Answer the number of bytes actually read or -1 if no bytes were read and 
-		 * end of stream was encountered.  This implementation reads bytes from 
+		 * Answer the number of bytes actually read or -1 if no bytes were read and
+		 * end of stream was encountered.  This implementation reads bytes from
 		 * the pushback buffer first, then the target stream if more bytes are required
 		 * to satisfy <code>count</code>.
 		 * </p>
@@ -2836,11 +2836,11 @@ public class IconExe {
 		/**
 		 * Push back the entire content of the given buffer <code>b</code>.
 		 * <p>
-		 * The bytes are pushed so that they would be read back b[0], b[1], etc. 
-		 * If the push back buffer cannot handle the bytes copied from <code>b</code>, 
+		 * The bytes are pushed so that they would be read back b[0], b[1], etc.
+		 * If the push back buffer cannot handle the bytes copied from <code>b</code>,
 		 * an IOException will be thrown and no byte will be pushed back.
 		 * </p>
-		 * 
+		 *
 		 * @param b the byte array containing bytes to push back into the stream
 		 *
 		 * @exception 	java.io.IOException if the pushback buffer is too small
@@ -3423,8 +3423,8 @@ public class IconExe {
 			int infoHeight = (infoHeader[8] & 0xFF) | ((infoHeader[9] & 0xFF) << 8) | ((infoHeader[10] & 0xFF) << 16) | ((infoHeader[11] & 0xFF) << 24);
 			int bitCount = (infoHeader[14] & 0xFF) | ((infoHeader[15] & 0xFF) << 8);
 			/*
-			 * Feature in the ico spec. The spec says that a width/height of 0 represents 256, however, newer images can be created with even larger sizes. 
-			 * Images with a width/height >= 256 will have their width/height set to 0 in the icon header; the fix for this case is to read the width/height 
+			 * Feature in the ico spec. The spec says that a width/height of 0 represents 256, however, newer images can be created with even larger sizes.
+			 * Images with a width/height >= 256 will have their width/height set to 0 in the icon header; the fix for this case is to read the width/height
 			 * directly from the image header.
 			 */
 			if (width == 0) {

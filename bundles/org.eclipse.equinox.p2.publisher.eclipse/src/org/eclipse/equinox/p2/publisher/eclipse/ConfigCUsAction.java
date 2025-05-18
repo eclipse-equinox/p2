@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   Rapicorp - ongoing development
@@ -50,7 +50,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	protected String flavor;
 	IPublisherResult outerResults = null;
 
-	// TODO consider moving this filtering to the LaunchingAdvice and ConfigAdvice so 
+	// TODO consider moving this filtering to the LaunchingAdvice and ConfigAdvice so
 	// it is not hardcoded in the action.
 	static {
 		PROPERTIES_TO_SKIP = new HashSet<>();
@@ -235,7 +235,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	}
 
 	/**
-	 * Create a CU whose id is flavor+id.type.configspec with the given version. 
+	 * Create a CU whose id is flavor+id.type.configspec with the given version.
 	 * The resultant IU has the self capability and an abstract capabilty in the flavor+id namespace
 	 * with the name id.type and the given version.  This allows others to create an abstract
 	 * dependency on having one of these things around but not having to list out the configs.

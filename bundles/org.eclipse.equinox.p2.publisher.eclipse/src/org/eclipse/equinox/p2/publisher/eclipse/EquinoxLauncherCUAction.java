@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.publisher.actions.IVersionAdvice;
 /**
  * Create CUs for all Equinox launcher related IUs for the given set of configurations
  * such that the launcher is configured as the startup code and the fragments
- * are configured as the launcher.library.  
+ * are configured as the launcher.library.
  * <p>
  * This action expects to have find the versions of the launcher and launcher fragments
  * via IVersionAdvice in the supplied info object.
@@ -69,8 +69,8 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 	}
 
 	/**
-	 * Publish a CU for the IU of the given id in the given config spec.  If the IU is the 
-	 * launcher bundle iu then set it up as the startup JAR.  If it is a launcher fragment then 
+	 * Publish a CU for the IU of the given id in the given config spec.  If the IU is the
+	 * launcher bundle iu then set it up as the startup JAR.  If it is a launcher fragment then
 	 * configure it in as the launcher.library for this configuration.
 	 */
 	private void publishCU(String id, String configSpec, IPublisherResult results) {

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      Eclipse Source - initial API and implementation
  *      IBM Corporation - ongoing development
@@ -49,7 +49,7 @@ public class ExecutablesDescriptor {
 
 	/**
 	 * Return the root directory of the executables folder for the given configSpec.  The folder
-	 * is expected to be part of the standard Eclipse executables feature whose structure is 
+	 * is expected to be part of the standard Eclipse executables feature whose structure is
 	 * embedded here.
 	 * @param executablesFeatureLocation the location of the executables feature
 	 * @param configSpec the configuration to lookup

@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.EclipseInstallAction;
 
 /**
  * An Ant task to call the p2 publisher application.
- * 
+ *
  * @since 1.0
  */
 public class PublisherTask extends AbstractPublishTask {

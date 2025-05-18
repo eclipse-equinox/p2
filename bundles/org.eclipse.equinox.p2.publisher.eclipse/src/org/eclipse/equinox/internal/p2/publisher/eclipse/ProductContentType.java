@@ -21,7 +21,7 @@ import org.eclipse.osgi.util.NLS;
  */
 public enum ProductContentType {
 
-	BUNDLES("bundles"), // only bundles are accepted in the product //$NON-NLS-1$ 
+	BUNDLES("bundles"), // only bundles are accepted in the product //$NON-NLS-1$
 	FEATURES("features"), // only features are accepted in the product //$NON-NLS-1$
 	MIXED("mixed"); // all kinds of installable units are accepted in the product //$NON-NLS-1$
 
