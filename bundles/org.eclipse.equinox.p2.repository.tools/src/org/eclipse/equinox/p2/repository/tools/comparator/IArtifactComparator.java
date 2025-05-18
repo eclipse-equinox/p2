@@ -27,8 +27,8 @@ public interface IArtifactComparator {
 
 	/**
 	 * Compare 2 equivalent IArtifactDescriptors from different repositories.
-	 * 
-	 * IArtifactDescriptors with the same id and version should represent the same 
+	 *
+	 * IArtifactDescriptors with the same id and version should represent the same
 	 * set of bytes.  The comparator should ensure this is true and return an error
 	 * or warning otherwise.
 	 *

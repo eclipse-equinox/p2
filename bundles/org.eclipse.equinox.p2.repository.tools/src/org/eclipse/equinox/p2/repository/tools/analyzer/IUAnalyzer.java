@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2009, 2017 EclipseSource and others.
  *
  * This
@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.internal.repository.tools.Activator;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
- * An abstract base class for the Analyzer.  Clients are encouraged to extends this 
+ * An abstract base class for the Analyzer.  Clients are encouraged to extends this
  * class when defining IU Analysis extension points.
  * @since 2.0
  */

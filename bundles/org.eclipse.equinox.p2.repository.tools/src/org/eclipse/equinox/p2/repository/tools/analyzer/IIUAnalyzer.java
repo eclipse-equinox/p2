@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2009, 2010 EclipseSource and others.
  *
  * This
@@ -19,14 +19,14 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
 /**
- * The IUAnalaysis Interface.  
- * 
+ * The IUAnalaysis Interface.
+ *
  * @noextend This interface is not intended to be extended by clients.
  * @noimplement This interface is not intended to be implemented by clients.
- * 
+ *
  * Clients are encouraged to extend {@link IUAnalyzer}, an abstract class that implements
  * this interface.
- * 
+ *
  * @since 2.0
  */
 public interface IIUAnalyzer {

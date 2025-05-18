@@ -61,9 +61,9 @@ public class FileMirrorLog implements IArtifactMirrorLog {
 
 	/*
 	 * Write a status to the log, indenting it based on status depth.
-	 * 
+	 *
 	 * @param status the status to log
-	 * 
+	 *
 	 * @param depth the depth of the status
 	 */
 	private void log(IStatus status, String prefix) {
@@ -89,7 +89,7 @@ public class FileMirrorLog implements IArtifactMirrorLog {
 
 	/*
 	 * Write a message to the log
-	 * 
+	 *
 	 * @param message the message to write
 	 */
 	private void log(String message) {

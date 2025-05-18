@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2009, 2017 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
@@ -82,7 +82,7 @@ public abstract class AbstractRepositoryTask extends Task {
 	 * argument to specify both the artifact and metadata repositories.
 	 */
 	public void setDestination(String location) {
-		// TODO depreciate 
+		// TODO depreciate
 		DestinationRepository dest = new DestinationRepository();
 		dest.setLocation(location);
 		destinations.add(dest);
@@ -90,7 +90,7 @@ public abstract class AbstractRepositoryTask extends Task {
 	}
 
 	public DestinationRepository createDestination() {
-		// TODO depreciate 
+		// TODO depreciate
 		DestinationRepository destination = new DestinationRepository();
 		destinations.add(destination);
 		application.addDestination(destination.getDescriptor());

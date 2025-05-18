@@ -93,7 +93,7 @@ public class SlicingOption extends Task {
 		options.setFilter(filter);
 	}
 
-	/** 
+	/**
 	 * Set this property to true if only strict dependencies must be followed. A strict dependency is defined by a version range only including one version (e.g. [1.0.0.v2009, 1.0.0.v2009])
 	 * The default value is false.
 	 */

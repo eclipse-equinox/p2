@@ -66,7 +66,7 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 		}
 	}
 
-	/*	
+	/*
 	 * Remove the listed repositories from the composite repository
 	 */
 	public void addConfiguredRemove(RepositoryList list) {
