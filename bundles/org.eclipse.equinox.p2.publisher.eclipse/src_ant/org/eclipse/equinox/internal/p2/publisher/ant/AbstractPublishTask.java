@@ -7,8 +7,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *     IBM - Initial API and implementation
  *     Red Hat Inc. - Bug 460967
  ******************************************************************************/

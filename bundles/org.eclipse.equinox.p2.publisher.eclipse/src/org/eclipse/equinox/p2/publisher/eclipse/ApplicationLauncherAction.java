@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -88,7 +88,7 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 	}
 
 	/**
-	 * Create and register advice that will tell people what versions of the launcher bundle and 
+	 * Create and register advice that will tell people what versions of the launcher bundle and
 	 * fragments are in use in this particular result.
 	 */
 	private void createLauncherAdvice(IPublisherInfo publisherInfo, IPublisherResult results) {

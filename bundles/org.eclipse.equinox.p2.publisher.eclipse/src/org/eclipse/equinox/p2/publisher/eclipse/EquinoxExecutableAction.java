@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  *   Pascal Rapicault - Support for bundled macosx http://bugs.eclipse.org/57349
@@ -85,7 +85,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	}
 
 	/**
-	 * Publishes the IUs that cause the executable to be actually set as the launcher for 
+	 * Publishes the IUs that cause the executable to be actually set as the launcher for
 	 * the profile
 	 */
 	private void publishExecutableSetter(ExecutablesDescriptor brandedExecutables, IPublisherResult result) {
@@ -229,10 +229,10 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	}
 
 	/**
-	 * Brands a copy of the given executable descriptor with the information in the 
+	 * Brands a copy of the given executable descriptor with the information in the
 	 * current product definition.  The files described in the descriptor are also copied
 	 * to a temporary location to avoid destructive modification.
-	 * 
+	 *
 	 * @param descriptor the executable descriptor to brand.
 	 * @return the new descriptor
 	 */

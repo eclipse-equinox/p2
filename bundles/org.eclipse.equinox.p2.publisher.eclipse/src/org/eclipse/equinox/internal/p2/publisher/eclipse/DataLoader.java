@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   Red Hat Inc. - Bug 460967
  ******************************************************************************/
@@ -45,9 +45,9 @@ public class DataLoader {
 	private final File configurationLocation;
 
 	/**
-	 * 
+	 *
 	 * @param configurationLocation configuration file (i.e. config.ini).
-	 * @param executableLocation executable file (i.e. eclipse.exe). 
+	 * @param executableLocation executable file (i.e. eclipse.exe).
 	 */
 	public DataLoader(File configurationLocation, File executableLocation) {
 		this.configurationLocation = configurationLocation;

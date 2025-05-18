@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   EclipseSource - ongoing development
  *   SAP AG - ongoing development
@@ -27,8 +27,8 @@ import org.eclipse.equinox.p2.publisher.eclipse.IMacOsBundleUrlType;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 
 /**
- * Represents a product file.  
- * 
+ * Represents a product file.
+ *
  * If getLocation returns null, then config.ini and p2 advice files cannot
  * be used (since these are both relative to the product location).
  */
@@ -39,7 +39,7 @@ public interface IProductDescriptor {
 	 */
 	int INCLUDED_FEATURES = 0x1;
 	/**
-	 * Flag for {@link #getFeatures(int)} to obtain the features to be installed as separately updatable roots. 
+	 * Flag for {@link #getFeatures(int)} to obtain the features to be installed as separately updatable roots.
 	 */
 	int ROOT_FEATURES = 0x2;
 
@@ -49,7 +49,7 @@ public interface IProductDescriptor {
 	public String getLauncherName();
 
 	/**
-	 * Returns the bundles listed in this product. Note: These bundles are only part of 
+	 * Returns the bundles listed in this product. Note: These bundles are only part of
 	 * the product if {@link #useFeatures()} returns <code>false</code>.
 	 * @return the list of bundles in this product.
 	 */
@@ -62,7 +62,7 @@ public interface IProductDescriptor {
 	public boolean hasBundles();
 
 	/**
-	 * Returns the features listed in the product. Same as <code>getFeatures(INCLUDED_FEATURES)</code>. Note: These features are only part of 
+	 * Returns the features listed in the product. Same as <code>getFeatures(INCLUDED_FEATURES)</code>. Note: These features are only part of
 	 * the product if {@link #useFeatures()} returns <code>true</code>.
 	 */
 	public List<IVersionedId> getFeatures();
@@ -73,11 +73,11 @@ public interface IProductDescriptor {
 	public boolean hasFeatures();
 
 	/**
-	 * Returns the features listed in the product. Note: These features are only part of 
+	 * Returns the features listed in the product. Note: These features are only part of
 	 * the product if {@link #useFeatures()} returns <code>true</code>.
 	 * @param options bitmask to indicate what kind of features to return.
-	 * @see #INCLUDED_FEATURES 
-	 * @see #ROOT_FEATURES 
+	 * @see #INCLUDED_FEATURES
+	 * @see #ROOT_FEATURES
 	 */
 	public List<IVersionedId> getFeatures(int options);
 
@@ -132,7 +132,7 @@ public interface IProductDescriptor {
 	public String getVMArguments(String os);
 
 	/**
-	 * Returns the VM arguments for this product for a given OS and architecture 
+	 * Returns the VM arguments for this product for a given OS and architecture
 	 * combination.
 	 */
 	public String getVMArguments(String os, String arch);
@@ -143,7 +143,7 @@ public interface IProductDescriptor {
 	public String getProgramArguments(String os);
 
 	/**
-	 * Returns the program arguments for this product for a given OS and 
+	 * Returns the program arguments for this product for a given OS and
 	 * architecture combination.
 	 */
 	public String getProgramArguments(String os, String arch);
@@ -169,7 +169,7 @@ public interface IProductDescriptor {
 	/**
 	 * Returns a {@code List<BundleInfo>} for each bundle that has custom
 	 * configuration data.
-	 * 
+	 *
 	 * @return A {@code List<BundleInfo>}
 	 */
 	public List<BundleInfo> getBundleInfos();
@@ -197,7 +197,7 @@ public interface IProductDescriptor {
 	/**
 	 * Returns a {@code List<IRepositoryReference>} for each update repository used
 	 * by the product.
-	 * 
+	 *
 	 * @return A {@code List<IRepositoryReference>}
 	 */
 	public List<IRepositoryReference> getRepositoryEntries();

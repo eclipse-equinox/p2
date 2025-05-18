@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - Additional function and fixes
@@ -315,7 +315,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				}
 			} else {
 				if (arch == null) {
-					// only os is specified. Provide properties defined for 
+					// only os is specified. Provide properties defined for
 					// specific os and all architectures.
 					filteredKeys[1] = os + "."; //$NON-NLS-1$
 				} else {
@@ -368,7 +368,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	/**
 	 * Returns a {@code List<BundleInfo>} for each bundle that has custom
 	 * configuration data in the product file.
-	 * 
+	 *
 	 * @return A {@code List<BundleInfo>}
 	 */
 	@Override
@@ -494,7 +494,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	/**
-	 * Returns true if this product is built using feature, 
+	 * Returns true if this product is built using feature,
 	 * false otherwise.
 	 */
 	@Override
@@ -887,8 +887,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 				break;
 
 
-			// For all argument states.  Set a platform key prefix representing 
-			// the outer state (platform) of the launcher arguments and then 
+			// For all argument states.  Set a platform key prefix representing
+			// the outer state (platform) of the launcher arguments and then
 			// set the state of the inner state (architecture).
 			case STATE_PROGRAM_ARGS :
 				platformKeyPrefix = PROGRAM_ARGS;
@@ -1028,7 +1028,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 	/**
 	 * Processes the property tag in the .product file.  These tags contain
-	 * a Name and Value pair.  For each tag (with a non-null name), a property 
+	 * a Name and Value pair.  For each tag (with a non-null name), a property
 	 * is created.
 	 */
 	private void processPropertyConfiguration(Attributes attributes) {
@@ -1346,7 +1346,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		}
 		if (productContentType == null) { // useFeatures attribute is taken into account only if the contentType attribute is missing
 			String use = attributes.getValue("useFeatures"); //$NON-NLS-1$
-			// for backward compatibility with the old behavior 
+			// for backward compatibility with the old behavior
 			if (use != null && Boolean.parseBoolean(use)) {
 				productContentType = ProductContentType.FEATURES;
 			} else {
