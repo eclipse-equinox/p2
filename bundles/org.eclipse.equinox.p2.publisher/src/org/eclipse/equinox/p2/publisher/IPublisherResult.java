@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -21,27 +21,27 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryable;
 
 /**
- * Publisher results represent the result of running a publishing operation.  A result is a 
+ * Publisher results represent the result of running a publishing operation.  A result is a
  * collection of IInstallableUnits that were created or read duing the operation.  The result
- * IUs are categorized either as "roots" or "non-roots".  The meaning of these types is 
+ * IUs are categorized either as "roots" or "non-roots".  The meaning of these types is
  * determined by the actions involved in the operation and it is up to the consumer of the
  * result to interpret the collections.
  */
 public interface IPublisherResult extends IQueryable<IInstallableUnit> {
 	/**
-	 * Merge mode setting that causes all root results to be merged into 
+	 * Merge mode setting that causes all root results to be merged into
 	 * the root of the merged results and all non-roots to become non-roots.
 	 */
 	public static final int MERGE_MATCHING = 0;
 
-	/** 
-	 * Merge mode setting that causes all root and non-root result entries to 
+	/**
+	 * Merge mode setting that causes all root and non-root result entries to
 	 * be placed in the root collection of the result.
 	 */
 	public static final int MERGE_ALL_ROOT = 1;
 
-	/** 
-	 * Merge mode setting that causes all root and non-root result entries to 
+	/**
+	 * Merge mode setting that causes all root and non-root result entries to
 	 * be placed in the non-root collection of the result.
 	 */
 	public static final int MERGE_ALL_NON_ROOT = 2;
@@ -60,7 +60,7 @@ public interface IPublisherResult extends IQueryable<IInstallableUnit> {
 	 * Add the given IU to this result and identify it as the given type
 	 * @see #ROOT
 	 * @see #NON_ROOT
-	 * 
+	 *
 	 * @param iu the IU to add
 	 * @param type the type of the IU in this result
 	 */
@@ -70,7 +70,7 @@ public interface IPublisherResult extends IQueryable<IInstallableUnit> {
 	 * Add all of the given IUs to this result and identify it as the given type
 	 * @see #ROOT
 	 * @see #NON_ROOT
-	 * 
+	 *
 	 * @param ius the IUs to add
 	 * @param type the type of the IUs in this result
 	 */
@@ -111,7 +111,7 @@ public interface IPublisherResult extends IQueryable<IInstallableUnit> {
 	public IInstallableUnit getIU(String id, Version version, String type);
 
 	/**
-	 * Merges the given result in this result according to the given mode. 
+	 * Merges the given result in this result according to the given mode.
 	 * @see #MERGE_ALL_NON_ROOT
 	 * @see #MERGE_ALL_ROOT
 	 * @see #MERGE_MATCHING

@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -24,7 +24,7 @@ public interface ITouchpointAdvice extends IPublisherAdvice {
 	/**
 	 * Returns a touchpoint data that merges the given touchpoint data
 	 * with any new touchpoint data contributed by this advice.
-	 * 
+	 *
 	 * @param existingData The current set of touchpoint data.
 	 * @return the merged touchpoint data
 	 */

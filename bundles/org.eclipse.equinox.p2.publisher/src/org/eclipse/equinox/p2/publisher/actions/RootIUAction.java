@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - Progress monitor handling and error handling
  ******************************************************************************/
@@ -139,7 +139,7 @@ public class RootIUAction extends AbstractPublisherAction {
 			Collection<? extends Object> list = advice.getChildren(result);
 			if (list != null) {
 				for (Object object : list) {
-					// if the advice is a string, look it up in the result.  if not there then 
+					// if the advice is a string, look it up in the result.  if not there then
 					// query the known metadata repos
 					if (object instanceof String childId) {
 						IInstallableUnit iu = queryForIU(result, childId, getVersionAdvice(childId));

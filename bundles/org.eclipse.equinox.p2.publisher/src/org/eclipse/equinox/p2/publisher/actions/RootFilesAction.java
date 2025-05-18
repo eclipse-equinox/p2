@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -146,7 +146,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 	}
 
 	/**
-	 * Compiles the <class>IRootFilesAdvice</class> from the <code>info</code> into one <class>IRootFilesAdvice</class> 
+	 * Compiles the <class>IRootFilesAdvice</class> from the <code>info</code> into one <class>IRootFilesAdvice</class>
 	 * and returns the result.
 	 * @return a compilation of <class>IRootfilesAdvice</class> from the <code>info</code>.
 	 */

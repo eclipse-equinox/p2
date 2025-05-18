@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -23,9 +23,9 @@ public interface IRootIUAdvice extends IPublisherAdvice {
 
 	/**
 	 * Returns the list of children of the root for this publishing operation.
-	 * Returned elements are either the String id of the IUs, a VersionedName describing 
+	 * Returned elements are either the String id of the IUs, a VersionedName describing
 	 * the IU or the IUs themselves.
-	 * @param result 
+	 * @param result
 	 * @return the collection of children
 	 */
 	public Collection<? extends Object> getChildren(IPublisherResult result);
