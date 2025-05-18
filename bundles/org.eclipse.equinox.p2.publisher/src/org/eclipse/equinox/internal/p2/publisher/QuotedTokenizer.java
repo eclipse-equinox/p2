@@ -6,7 +6,7 @@
 t https://www.eclipse.org/legal/epl-2.0/
 t
 t SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 
@@ -88,7 +88,7 @@ public class QuotedTokenizer implements Enumeration<String> {
 
 	/**
 	 * Get the next token, or check that there is a next token
-	 * @param buffer to hold the token, or null if we just want to know if there is one 
+	 * @param buffer to hold the token, or null if we just want to know if there is one
 	 */
 	private int token(StringBuffer buffer) {
 		int tokenType = 0;
@@ -110,7 +110,7 @@ public class QuotedTokenizer implements Enumeration<String> {
 					}
 					buffer.append(tokenizer.sval);
 
-					// peek at the next token, 
+					// peek at the next token,
 					try {
 						next = tokenizer.nextToken();
 						tokenizer.pushBack();

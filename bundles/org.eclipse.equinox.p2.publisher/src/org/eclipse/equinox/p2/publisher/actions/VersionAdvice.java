@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -29,7 +29,7 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 	Map<String, Map<String, Version>> versions = new HashMap<>(11);
 
 	/**
-	 * Load the given namespace with version mappings from the properties file at 
+	 * Load the given namespace with version mappings from the properties file at
 	 * the given location.  The properties file is expected to be in the normal format
 	 * produced and consumed by PDE Build.
 	 * @param namespace the namespace to populate.  If "null" is passed
