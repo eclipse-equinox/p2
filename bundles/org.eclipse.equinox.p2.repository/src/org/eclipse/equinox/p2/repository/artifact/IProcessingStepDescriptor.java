@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2010 EclipseSource and others.
  *
  * This
@@ -20,9 +20,9 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
  * Describes a processing step. Processing steps are pieces of code that participate
  * in the the transfer of an artifact between artifact repositories. A step may alter
  * the shape of the artifact from its storage format in the repository (such as performing
- * compression), or it may perform additional checks on the transferred bytes such as 
+ * compression), or it may perform additional checks on the transferred bytes such as
  * checksums or signature verification.
- * 
+ *
  * @noextend This interface is not intended to be extended by clients.
  * @noimplement This interface is not intended to be implemented by clients. Instead subclass the {@link ProcessingStepDescriptor}.
  * @see IArtifactDescriptor#getProcessingSteps()
@@ -32,7 +32,7 @@ public interface IProcessingStepDescriptor {
 
 	/**
 	 * Returns the fully qualified id of the processing step extension.
-	 * 
+	 *
 	 * @return The fully qualified processing step extension id
 	 */
 	public abstract String getProcessorId();
@@ -50,7 +50,7 @@ public interface IProcessingStepDescriptor {
 	 * is not installed, or fails to execute, then the artifact transfer will fail if the
 	 * step is required. Failure of optional steps will result in warnings but not prevent
 	 * the transfer from succeeding.
-	 * 
+	 *
 	 * @return <code>true</code> if the transfer will fail if this step does not succeed,
 	 * and <code>false</code> otherwise
 	 */

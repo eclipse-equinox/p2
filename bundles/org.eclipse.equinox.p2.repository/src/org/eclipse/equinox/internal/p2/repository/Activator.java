@@ -13,7 +13,7 @@
  * 	IBM Corporation - ongoing development
  * 	Genuitec - Bug 291926
  *  Sonatype, Inc. - transport split
- *  Christoph Läubrich - Issue #20 - XMLParser should not require a bundle context but a Parser in the constructor 
+ *  Christoph Läubrich - Issue #20 - XMLParser should not require a bundle context but a Parser in the constructor
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository;
 

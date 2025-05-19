@@ -23,7 +23,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
  * Long-running operations are typically presented at the UI via a modal dialog
  * showing a progress indicator and a Cancel button.
  * The class must define a <code>run</code> method that takes a progress monitor.
- * 
+ *
  * @since 2.0
  */
 public interface IRunnableWithProgress {
@@ -32,13 +32,13 @@ public interface IRunnableWithProgress {
 	 * Runs this operation.  Progress should be reported to the given progress monitor.
 	 * This method is usually invoked by an <code>IRunnableContext</code>'s <code>run</code> method,
 	 * which supplies the progress monitor.
-	 * A request to cancel the operation should be honored and acknowledged 
+	 * A request to cancel the operation should be honored and acknowledged
 	 * by throwing <code>InterruptedException</code>.
 	 *
 	 * @param monitor the progress monitor to use to display progress and receive
 	 *   requests for cancelation
-	 * @exception OperationCanceledException if the operation detects a request to cancel, 
-	 *  using <code>IProgressMonitor.isCanceled()</code>, it should exit by throwing 
+	 * @exception OperationCanceledException if the operation detects a request to cancel,
+	 *  using <code>IProgressMonitor.isCanceled()</code>, it should exit by throwing
 	 *  <code>OperationCanceledException</code>
 	 */
 	public void run(IProgressMonitor monitor) throws InvocationTargetException, OperationCanceledException;

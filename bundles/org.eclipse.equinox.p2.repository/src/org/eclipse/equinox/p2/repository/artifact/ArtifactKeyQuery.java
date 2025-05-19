@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 /**
  * A general purpose query for matching {@link IArtifactKey} instances
  * that satisfy various criteria.
- * 
+ *
  * @since 2.0
  */
 public final class ArtifactKeyQuery extends ExpressionMatchQuery<IArtifactKey> {

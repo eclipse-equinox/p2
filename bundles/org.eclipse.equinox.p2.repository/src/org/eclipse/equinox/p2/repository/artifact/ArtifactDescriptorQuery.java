@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
 /**
  * A general purpose query for matching {@link IArtifactDescriptor} instances
  * that satisfy various criteria.
- * 
+ *
  * @since 2.0
  */
 public final class ArtifactDescriptorQuery extends ExpressionMatchQuery<IArtifactDescriptor> {
