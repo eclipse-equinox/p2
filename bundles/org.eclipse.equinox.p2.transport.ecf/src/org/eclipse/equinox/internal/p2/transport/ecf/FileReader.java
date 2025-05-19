@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  * 	Cloudsmith Inc - initial API and implementation
  * 	IBM Corporation - ongoing development
@@ -505,7 +505,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	 * Utility method to check exception condition and determine if retry should be
 	 * done. If there was an exception it is translated into one of the specified
 	 * exceptions and thrown.
-	 * 
+	 *
 	 * @param uri            the URI being read - used for logging purposes
 	 * @param attemptCounter - the current attempt number (start with 0)
 	 * @return true if the exception is an IOException and attemptCounter <
@@ -630,7 +630,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	 * Sets the progress statistics. This method is synchronized because the field
 	 * is accessed from both the transfer thread and the thread initiating the
 	 * transfer and we need to ensure field values are consistent across threads.
-	 * 
+	 *
 	 * @param statistics the statistics to set, or <code>null</code>
 	 */
 	private synchronized void setStatistics(ProgressStatistics statistics) {
@@ -641,7 +641,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	 * Returns the progress statistics. This method is synchronized because the
 	 * field is accessed from both the transfer thread and the thread initiating the
 	 * transfer and we need to ensure field values are consistent across threads.
-	 * 
+	 *
 	 * @return the statistics, or <code>null</code>
 	 */
 	private synchronized ProgressStatistics getStatistics() {
@@ -650,7 +650,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 
 	/**
 	 * An interface to allow automated tests to hook into file reader events
-	 * 
+	 *
 	 * @see #setTestProbe
 	 */
 	public interface IFileReaderProbe {

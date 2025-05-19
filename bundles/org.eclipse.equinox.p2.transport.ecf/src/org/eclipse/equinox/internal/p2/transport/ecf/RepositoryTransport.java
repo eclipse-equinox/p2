@@ -4,7 +4,7 @@
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
  * such license is available at www.eclipse.org.
- * 
+ *
  * Contributors
  * 	IBM Corporation - Initial API and implementation.
  *  Cloudsmith Inc - Implementation
@@ -83,7 +83,7 @@ public class RepositoryTransport extends Transport {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param agent If agent is <code>null</code>, it means client would like to use
 	 *              RepositoryTransport as a download utility, don't want to publish
 	 *              download progress.
@@ -241,7 +241,7 @@ public class RepositoryTransport extends Transport {
 	/**
 	 * Set the status on the output stream if it implements IStateful. Update the
 	 * DownloadStatus with information from FileReader.
-	 * 
+	 *
 	 * @param target an OutputStream possibly implementing IStateful
 	 * @param status a DownloadStatus configured with status message, code, etc
 	 * @param reader a FileReade that was used to download (or null if not known).

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  * 	Cloudsmith Inc - initial API and implementation
  * 	IBM Corporation - ongoing development
@@ -130,7 +130,7 @@ public class Activator implements BundleActivator {
 	 * Gets the singleton ServiceTracker for the IRetrieveFileTransferFactory and
 	 * starts the bundles "org.eclipse.ecf" and
 	 * "org.eclipse.ecf.provider.filetransfer" on first call.
-	 * 
+	 *
 	 * @return ServiceTracker
 	 */
 	private synchronized ServiceTracker<IRetrieveFileTransferFactory, IRetrieveFileTransferFactory> getFileTransferServiceTracker() {

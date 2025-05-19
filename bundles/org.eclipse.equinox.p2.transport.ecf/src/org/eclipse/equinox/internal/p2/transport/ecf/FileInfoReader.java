@@ -114,7 +114,7 @@ class FileInfoReader {
 	 * Utility method to check exception condition and determine if retry should be
 	 * done. If there was an exception it is translated into one of the specified
 	 * exceptions and thrown.
-	 * 
+	 *
 	 * @param uri            the URI being read - used for logging purposes
 	 * @param attemptCounter - the current attempt number (start with 0)
 	 * @return true if the exception is an IOException and attemptCounter <
