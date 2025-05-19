@@ -145,7 +145,7 @@ public class RepositoryStatus {
 			code = ((BrowseFileTransferException) t).getErrorCode();
 		}
 
-		// Switch on error codes in the HTTP error code range. 
+		// Switch on error codes in the HTTP error code range.
 		// Note that 404 uses ARTIFACT_NOT_FOUND (as opposed to REPOSITORY_NOT_FOUND, which
 		// is determined higher up in the calling chain).
 		if (code == 401) {

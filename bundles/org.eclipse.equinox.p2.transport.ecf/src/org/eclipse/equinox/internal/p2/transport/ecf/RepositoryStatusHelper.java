@@ -248,7 +248,7 @@ public abstract class RepositoryStatusHelper {
 	}
 
 	/**
-	 * Check if the given exception represents that a switch to the JRE HTTP Client 
+	 * Check if the given exception represents that a switch to the JRE HTTP Client
 	 * is required. ECF sets the HTTP status code 477 to indicate this.
 	 * If the JRE HTTP client is required a JREHttpClientRequiredException is thrown.
 	 */
