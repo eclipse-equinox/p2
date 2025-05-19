@@ -42,7 +42,7 @@ public class CopyAction extends ProvisioningAction {
 
 	/**
 	 * Perform the copy.
-	 * 
+	 *
 	 * @param parameters  action parameters
 	 * @param restoreable flag indicating if the operation should be backed up
 	 * @return status
@@ -118,7 +118,7 @@ public class CopyAction extends ProvisioningAction {
 
 	/**
 	 * Merge-copy file or directory.
-	 * 
+	 *
 	 * @param copiedFiles - ArrayList where copied files are collected
 	 */
 	private static void xcopy(ArrayList<File> copiedFiles, File source, File target, boolean overwrite,

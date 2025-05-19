@@ -187,7 +187,7 @@ public class NativeTouchpoint extends Touchpoint {
 
 	/**
 	 * Add the given entry as a new native package that needs to be installed.
-	 * 
+	 *
 	 * @param entry Package information about the native
 	 * @param iu    optional IU that has this requirement
 	 */
@@ -276,7 +276,7 @@ public class NativeTouchpoint extends Touchpoint {
 	/**
 	 * Gets the transactional state associated with a profile. A transactional state
 	 * is created if it did not exist.
-	 * 
+	 *
 	 * @return a lazily initialized backup store
 	 */
 	private static synchronized IBackupStore getBackupStore(IProfile profile) {

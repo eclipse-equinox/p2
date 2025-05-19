@@ -31,7 +31,7 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * Stores files by moving them to a uniquely named temporary directory.
- * 
+ *
  * TheBackupStore remembers filenames and can recreate them in their original
  * location.
  *
@@ -209,10 +209,10 @@ public class SimpleBackupStore implements IBackupStore {
 	 * A backup can not be performed on a closed BackupStore.
 	 *
 	 * @param file - the file (or directory) to backup
-	 * 
+	 *
 	 * @return true if the file was backed up, false if this file (path) has already
 	 *         been backed up (the file is not moved to the store).
-	 * 
+	 *
 	 * @throws IOException                - if the backup operation fails, or the
 	 *                                    file does not exist
 	 * @throws ClosedBackupStoreException - if the BackupStore has been closed
@@ -254,7 +254,7 @@ public class SimpleBackupStore implements IBackupStore {
 	 * directories.
 	 *
 	 * @param file - the (empty) directory to back up
-	 * 
+	 *
 	 * @return true if the directory was moved to backup. false if the directory was
 	 *         already backed up.
 	 *
@@ -286,7 +286,7 @@ public class SimpleBackupStore implements IBackupStore {
 	 * Backs up a file, or everything under a directory.
 	 *
 	 * @param file - file to backup or directory
-	 * 
+	 *
 	 * @throws IOException if backup operation failed
 	 */
 	@Override
@@ -315,7 +315,7 @@ public class SimpleBackupStore implements IBackupStore {
 
 	/**
 	 * Backup the file by leaving a copy of the contents in the original location.
-	 * 
+	 *
 	 * Calling this method with a file that represents a directory throws an
 	 * {@link IllegalArgumentException}.
 	 *
@@ -332,10 +332,10 @@ public class SimpleBackupStore implements IBackupStore {
 	 * A backup can not be performed on a closed BackupStore.
 	 *
 	 * @param file - the file (or directory) to backup
-	 * 
+	 *
 	 * @return true if the file was backed up, false if this file (path) has already
 	 *         been backed up (the file is not moved to the store).
-	 * 
+	 *
 	 * @throws IOException                if the backup operation fails, or the file
 	 *                                    does not exist
 	 * @throws ClosedBackupStoreException if the BackupStore has been closed
@@ -379,7 +379,7 @@ public class SimpleBackupStore implements IBackupStore {
 
 	/**
 	 * Backs up a file, or everything under a directory.
-	 * 
+	 *
 	 * A copy of the backup is left in the original place.
 	 */
 	@Override
@@ -506,9 +506,9 @@ public class SimpleBackupStore implements IBackupStore {
 	/**
 	 * Makes sure a directory exists in the backup store without touching the
 	 * original directory content
-	 * 
+	 *
 	 * @param path
-	 * 
+	 *
 	 * @return false if the directory is already created in the backup store, false
 	 *         if a placeholder had to be created and backed up.
 	 */
@@ -655,7 +655,7 @@ public class SimpleBackupStore implements IBackupStore {
 						/*
 						 * Do not restore the place-holders as they are used to trigger creation of
 						 * empty directories and are not wanted in the restored location.
-						 * 
+						 *
 						 * They are counted as restored non the less.
 						 */
 						if (!DIR_PLACEHOLDER.equals(buFile.getFileName().toString())) {
@@ -720,7 +720,7 @@ public class SimpleBackupStore implements IBackupStore {
 
 	/**
 	 * Converts a source path to a backup path.
-	 * 
+	 *
 	 * Exposed for testing purposes.
 	 *
 	 * A leading "root" is transformed to the ROOTCHAR character. On Windows,
@@ -731,7 +731,7 @@ public class SimpleBackupStore implements IBackupStore {
 	 * _/users/test/file C:/file becomes C/file
 	 *
 	 * @param path a source file that needs to be backed up
-	 * 
+	 *
 	 * @return a file to which the original content can be backed up
 	 */
 	protected Path toBackupPath(Path path) {
@@ -766,12 +766,12 @@ public class SimpleBackupStore implements IBackupStore {
 
 	/**
 	 * Converts a backup file to the original source file.
-	 * 
+	 *
 	 * ///x/y/z -> ___x/y/z \\x\y\z c:\x\y\z -> c\x\y\z
-	 * 
+	 *
 	 * @param buPath an absolute file under {@link #buStoreRoot} to which some
 	 *               content is backed up.
-	 * 
+	 *
 	 * @return the original source file to which the content can be restored.
 	 */
 	protected Path toSourcePath(Path buPath) {
@@ -797,11 +797,11 @@ public class SimpleBackupStore implements IBackupStore {
 
 	/**
 	 * Converts a path to an in-place backup path.
-	 * 
+	 *
 	 * Exposed for testing purposes.
-	 * 
+	 *
 	 * @param path the path to back up
-	 * 
+	 *
 	 * @return a path next to the original where the original will be moved, rather
 	 *         than will be moved
 	 */
@@ -813,11 +813,11 @@ public class SimpleBackupStore implements IBackupStore {
 
 	/**
 	 * Converts a in-place backup path to the original source path.
-	 * 
+	 *
 	 * Exposed for testing purposes.
-	 * 
+	 *
 	 * @param buPath the backup path
-	 * 
+	 *
 	 * @return a source path
 	 */
 	protected Path toInPlaceSourcePath(Path buPath) {

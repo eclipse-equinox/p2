@@ -21,21 +21,21 @@ public interface IBackupStore {
 
 	/**
 	 * Backup the file.
-	 * Calling this method with a file that represents a directory is equivalent to calling 
+	 * Calling this method with a file that represents a directory is equivalent to calling
 	 * {@link #backupDirectory(File)}.
-	 * 
+	 *
 	 * A file (path) can only be backed up once per IBackupStore instance.
-	 * 
+	 *
 	 * If a directory is first backed up, and later replaced by a regular file, and this file
 	 * is also backed up (or vice versa) - an {@link IllegalArgumentException} is thrown
-	 * 
-	 * A backup can not be performed on a closed IBackupStore. 
-	 * 
+	 *
+	 * A backup can not be performed on a closed IBackupStore.
+	 *
 	 * @param file - the file (or directory) to backup
 	 * @return true if the file was backed up, false if this file (path) has already been backed up (the file is not moved to the store).
 	 * @throws IOException - if the backup operation fails, or the file does not exist
 	 * @throws IllegalStateException - if the IBackupStore has been closed
-	 * @throws IllegalArgumentException - on type mismatch (file vs. directory) of earlier backup, or if file does not exist 
+	 * @throws IllegalArgumentException - on type mismatch (file vs. directory) of earlier backup, or if file does not exist
 	 */
 	public boolean backup(File file) throws IOException;
 
@@ -46,7 +46,7 @@ public interface IBackupStore {
 	 * @return true if the file was backed up, false if this file (path) has already been backed up (the file is not moved to the store).
 	 * @throws IOException - if the backup operation fails, if the file does not exist, or if the copy can not be created.
 	 * @throws IllegalStateException - if the IBackupStore has been closed
-	 * @throws IllegalArgumentException - on type mismatch (file vs. directory) of earlier backup, or if file is a directory. 
+	 * @throws IllegalArgumentException - on type mismatch (file vs. directory) of earlier backup, or if file is a directory.
 	 */
 	public boolean backupCopy(File file) throws IOException;
 
@@ -74,11 +74,11 @@ public interface IBackupStore {
 	 * in the restore location.
 	 * When the backup has been restored it can not be
 	 * used for further backup or restore.
-	 * 
+	 *
 	 * If there are unrestorable items (non writeable directories, or general IO exceptions) these items
 	 * should be written to the log, and the backup copies should be retained
 	 * for manual restore.
-	 * 
+	 *
 	 * @throws IOException if the backup was not fully restored - unrestored items should have been logged.
 	 * @throws IllegalStateException if the backup is already closed.
 	 */
@@ -92,7 +92,7 @@ public interface IBackupStore {
 
 	/**
 	 * Backs up a file, or everything under a directory.
-	 * 
+	 *
 	 * @param file - file to backup or directory
 	 * @throws IOException if backup operation failed
 	 */

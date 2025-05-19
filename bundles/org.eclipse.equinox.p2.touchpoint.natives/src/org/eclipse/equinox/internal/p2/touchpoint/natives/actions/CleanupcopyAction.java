@@ -40,7 +40,7 @@ public class CleanupcopyAction extends ProvisioningAction {
 
 	/**
 	 * Perform a cleanup of a previously made copy action.
-	 * 
+	 *
 	 * @param parameters  action parameters
 	 * @param restoreable flag indicating if the operation should be backed up
 	 * @return status
