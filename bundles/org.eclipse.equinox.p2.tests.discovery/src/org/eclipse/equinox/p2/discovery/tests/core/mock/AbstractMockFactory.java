@@ -7,14 +7,14 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.discovery.tests.core.mock;
 
 /**
- * 
+ *
  * @author David Green
  */
 public abstract class AbstractMockFactory<MockType> {

@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.p2.discovery.compatibility.BundleDiscoverySt
 
 /**
  * a discovery strategy for bundles where the policy can be arbitrarily set
- * 
+ *
  * @author David Green
  */
 public class MockBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
