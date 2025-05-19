@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *     Ericsson AB - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.tests.verifier;
