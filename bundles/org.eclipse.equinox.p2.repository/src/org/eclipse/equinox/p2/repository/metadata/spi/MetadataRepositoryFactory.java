@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
 /**
  * A metadata repository factory is responsible for creating and loading instances
- * of a particular type of metadata repository. Factories are provided via the 
+ * of a particular type of metadata repository. Factories are provided via the
  * <code>org.eclipse.equinox.p2.metadata.repository.metadataRepositories</code> extension point.
  * @since 2.0
  */
@@ -31,9 +31,9 @@ public abstract class MetadataRepositoryFactory {
 	private IProvisioningAgent agent;
 
 	/**
-	 * Creates and returns a new empty metadata repository of the given type at 
+	 * Creates and returns a new empty metadata repository of the given type at
 	 * the given location.
-	 * 
+	 *
 	 * @param location the location for the new repository
 	 * @param name the name of the new repository
 	 * @param type the kind of repository to create

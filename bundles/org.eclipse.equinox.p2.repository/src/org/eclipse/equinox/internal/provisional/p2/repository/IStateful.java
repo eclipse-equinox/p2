@@ -22,7 +22,7 @@ public interface IStateful {
 
 	/**
 	 * Set the status.
-	 * 
+	 *
 	 * @param status if status equals null => getStatus().isOK
 	 */
 	void setStatus(IStatus status);
