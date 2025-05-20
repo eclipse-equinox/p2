@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2011, 2018 WindRiver Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
  *     IBM Corporation - Ongoing development
@@ -550,14 +550,14 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 	/**
 	 * returns the destination label
-	 * 
+	 *
 	 * @return non null string
 	 */
 	protected abstract String getDestinationLabel();
 
 	/**
 	 * Answer the contents of self's destination specification widget
-	 * 
+	 *
 	 * @return java.lang.String
 	 */
 	protected String getDestinationValue() {
@@ -566,7 +566,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 	/**
 	 * return the title of dialog
-	 * 
+	 *
 	 * @return non null string
 	 */
 	protected abstract String getDialogTitle();
@@ -644,7 +644,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 	/**
 	 * Validate the destination group.
-	 * 
+	 *
 	 * @return <code>true</code> if the group is valid. If not set the error message
 	 *         and return <code>false</code>.
 	 */
@@ -730,7 +730,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 	/**
 	 * Add the passed value to self's destination widget's history
-	 * 
+	 *
 	 * @param value java.lang.String
 	 */
 	protected void addDestinationItem(String value) {
