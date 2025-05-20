@@ -13,7 +13,7 @@
  *     Ericsson AB - initial API and implementation
  *     Ericsson AB (Pascal Rapicault)
  *     Ericsson AB (Hamdan Msheik)
- *     Red Hat Inc. - Bug 460967 
+ *     Red Hat Inc. - Bug 460967
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 

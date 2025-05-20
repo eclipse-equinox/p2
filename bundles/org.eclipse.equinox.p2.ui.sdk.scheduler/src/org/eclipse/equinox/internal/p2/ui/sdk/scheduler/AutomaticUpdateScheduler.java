@@ -102,7 +102,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 	/**
 	 * Invokes the garbage collector to discard unused plugins, if specified by a
 	 * corresponding preference.
-	 * 
+	 *
 	 * @param agent non null
 	 */
 	private void removeUnusedPlugins(IProfileRegistry registry, IProvisioningAgent agent) {

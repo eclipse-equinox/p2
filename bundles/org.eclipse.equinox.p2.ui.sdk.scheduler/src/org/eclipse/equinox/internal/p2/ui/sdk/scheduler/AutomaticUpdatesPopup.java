@@ -32,7 +32,7 @@ import org.eclipse.ui.progress.WorkbenchJob;
 
 /**
  * Async popup dialog for notifying the user of eligible updates.
- * 
+ *
  * @since 3.4
  */
 public class AutomaticUpdatesPopup extends UpdatesPopup {

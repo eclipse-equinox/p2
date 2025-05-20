@@ -407,13 +407,13 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	/*
 	 * Get the IInstallable units for the specified profile
-	 * 
+	 *
 	 * @param profileId the profile in question
-	 * 
+	 *
 	 * @param all <code>true</code> if all IInstallableUnits in the profile should
 	 * be returned, <code>false</code> only those IInstallableUnits marked as (user
 	 * visible) roots should be returned.
-	 * 
+	 *
 	 * @return an array of IInstallableUnits installed in the profile.
 	 */
 	public Collection<IInstallableUnit> getInstalledIUs() {

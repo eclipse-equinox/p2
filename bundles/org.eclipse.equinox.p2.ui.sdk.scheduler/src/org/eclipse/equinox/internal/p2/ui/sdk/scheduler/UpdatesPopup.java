@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.*;
 
 /**
  * UpdatesPopup is an async popup dialog for notifying the user of updates.
- * 
+ *
  * @since 4.28
  */
 class UpdatesPopup extends PopupDialog {

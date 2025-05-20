@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Johannes Michler <orgler@gmail.com> - Bug 321568 -  [ui] Preference for automatic-update-reminder doesn't work in multilanguage-environments
@@ -24,7 +24,7 @@ public class PreferenceConstants {
 	public static final String PREF_AUTO_UPDATE_ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String PREF_AUTO_UPDATE_SCHEDULE = "schedule"; //$NON-NLS-1$
 	public static final String PREF_UPDATE_ON_STARTUP = "on-startup"; //$NON-NLS-1$
-	public static final String PREF_UPDATE_ON_SCHEDULE = "on-schedule"; //$NON-NLS-1$  // string value defined in AutomaticUpdateScheduler 
+	public static final String PREF_UPDATE_ON_SCHEDULE = "on-schedule"; //$NON-NLS-1$  // string value defined in AutomaticUpdateScheduler
 	public static final String PREF_UPDATE_ON_FUZZY_SCHEDULE = "on-fuzzy-schedule"; //$NON-NLS-1$
 	public static final String PREF_DOWNLOAD_ONLY = "download"; // value is true or false, default is false //$NON-NLS-1$
 	public static final String PREF_SHOW_UPDATE_WIZARD = "showUpdateWizard"; // value is true or false, default is false //$NON-NLS-1$

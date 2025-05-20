@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     Ericsson AB - initial API and implementation
- *     Ericsson AB (Hamdan Msheik) 
+ *     Ericsson AB (Hamdan Msheik)
  *     Ericsson AB (Pascal Rapicault)
  *******************************************************************************/
 

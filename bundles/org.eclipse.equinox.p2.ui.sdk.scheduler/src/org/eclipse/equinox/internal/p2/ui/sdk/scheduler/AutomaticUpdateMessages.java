@@ -21,7 +21,7 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * Message class for provisioning UI messages.
- * 
+ *
  * @since 3.5
  */
 public class AutomaticUpdateMessages extends NLS {

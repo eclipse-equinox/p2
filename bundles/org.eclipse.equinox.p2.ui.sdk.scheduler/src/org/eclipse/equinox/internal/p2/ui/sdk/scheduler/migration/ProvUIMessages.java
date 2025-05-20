@@ -11,7 +11,7 @@
  * Contributors:
  *     Ericsson AB - initial API and implementation
  *     Ericsson AB (Pascal Rapicault)
- *     Ericsson AB (Hamdan Msheik) 
+ *     Ericsson AB (Hamdan Msheik)
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;
 
