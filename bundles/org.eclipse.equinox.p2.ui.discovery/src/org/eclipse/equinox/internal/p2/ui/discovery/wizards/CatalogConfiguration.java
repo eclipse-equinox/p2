@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.p2.discovery.model.Tag;
 
 /**
  * A configuration for the discovery wizard that affects its presentation and behavior.
- * 
+ *
  * @author David Green
  */
 public class CatalogConfiguration {

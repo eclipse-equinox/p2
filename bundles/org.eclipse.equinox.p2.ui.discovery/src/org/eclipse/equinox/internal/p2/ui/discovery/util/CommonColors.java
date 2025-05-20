@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.Display;
 
 /**
  * Based on {org.eclipse.ui.forms.FormColors}.
- * 
+ *
  * @author Benjamin Pasero
  * @author Mik Kersten
  */

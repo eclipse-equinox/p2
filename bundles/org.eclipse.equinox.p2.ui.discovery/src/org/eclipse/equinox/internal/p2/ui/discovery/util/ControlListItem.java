@@ -71,7 +71,7 @@ public abstract class ControlListItem<T> extends Composite {
 
 	static {
 		// Mac has different Gamma value
-		int shift = "carbon".equals(SWT.getPlatform()) ? -25 : -10;//$NON-NLS-1$ 
+		int shift = "carbon".equals(SWT.getPlatform()) ? -25 : -10;//$NON-NLS-1$
 
 		Color lightColor = PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND);
 
@@ -213,7 +213,7 @@ public abstract class ControlListItem<T> extends Composite {
 
 	/**
 	 * Set the selection colors.
-	 * 
+	 *
 	 * @param select
 	 *            boolean that indicates whether or not to show selection.
 	 */
@@ -231,7 +231,7 @@ public abstract class ControlListItem<T> extends Composite {
 
 	/**
 	 * Return whether or not the receiver is selected.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public boolean isSelected() {

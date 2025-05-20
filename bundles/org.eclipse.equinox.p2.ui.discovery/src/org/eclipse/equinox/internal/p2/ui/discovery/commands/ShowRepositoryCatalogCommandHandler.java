@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
@@ -27,7 +27,7 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * A command that causes the {@link DiscoveryWizard} to appear in a dialog.
- * 
+ *
  * @author Steffen Pingel
  */
 public class ShowRepositoryCatalogCommandHandler extends AbstractHandler {

@@ -73,7 +73,7 @@ public class DiscoveryImages {
 
 	/**
 	 * Lazily initializes image map.
-	 * 
+	 *
 	 * @return Image
 	 */
 	public static Image getImage(ImageDescriptor imageDescriptor) {

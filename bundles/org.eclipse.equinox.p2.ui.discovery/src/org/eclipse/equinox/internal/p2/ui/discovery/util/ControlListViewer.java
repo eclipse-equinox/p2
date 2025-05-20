@@ -234,7 +234,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 
 	/**
 	 * Create a new item for info.
-	 * 
+	 *
 	 * @return ControlListItem
 	 */
 	private ControlListItem<?> createNewItem(Object element) {

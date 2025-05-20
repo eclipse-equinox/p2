@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
@@ -28,7 +28,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 
 /**
  * A command that causes the {@link DiscoveryWizard} to appear in a dialog.
- * 
+ *
  * @author David Green
  */
 public class ShowBundleCatalogCommandHandler extends AbstractHandler {

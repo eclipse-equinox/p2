@@ -70,7 +70,7 @@ public class GradientCanvas extends Canvas {
 
 	/**
 	 * Creates the form content control as a child of the provided parent.
-	 * 
+	 *
 	 * @param parent
 	 *            the parent widget
 	 */
