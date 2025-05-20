@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
@@ -23,7 +23,7 @@ import org.eclipse.jface.wizard.Wizard;
 /**
  * A wizard for performing discovery and selecting items from a catalog to install. When finish is pressed, selected
  * items are downloaded and installed.
- * 
+ *
  * @see DiscoveryInstallOperation
  * @see CatalogPage
  * @author David Green

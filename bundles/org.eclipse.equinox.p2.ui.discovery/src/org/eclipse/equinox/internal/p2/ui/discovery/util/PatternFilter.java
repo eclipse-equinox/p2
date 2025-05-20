@@ -26,7 +26,7 @@ import org.eclipse.jface.viewers.*;
  * of the tree to do pattern matching on its children. This causes the entire
  * tree structure to be realized. Note that the label provider must implement
  * ILabelProvider.
- * 
+ *
  * @see org.eclipse.ui.dialogs.FilteredTree
  * @since 3.2
  */
@@ -89,7 +89,7 @@ public class PatternFilter extends ViewerFilter {
 	/**
 	 * Returns true if any of the elements makes it through the filter. This method
 	 * uses caching if enabled; the computation is done in computeAnyVisible.
-	 * 
+	 *
 	 * @param elements the elements (must not be an empty array)
 	 * @return true if any of the elements makes it through the filter.
 	 */
@@ -116,7 +116,7 @@ public class PatternFilter extends ViewerFilter {
 
 	/**
 	 * Returns true if any of the elements makes it through the filter.
-	 * 
+	 *
 	 * @param viewer   the viewer
 	 * @param elements the elements to test
 	 * @return <code>true</code> if any of the elements makes it through the filter
@@ -137,7 +137,7 @@ public class PatternFilter extends ViewerFilter {
 
 	/**
 	 * Sets whether a leading wildcard should be attached to each pattern string.
-	 * 
+	 *
 	 * @param includeLeadingWildcard Whether a leading wildcard should be added.
 	 */
 	public final void setIncludeLeadingWildcard(final boolean includeLeadingWildcard) {
@@ -181,7 +181,7 @@ public class PatternFilter extends ViewerFilter {
 
 	/**
 	 * Answers whether the given String matches the pattern.
-	 * 
+	 *
 	 * @param string the String to test
 	 * @return whether the string matches the pattern
 	 */
@@ -197,7 +197,7 @@ public class PatternFilter extends ViewerFilter {
 	 * For example, if a tree has items that are categorized, the category itself
 	 * may not be a valid selection since it is used merely to organize the
 	 * elements.
-	 * 
+	 *
 	 * @return true if this element is eligible for automatic selection
 	 */
 	public boolean isElementSelectable(Object element) {
@@ -210,7 +210,7 @@ public class PatternFilter extends ViewerFilter {
 	 * the tree based on whether the provided filter text matches the text of the
 	 * given element's text, or that of it's children (if the element has any).
 	 * Subclasses may override this method.
-	 * 
+	 *
 	 * @param viewer  the tree viewer in which the element resides
 	 * @param element the element in the tree to check for a match
 	 * @return true if the element matches the filter pattern
@@ -223,7 +223,7 @@ public class PatternFilter extends ViewerFilter {
 	 * Check if the parent (category) is a match to the filter text. The default
 	 * behavior returns true if the element has at least one child element that is a
 	 * match with the filter text. Subclasses may override this method.
-	 * 
+	 *
 	 * @param viewer  the viewer that contains the element
 	 * @param element the tree element to check
 	 * @return true if the given element has children that matches the filter text
@@ -245,7 +245,7 @@ public class PatternFilter extends ViewerFilter {
 	 * Check if the current (leaf) element is a match with the filter text. The
 	 * default behavior checks that the label of the element is a match. Subclasses
 	 * should override this method.
-	 * 
+	 *
 	 * @param viewer  the viewer that contains the element
 	 * @param element the tree element to check
 	 * @return true if the given element's label matches the filter text
@@ -262,7 +262,7 @@ public class PatternFilter extends ViewerFilter {
 	/**
 	 * Take the given filter text and break it down into words using a
 	 * BreakIterator.
-	 * 
+	 *
 	 * @return an array of words
 	 */
 	private String[] getWords(String text) {
@@ -271,7 +271,7 @@ public class PatternFilter extends ViewerFilter {
 
 	/**
 	 * Return whether or not if any of the words in text satisfy the match critera.
-	 * 
+	 *
 	 * @param text the text to match
 	 * @return boolean <code>true</code> if one of the words in text satisifes the
 	 *         match criteria.
@@ -299,7 +299,7 @@ public class PatternFilter extends ViewerFilter {
 
 	/**
 	 * Can be called by the filtered tree to turn on caching.
-	 * 
+	 *
 	 * @param useCache The useCache to set.
 	 */
 	void setUseCache(boolean useCache) {

@@ -7,10 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
- *     David Dubrow - fix for bug 313412 
+ *     David Dubrow - fix for bug 313412
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.discovery.operations;
 
@@ -43,7 +43,7 @@ import org.eclipse.swt.widgets.Display;
  * p2; this class just sets up the p2 repository meta-data and selects the
  * appropriate features to install. After running the job the install action
  * must be run to perform the installation.
- * 
+ *
  * @author David Green
  * @author Steffen Pingel
  */

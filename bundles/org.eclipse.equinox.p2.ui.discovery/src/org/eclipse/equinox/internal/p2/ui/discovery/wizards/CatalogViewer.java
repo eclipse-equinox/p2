@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
  *******************************************************************************/
@@ -43,7 +43,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * The main wizard page that allows users to select connectors that they wish to install.
- * 
+ *
  * @author David Green
  * @author Steffen Pingel
  */

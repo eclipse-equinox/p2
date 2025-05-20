@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.*;
 
 /**
  * A custom {@link ToolTip} that applies a gradient to the contents.
- * 
+ *
  * @author Shawn Minto
  */
 public abstract class GradientToolTip extends ToolTip {
