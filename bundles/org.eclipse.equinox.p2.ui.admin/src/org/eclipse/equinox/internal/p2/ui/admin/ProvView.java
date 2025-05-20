@@ -36,7 +36,7 @@ import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 /**
  * This class supports the common characteristics for views that manipulate
  * provisioning models.
- * 
+ *
  * @since 3.4
  */
 abstract class ProvView extends ViewPart {
@@ -233,8 +233,8 @@ abstract class ProvView extends ViewPart {
 		if (refreshModel) {
 			refreshUnderlyingModel();
 		}
-		// We then reset the input to ensure that anything the content providers 
-		// are caching gets reset also.  The net effect is that everything 
+		// We then reset the input to ensure that anything the content providers
+		// are caching gets reset also.  The net effect is that everything
 		// will get queried again.
 		viewer.setInput(getInput());
 	}

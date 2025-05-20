@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Andrew Overholt <overholt@redhat.com> - Fix for Bug 197970  
+ *     Andrew Overholt <overholt@redhat.com> - Fix for Bug 197970
  *        	[prov] unset Profile name causes exception bringing up profile properties
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.*;
  * properties of a profile.  It can be used to create a new profile.
  * . It can be used in different dialogs that manipulate
  * or define profiles.
- * 
+ *
  * @since 3.4
  */
 public class ProfileGroup {
@@ -228,7 +228,7 @@ public class ProfileGroup {
 
 	/**
 	 * Return a status indicating the validity of the profile info
-	 * 
+	 *
 	 * @return a status indicating the validity of the profile info
 	 */
 	public IStatus verify() {

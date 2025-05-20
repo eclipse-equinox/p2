@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Genuitec, LLC - added license support
@@ -34,7 +34,7 @@ import org.eclipse.ui.part.PluginTransfer;
 
 /**
  * This view allows users to interact with metadata repositories
- * 
+ *
  * @since 3.4
  */
 public class MetadataRepositoriesView extends RepositoriesView {

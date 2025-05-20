@@ -19,9 +19,9 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 
 /**
- * An IUGroup is a reusable UI component that displays properties of an IU. It can be used in 
+ * An IUGroup is a reusable UI component that displays properties of an IU. It can be used in
  * different dialogs that manipulate or define IU's.
- * 
+ *
  * @since 3.4
  */
 public abstract class IUGroup {

@@ -27,7 +27,7 @@ import org.eclipse.swt.dnd.*;
 /**
  * Defines drop behavior for selected IUs to mean install the IU on the target
  * profile.
- * 
+ *
  * @since 3.4
  */
 public class InstallIUDropAdapter extends ViewerDropAdapter {
@@ -36,7 +36,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 
 	/**
 	 * Constructs a new drop adapter.
-	 * 
+	 *
 	 * @param viewer
 	 *            the navigator's viewer
 	 */
@@ -83,7 +83,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 
 	/**
 	 * Perform the drop.
-	 * 
+	 *
 	 * @see org.eclipse.swt.dnd.DropTargetListener#drop(org.eclipse.swt.dnd.DropTargetEvent)
 	 */
 	@Override
@@ -107,7 +107,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 
 				@Override
 				public void addSelectionChangedListener(ISelectionChangedListener listener) {
-					// Ignore because the selection won't change 
+					// Ignore because the selection won't change
 				}
 
 				@Override
@@ -184,7 +184,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 
 	/**
 	 * Returns the resource selection from the LocalSelectionTransfer.
-	 * 
+	 *
 	 * @return the resource selection from the LocalSelectionTransfer
 	 */
 	private IInstallableUnit[] getSelectedIUs() {

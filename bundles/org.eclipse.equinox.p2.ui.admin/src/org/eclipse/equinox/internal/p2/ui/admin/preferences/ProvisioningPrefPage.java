@@ -22,7 +22,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 /**
  * Preference page for provisioning preferences.
- * 
+ *
  * @since 3.4
  */
 
