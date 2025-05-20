@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -26,7 +26,7 @@ import org.eclipse.ui.dialogs.PropertyPage;
 
 /**
  * PropertyPage that shows a repository's properties
- * 
+ *
  * @since 3.4
  */
 public class RepositoryImplementationPropertyPage extends PropertyPage {

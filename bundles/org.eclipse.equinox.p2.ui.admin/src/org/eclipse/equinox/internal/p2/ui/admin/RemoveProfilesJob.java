@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.operations.ProvisioningSession;
 
 /**
  * Job that removes one or more profiles.
- * 
+ *
  * @since 3.6
  */
 public class RemoveProfilesJob extends ProvisioningJob {

@@ -26,7 +26,7 @@ import org.eclipse.osgi.service.environment.EnvironmentInfo;
 /**
  * Factory class that can create a new profile with the correct
  * default values.
- * 
+ *
  * @since 3.4
  */
 public class ProfileFactory {

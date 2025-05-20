@@ -23,10 +23,10 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
 /**
- * An IUPropertiesGroup is a reusable UI component that displays and edits the 
- * user-oriented properties of an IU. It can be used in 
+ * An IUPropertiesGroup is a reusable UI component that displays and edits the
+ * user-oriented properties of an IU. It can be used in
  * different dialogs that manipulate or define IU's.
- * 
+ *
  * @since 3.4
  */
 public class IUPropertiesGroup extends IUGroup {

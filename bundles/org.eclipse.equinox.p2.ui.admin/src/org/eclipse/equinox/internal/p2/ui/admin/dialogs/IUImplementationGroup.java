@@ -32,10 +32,10 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
 /**
- * An IUImplementationGroup is a reusable UI component that displays and edits the 
- * implementation-oriented properties of an IU. It can be used in 
+ * An IUImplementationGroup is a reusable UI component that displays and edits the
+ * implementation-oriented properties of an IU. It can be used in
  * different dialogs that manipulate or define IU's.
- * 
+ *
  * @since 3.4
  */
 public class IUImplementationGroup extends IUGroup {
@@ -197,7 +197,7 @@ public class IUImplementationGroup extends IUGroup {
 
 	/**
 	 * Return a status indicating the validity of the profile info
-	 * 
+	 *
 	 * @return a status indicating the validity of the profile info
 	 */
 	public IStatus verify() {

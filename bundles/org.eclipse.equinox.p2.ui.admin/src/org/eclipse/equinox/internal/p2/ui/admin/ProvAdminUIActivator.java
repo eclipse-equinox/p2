@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - Bug 460967
@@ -50,7 +50,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 
 	/**
 	 * Returns the singleton plugin instance
-	 * 
+	 *
 	 * @return the instance
 	 */
 	public static ProvAdminUIActivator getDefault() {
@@ -60,7 +60,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 	/**
 	 * Returns an image descriptor for the image file at the given plug-in relative
 	 * path
-	 * 
+	 *
 	 * @param path the path
 	 * @return the image descriptor
 	 */

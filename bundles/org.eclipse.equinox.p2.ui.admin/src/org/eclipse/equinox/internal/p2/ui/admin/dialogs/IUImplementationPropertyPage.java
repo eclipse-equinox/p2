@@ -24,7 +24,7 @@ import org.eclipse.ui.dialogs.PropertyPage;
 
 /**
  * PropertyPage that shows an IU's properties
- * 
+ *
  * @since 3.4
  */
 public class IUImplementationPropertyPage extends PropertyPage {
