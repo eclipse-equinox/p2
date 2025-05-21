@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2009, 2017 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -30,7 +30,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * SDKPolicy defines the Eclipse SDK UI policies for the
  * p2 UI.  The policy is declared as an OSGi service in
  * the policy_component.xml file.
- * 
+ *
  * @since 3.6
  */
 public class SDKPolicy extends Policy {

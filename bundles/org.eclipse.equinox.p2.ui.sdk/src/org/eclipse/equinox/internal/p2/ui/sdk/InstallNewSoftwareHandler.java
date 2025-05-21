@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 
 /**
  * InstallNewSoftwareHandler invokes the install wizard
- * 
+ *
  * @since 3.5
  */
 public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
@@ -38,8 +38,8 @@ public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
 	@Override
 	protected boolean waitForPreload() {
 		// If the user cannot see repositories, then we may as well wait
-		// for existing repos to load so that content is available.  
-		// If the user can manipulate the repositories, then we don't wait, 
+		// for existing repos to load so that content is available.
+		// If the user can manipulate the repositories, then we don't wait,
 		// because we don't know which ones they want to work with.
 		return !getProvisioningUI().getPolicy().getRepositoriesVisible();
 	}

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -36,9 +36,9 @@ import org.eclipse.swt.widgets.Composite;
 
 /**
  * Same as {@link RevertProfilePage} but adds a compare button to compare profiles.
- * 
+ *
  * @see RevertProfilePage
- * 
+ *
  * @noextend This class is not intended to be subclassed by clients.
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @since 2.0

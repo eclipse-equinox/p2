@@ -24,7 +24,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * UpdateHandler invokes the check for updates UI
- * 
+ *
  * @since 3.4
  */
 public class UpdateHandler extends PreloadingRepositoryHandler {
