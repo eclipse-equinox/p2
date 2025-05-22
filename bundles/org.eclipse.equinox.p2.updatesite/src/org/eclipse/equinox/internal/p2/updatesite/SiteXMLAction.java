@@ -62,7 +62,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	/**
 	 * Creates a SiteXMLAction from a Location (URI) with an optional qualifier to
 	 * use for category names
-	 * 
+	 *
 	 * @param location          The location of the update site
 	 * @param categoryQualifier The qualifier to prepend to categories. This
 	 *                          qualifier is used to ensure that the category IDs
@@ -77,7 +77,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	/**
 	 * Creates a SiteXMLAction from an Update site with an optional qualifier to use
 	 * for category names
-	 * 
+	 *
 	 * @param updateSite        The update site
 	 * @param categoryQualifier The qualifier to prepend to categories. This
 	 *                          qualifier is used to ensure that the category IDs
@@ -450,7 +450,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	/**
 	 * Computes the mapping of features to categories as defined in the site.xml, if
 	 * available. Returns an empty map if there is not site.xml, or no categories.
-	 * 
+	 *
 	 * @return A map of {@code SiteFeature -> Set<SiteCategory>}.
 	 */
 	protected Map<SiteFeature, Set<SiteCategory>> getFeatureToCategoryMappings(IPublisherInfo publisherInfo) {
@@ -485,7 +485,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	/**
 	 * Computes the mapping of bundles to categories as defined in the site.xml, if
 	 * available. Returns an empty map if there is not site.xml, or no categories.
-	 * 
+	 *
 	 * @return A map of {@code SiteBundle -> Set<SiteCategory>}.
 	 */
 	protected Map<SiteBundle, Set<SiteCategory>> getBundleToCategoryMappings(IPublisherInfo publisherInfo) {
@@ -517,7 +517,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	/**
 	 * Initializes new p2 repository attributes such as mirror info, associate
 	 * sites, localization...
-	 * 
+	 *
 	 * @param publisherInfo configuration for output repository
 	 */
 	private void initializeRepoFromSite(IPublisherInfo publisherInfo) {
@@ -592,7 +592,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 
 	/**
 	 * Generates IUs corresponding to update site categories.
-	 * 
+	 *
 	 * @param categoriesToIUs Map of SiteCategory ->Set (Feature IUs in that
 	 *                        category).
 	 * @param result          The generator result being built
@@ -679,7 +679,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 
 	/**
 	 * Creates an IU corresponding to an update site category
-	 * 
+	 *
 	 * @param category       The category descriptor
 	 * @param childrenIUs    The IUs of the children that belong to the category
 	 *                       (can be bundle, feature or nested categories)
@@ -704,7 +704,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 
 	/**
 	 * Creates an IU corresponding to an update site category
-	 * 
+	 *
 	 * @param category    The category descriptor
 	 * @param childrenIUs The IUs of the children that belong to the category (can
 	 *                    be bundle, feature or nested categories)

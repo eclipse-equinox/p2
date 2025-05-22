@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -33,7 +33,7 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * Default feature parser.
  * Parses the feature manifest file as defined by the platform.
- * 
+ *
  * @since 3.0
  */
 public class DigestParser extends DefaultHandler {

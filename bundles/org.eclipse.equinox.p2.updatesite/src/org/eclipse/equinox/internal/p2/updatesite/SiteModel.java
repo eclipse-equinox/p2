@@ -26,7 +26,7 @@ import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 
 /**
  * A model of an update site.
- * 
+ *
  * Copied from org.eclipse.update.core.model.SiteModel.
  */
 public class SiteModel {
@@ -58,7 +58,7 @@ public class SiteModel {
 
 	/**
 	 * Creates an uninitialized site model object.
-	 * 
+	 *
 	 * @since 2.0
 	 */
 	public SiteModel() {
@@ -68,7 +68,7 @@ public class SiteModel {
 	/**
 	 * Adds an archive reference model to site. Throws a runtime exception if this
 	 * object is marked read-only.
-	 * 
+	 *
 	 * @param archiveReference archive reference model
 	 * @since 2.0
 	 */
@@ -83,7 +83,7 @@ public class SiteModel {
 
 	/**
 	 * Adds a category to the site.
-	 * 
+	 *
 	 * @param category category model
 	 */
 	public void addCategory(SiteCategory category) {
@@ -100,7 +100,7 @@ public class SiteModel {
 
 	/**
 	 * Adds a feature reference model to site.
-	 * 
+	 *
 	 * @param featureReference feature reference model
 	 */
 	public void addFeature(SiteFeature featureReference) {
@@ -112,7 +112,7 @@ public class SiteModel {
 
 	/**
 	 * Adds a bundle reference model to site.
-	 * 
+	 *
 	 * @param bundleReference bundle reference model
 	 */
 	public void addBundle(SiteBundle bundleReference) {
@@ -124,7 +124,7 @@ public class SiteModel {
 
 	/**
 	 * Adds a feature reference model to site stats artifacts.
-	 * 
+	 *
 	 * @param featureReference feature reference model
 	 */
 	public void addStatsFeature(SiteFeature featureReference) {
@@ -136,7 +136,7 @@ public class SiteModel {
 
 	/**
 	 * Adds a bundle reference model to site stats artifacts
-	 * 
+	 *
 	 * @param bundleReference bundle reference model
 	 */
 	public void addStatsBundle(SiteBundle bundleReference) {
@@ -148,7 +148,7 @@ public class SiteModel {
 
 	/**
 	 * Adds a iu model to site.
-	 * 
+	 *
 	 * @param iu iu model
 	 */
 	public void addIU(SiteIU iu) {
@@ -160,7 +160,7 @@ public class SiteModel {
 
 	/**
 	 * Adds a repository reference to the site
-	 * 
+	 *
 	 * @param ref repository reference
 	 */
 	public void addRepositoryReference(RepositoryReference ref) {
@@ -173,7 +173,7 @@ public class SiteModel {
 	/**
 	 * Returns an array of plug-in and non-plug-in archive reference models on this
 	 * site
-	 * 
+	 *
 	 * @return an array of archive reference models, or an empty array if there are
 	 *         no archives known to this site.
 	 * @since 2.0
@@ -192,7 +192,7 @@ public class SiteModel {
 
 	/**
 	 * Returns an array of category models for this site.
-	 * 
+	 *
 	 * @return array of site category models, or an empty array.
 	 * @since 2.0
 	 */
@@ -205,7 +205,7 @@ public class SiteModel {
 
 	/**
 	 * Returns the category with the given name.
-	 * 
+	 *
 	 * @return the category with the given name, or <code>null</code>
 	 */
 	public SiteCategory getCategory(String name) {
@@ -214,7 +214,7 @@ public class SiteModel {
 
 	/**
 	 * Returns the site description.
-	 * 
+	 *
 	 * @return site description, or <code>null</code>.
 	 */
 	public URLEntry getDescription() {
@@ -223,7 +223,7 @@ public class SiteModel {
 
 	/**
 	 * Returns an array of feature reference models on this site.
-	 * 
+	 *
 	 * @return an array of feature reference models, or an empty array.
 	 */
 	public SiteFeature[] getFeatures() {
@@ -235,7 +235,7 @@ public class SiteModel {
 
 	/**
 	 * Returns an array of bundle reference models on this site.
-	 * 
+	 *
 	 * @return an array of bundle reference models, or an empty array.
 	 */
 	public SiteBundle[] getBundles() {
@@ -247,7 +247,7 @@ public class SiteModel {
 
 	/**
 	 * Returns an array of feature reference models for stats on this site.
-	 * 
+	 *
 	 * @return an array of feature reference models, or an empty array.
 	 */
 	public SiteFeature[] getStatsFeatures() {
@@ -259,7 +259,7 @@ public class SiteModel {
 
 	/**
 	 * Returns an array of bundle reference models for stats on this site.
-	 * 
+	 *
 	 * @return an array of bundle reference models, or an empty array.
 	 */
 	public SiteBundle[] getStatsBundles() {
@@ -271,7 +271,7 @@ public class SiteModel {
 
 	/**
 	 * Returns an array of IU models on this site.
-	 * 
+	 *
 	 * @return an array of IU models, or an empty array.
 	 */
 	public SiteIU[] getIUs() {
@@ -283,7 +283,7 @@ public class SiteModel {
 
 	/**
 	 * Returns an array of repository references for this site.
-	 * 
+	 *
 	 * @return an array of repository references, or an empty array.
 	 */
 	public RepositoryReference[] getRepositoryReferences() {
@@ -295,7 +295,7 @@ public class SiteModel {
 
 	/**
 	 * Returns the URI of the stats repository that tracks downloads.
-	 * 
+	 *
 	 * @return a String representation of the stats URI.
 	 */
 	public String getStatsURI() {
@@ -305,7 +305,7 @@ public class SiteModel {
 	/**
 	 * Gets the localizations for the site as a map from locale to the set of
 	 * translated properties for that locale.
-	 * 
+	 *
 	 * @return a map from locale to property set
 	 * @since 3.4
 	 */
@@ -315,7 +315,7 @@ public class SiteModel {
 
 	/**
 	 * Returns the resolved URI for the site.
-	 * 
+	 *
 	 * @return url, or <code>null</code>
 	 */
 	public URI getLocationURI() {
@@ -357,7 +357,7 @@ public class SiteModel {
 
 	/**
 	 * Returns the site type.
-	 * 
+	 *
 	 * @return site type, or <code>null</code>.
 	 * @since 2.0
 	 */
@@ -367,7 +367,7 @@ public class SiteModel {
 
 	/**
 	 * Sets the site description.
-	 * 
+	 *
 	 * @param description site description
 	 * @since 2.0
 	 */
@@ -378,7 +378,7 @@ public class SiteModel {
 	/**
 	 * Sets the localizations for the site as a map from locale to the set of
 	 * translated properties for that locale.
-	 * 
+	 *
 	 * @param localizations as a map from locale to property set
 	 * @since 3.4
 	 */
@@ -394,7 +394,7 @@ public class SiteModel {
 
 	/**
 	 * Sets the unresolved URI for the site.
-	 * 
+	 *
 	 * @param locationURIString url for the site (as a string)
 	 * @since 2.0
 	 */
@@ -404,7 +404,7 @@ public class SiteModel {
 
 	/**
 	 * Sets keys for translatable strings
-	 * 
+	 *
 	 * @param keys for translatable strings
 	 * @since 3.4
 	 */
@@ -416,7 +416,7 @@ public class SiteModel {
 	 * Sets the mirrors url. Mirror sites will then be obtained from this mirror url
 	 * later. This method is complementary to setMirrorsiteEntryModels(), and only
 	 * one of these methods should be called.
-	 * 
+	 *
 	 * @param mirrorsURI additional update site mirrors
 	 * @since 3.1
 	 */
@@ -427,7 +427,7 @@ public class SiteModel {
 	/**
 	 * Sets the site type. Throws a runtime exception if this object is marked
 	 * read-only.
-	 * 
+	 *
 	 * @param type site type
 	 * @since 2.0
 	 */
@@ -437,7 +437,7 @@ public class SiteModel {
 
 	/**
 	 * Sets the associated sites for this update site.
-	 * 
+	 *
 	 * @param associateSites the associated sites
 	 */
 	public void setAssociateSites(URLEntry[] associateSites) {
@@ -454,7 +454,7 @@ public class SiteModel {
 
 	/**
 	 * Sets the URI of the stats repository used to track downloads.
-	 * 
+	 *
 	 * @param statsURI a String describing the stats URI
 	 */
 	public void setStatsURIString(String statsURI) {

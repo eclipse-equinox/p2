@@ -21,7 +21,7 @@ import java.util.*;
 
 /**
  * A reference to a feature in an update site.xml file.
- * 
+ *
  * Based on org.eclipse.update.core.model.FeatureReferenceModel.
  */
 public class SiteFeature {
@@ -102,7 +102,7 @@ public class SiteFeature {
 	/**
 	 * Adds the name of a category this feature belongs to. Throws a runtime
 	 * exception if this object is marked read-only.
-	 * 
+	 *
 	 * @param categoryName category name
 	 */
 	public void addCategoryName(String categoryName) {
@@ -131,7 +131,7 @@ public class SiteFeature {
 
 	/**
 	 * Compares 2 feature reference models for equality
-	 * 
+	 *
 	 * @param object feature reference model to compare with
 	 * @return <code>true</code> if the two models are equal, <code>false</code>
 	 *         otherwise
@@ -193,7 +193,7 @@ public class SiteFeature {
 
 	/**
 	 * Returns the names of categories the referenced feature belongs to.
-	 * 
+	 *
 	 * @return an array of names, or an empty array.
 	 */
 	public String[] getCategoryNames() {
@@ -206,7 +206,7 @@ public class SiteFeature {
 
 	/**
 	 * Returns the feature identifier as a string
-	 * 
+	 *
 	 * @return feature identifier
 	 */
 	public String getFeatureIdentifier() {
@@ -215,7 +215,7 @@ public class SiteFeature {
 
 	/**
 	 * Returns the feature version as a string
-	 * 
+	 *
 	 * @return feature version
 	 */
 	public String getFeatureVersion() {
@@ -277,7 +277,7 @@ public class SiteFeature {
 
 	/**
 	 * Returns the site model for the reference.
-	 * 
+	 *
 	 * @return site model
 	 * @since 2.0
 	 */
@@ -287,7 +287,7 @@ public class SiteFeature {
 
 	/**
 	 * Returns the referenced feature type.
-	 * 
+	 *
 	 * @return feature type, or <code>null</code> representing the default feature
 	 *         type for the site
 	 */
@@ -297,7 +297,7 @@ public class SiteFeature {
 
 	/**
 	 * Returns the resolved URL for the feature reference.
-	 * 
+	 *
 	 * @return url string
 	 */
 	public URL getURL() {
@@ -328,7 +328,7 @@ public class SiteFeature {
 	 * to the base URL argument. Any translatable strings in the model that are
 	 * specified as translation keys are localized using the supplied resource
 	 * bundle.
-	 * 
+	 *
 	 * @param resolveBase URL
 	 * @param bundleURL   resource bundle URL
 	 * @exception MalformedURLException
@@ -350,7 +350,7 @@ public class SiteFeature {
 	/**
 	 * Sets the names of categories this feature belongs to. Throws a runtime
 	 * exception if this object is marked read-only.
-	 * 
+	 *
 	 * @param categoryNames an array of category names
 	 */
 	public void setCategoryNames(String[] categoryNames) {
@@ -364,7 +364,7 @@ public class SiteFeature {
 	/**
 	 * Sets the feature identifier. Throws a runtime exception if this object is
 	 * marked read-only.
-	 * 
+	 *
 	 * @param featureId feature identifier
 	 */
 	public void setFeatureIdentifier(String featureId) {
@@ -374,7 +374,7 @@ public class SiteFeature {
 	/**
 	 * Sets the feature version. Throws a runtime exception if this object is marked
 	 * read-only.
-	 * 
+	 *
 	 * @param featureVersion feature version
 	 */
 	public void setFeatureVersion(String featureVersion) {
@@ -383,7 +383,7 @@ public class SiteFeature {
 
 	/**
 	 * Sets the label.
-	 * 
+	 *
 	 * @param label The label to set
 	 */
 	public void setLabel(String label) {
@@ -420,7 +420,7 @@ public class SiteFeature {
 	/**
 	 * Sets the site for the referenced. Throws a runtime exception if this object
 	 * is marked read-only.
-	 * 
+	 *
 	 * @param site site for the reference
 	 */
 	public void setSiteModel(SiteModel site) {
@@ -430,7 +430,7 @@ public class SiteFeature {
 	/**
 	 * Sets the referenced feature type. Throws a runtime exception if this object
 	 * is marked read-only.
-	 * 
+	 *
 	 * @param type referenced feature type
 	 */
 	public void setType(String type) {
@@ -440,7 +440,7 @@ public class SiteFeature {
 	/**
 	 * Sets the unresolved URL for the feature reference. Throws a runtime exception
 	 * if this object is marked read-only.
-	 * 
+	 *
 	 * @param urlString unresolved URL string
 	 */
 	public void setURLString(String urlString) {

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Red Hat Inc. - 378338: Support for "bundle" element
@@ -178,7 +178,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	/**
 	 * Handle character text
-	 * 
+	 *
 	 * @see DefaultHandler#characters(char[], int, int)
 	 * @since 2.0
 	 */
@@ -195,7 +195,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	/**
 	 * Handle end of element tags
-	 * 
+	 *
 	 * @see DefaultHandler#endElement(String, String, String)
 	 * @since 2.0
 	 */
@@ -340,7 +340,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	/**
 	 * Handle errors
-	 * 
+	 *
 	 * @see DefaultHandler#error(SAXParseException)
 	 * @since 2.0
 	 */
@@ -351,7 +351,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	/**
 	 * Handle fatal errors
-	 * 
+	 *
 	 * @see DefaultHandler#fatalError(SAXParseException)
 	 * @exception SAXException
 	 * @since 2.0
@@ -614,7 +614,7 @@ public class DefaultSiteParser extends DefaultHandler {
 	/**
 	 * Parses the specified input steam and constructs a site model. The input
 	 * stream is not closed as part of this operation.
-	 * 
+	 *
 	 * @param in input stream
 	 * @return site model
 	 * @exception SAXException
@@ -968,7 +968,7 @@ public class DefaultSiteParser extends DefaultHandler {
 
 	/**
 	 * Handle start of element tags
-	 * 
+	 *
 	 * @see DefaultHandler#startElement(String, String, String, Attributes)
 	 * @since 2.0
 	 */
