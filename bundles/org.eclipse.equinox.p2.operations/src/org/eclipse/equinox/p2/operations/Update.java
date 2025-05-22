@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * A simple data structure describing a possible update.
- * 
+ *
  * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */

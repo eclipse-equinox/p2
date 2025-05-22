@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.engine.*;
 
 /**
- * A job that modifies a profile according to a specified provisioning plan.  
- * 
+ * A job that modifies a profile according to a specified provisioning plan.
+ *
  * @since 2.0
  * @noextend This class is not intended to be subclassed by clients.
  */
@@ -33,7 +33,7 @@ public class ProfileModificationJob extends ProvisioningJob implements IProfileC
 
 	/**
 	 * Create a job that will update a profile according to the specified provisioning plan.
-	 * 
+	 *
 	 * @param name the name of the job
 	 * @param session the provisioning session to use to obtain provisioning services
 	 * @param profileId the id of the profile to be altered
@@ -49,9 +49,9 @@ public class ProfileModificationJob extends ProvisioningJob implements IProfileC
 
 	/**
 	 * Set the phase set to be used when running the provisioning plan.  This method need only
-	 * be used when the default phase set is not sufficient.  For example, clients could 
+	 * be used when the default phase set is not sufficient.  For example, clients could
 	 * use this method to perform a sizing or to download artifacts without provisioning them.
-	 * 
+	 *
 	 * @param phaseSet the provisioning phases to be run during provisioning.
 	 */
 	public void setPhaseSet(IPhaseSet phaseSet) {
@@ -84,7 +84,7 @@ public class ProfileModificationJob extends ProvisioningJob implements IProfileC
 
 	/**
 	 * Sets the top level task name for progress when running this operation.
-	 * 
+	 *
 	 * @param label the label to be used for the task name
 	 */
 	public void setTaskName(String label) {
@@ -108,9 +108,9 @@ public class ProfileModificationJob extends ProvisioningJob implements IProfileC
 
 	/**
 	 * Set the restart policy that describes whether restart is needed after
-	 * performing this job.  This policy will be consulted when the 
+	 * performing this job.  This policy will be consulted when the
 	 * profile being changed is the profile of the running system.
-	 * 
+	 *
 	 * @param policy an integer describing the restart policy
 	 * @see ProvisioningJob#RESTART_NONE
 	 * @see ProvisioningJob#RESTART_ONLY

@@ -14,7 +14,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
-import java.net.URI;
 import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
@@ -28,10 +27,10 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 /**
  * An UninstallOperation describes an operation that uninstalls {@link IInstallableUnit}s from
  * a profile.
- * 
+ *
  * The following snippet shows how one might use an UninstallOperation to perform a synchronous resolution and
  * then kick off an uninstall in the background:
- * 
+ *
  * <pre>
  * UninstallOperation op = new UninstallOperation(session, new IInstallableUnit [] { removeThisIU });
  * IStatus result = op.resolveModal(monitor);
@@ -50,7 +49,7 @@ public class UninstallOperation extends ProfileChangeOperation {
 	 * Create an uninstall operation on the specified provisioning session that uninstalls
 	 * the specified IInstallableUnits.  Unless otherwise specified, the operation will
 	 * be associated with the currently running profile.
-	 * 
+	 *
 	 * @param session the session to use for obtaining provisioning services
 	 * @param toUninstall the IInstallableUnits to be installed into the profile.
 	 */
@@ -86,8 +85,8 @@ public class UninstallOperation extends ProfileChangeOperation {
 	@Override
 	ProvisioningContext getFirstPassProvisioningContext() {
 		ProvisioningContext pc = new ProvisioningContext(session.getProvisioningAgent());
-		pc.setMetadataRepositories(new URI[0]);
-		pc.setArtifactRepositories(new URI[0]);
+		pc.setMetadataRepositories();
+		pc.setArtifactRepositories();
 		return pc;
 	}
 
