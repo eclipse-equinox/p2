@@ -14,7 +14,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,8 +72,8 @@ public class EPPPackageInstallStability_bug323322 extends AbstractProvisioningTe
 			request.add(repoMgr.query(QueryUtil.createIUQuery("epp.package.java"), null).iterator().next());
 
 			ProvisioningContext pc = new ProvisioningContext(agent);
-			pc.setMetadataRepositories(new URI[0]);
-			pc.setArtifactRepositories(new URI[0]);
+			pc.setMetadataRepositories();
+			pc.setArtifactRepositories();
 			pc.setExtraInstallableUnits(new ArrayList<>(iusFromFirstResolution));
 
 			IProvisioningPlan plan = planner.getProvisioningPlan(request, pc, new NullProgressMonitor());

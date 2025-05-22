@@ -14,7 +14,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import java.io.File;
-import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -70,7 +69,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
-		ctx.setMetadataRepositories(new URI[0]);
+		ctx.setMetadataRepositories();
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
 		assertTrue(plan.getAdditions().query(QueryUtil.createIUQuery("org.eclipse.tptp.platform.agentcontroller"), null).isEmpty());

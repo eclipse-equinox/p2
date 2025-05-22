@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     Sonatype, Inc. - initial API and implementation
  *     IBM Corporation - ongoing development
@@ -44,7 +44,7 @@ public class Bug306279 extends AbstractProvisioningTest {
 		Set<IInstallableUnit> ius = repo2.query(QueryUtil.createIUQuery("org.eclipse.riena.toolbox.feature.feature.group"), new NullProgressMonitor()).toUnmodifiableSet();
 		request.addAll(ius);
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
-		ctx.setMetadataRepositories(new URI[] {heliosRepo, rienaRepo2});
+		ctx.setMetadataRepositories(heliosRepo, rienaRepo2);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 
 		assertOK("resolution failed", plan.getStatus());

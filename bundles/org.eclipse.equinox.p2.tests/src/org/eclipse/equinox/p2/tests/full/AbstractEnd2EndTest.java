@@ -163,7 +163,7 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 		IInstallableUnit toInstall = getIU(source.getId(), source.getVersion());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
-		request.addInstallableUnits(new IInstallableUnit[] {toInstall});
+		request.addInstallableUnits(toInstall);
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		if (!s.isOK()) {
 			fail("Installation of the " + source.getId() + " " + source.getVersion() + " failed.");
@@ -184,7 +184,7 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 		IInstallableUnit bogusIU = MetadataFactory.createInstallableUnit(iud);
 		iud.setTouchpointType(MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", Version.create("1.0.0")));
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {bogusIU});
+		request.addInstallableUnits(bogusIU);
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		assertNotOK(s);
 	}
@@ -195,7 +195,7 @@ public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
 		IInstallableUnit platformIU = getIU(platform.getId(), platform.getVersion());
 
-		request.addInstallableUnits(new IInstallableUnit[] {platformIU});
+		request.addInstallableUnits(platformIU);
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		if (!s.isOK()) {
 			LogHelper.log(s);

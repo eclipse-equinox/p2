@@ -401,7 +401,7 @@ public class FeaturesActionTest extends ActionTest {
 	@Override
 	protected void insertPublisherInfoBehavior() {
 		// setup metadataRepository with barIU
-		metadataRepository = new TestMetadataRepository(getAgent(), new IInstallableUnit[] { mockIU(BAR, null) });
+		metadataRepository = new TestMetadataRepository(getAgent(), mockIU(BAR, null));
 
 		List<IPropertyAdvice> adviceCollection = fillAdvice(new ArrayList<>());
 		when(publisherInfo.getAdvice(null, false, "bar.feature.jar", barVersion, IPropertyAdvice.class))

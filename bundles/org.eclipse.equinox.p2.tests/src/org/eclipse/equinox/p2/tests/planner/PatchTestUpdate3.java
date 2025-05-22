@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import java.net.URI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
@@ -83,12 +82,12 @@ public class PatchTestUpdate3 extends AbstractProvisioningTest {
 	public void testUpdate() {
 		ProfileChangeRequest req2 = new ProfileChangeRequest(getProfile("TestProfile." + getName()));
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
-		ctx.setMetadataRepositories(new URI[0]);
+		ctx.setMetadataRepositories();
 		assertOK("Validating the profile", planner.getProvisioningPlan(req2, ctx, null).getStatus());
 
 		//The update of the feature will cause the patch pp2 to be uninstalled because its lifecycle is no longer matched. pp1 stays because its lifecycle is still applicable
 		ProfileChangeRequest req1 = new ProfileChangeRequest(getProfile("TestProfile." + getName()));
-		req1.addInstallableUnits(new IInstallableUnit[] {p2Feature20});
+		req1.addInstallableUnits(p2Feature20);
 		req1.setInstallableUnitInclusionRules(p2Feature20, ProfileInclusionRules.createStrictInclusionRule(p2Feature20));
 		req1.removeInstallableUnits(new IInstallableUnit[] {p2Feature});
 		IProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);

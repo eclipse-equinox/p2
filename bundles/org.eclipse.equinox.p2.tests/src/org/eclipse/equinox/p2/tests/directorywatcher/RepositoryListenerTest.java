@@ -155,9 +155,9 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 	}
 
 	/*
-	 * Test to ensure that we convert bundles with Eclipse 2.x-style plugin.xml files into 
+	 * Test to ensure that we convert bundles with Eclipse 2.x-style plugin.xml files into
 	 * proper OSGi manifest files so the bundle can be installed
-	 * This test has been commented out because support for non-OSGi bundles was 
+	 * This test has been commented out because support for non-OSGi bundles was
 	 * removed. See bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=411892.
 	 */
 	public void _testPluginXMLConversion() {

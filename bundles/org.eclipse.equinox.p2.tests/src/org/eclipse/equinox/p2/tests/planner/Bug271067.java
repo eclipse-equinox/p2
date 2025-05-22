@@ -86,7 +86,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 		IInstallableUnit helloPatch = getIU(repo, "hello", "1.0.0.1");
 		IInstallableUnit patchJar = getIU(repo, "hello.patch.feature.jar", "1.0.0");
 
-		installFeature1.addInstallableUnits(new IInstallableUnit[] {featureGroup, featureJar, helloIU, patch, helloPatch, patchJar});
+		installFeature1.addInstallableUnits(featureGroup, featureJar, helloIU, patch, helloPatch, patchJar);
 
 		installFeature1.setInstallableUnitInclusionRules(featureGroup, ProfileInclusionRules.createOptionalInclusionRule(featureGroup));
 		installFeature1.setInstallableUnitInclusionRules(featureJar, ProfileInclusionRules.createOptionalInclusionRule(featureJar));
@@ -104,7 +104,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 		IInstallableUnit featureJar2 = getIU(repo, "hello.feature.2.feature.jar", "1.0.0");
 
 		ProfileChangeRequest installFeature2 = new ProfileChangeRequest(getProfile(profileLoadedId));
-		installFeature2.addInstallableUnits(new IInstallableUnit[] {featureGroup2, helloIU2, featureJar2});
+		installFeature2.addInstallableUnits(featureGroup2, helloIU2, featureJar2);
 		installFeature2.setInstallableUnitInclusionRules(featureGroup2, ProfileInclusionRules.createOptionalInclusionRule(featureGroup2));
 		installFeature2.setInstallableUnitInclusionRules(helloIU2, ProfileInclusionRules.createOptionalInclusionRule(helloIU2));
 		installFeature2.setInstallableUnitInclusionRules(featureJar2, ProfileInclusionRules.createOptionalInclusionRule(featureJar2));
@@ -120,7 +120,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 		IInstallableUnit featureJar2 = getIU(repo, "hello.feature.2.feature.jar", "1.0.0");
 
 		ProfileChangeRequest installFeature2 = new ProfileChangeRequest(getProfile(profileLoadedId));
-		installFeature2.addInstallableUnits(new IInstallableUnit[] {featureGroup2, helloIU2, featureJar2});
+		installFeature2.addInstallableUnits(featureGroup2, helloIU2, featureJar2);
 		installFeature2.setInstallableUnitInclusionRules(featureGroup2, ProfileInclusionRules.createOptionalInclusionRule(featureGroup2));
 		installFeature2.setInstallableUnitInclusionRules(helloIU2, ProfileInclusionRules.createOptionalInclusionRule(helloIU2));
 		installFeature2.setInstallableUnitInclusionRules(featureJar2, ProfileInclusionRules.createOptionalInclusionRule(featureJar2));
@@ -137,7 +137,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 		IInstallableUnit helloPatch = getIU(repo, "hello", "1.0.0.1");
 		IInstallableUnit patchJar = getIU(repo, "hello.patch.feature.jar", "1.0.0");
 
-		installFeature1.addInstallableUnits(new IInstallableUnit[] {featureGroup, featureJar, helloIU, patch, helloPatch, patchJar});
+		installFeature1.addInstallableUnits(featureGroup, featureJar, helloIU, patch, helloPatch, patchJar);
 
 		installFeature1.setInstallableUnitInclusionRules(featureGroup, ProfileInclusionRules.createOptionalInclusionRule(featureGroup));
 		installFeature1.setInstallableUnitInclusionRules(featureJar, ProfileInclusionRules.createOptionalInclusionRule(featureJar));
@@ -164,7 +164,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 		IInstallableUnit patchJar = getIU(repo, "hello.patch.feature.jar", "1.0.0");
 
 		ProfileChangeRequest installEverything = new ProfileChangeRequest(getProfile(profileLoadedId));
-		installEverything.addInstallableUnits(new IInstallableUnit[] {featureGroup2, helloIU2, featureJar2, featureGroup, featureJar, helloIU, patch, helloPatch, patchJar});
+		installEverything.addInstallableUnits(featureGroup2, helloIU2, featureJar2, featureGroup, featureJar, helloIU, patch, helloPatch, patchJar);
 		installEverything.setInstallableUnitInclusionRules(featureGroup2, ProfileInclusionRules.createOptionalInclusionRule(featureGroup2));
 		installEverything.setInstallableUnitInclusionRules(helloIU2, ProfileInclusionRules.createOptionalInclusionRule(helloIU2));
 		installEverything.setInstallableUnitInclusionRules(featureJar2, ProfileInclusionRules.createOptionalInclusionRule(featureJar2));

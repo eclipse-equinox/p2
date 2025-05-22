@@ -13,7 +13,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.PlanExecutionHelper;
@@ -60,9 +59,9 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {a});
+		request.addInstallableUnits(a);
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setMetadataRepositories(new URI[0]);
+		context.setMetadataRepositories();
 
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		assertNotOK(plan.getStatus());
@@ -81,7 +80,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {a});
+		request.addInstallableUnits(a);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertTrue(plan.getStatus().isOK());
 		assertNotNull(plan.getInstallerPlan());
@@ -103,7 +102,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {a});
+		request.addInstallableUnits(a);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertNotOK(plan.getStatus());
 	}
@@ -123,7 +122,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
-		request.addInstallableUnits(new IInstallableUnit[] {a});
+		request.addInstallableUnits(a);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("install actions", engine.perform(plan.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1});
@@ -132,7 +131,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		assertEquals(getProfile(IProfileRegistry.SELF).getProfileId(), plan.getInstallerPlan().getProfile().getProfileId());
 
 		ProfileChangeRequest request2 = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
-		request2.addInstallableUnits(new IInstallableUnit[] {b});
+		request2.addInstallableUnits(b);
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(request2, ctx, new NullProgressMonitor());
 		assertNull(plan2.getInstallerPlan());
 		assertOK("install b", engine.perform(plan2, null));
@@ -156,7 +155,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {a});
+		request.addInstallableUnits(a);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("install actions", engine.perform(plan.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1, common});
@@ -186,7 +185,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		//install A which will install Action1
 		ProfileChangeRequest request = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
-		request.addInstallableUnits(new IInstallableUnit[] {a});
+		request.addInstallableUnits(a);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("install actions", engine.perform(plan.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1});
@@ -195,7 +194,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		//install B which will install Action2
 		ProfileChangeRequest request2 = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
-		request2.addInstallableUnits(new IInstallableUnit[] {b});
+		request2.addInstallableUnits(b);
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(request2, ctx, new NullProgressMonitor());
 		assertOK("install actions", engine.perform(plan2.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act2, act1, a});
@@ -231,7 +230,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		//install A which will install Action1
 		ProfileChangeRequest request = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
-		request.addInstallableUnits(new IInstallableUnit[] {a});
+		request.addInstallableUnits(a);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("install actions for A", engine.perform(plan.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1});
@@ -240,7 +239,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		//install B which will install Action2
 		ProfileChangeRequest request2 = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
-		request2.addInstallableUnits(new IInstallableUnit[] {b});
+		request2.addInstallableUnits(b);
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(request2, ctx, new NullProgressMonitor());
 		assertOK("install actions for B", engine.perform(plan2.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act2, act1, a});
@@ -249,7 +248,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		//install C
 		ProfileChangeRequest requestForC = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
-		requestForC.addInstallableUnits(new IInstallableUnit[] {c});
+		requestForC.addInstallableUnits(c);
 		IProvisioningPlan planForC = planner.getProvisioningPlan(requestForC, ctx, new NullProgressMonitor());
 		assertNull(planForC.getInstallerPlan());
 		assertOK("install C", engine.perform(planForC, null));
@@ -259,7 +258,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		//update A which will install Action1b
 		ProfileChangeRequest requestUpdateA = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
 		requestUpdateA.removeInstallableUnits(new IInstallableUnit[] {a});
-		requestUpdateA.addInstallableUnits(new IInstallableUnit[] {a111});
+		requestUpdateA.addInstallableUnits(a111);
 		IProvisioningPlan planUpdateA = planner.getProvisioningPlan(requestUpdateA, ctx, new NullProgressMonitor());
 		assertOK("Checking planUpdateA", planUpdateA.getStatus());
 		assertOK("install actions for A 1.1.1", engine.perform(planUpdateA.getInstallerPlan(), null));
@@ -299,7 +298,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {a, d});
+		request.addInstallableUnits(a, d);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertNotOK(plan.getStatus());
 	}

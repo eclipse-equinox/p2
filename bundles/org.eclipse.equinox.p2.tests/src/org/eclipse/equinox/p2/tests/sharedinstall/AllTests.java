@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *     Ericsson AB - initial API and implementation
  *     Red Hat, Inc. - fragments support
  ******************************************************************************/
@@ -21,7 +21,7 @@ import junit.framework.*;
  * To run the shared install tests, you must perform some manual setup steps:
  * 1) Download the platform runtime binary zip (latest build or the one you want to test).
  * 2) Set the following system property to the file system path of the binary zip. For example:
- * 
+ *
  * -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=c:/tmp/eclipse-platform-3.4-win32.zip
  */
 public class AllTests extends TestCase {
