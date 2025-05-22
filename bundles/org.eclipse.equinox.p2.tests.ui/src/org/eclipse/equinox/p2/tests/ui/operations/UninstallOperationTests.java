@@ -7,13 +7,12 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.operations;
 
-import java.net.URI;
 import java.util.HashSet;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -35,8 +34,8 @@ public class UninstallOperationTests extends AbstractProvisioningUITest {
 		UninstallOperation op = new UninstallOperation(getSession(), ius);
 		// We set the provisioning context to the same one we use for install
 		ProvisioningContext pc = new ProvisioningContext(getAgent());
-		pc.setArtifactRepositories(new URI[] {testRepoLocation});
-		pc.setMetadataRepositories(new URI[] {testRepoLocation});
+		pc.setArtifactRepositories(testRepoLocation);
+		pc.setMetadataRepositories(testRepoLocation);
 		op.setProvisioningContext(pc);
 		op.setProfileId(TESTPROFILE);
 		assertTrue("Should resolve", op.resolveModal(getMonitor()).isOK());

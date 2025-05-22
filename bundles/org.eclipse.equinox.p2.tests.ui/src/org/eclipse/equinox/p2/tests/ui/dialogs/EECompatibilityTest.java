@@ -158,9 +158,7 @@ public class EECompatibilityTest extends WizardTest {
 		InstallableUnitDescription desc = new InstallableUnitDescription();
 		desc.setId("a.jre.javase"); //$NON-NLS-1$
 		desc.setVersion(Version.create(javaSEVersion + ".0.0"));
-		desc.addProvidedCapabilities(Arrays.asList(new ProvidedCapability[] {
-				new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, desc.getId(), desc.getVersion()),
-				new ProvidedCapability("osgi.ee", "JavaSE", desc.getVersion()) }));
+		desc.addProvidedCapabilities(Arrays.asList(new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, desc.getId(), desc.getVersion()), new ProvidedCapability("osgi.ee", "JavaSE", desc.getVersion())));
 		return MetadataFactory.createInstallableUnit(desc);
 	}
 }
