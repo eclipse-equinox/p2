@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -66,7 +66,7 @@ public class UpdateWizardTest extends WizardTest {
 
 	/**
 	 * Tests the wizard when a prior resolution has been done.
-	 * This is the SDK 
+	 * This is the SDK
 	 */
 	public void testUpdateWizardResolved() {
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();

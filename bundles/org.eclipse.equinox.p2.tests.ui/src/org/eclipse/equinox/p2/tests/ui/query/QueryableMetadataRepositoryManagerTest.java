@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -158,7 +158,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		ProvisioningJob loadJob = new LoadMetadataRepositoryJob(ui);
 		loadJob.runModal(getMonitor());
 
-		// the repositories have been loaded.  Because the non-existent 
+		// the repositories have been loaded.  Because the non-existent
 		// repository has been noticed and recorded as missing, it
 		// does not count "not loaded."
 		assertTrue("1.1", manager.areRepositoriesLoaded());

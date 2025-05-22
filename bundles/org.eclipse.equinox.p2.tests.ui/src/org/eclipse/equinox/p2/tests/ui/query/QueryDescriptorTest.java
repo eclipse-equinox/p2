@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2009, 2017 EclipseSource and others.
  *
  * This
@@ -30,7 +30,7 @@ import org.junit.Test;
 public class QueryDescriptorTest {
 
 	class SimpleQueryable implements IQueryable<String> {
-		List<String> elements = Arrays.asList(new String[] { "a", "b", "c", "d", "e" });
+		List<String> elements = Arrays.asList("a", "b", "c", "d", "e");
 
 		@Override
 		public IQueryResult<String> query(IQuery<String> query, IProgressMonitor monitor) {

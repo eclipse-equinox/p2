@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - bug fixing
@@ -97,8 +97,8 @@ public class TranslationSupportTests extends AbstractQueryTest {
 			org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription installableUnitFragmentDescription = new org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription();
 			installableUnitFragmentDescription.setId("fragment number: " + i);
 			installableUnitFragmentDescription.setVersion(Version.createOSGi(1, 0, 0));
-			installableUnitFragmentDescription.setHost(new IRequirement[] { MetadataFactory
-					.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false) });
+			installableUnitFragmentDescription.setHost(MetadataFactory
+					.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false));
 			installableUnitFragmentDescription.setProperty(
 					org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription.PROP_TYPE_FRAGMENT,
 					"true");
@@ -116,8 +116,8 @@ public class TranslationSupportTests extends AbstractQueryTest {
 		installableUnitFragmentDescription.addProvidedCapabilities(list);
 		installableUnitFragmentDescription.setId("german fragment");
 		installableUnitFragmentDescription.setVersion(Version.createOSGi(1, 0, 0));
-		installableUnitFragmentDescription.setHost(new IRequirement[] { MetadataFactory
-				.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false) });
+		installableUnitFragmentDescription.setHost(MetadataFactory
+				.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false));
 		installableUnitFragmentDescription.setProperty(
 				org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription.PROP_TYPE_FRAGMENT, "true");
 		installableUnitFragmentDescription.setProperty("de.license", germanLicense);
@@ -134,8 +134,8 @@ public class TranslationSupportTests extends AbstractQueryTest {
 		installableUnitFragmentDescription.addProvidedCapabilities(list);
 		installableUnitFragmentDescription.setId("cnd french fragment");
 		installableUnitFragmentDescription.setVersion(Version.createOSGi(1, 0, 0));
-		installableUnitFragmentDescription.setHost(new IRequirement[] { MetadataFactory
-				.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false) });
+		installableUnitFragmentDescription.setHost(MetadataFactory
+				.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false));
 		installableUnitFragmentDescription.setProperty(
 				org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription.PROP_TYPE_FRAGMENT, "true");
 		installableUnitFragmentDescription.setProperty("fr_CA.license", canadianFRLicense);

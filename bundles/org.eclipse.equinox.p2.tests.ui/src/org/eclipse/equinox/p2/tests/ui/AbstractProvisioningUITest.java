@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -146,7 +146,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		}
 		// Use an empty provisioning context to prevent repo access
 		ProvisioningContext context = new ProvisioningContext(getAgent());
-		context.setMetadataRepositories(new URI[] {});
+		context.setMetadataRepositories();
 		FussyProgressMonitor monitor = new FussyProgressMonitor();
 		IProvisioningPlan plan = getPlanner(getSession().getProvisioningAgent()).getProvisioningPlan(req, context,
 				monitor);
