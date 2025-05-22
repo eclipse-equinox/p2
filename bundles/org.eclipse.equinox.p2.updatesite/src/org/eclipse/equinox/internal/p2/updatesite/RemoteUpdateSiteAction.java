@@ -8,8 +8,8 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
+ *
+ * Contributors:
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
  ******************************************************************************/
@@ -23,7 +23,7 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * A publishing action that processes a remote (URL-based) update site and generates
- * metadata and artifacts for the features, bundles and site index (categories etc).  The 
+ * metadata and artifacts for the features, bundles and site index (categories etc).  The
  * IUs generated for the bundles are "partial" as the bundles themselves are not downloaded.
  */
 public class RemoteUpdateSiteAction implements IPublisherAction {

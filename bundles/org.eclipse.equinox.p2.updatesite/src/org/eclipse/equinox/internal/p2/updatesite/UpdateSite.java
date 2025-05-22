@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - transport split
@@ -83,7 +83,7 @@ public class UpdateSite {
 
 	/**
 	 * Loads and returns a category file
-	 * 
+	 *
 	 * @return A CategoryFile
 	 */
 	public static synchronized UpdateSite loadCategoryFile(URI location, Transport transport, IProgressMonitor monitor)
