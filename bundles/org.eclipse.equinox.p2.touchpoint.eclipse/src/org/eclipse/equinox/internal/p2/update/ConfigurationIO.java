@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2009, 2010 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 /*
  * Class which controls the reading and writing of Configuration (platform.xml) objects.
  * We keep a local cached copy to avoid multiple reads. When we install new features we
- * seem to only write out the platform.xml in the "commit" phase so we don't need to 
+ * seem to only write out the platform.xml in the "commit" phase so we don't need to
  * batch the writes.
  */
 public class ConfigurationIO {
@@ -35,7 +35,7 @@ public class ConfigurationIO {
 	}
 
 	/*
-	 * Return the configuration object which is represented by the given file. 
+	 * Return the configuration object which is represented by the given file.
 	 */
 	static Configuration read(File file, URL osgiInstallArea) throws ProvisionException {
 		// check the cached copy first
@@ -70,7 +70,7 @@ public class ConfigurationIO {
 	 * Save the given configuration to the file-system.
 	 */
 	static void write(File location, Configuration config, URL osgiInstallArea) throws ProvisionException {
-		// write it to disk 
+		// write it to disk
 		ConfigurationWriter.save(config, location, osgiInstallArea);
 		// save a copy in the cache
 		cache(location, config, osgiInstallArea);

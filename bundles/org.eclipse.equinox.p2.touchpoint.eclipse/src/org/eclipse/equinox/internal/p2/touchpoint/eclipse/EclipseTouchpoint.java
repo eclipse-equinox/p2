@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - ongoing development
@@ -41,7 +41,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static final Object PARM_AGENT = "agent"; //$NON-NLS-1$
 
 	private static final String NATIVE_TOUCHPOINT_ID = "org.eclipse.equinox.p2.touchpoint.natives"; //$NON-NLS-1$
-	private static List<String> NATIVE_ACTIONS = Arrays.asList(new String[] { "mkdir", "rmdir" }); //$NON-NLS-1$//$NON-NLS-2$
+	private static List<String> NATIVE_ACTIONS = Arrays.asList("mkdir", "rmdir"); //$NON-NLS-1$//$NON-NLS-2$
 	private static final String VALIDATE_PROFILE = "org.eclipse.equinox.internal.p2.touchpoint.eclipse.validateProfile"; //$NON-NLS-1$
 
 	private static Map<IProfile, LazyManipulator> manipulators = new WeakHashMap<>();

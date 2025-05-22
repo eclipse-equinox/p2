@@ -7,14 +7,13 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import java.net.URI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
@@ -27,7 +26,7 @@ public class DirectorUtil {
 		IPlanner planner = profile.getProvisioningAgent().getService(IPlanner.class);
 		IProfileChangeRequest pcr = planner.createChangeRequest(profile);
 		ProvisioningContext ctx = new ProvisioningContext(profile.getProvisioningAgent());
-		ctx.setMetadataRepositories(new URI[0]);
+		ctx.setMetadataRepositories();
 		return planner.getProvisioningPlan(pcr, ctx, null).getStatus();
 	}
 }
