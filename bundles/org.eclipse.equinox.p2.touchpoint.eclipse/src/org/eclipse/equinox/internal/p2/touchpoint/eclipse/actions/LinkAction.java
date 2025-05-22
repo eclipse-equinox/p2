@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -70,7 +70,7 @@ public class LinkAction extends ProvisioningAction {
 	 * Creates a link to the source file linkTarget - the created link is
 	 * targetDir/linkName. TODO: Only runs on systems with a "ln -s" command
 	 * supported. TODO: Does not report errors if the "ln -s" fails
-	 * 
+	 *
 	 * @param targetDir  the directory where the link is created
 	 * @param linkTarget the source
 	 * @param linkName   the name of the created link
