@@ -55,7 +55,7 @@ public class MultipleProvider extends AbstractProvisioningTest {
 
 	public void testInstall() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		req.addInstallableUnits(a1);
 		assertEquals(IStatus.OK, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
 	}
 }

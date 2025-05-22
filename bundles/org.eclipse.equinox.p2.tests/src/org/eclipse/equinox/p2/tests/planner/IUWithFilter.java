@@ -43,7 +43,7 @@ public class IUWithFilter extends AbstractProvisioningTest {
 
 	public void testInstall() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		req.addInstallableUnits(a1);
 		assertEquals(IStatus.ERROR, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
 	}
 }

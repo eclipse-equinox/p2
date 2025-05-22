@@ -112,7 +112,7 @@ public class SimpleConfiguratorManipulatorTests extends AbstractProvisioningTest
 		Activator.EXTENDED = true;
 		Activator.EXTENSIONS = fragDir.getAbsolutePath();
 
-		List<String> expected = Arrays.asList(new String[] {"m,1.0.0", "n,1.0.0", "a,1.0.0", "b,1.0.0"});
+		List<String> expected = Arrays.asList("m,1.0.0", "n,1.0.0", "a,1.0.0", "b,1.0.0");
 
 		SimpleConfiguratorManipulator manipulator = new SimpleConfiguratorManipulatorImpl();
 		BundleInfo[] installedInfo = manipulator.loadConfiguration(configURL.openStream(), installArea);

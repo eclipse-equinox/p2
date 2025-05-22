@@ -48,14 +48,14 @@ public class Bug252638 extends AbstractProvisioningTest {
 
 	public void testInstall() {
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {a1});
+		req1.addInstallableUnits(a1);
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		engine.perform(plan1, null);
 		assertProfileContainsAll("1.0", profile1, new IInstallableUnit[] {a1});
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
-		req2.addInstallableUnits(new IInstallableUnit[] {p1});
+		req2.addInstallableUnits(p1);
 		req2.setInstallableUnitInclusionRules(p1, ProfileInclusionRules.createOptionalInclusionRule(p1));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getCode());

@@ -40,7 +40,7 @@ public class UninstallEverything extends AbstractProvisioningTest {
 
 	public void testEmpty() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a});
+		req.addInstallableUnits(a);
 		assertEquals(IStatus.OK, director.provision(req, null, null).getSeverity());
 		assertProfileContainsAll("A is missing", profile, new IInstallableUnit[] {a});
 

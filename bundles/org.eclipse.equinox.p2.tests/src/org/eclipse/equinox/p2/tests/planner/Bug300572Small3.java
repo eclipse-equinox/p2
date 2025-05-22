@@ -60,7 +60,7 @@ public class Bug300572Small3 extends AbstractProvisioningTest {
 	public void testInstallAandP1ThenP2() {
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {featureBeingPatched, p1, p1b});
+		req1.addInstallableUnits(featureBeingPatched, p1, p1b);
 		req1.setInstallableUnitInclusionRules(p1, ProfileInclusionRules.createOptionalInclusionRule(p1));
 		req1.setInstallableUnitInclusionRules(p1b, ProfileInclusionRules.createOptionalInclusionRule(p1b));
 
@@ -71,7 +71,7 @@ public class Bug300572Small3 extends AbstractProvisioningTest {
 		assertProfileContainsAll("Patch 1 not installed", profile1, new IInstallableUnit[] {p1, p1b});
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
-		req2.addInstallableUnits(new IInstallableUnit[] {p2, p2b});
+		req2.addInstallableUnits(p2, p2b);
 		req2.setInstallableUnitInclusionRules(p2, ProfileInclusionRules.createOptionalInclusionRule(p2));
 		req2.setInstallableUnitInclusionRules(p2, ProfileInclusionRules.createOptionalInclusionRule(p2b));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);

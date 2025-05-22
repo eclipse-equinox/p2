@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -215,7 +215,7 @@ public class BasicTests extends AbstractReconcilerTest {
 		assertDoesNotExistInBundlesInfo("1.2", "myBundle");
 
 		// Add 2 versions of the same non-singleton bundle to the dropins folder and
-		// ensure that both of them exist after reconciliation. 
+		// ensure that both of them exist after reconciliation.
 		jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
 		add("2.1", "dropins", jar);
 		jar = getTestData("2.2", "testData/reconciler/plugins/myBundle_2.0.0.jar");

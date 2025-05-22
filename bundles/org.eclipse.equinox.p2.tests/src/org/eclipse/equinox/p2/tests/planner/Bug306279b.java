@@ -50,7 +50,7 @@ public class Bug306279b extends AbstractProvisioningTest {
 		Set<IInstallableUnit> ius = repo2.query(QueryUtil.createIUQuery("org.eclipse.riena.toolbox.feature.feature.group", Version.create("2.0.0.201003181312")), new NullProgressMonitor()).toUnmodifiableSet();
 		request.addAll(ius);
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
-		ctx.setMetadataRepositories(new URI[] {getTestData("helios", "testData/bug306279/repo/helios").toURI(), rienaRepo});
+		ctx.setMetadataRepositories(getTestData("helios", "testData/bug306279/repo/helios").toURI(), rienaRepo);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 
 		assertOK("resolution failed", plan.getStatus());
