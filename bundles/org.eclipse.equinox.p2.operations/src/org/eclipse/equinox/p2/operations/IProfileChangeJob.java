@@ -25,7 +25,7 @@ public interface IProfileChangeJob {
 
 	/**
 	 * Return the string id of the profile involved in this job.
-	 * 
+	 *
 	 * @return the id of the profile
 	 */
 	public String getProfileId();

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     Sonatype, Inc. - initial API and implementation
  *     IBM Corporation - Ongoing development
@@ -25,13 +25,13 @@ import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
 import org.eclipse.equinox.p2.query.QueryUtil;
 
 /**
- * A {@link SynchronizeOperation} describes an operation that will modify the installation to 
+ * A {@link SynchronizeOperation} describes an operation that will modify the installation to
  * exclusively include the InstallableUnit mentioned. Note that all the Installable Units necessary
- * to satisfy the dependencies of the Installable Units installed will also be installed.  
- * 
+ * to satisfy the dependencies of the Installable Units installed will also be installed.
+ *
  * The following snippet shows how one might use an SynchronizeOperation to perform a synchronous resolution and
  * then kick off an install in the background:
- * 
+ *
  * <pre>
  * SynchronizeOperation op = new SynchronizeOperation(session, new IInstallableUnit [] { myIU });
  * IStatus result = op.resolveModal(monitor);
@@ -39,7 +39,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
  *   op.getProvisioningJob(monitor).schedule();
  * }
  * </pre>
- * 
+ *
  * @since 2.1
  * @see ProfileChangeOperation
  * @noextend This class is not intended to be subclassed by clients.

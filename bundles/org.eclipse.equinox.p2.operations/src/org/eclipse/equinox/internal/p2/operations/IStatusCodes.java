@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -16,9 +16,9 @@ package org.eclipse.equinox.internal.p2.operations;
 /**
  * IStatusCodes defines codes for common status conditions when
  * performing provisioning operations.
- * 
+ *
  * This interface is not intended to be implemented
- * 
+ *
  * @since 2.0
  * @noimplement This interface is not intended to be implemented by clients.
  */
