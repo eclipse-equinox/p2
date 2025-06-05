@@ -56,7 +56,7 @@ public class SDKPatchingTest1 extends AbstractProvisioningTest {
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 		ctx.setExtraInstallableUnits(newIUs);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {patchInstallingCommon});
+		request.addInstallableUnits(patchInstallingCommon);
 		request.setInstallableUnitInclusionRules(patchInstallingCommon, ProfileInclusionRules.createOptionalInclusionRule(patchInstallingCommon));
 		IPlanner planner = createPlanner();
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());

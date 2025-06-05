@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -44,7 +44,7 @@ public class ExplanationForOptionalDependencies extends AbstractProvisioningTest
 		engine = createEngine();
 
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
-		pcr.addInstallableUnits(new IInstallableUnit[] {sdk});
+		pcr.addInstallableUnits(sdk);
 		engine.perform(planner.getProvisioningPlan(pcr, null, null), null);
 
 	}
@@ -60,7 +60,7 @@ public class ExplanationForOptionalDependencies extends AbstractProvisioningTest
 
 		createTestMetdataRepository(new IInstallableUnit[] {cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
-		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
+		pcr.addInstallableUnits(cdt, emf);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
 		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(emf));

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     Sonatype, Inc. - initial API and implementation
  *     IBM Corporation - ongoing development
@@ -30,7 +30,7 @@ public class Bug306279c extends AbstractProvisioningTest {
 		IInstallableUnit x, y, a1, a2, b;
 		x = createIU("X");
 
-		//Y -ng & op-> X 
+		//Y -ng & op-> X
 		IRequirement[] reqY = new IRequirement[1];
 		reqY[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "X", VersionRange.emptyRange, null, true, false, false);
 		y = createIU("Y", Version.create("1.0.0"), reqY);

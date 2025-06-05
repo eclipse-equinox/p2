@@ -44,7 +44,7 @@ public class SeveralOptionalDependencies3 extends AbstractProvisioningTest {
 	public void testInstallation() {
 		//X will install because all the requirements are optional
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {x1});
+		req.addInstallableUnits(x1);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, x1);

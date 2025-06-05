@@ -57,7 +57,7 @@ public class Bug270683 extends AbstractProvisioningTest {
 
 	public void testExplanationContainsExplicitMentionOfPatch() {
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
-		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1, pp1});
+		req3.addInstallableUnits(a1, p1, pp1);
 		ProvisioningPlan plan3 = (ProvisioningPlan) planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
 		assertTrue(((PlannerStatus) plan3.getStatus()).getRequestStatus().getExplanations().toString().contains("patched"));

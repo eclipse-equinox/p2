@@ -100,7 +100,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 		IInstallableUnit featureJar = getIU(repo, "hellofeature.feature.jar", "1.0.0.200911201237");
 		IInstallableUnit helloIU = getIU(repo, "hello", "1.0.0.200911201237");
 
-		installFeature1.addInstallableUnits(new IInstallableUnit[] {featureGroup, featureJar, helloIU});
+		installFeature1.addInstallableUnits(featureGroup, featureJar, helloIU);
 
 		installFeature1.setInstallableUnitInclusionRules(featureGroup, createInclusionRule(featureGroup, optional));
 		installFeature1.setInstallableUnitInclusionRules(featureJar, ProfileInclusionRules.createOptionalInclusionRule(featureJar));
@@ -138,7 +138,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 		IInstallableUnit featureJar = getIU(repo, "hellopatch.feature.jar", "1.0.0");
 		IInstallableUnit helloIU = getIU(repo, "hello", "1.0.1.200911201237");
 
-		installFeature1.addInstallableUnits(new IInstallableUnit[] {featureGroup, featureJar, helloIU});
+		installFeature1.addInstallableUnits(featureGroup, featureJar, helloIU);
 
 		installFeature1.setInstallableUnitInclusionRules(featureGroup, ProfileInclusionRules.createOptionalInclusionRule(featureGroup));
 		installFeature1.setInstallableUnitInclusionRules(featureJar, ProfileInclusionRules.createOptionalInclusionRule(featureJar));
@@ -169,7 +169,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 		IInstallableUnit helloIU = getIU(repo, "hello", "1.0.1.200911201358");
 		IInstallableUnit hello2IU = getIU(repo, "hello2", "1.0.0.200911201358");
 
-		installFeature1.addInstallableUnits(new IInstallableUnit[] {featureGroup, featureJar, helloIU, hello2IU});
+		installFeature1.addInstallableUnits(featureGroup, featureJar, helloIU, hello2IU);
 
 		installFeature1.setInstallableUnitInclusionRules(featureGroup, ProfileInclusionRules.createOptionalInclusionRule(featureGroup));
 		installFeature1.setInstallableUnitInclusionRules(featureJar, ProfileInclusionRules.createOptionalInclusionRule(featureJar));

@@ -51,14 +51,14 @@ public class MissingNonGreedyRequirement2 extends AbstractProvisioningTest {
 	public void testInstall() {
 		//The planner returns an error because the requirement from A on B is non greedy and no one brings in B.
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		req.addInstallableUnits(a1);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 	}
 
 	public void testExplanation() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		req.addInstallableUnits(a1);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();

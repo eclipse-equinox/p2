@@ -63,7 +63,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		assertNotSame(jdt1, jdt2);
 
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
-		pcr.addInstallableUnits(new IInstallableUnit[] {jdt1, jdt2});
+		pcr.addInstallableUnits(jdt1, jdt2);
 		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
 		assertNotOK(plan.getStatus());
 		LogHelper.log(plan.getStatus());
@@ -78,7 +78,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		IRequirement[] cap = createRequiredCapabilities("missing", "missing", new VersionRange("[0.0.0, 1.0.0)"));
 		IInstallableUnit otherIU2 = createIU("foo", Version.create("0.9.0"), null, cap, BUNDLE_CAPABILITY, NO_PROPERTIES, TOUCHPOINT_OSGI, NO_TP_DATA, true);
 		ProfileChangeRequest pcr3 = new ProfileChangeRequest(SDKprofile);
-		pcr3.addInstallableUnits(new IInstallableUnit[] {otherIU2});
+		pcr3.addInstallableUnits(otherIU2);
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(pcr3, null, null);
 		assertNotOK(plan3.getStatus());
 		LogHelper.log(plan3.getStatus());
@@ -92,7 +92,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		//The IU being installed conflict with something already installed because of a singleton
 		IInstallableUnit otherIU = createIU("org.eclipse.equinox.p2.director", Version.create("0.9.0"), null, NO_REQUIRES, BUNDLE_CAPABILITY, NO_PROPERTIES, TOUCHPOINT_OSGI, NO_TP_DATA, true);
 		ProfileChangeRequest pcr2 = new ProfileChangeRequest(SDKprofile);
-		pcr2.addInstallableUnits(new IInstallableUnit[] {otherIU});
+		pcr2.addInstallableUnits(otherIU);
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(pcr2, null, null);
 		assertNotOK(plan2.getStatus());
 		LogHelper.log(plan2.getStatus());
@@ -109,7 +109,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		IInstallableUnit cvs = c.iterator().next();
 
 		ProfileChangeRequest pcr = new ProfileChangeRequest(SDKprofile);
-		pcr.addInstallableUnits(new IInstallableUnit[] {cvs});
+		pcr.addInstallableUnits(cvs);
 		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
 		assertNotOK(plan.getStatus());
 		LogHelper.log(plan.getStatus());

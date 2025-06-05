@@ -1068,8 +1068,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		assertEquals("Ensuring proper descriptor exists in destination", descriptor2.getProperty(DOWNLOAD_CHECKSUM),
 				destDescriptors[0].getProperty(DOWNLOAD_CHECKSUM));
 		String msg = NLS.bind(Messages.warning_different_checksum,
-				new Object[] { URIUtil.toUnencodedString(repo1.getLocation()),
-						URIUtil.toUnencodedString(repo2.getLocation()), "SHA-256", descriptor1 });
+				URIUtil.toUnencodedString(repo1.getLocation()), URIUtil.toUnencodedString(repo2.getLocation()), "SHA-256", descriptor1);
 		try {
 			assertLogContainsLines(TestActivator.getLogFile(), msg);
 		} catch (Exception e) {
@@ -1145,8 +1144,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		assertEquals("Ensuring destination contains the descriptor from the baseline",
 				descriptor2.getProperty(DOWNLOAD_CHECKSUM), destDescriptors[0].getProperty(DOWNLOAD_CHECKSUM));
 		String msg = NLS.bind(Messages.warning_different_checksum,
-				new Object[] { URIUtil.toUnencodedString(baseline.getLocation()),
-						URIUtil.toUnencodedString(repo.getLocation()), "SHA-256", descriptor1 });
+				URIUtil.toUnencodedString(baseline.getLocation()), URIUtil.toUnencodedString(repo.getLocation()), "SHA-256", descriptor1);
 		try {
 			assertLogContainsLines(TestActivator.getLogFile(), msg);
 		} catch (Exception e) {

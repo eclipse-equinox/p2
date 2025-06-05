@@ -75,7 +75,7 @@ public class Bug278668 extends AbstractProvisioningTest {
 				new HashMap<>(), null, null, true);
 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {group});
+		req.addInstallableUnits(group);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertOK("plan should be OK", plan.getStatus());
 
@@ -97,25 +97,25 @@ public class Bug278668 extends AbstractProvisioningTest {
 		assertEquals(1, queryResultSize(c2));
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {c.iterator().next()});
+		request.addInstallableUnits(c.iterator().next());
 		IPlanner planner = createPlanner();
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
 
 		ProfileChangeRequest request2 = new ProfileChangeRequest(profile);
-		request2.addInstallableUnits(new IInstallableUnit[] {c2.iterator().next()});
+		request2.addInstallableUnits(c2.iterator().next());
 		IPlanner planner2 = createPlanner();
 		IProvisioningPlan plan2 = planner2.getProvisioningPlan(request2, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan2.getStatus());
 
 		ProfileChangeRequest request3 = new ProfileChangeRequest(profile);
-		request3.addInstallableUnits(new IInstallableUnit[] {c.iterator().next(), c2.iterator().next()});
+		request3.addInstallableUnits(c.iterator().next(), c2.iterator().next());
 		IPlanner planner3 = createPlanner();
 		IProvisioningPlan plan3 = planner3.getProvisioningPlan(request3, null, new NullProgressMonitor());
 		assertNotOK("Plan Not OK", plan3.getStatus());
 
 		ProfileChangeRequest request4 = new ProfileChangeRequest(profile);
-		request4.addInstallableUnits(new IInstallableUnit[] {c.iterator().next(), c2.iterator().next()});
+		request4.addInstallableUnits(c.iterator().next(), c2.iterator().next());
 		request4.setInstallableUnitInclusionRules(c.iterator().next(), ProfileInclusionRules.createOptionalInclusionRule(c.iterator().next()));
 		request4.setInstallableUnitInclusionRules(c2.iterator().next(), ProfileInclusionRules.createOptionalInclusionRule(c2.iterator().next()));
 		IPlanner planner4 = createPlanner();

@@ -57,7 +57,7 @@ public class PatchTest12 extends AbstractProvisioningTest {
 		//p1 ends up being not installed because the new requirements that it sets on A for B can not be met (no B are matching).
 		//the only thing that ends up being installed are A 1.0.0 and B 1.0.0
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
-		req2.addInstallableUnits(new IInstallableUnit[] {a1, p1});
+		req2.addInstallableUnits(a1, p1);
 		req2.setInstallableUnitInclusionRules(p1, ProfileInclusionRules.createOptionalInclusionRule(p1));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertTrue(IStatus.ERROR != plan2.getStatus().getSeverity());
@@ -69,7 +69,7 @@ public class PatchTest12 extends AbstractProvisioningTest {
 
 		//Try to install a1 and p1. This should fail because the patch adds an invalid filter
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
-		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1});
+		req3.addInstallableUnits(a1, p1);
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertTrue(IStatus.ERROR == plan3.getStatus().getSeverity());
 
@@ -77,7 +77,7 @@ public class PatchTest12 extends AbstractProvisioningTest {
 
 	public void testExplanation1() {
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
-		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1});
+		req3.addInstallableUnits(a1, p1);
 		ProvisioningPlan plan3 = (ProvisioningPlan) planner.getProvisioningPlan(req3, null, null);
 		assertTrue(IStatus.ERROR == plan3.getStatus().getSeverity());
 		final RequestStatus requestStatus = ((PlannerStatus) plan3.getStatus()).getRequestStatus();

@@ -79,7 +79,7 @@ public class Bug302582d extends AbstractProvisioningTest {
 		while (it.hasNext()) {
 			IInstallableUnit iu = it.next();
 			if ((iu.getId().equals("com.dcns.rsm.rda") && iu.getVersion().equals(Version.create("5.1.0.v20100112"))) || (iu.getId().equals("com.dcns.rsm.profile.equipment") && iu.getVersion().equals(Version.create("1.2.2.v20100108"))) || (iu.getId().equals("com.dcns.rsm.profile.gemo") && iu.getVersion().equals(Version.create("3.7.2.v20100108"))) || (iu.getId().equals("com.dcns.rsm.profile.system") && iu.getVersion().equals(Version.create("4.2.2.v20100112")))) {
-				pcr.addInstallableUnits(new IInstallableUnit[] {iu});
+				pcr.addInstallableUnits(iu);
 			}
 		}
 		return pcr;

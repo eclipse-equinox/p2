@@ -54,7 +54,7 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 
 	public void test1() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {y});
+		req.addInstallableUnits(y);
 		ProvisioningPlan provisioningPlan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, provisioningPlan.getStatus().getSeverity());
 		assertNull(provisioningPlan.getFutureState());
@@ -63,7 +63,7 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 
 	public void testExplanation() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {y});
+		req.addInstallableUnits(y);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 		final RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();

@@ -68,9 +68,9 @@ public class PatchTestMultiplePatch3 extends AbstractProvisioningTest {
 	//Test that two patches applying to the same requirement of an IU being patched does not cause any problem when one of the two patch is not applied.
 	public void testFailingInstall() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile1);
-		req.addInstallableUnits(new IInstallableUnit[] {p2Feature});
-		req.addInstallableUnits(new IInstallableUnit[] {pp1});
-		req.addInstallableUnits(new IInstallableUnit[] {pp2});
+		req.addInstallableUnits(p2Feature);
+		req.addInstallableUnits(pp1);
+		req.addInstallableUnits(pp2);
 		req.setInstallableUnitInclusionRules(pp2, ProfileInclusionRules.createOptionalInclusionRule(pp2));
 
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);

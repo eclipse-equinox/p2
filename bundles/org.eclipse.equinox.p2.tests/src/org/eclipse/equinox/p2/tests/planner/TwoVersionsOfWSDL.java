@@ -51,7 +51,7 @@ public class TwoVersionsOfWSDL extends AbstractProvisioningTest {
 	public void testInstallTwoVersionsOptionaly() {
 		//Ensure that p1 causes a1 to resolve
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {wsdl15, wsdl14});
+		req1.addInstallableUnits(wsdl15, wsdl14);
 		req1.setInstallableUnitInclusionRules(wsdl15, ProfileInclusionRules.createStrictInclusionRule(wsdl15));
 		req1.setInstallableUnitInclusionRules(wsdl14, ProfileInclusionRules.createStrictInclusionRule(wsdl14));
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);

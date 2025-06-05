@@ -79,7 +79,7 @@ public class PatchTestUpdate2 extends AbstractProvisioningTest {
 	public void testUpdate() {
 		//The update of the feature is expected to work and to cause the uninstallation of the patch since it is installed optionally
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {p2Feature20});
+		req1.addInstallableUnits(p2Feature20);
 		req1.setInstallableUnitInclusionRules(p2Feature20, ProfileInclusionRules.createStrictInclusionRule(p2Feature20));
 		req1.removeInstallableUnits(new IInstallableUnit[] {p2Feature});
 		IProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);

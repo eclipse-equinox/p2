@@ -73,7 +73,7 @@ public class PatchTestUpdate4 extends AbstractProvisioningTest {
 	public void testUpdate() {
 		//The update will *not* remove the patch because the lifecycle is wide open (VersionRange.emptyRange)
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {p2Feature20});
+		req1.addInstallableUnits(p2Feature20);
 		req1.setInstallableUnitInclusionRules(p2Feature20, ProfileInclusionRules.createStrictInclusionRule(p2Feature20));
 		req1.removeInstallableUnits(new IInstallableUnit[] {p2Feature});
 		IProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);

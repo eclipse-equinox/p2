@@ -217,8 +217,8 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 		final String profileId = "test";
 		try {
 			ProvisioningContext context = new ProvisioningContext(getAgent());
-			context.setArtifactRepositories(new URI[] {repoLoc});
-			context.setMetadataRepositories(new URI[] {repoLoc});
+			context.setArtifactRepositories(repoLoc);
+			context.setMetadataRepositories(repoLoc);
 			IEngine engine = getEngine();
 			// restrict the installation to 'linux & gtk & x86' to match the test repo
 			Map<String, String> props = new HashMap<>();

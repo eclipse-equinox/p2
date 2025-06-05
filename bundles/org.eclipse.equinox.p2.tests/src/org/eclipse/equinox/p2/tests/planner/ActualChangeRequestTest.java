@@ -50,7 +50,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		//Install B
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req = new ProfileChangeRequest(profile1);
-		req.addInstallableUnits(new IInstallableUnit[] {b});
+		req.addInstallableUnits(b);
 		req.setInstallableUnitInclusionRules(b, ProfileInclusionRules.createStrictInclusionRule(b));
 		req.setInstallableUnitProfileProperty(b, "foo", "bar");
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
@@ -62,7 +62,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 
 		//Install A
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
-		req2.addInstallableUnits(new IInstallableUnit[] {a});
+		req2.addInstallableUnits(a);
 		req2.setInstallableUnitInclusionRules(a, ProfileInclusionRules.createStrictInclusionRule(a));
 		req2.setInstallableUnitProfileProperty(a, "foo", "bar");
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);

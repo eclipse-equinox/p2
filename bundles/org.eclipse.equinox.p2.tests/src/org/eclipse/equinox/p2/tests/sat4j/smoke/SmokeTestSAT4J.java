@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -31,7 +31,7 @@ public class SmokeTestSAT4J extends AbstractProvisioningTest {
 		IPBSolver solver = SolverFactory.newEclipseP2();
 		solver.setTimeoutOnConflicts(1000);
 		OPBEclipseReader2007 reader = new OPBEclipseReader2007(solver);
-		// CNF filename is given on the command line 
+		// CNF filename is given on the command line
 		FileReader fr = null;
 		fr = new FileReader(problemFile);
 		IProblem problem = reader.parseInstance(fr);

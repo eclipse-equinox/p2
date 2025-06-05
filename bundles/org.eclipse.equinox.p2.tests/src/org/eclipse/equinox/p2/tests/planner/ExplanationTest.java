@@ -42,7 +42,7 @@ public class ExplanationTest extends AbstractProvisioningTest {
 	public void testExplanation() {
 		IProfile profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req = new ProfileChangeRequest(profile1);
-		req.addInstallableUnits(new IInstallableUnit[] {root});
+		req.addInstallableUnits(root);
 		ProvisioningContext context = new ProvisioningContext(getAgent());
 		//context.setProperty("org.eclipse.equinox.p2.director.explain", "false");
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, context, null);

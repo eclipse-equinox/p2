@@ -78,8 +78,8 @@ public class ProvisioningEventTest2 extends AbstractTestServerClientCase {
 			IArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 			bundlePool.removeAll(new NullProgressMonitor());
 			ProvisioningContext context = new ProvisioningContext(getAgent());
-			context.setArtifactRepositories(new URI[] {repoLoc});
-			context.setMetadataRepositories(new URI[] {repoLoc});
+			context.setArtifactRepositories(repoLoc);
+			context.setMetadataRepositories(repoLoc);
 			IEngine engine = getAgent().getService(IEngine.class);
 			IProvisioningPlan plan = engine.createPlan(profile, context);
 			IMetadataRepositoryManager metaManager = getAgent().getService(IMetadataRepositoryManager.class);

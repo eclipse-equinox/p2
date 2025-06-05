@@ -58,7 +58,7 @@ public class Bug272251 extends AbstractProvisioningTest {
 		assertEquals(1, queryResultSize(expectedIU));
 		IInstallableUnit patch = c.iterator().next();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {patch});
+		request.addInstallableUnits(patch);
 		request.setInstallableUnitInclusionRules(patch, ProfileInclusionRules.createStrictInclusionRule(patch));
 		IPlanner planner = createPlanner();
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
