@@ -55,7 +55,7 @@ public class Bug300572Small5 extends AbstractProvisioningTest {
 	public void testInstallA() {
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {a1});
+		req1.addInstallableUnits(a1);
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
 	}
@@ -63,7 +63,7 @@ public class Bug300572Small5 extends AbstractProvisioningTest {
 	public void testInstallAandP1() {
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
+		req1.addInstallableUnits(a1, p1);
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
 	}
@@ -71,7 +71,7 @@ public class Bug300572Small5 extends AbstractProvisioningTest {
 	public void testInstallAandP1AndP2() {
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1, p2});
+		req1.addInstallableUnits(a1, p1, p2);
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
 	}

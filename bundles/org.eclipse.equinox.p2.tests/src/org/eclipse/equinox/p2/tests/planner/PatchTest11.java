@@ -51,7 +51,7 @@ public class PatchTest11 extends AbstractProvisioningTest {
 		//P1 changes the requirement from A on B to be filtered (the filter evaluates to false): A requires B [1.0.0, 1.0.0] becomes when the patch is applied A requires B [1.1.0, 1.3.0) if "foo=bar"
 		//The result is a bit counter intuitive but correct. Only A1 and P1 are installed. No be get installed since the dependency on B is filtered out.
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
-		req2.addInstallableUnits(new IInstallableUnit[] {a1, p1});
+		req2.addInstallableUnits(a1, p1);
 		req2.setInstallableUnitInclusionRules(p1, ProfileInclusionRules.createOptionalInclusionRule(p1));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertTrue(IStatus.ERROR != plan2.getStatus().getSeverity());

@@ -117,8 +117,8 @@ public class RollbackTest extends AbstractProvisioningTest {
 
 		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
-		request1.addInstallableUnits(new IInstallableUnit[] {a1});
-		request1.addInstallableUnits(new IInstallableUnit[] {b1});
+		request1.addInstallableUnits(a1);
+		request1.addInstallableUnits(b1);
 		IStatus status = director.provision(request1, null, new NullProgressMonitor());
 		assertEquals("1.0", IStatus.OK, status.getCode());
 
@@ -130,7 +130,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 
 		ProfileChangeRequest request2 = new ProfileChangeRequest(profile);
 		request2.removeInstallableUnits(new IInstallableUnit[] {a1});
-		request2.addInstallableUnits(new IInstallableUnit[] {c1});
+		request2.addInstallableUnits(c1);
 		status = director.provision(request2, null, new NullProgressMonitor());
 		assertEquals("5.0", IStatus.OK, status.getCode());
 
@@ -156,7 +156,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 
 		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
-		request1.addInstallableUnits(new IInstallableUnit[] {a1});
+		request1.addInstallableUnits(a1);
 		request1.setInstallableUnitProfileProperty(a1, "test1", "test");
 		request1.setInstallableUnitProfileProperty(a1, "test2", "test");
 		IStatus status = director.provision(request1, null, new NullProgressMonitor());
@@ -191,7 +191,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 
 		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
-		request1.addInstallableUnits(new IInstallableUnit[] {d1});
+		request1.addInstallableUnits(d1);
 		request1.setInstallableUnitProfileProperty(d1, "test1", "test");
 		request1.setInstallableUnitProfileProperty(a1, "test2", "test");
 		IStatus status = director.provision(request1, null, new NullProgressMonitor());
@@ -203,7 +203,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 
 		ProfileChangeRequest request2 = new ProfileChangeRequest(profile);
 		request2.removeInstallableUnits(new IInstallableUnit[] {d1});
-		request2.addInstallableUnits(new IInstallableUnit[] {b1});
+		request2.addInstallableUnits(b1);
 		request2.setInstallableUnitProfileProperty(b1, "test3", "test");
 
 		status = director.provision(request2, null, new NullProgressMonitor());

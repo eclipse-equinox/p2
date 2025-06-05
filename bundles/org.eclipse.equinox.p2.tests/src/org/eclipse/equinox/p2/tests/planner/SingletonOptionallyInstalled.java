@@ -46,28 +46,28 @@ public class SingletonOptionallyInstalled extends AbstractProvisioningTest {
 
 	public void test1() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		req.addInstallableUnits(a1);
 		req.setInstallableUnitInclusionRules(a1, ProfileInclusionRules.createOptionalInclusionRule(a1));
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		engine.perform(plan, new NullProgressMonitor());
 		assertProfileContains("foo", profile, new IInstallableUnit[] {a1});
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
-		req2.addInstallableUnits(new IInstallableUnit[] {a2});
+		req2.addInstallableUnits(a2);
 		req2.setInstallableUnitInclusionRules(a2, ProfileInclusionRules.createOptionalInclusionRule(a2));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		engine.perform(plan2, new NullProgressMonitor());
 		assertProfileContains("foo", profile, new IInstallableUnit[] {a2});
 
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile);
-		req3.addInstallableUnits(new IInstallableUnit[] {a1});
+		req3.addInstallableUnits(a1);
 		req3.setInstallableUnitInclusionRules(a1, ProfileInclusionRules.createOptionalInclusionRule(a1));
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		engine.perform(plan3, new NullProgressMonitor());
 		assertProfileContains("foo", profile, new IInstallableUnit[] {a2}); //Here we really expect a2
 
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile);
-		req4.addInstallableUnits(new IInstallableUnit[] {a2});
+		req4.addInstallableUnits(a2);
 		req4.setInstallableUnitInclusionRules(a2, ProfileInclusionRules.createOptionalInclusionRule(a2));
 		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		engine.perform(plan4, new NullProgressMonitor());
@@ -77,7 +77,7 @@ public class SingletonOptionallyInstalled extends AbstractProvisioningTest {
 
 	public void test2() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a1, a2});
+		req.addInstallableUnits(a1, a2);
 		req.setInstallableUnitInclusionRules(a1, ProfileInclusionRules.createOptionalInclusionRule(a1));
 		req.setInstallableUnitInclusionRules(a2, ProfileInclusionRules.createOptionalInclusionRule(a2));
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
@@ -85,7 +85,7 @@ public class SingletonOptionallyInstalled extends AbstractProvisioningTest {
 		assertProfileContains("foo", profile, new IInstallableUnit[] {a2});
 
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile);
-		req4.addInstallableUnits(new IInstallableUnit[] {a2});
+		req4.addInstallableUnits(a2);
 		req4.setInstallableUnitInclusionRules(a2, ProfileInclusionRules.createOptionalInclusionRule(a2));
 		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		engine.perform(plan4, new NullProgressMonitor());

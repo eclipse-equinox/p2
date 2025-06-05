@@ -52,9 +52,9 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		//Install B
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req = new ProfileChangeRequest(profile1);
-		req.addInstallableUnits(new IInstallableUnit[] {b});
+		req.addInstallableUnits(b);
 		req.setInstallableUnitInclusionRules(b, ProfileInclusionRules.createStrictInclusionRule(b));
-		req.addInstallableUnits(new IInstallableUnit[] {a});
+		req.addInstallableUnits(a);
 		req.setInstallableUnitInclusionRules(a, ProfileInclusionRules.createOptionalInclusionRule(a));
 
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
@@ -66,7 +66,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 
 		//Install B2
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
-		req2.addInstallableUnits(new IInstallableUnit[] {b2});
+		req2.addInstallableUnits(b2);
 		req2.setInstallableUnitInclusionRules(b2, ProfileInclusionRules.createStrictInclusionRule(b2));
 		req2.removeInstallableUnits(new IInstallableUnit[] {b});
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
@@ -84,7 +84,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 
 		//Try to Install A
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
-		req3.addInstallableUnits(new IInstallableUnit[] {a});
+		req3.addInstallableUnits(a);
 		req3.setInstallableUnitInclusionRules(a, ProfileInclusionRules.createOptionalInclusionRule(a));
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertNotNull(((PlannerStatus) plan3.getStatus()).getRequestChanges().get(a));
@@ -93,7 +93,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 
 		//Try to Install A
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile1);
-		req4.addInstallableUnits(new IInstallableUnit[] {a});
+		req4.addInstallableUnits(a);
 		req4.setInstallableUnitInclusionRules(a, ProfileInclusionRules.createStrictInclusionRule(a));
 		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		assertNotNull(((PlannerStatus) plan4.getStatus()).getRequestChanges().get(a));

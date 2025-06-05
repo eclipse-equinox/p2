@@ -7,13 +7,12 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import java.net.URI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
@@ -47,7 +46,7 @@ public class CorruptedJar extends AbstractProvisioningTest {
 
 	public void testDownloadCorruptedJar() {
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
-		ctx.setArtifactRepositories(new URI[] {getTestData("CorruptedJar repo", testDataLocation).toURI()});
+		ctx.setArtifactRepositories(getTestData("CorruptedJar repo", testDataLocation).toURI());
 		DownloadManager mgr = new DownloadManager(ctx, getAgent());
 		IArtifactKey key = source.query(ArtifactKeyQuery.ALL_KEYS, null).iterator().next();
 		mgr.add(new MirrorRequest(key, target, null, null, getTransport()));

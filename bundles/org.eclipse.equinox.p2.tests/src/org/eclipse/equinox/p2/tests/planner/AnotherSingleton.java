@@ -52,7 +52,7 @@ public class AnotherSingleton extends AbstractProvisioningTest {
 
 	public void test1() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {x, y});
+		req.addInstallableUnits(x, y);
 		assertEquals(IStatus.ERROR, planner.getProvisioningPlan(req, null, null).getStatus().getSeverity());
 	}
 }

@@ -69,11 +69,11 @@ public class OracleTest2 extends AbstractProvisioningTest {
 
 	public void testInstallA1() {
 		assertEquals(director.install(new IInstallableUnit[] {a1}, profile, null).getSeverity(), IStatus.OK);
-	
+
 		createTestMetdataRepository(new IInstallableUnit[] {a2, c2, b1});
 		Collection brokenEntryPoint = (Collection) new Oracle().canInstall(new IInstallableUnit[] {b1}, profile, null);
 		//		assertNotNull(brokenEntryPoint.getProperty("entryPoint"));
-	
+
 		new Oracle().hasUpdate(a1);
 		System.out.println(new Oracle().canInstall(new IInstallableUnit[] {b1}, (IInstallableUnit[]) brokenEntryPoint.toArray(new IInstallableUnit[brokenEntryPoint.size()]), profile, null));
 	}
@@ -84,7 +84,7 @@ public class OracleTest2 extends AbstractProvisioningTest {
 		director = createDirector();
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, c1, c2, b1});
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {a1});
+		request.addInstallableUnits(a1);
 		assertEquals(IStatus.OK, director.provision(request, null, null).getSeverity());
 	}
 }

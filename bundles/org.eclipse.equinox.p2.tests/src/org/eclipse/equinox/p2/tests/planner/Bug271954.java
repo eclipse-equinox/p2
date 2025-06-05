@@ -15,7 +15,6 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
@@ -85,8 +84,8 @@ public class Bug271954 extends AbstractProvisioningTest {
 		req.removeInstallableUnits(c.toArray(IInstallableUnit.class));
 
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
-		ctx.setMetadataRepositories(new URI[0]);
-		ctx.setArtifactRepositories(new URI[0]);
+		ctx.setMetadataRepositories();
+		ctx.setArtifactRepositories();
 		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, ctx, new NullProgressMonitor());
 		assertOK("Uninstall plan for myBundle", plan.getStatus());
 		assertNotNull(plan.getInstallerPlan().getFutureState());

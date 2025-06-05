@@ -47,7 +47,7 @@ public class SWTFragment extends AbstractProvisioningTest {
 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.setProfileProperty("os", "win32");
-		req.addInstallableUnits(new IInstallableUnit[] {swt});
+		req.addInstallableUnits(swt);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertOK("plan", plan.getStatus());
 		Collector<IInstallableUnit> c = new Collector<>();

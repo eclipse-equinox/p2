@@ -69,7 +69,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		planner = createPlanner();
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {fa, frag1});
+		request.addInstallableUnits(fa, frag1);
 		director.provision(request, null, null);
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1_1, f1_4, frag1_1, frag1_4});
@@ -93,7 +93,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		//TODO it is strange that this succeeds, since frag1_4 and fa cannot co-exist
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.removeInstallableUnits(new IInstallableUnit[] {frag1});
-		request.addInstallableUnits(new IInstallableUnit[] {frag1_4});
+		request.addInstallableUnits(frag1_4);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(getAgent()), null);
 		assertTrue("1.0", plan.getStatus().isOK());
 	}

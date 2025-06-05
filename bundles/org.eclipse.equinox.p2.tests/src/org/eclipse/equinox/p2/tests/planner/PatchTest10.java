@@ -55,7 +55,7 @@ public class PatchTest10 extends AbstractProvisioningTest {
 	public void testConflictingPatches() {
 		//a1 and p1 can be installed together
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
+		req1.addInstallableUnits(a1, p1);
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 		assertInstallOperand(plan1, a1);
@@ -64,7 +64,7 @@ public class PatchTest10 extends AbstractProvisioningTest {
 
 		//a1 and pp1 can be installed together
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
-		req2.addInstallableUnits(new IInstallableUnit[] {a1, pp1});
+		req2.addInstallableUnits(a1, pp1);
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		assertInstallOperand(plan2, a1);
@@ -73,14 +73,14 @@ public class PatchTest10 extends AbstractProvisioningTest {
 
 		//a1, p1, and pp1 can not be installed together
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
-		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1, pp1});
+		req3.addInstallableUnits(a1, p1, pp1);
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
 	}
 
 	public void testExplanation() {
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
-		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1, pp1});
+		req3.addInstallableUnits(a1, p1, pp1);
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
 		// Set problems = plan3.getRequestStatus().getConflictsWithInstalledRoots();

@@ -43,7 +43,7 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 		IEngine engine = createEngine();
 
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
-		pcr.addInstallableUnits(new IInstallableUnit[] {sdk});
+		pcr.addInstallableUnits(sdk);
 		engine.perform(planner.getProvisioningPlan(pcr, null, null), null);
 
 	}
@@ -57,7 +57,7 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 
 		createTestMetdataRepository(new IInstallableUnit[] {cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
-		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
+		pcr.addInstallableUnits(cdt, emf);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		// System.out.println(plan.getRequestStatus().getExplanations());
 		Set<IInstallableUnit> conflictRoots = ((PlannerStatus) plan.getStatus()).getRequestStatus().getConflictsWithInstalledRoots();
@@ -83,7 +83,7 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 
 		createTestMetdataRepository(new IInstallableUnit[] {aSingleton1, aSingleton2, cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
-		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
+		pcr.addInstallableUnits(cdt, emf);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		// System.out.println(plan.getRequestStatus().getExplanations());
 		Set<IInstallableUnit> conflictRoots = ((PlannerStatus) plan.getStatus()).getRequestStatus().getConflictsWithInstalledRoots();
@@ -107,7 +107,7 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 
 		createTestMetdataRepository(new IInstallableUnit[] {sdkPart3, cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
-		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
+		pcr.addInstallableUnits(cdt, emf);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		// System.out.println(plan.getRequestStatus().getExplanations());
 		Set<IInstallableUnit> conflictRoots = ((PlannerStatus) plan.getStatus()).getRequestStatus().getConflictsWithInstalledRoots();

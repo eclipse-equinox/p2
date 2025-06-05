@@ -41,13 +41,13 @@ public class Bug207319 extends AbstractProvisioningTest {
 
 	public void testEnsureANeverInstalled() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {b});
+		req.addInstallableUnits(b);
 		assertEquals(IStatus.OK, director.provision(req, null, null).getSeverity());
 		assertProfileContainsAll("B is missing", profile, new IInstallableUnit[] {b});
 		assertNotIUs(new IInstallableUnit[] {a}, profile.query(QueryUtil.createIUAnyQuery(), null).iterator());
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
-		req2.addInstallableUnits(new IInstallableUnit[] {c});
+		req2.addInstallableUnits(c);
 		assertEquals(IStatus.OK, director.provision(req2, null, null).getSeverity());
 		assertProfileContainsAll("B and C are missing", profile, new IInstallableUnit[] {b, c});
 		assertNotIUs(new IInstallableUnit[] {a}, profile.query(QueryUtil.createIUAnyQuery(), null).iterator());

@@ -59,7 +59,7 @@ public class Bug249605 extends AbstractProvisioningTest {
 	public void testInstall() {
 		//		The requirement from A to B is broken because there is no B satisfying. Therefore A can only install if the P is installed as well
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
+		req1.addInstallableUnits(a1, p1);
 		req1.setInstallableUnitProfileProperty(p1, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
@@ -67,7 +67,7 @@ public class Bug249605 extends AbstractProvisioningTest {
 		assertProfileContains("1.2", profile1, new IInstallableUnit[] {a1, p1, b1});
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
-		req2.addInstallableUnits(new IInstallableUnit[] {p2});
+		req2.addInstallableUnits(p2);
 		req2.removeInstallableUnits(new IInstallableUnit[] {p1});
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, new NullProgressMonitor());
 		assertOK("2.0", plan2.getStatus());
@@ -76,7 +76,7 @@ public class Bug249605 extends AbstractProvisioningTest {
 		assertTrue(UserVisibleRootQuery.isUserVisible(p2, profile1));
 
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
-		req3.addInstallableUnits(new IInstallableUnit[] {p3});
+		req3.addInstallableUnits(p3);
 		req3.removeInstallableUnits(new IInstallableUnit[] {p2});
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, new NullProgressMonitor());
 		assertOK("3.0", plan3.getStatus());

@@ -7,9 +7,9 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * Contributors: 
- * Sonatype, Inc. - initial implementation and ideas 
+ *
+ * Contributors:
+ * Sonatype, Inc. - initial implementation and ideas
  ******************************************************************************/
 
 package org.eclipse.equinox.p2.tests;

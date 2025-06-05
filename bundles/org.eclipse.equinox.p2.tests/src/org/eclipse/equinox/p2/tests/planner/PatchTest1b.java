@@ -49,7 +49,7 @@ public class PatchTest1b extends AbstractProvisioningTest {
 	public void testInstall() {
 		//A requires B 1.0, the installation of the P will result in B 1.2 to be installed
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
+		req1.addInstallableUnits(a1, p1);
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertTrue(IStatus.ERROR != plan1.getStatus().getSeverity());
 		assertInstallOperand(plan1, a1);

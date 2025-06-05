@@ -75,7 +75,7 @@ public class SDKPatchingTest2 extends AbstractProvisioningTest {
 		assertOK("validation", validationPlan.getStatus());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {patchInstallingJDTLaunching, patchInstallingDebugUI});
+		request.addInstallableUnits(patchInstallingJDTLaunching, patchInstallingDebugUI);
 		request.setInstallableUnitInclusionRules(patchInstallingJDTLaunching, ProfileInclusionRules.createOptionalInclusionRule(patchInstallingJDTLaunching));
 		request.setInstallableUnitInclusionRules(patchInstallingDebugUI, ProfileInclusionRules.createOptionalInclusionRule(patchInstallingDebugUI));
 		IPlanner planner = createPlanner();

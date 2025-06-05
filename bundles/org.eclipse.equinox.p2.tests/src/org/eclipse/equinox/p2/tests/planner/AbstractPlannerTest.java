@@ -83,7 +83,7 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 	protected ProvisioningContext getContext(Collection<URI> repoLocations) {
 		ProvisioningContext result = new ProvisioningContext(getAgent());
 		result.setMetadataRepositories(repoLocations == null ? new URI[0] : repoLocations.toArray(new URI[repoLocations.size()]));
-		result.setArtifactRepositories(new URI[0]);
+		result.setArtifactRepositories();
 		return result;
 	}
 

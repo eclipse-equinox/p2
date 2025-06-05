@@ -47,7 +47,7 @@ public class InclusionRuleTest2 extends AbstractProvisioningTest {
 	public void testChangeIUProperty() {
 		//Add into the profile the version a1;
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		req.addInstallableUnits(a1);
 		req.setInstallableUnitProfileProperty(a1, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
@@ -62,7 +62,7 @@ public class InclusionRuleTest2 extends AbstractProvisioningTest {
 		System.gc();
 		ProfileChangeRequest req2 = ProfileChangeRequest.createByProfileId(getAgent(), profile.getProfileId());
 		req2.removeInstallableUnits(new IInstallableUnit[] {a1});
-		req2.addInstallableUnits(new IInstallableUnit[] {a2});
+		req2.addInstallableUnits(a2);
 		//		req2.setInstallableUnitProfileProperty(a2, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());

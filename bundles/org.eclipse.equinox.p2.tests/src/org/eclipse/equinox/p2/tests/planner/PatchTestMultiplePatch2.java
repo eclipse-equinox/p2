@@ -70,7 +70,7 @@ public class PatchTestMultiplePatch2 extends AbstractProvisioningTest {
 	public void testFailingInstall() {
 		install(profile1, new IInstallableUnit[] {}, true, planner, engine);
 		ProfileChangeRequest req = new ProfileChangeRequest(profile1);
-		req.addInstallableUnits(new IInstallableUnit[] {p2Feature, pp1, pp2});
+		req.addInstallableUnits(p2Feature, pp1, pp2);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 	}

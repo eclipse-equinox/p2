@@ -45,7 +45,7 @@ public class MissingOptionalNonGreedyRequirement extends AbstractProvisioningTes
 	public void testInstall() {
 		//The plan does not contains B because the requirement from A on B is non greedy and no one brings in B
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a1});
+		req.addInstallableUnits(a1);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);

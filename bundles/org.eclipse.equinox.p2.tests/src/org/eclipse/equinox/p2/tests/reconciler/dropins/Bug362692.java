@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -21,7 +21,7 @@ import junit.framework.TestSuite;
  * Test for Bug 362692. Inconsistent results from reconciliation when starting
  * with -clean. Data set listed below. Put the bundles in the drop-ins and start
  * with -clean and ensure the highest version of the bundles is loaded.
- * 
+ *
  * B v1, v2
  * C v1, v2
  * D v1, v2

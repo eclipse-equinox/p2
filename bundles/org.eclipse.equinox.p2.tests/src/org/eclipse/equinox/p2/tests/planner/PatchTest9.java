@@ -61,7 +61,7 @@ public class PatchTest9 extends AbstractProvisioningTest {
 	public void testPatchDoesNotApply() {
 		//The application of the patch does not succeed because there is no C matching the requirement imposed by the patch
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
+		req1.addInstallableUnits(a1, p1);
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
 	}
@@ -69,7 +69,7 @@ public class PatchTest9 extends AbstractProvisioningTest {
 	public void testExplanation() {
 		//The application of the patch does not succeed because there is no C matching the requirement imposed by the patch
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
+		req1.addInstallableUnits(a1, p1);
 		ProvisioningPlan plan1 = (ProvisioningPlan) planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
 		final RequestStatus requestStatus = ((PlannerStatus) plan1.getStatus()).getRequestStatus();
@@ -82,7 +82,7 @@ public class PatchTest9 extends AbstractProvisioningTest {
 	public void testPatchApply() {
 		//The application of the patch succeed because the dependency that PP puts on C is optional
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
-		req2.addInstallableUnits(new IInstallableUnit[] {a1, pp1});
+		req2.addInstallableUnits(a1, pp1);
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		assertInstallOperand(plan2, a1);

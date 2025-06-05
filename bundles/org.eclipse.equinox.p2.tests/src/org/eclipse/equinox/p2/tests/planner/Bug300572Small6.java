@@ -52,7 +52,7 @@ public class Bug300572Small6 extends AbstractProvisioningTest {
 	public void testInstallAandP1() {
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1, x}); //Here we are installing X just to have b1 be brought into the slice
+		req1.addInstallableUnits(a1, p1, x); //Here we are installing X just to have b1 be brought into the slice
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
 	}

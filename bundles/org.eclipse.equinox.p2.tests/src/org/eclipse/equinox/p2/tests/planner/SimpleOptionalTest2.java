@@ -76,7 +76,7 @@ public class SimpleOptionalTest2 extends AbstractProvisioningTest {
 	public void testInstallation() {
 		//Ensure that D's installation does not fail because of C's absence
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {a1, x1});
+		req.addInstallableUnits(a1, x1);
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);

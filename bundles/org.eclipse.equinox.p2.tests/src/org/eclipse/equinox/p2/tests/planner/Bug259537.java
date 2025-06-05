@@ -56,7 +56,7 @@ public class Bug259537 extends AbstractProvisioningTest {
 	public void test1() {
 		//Part 1, we install F1 and the repo only contains the lowest version of the required bundles
 		ProfileChangeRequest req = new ProfileChangeRequest(getProfile(profileId));
-		req.addInstallableUnits(new IInstallableUnit[] {f1});
+		req.addInstallableUnits(f1);
 		ProvisioningPlan provisioningPlan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertOK("Plan not OK", provisioningPlan.getStatus());
 		assertFalse(provisioningPlan.getAdditions().query(QueryUtil.createIUQuery(f1), null).isEmpty());

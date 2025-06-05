@@ -62,10 +62,10 @@ public class RepoValidator extends AbstractProvisioningTest {
 			IInstallableUnit iu = result.iterator().next();
 
 			ProvisioningContext provisioningContext = new ProvisioningContext(getAgent());
-			provisioningContext.setMetadataRepositories(new URI[] {repositoryLocation});
+			provisioningContext.setMetadataRepositories(repositoryLocation);
 			ProfileChangeRequest req = new ProfileChangeRequest(profile);
 			req.setProfileProperty("eclipse.p2.install.features", "true");
-			req.addInstallableUnits(new IInstallableUnit[] {iu});
+			req.addInstallableUnits(iu);
 			assertOK("Cannot resolve: " + iu, planner.getProvisioningPlan(req, provisioningContext, null).getStatus());
 		}
 	}
