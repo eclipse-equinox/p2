@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.equinox.p2.core.feature"
       label="%featureName"
-      version="1.7.700.qualifier"
+      version="1.7.800.qualifier"
       provider-name="%providerName"
       license-feature="org.eclipse.license"
       license-feature-version="0.0.0">
@@ -20,10 +20,11 @@
    </license>
 
    <requires>
-      <import feature="org.eclipse.ecf.core.feature" version="1.4.0" match="compatible"/>
-      <import feature="org.eclipse.ecf.filetransfer.feature" version="3.13.7" match="compatible"/>
-      <import feature="org.eclipse.ecf.filetransfer.httpclientjava.feature" version="2.0.0" match="compatible"/>
-      <import feature="org.eclipse.ecf.filetransfer.httpclient5.feature" version="1.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.provider.filetransfer.httpclient5" version="1.1.0" match="compatible"/>
+      <!-- specified in p2.inf
+      <import plugin="org.eclipse.ecf.provider.filetransfer.httpclient5.win32" version="1.1.0" match="compatible"/>
+      -->
+      <import plugin="org.eclipse.ecf.provider.filetransfer.httpclientjava" version="2.1.0" match="compatible"/>
    </requires>
 
    <plugin

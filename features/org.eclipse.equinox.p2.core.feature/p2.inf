@@ -1,0 +1,4 @@
+requires.0.namespace = org.eclipse.equinox.p2.iu
+requires.0.name = org.eclipse.ecf.provider.filetransfer.httpclient5.win32
+requires.0.filter = (osgi.os=win32)
+requires.0.range = [1.1.0,2.0.0)
