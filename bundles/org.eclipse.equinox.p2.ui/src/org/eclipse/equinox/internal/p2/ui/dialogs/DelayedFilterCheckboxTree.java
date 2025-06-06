@@ -299,7 +299,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		}
 
 		checkboxViewer.setCheckedElements(new Object[0]);
-		checkboxViewer.setGrayedElements(new Object[0]);
+		checkboxViewer.setGrayedElements();
 		// Now we are only going to set the check state of the leaf nodes
 		// and rely on our container checked code to update the parents properly.
 		Iterator<Object> iter = checkState.iterator();
