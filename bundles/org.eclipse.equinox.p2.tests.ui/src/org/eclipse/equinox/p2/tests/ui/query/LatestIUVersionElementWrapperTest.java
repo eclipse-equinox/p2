@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
@@ -62,7 +62,7 @@ public class LatestIUVersionElementWrapperTest extends AvailableIUWrapperTest {
 		IInstallableUnit unit4 = createIU("B", Version.createOSGi(0, 1, 1));
 		IInstallableUnit unit5 = createIU("C", Version.createOSGi(0, 1, 1));
 
-		// We should get unit 2, unit 3 and unit 5 
+		// We should get unit 2, unit 3 and unit 5
 		List<IInstallableUnit> listOfIUs = new ArrayList<>();
 		listOfIUs.add(unit1);
 		listOfIUs.add(unit2);
