@@ -33,10 +33,10 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 /**
  * An InstallOperation describes an operation that installs IInstallableUnits into
  * a profile.
- * 
+ *
  * The following snippet shows how one might use an InstallOperation to perform a synchronous resolution and
  * then kick off an install in the background:
- * 
+ *
  * <pre>
  * InstallOperation op = new InstallOperation(session, new IInstallableUnit [] { myIU });
  * IStatus result = op.resolveModal(monitor);
@@ -44,7 +44,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
  *   op.getProvisioningJob(monitor).schedule();
  * }
  * </pre>
- * 
+ *
  * @since 2.0
  * @see ProfileChangeOperation
  * @noextend This class is not intended to be subclassed by clients.
@@ -60,7 +60,7 @@ public class InstallOperation extends ProfileChangeOperation {
 	 * Create an install operation on the specified provisioning session that installs
 	 * the supplied IInstallableUnits.  Unless otherwise specified, the operation will
 	 * be associated with the currently running profile.
-	 * 
+	 *
 	 * @param session the session to use for obtaining provisioning services
 	 * @param toInstall the IInstallableUnits to be installed into the profile.
 	 */
@@ -111,7 +111,7 @@ public class InstallOperation extends ProfileChangeOperation {
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_ALREADY_INSTALLED, entryToInstall));
 					} else {
 						// It was already installed but not as a root.  Tell the user that parts of it are already installed and mark
-						// it as a root. 
+						// it as a root.
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_PARTIAL_INSTALL, entryToInstall));
 						request.setInstallableUnitProfileProperty(entryToInstall, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 					}

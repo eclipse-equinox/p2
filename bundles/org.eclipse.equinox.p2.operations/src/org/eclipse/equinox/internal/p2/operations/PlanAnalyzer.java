@@ -27,7 +27,7 @@ import org.eclipse.osgi.util.NLS;
 /**
  * This class analyzes a profile change request and the resultant provisioning plan,
  * and reports problems in a way that can be communicated to a user.
- * 
+ *
  * @since 3.5
  */
 public class PlanAnalyzer {
