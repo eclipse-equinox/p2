@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
@@ -182,7 +182,7 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 
 		Collection<?> results = wrapper.getElements(collector);
 
-		//Verify 
+		//Verify
 		assertEquals("1.1", 1, results.size());
 		Object iuElement = results.iterator().next();
 		assertEquals("1.2", newIUB, getIU(iuElement));
