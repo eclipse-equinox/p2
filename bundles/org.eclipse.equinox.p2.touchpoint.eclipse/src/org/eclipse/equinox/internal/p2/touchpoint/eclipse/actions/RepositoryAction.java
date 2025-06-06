@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -35,7 +35,7 @@ import org.osgi.service.prefs.Preferences;
  * Helper base class for dealing with repositories associated with profiles.
  * Repositories are associated with a profile by encoding the repository
  * locations in a comma-delimited list in a profile property.
- * 
+ *
  * @see AddRepositoryAction
  * @see RemoveRepositoryAction
  */

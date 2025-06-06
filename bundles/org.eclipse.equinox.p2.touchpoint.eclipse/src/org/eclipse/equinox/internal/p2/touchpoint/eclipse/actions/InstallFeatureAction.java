@@ -8,7 +8,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
