@@ -1,4 +1,4 @@
-/******************************************************************************* 
+/*******************************************************************************
 * Copyright (c) 2009, 2017 EclipseSource and others.
  *
  * This
@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 
 /**
- * This action parses a category file and publishes all the categories whose 
+ * This action parses a category file and publishes all the categories whose
  * elements are contained in the publisher results.
  */
 public class CategoryXMLAction extends SiteXMLAction {

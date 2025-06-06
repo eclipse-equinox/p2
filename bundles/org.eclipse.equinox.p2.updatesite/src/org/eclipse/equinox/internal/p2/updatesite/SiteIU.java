@@ -46,7 +46,7 @@ public class SiteIU {
 
 	/**
 	 * Returns the query expression for the IU.
-	 * 
+	 *
 	 * @return query expression
 	 */
 	public String getQueryExpression() {
@@ -55,7 +55,7 @@ public class SiteIU {
 
 	/**
 	 * Returns the query type for the IU.
-	 * 
+	 *
 	 * @return the query type
 	 */
 	public String getQueryType() {
@@ -64,7 +64,7 @@ public class SiteIU {
 
 	/**
 	 * Returns the params for the query expression for the IU
-	 * 
+	 *
 	 * @return an array of query params.
 	 */
 	public String[] getQueryParams() {
@@ -77,7 +77,7 @@ public class SiteIU {
 
 	/**
 	 * Returns the names of categories the referenced IU belongs to.
-	 * 
+	 *
 	 * @return an array of names, or an empty array.
 	 */
 	public String[] getCategoryNames() {
@@ -106,7 +106,7 @@ public class SiteIU {
 
 	/**
 	 * Sets the query expression for the IU.
-	 * 
+	 *
 	 * @param queryExpression query expression
 	 */
 	public void setQueryExpression(String queryExpression) {
@@ -115,7 +115,7 @@ public class SiteIU {
 
 	/**
 	 * Sets the query type for the IU.
-	 * 
+	 *
 	 * @param queryType the query type
 	 */
 	public void setQueryType(String queryType) {
@@ -124,7 +124,7 @@ public class SiteIU {
 
 	/**
 	 * Adds the name of a category this IU belongs to.
-	 * 
+	 *
 	 * @param categoryName category name
 	 */
 	public void addCategoryName(String categoryName) {
@@ -138,7 +138,7 @@ public class SiteIU {
 
 	/**
 	 * Adds a param for the query expression for this IU.
-	 * 
+	 *
 	 * @param queryParam a query param.
 	 */
 	public void addQueryParams(String queryParam) {
