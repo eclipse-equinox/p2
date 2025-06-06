@@ -96,7 +96,7 @@ public class SiteBundle {
 	/**
 	 * Adds the name of a category this bundle belongs to. Throws a runtime
 	 * exception if this object is marked read-only.
-	 * 
+	 *
 	 * @param categoryName category name
 	 */
 	public void addCategoryName(String categoryName) {
@@ -125,7 +125,7 @@ public class SiteBundle {
 
 	/**
 	 * Compares 2 bundle reference models for equality
-	 * 
+	 *
 	 * @param object bundle reference model to compare with
 	 * @return <code>true</code> if the two models are equal, <code>false</code>
 	 *         otherwise
@@ -187,7 +187,7 @@ public class SiteBundle {
 
 	/**
 	 * Returns the names of categories the referenced bundle belongs to.
-	 * 
+	 *
 	 * @return an array of names, or an empty array.
 	 */
 	public String[] getCategoryNames() {
@@ -200,7 +200,7 @@ public class SiteBundle {
 
 	/**
 	 * Returns the bundle identifier as a string
-	 * 
+	 *
 	 * @return bundle identifier
 	 */
 	public String getBundleIdentifier() {
@@ -209,7 +209,7 @@ public class SiteBundle {
 
 	/**
 	 * Returns the bundle version as a string
-	 * 
+	 *
 	 * @return bundle version
 	 */
 	public String getBundleVersion() {
@@ -271,7 +271,7 @@ public class SiteBundle {
 
 	/**
 	 * Returns the site model for the reference.
-	 * 
+	 *
 	 * @return site model
 	 * @since 2.0
 	 */
@@ -281,7 +281,7 @@ public class SiteBundle {
 
 	/**
 	 * Returns the referenced bundle type.
-	 * 
+	 *
 	 * @return bundle type, or <code>null</code> representing the default bundle
 	 *         type for the site
 	 */
@@ -291,7 +291,7 @@ public class SiteBundle {
 
 	/**
 	 * Returns the resolved URL for the bundle reference.
-	 * 
+	 *
 	 * @return url string
 	 */
 	public URL getURL() {
@@ -322,7 +322,7 @@ public class SiteBundle {
 	 * to the base URL argument. Any translatable strings in the model that are
 	 * specified as translation keys are localized using the supplied resource
 	 * bundle.
-	 * 
+	 *
 	 * @param resolveBase URL
 	 * @param bundleURL   resource bundle URL
 	 * @exception MalformedURLException
@@ -344,7 +344,7 @@ public class SiteBundle {
 	/**
 	 * Sets the names of categories this bundle belongs to. Throws a runtime
 	 * exception if this object is marked read-only.
-	 * 
+	 *
 	 * @param categoryNames an array of category names
 	 */
 	public void setCategoryNames(String[] categoryNames) {
@@ -358,7 +358,7 @@ public class SiteBundle {
 	/**
 	 * Sets the bundle identifier. Throws a runtime exception if this object is
 	 * marked read-only.
-	 * 
+	 *
 	 * @param bundleId bundle identifier
 	 */
 	public void setBundleIdentifier(String bundleId) {
@@ -368,7 +368,7 @@ public class SiteBundle {
 	/**
 	 * Sets the bundle version. Throws a runtime exception if this object is marked
 	 * read-only.
-	 * 
+	 *
 	 * @param bundleVersion bundle version
 	 */
 	public void setBundleVersion(String bundleVersion) {
@@ -377,7 +377,7 @@ public class SiteBundle {
 
 	/**
 	 * Sets the label.
-	 * 
+	 *
 	 * @param label The label to set
 	 */
 	public void setLabel(String label) {
@@ -414,7 +414,7 @@ public class SiteBundle {
 	/**
 	 * Sets the site for the referenced. Throws a runtime exception if this object
 	 * is marked read-only.
-	 * 
+	 *
 	 * @param site site for the reference
 	 */
 	public void setSiteModel(SiteModel site) {
@@ -424,7 +424,7 @@ public class SiteBundle {
 	/**
 	 * Sets the referenced bundle type. Throws a runtime exception if this object is
 	 * marked read-only.
-	 * 
+	 *
 	 * @param type referenced bundle type
 	 */
 	public void setType(String type) {
@@ -434,7 +434,7 @@ public class SiteBundle {
 	/**
 	 * Sets the unresolved URL for the bundle reference. Throws a runtime exception
 	 * if this object is marked read-only.
-	 * 
+	 *
 	 * @param urlString unresolved URL string
 	 */
 	public void setURLString(String urlString) {
