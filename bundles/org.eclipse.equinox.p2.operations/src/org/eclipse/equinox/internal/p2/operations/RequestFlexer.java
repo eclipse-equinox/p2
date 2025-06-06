@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     Red Hat, Inc. - initial API and implementation
  *******************************************************************************/
@@ -119,7 +119,7 @@ public class RequestFlexer {
 	}
 
 	private boolean canShortCircuit(IProfileChangeRequest originalRequest) {
-		//Case where the user is asking to install only some of the requested IUs but there is only one IU to install. 
+		//Case where the user is asking to install only some of the requested IUs but there is only one IU to install.
 		if (allowPartialInstall && !allowInstalledUpdate && !allowDifferentVersion && !allowInstalledRemoval) {
 			if (originalRequest.getAdditions().size() == 1) {
 				return true;
@@ -146,9 +146,9 @@ public class RequestFlexer {
 		return false;
 	}
 
-	//From the loosened request and the plan resulting from its resolution, create a new profile change request representing the delta between where the profile currently is 
+	//From the loosened request and the plan resulting from its resolution, create a new profile change request representing the delta between where the profile currently is
 	// and the plan returned.
-	//To perform this efficiently, this relies on a traversal of the requirements that are part of the loosened request.  
+	//To perform this efficiently, this relies on a traversal of the requirements that are part of the loosened request.
 	private IProfileChangeRequest computeEffectiveChangeRequest(IProvisioningPlan intermediaryPlan, IProfileChangeRequest loosenedRequest, IProfileChangeRequest originalRequest) {
 		IProfileChangeRequest finalChangeRequest = planner.createChangeRequest(profile);
 		// We have the following two variables because a IPCRequest can not be muted
@@ -260,7 +260,7 @@ public class RequestFlexer {
 	}
 
 	//Loosen the request originally emitted.
-	//For example if the user said "install A 1.0", then a new Requirement is added saying (install A 1.0 or install A 2.0), this depending on the configuration flags 
+	//For example if the user said "install A 1.0", then a new Requirement is added saying (install A 1.0 or install A 2.0), this depending on the configuration flags
 	private void loosenUpOriginalRequest(IProfileChangeRequest newRequest, IProfileChangeRequest originalRequest, IProgressMonitor monitor) {
 		//First deal with the IUs that are being added
 		Collection<IInstallableUnit> requestedAdditions = originalRequest.getAdditions();
@@ -367,7 +367,7 @@ public class RequestFlexer {
 	}
 
 	//Loosen up the IUs that are already part of the profile
-	//Given how we are creating our request, this needs to take into account the removal from the original request as well as the change in inclusion 
+	//Given how we are creating our request, this needs to take into account the removal from the original request as well as the change in inclusion
 	private IProfileChangeRequest loosenUpInstalledSoftware(IProfileChangeRequest request, IProfileChangeRequest originalRequest, IProgressMonitor monitor) {
 		if (!allowInstalledRemoval && !allowInstalledUpdate) {
 			return request;
@@ -407,7 +407,7 @@ public class RequestFlexer {
 		return computeFutureStateOfInclusion((ProfileChangeRequest) request).contains(existingIU);
 	}
 
-	//Given the change request, this returns the collection of optional IUs 
+	//Given the change request, this returns the collection of optional IUs
 	private Set<IInstallableUnit> computeFutureStateOfInclusion(ProfileChangeRequest profileChangeRequest) {
 		if (futureOptionalIUs != null) {
 			return futureOptionalIUs;
