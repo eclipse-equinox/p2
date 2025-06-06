@@ -263,7 +263,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		comparator = new MetadataRepositoryElementComparator(RepositoryDetailsLabelProvider.COL_NAME);
 		repositoryViewer.setComparator(comparator);
 		filter = new MetadataRepositoryPatternFilter();
-		repositoryViewer.setFilters(new ViewerFilter[] {filter});
+		repositoryViewer.setFilters(filter);
 		// We don't need a deferred content provider because we are caching local results before
 		// actually querying
 		repositoryViewer.setContentProvider(new ProvElementContentProvider());
@@ -350,7 +350,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		// Drop targets and vertical buttons only if repository manipulation is provided.
 		if (policy.getRepositoriesVisible()) {
 			DropTarget target = new DropTarget(table, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
-			target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
+			target.setTransfer(URLTransfer.getInstance(), FileTransfer.getInstance());
 			target.addDropListener(new RepositoryManipulatorDropTarget(ui, table));
 
 			// Vertical buttons

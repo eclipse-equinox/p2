@@ -200,7 +200,7 @@ public class RepositorySelectionGroup {
 		repoDec.setMarginWidth(DEC_MARGIN_WIDTH);
 
 		DropTarget target = new DropTarget(repoCombo, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
-		target.setTransfer(new Transfer[] { URLTransfer.getInstance(), FileTransfer.getInstance() });
+		target.setTransfer(URLTransfer.getInstance(), FileTransfer.getInstance());
 		target.addDropListener(new URLDropAdapter(true) {
 			@Override
 			protected void handleDrop(String urlText, DropTargetEvent event) {
@@ -398,8 +398,7 @@ public class RepositorySelectionGroup {
 	String getSiteString(URI uri) {
 		String nickname = getMetadataRepositoryManager().getRepositoryProperty(uri, IRepository.PROP_NICKNAME);
 		if (nickname != null && nickname.length() > 0) {
-			return NLS.bind(ProvUIMessages.AvailableIUsPage_NameWithLocation, new Object[] { nickname,
-					ProvUIMessages.RepositorySelectionGroup_NameAndLocationSeparator, URIUtil.toUnencodedString(uri) });
+			return NLS.bind(ProvUIMessages.AvailableIUsPage_NameWithLocation, nickname, ProvUIMessages.RepositorySelectionGroup_NameAndLocationSeparator, URIUtil.toUnencodedString(uri));
 		}
 		return URIUtil.toUnencodedString(uri);
 	}
@@ -624,8 +623,8 @@ public class RepositorySelectionGroup {
 		}
 		// A single site is selected.
 		ProvisioningContext context = new ProvisioningContext(ui.getSession().getProvisioningAgent());
-		context.setMetadataRepositories(new URI[] { comboRepos[siteSel] });
-		context.setArtifactRepositories(new URI[] { comboRepos[siteSel] });
+		context.setMetadataRepositories(comboRepos[siteSel]);
+		context.setArtifactRepositories(comboRepos[siteSel]);
 		return context;
 	}
 
