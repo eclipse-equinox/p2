@@ -189,13 +189,13 @@ class ConfigApplier {
 	 * <li>Missing capabilities</li>
 	 * <li>Use constraint violations</li>
 	 * </ol>
-	 * 
+	 *
 	 * after that each unique requirement is looked up in the wiring if there is any
 	 * provider for it, if that is the case, the requirements is not really missing
 	 * or part of a conflicting chain
-	 * 
+	 *
 	 * @param doNotRefresh
-	 * 
+	 *
 	 * @return a collection of bundles that potentially can provide a missing
 	 *         requirement
 	 */
