@@ -28,7 +28,7 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * This class provides a wrapper for reading and writing platform.xml.
- * 
+ *
  * Only a minimal set of operations is exposed.
  */
 public class PlatformConfigurationWrapper {
@@ -45,7 +45,7 @@ public class PlatformConfigurationWrapper {
 	 * Use the given manipulator to calculate the OSGi install location. We can't
 	 * just use the Location service here because we may not be installing into
 	 * ourselves. (see https://bugs.eclipse.org/354552)
-	 * 
+	 *
 	 * First try and calculate the location based relative to the data provided in
 	 * the manipulator's launcher data. If that doesn't work then calculate it based
 	 * on the location of known JARs. If that still doesn't work then return null.

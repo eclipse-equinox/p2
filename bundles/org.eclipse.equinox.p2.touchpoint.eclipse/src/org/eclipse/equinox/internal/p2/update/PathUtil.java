@@ -1,13 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2008, 2010 IBM Corporation and others.
  *
- * This program and the accompanying materials 
+ * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.*;
  * @since 1.0
  */
 public class PathUtil {
-	public static boolean isWindows = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$	
+	public static boolean isWindows = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
 
@@ -97,7 +97,7 @@ public class PathUtil {
 	/*
 	 * Make the given path absolute to the specified root, if applicable. If not, then
 	 * return the path as-is.
-	 * 
+	 *
 	 * Method similar to one from SimpleConfigurationManipulatorImpl.
 	 */
 	public static String makeAbsolute(String original, String rootPath) {

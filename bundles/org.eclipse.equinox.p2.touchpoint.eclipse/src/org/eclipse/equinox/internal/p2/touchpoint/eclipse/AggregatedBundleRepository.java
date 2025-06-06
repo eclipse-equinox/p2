@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -111,7 +111,7 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 
 	/**
 	 * Exposed for testing and debugging purposes.
-	 * 
+	 *
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public Collection<IFileArtifactRepository> testGetBundleRepositories() {

@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc. - converted into expression based query
@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
 
 /**
- * A query matching every {@link IInstallableUnit} that describes an OSGi bundle. 
+ * A query matching every {@link IInstallableUnit} that describes an OSGi bundle.
  * @since 2.0
  */
 public final class OSGiBundleQuery extends ExpressionMatchQuery<IInstallableUnit> {
@@ -32,7 +32,7 @@ public final class OSGiBundleQuery extends ExpressionMatchQuery<IInstallableUnit
 	}
 
 	/**
-	 * Test if the {@link IInstallableUnit} describes an OSGi bundle. 
+	 * Test if the {@link IInstallableUnit} describes an OSGi bundle.
 	 * @param iu the element being tested.
 	 * @return <code>true</code> if the parameter describes an OSGi bundle.
 	 */

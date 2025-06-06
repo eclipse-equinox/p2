@@ -48,7 +48,7 @@ public class AgentFromInstall {
 	 * the installFolder or the configurationFolder. In the returned agent, the
 	 * services will be initialized such that the SELF variable is bound to the
 	 * default profile referred to in the configuration files.
-	 * 
+	 *
 	 * @param agentProvider       an instance of an agent provider from which the
 	 *                            agent will be created.
 	 * @param installFolder       null or a file referring to the installation
