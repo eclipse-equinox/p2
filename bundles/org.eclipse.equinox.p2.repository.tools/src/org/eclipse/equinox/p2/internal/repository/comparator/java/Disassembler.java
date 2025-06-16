@@ -541,7 +541,11 @@ public class Disassembler {
 			} else if (minorVersion == 0 && majorVersion == 51) {
 				versionNumber = IModifierConstants.VERSION_1_7;
 			}
-			buffer.append(NLS.bind(Messages.classfileformat_versiondetails, versionNumber, Integer.toString(majorVersion), Integer.toString(minorVersion), ((accessFlags & IModifierConstants.ACC_SUPER) != 0 ? Messages.classfileformat_superflagisset : Messages.classfileformat_superflagisnotset) + (isDeprecated(classFileReader) ? ", deprecated" : Utility.EMPTY_STRING)));
+			buffer.append(NLS.bind(Messages.classfileformat_versiondetails, versionNumber,
+					Integer.toString(majorVersion), Integer.toString(minorVersion),
+					((accessFlags & IModifierConstants.ACC_SUPER) != 0 ? Messages.classfileformat_superflagisset
+							: Messages.classfileformat_superflagisnotset)
+							+ (isDeprecated(classFileReader) ? ", deprecated" : Utility.EMPTY_STRING))); //$NON-NLS-1$
 			writeNewLine(buffer, lineSeparator, 0);
 			if (signatureAttribute != null) {
 				buffer.append(NLS.bind(Messages.disassembler_signatureattributeheader, new String(signatureAttribute.getSignature())));
