@@ -248,7 +248,8 @@ public class Disassembler {
 	private void disassemble(Annotation annotation, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		final char[] typeName = CharOperation.replaceOnCopy(annotation.getTypeName(), '/', '.');
-		buffer.append(NLS.bind(Messages.disassembler_annotationentrystart, new String[] {new String(returnClassName(Signature.toCharArray(typeName), '.', mode))}));
+		buffer.append(NLS.bind(Messages.disassembler_annotationentrystart,
+				new String(returnClassName(Signature.toCharArray(typeName), '.', mode))));
 		for (AnnotationComponent component : annotation.getComponents()) {
 			disassemble(component, buffer, lineSeparator, tabNumber + 1, mode);
 		}
@@ -258,7 +259,8 @@ public class Disassembler {
 
 	private void disassemble(AnnotationComponent annotationComponent, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
-		buffer.append(NLS.bind(Messages.disassembler_annotationcomponent, new String[] {new String(annotationComponent.getComponentName())}));
+		buffer.append(NLS.bind(Messages.disassembler_annotationcomponent,
+				new String(annotationComponent.getComponentName())));
 		disassemble(annotationComponent.getComponentValue(), buffer, lineSeparator, tabNumber + 1, mode);
 	}
 
@@ -311,12 +313,15 @@ public class Disassembler {
 			case AnnotationComponentValue.ENUM_TAG :
 				final char[] typeName = CharOperation.replaceOnCopy(annotationComponentValue.getEnumConstantTypeName(), '/', '.');
 				final char[] constantName = annotationComponentValue.getEnumConstantName();
-				buffer.append(NLS.bind(Messages.disassembler_annotationenumvalue, new String[] {new String(returnClassName(Signature.toCharArray(typeName), '.', mode)), new String(constantName)}));
+				buffer.append(NLS.bind(Messages.disassembler_annotationenumvalue,
+						new String(returnClassName(Signature.toCharArray(typeName), '.', mode)),
+						new String(constantName)));
 				break;
 			case AnnotationComponentValue.CLASS_TAG :
 				constantPoolEntry = annotationComponentValue.getClassInfo();
 				final char[] className = CharOperation.replaceOnCopy(constantPoolEntry.getUtf8Value(), '/', '.');
-				buffer.append(NLS.bind(Messages.disassembler_annotationclassvalue, new String[] {new String(returnClassName(Signature.toCharArray(className), '.', mode))}));
+				buffer.append(NLS.bind(Messages.disassembler_annotationclassvalue,
+						new String(returnClassName(Signature.toCharArray(className), '.', mode))));
 				break;
 			case AnnotationComponentValue.ANNOTATION_TAG :
 				buffer.append(Messages.disassembler_annotationannotationvalue);
@@ -358,7 +363,7 @@ public class Disassembler {
 		final ClassFileAttribute runtimeInvisibleParameterAnnotationsAttribute = Utility.getAttribute(methodInfo, AttributeNamesConstants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS);
 		final ClassFileAttribute annotationDefaultAttribute = Utility.getAttribute(methodInfo, AttributeNamesConstants.ANNOTATION_DEFAULT);
 		if (checkMode(mode, DETAILED)) {
-			buffer.append(NLS.bind(Messages.classfileformat_methoddescriptor, new String[] {new String(methodDescriptor)}));
+			buffer.append(NLS.bind(Messages.classfileformat_methoddescriptor, new String(methodDescriptor)));
 			if (methodInfo.isDeprecated()) {
 				buffer.append(Messages.disassembler_deprecated);
 			}
@@ -368,7 +373,8 @@ public class Disassembler {
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 			if (codeAttribute != null) {
-				buffer.append(NLS.bind(Messages.classfileformat_stacksAndLocals, new String[] {Integer.toString(codeAttribute.getMaxStack()), Integer.toString(codeAttribute.getMaxLocals())}));
+				buffer.append(NLS.bind(Messages.classfileformat_stacksAndLocals,
+						Integer.toString(codeAttribute.getMaxStack()), Integer.toString(codeAttribute.getMaxLocals())));
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 			// disassemble compact version of annotations
@@ -740,7 +746,7 @@ public class Disassembler {
 		final char[] fieldDescriptor = fieldInfo.getDescriptor();
 		final SignatureAttribute signatureAttribute = (SignatureAttribute) Utility.getAttribute(fieldInfo, AttributeNamesConstants.SIGNATURE);
 		if (checkMode(mode, DETAILED)) {
-			buffer.append(NLS.bind(Messages.classfileformat_fieldddescriptor, new String[] {new String(fieldDescriptor)}));
+			buffer.append(NLS.bind(Messages.classfileformat_fieldddescriptor, new String(fieldDescriptor)));
 			if (fieldInfo.isDeprecated()) {
 				buffer.append(Messages.disassembler_deprecated);
 			}
@@ -880,7 +886,8 @@ public class Disassembler {
 	private void disassemble(int index, ParameterAnnotation parameterAnnotation, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		Annotation[] annotations = parameterAnnotation.getAnnotations();
 		writeNewLine(buffer, lineSeparator, tabNumber + 1);
-		buffer.append(NLS.bind(Messages.disassembler_parameterannotationentrystart, new String[] {Integer.toString(index), Integer.toString(annotations.length)}));
+		buffer.append(NLS.bind(Messages.disassembler_parameterannotationentrystart, Integer.toString(index),
+				Integer.toString(annotations.length)));
 		for (Annotation annotation : annotations) {
 			disassemble(annotation, buffer, lineSeparator, tabNumber + 1, mode);
 		}
