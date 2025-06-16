@@ -154,7 +154,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			OutputStream testStream = firstLink == null ? this : firstLink;
 			if (ProcessingStepHandler.checkStatus(testStream).isOK() && count > 0) {
 				((ArtifactDescriptor) descriptor).setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(count));
-				addDescriptor(descriptor);
+				addDescriptor(descriptor, new NullProgressMonitor());
 			} else if (file != null) {
 				// cleanup if possible
 				delete(file);

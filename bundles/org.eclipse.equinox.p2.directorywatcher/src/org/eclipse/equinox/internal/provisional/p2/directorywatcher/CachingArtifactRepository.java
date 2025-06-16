@@ -52,7 +52,7 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 
 	void saveRemovals() {
 		for (IArtifactDescriptor desc : descriptorsToRemove) {
-			innerRepo.removeDescriptor(desc);
+			innerRepo.removeDescriptor(desc, new NullProgressMonitor());
 		}
 		descriptorsToRemove.clear();
 	}
@@ -61,7 +61,8 @@ public class CachingArtifactRepository implements IFileArtifactRepository {
 		if (descriptorsToAdd.isEmpty()) {
 			return;
 		}
-		innerRepo.addDescriptors(descriptorsToAdd.toArray(new IArtifactDescriptor[descriptorsToAdd.size()]));
+		innerRepo.addDescriptors(descriptorsToAdd.toArray(new IArtifactDescriptor[descriptorsToAdd.size()]),
+				new NullProgressMonitor());
 		descriptorsToAdd.clear();
 		artifactMap.clear();
 	}
