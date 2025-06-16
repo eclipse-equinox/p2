@@ -77,7 +77,7 @@ public class RawMirrorRequest extends MirrorRequest {
 
 		// failed, first remove possibly erroneously added descriptor
 		if (target.contains(targetDescriptor)) {
-			target.removeDescriptor(targetDescriptor);
+			target.removeDescriptor(targetDescriptor, new NullProgressMonitor());
 		}
 
 		setResult(status);

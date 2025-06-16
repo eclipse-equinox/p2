@@ -44,7 +44,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 	public static final String FILE_NAME = "file.name"; //$NON-NLS-1$
 	private final IMetadataRepository metadataRepository;
 	private final CachingArtifactRepository artifactRepository;
-	// at any point in time currentFiles is the list of files/dirs that the watcher has seen and
+	// at any point in time currentFiles is the list of files/dirs that the watcher
+	// has seen and
 	// believes to be on disk.
 	private final Map<File, Long> currentFiles = new HashMap<>();
 	private final Collection<File> polledSeenFiles = new HashSet<>();
@@ -55,10 +56,11 @@ public class RepositoryListener extends DirectoryChangeListener {
 	private IPublisherResult iusToChange;
 
 	/**
-	 * Create a repository listener that watches the specified folder and generates repositories
-	 * for its content.
+	 * Create a repository listener that watches the specified folder and generates
+	 * repositories for its content.
+	 * 
 	 * @param repositoryName the repository name to use for the repository
-	 * @param properties the map of repository properties or <code>null</code>
+	 * @param properties     the map of repository properties or <code>null</code>
 	 */
 	public RepositoryListener(String repositoryName, Map<String, String> properties) {
 		URI location = getDefaultRepositoryLocation(this, repositoryName);
@@ -189,7 +191,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 			return;
 		}
 		final Collection<IInstallableUnit> changes = iusToChange.getIUs(null, null);
-		// first remove any IUs that have changed or that are associated with removed files
+		// first remove any IUs that have changed or that are associated with removed
+		// files
 		if (!removedFiles.isEmpty() || !changes.isEmpty()) {
 			metadataRepository.removeInstallableUnits(changes);
 
@@ -206,7 +209,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 			IQueryResult<IInstallableUnit> toRemove = metadataRepository.query(removeQuery, null);
 			metadataRepository.removeInstallableUnits(toRemove.toUnmodifiableSet());
 		}
-		// Then add all the new IUs as well as the new copies of the ones that have changed
+		// Then add all the new IUs as well as the new copies of the ones that have
+		// changed
 		Collection<IInstallableUnit> additions = iusToAdd.getIUs(null, null);
 		additions.addAll(changes);
 		if (!additions.isEmpty()) {
@@ -215,9 +219,9 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	/**
-	 * Here the artifacts have all been added to the artifact repo.  Remove the
-	 * descriptors related to any file that has been removed and flush the repo
-	 * to ensure that all the additions and removals have been completed.
+	 * Here the artifacts have all been added to the artifact repo. Remove the
+	 * descriptors related to any file that has been removed and flush the repo to
+	 * ensure that all the additions and removals have been completed.
 	 */
 	private void synchronizeArtifactRepository(final Collection<File> removedFiles) {
 		if (artifactRepository == null) {
@@ -237,7 +241,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 				} else {
 					File artifactFile = new File(filename);
 					if (removedFiles.contains(artifactFile)) {
-						artifactRepository.removeDescriptor(descriptor);
+						artifactRepository.removeDescriptor(descriptor, new NullProgressMonitor());
 					}
 				}
 			}
@@ -246,8 +250,9 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	/**
-	 * Prime the list of current files that the listener knows about.  This traverses the
-	 * repos and looks for the related filename and modified timestamp information.
+	 * Prime the list of current files that the listener knows about. This traverses
+	 * the repos and looks for the related filename and modified timestamp
+	 * information.
 	 */
 	private void synchronizeCurrentFiles() {
 		currentFiles.clear();
@@ -268,21 +273,25 @@ public class RepositoryListener extends DirectoryChangeListener {
 			}
 		}
 		//
-		//		// TODO  should we be doing this for the artifact repo?  the metadata repo should
-		//		// be the main driver here.
-		//		if (artifactRepository != null) {
-		//			final List keys = new ArrayList(Arrays.asList(artifactRepository.getArtifactKeys()));
-		//			for (Iterator it = keys.iterator(); it.hasNext();) {
-		//				IArtifactKey key = (IArtifactKey) it.next();
-		//				IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key);
-		//				for (int i = 0; i < descriptors.length; i++) {
-		//					ArtifactDescriptor descriptor = (ArtifactDescriptor) descriptors[i];
-		//					File artifactFile = new File(descriptor.getRepositoryProperty(FILE_NAME));
-		//					Long artifactLastModified = new Long(descriptor.getRepositoryProperty(FILE_LAST_MODIFIED));
-		//					currentFiles.put(artifactFile, artifactLastModified);
-		//				}
-		//			}
-		//		}
+		// // TODO should we be doing this for the artifact repo? the metadata repo
+		// should
+		// // be the main driver here.
+		// if (artifactRepository != null) {
+		// final List keys = new
+		// ArrayList(Arrays.asList(artifactRepository.getArtifactKeys()));
+		// for (Iterator it = keys.iterator(); it.hasNext();) {
+		// IArtifactKey key = (IArtifactKey) it.next();
+		// IArtifactDescriptor[] descriptors =
+		// artifactRepository.getArtifactDescriptors(key);
+		// for (int i = 0; i < descriptors.length; i++) {
+		// ArtifactDescriptor descriptor = (ArtifactDescriptor) descriptors[i];
+		// File artifactFile = new File(descriptor.getRepositoryProperty(FILE_NAME));
+		// Long artifactLastModified = new
+		// Long(descriptor.getRepositoryProperty(FILE_LAST_MODIFIED));
+		// currentFiles.put(artifactFile, artifactLastModified);
+		// }
+		// }
+		// }
 	}
 
 	public IMetadataRepository getMetadataRepository() {
