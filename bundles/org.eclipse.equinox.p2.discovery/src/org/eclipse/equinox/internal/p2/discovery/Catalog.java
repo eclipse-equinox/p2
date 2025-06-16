@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2025 Tasktop Technologies and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -58,11 +58,13 @@ public class Catalog {
 	}
 
 	/**
-	 * Initialize this by performing discovery. Discovery may take a long time as it involves network access.
-	 * PRECONDITION: must add at least one {@link #getDiscoveryStrategies() discovery strategy} prior to calling.
+	 * Initialize this by performing discovery. Discovery may take a long time as it
+	 * involves network access. PRECONDITION: must add at least one
+	 * {@link #getDiscoveryStrategies() discovery strategy} prior to calling.
 	 */
 	public IStatus performDiscovery(IProgressMonitor monitor) {
-		MultiStatus status = new MultiStatus(DiscoveryCore.ID_PLUGIN, 0, Messages.Catalog_Failed_to_discovery_all_Error, null);
+		MultiStatus status = new MultiStatus(DiscoveryCore.ID_PLUGIN, 0, Messages.Catalog_Failed_to_discovery_all_Error,
+				null);
 		if (discoveryStrategies.isEmpty()) {
 			throw new IllegalStateException();
 		}
@@ -86,7 +88,9 @@ public class Catalog {
 			try {
 				discoveryStrategy.performDiscovery(subMonitor.newChild(discoveryTicks / discoveryStrategies.size()));
 			} catch (CoreException e) {
-				status.add(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.Catalog_Strategy_failed_Error, discoveryStrategy.getClass().getSimpleName()), e));
+				status.add(Status.error(
+						NLS.bind(Messages.Catalog_Strategy_failed_Error, discoveryStrategy.getClass().getSimpleName()),
+						e));
 			}
 		}
 
@@ -94,7 +98,8 @@ public class Catalog {
 		return status;
 	}
 
-	protected void update(List<CatalogCategory> newCategories, List<CatalogItem> newItems, List<Certification> newCertifications, List<Tag> newTags) {
+	protected void update(List<CatalogCategory> newCategories, List<CatalogItem> newItems,
+			List<Certification> newCertifications, List<Tag> newTags) {
 		this.categories = newCategories;
 		this.items = newItems;
 		this.certifications = newCertifications;
@@ -147,16 +152,16 @@ public class Catalog {
 	}
 
 	/**
-	 * The environment used to resolve {@link CatalogItem#getPlatformFilter() platform filters}. Defaults to the
-	 * current environment.
+	 * The environment used to resolve {@link CatalogItem#getPlatformFilter()
+	 * platform filters}. Defaults to the current environment.
 	 */
 	public Dictionary<Object, Object> getEnvironment() {
 		return environment;
 	}
 
 	/**
-	 * The environment used to resolve {@link CatalogItem#getPlatformFilter() platform filters}. Defaults to the
-	 * current environment.
+	 * The environment used to resolve {@link CatalogItem#getPlatformFilter()
+	 * platform filters}. Defaults to the current environment.
 	 */
 	public void setEnvironment(Dictionary<Object, Object> environment) {
 		if (environment == null) {
@@ -166,7 +171,8 @@ public class Catalog {
 	}
 
 	/**
-	 * indicate if update site availability should be verified. The default is false.
+	 * indicate if update site availability should be verified. The default is
+	 * false.
 	 *
 	 * @see CatalogItem#getAvailable()
 	 * @see #setVerifyUpdateSiteAvailability(boolean)
@@ -176,7 +182,8 @@ public class Catalog {
 	}
 
 	/**
-	 * indicate if update site availability should be verified. The default is false.
+	 * indicate if update site availability should be verified. The default is
+	 * false.
 	 *
 	 * @see CatalogItem#getAvailable()
 	 * @see #isVerifyUpdateSiteAvailability()
@@ -186,16 +193,18 @@ public class Catalog {
 	}
 
 	/**
-	 * <em>not for general use: public for testing purposes only</em> A map of installed features to their version. Used
-	 * to resolve {@link CatalogItem#getFeatureFilter() feature filters}.
+	 * <em>not for general use: public for testing purposes only</em> A map of
+	 * installed features to their version. Used to resolve
+	 * {@link CatalogItem#getFeatureFilter() feature filters}.
 	 */
 	public Map<String, Version> getFeatureToVersion() {
 		return featureToVersion;
 	}
 
 	/**
-	 * <em>not for general use: public for testing purposes only</em> A map of installed features to their version. Used
-	 * to resolve {@link CatalogItem#getFeatureFilter() feature filters}.
+	 * <em>not for general use: public for testing purposes only</em> A map of
+	 * installed features to their version. Used to resolve
+	 * {@link CatalogItem#getFeatureFilter() feature filters}.
 	 */
 	public void setFeatureToVersion(Map<String, Version> featureToVersion) {
 		this.featureToVersion = featureToVersion;
@@ -206,7 +215,7 @@ public class Catalog {
 		for (Certification certification : certifications) {
 			Certification previous = idToCertification.put(certification.getId(), certification);
 			if (previous != null) {
-				LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind("Duplicate certification id ''{0}'': declaring sources: {1}, {2}", //$NON-NLS-1$
+				LogHelper.log(Status.error(NLS.bind("Duplicate certification id ''{0}'': declaring sources: {1}, {2}", //$NON-NLS-1$
 						certification.getId(), certification.getSource().getId(), previous.getSource().getId())));
 			}
 		}
@@ -217,7 +226,9 @@ public class Catalog {
 				if (certification != null) {
 					connector.setCertification(certification);
 				} else {
-					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind("Unknown category ''{0}'' referenced by connector ''{1}'' declared in {2}", connector.getCertificationId(), connector.getId(), connector.getSource().getId())));
+					LogHelper.log(Status
+							.error(NLS.bind("Unknown category ''{0}'' referenced by connector ''{1}'' declared in {2}", //$NON-NLS-1$
+									connector.getCertificationId(), connector.getId(), connector.getSource().getId())));
 				}
 			}
 		}
@@ -228,7 +239,8 @@ public class Catalog {
 		for (CatalogCategory category : categories) {
 			CatalogCategory previous = idToCategory.put(category.getId(), category);
 			if (previous != null) {
-				LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.Catalog_duplicate_category_id, category.getId(), category.getSource().getId(), previous.getSource().getId())));
+				LogHelper.log(Status.error(NLS.bind(Messages.Catalog_duplicate_category_id, category.getId(),
+						category.getSource().getId(), previous.getSource().getId())));
 			}
 		}
 
@@ -238,26 +250,30 @@ public class Catalog {
 				category.getItems().add(connector);
 				connector.setCategory(category);
 			} else {
-				LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.Catalog_bundle_references_unknown_category, connector.getCategoryId(), connector.getId(), connector.getSource().getId())));
+				LogHelper.log(Status.error(NLS.bind(Messages.Catalog_bundle_references_unknown_category,
+						connector.getCategoryId(), connector.getId(), connector.getSource().getId())));
 			}
 		}
 	}
 
 	/**
-	 * eliminate any connectors whose {@link CatalogItem#getPlatformFilter() platform filters} don't match
+	 * eliminate any connectors whose {@link CatalogItem#getPlatformFilter()
+	 * platform filters} don't match
 	 */
-	@SuppressWarnings({"rawtypes", "unchecked"})
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void filterDescriptors() {
 		for (CatalogItem connector : new ArrayList<>(items)) {
 			if (connector.getPlatformFilter() != null && connector.getPlatformFilter().trim().length() > 0) {
 				boolean match = false;
 				try {
 					Filter filter = FrameworkUtil.createFilter(connector.getPlatformFilter());
-					// TODO Doing raw conversion here for simplicity; could convert to Dictionary<String, ?>
+					// TODO Doing raw conversion here for simplicity; could convert to
+					// Dictionary<String, ?>
 					// but the filter impl must still handle cases where non String keys are used.
 					match = filter.match((Dictionary) environment);
 				} catch (InvalidSyntaxException e) {
-					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.Catalog_illegal_filter_syntax, connector.getPlatformFilter(), connector.getId(), connector.getSource().getId())));
+					LogHelper.log(Status.error(NLS.bind(Messages.Catalog_illegal_filter_syntax,
+							connector.getPlatformFilter(), connector.getId(), connector.getSource().getId())));
 				}
 				if (!match) {
 					items.remove(connector);
@@ -308,7 +324,8 @@ public class Catalog {
 
 				@Override
 				public void handleException(Throwable exception) {
-					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.Catalog_exception_disposing + strategy.getClass().getName(), exception));
+					LogHelper.log(Status.error(Messages.Catalog_exception_disposing + strategy.getClass().getName(),
+							exception));
 				}
 			});
 		}
