@@ -58,7 +58,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	/**
 	 * Create a repository listener that watches the specified folder and generates
 	 * repositories for its content.
-	 * 
+	 *
 	 * @param repositoryName the repository name to use for the repository
 	 * @param properties     the map of repository properties or <code>null</code>
 	 */
