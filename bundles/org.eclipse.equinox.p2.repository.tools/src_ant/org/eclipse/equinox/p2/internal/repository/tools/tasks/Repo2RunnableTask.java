@@ -15,7 +15,6 @@
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
 import java.util.List;
-
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.eclipse.core.runtime.IStatus;
@@ -34,7 +33,7 @@ import org.eclipse.osgi.util.NLS;
  *
  * @since 1.0
  */
-public class Repo2RunnableTask extends AbstractRepositoryTask {
+public class Repo2RunnableTask extends AbstractRepositoryTask<Repo2Runnable> {
 
 	private boolean failOnError = true;
 	private boolean flagAsRunnable = false;
@@ -45,8 +44,7 @@ public class Repo2RunnableTask extends AbstractRepositoryTask {
 	 * so we can populate it with attributes.
 	 */
 	public Repo2RunnableTask() {
-		super();
-		this.application = new Repo2Runnable();
+		super(new Repo2Runnable());
 	}
 
 	@Override
@@ -55,22 +53,24 @@ public class Repo2RunnableTask extends AbstractRepositoryTask {
 			prepareSourceRepos();
 			application.initializeRepos(null);
 			List<IInstallableUnit> ius = prepareIUs();
-			if ((ius == null || ius.size() == 0) && !(application.hasArtifactSources() || application.hasMetadataSources())) {
+			if ((ius == null || ius.size() == 0)
+					&& !(application.hasArtifactSources() || application.hasMetadataSources())) {
 				throw new BuildException(Messages.exception_needIUsOrNonEmptyRepo);
 			}
 			application.setSourceIUs(ius);
-			((Repo2Runnable) application).setFlagAsRunnable(flagAsRunnable);
-			((Repo2Runnable) application).setCreateFragments(createFragments);
+			application.setFlagAsRunnable(flagAsRunnable);
+			application.setCreateFragments(createFragments);
 			IStatus result = application.run(null);
 			if (failOnError && result.matches(IStatus.ERROR)) {
 				throw new ProvisionException(result);
 			}
 		} catch (ProvisionException e) {
+			Object msg = null != e.getMessage() ? e.getMessage() : e.toString();
 			if (failOnError) {
-				throw new BuildException(NLS.bind(Messages.Repo2RunnableTask_errorTransforming, null != e.getMessage() ? e.getMessage() : e.toString()), e);
+				throw new BuildException(NLS.bind(Messages.Repo2RunnableTask_errorTransforming, msg), e);
 			}
 			/* else */
-			getProject().log(NLS.bind(Messages.Repo2RunnableTask_errorTransforming, null != e.getMessage() ? e.getMessage() : e.toString()), Project.MSG_WARN);
+			getProject().log(NLS.bind(Messages.Repo2RunnableTask_errorTransforming, msg), Project.MSG_WARN);
 			getProject().log(e.getMessage(), Project.MSG_WARN);
 		}
 	}

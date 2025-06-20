@@ -36,7 +36,7 @@ import org.osgi.framework.ServiceReference;
 public abstract class AbstractApplication {
 	protected boolean removeAddedRepositories = true;
 
-	protected List<RepositoryDescriptor> sourceRepositories = new ArrayList<>(); // List of repository descriptors
+	protected final List<RepositoryDescriptor> sourceRepositories = new ArrayList<>(); // List of repository descriptors
 	protected List<URI> artifactReposToRemove = new ArrayList<>();
 	protected List<URI> metadataReposToRemove = new ArrayList<>();
 	protected List<IInstallableUnit> sourceIUs = new ArrayList<>();
@@ -70,8 +70,7 @@ public abstract class AbstractApplication {
 		if (bundleContext == null) {
 			return;
 		}
-		ServiceReference<IProvisioningAgent> agentRef = bundleContext
-				.getServiceReference(IProvisioningAgent.class);
+		ServiceReference<IProvisioningAgent> agentRef = bundleContext.getServiceReference(IProvisioningAgent.class);
 		if (agentRef != null) {
 			agent = bundleContext.getService(agentRef);
 			if (agent != null) {
@@ -195,6 +194,7 @@ public abstract class AbstractApplication {
 	protected <T> IRepository<T> initializeDestination(RepositoryDescriptor toInit, IRepositoryManager<T> mgr)
 			throws ProvisionException {
 
+		URI destinationLocation = toInit.getRepoLocation();
 		String repositoryType;
 		List<URI> repoList;
 		if (mgr instanceof IMetadataRepositoryManager) {
@@ -203,11 +203,11 @@ public abstract class AbstractApplication {
 		} else if (mgr instanceof IArtifactRepositoryManager) {
 			repositoryType = IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY;
 			repoList = artifactReposToRemove;
-		} else  {
+		} else {
 			throw new AssertionError("Unsupported repository type: " + mgr.getClass()); //$NON-NLS-1$
 		}
 		try {
-			IRepository<T> repository = addRepository(mgr, toInit.getRepoLocation(),
+			IRepository<T> repository = addRepository(mgr, destinationLocation,
 					IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, repoList, null);
 			if (initDestinationRepository(repository, toInit)) {
 				return repository;
@@ -221,24 +221,32 @@ public abstract class AbstractApplication {
 				source = mgr.loadRepository(toInit.getFormat(), null);
 			}
 		} catch (ProvisionException e) {
-			// Ignore.
+			// Ignore
 		}
 		// This code assumes source has been successfully loaded before this point
 		// No existing repository; create a new repository at destinationLocation but
 		// with source's attributes.
 		// TODO for now create a Simple repo by default.
 		try {
-			IRepository<T> result = mgr.createRepository(toInit.getRepoLocation(),
-					toInit.getName() != null ? toInit.getName()
-							: (source != null ? source.getName() : toInit.getRepoLocation().toString()),
-					repositoryType, source != null ? source.getProperties() : null);
-			if (toInit.isCompressed() && !result.getProperties().containsKey(IRepository.PROP_COMPRESSED)) {
-				result.setProperty(IRepository.PROP_COMPRESSED, "true"); //$NON-NLS-1$
-			}
-			return RepositoryHelper.validDestinationRepository(result);
-		} catch (UnsupportedOperationException e) {
-			throw new ProvisionException(NLS.bind(Messages.exception_invalidDestination, toInit.getRepoLocation()),
+			String name = toInit.getName() != null ? toInit.getName()
+					: (source != null ? source.getName() : destinationLocation.toString());
+			IRepository<T> repo = mgr.createRepository(destinationLocation, name, repositoryType,
+					source != null ? source.getProperties() : null);
+			initRepository(repo, toInit);
+			return repo;
+		} catch (IllegalStateException | UnsupportedOperationException e) {
+			throw new ProvisionException(NLS.bind(Messages.exception_invalidDestination, destinationLocation),
 					e.getCause());
+		}
+	}
+
+	/*
+	 * Initialize a new repository
+	 */
+	static void initRepository(IRepository<?> repository, RepositoryDescriptor desc) {
+		RepositoryHelper.validDestinationRepository(repository);
+		if (desc.isCompressed() && !repository.getProperties().containsKey(IRepository.PROP_COMPRESSED)) {
+			repository.setProperty(IRepository.PROP_COMPRESSED, Boolean.TRUE.toString());
 		}
 	}
 

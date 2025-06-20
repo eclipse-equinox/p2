@@ -14,6 +14,7 @@
 package org.eclipse.equinox.p2.internal.repository.tools;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
@@ -111,6 +112,7 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 	protected <T> IRepository<T> initializeDestination(RepositoryDescriptor toInit, IRepositoryManager<T> mgr)
 			throws ProvisionException {
 
+		URI destinationLocation = toInit.getRepoLocation();
 		String repositoryType;
 		String defaultName;
 		if (mgr instanceof IArtifactRepositoryManager) {
@@ -123,23 +125,23 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 			throw new AssertionError("Unsupported repository type: " + mgr.getClass()); //$NON-NLS-1$
 		}
 		// remove the repo first.
-		mgr.removeRepository(toInit.getRepoLocation());
+		mgr.removeRepository(destinationLocation);
 
 		// first try and load to see if one already exists at that location.
 		try {
-			IRepository<T> repository = mgr.loadRepository(toInit.getRepoLocation(), null);
+			IRepository<T> repository = mgr.loadRepository(destinationLocation, null);
 			validRepositoryLocation(repository);
 			if (!initDestinationRepository(repository, toInit)) {
-				throw new ProvisionException(Status.info(
-						NLS.bind(Messages.CompositeRepository_composite_repository_exists, toInit.getRepoLocation())));
+				throw new ProvisionException(Status
+						.info(NLS.bind(Messages.CompositeRepository_composite_repository_exists, destinationLocation)));
 			}
 			return repository;
 		} catch (ProvisionException e) {
 			// re-throw the exception if we got anything other than "repo not found"
 			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND) {
 				if (e.getCause() instanceof MalformedURLException) {
-					throw new ProvisionException(
-							NLS.bind(Messages.exception_invalidDestination, toInit.getRepoLocation()), e.getCause());
+					throw new ProvisionException(NLS.bind(Messages.exception_invalidDestination, destinationLocation),
+							e.getCause());
 				}
 				throw e;
 			}
@@ -158,12 +160,13 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 			// No existing repository; create a new repository at destinationLocation but
 			// with source's attributes.
 			String name = Optional.ofNullable(toInit.getName()).orElse(source != null ? source.getName() : defaultName);
-			IRepository<T> repo = mgr.createRepository(toInit.getRepoLocation(), name, repositoryType,
+			IRepository<T> repo = mgr.createRepository(destinationLocation, name, repositoryType,
 					source != null ? source.getProperties() : null);
 			initRepository(repo, toInit);
+			setAtomicLoadingProperty(repo, toInit);
 			return repo;
 		} catch (IllegalStateException e) {
-			mgr.removeRepository(toInit.getRepoLocation());
+			mgr.removeRepository(destinationLocation);
 			throw e;
 		}
 	}
@@ -176,23 +179,12 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 			// if we have an already existing repository at that location, then throw an error
 			// if the user told us to
 			if (failOnExists) {
-				throw new ProvisionException(NLS.bind(Messages.CompositeRepository_composite_repository_exists, repository.getLocation()));
+				throw new ProvisionException(
+						NLS.bind(Messages.CompositeRepository_composite_repository_exists, repository.getLocation()));
 			}
 			RepositoryHelper.validDestinationRepository(repository);
 		}
 		// we have a non-composite repo at this location. that is ok because we can co-exist.
-	}
-
-	/*
-	 * Initialize a new repository
-	 */
-	private void initRepository(IRepository<?> repository, RepositoryDescriptor desc) {
-		RepositoryHelper.validDestinationRepository(repository);
-		if (desc.isCompressed() && !repository.getProperties().containsKey(IRepository.PROP_COMPRESSED)) {
-			repository.setProperty(IRepository.PROP_COMPRESSED, String.valueOf(true));
-		}
-
-		setAtomicLoadingProperty(repository, desc);
 	}
 
 	private void setAtomicLoadingProperty(IRepository<?> repository, RepositoryDescriptor desc) {

@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.AbstractApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
+import org.eclipse.equinox.p2.internal.repository.tools.tasks.RemoveIUTask.RemoveIUApplication;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
@@ -30,7 +31,7 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-public class RemoveIUTask extends AbstractRepositoryTask {
+public class RemoveIUTask extends AbstractRepositoryTask<RemoveIUApplication> {
 	private static final String CLASSIFIER = "classifier"; //$NON-NLS-1$
 	private static final String ID = "id"; //$NON-NLS-1$
 	private static final String VERSION = "version"; //$NON-NLS-1$
@@ -48,7 +49,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 	}
 
 	public RemoveIUTask() {
-		this.application = new RemoveIUApplication();
+		super(new RemoveIUApplication());
 	}
 
 	@Override
@@ -115,7 +116,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 		} catch (ProvisionException e) {
 			throw new BuildException(e);
 		} finally {
-			((RemoveIUApplication) application).finalizeRepos();
+			application.finalizeRepos();
 		}
 	}
 

@@ -17,17 +17,20 @@ import java.net.URI;
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.internal.repository.tools.ArtifactRepositoryValidator;
-import org.eclipse.equinox.p2.internal.repository.tools.Messages;
+import org.eclipse.equinox.p2.internal.repository.tools.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 
 /**
  * Ant task for validating the contents of a composite artifact repository.
  */
-public class ValidateTask extends AbstractRepositoryTask {
+public class ValidateTask extends AbstractRepositoryTask<AbstractApplication> {
 
 	private String comparatorID; // specifies the comparator we want to use.
+
+	public ValidateTask() {
+		super(null);
+	}
 
 	@Override
 	public void execute() {

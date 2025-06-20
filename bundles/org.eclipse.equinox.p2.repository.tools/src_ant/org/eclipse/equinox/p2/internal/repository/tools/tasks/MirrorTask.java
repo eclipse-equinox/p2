@@ -16,7 +16,6 @@ package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -27,41 +26,41 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
-public class MirrorTask extends AbstractRepositoryTask {
+public class MirrorTask extends AbstractRepositoryTask<MirrorApplication> {
 
 	private File mirrorLog; // file to log mirror output to (optional)
 	private ComparatorDescription comparator;
 	private boolean ignoreErrors = false;
 
 	public MirrorTask() {
-		application = new MirrorApplication();
+		super(new MirrorApplication());
 	}
 
 	@Override
 	public void execute() throws BuildException {
 		try {
 			if (mirrorLog != null) {
-				((MirrorApplication) application).setLog(mirrorLog);
+				application.setLog(mirrorLog);
 			} else {
-				((MirrorApplication) application).setLog(new AntMirrorLog(this));
+				application.setLog(new AntMirrorLog(this));
 			}
 
 			if (comparator != null) {
 				// Enable comparison
-				((MirrorApplication) application).setCompare(true);
+				application.setCompare(true);
 				// Set baseline location
 				if (comparator.getBaseline() != null) {
-					((MirrorApplication) application).setBaseline(comparator.getBaseline().getDescriptor().getRepoLocation());
+					application.setBaseline(comparator.getBaseline().getDescriptor().getRepoLocation());
 				}
 				// Set comparator to use
 				if (comparator.getComparator() != null) {
-					((MirrorApplication) application).setComparatorID(comparator.getComparator());
+					application.setComparatorID(comparator.getComparator());
 				}
 				// Set comparator log
 				if (comparator.getComparatorLog() != null) {
-					((MirrorApplication) application).setComparatorLog(comparator.getComparatorLog());
+					application.setComparatorLog(comparator.getComparatorLog());
 				}
-				((MirrorApplication) application).setComparatorExclusions(createCompareExclusions());
+				application.setComparatorExclusions(createCompareExclusions());
 			}
 
 			prepareSourceRepos();
@@ -100,7 +99,7 @@ public class MirrorTask extends AbstractRepositoryTask {
 
 	public SlicingOption createSlicingOptions() {
 		SlicingOption options = new SlicingOption();
-		((MirrorApplication) application).setSlicingOptions(options.getOptions());
+		application.setSlicingOptions(options.getOptions());
 		return options;
 	}
 
@@ -127,32 +126,32 @@ public class MirrorTask extends AbstractRepositoryTask {
 	 */
 	public void setIgnoreErrors(boolean value) {
 		ignoreErrors = value;
-		((MirrorApplication) application).setIgnoreErrors(value);
+		application.setIgnoreErrors(value);
 	}
 
 	/*
 	 * Set whether or not the the artifacts are raw.
 	 */
 	public void setRaw(boolean value) {
-		((MirrorApplication) application).setRaw(value);
+		application.setRaw(value);
 	}
 
 	/*
 	 * Set whether or not the mirror application should be run in verbose mode.
 	 */
 	public void setVerbose(boolean value) {
-		((MirrorApplication) application).setVerbose(value);
+		application.setVerbose(value);
 	}
 
 	public void setValidate(boolean value) {
-		((MirrorApplication) application).setValidate(value);
+		application.setValidate(value);
 	}
 
 	public void setReferences(boolean value) {
-		((MirrorApplication) application).setReferences(value);
+		application.setReferences(value);
 	}
 
 	public void setMirrorProperties(boolean value) {
-		((MirrorApplication) application).setMirrorProperties(value);
+		application.setMirrorProperties(value);
 	}
 }
