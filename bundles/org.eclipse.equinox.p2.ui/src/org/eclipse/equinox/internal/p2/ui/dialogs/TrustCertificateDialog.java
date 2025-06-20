@@ -82,7 +82,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 	public TrustCertificateDialog(Shell parentShell, Object input) {
 		super(parentShell);
 
-		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE | SWT.MAX | SWT.ON_TOP | getDefaultOrientation());
+		setShellStyle(SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.APPLICATION_MODAL | getDefaultOrientation());
 
 		if (input instanceof TreeNode[]) {
 			init(null, (TreeNode[]) input);
@@ -849,13 +849,10 @@ public class TrustCertificateDialog extends SelectionDialog {
 		return PGPPublicKeyService.toHexFingerprint(key);
 	}
 
-	private static class QuestionDialog extends MessageDialog {
+	static class QuestionDialog extends MessageDialog {
 
 		public QuestionDialog(Shell shell, String title, String message, String labelAccept, String labelReject) {
 			super(shell, title, null, message, MessageDialog.QUESTION, new String[] { labelAccept, labelReject }, 1);
-			// on GTK+ we require the 'SWT.ON_TOP' flag, so that this dialog is not hidden
-			// beneath the main dialog
-			this.setShellStyle(getShellStyle() | SWT.ON_TOP);
 		}
 
 		@Override
