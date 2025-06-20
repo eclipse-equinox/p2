@@ -148,7 +148,7 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 		IRepository<T> source = null;
 		try {
 			if (toInit.getFormat() != null) {
-				source = mgr.loadRepository(toInit.getFormat(), 0, null);
+				source = mgr.loadRepository(toInit.getFormat(), null);
 			}
 		} catch (ProvisionException e) {
 			// Ignore

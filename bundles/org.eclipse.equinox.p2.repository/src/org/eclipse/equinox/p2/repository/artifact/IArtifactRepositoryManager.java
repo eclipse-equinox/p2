@@ -132,7 +132,9 @@ public interface IArtifactRepositoryManager extends IRepositoryManager<IArtifact
 	 * </ul>
 	 */
 	@Override
-	IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
+	default IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
+		return loadRepository(location, 0, monitor);
+	}
 
 	/**
 	 * Loads the repository at the given location. The location is expected to contain

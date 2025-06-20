@@ -123,11 +123,6 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 	}
 
 	@Override
-	public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		return loadRepository(location, 0, monitor);
-	}
-
-	@Override
 	public IArtifactRepository loadRepository(URI location, int flags, IProgressMonitor monitor)
 			throws ProvisionException {
 		return (IArtifactRepository) loadRepository(location, monitor, null, flags);

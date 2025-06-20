@@ -103,11 +103,6 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager<IInstal
 	}
 
 	@Override
-	public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		return loadRepository(location, 0, monitor);
-	}
-
-	@Override
 	public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
 		return (IMetadataRepository) loadRepository(location, monitor, null, flags);
 	}

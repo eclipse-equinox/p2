@@ -96,8 +96,10 @@ public interface IMetadataRepositoryManager extends IRepositoryManager<IInstalla
 	 * </ul>
 	 */
 	@Override
-	IMetadataRepository loadRepository(URI location, IProgressMonitor monitor)
-			throws ProvisionException, OperationCanceledException;
+	default IMetadataRepository loadRepository(URI location, IProgressMonitor monitor)
+			throws ProvisionException, OperationCanceledException {
+		return loadRepository(location, 0, monitor);
+	}
 
 	/**
 	 * Loads the repository at the given location. If a repository has
