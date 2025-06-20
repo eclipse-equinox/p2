@@ -31,12 +31,16 @@ import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
-public abstract class AbstractRepositoryTask extends Task {
+public abstract class AbstractRepositoryTask<A extends AbstractApplication> extends Task {
 	protected static final String ANT_PREFIX = "${"; //$NON-NLS-1$
-	protected AbstractApplication application;
-	protected List<IUDescription> iuTasks = new ArrayList<>();
-	protected List<FileSet> sourceRepos = new ArrayList<>();
-	protected List<DestinationRepository> destinations = new ArrayList<>();
+	protected final A application;
+	protected final List<IUDescription> iuTasks = new ArrayList<>();
+	private final List<RepositoryFileSet> sourceRepos = new ArrayList<>();
+	protected final List<DestinationRepository> destinations = new ArrayList<>();
+
+	protected AbstractRepositoryTask(A application) {
+		this.application = application;
+	}
 
 	protected void addMetadataSourceRepository(URI repoLocation, boolean optional) {
 		RepositoryDescriptor source = new RepositoryDescriptor();
@@ -127,7 +131,10 @@ public abstract class AbstractRepositoryTask extends Task {
 		}
 
 		for (FileSet fileSet : sourceList.getFileSetList()) {
-			sourceRepos.add(fileSet);
+			if (!(fileSet instanceof RepositoryFileSet repoFileSet)) {
+				throw new IllegalArgumentException("Not a RepositoryFileSet:" + fileSet); //$NON-NLS-1$
+			}
+			sourceRepos.add(repoFileSet);
 			// Added to the application later through prepareSourceRepos
 		}
 	}
@@ -140,9 +147,7 @@ public abstract class AbstractRepositoryTask extends Task {
 		if (sourceRepos == null || sourceRepos.isEmpty()) {
 			return;
 		}
-		for (Iterator<FileSet> iter = sourceRepos.iterator(); iter.hasNext();) {
-			RepositoryFileSet fileset = (RepositoryFileSet) iter.next();
-
+		for (RepositoryFileSet fileset : sourceRepos) {
 			if (fileset.getRepoLocation() != null) {
 				if (!fileset.getRepoLocation().startsWith(ANT_PREFIX)) {
 					if (fileset.isArtifact()) {
@@ -154,7 +159,7 @@ public abstract class AbstractRepositoryTask extends Task {
 				}
 			} else if (fileset.getDir() != null) {
 				DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
-				String[][] elements = new String[][] {scanner.getIncludedDirectories(), scanner.getIncludedFiles()};
+				String[][] elements = new String[][] { scanner.getIncludedDirectories(), scanner.getIncludedFiles() };
 				for (int i = 0; i < 2; i++) {
 					for (String element : elements[i]) {
 						File file = new File(fileset.getDir(), element);

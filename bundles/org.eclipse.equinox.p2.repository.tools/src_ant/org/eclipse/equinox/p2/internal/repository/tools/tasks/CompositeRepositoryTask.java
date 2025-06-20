@@ -15,6 +15,7 @@ package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.function.Consumer;
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
@@ -22,12 +23,12 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.CompositeRepositoryApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 
-public class CompositeRepositoryTask extends AbstractRepositoryTask {
-	private static String COMPOSITE_REMOVE = "p2.composite.artifact.repository.remove"; //$NON-NLS-1$
-	private static String COMPOSITE_ADD = "p2.composite.artifact.repository.add"; //$NON-NLS-1$
+public class CompositeRepositoryTask extends AbstractRepositoryTask<CompositeRepositoryApplication> {
+	private static final String COMPOSITE_REMOVE = "p2.composite.artifact.repository.remove"; //$NON-NLS-1$
+	private static final String COMPOSITE_ADD = "p2.composite.artifact.repository.add"; //$NON-NLS-1$
 
 	public CompositeRepositoryTask() {
-		application = new CompositeRepositoryApplication();
+		super(new CompositeRepositoryApplication());
 	}
 
 	@Override
@@ -46,30 +47,17 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 	 * Add the listed repositories to the composite repository
 	 */
 	public void addConfiguredAdd(RepositoryList list) {
-		if (list.getRepoLocation() != null) {
-			RepositoryDescriptor descriptor = new RepositoryDescriptor();
-			//don't use RepositoryList#getRepoLocationURI() because we want relative URIs if they were specified
-			try {
-				descriptor.setLocation(URIUtil.fromString(list.getRepoLocation()));
-				descriptor.setOptional(list.isOptional());
-				if (!list.isBoth()) {
-					descriptor.setKind(list.isArtifact() ? RepositoryDescriptor.KIND_ARTIFACT : RepositoryDescriptor.KIND_METADATA);
-				}
-				((CompositeRepositoryApplication) application).addChild(descriptor);
-			} catch (URISyntaxException e) {
-				//no good
-			}
-		}
-
-		for (DestinationRepository repo : list.getRepositoryList()) {
-			((CompositeRepositoryApplication) application).addChild(repo.getDescriptor());
-		}
+		processChildElement(list, application::addChild);
 	}
 
 	/*
 	 * Remove the listed repositories from the composite repository
 	 */
 	public void addConfiguredRemove(RepositoryList list) {
+		processChildElement(list, application::removeChild);
+	}
+
+	private void processChildElement(RepositoryList list, Consumer<RepositoryDescriptor> processor) {
 		if (list.getRepoLocation() != null) {
 			RepositoryDescriptor descriptor = new RepositoryDescriptor();
 			try {
@@ -79,13 +67,13 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 				if (!list.isBoth()) {
 					descriptor.setKind(list.isArtifact() ? RepositoryDescriptor.KIND_ARTIFACT : RepositoryDescriptor.KIND_METADATA);
 				}
-				((CompositeRepositoryApplication) application).removeChild(descriptor);
+				processor.accept(descriptor);
 			} catch (URISyntaxException e) {
 				// no good, don't remove
 			}
 		}
 		for (DestinationRepository repo : list.getRepositoryList()) {
-			((CompositeRepositoryApplication) application).removeChild(repo.getDescriptor());
+			processor.accept(repo.getDescriptor());
 		}
 	}
 
@@ -93,11 +81,11 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 	 * Set whether the task should fail if the repository already exists
 	 */
 	public void setFailOnExists(boolean value) {
-		((CompositeRepositoryApplication) application).setFailOnExists(value);
+		application.setFailOnExists(value);
 	}
 
 	public void setValidate(String value) {
-		((CompositeRepositoryApplication) application).setComparator(value);
+		application.setComparator(value);
 	}
 
 	/*  p2.composite.artifact.repository.add
@@ -114,23 +102,23 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 		repo.setLocation(childURI);
 
 		if (getTaskName().equals(COMPOSITE_ADD)) {
-			((CompositeRepositoryApplication) application).addChild(repo);
+			application.addChild(repo);
 		} else if (getTaskName().equals(COMPOSITE_REMOVE)) {
-			((CompositeRepositoryApplication) application).removeChild(repo);
+			application.removeChild(repo);
 		}
 	}
 
 	/*  p2.composite.artifact.repository.add */
 	public void setComparatorID(String value) {
 		if (value != null && !value.startsWith(ANT_PREFIX)) {
-			((CompositeRepositoryApplication) application).setComparator(value);
+			application.setComparator(value);
 		}
 	}
 
 	/*  p2.composite.artifact.repository.remove */
 	public void setAllChildren(String value) {
 		if (value != null && !value.startsWith(ANT_PREFIX)) {
-			((CompositeRepositoryApplication) application).setRemoveAll(Boolean.parseBoolean(value));
+			application.setRemoveAll(Boolean.parseBoolean(value));
 		}
 	}
 }

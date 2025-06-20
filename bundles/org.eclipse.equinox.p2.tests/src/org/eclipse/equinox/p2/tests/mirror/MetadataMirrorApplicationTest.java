@@ -522,7 +522,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 			basicRunMirrorApplication("14.1", sourceRepoLocation.toURL(), invalidDestRepository.toURL(), true);
 			//we expect an illegal state exception to be thrown and should never get here
 			fail("14.0 IllegalStateExpection not thrown");
-		} catch (IllegalStateException e) {
+		} catch (ProvisionException e) {
 			return; //correct type of exception has been received
 		} catch (Exception e) {
 			fail("14.1", e);
