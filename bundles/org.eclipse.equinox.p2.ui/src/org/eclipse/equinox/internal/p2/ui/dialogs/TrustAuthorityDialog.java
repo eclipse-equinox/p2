@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.phases.AuthorityChecker;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.dialogs.TrustCertificateDialog.QuestionDialog;
 import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.jface.dialogs.*;
@@ -47,7 +48,6 @@ import org.eclipse.swt.custom.*;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
@@ -83,7 +83,7 @@ public class TrustAuthorityDialog extends SelectionDialog {
 	public TrustAuthorityDialog(Shell parentShell, Object input) {
 		super(parentShell);
 
-		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.RESIZE | SWT.MAX | SWT.ON_TOP | getDefaultOrientation());
+		setShellStyle(SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.APPLICATION_MODAL | getDefaultOrientation());
 
 		if (input instanceof TreeNode[] nodes) {
 			init(null, nodes);
@@ -666,18 +666,11 @@ public class TrustAuthorityDialog extends SelectionDialog {
 				// risk, and where the preference is stored if they wish to change it in the
 				// future. Also ensure that the default button is no so that they must
 				// explicitly click the yes button, not just hit enter.
-				var messageDialog = new MessageDialog(getShell(),
-						ProvUIMessages.TrustAuthorityDialog_TrustAllAuthoritiesConfirmationTitle, null,
+				var messageDialog = new QuestionDialog(getShell(),
+						ProvUIMessages.TrustAuthorityDialog_TrustAllAuthoritiesConfirmationTitle,
 						ProvUIMessages.TrustAuthorityDialog_TrustAllAuthoritiesConfirmationDescription,
-						MessageDialog.QUESTION,
-						new String[] { ProvUIMessages.TrustAuthorityDialog_AcceptTrustAllAuthorities,
-								ProvUIMessages.TrustAuthorityDialog_RejectTrustAllAuthorities },
-						1) {
-					@Override
-					public Image getImage() {
-						return getWarningImage();
-					}
-				};
+						ProvUIMessages.TrustAuthorityDialog_AcceptTrustAllAuthorities,
+						ProvUIMessages.TrustAuthorityDialog_RejectTrustAllAuthorities);
 				var result = messageDialog.open();
 				if (result != Window.OK) {
 					// Restore the checkbox state.
