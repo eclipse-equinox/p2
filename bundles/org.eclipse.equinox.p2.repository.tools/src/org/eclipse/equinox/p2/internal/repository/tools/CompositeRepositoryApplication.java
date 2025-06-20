@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,13 +16,14 @@ package org.eclipse.equinox.p2.internal.repository.tools;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.*;
+import java.util.function.Predicate;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
+import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -45,12 +46,11 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
 		try {
 			initializeRepos(new NullProgressMonitor());
 			// load repository
-			ICompositeRepository<IInstallableUnit> metadataRepo = (ICompositeRepository<IInstallableUnit>) destinationMetadataRepository;
+			CompositeMetadataRepository metadataRepo = (CompositeMetadataRepository) destinationMetadataRepository;
 			CompositeArtifactRepository artifactRepo = (CompositeArtifactRepository) destinationArtifactRepository;
 
 			if (removeAllChildren) {
@@ -115,12 +115,15 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 		URI destinationLocation = toInit.getRepoLocation();
 		String repositoryType;
 		String defaultName;
+		Predicate<RepositoryDescriptor> repositoryTypeFilter;
 		if (mgr instanceof IArtifactRepositoryManager) {
 			repositoryType = IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY;
 			defaultName = Messages.CompositeRepository_default_artifactRepo_name;
+			repositoryTypeFilter = RepositoryDescriptor::isArtifact;
 		} else if (mgr instanceof IMetadataRepositoryManager) {
 			repositoryType = IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY;
 			defaultName = Messages.CompositeRepository_default_metadataRepo_name;
+			repositoryTypeFilter = RepositoryDescriptor::isMetadata;
 		} else {
 			throw new AssertionError("Unsupported repository type: " + mgr.getClass()); //$NON-NLS-1$
 		}
@@ -148,9 +151,17 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 		}
 
 		IRepository<T> source = null;
+		boolean copyChildren = false;
 		try {
 			if (toInit.getFormat() != null) {
 				source = mgr.loadRepository(toInit.getFormat(), null);
+			} else {
+				URI sourceRepoLocation = sourceRepositories.stream().filter(repositoryTypeFilter).findFirst()
+						.map(RepositoryDescriptor::getRepoLocation).orElse(null);
+				if (sourceRepoLocation != null && mgr.contains(sourceRepoLocation)) {
+					source = mgr.loadRepository(sourceRepoLocation, null);
+					copyChildren = true;
+				}
 			}
 		} catch (ProvisionException e) {
 			// Ignore
@@ -164,11 +175,32 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 					source != null ? source.getProperties() : null);
 			initRepository(repo, toInit);
 			setAtomicLoadingProperty(repo, toInit);
+
+			if (copyChildren && source instanceof ICompositeRepository<?> sourceComposite
+					&& repo instanceof ICompositeRepository<?> destinationComposite) {
+				List<URI> children = getChildrenOriginalLocation(sourceComposite);
+				for (URI childURI : children) {
+					destinationComposite.addChild(childURI);
+				}
+			}
+
 			return repo;
 		} catch (IllegalStateException e) {
 			mgr.removeRepository(destinationLocation);
 			throw e;
 		}
+	}
+
+	private static List<URI> getChildrenOriginalLocation(ICompositeRepository<?> composite) {
+		CompositeRepositoryState state;
+		if (composite instanceof CompositeArtifactRepository artifactComposite) {
+			state = artifactComposite.toState();
+		} else if (composite instanceof CompositeMetadataRepository metadataComposite) {
+			state = metadataComposite.toState();
+		} else {
+			throw new IllegalArgumentException("Unsupported composite repository type: " + composite); //$NON-NLS-1$
+		}
+		return List.of(state.getChildren());
 	}
 
 	/*
