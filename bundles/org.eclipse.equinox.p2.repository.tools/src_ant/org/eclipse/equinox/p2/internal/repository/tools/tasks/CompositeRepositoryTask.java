@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -34,6 +34,7 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask<CompositeRep
 	@Override
 	public void execute() throws BuildException {
 		try {
+			prepareSourceRepos();
 			IStatus result = application.run(null);
 			if (result.matches(IStatus.ERROR)) {
 				throw new BuildException(TaskHelper.statusToString(result, IStatus.ERROR, null).toString());
