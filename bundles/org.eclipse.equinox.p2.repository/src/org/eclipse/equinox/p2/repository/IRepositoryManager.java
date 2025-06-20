@@ -306,7 +306,9 @@ public interface IRepositoryManager<T> extends IQueryable<T> {
 	 * </ul>
 	 * @since 2.8
 	 */
-	IRepository<T> loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
+	default IRepository<T> loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
+		return loadRepository(location, 0, monitor);
+	}
 
 	/**
 	 * Loads the repository at the given location. If a repository has
