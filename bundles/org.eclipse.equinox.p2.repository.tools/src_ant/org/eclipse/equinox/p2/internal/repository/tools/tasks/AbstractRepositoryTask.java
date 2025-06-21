@@ -33,7 +33,7 @@ import org.eclipse.osgi.util.NLS;
 
 public abstract class AbstractRepositoryTask<A extends AbstractApplication> extends Task {
 	protected static final String ANT_PREFIX = "${"; //$NON-NLS-1$
-	protected final A application;
+	protected A application;
 	protected final List<IUDescription> iuTasks = new ArrayList<>();
 	private final List<RepositoryFileSet> sourceRepos = new ArrayList<>();
 	protected final List<DestinationRepository> destinations = new ArrayList<>();
