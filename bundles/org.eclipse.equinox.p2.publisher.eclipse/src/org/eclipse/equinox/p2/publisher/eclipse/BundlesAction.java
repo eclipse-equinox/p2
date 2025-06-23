@@ -376,8 +376,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// Define the immutable metadata for this IU. In this case immutable means
 		// that this is something that will not impact the configuration.
-		Map<String, String> touchpointData = new HashMap<>();
-		touchpointData.put("manifest", toManifestString(manifest)); //$NON-NLS-1$
+		Map<String, String> touchpointData = new LinkedHashMap<>();
 		if (isDir(bd, publisherInfo)) {
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
@@ -699,29 +698,6 @@ public class BundlesAction extends AbstractPublisherAction {
 	protected static boolean isOptional(ImportPackageSpecification importedPackage) {
 		return importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE)
 				.equals(ImportPackageSpecification.RESOLUTION_OPTIONAL);
-	}
-
-	private static String toManifestString(Map<String, String> p) {
-		if (p == null) {
-			return null;
-		}
-		StringBuilder result = new StringBuilder();
-		// See https://bugs.eclipse.org/329386. We are trying to reduce the size of the
-		// manifest data in
-		// the eclipse touchpoint. We've removed the code that requires it but in order
-		// for old clients
-		// to still be able to use recent repositories, we're going to keep around the
-		// manifest properties
-		// they need.
-		final String[] interestingKeys = new String[] { Constants.BUNDLE_SYMBOLICNAME, Constants.BUNDLE_VERSION,
-				Constants.FRAGMENT_HOST };
-		for (String key : interestingKeys) {
-			String value = p.get(key);
-			if (value != null) {
-				result.append(key).append(": ").append(value).append('\n'); //$NON-NLS-1$
-			}
-		}
-		return result.length() == 0 ? null : result.toString();
 	}
 
 	// Return a map from locale to property set for the manifest localizations
