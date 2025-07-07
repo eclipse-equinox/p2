@@ -24,10 +24,6 @@
          version="0.0.0"/>
 
    <includes
-         id="org.eclipse.equinox.p2.discovery.feature.source"
-         version="0.0.0"/>
-
-   <includes
          id="org.eclipse.equinox.p2.core.feature"
          version="0.0.0"/>
 
@@ -81,6 +77,18 @@
 
    <plugin
          id="org.eclipse.equinox.simpleconfigurator.source"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.discovery.source"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.discovery.compatibility.source"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.ui.discovery.source"
          version="0.0.0"/>
 
 </feature>
