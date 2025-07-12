@@ -338,8 +338,6 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				currentUnit.setArtifacts(artifacts);
 				if (touchpointTypeHandler != null) {
 					currentUnit.setTouchpointType(touchpointTypeHandler.getTouchpointType());
-				} else {
-					// TODO: create an error
 				}
 				ITouchpointData[] touchpointData = (touchpointDataHandler == null ? new ITouchpointData[0] : touchpointDataHandler.getTouchpointData());
 				for (ITouchpointData touchpointData1 : touchpointData) {
