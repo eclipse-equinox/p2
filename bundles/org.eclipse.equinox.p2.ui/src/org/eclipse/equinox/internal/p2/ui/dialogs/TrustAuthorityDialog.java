@@ -34,6 +34,7 @@ import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.TrustCertificateDialog.QuestionDialog;
 import org.eclipse.equinox.internal.p2.ui.viewers.CertificateLabelProvider;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.TableColumnLayout;
@@ -937,8 +938,9 @@ public class TrustAuthorityDialog extends SelectionDialog {
 
 					writeMetaRequirements(iu.getMetaRequirements());
 					writeArtifactKeys(iu.getArtifacts());
-					if (iu.getTouchpointType() != null) {
-						writeTouchpointType(iu.getTouchpointType());
+					ITouchpointType touchpointType = iu.getTouchpointType();
+					if (touchpointType != ITouchpointType.NONE) {
+						writeTouchpointType(touchpointType);
 					}
 					writeTouchpointData(iu.getTouchpointData());
 					end(INSTALLABLE_UNIT_ELEMENT);

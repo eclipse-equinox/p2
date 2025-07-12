@@ -89,7 +89,10 @@ public class MetadataWriter extends XMLWriter implements XMLConstants {
 		writeTrimmedCdata(IU_FILTER_ELEMENT, iu.getFilter() == null ? null : iu.getFilter().getParameters()[0].toString());
 
 		writeArtifactKeys(iu.getArtifacts());
-		writeTouchpointType(iu.getTouchpointType());
+		ITouchpointType touchpointType = iu.getTouchpointType();
+		if (touchpointType != ITouchpointType.NONE) {
+			writeTouchpointType(touchpointType);
+		}
 		writeTouchpointData(iu.getTouchpointData());
 		writeLicenses(iu.getLicenses());
 		writeCopyright(iu.getCopyright());
