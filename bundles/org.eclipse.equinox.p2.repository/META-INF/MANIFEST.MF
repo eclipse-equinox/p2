@@ -33,13 +33,38 @@ Export-Package: org.eclipse.equinox.internal.p2.persistence;
    org.eclipse.equinox.p2.ui,
    org.eclipse.equinox.p2.updatesite,
    org.eclipse.pde.core",
- org.eclipse.equinox.internal.provisional.p2.repository,
- org.eclipse.equinox.p2.repository;version="2.2.0",
- org.eclipse.equinox.p2.repository.artifact;version="2.3.0",
- org.eclipse.equinox.p2.repository.artifact.spi;version="2.0.0",
- org.eclipse.equinox.p2.repository.metadata;version="2.0.0",
- org.eclipse.equinox.p2.repository.metadata.spi;version="2.0.0",
- org.eclipse.equinox.p2.repository.spi;version="2.0.0"
+ org.eclipse.equinox.internal.provisional.p2.repository;
+  uses:="org.bouncycastle.openpgp,
+   org.eclipse.core.runtime,
+   org.eclipse.equinox.p2.core,
+   org.eclipse.equinox.p2.repository.spi",
+ org.eclipse.equinox.p2.repository;version="2.2.0";uses:="org.eclipse.core.runtime,org.eclipse.equinox.p2.core,org.eclipse.equinox.p2.query",
+ org.eclipse.equinox.p2.repository.artifact;version="2.3.0";
+  uses:="org.eclipse.core.runtime,
+   org.eclipse.equinox.p2.metadata,
+   org.eclipse.equinox.p2.query,
+   org.eclipse.equinox.p2.repository",
+ org.eclipse.equinox.p2.repository.artifact.spi;version="2.0.0";
+  uses:="org.eclipse.core.runtime,
+   org.eclipse.equinox.p2.core,
+   org.eclipse.equinox.p2.metadata,
+   org.eclipse.equinox.p2.metadata.expression,
+   org.eclipse.equinox.p2.repository,
+   org.eclipse.equinox.p2.repository.artifact,
+   org.eclipse.equinox.p2.repository.spi",
+ org.eclipse.equinox.p2.repository.metadata;version="2.0.0";uses:="org.eclipse.core.runtime,org.eclipse.equinox.p2.core,org.eclipse.equinox.p2.repository",
+ org.eclipse.equinox.p2.repository.metadata.spi;version="2.0.0";
+  uses:="org.eclipse.core.runtime,
+   org.eclipse.equinox.p2.core,
+   org.eclipse.equinox.p2.metadata,
+   org.eclipse.equinox.p2.repository,
+   org.eclipse.equinox.p2.repository.metadata,
+   org.eclipse.equinox.p2.repository.spi",
+ org.eclipse.equinox.p2.repository.spi;version="2.0.0";
+  uses:="org.bouncycastle.openpgp,
+   org.eclipse.core.runtime,
+   org.eclipse.equinox.p2.core,
+   org.eclipse.equinox.p2.repository"
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.registry;bundle-version="3.3.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
