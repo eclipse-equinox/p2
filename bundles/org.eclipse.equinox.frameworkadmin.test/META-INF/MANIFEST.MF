@@ -7,8 +7,7 @@ Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.equinox.frameworkadmin,
  org.eclipse.equinox.frameworkadmin.equinox;bundle-version="1.0.100",
- org.junit;bundle-version="3.8.0",
- org.eclipse.equinox.simpleconfigurator.manipulator
+ org.junit;bundle-version="3.8.0"
 Bundle-Activator: org.eclipse.equinox.frameworkadmin.tests.Activator
 Import-Package: org.osgi.framework;version="1.4.0"
 Bundle-ActivationPolicy: lazy
