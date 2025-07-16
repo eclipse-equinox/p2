@@ -116,6 +116,11 @@
          version="0.0.0"/>
 
    <plugin
+         id="org.eclipse.equinox.security.freebsd"
+         os="freebsd"
+         version="0.0.0"/>
+
+   <plugin
          id="org.eclipse.equinox.security.win32"
          os="win32"
          version="0.0.0"/>
