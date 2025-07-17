@@ -28,7 +28,7 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata;
    org.eclipse.equinox.p2.directorywatcher,
    org.eclipse.equinox.p2.engine,
    org.eclipse.equinox.p2.publisher",
- org.eclipse.equinox.internal.p2.metadata.expression.parser,
+ org.eclipse.equinox.internal.p2.metadata.expression.parser;uses:="org.eclipse.equinox.internal.p2.metadata.expression,org.eclipse.equinox.p2.metadata.expression",
  org.eclipse.equinox.internal.p2.metadata.index;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.director,
@@ -75,10 +75,15 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata;
    org.eclipse.equinox.p2.updatesite,
    org.eclipse.pde.core,
    org.eclipse.pde.ui",
- org.eclipse.equinox.p2.metadata;version="2.4.0",
- org.eclipse.equinox.p2.metadata.expression;version="2.0.0",
- org.eclipse.equinox.p2.metadata.index;version="2.0.0",
- org.eclipse.equinox.p2.query;version="2.1.0"
+ org.eclipse.equinox.p2.metadata;version="2.4.0";uses:="org.eclipse.equinox.internal.p2.metadata,org.eclipse.equinox.p2.metadata.expression",
+ org.eclipse.equinox.p2.metadata.expression;version="2.0.0";uses:="org.eclipse.equinox.p2.metadata.index,org.eclipse.equinox.p2.query,org.osgi.framework",
+ org.eclipse.equinox.p2.metadata.index;version="2.0.0";uses:="org.eclipse.equinox.p2.metadata.expression,org.eclipse.equinox.p2.query",
+ org.eclipse.equinox.p2.query;version="2.1.0";
+  uses:="org.eclipse.core.runtime,
+   org.eclipse.equinox.internal.p2.metadata.index,
+   org.eclipse.equinox.p2.metadata,
+   org.eclipse.equinox.p2.metadata.expression,
+   org.eclipse.equinox.p2.metadata.index"
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.p2.core;bundle-version="[2.0.0,3.0.0)"
 Import-Package: org.eclipse.osgi.service.localization;version="[1.1.0,2)",
