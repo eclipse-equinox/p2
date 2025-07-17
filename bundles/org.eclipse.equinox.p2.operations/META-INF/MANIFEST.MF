@@ -6,14 +6,22 @@ Bundle-Version: 2.7.700.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.equinox.internal.p2.operations;x-friends:="org.eclipse.pde.ui,org.eclipse.equinox.p2.ui",
- org.eclipse.equinox.p2.operations;version="2.0.0"
+ org.eclipse.equinox.p2.operations;version="2.0.0";
+  uses:="org.eclipse.core.runtime,
+   org.eclipse.core.runtime.jobs,
+   org.eclipse.equinox.internal.p2.director,
+   org.eclipse.equinox.internal.p2.operations,
+   org.eclipse.equinox.p2.core,
+   org.eclipse.equinox.p2.engine,
+   org.eclipse.equinox.p2.metadata,
+   org.eclipse.equinox.p2.planner,
+   org.eclipse.equinox.p2.query"
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.6.0",
  org.eclipse.core.jobs;bundle-version="3.5.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.director,
- org.eclipse.equinox.internal.p2.metadata.query,
  org.eclipse.equinox.internal.p2.repository.helpers,
  org.eclipse.equinox.internal.provisional.configurator,
  org.eclipse.equinox.internal.provisional.p2.core.eventbus,
