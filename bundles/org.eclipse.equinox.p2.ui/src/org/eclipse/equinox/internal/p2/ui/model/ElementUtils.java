@@ -20,7 +20,7 @@ import java.util.*;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.Remedy;
+import org.eclipse.equinox.p2.operations.IRemedy;
 import org.eclipse.equinox.p2.operations.RemedyIUDetail;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -140,7 +140,7 @@ public class ElementUtils {
 		return false;
 	}
 
-	public static AvailableIUElement[] requestToElement(Remedy remedy, boolean installMode) {
+	public static AvailableIUElement[] requestToElement(IRemedy remedy, boolean installMode) {
 		if (remedy == null) {
 			return new AvailableIUElement[0];
 		}
@@ -164,7 +164,7 @@ public class ElementUtils {
 		return temp.toArray(new AvailableIUElement[temp.size()]);
 	}
 
-	public static RemedyElementCategory[] requestToRemedyElementsCategories(Remedy remedy) {
+	public static RemedyElementCategory[] requestToRemedyElementsCategories(IRemedy remedy) {
 		List<RemedyElementCategory> categories = new ArrayList<>();
 		RemedyElementCategory categoryAdded = new RemedyElementCategory(ProvUIMessages.RemedyCategoryAdded);
 		RemedyElementCategory cateogyRemoved = new RemedyElementCategory(ProvUIMessages.RemedyCategoryRemoved);

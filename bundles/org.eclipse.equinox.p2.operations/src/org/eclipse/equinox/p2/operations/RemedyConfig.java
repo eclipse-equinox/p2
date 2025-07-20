@@ -17,37 +17,37 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * <p>
- * <strong>EXPERIMENTAL</strong>. This class or interface has been added as
- * part of a work in progress. There is no guarantee that this API will
- * work or that it will remain the same. Please do not use this API without
- * consulting with the p2 team.
- * </p>
- * @since 2.3
- * @noreference
+ * @since 2.8
  */
 public class RemedyConfig {
 
-	public boolean allowInstalledUpdate = false;
-	public boolean allowInstalledRemoval = false;
-	public boolean allowDifferentVersion = false;
-	public boolean allowPartialInstall = false;
+	boolean allowInstalledUpdate = false;
+	boolean allowInstalledRemoval = false;
+	boolean allowDifferentVersion = false;
+	boolean allowPartialInstall = false;
 
-	public RemedyConfig() {
+	RemedyConfig() {
 
 	}
 
-	private RemedyConfig(boolean allowPartialInstall, boolean allowDifferentVersion, boolean allowInstalledUpdate, boolean allowInstalledRemoval) {
+	RemedyConfig(boolean allowPartialInstall, boolean allowDifferentVersion, boolean allowInstalledUpdate,
+			boolean allowInstalledRemoval) {
 		this.allowDifferentVersion = allowDifferentVersion;
 		this.allowInstalledRemoval = allowInstalledRemoval;
 		this.allowInstalledUpdate = allowInstalledUpdate;
 		this.allowPartialInstall = allowPartialInstall;
 	}
 
+	/**
+	 * @since 2.8
+	 */
 	public static RemedyConfig[] getCheckForUpdateRemedyConfigs() {
 		return new RemedyConfig[] {new RemedyConfig(false, true, true, false)};
 	}
 
+	/**
+	 * @since 2.8
+	 */
 	public static RemedyConfig[] getAllRemedyConfigs() {
 		Collection<RemedyConfig> remedyConfigs = new ArrayList<>();
 		int allMasks = (1 << 4);
@@ -76,5 +76,33 @@ public class RemedyConfig {
 		}
 		RemedyConfig[] test = remedyConfigs.toArray(new RemedyConfig[remedyConfigs.size()]);
 		return test;
+	}
+
+	/**
+	 * @since 2.8
+	 */
+	public boolean isAllowDifferentVersion() {
+		return allowDifferentVersion;
+	}
+
+	/**
+	 * @since 2.8
+	 */
+	public boolean isAllowInstalledRemoval() {
+		return allowInstalledRemoval;
+	}
+
+	/**
+	 * @since 2.8
+	 */
+	public boolean isAllowInstalledUpdate() {
+		return allowInstalledUpdate;
+	}
+
+	/**
+	 * @since 2.8
+	 */
+	public boolean isAllowPartialInstall() {
+		return allowPartialInstall;
 	}
 }

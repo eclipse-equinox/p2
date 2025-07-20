@@ -14,17 +14,10 @@
 package org.eclipse.equinox.p2.operations;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import org.eclipse.equinox.p2.metadata.Version;
+
 /**
- * <p>
- * <strong>EXPERIMENTAL</strong>. This class or interface has been added as
- * part of a work in progress. There is no guarantee that this API will
- * work or that it will remain the same. Please do not use this API without
- * consulting with the p2 team.
- * </p>
- * @since 2.3
- * @noreference
+ * @since 2.8
  */
 public class RemedyIUDetail {
 
@@ -39,42 +32,72 @@ public class RemedyIUDetail {
 	private Version beingInstalledVersion;
 	private final IInstallableUnit iu;
 
+	/**
+	 * @since 2.8
+	 */
 	public RemedyIUDetail(IInstallableUnit iu) {
 		this.iu = iu;
 	}
 
+	/**
+	 * @since 2.8
+	 */
 	public void setStatus(int status) {
 		this.status = status;
 	}
 
+	/**
+	 * @since 2.8
+	 */
 	public int getStatus() {
 		return status;
 	}
 
+	/**
+	 * @since 2.8
+	 */
 	public Version getRequestedVersion() {
 		return requestedVersion;
 	}
 
+	/**
+	 * @since 2.8
+	 */
 	public void setRequestedVersion(Version requestedVersion) {
 		this.requestedVersion = requestedVersion;
 	}
 
+	/**
+	 * @since 2.8
+	 */
 	public Version getBeingInstalledVersion() {
 		return beingInstalledVersion;
 	}
 
+	/**
+	 * @since 2.8
+	 */
 	public void setBeingInstalledVersion(Version beingInstalledVersion) {
 		this.beingInstalledVersion = beingInstalledVersion;
 	}
 
+	/**
+	 * @since 2.8
+	 */
 	public IInstallableUnit getIu() {
 		return iu;
 	}
 
+	/**
+	 * @since 2.8
+	 */
 	public Version getInstalledVersion() {
 		return installedVersion;
 	}
 
+	/**
+	 * @since 2.8
+	 */
 	public void setInstalledVersion(Version installedVersion) {
 		this.installedVersion = installedVersion;
 	}

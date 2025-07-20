@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
  * @since 2.3
  * @noreference
  */
-public class Remedy {
+class Remedy implements IRemedy {
 
 	private RemedyConfig config;
 	private ProfileChangeRequest request;
@@ -37,6 +37,7 @@ public class Remedy {
 	private final IProfileChangeRequest originalRequest;
 	private final List<RemedyIUDetail> iusDetails;
 
+	@Override
 	public List<RemedyIUDetail> getIusDetails() {
 		return iusDetails;
 	}
@@ -51,6 +52,7 @@ public class Remedy {
 		this.iusDetails = new ArrayList<>();
 	}
 
+	@Override
 	public RemedyConfig getConfig() {
 		return config;
 	}
@@ -59,6 +61,7 @@ public class Remedy {
 		this.config = config;
 	}
 
+	@Override
 	public ProfileChangeRequest getRequest() {
 		return request;
 	}
@@ -67,6 +70,7 @@ public class Remedy {
 		this.request = request;
 	}
 
+	@Override
 	public int getBeingInstalledRelaxedWeight() {
 		return beingInstalledRelaxedWeight;
 	}
@@ -75,6 +79,7 @@ public class Remedy {
 		this.beingInstalledRelaxedWeight = beingInstalledRelaxedWeight;
 	}
 
+	@Override
 	public int getInstallationRelaxedWeight() {
 		return installationRelaxedWeight;
 	}

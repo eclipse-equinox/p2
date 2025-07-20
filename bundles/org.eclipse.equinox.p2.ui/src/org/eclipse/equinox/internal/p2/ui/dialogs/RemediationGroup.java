@@ -14,7 +14,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
@@ -49,7 +50,7 @@ public class RemediationGroup {
 	private Composite resultComposite;
 	private Composite resultNotFoundComposite;
 	private Composite resultErrorComposite;
-	private Remedy currentRemedy;
+	private IRemedy currentRemedy;
 
 	private TreeViewer treeViewer;
 	private TreeViewerComparator treeComparator;
@@ -77,7 +78,7 @@ public class RemediationGroup {
 
 		@Override
 		public Object[] getElements(Object inputElement) {
-			Object[] elements = ElementUtils.requestToRemedyElementsCategories((Remedy) inputElement);
+			Object[] elements = ElementUtils.requestToRemedyElementsCategories((IRemedy) inputElement);
 			return elements;
 		}
 
@@ -105,8 +106,12 @@ public class RemediationGroup {
 
 	public RemediationGroup(WizardPage page) {
 		CONSTRAINTS = new HashMap<>();
-		CONSTRAINTS.put(ProvUIMessages.RemediationPage_BeingInstalledSection, new String[] {ProvUIMessages.RemediationPage_BeingInstalledSection_AllowPartialInstall, ProvUIMessages.RemediationPage_BeingInstalledSection_AllowDifferentVersion});
-		CONSTRAINTS.put(ProvUIMessages.RemediationPage_InstalledSection, new String[] {ProvUIMessages.RemediationPage_InstalledSection_AllowInstalledUpdate, ProvUIMessages.RemediationPage_InstalledSection_AllowInstalledRemoval});
+		CONSTRAINTS.put(ProvUIMessages.RemediationPage_BeingInstalledSection,
+				new String[] { ProvUIMessages.RemediationPage_BeingInstalledSection_AllowPartialInstall,
+						ProvUIMessages.RemediationPage_BeingInstalledSection_AllowDifferentVersion });
+		CONSTRAINTS.put(ProvUIMessages.RemediationPage_InstalledSection,
+				new String[] { ProvUIMessages.RemediationPage_InstalledSection_AllowInstalledUpdate,
+						ProvUIMessages.RemediationPage_InstalledSection_AllowInstalledRemoval });
 
 		containerPage = page;
 	}
@@ -125,11 +130,15 @@ public class RemediationGroup {
 
 		solutionslistener = e -> {
 			Button btn = (Button) e.widget;
-			Remedy remedy = (btn.getData() == null ? null : (Remedy) btn.getData());
-			checkboxes.get(ALLOWPARTIALINSTALL_INDEX).setSelection(remedy != null && remedy.getConfig().allowPartialInstall);
-			checkboxes.get(ALLOWDIFFERENTVERSION_INDEX).setSelection(remedy != null && remedy.getConfig().allowDifferentVersion);
-			checkboxes.get(ALLOWINSTALLEDUPDATE_INDEX).setSelection(remedy != null && remedy.getConfig().allowInstalledUpdate);
-			checkboxes.get(ALLOWINSTALLEDREMOVAL_INDEX).setSelection(remedy != null && remedy.getConfig().allowInstalledRemoval);
+			IRemedy remedy = (btn.getData() == null ? null : (IRemedy) btn.getData());
+			checkboxes.get(ALLOWPARTIALINSTALL_INDEX)
+					.setSelection(remedy != null && remedy.getConfig().isAllowPartialInstall());
+			checkboxes.get(ALLOWDIFFERENTVERSION_INDEX)
+					.setSelection(remedy != null && remedy.getConfig().isAllowDifferentVersion());
+			checkboxes.get(ALLOWINSTALLEDUPDATE_INDEX)
+					.setSelection(remedy != null && remedy.getConfig().isAllowInstalledUpdate());
+			checkboxes.get(ALLOWINSTALLEDREMOVAL_INDEX)
+					.setSelection(remedy != null && remedy.getConfig().isAllowInstalledRemoval());
 			for (Button btn1 : checkboxes) {
 				btn1.setVisible(true);
 			}
@@ -170,9 +179,7 @@ public class RemediationGroup {
 
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gd.horizontalIndent = 30;
-		Iterator<String> iter = CONSTRAINTS.keySet().iterator();
-		while (iter.hasNext()) {
-			String key = iter.next();
+		for (String key : CONSTRAINTS.keySet()) {
 			String[] values = CONSTRAINTS.get(key);
 			for (String value : values) {
 				Button checkBtn = new Button(checkBoxesComposite, SWT.CHECK);
@@ -257,12 +264,15 @@ public class RemediationGroup {
 					}
 				} else if (element instanceof RemedyIUDetail iuDetail) {
 					int status = compare(iuDetail);
-					if (compare(iuDetail.getBeingInstalledVersion(), iuDetail.getRequestedVersion()) < 0 && containerPage != null && containerPage.getWizard() instanceof UpdateWizard) {
+					if (compare(iuDetail.getBeingInstalledVersion(), iuDetail.getRequestedVersion()) < 0
+							&& containerPage != null && containerPage.getWizard() instanceof UpdateWizard) {
 						Image img = ProvUIImages.getImage(ProvUIImages.IMG_UPGRADED_IU);
-						ImageDescriptor overlay = ProvUIActivator.getDefault().getImageRegistry().getDescriptor(ProvUIImages.IMG_INFO);
+						ImageDescriptor overlay = ProvUIActivator.getDefault().getImageRegistry()
+								.getDescriptor(ProvUIImages.IMG_INFO);
 						String decoratedImageId = ProvUIImages.IMG_UPGRADED_IU.concat(ProvUIImages.IMG_INFO);
 						if (ProvUIActivator.getDefault().getImageRegistry().get(decoratedImageId) == null) {
-							DecorationOverlayIcon decoratedImage = new DecorationOverlayIcon(img, overlay, IDecoration.BOTTOM_RIGHT);
+							DecorationOverlayIcon decoratedImage = new DecorationOverlayIcon(img, overlay,
+									IDecoration.BOTTOM_RIGHT);
 							ProvUIActivator.getDefault().getImageRegistry().put(decoratedImageId, decoratedImage);
 						}
 						Image decoratedImg = ProvUIActivator.getDefault().getImageRegistry().get(decoratedImageId);
@@ -286,18 +296,22 @@ public class RemediationGroup {
 					String toolTipText = ""; //$NON-NLS-1$
 					List<String> versions = new ArrayList<>();
 					if (iuDetail.getInstalledVersion() != null) {
-						versions.add(ProvUIMessages.RemedyElementInstalledVersion + iuDetail.getInstalledVersion().toString());
+						versions.add(ProvUIMessages.RemedyElementInstalledVersion
+								+ iuDetail.getInstalledVersion().toString());
 					}
 					if (iuDetail.getRequestedVersion() != null) {
-						versions.add(ProvUIMessages.RemedyElementRequestedVersion + iuDetail.getRequestedVersion().toString());
+						versions.add(ProvUIMessages.RemedyElementRequestedVersion
+								+ iuDetail.getRequestedVersion().toString());
 					}
 					if (iuDetail.getBeingInstalledVersion() != null) {
-						versions.add(ProvUIMessages.RemedyElementBeingInstalledVersion + iuDetail.getBeingInstalledVersion().toString());
+						versions.add(ProvUIMessages.RemedyElementBeingInstalledVersion
+								+ iuDetail.getBeingInstalledVersion().toString());
 					}
 					for (String version : versions) {
 						toolTipText += (toolTipText == "" ? "" : "\n") + version; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					}
-					if (containerPage != null && containerPage.getWizard() instanceof UpdateWizard && compare(iuDetail.getBeingInstalledVersion(), iuDetail.getRequestedVersion()) < 0) {
+					if (containerPage != null && containerPage.getWizard() instanceof UpdateWizard
+							&& compare(iuDetail.getBeingInstalledVersion(), iuDetail.getRequestedVersion()) < 0) {
 						toolTipText = ProvUIMessages.RemedyElementNotHighestVersion + "\n\n" + toolTipText; //$NON-NLS-1$
 					}
 					return toolTipText;
@@ -313,10 +327,12 @@ public class RemediationGroup {
 			}
 
 			private int compare(RemedyIUDetail iuDetail) {
-				if (iuDetail.getStatus() == RemedyIUDetail.STATUS_ADDED && iuDetail.getRequestedVersion() != null && iuDetail.getBeingInstalledVersion() != null) {
+				if (iuDetail.getStatus() == RemedyIUDetail.STATUS_ADDED && iuDetail.getRequestedVersion() != null
+						&& iuDetail.getBeingInstalledVersion() != null) {
 					return compare(iuDetail.getBeingInstalledVersion(), iuDetail.getRequestedVersion());
 				}
-				if (iuDetail.getStatus() == RemedyIUDetail.STATUS_CHANGED && iuDetail.getInstalledVersion() != null && iuDetail.getBeingInstalledVersion() != null) {
+				if (iuDetail.getStatus() == RemedyIUDetail.STATUS_CHANGED && iuDetail.getInstalledVersion() != null
+						&& iuDetail.getBeingInstalledVersion() != null) {
 					return compare(iuDetail.getBeingInstalledVersion(), iuDetail.getInstalledVersion());
 				}
 				return 0;
@@ -363,7 +379,7 @@ public class RemediationGroup {
 		return iuDetailsGroup;
 	}
 
-	private Remedy searchBestDefaultRemedy() {
+	private IRemedy searchBestDefaultRemedy() {
 		if (remediationOperation.bestSolutionChangingTheRequest() != null) {
 			return remediationOperation.bestSolutionChangingTheRequest();
 		}
@@ -401,16 +417,22 @@ public class RemediationGroup {
 	}
 
 	private boolean isContraintOK(int btnIndex, boolean value) {
-		return (checkboxes.get(btnIndex).getSelection() && value) || (!checkboxes.get(btnIndex).getSelection() && !value);
+		return (checkboxes.get(btnIndex).getSelection() && value)
+				|| (!checkboxes.get(btnIndex).getSelection() && !value);
 	}
 
-	Remedy searchRemedyMatchingUserChoices() {
+	IRemedy searchRemedyMatchingUserChoices() {
 		if (remediationOperation == null) {
-			ProvUIActivator.getDefault().getLog().log(new Status(IStatus.ERROR, ProvUIActivator.getContext().getBundle().getSymbolicName(), "RemediationOperation was not initialized yet.")); //$NON-NLS-1$
+			ProvUIActivator.getDefault().getLog()
+					.log(new Status(IStatus.ERROR, ProvUIActivator.getContext().getBundle().getSymbolicName(),
+							"RemediationOperation was not initialized yet.")); //$NON-NLS-1$
 			return null;
 		}
-		for (Remedy remedy : remediationOperation.getRemedies()) {
-			if (isContraintOK(ALLOWPARTIALINSTALL_INDEX, remedy.getConfig().allowPartialInstall) && isContraintOK(ALLOWDIFFERENTVERSION_INDEX, remedy.getConfig().allowDifferentVersion) && isContraintOK(ALLOWINSTALLEDUPDATE_INDEX, remedy.getConfig().allowInstalledUpdate) && isContraintOK(ALLOWINSTALLEDREMOVAL_INDEX, remedy.getConfig().allowInstalledRemoval)) {
+		for (IRemedy remedy : remediationOperation.getRemedies()) {
+			if (isContraintOK(ALLOWPARTIALINSTALL_INDEX, remedy.getConfig().isAllowPartialInstall())
+					&& isContraintOK(ALLOWDIFFERENTVERSION_INDEX, remedy.getConfig().isAllowDifferentVersion())
+					&& isContraintOK(ALLOWINSTALLEDUPDATE_INDEX, remedy.getConfig().isAllowInstalledUpdate())
+					&& isContraintOK(ALLOWINSTALLEDREMOVAL_INDEX, remedy.getConfig().isAllowInstalledRemoval())) {
 				if (remedy.getRequest() != null) {
 					return remedy;
 				}
@@ -421,7 +443,10 @@ public class RemediationGroup {
 
 	void refreshResultComposite() {
 		resultComposite.setVisible(true);
-		if (!checkboxes.get(ALLOWPARTIALINSTALL_INDEX).getSelection() && !checkboxes.get(ALLOWDIFFERENTVERSION_INDEX).getSelection() && !checkboxes.get(ALLOWINSTALLEDUPDATE_INDEX).getSelection() && !checkboxes.get(ALLOWINSTALLEDREMOVAL_INDEX).getSelection()) {
+		if (!checkboxes.get(ALLOWPARTIALINSTALL_INDEX).getSelection()
+				&& !checkboxes.get(ALLOWDIFFERENTVERSION_INDEX).getSelection()
+				&& !checkboxes.get(ALLOWINSTALLEDUPDATE_INDEX).getSelection()
+				&& !checkboxes.get(ALLOWINSTALLEDREMOVAL_INDEX).getSelection()) {
 			switchRemediationLayout.topControl = resultErrorComposite;
 		} else {
 
@@ -440,7 +465,7 @@ public class RemediationGroup {
 		containerPage.setPageComplete(currentRemedy != null);
 	}
 
-	public Remedy getCurrentRemedy() {
+	public IRemedy getCurrentRemedy() {
 		return currentRemedy;
 	}
 
@@ -461,7 +486,8 @@ public class RemediationGroup {
 			IInstallableUnit iu2 = ((RemedyIUDetail) e2).getIu();
 			if (iu1 != null && iu2 != null) {
 				if (viewer1 instanceof TreeViewer theTreeViewer) {
-					ColumnLabelProvider labelProvider = (ColumnLabelProvider) theTreeViewer.getLabelProvider(sortColumn);
+					ColumnLabelProvider labelProvider = (ColumnLabelProvider) theTreeViewer
+							.getLabelProvider(sortColumn);
 					String e1p = labelProvider.getText(e1);
 					String e2p = labelProvider.getText(e2);
 					// don't suppress this warning as it will cause build-time warning

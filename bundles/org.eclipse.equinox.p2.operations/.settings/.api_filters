@@ -19,18 +19,36 @@
         </filter>
     </resource>
     <resource path="src/org/eclipse/equinox/p2/operations/Remedy.java" type="org.eclipse.equinox.p2.operations.Remedy">
-        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="643842064">
+        <filter comment="Marked as no reference and leaking API" id="305365105">
             <message_arguments>
-                <message_argument value="ProfileChangeRequest"/>
-                <message_argument value="Remedy"/>
-                <message_argument value="getRequest()"/>
+                <message_argument value="org.eclipse.equinox.p2.operations.Remedy"/>
+                <message_argument value="org.eclipse.equinox.p2.operations_2.8.0"/>
             </message_arguments>
         </filter>
-        <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="643846161">
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/operations/RemedyConfig.java" type="org.eclipse.equinox.p2.operations.RemedyConfig">
+        <filter id="388018290">
             <message_arguments>
-                <message_argument value="ProfileChangeRequest"/>
-                <message_argument value="Remedy"/>
-                <message_argument value="setRequest(ProfileChangeRequest)"/>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyConfig"/>
+                <message_argument value="allowDifferentVersion"/>
+            </message_arguments>
+        </filter>
+        <filter id="388018290">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyConfig"/>
+                <message_argument value="allowInstalledRemoval"/>
+            </message_arguments>
+        </filter>
+        <filter id="388018290">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyConfig"/>
+                <message_argument value="allowInstalledUpdate"/>
+            </message_arguments>
+        </filter>
+        <filter id="388018290">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.RemedyConfig"/>
+                <message_argument value="allowPartialInstall"/>
             </message_arguments>
         </filter>
     </resource>
