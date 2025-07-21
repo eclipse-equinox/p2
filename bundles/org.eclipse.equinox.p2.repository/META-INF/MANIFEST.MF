@@ -69,9 +69,7 @@ Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.registry;bundle-version="3.3.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
-Import-Package: javax.crypto,
- org.bouncycastle;version="1.72.0",
- org.bouncycastle.bcpg;version="1.72.0",
+Import-Package: org.bouncycastle.bcpg;version="1.72.0",
  org.bouncycastle.gpg.keybox;version="1.72.0",
  org.bouncycastle.gpg.keybox.jcajce;version="1.72.0",
  org.bouncycastle.openpgp;version="1.72.0",
@@ -80,7 +78,6 @@ Import-Package: javax.crypto,
  org.bouncycastle.openpgp.operator.bc;version="1.72.0",
  org.bouncycastle.openpgp.operator.jcajce;version="1.72.0",
  org.bouncycastle.util.encoders;version="1.72.0",
- org.eclipse.core.runtime.jobs,
  org.eclipse.core.runtime.preferences;version="3.2.0",
  org.eclipse.equinox.internal.p2.core,
  org.eclipse.equinox.internal.p2.core.helpers,
@@ -96,7 +93,6 @@ Import-Package: javax.crypto,
  org.eclipse.osgi.service.debug,
  org.eclipse.osgi.util;version="1.1.0",
  org.osgi.framework;version="1.6.0",
- org.osgi.service.packageadmin;version="1.2.0",
  org.osgi.service.prefs;version="1.0.0",
  org.osgi.util.tracker;version="[1.5.0,2)"
 Service-Component: OSGI-INF/cacheManager.xml, OSGI-INF/pgpPublicKeyService.xml
