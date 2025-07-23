@@ -42,7 +42,6 @@ import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
 
 public class InstallableUnit implements IInstallableUnit, IMemberProvider {
-	@SuppressWarnings("serial")
 	private static final Map<IFilterExpression, IMatchExpression<IInstallableUnit>> filterCache = new LinkedHashMap<>() {
 		@Override
 		public boolean removeEldestEntry(Map.Entry<IFilterExpression, IMatchExpression<IInstallableUnit>> expr) {

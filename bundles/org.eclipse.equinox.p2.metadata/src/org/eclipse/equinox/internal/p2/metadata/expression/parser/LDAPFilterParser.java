@@ -32,7 +32,6 @@ import org.eclipse.osgi.util.NLS;
  * objects rooted at the parent.
  */
 public class LDAPFilterParser {
-	@SuppressWarnings("serial")
 	private static final Map<String, IFilterExpression> filterCache = Collections.synchronizedMap(new LinkedHashMap<String, IFilterExpression>() {
 		@Override
 		public boolean removeEldestEntry(Map.Entry<String, IFilterExpression> expr) {
