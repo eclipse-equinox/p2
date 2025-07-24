@@ -53,6 +53,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 			throw new ProvisionException(new Status(IStatus.ERROR, EngineActivator.ID, ProvisionException.REPOSITORY_FAILED_READ, e.getMessage(), e));
 		}
 		publishArtifactRepos();
+		setProperties(profile.getProperties());
 	}
 
 	private void publishArtifactRepos() {
