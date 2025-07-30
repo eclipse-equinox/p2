@@ -8,11 +8,7 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.equinox.internal.p2.ui.sdk;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.sdk.prefs;x-internal:=true
-Require-Bundle: org.eclipse.ui;bundle-version="3.6.0",
- org.eclipse.core.runtime;bundle-version="[3.29.0,4.0.0)",
- org.eclipse.equinox.p2.ui;bundle-version="2.6.0"
-Import-Package: javax.xml.parsers,
- org.bouncycastle.bcpg;version="1.69.0",
+Import-Package: org.bouncycastle.bcpg;version="1.69.0",
  org.bouncycastle.openpgp;version="1.69.0",
  org.eclipse.compare;resolution:=optional,
  org.eclipse.compare.structuremergeviewer;resolution:=optional,
@@ -24,13 +20,10 @@ Import-Package: javax.xml.parsers,
  org.eclipse.equinox.p2.engine.query;version="[2.0.0,3.0.0)",
  org.eclipse.equinox.p2.metadata;version="[2.0.0,3.0.0)",
  org.eclipse.equinox.p2.operations;version="[2.0.0,3.0.0)",
- org.eclipse.equinox.p2.planner;version="2.0.0",
  org.eclipse.equinox.p2.query;version="[2.0.0,3.0.0)",
  org.eclipse.equinox.p2.repository.spi;version="2.0.0",
  org.eclipse.osgi.util;version="1.1.0",
- org.osgi.framework;version="1.6.0",
- org.w3c.dom,
- org.xml.sax
+ org.osgi.framework;version="1.6.0"
 Service-Component: OSGI-INF/policy_component.xml, OSGI-INF/licenseManager_component.xml
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
