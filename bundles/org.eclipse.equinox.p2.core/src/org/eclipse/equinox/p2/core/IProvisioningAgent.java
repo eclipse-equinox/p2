@@ -91,8 +91,10 @@ public interface IProvisioningAgent {
 	 * Registers a service with this provisioning agent.
 	 *
 	 * @param serviceName The name of the service to register
-	 * @param service The service implementation
-	 * @exception IllegalStateException if this agent has been stopped
+	 * @param service     The service implementation
+	 * @exception IllegalStateException if this agent has been stopped or service
+	 *                                  has already been registered. The state of
+	 *                                  this service after exception is not defined.
 	 */
 	void registerService(String serviceName, Object service);
 
