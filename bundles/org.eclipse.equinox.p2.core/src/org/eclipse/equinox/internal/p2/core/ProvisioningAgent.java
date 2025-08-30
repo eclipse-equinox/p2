@@ -95,9 +95,11 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 	@Override
 	public void registerService(String serviceName, Object service) {
 		checkRunning();
-		agentServices.put(serviceName, service);
 		if (service instanceof IAgentService) {
 			((IAgentService) service).start();
+		}
+		if (agentServices.put(serviceName, service) instanceof IAgentService prevService) {
+			prevService.stop();
 		}
 	}
 
