@@ -171,6 +171,7 @@ public class ProvisioningAgent implements IProvisioningAgent {
 			if (service instanceof IAgentService agentService) {
 				agentService.stop();
 			}
+			context.ungetService(reference);
 		}
 
 	};
