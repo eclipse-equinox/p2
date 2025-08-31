@@ -28,13 +28,13 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 /**
  * Represents a p2 agent instance.
  */
-public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCustomizer<IAgentServiceFactory, Object> {
+public class ProvisioningAgent implements IProvisioningAgent {
 
 	private final Map<String, Object> agentServices = Collections.synchronizedMap(new HashMap<>());
 	private BundleContext context;
 	private volatile boolean stopped = false;
 	private ServiceRegistration<IProvisioningAgent> reg;
-	private final Map<ServiceReference<IAgentServiceFactory>, ServiceTracker<IAgentServiceFactory, Object>> trackers = Collections
+	private final Map<String, ServiceTracker<IAgentServiceFactory, Object>> trackers = Collections
 			.synchronizedMap(new HashMap<>());
 
 	/**
@@ -55,37 +55,22 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 			if (service != null) {
 				return service;
 			}
-			//attempt to get factory service from service registry
-			Collection<ServiceReference<IAgentServiceFactory>> refs;
-			try {
-				refs = context.getServiceReferences(IAgentServiceFactory.class,
-						String.format("(|(%s=%s)(p2.agent.servicename=%s))", //$NON-NLS-1$ use old property as fallback
-								IAgentServiceFactory.PROP_AGENT_SERVICE_NAME, serviceName, serviceName));
-			} catch (InvalidSyntaxException e) {
-				e.printStackTrace();
-				return null;
-			}
-			if (refs == null || refs.isEmpty()) {
-				return null;
-			}
-			ServiceReference<IAgentServiceFactory> firstRef = Collections.max(refs);
-			//track the factory so that we can automatically remove the service when the factory goes away
-			ServiceTracker<IAgentServiceFactory, Object> tracker = new ServiceTracker<>(context, firstRef, this);
-			tracker.open();
-			IAgentServiceFactory factory = (IAgentServiceFactory) tracker.getService();
-			if (factory == null) {
-				tracker.close();
-				return null;
-			}
-			service = factory.createService(this);
-			if (service == null) {
-				tracker.close();
-				return null;
-			}
-			registerService(serviceName, service);
-			trackers.put(firstRef, tracker);
-			return service;
 		}
+		ServiceTracker<IAgentServiceFactory, Object> tracker = trackers.computeIfAbsent(serviceName,
+				ref -> {
+					try {
+						Filter filter = context.createFilter(
+								String.format("(&(%s=%s)(|(%s=%s)(p2.agent.servicename=%s))", //$NON-NLS-1$
+										Constants.OBJECTCLASS, IAgentServiceFactory.class.getName(), //
+										IAgentServiceFactory.PROP_AGENT_SERVICE_NAME, serviceName, //
+										serviceName)); // use old property as fallback
+						return new ServiceTracker<>(context, filter, trackerCustomizer);
+					} catch (InvalidSyntaxException e) {
+						throw new AssertionError(e);
+					}
+				});
+		tracker.open();
+		return tracker.getService();
 	}
 
 	private void checkRunning() {
@@ -133,14 +118,10 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 
 	@Override
 	public void unregisterService(String serviceName, Object service) {
-		synchronized (agentServices) {
-			if (stopped) {
-				return;
-			}
-			if (agentServices.get(serviceName) == service) {
-				agentServices.remove(serviceName);
-			}
+		if (stopped) {
+			return;
 		}
+		agentServices.remove(serviceName, service);
 		if (service instanceof IAgentService) {
 			((IAgentService) service).stop();
 		}
@@ -178,49 +159,32 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 		this.reg = reg;
 	}
 
-	@Override
-	public Object addingService(ServiceReference<IAgentServiceFactory> reference) {
-		if (stopped) {
-			return null;
+	private final ServiceTrackerCustomizer<IAgentServiceFactory, Object> trackerCustomizer = new ServiceTrackerCustomizer<>() {
+		@Override
+		public Object addingService(ServiceReference<IAgentServiceFactory> reference) {
+			if (stopped) {
+				return null;
+			}
+			Object result = context.getService(reference).createService(ProvisioningAgent.this);
+			if (result instanceof IAgentService agentService) {
+				agentService.start();
+			}
+			return result;
 		}
-		return context.getService(reference);
-	}
 
-	@Override
-	public void modifiedService(ServiceReference<IAgentServiceFactory> reference, Object service) {
-		//nothing to do
-	}
+		@Override
+		public void modifiedService(ServiceReference<IAgentServiceFactory> reference, Object service) {
+			// nothing to do
+		}
 
-	@Override
-	public void removedService(ServiceReference<IAgentServiceFactory> reference, Object factoryService) {
-		if (stopped) {
-			return;
-		}
-		String serviceName = getAgentServiceName(reference);
-		if (serviceName == null) {
-			return;
-		}
-		Object registered = agentServices.get(serviceName);
-		if (registered == null) {
-			return;
-		}
-		if (FrameworkUtil.getBundle(registered.getClass()) == FrameworkUtil.getBundle(factoryService.getClass())) {
-			//the service we are holding is going away
-			unregisterService(serviceName, registered);
-			ServiceTracker<IAgentServiceFactory, Object> toRemove = trackers.remove(reference);
-			if (toRemove != null) {
-				toRemove.close();
+		@Override
+		public void removedService(ServiceReference<IAgentServiceFactory> reference, Object service) {
+			if (service instanceof IAgentService agentService) {
+				agentService.stop();
 			}
 		}
-	}
 
-	private String getAgentServiceName(ServiceReference<IAgentServiceFactory> reference) {
-		Object property = reference.getProperty(IAgentServiceFactory.PROP_AGENT_SERVICE_NAME);
-		if (property instanceof String s) {
-			return s;
-		}
-		// backward compatibility
-		return (String) reference.getProperty("p2.agent.servicename"); //$NON-NLS-1$
-	}
+	};
+
 
 }
