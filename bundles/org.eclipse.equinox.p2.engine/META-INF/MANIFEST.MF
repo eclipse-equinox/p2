@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.engine;singleton:=true
-Bundle-Version: 2.10.600.qualifier
+Bundle-Version: 2.11.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.engine.EngineActivator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -21,7 +21,7 @@ Export-Package: org.eclipse.equinox.internal.p2.engine;
    org.eclipse.equinox.p2.ui.sdk,
    org.eclipse.equinox.p2.ui.sdk.scheduler,
    org.eclipse.equinox.p2.touchpoint.eclipse",
- org.eclipse.equinox.p2.engine;version="2.3.0";
+ org.eclipse.equinox.p2.engine;version="2.4.0";
   uses:="org.eclipse.core.runtime,
    org.eclipse.core.runtime.preferences,
    org.eclipse.equinox.p2.core,

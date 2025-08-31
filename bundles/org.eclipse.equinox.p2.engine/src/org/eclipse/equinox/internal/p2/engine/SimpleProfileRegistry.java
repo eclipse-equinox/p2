@@ -891,11 +891,11 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	public synchronized boolean isCurrent(IProfile profile) {
 		Profile internalProfile = getProfileMap().get(profile.getProfileId());
 		if (internalProfile == null) {
-			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, profile.getProfileId()));
+			throw new ProfileNotRegisteredException(profile);
 		}
 
 		if (!internalLockProfile(internalProfile)) {
-			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+			throw new ProfileInUseException(internalProfile);
 		}
 
 		try {
@@ -908,11 +908,11 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	public synchronized void lockProfile(Profile profile) {
 		Profile internalProfile = internalGetProfile(profile.getProfileId());
 		if (internalProfile == null) {
-			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, profile.getProfileId()));
+			throw new ProfileNotRegisteredException(profile);
 		}
 
 		if (!internalLockProfile(internalProfile)) {
-			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+			throw new ProfileInUseException(internalProfile);
 		}
 
 		boolean isCurrent = false;
@@ -921,13 +921,13 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				if (DebugHelper.DEBUG_PROFILE_REGISTRY) {
 					DebugHelper.debug(PROFILE_REGISTRY, "Profile is marked as changed."); //$NON-NLS-1$
 				}
-				throw new IllegalStateException(NLS.bind(Messages.profile_changed, profile.getProfileId()));
+				throw new ProfileChangedException(profile);
 			}
 			if (!checkTimestamps(profile, internalProfile)) {
 				if (DebugHelper.DEBUG_PROFILE_REGISTRY) {
 					DebugHelper.debug(PROFILE_REGISTRY, "Unexpected timestamp difference in profile."); //$NON-NLS-1$
 				}
-				throw new IllegalStateException(NLS.bind(Messages.profile_not_current, profile.getProfileId(), Long.toString(internalProfile.getTimestamp()), Long.toString(profile.getTimestamp())));
+				throw new ProfileNotCurrentException(profile, internalProfile);
 			}
 			isCurrent = true;
 		} finally {
@@ -1206,7 +1206,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		}
 
 		if (!internalLockProfile(profile)) {
-			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+			throw new ProfileInUseException(profile);
 		}
 
 		try {
@@ -1265,7 +1265,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		lock = lock || lastAccessedProperties == null;
 		if (lock) {
 			if (!internalLockProfile(profile)) {
-				throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+				throw new ProfileInUseException(profile);
 			}
 		}
 		try {
@@ -1305,7 +1305,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		lock = lock || lastAccessedProperties == null;
 		if (lock) {
 			if (!internalLockProfile(profile)) {
-				throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+				throw new ProfileInUseException(profile);
 			}
 		}
 		try {
@@ -1345,7 +1345,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		}
 
 		if (!internalLockProfile(internalProfile)) {
-			throw new IllegalStateException(Messages.SimpleProfileRegistry_Profile_in_use);
+			throw new ProfileInUseException(internalProfile);
 		}
 
 		try {
