@@ -60,7 +60,7 @@ public class ProvisioningAgent implements IProvisioningAgent {
 				ref -> {
 					try {
 						Filter filter = context.createFilter(
-								String.format("(&(%s=%s)(|(%s=%s)(p2.agent.servicename=%s))", //$NON-NLS-1$
+								String.format("(&(%s=%s)(|(%s=%s)(p2.agent.servicename=%s)))", //$NON-NLS-1$
 										Constants.OBJECTCLASS, IAgentServiceFactory.class.getName(), //
 										IAgentServiceFactory.PROP_AGENT_SERVICE_NAME, serviceName, //
 										serviceName)); // use old property as fallback
