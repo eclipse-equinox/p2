@@ -80,9 +80,11 @@ public class ProvisioningAgent implements IProvisioningAgent {
 	@Override
 	public void registerService(String serviceName, Object service) {
 		checkRunning();
-		agentServices.put(serviceName, service);
-		if (service instanceof IAgentService) {
-			((IAgentService) service).start();
+		if (service instanceof IAgentService agentService) {
+			agentService.start();
+		}
+		if (agentServices.put(serviceName, service) instanceof IAgentService previous) {
+			previous.stop();
 		}
 	}
 
