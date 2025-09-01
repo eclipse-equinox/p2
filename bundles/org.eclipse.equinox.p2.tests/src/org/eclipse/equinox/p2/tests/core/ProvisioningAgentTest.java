@@ -19,6 +19,7 @@ import java.net.URISyntaxException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.spi.IAgentService;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -59,5 +60,52 @@ public class ProvisioningAgentTest extends AbstractProvisioningTest {
 
 		TestActivator.context.ungetService(providerRef);
 
+	}
+
+	/**
+	 * Stop all registered services
+	 */
+	public void testStopServices() throws ProvisionException {
+		URI p2location = getTempFolder().toURI();
+
+		ServiceReference<IProvisioningAgentProvider> providerRef = TestActivator.context.getServiceReference(IProvisioningAgentProvider.class);
+		IProvisioningAgentProvider provider = TestActivator.context.getService(providerRef);
+
+		IProvisioningAgent firstAgent = provider.createAgent(p2location);
+
+
+		MockService mockService1 = new MockService();
+		MockService mockService2 = new MockService();
+
+		firstAgent.registerService(IMockService.class.getName(), mockService1);
+		assertTrue(mockService1.started);
+
+		firstAgent.registerService(IMockService.class.getName(), mockService2);
+		assertTrue(mockService2.started);
+		assertFalse(mockService1.started);
+
+		firstAgent.stop();
+
+		assertFalse(mockService1.started);
+		assertFalse(mockService2.started);
+
+	}
+
+	public static interface IMockService extends IAgentService {
+
+	}
+
+	private static class MockService implements IMockService {
+		boolean started = false;
+
+		@Override
+		public void start() {
+			started = true;
+		}
+
+		@Override
+		public void stop() {
+			started = false;
+		}
 	}
 }
