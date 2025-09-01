@@ -130,7 +130,8 @@ Require-Bundle: org.eclipse.equinox.frameworkadmin,
  org.eclipse.equinox.p2.ui.sdk.scheduler,
  org.eclipse.equinox.p2.artifact.repository;bundle-version="[1.3.0,2.0.0)",
  org.mockito.mockito-core,
- net.bytebuddy.byte-buddy
+ net.bytebuddy.byte-buddy,
+ org.eclipse.equinox.p2.core
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.artifact.repository
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-BundleShape: dir
