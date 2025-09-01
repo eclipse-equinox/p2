@@ -100,6 +100,10 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 		}
 		if (agentServices.put(serviceName, service) instanceof IAgentService prevService) {
 			prevService.stop();
+			if (prevService == service) {
+				agentServices.remove(serviceName, prevService);
+				throw new IllegalArgumentException("Double registration"); //$NON-NLS-1$
+			}
 		}
 	}
 
