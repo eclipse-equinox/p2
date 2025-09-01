@@ -16,6 +16,7 @@ package org.eclipse.equinox.p2.tests.core;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.CompletableFuture;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -89,6 +90,46 @@ public class ProvisioningAgentTest extends AbstractProvisioningTest {
 		assertFalse(mockService1.started);
 		assertFalse(mockService2.started);
 
+	}
+
+	/**
+	 * Do not expose unstarted services
+	 */
+	public void testStartServices() throws ProvisionException {
+		URI p2location = getTempFolder().toURI();
+
+		ServiceReference<IProvisioningAgentProvider> providerRef = TestActivator.context
+				.getServiceReference(IProvisioningAgentProvider.class);
+		IProvisioningAgentProvider provider = TestActivator.context.getService(providerRef);
+
+		IProvisioningAgent firstAgent = provider.createAgent(p2location);
+
+
+		CompletableFuture<Void> startStopServiceTask = CompletableFuture.runAsync(() -> {
+			while (!Thread.interrupted()) {
+				if (firstAgent.getService(IMockService.class) == null) {
+					MockService mockService1 = new MockService();
+					firstAgent.registerService(IMockService.class.getName(), mockService1);
+				}
+			}
+
+		});
+
+		long stop = System.currentTimeMillis() + 1000;
+		try {
+			while (System.currentTimeMillis() < stop) {
+				IMockService service = firstAgent.getService(IMockService.class);
+				if (service == null) {
+					continue;
+				}
+				assertTrue(((MockService) service).started);
+				firstAgent.unregisterService(IMockService.class.getName(), service);
+			}
+
+		} finally {
+			startStopServiceTask.cancel(true);
+			firstAgent.stop();
+		}
 	}
 
 	public static interface IMockService extends IAgentService {
