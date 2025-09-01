@@ -15,6 +15,7 @@ package org.eclipse.equinox.internal.p2.core;
 
 import java.net.URI;
 import java.util.*;
+import java.util.function.Consumer;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentService;
@@ -28,12 +29,12 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  */
 public class ProvisioningAgent implements IProvisioningAgent {
 
-	private final Map<String, Object> agentServices = Collections.synchronizedMap(new HashMap<>());
+	private final Map<String, Object> agentServices = Collections.synchronizedMap(new LinkedHashMap<>());
 	private BundleContext context;
 	private volatile boolean stopped = false;
 	private ServiceRegistration<IProvisioningAgent> reg;
 	private final Map<String, ServiceTracker<IAgentServiceFactory, Object>> trackers = Collections
-			.synchronizedMap(new HashMap<>());
+			.synchronizedMap(new LinkedHashMap<>());
 
 	/**
 	 * Instantiates a provisioning agent.
@@ -48,7 +49,6 @@ public class ProvisioningAgent implements IProvisioningAgent {
 	public Object getService(String serviceName) {
 		//synchronize so concurrent gets always obtain the same service
 		synchronized (agentServices) {
-			checkRunning();
 			Object service = agentServices.get(serviceName);
 			if (service != null) {
 				return service;
@@ -57,6 +57,9 @@ public class ProvisioningAgent implements IProvisioningAgent {
 		ServiceTracker<IAgentServiceFactory, Object> tracker = trackers.computeIfAbsent(serviceName,
 				ref -> {
 					try {
+						if (stopped) {
+							return null;
+						}
 						Filter filter = context.createFilter(
 								String.format("(&(%s=%s)(|(%s=%s)(p2.agent.servicename=%s)))", //$NON-NLS-1$
 										Constants.OBJECTCLASS, IAgentServiceFactory.class.getName(), //
@@ -67,6 +70,9 @@ public class ProvisioningAgent implements IProvisioningAgent {
 						throw new AssertionError(e);
 					}
 				});
+		if (tracker == null) {
+			return null;
+		}
 		tracker.open();
 		return tracker.getService();
 	}
@@ -109,9 +115,6 @@ public class ProvisioningAgent implements IProvisioningAgent {
 
 	@Override
 	public void unregisterService(String serviceName, Object service) {
-		if (stopped) {
-			return;
-		}
 		agentServices.remove(serviceName, service);
 		if (service instanceof IAgentService) {
 			((IAgentService) service).stop();
@@ -120,29 +123,20 @@ public class ProvisioningAgent implements IProvisioningAgent {
 
 	@Override
 	public void stop() {
-		List<Object> toStop;
-		synchronized (agentServices) {
-			toStop = new ArrayList<>(agentServices.values());
-		}
-		//give services a chance to do their own shutdown
-		for (Object service : toStop) {
-			if (service instanceof IAgentService) {
-				if (service != this) {
-					((IAgentService) service).stop();
+		stopped = true;
+		try {
+			disposeInTurns(agentServices.entrySet(), entry -> {
+				unregisterService(entry.getKey(), entry.getValue());
+			});
+		} finally {
+			try {
+				disposeInTurns(trackers.values(), ServiceTracker::close);
+			} finally {
+				if (reg != null) {
+					reg.unregister();
+					reg = null;
 				}
 			}
-		}
-		stopped = true;
-		//close all service trackers
-		synchronized (trackers) {
-			for (ServiceTracker<IAgentServiceFactory, Object> t : trackers.values()) {
-				t.close();
-			}
-			trackers.clear();
-		}
-		if (reg != null) {
-			reg.unregister();
-			reg = null;
 		}
 	}
 
@@ -173,10 +167,52 @@ public class ProvisioningAgent implements IProvisioningAgent {
 			if (service instanceof IAgentService agentService) {
 				agentService.stop();
 			}
-			context.ungetService(reference);
+			if (service != null) {
+				context.ungetService(reference);
+			}
 		}
 
 	};
 
+	/**
+	 * Given a thread-safe collection, drain all elements one-by-one, disposing each
+	 * without holding locks and allowing concurrent modification form. Other
+	 * threads should not attempt to add elements to collection.<br>
+	 * Usage example:
+	 *
+	 * <pre>{@code
+	 * volatile boolean stopped = false;
+	 * ...
+	 * stopped = true; // prevent other threads from adding to the collection
+	 * disposeInTurns(agentServices.entrySet(), entry -> {
+	 * 	unregisterService(entry.getKey(), entry.getValue());
+	 * });
+	 * }</pre>
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	private <T> void disposeInTurns(Collection<T> input, Consumer<T> dispose) {
+		RuntimeException error = null;
+		while (!input.isEmpty()) {
+			Object[] toStop = input.toArray(Object[]::new);
+			Collections.reverse(Arrays.asList(toStop)); // Remove in an inverse order of adding
+			for (Object item : toStop) {
+				if (input.remove(item)) {
+					try {
+						dispose.accept((T) item);
+					} catch (RuntimeException e) {
+						if (error == null) {
+							error = e;
+						} else {
+							error.addSuppressed(e);
+						}
+					}
+				}
+			}
+		}
+		if (error != null) {
+			throw error;
+		}
+	}
 
 }
