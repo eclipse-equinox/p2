@@ -16,12 +16,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
-import java.util.Optional;
+import java.util.*;
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 import org.eclipse.ecf.provider.filetransfer.IFileTransferProtocolToFactoryMapper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.osgi.framework.*;
-import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
@@ -135,10 +133,13 @@ public class Activator implements BundleActivator {
 	 */
 	private synchronized ServiceTracker<IRetrieveFileTransferFactory, IRetrieveFileTransferFactory> getFileTransferServiceTracker() {
 		if (retrievalFactoryTracker == null) {
-			retrievalFactoryTracker = new ServiceTracker<>(Activator.context, IRetrieveFileTransferFactory.class, null);
+			BundleContext bundleContext = Activator.context;
+			retrievalFactoryTracker = new ServiceTracker<>(bundleContext, IRetrieveFileTransferFactory.class, null);
 			retrievalFactoryTracker.open();
-			startBundle("org.eclipse.ecf"); //$NON-NLS-1$
-			startBundle("org.eclipse.ecf.provider.filetransfer"); //$NON-NLS-1$
+			HashSet<String> toStart = new HashSet<>();
+			toStart.add("org.eclipse.ecf"); //$NON-NLS-1$
+			toStart.add("org.eclipse.ecf.provider.filetransfer"); //$NON-NLS-1$
+			startBundle(toStart, bundleContext);
 		}
 		return retrievalFactoryTracker;
 	}
@@ -152,27 +153,25 @@ public class Activator implements BundleActivator {
 		return protocolToFactoryMapperTracker.getService();
 	}
 
-	private boolean startBundle(String bundleId) {
-		PackageAdmin packageAdmin = ServiceHelper.getService(Activator.context, PackageAdmin.class);
-		if (packageAdmin == null) {
-			return false;
-		}
-
-		Bundle[] bundles = packageAdmin.getBundles(bundleId, null);
-		if (bundles != null && bundles.length > 0) {
-			for (Bundle bundle : bundles) {
+	private static void startBundle(Set<String> bundles, BundleContext bundleContext) {
+		for (Bundle bundle : bundleContext.getBundles()) {
+			String symbolicName = bundle.getSymbolicName();
+			if (bundles.contains(symbolicName)) {
 				try {
 					if ((bundle.getState() & Bundle.INSTALLED) == 0) {
 						bundle.start(Bundle.START_ACTIVATION_POLICY);
 						bundle.start(Bundle.START_TRANSIENT);
-						return true;
+						bundles.remove(symbolicName);
+						if (bundles.isEmpty()) {
+							// nothing more to do
+							return;
+						}
 					}
 				} catch (BundleException e) {
 					// failed, try next bundle
 				}
 			}
 		}
-		return false;
 	}
 
 	public static String getProperty(String key) {
