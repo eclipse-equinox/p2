@@ -22,6 +22,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
+import org.eclipse.osgi.container.ModuleContainer;
 import org.eclipse.osgi.report.resolution.ResolutionReport.Entry.Type;
 import org.osgi.framework.*;
 import org.osgi.framework.hooks.resolver.ResolverHookFactory;
@@ -30,7 +31,6 @@ import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.framework.wiring.*;
 import org.osgi.resource.Namespace;
 import org.osgi.resource.Requirement;
-import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.resolver.ResolutionException;
 
 class ConfigApplier {
@@ -39,7 +39,6 @@ class ConfigApplier {
 	private static final String PROP_DEVMODE = "osgi.dev"; //$NON-NLS-1$
 
 	private final BundleContext manipulatingContext;
-	private final PackageAdmin packageAdminService;
 	private final FrameworkWiring frameworkWiring;
 	private final boolean runningOnEquinox;
 	private final boolean inDevMode;
@@ -48,6 +47,7 @@ class ConfigApplier {
 	private final URI baseLocation;
 	private final boolean deepRefresh;
 	private int maxRefreshTry;
+	private Bundle systemBundle;
 
 	ConfigApplier(BundleContext context, Bundle callingBundle) {
 		deepRefresh = Boolean.parseBoolean(context.getProperty("equinox.simpleconfigurator.deeprefresh"));
@@ -62,14 +62,8 @@ class ConfigApplier {
 		runningOnEquinox = "Eclipse".equals(context.getProperty(Constants.FRAMEWORK_VENDOR)); //$NON-NLS-1$
 		inDevMode = manipulatingContext.getProperty(PROP_DEVMODE) != null;
 		baseLocation = runningOnEquinox ? EquinoxUtils.getInstallLocationURI(context) : null;
-
-		ServiceReference<PackageAdmin> packageAdminRef = manipulatingContext.getServiceReference(PackageAdmin.class);
-		if (packageAdminRef == null) {
-			throw new IllegalStateException("No PackageAdmin service is available."); //$NON-NLS-1$
-		}
-		packageAdminService = manipulatingContext.getService(packageAdminRef);
-
-		frameworkWiring = manipulatingContext.getBundle(Constants.SYSTEM_BUNDLE_LOCATION).adapt(FrameworkWiring.class);
+		systemBundle = manipulatingContext.getBundle(Constants.SYSTEM_BUNDLE_LOCATION);
+		frameworkWiring = systemBundle.adapt(FrameworkWiring.class);
 	}
 
 	void install(URL url, boolean exclusiveMode) throws IOException {
@@ -115,7 +109,7 @@ class ConfigApplier {
 		Collection<Bundle> toStart = new ArrayList<>();
 		if (exclusiveMode) {
 			toRefresh.addAll(installBundles(expectedState, toStart));
-			toRefresh.addAll(uninstallBundles(expectedState, packageAdminService));
+			toRefresh.addAll(uninstallBundles(expectedState));
 		} else {
 			toRefresh.addAll(installBundles(expectedState, toStart));
 			if (toUninstall != null) {
@@ -378,7 +372,7 @@ class ConfigApplier {
 	private Collection<Bundle> uninstallBundles(HashSet<BundleInfo> toUninstall) {
 		Collection<Bundle> removedBundles = new ArrayList<>(toUninstall.size());
 		for (BundleInfo current : toUninstall) {
-			Bundle[] matchingBundles = packageAdminService.getBundles(current.getSymbolicName(), getVersionRange(current.getVersion()));
+			Bundle[] matchingBundles = getBundles(current.getSymbolicName(), getVersionRange(current.getVersion()));
 			for (int j = 0; matchingBundles != null && j < matchingBundles.length; j++) {
 				try {
 					removedBundles.add(matchingBundles[j]);
@@ -445,7 +439,7 @@ class ConfigApplier {
 
 			Bundle[] matches = null;
 			if (symbolicName != null && version != null) {
-				matches = packageAdminService.getBundles(symbolicName, getVersionRange(version));
+				matches = getBundles(symbolicName, getVersionRange(version));
 			}
 
 			String bundleLocation = SimpleConfiguratorUtils.getBundleLocation(element, useReference);
@@ -599,7 +593,7 @@ class ConfigApplier {
 	 * @param packageAdmin package admin service.
 	 * @return Collection HashSet of bundles finally installed.
 	 */
-	private Collection<Bundle> uninstallBundles(BundleInfo[] finalList, PackageAdmin packageAdmin) {
+	private Collection<Bundle> uninstallBundles(BundleInfo[] finalList) {
 		Bundle[] allBundles = manipulatingContext.getBundles();
 
 		//Build a set with all the bundles from the system
@@ -617,7 +611,7 @@ class ConfigApplier {
 			if (element == null) {
 				continue;
 			}
-			Bundle[] toAdd = packageAdmin.getBundles(element.getSymbolicName(), getVersionRange(element.getVersion()));
+			Bundle[] toAdd = getBundles(element.getSymbolicName(), getVersionRange(element.getVersion()));
 			for (int j = 0; toAdd != null && j < toAdd.length; j++) {
 				removedBundles.remove(toAdd[j]);
 			}
@@ -649,5 +643,41 @@ class ConfigApplier {
 
 	private String getVersionRange(String version) {
 		return version == null ? null : new StringBuilder().append('[').append(version).append(',').append(version).append(']').toString();
+	}
+
+	private Bundle[] getBundles(String symbolicName, String versionRange) {
+		if (symbolicName == null) {
+			throw new IllegalArgumentException();
+		}
+		if (Constants.SYSTEM_BUNDLE_SYMBOLICNAME.equals(symbolicName)) {
+			// need to alias system.bundle to the implementation BSN
+			symbolicName = systemBundle.getSymbolicName();
+		}
+		VersionRange range = versionRange == null ? null : new VersionRange(versionRange);
+		String filter = (range != null ? "(&" : "") + "(" + IdentityNamespace.IDENTITY_NAMESPACE + "=" + symbolicName //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				+ ")" //$NON-NLS-1$
+				+ (range != null ? range.toFilterString(IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE) + ")" : ""); //$NON-NLS-1$ //$NON-NLS-2$
+		Requirement identityReq = ModuleContainer.createRequirement(IdentityNamespace.IDENTITY_NAMESPACE,
+				Collections.singletonMap(Namespace.REQUIREMENT_FILTER_DIRECTIVE, filter), Collections.emptyMap());
+		Collection<BundleCapability> identityCaps = frameworkWiring.findProviders(identityReq);
+
+		if (identityCaps.isEmpty()) {
+			return null;
+		}
+		List<Bundle> sorted = new ArrayList<>(identityCaps.size());
+		for (BundleCapability capability : identityCaps) {
+			Bundle b = capability.getRevision().getBundle();
+			// a sanity check incase this is an old revision
+			if (symbolicName.equals(b.getSymbolicName()) && !sorted.contains(b)) {
+				sorted.add(b);
+			}
+		}
+		Collections.sort(sorted, Comparator.comparing(Bundle::getVersion).reversed());
+
+		if (sorted.isEmpty()) {
+			return null;
+		}
+
+		return sorted.toArray(new Bundle[sorted.size()]);
 	}
 }
