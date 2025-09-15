@@ -43,8 +43,6 @@ public class Messages extends NLS {
 	public static String BackupStore_missing_backup_directory;
 	public static String BackupStore_not_a_directory;
 	public static String BackupStore_closed_store;
-	public static String BlockMacUpdate_0;
-	public static String BlockMacUpdate_1;
 
 	public static String action_0_status;
 	public static String action_0_failed_on_file_1_reason_2;
