@@ -42,6 +42,7 @@ import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.Policy;
+import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.widgets.WidgetFactory;
 import org.eclipse.jface.window.Window;
@@ -417,7 +418,17 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 
 		certificateViewer.addDoubleClickListener(e -> details.run());
 
-		typeColumn.getColumn().pack();
+		if (Util.isLinux()) {
+			// pack() produces stack overflow on not yet visible table
+			Control control = certificateViewer.getControl();
+			control.getDisplay().asyncExec(() -> {
+				if (!control.isDisposed()) {
+					typeColumn.getColumn().pack();
+				}
+			});
+		} else {
+			typeColumn.getColumn().pack();
+		}
 
 		var menu = new Menu(table);
 		table.setMenu(menu);
