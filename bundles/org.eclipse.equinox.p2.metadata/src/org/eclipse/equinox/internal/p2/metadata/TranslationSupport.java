@@ -23,9 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.metadata.ICopyright;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
@@ -70,7 +67,6 @@ public class TranslationSupport {
 	private final Map<String, SoftReference<IQueryResult<IInstallableUnit>>> localeCollectorCache = new HashMap<>(2);
 
 	private LocaleProvider localeProvider;
-	private boolean loggedMissingSource = false;
 
 	public synchronized static TranslationSupport getInstance() {
 		if (instance == null) {
@@ -262,10 +258,6 @@ public class TranslationSupport {
 	 */
 	private synchronized IQueryResult<IInstallableUnit> getLocalizationFragments(List<String> localeVariants, String locale) {
 		if (fragmentSource == null) {
-			if (!loggedMissingSource) {
-				loggedMissingSource = true;
-				LogHelper.log(new Status(IStatus.INFO, PI_METADATA, "No translation source unavailable. Default language will be used.")); //$NON-NLS-1$
-			}
 			return Collector.emptyCollector();
 		}
 
