@@ -382,7 +382,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 		bundlesAction.perform(info, results, new NullProgressMonitor());
 		Collection<IInstallableUnit> ius = results.getIUs(null, null);
-		assertEquals("1.0", 1, ius.size());
+		assertEquals("Publishing foo.fragment should produce exactly 1 IU", 1, ius.size());
 
 		info = new PublisherInfo();
 		results = new PublisherResult();
@@ -392,14 +392,14 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		bundlesAction = new BundlesAction(new File[] {foo_fragment});
 		bundlesAction.perform(info, results, new NullProgressMonitor());
 		ius = results.getIUs(null, null);
-		assertEquals("2.0", 3, ius.size());
+		assertEquals("Publishing foo and foo.fragment should produce exactly 3 IUs", 3, ius.size());
 		QueryableArray queryableArray = new QueryableArray(ius);
 		IQueryResult<IInstallableUnit> result = queryableArray.query(QueryUtil.createIUQuery("foo"), null);
-		assertEquals("2.1", 1, queryResultSize(result));
+		assertEquals("Query for 'foo' should return exactly 1 result", 1, queryResultSize(result));
 		IQuery<IInstallableUnit> lq = QueryUtil.createMatchQuery("translatedProperties[$0] ~= /German*/", new KeyWithLocale("org.eclipse.equinox.p2.name", Locale.GERMAN));
 		Iterator<IInstallableUnit> itr = queryableArray.query(lq, new NullProgressMonitor()).iterator();
 		assertTrue(itr.hasNext());
-		assertEquals("2.8", "foo", itr.next().getId());
+		assertEquals("German translation query should return IU with id 'foo'", "foo", itr.next().getId());
 		assertFalse(itr.hasNext());
 	}
 
