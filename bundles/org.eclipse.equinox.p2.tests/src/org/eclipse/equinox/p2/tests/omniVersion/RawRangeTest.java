@@ -58,17 +58,17 @@ public class RawRangeTest extends VersionTesting {
 	public void testSingleVersionRange() {
 		VersionRange range;
 		range = new VersionRange("raw:[1.0.0, 1.0.0.'-')");
-		assertEquals("0.1", Version.parseVersion("raw:1.0.0"), range.getMinimum());
-		assertEquals("0.2", Version.parseVersion("raw:1.0.0.'-'"), range.getMaximum());
+		assertEquals("Range minimum should be raw:1.0.0", Version.parseVersion("raw:1.0.0"), range.getMinimum());
+		assertEquals("Range maximum should be raw:1.0.0.'-'", Version.parseVersion("raw:1.0.0.'-'"), range.getMaximum());
 
-		assertNotIncludedInRange("0.9", range, "raw:0.9");
-		assertNotIncludedInRange("1.0", range, "raw:1"); // this is not osgi versions 1 is before than 1.0
-		assertNotIncludedInRange("1.1", range, "raw:1.0"); // this is not osgi, version 1.0 is before 1.0.0
-		assertIncludedInRange("1.2", range, "raw:1.0.0");
-		assertNotIncludedInRange("2.1", range, "raw:1.0.0.'0'");
-		assertNotIncludedInRange("2.2", range, "raw:1.0.1");
-		assertNotIncludedInRange("2.3", range, "raw:1.1");
-		assertNotIncludedInRange("2.4", range, "raw:2");
+		assertNotIncludedInRange("raw:0.9 should not be in range", range, "raw:0.9");
+		assertNotIncludedInRange("raw:1 should not be in range (not OSGi, 1 is before 1.0)", range, "raw:1"); // this is not osgi versions 1 is before than 1.0
+		assertNotIncludedInRange("raw:1.0 should not be in range (not OSGi, 1.0 is before 1.0.0)", range, "raw:1.0"); // this is not osgi, version 1.0 is before 1.0.0
+		assertIncludedInRange("raw:1.0.0 should be in range", range, "raw:1.0.0");
+		assertNotIncludedInRange("raw:1.0.0.'0' should not be in range", range, "raw:1.0.0.'0'");
+		assertNotIncludedInRange("raw:1.0.1 should not be in range", range, "raw:1.0.1");
+		assertNotIncludedInRange("raw:1.1 should not be in range", range, "raw:1.1");
+		assertNotIncludedInRange("raw:2 should not be in range", range, "raw:2");
 	}
 
 	@Test
