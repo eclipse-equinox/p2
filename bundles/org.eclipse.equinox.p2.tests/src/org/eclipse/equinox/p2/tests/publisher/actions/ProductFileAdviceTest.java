@@ -105,11 +105,11 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 		}
 
 		bundles = productFileAdvice2.getBundles();
-		assertEquals("2.0", 1, bundles.length);
+		assertEquals("Product file advice should return exactly one bundle", 1, bundles.length);
 		for (int i = 0; i < 1; i++) {
 			if (bundles[i].getSymbolicName().equals("org.eclipse.core.commands")) {
-				assertTrue("2.1", bundles[i].getStartLevel() == 2);
-				assertTrue("2.2", bundles[i].isMarkedAsStarted() == false);
+				assertTrue("org.eclipse.core.commands bundle should have start level 2", bundles[i].getStartLevel() == 2);
+				assertTrue("org.eclipse.core.commands bundle should not be marked as started", bundles[i].isMarkedAsStarted() == false);
 			} else {
 				fail("unknown bundle: " + bundles[i].getSymbolicName());
 			}
@@ -122,14 +122,14 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 		ProductFileAdvice advice = new ProductFileAdvice(product, "x86.win32.*");
 
 		BundleInfo[] bundles = advice.getBundles();
-		assertEquals("1.0", 2, bundles.length);
+		assertEquals("Bounded version configuration should return exactly 2 bundles", 2, bundles.length);
 		for (int i = 0; i < 2; i++) {
 			if (bundles[i].getSymbolicName().equals("org.eclipse.core.commands")) {
 				assertEquals(2, bundles[i].getStartLevel());
 				assertEquals(true, bundles[i].isMarkedAsStarted());
 			} else if (bundles[i].getSymbolicName().equals("org.eclipse.core.runtime")) {
-				assertTrue("1.1", bundles[i].getStartLevel() == 2);
-				assertTrue("1.2", bundles[i].isMarkedAsStarted() == true);
+				assertTrue("org.eclipse.core.runtime bundle should have start level 2", bundles[i].getStartLevel() == 2);
+				assertTrue("org.eclipse.core.runtime bundle should be marked as started", bundles[i].isMarkedAsStarted() == true);
 			} else {
 				fail("unknown bundle: " + bundles[i].getSymbolicName());
 			}
@@ -142,14 +142,14 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 		ProductFileAdvice advice = new ProductFileAdvice(product, "x86.win32.*");
 
 		BundleInfo[] bundles = advice.getBundles();
-		assertEquals("1.0", 2, bundles.length);
+		assertEquals("Unbounded version configuration should return exactly 2 bundles", 2, bundles.length);
 		for (int i = 0; i < 2; i++) {
 			if (bundles[i].getSymbolicName().equals("org.eclipse.core.commands")) {
 				assertEquals(2, bundles[i].getStartLevel());
 				assertEquals(true, bundles[i].isMarkedAsStarted());
 			} else if (bundles[i].getSymbolicName().equals("org.eclipse.core.runtime")) {
-				assertTrue("1.1", bundles[i].getStartLevel() == 2);
-				assertTrue("1.2", bundles[i].isMarkedAsStarted() == true);
+				assertTrue("org.eclipse.core.runtime bundle should have start level 2", bundles[i].getStartLevel() == 2);
+				assertTrue("org.eclipse.core.runtime bundle should be marked as started", bundles[i].isMarkedAsStarted() == true);
 			} else {
 				fail("unknown bundle: " + bundles[i].getSymbolicName());
 			}

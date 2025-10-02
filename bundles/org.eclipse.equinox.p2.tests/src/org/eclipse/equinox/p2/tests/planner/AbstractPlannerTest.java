@@ -166,7 +166,7 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 		Operand[] actualOperands = ((ProvisioningPlan) actualPlan).getOperands();
 
 		// make sure the expected plan isn't empty
-		assertFalse("0.9 Plan is empty.", expectedOperands.length == 0);
+		assertFalse("Expected plan should not be empty", expectedOperands.length == 0);
 		for (Operand expectedOperand : expectedOperands) {
 			if (!(expectedOperand instanceof InstallableUnitOperand)) {
 				continue;
@@ -188,19 +188,19 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 						continue;
 					}
 					// we are doing a removal and we have IUs with the same id... do they have the same version too?
-					assertEquals("0.5", first, actual.first());
+					assertEquals("Removal operand should have matching IU for removal", first, actual.first());
 				}
 				// treat additions and updates the same as long as we end up with the same IU in the end
-				assertNotNull("1.2 " + actual, actual.second());
+				assertNotNull("Install/update operand should have a target IU: " + actual, actual.second());
 				if (!actual.second().getId().equals(second.getId())) {
 					continue;
 				}
 				// we are doing an install or upgrade and we have IUs with the same id... do they have the same version too?
-				assertEquals("2.0", second, actual.second());
+				assertEquals("Install/update operand should have matching target IU", second, actual.second());
 				found = true;
 			}
 			if (!found) {
-				fail("3.0 Plan is missing install operand for: " + second);
+				fail("Plan is missing install operand for: " + second);
 			}
 		}
 	}
