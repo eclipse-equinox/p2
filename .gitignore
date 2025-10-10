@@ -6,4 +6,5 @@ bin/
 pom.tycho
 .tycho-consumer-pom.xml
 .flattened-pom.xml
+build.log
 apiAnalyzer-workspace/
