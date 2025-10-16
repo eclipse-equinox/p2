@@ -16,6 +16,7 @@ package org.eclipse.equinox.internal.p2.core.helpers;
 import java.io.*;
 import java.util.*;
 import java.util.jar.JarFile;
+import java.util.stream.Stream;
 import java.util.zip.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -278,11 +279,23 @@ public class FileUtils {
 		try (FileOutputStream fileOutput = new FileOutputStream(destinationArchive); ZipOutputStream output = new ZipOutputStream(fileOutput)) {
 			HashSet<File> exclusionSet = exclusions == null ? new HashSet<>() : new HashSet<>(Arrays.asList(exclusions));
 			HashSet<IPath> directoryEntries = new HashSet<>();
-			for (File inclusion : inclusions) {
+			for (File inclusion : manifestFirst(inclusions)) {
 				pathComputer.reset();
 				zip(output, inclusion, exclusionSet, pathComputer, directoryEntries);
 			}
 		}
+	}
+
+	private static File[] manifestFirst(File[] inclusions) {
+		return Stream.of(inclusions).filter(file -> {
+			String name = file.getName();
+			return "META-INF".equals(name) || "MANIFEST.MF".equals(name); //$NON-NLS-1$ //$NON-NLS-2$
+		}).findAny().map(it -> {
+			List<File> result = new ArrayList<>(Arrays.asList(inclusions));
+			result.remove(it);
+			result.add(0, it);
+			return result.toArray(File[]::new);
+		}).orElse(inclusions);
 	}
 
 	/**
@@ -365,7 +378,7 @@ public class FileUtils {
 			return a.segmentCount() - b.segmentCount();
 		});
 
-		for (File file : files) {
+		for (File file : manifestFirst(files)) {
 			zip(output, file, exclusions, pathComputer, directoryEntries);
 		}
 	}
