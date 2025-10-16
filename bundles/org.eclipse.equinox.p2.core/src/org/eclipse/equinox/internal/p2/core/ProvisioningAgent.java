@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.core;
 
+import static java.lang.String.format;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.p2.core.IAgentLocation;
@@ -95,9 +97,18 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 	@Override
 	public void registerService(String serviceName, Object service) {
 		checkRunning();
-		agentServices.put(serviceName, service);
 		if (service instanceof IAgentService) {
 			((IAgentService) service).start();
+		}
+		if (agentServices.put(serviceName, service) instanceof IAgentService prevService) {
+			if (prevService == service) {
+				agentServices.remove(serviceName, prevService);
+				prevService.stop();
+				throw new IllegalStateException(format(
+						"Service %s for name %s has been registered twice. Double activation of service has happened, service is uregistered.", //$NON-NLS-1$
+						service.getClass().getName(), serviceName));
+			}
+			prevService.stop();
 		}
 	}
 
