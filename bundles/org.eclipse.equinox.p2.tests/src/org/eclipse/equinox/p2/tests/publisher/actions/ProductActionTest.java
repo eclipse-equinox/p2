@@ -326,8 +326,9 @@ public class ProductActionTest extends ActionTest {
 				break;
 			}
 		}
-		assertTrue("1.1", capability != null);
-		assertEquals("1.2", InstallableUnit.parseFilter("(org.eclipse.update.install.features=true)"),
+		assertTrue("Product should have a required capability for org.eclipse.platform.feature.group", capability != null);
+		assertEquals("Required capability filter should match install.features=true",
+				InstallableUnit.parseFilter("(org.eclipse.update.install.features=true)"),
 				capability.getFilter());
 	}
 
@@ -341,9 +342,9 @@ public class ProductActionTest extends ActionTest {
 
 		IInstallableUnit product = getUniquePublishedIU("productWithAdvice.product");
 		Collection<ITouchpointData> data = product.getTouchpointData();
-		assertEquals("1.1", 1, data.size());
+		assertEquals("Product should have exactly one touchpoint data", 1, data.size());
 		String configure = data.iterator().next().getInstruction("configure").getBody();
-		assertEquals("1.2",
+		assertEquals("Configure instruction should contain repository additions from p2.inf",
 				"addRepository(type:0,location:http${#58}//download.eclipse.org/releases/fred);addRepository(type:1,location:http${#58}//download.eclipse.org/releases/fred);",
 				configure);
 
@@ -352,16 +353,16 @@ public class ProductActionTest extends ActionTest {
 		// update.severity = 0
 		// update.description = This is the description
 		IUpdateDescriptor update = product.getUpdateDescriptor();
-		assertEquals("2.0", 0, update.getSeverity());
-		assertEquals("2.1", "This is the description", update.getDescription());
+		assertEquals("Update descriptor severity should be 0", 0, update.getSeverity());
+		assertEquals("Update descriptor description should match p2.inf", "This is the description", update.getDescription());
 		// unit that fits in range
-		assertTrue("2.2", update.isUpdateOf(createIU("com.zoobar", Version.createOSGi(4, 1, 0))));
+		assertTrue("Update should apply to com.zoobar version 4.1.0 (within range [4.0,4.3))", update.isUpdateOf(createIU("com.zoobar", Version.createOSGi(4, 1, 0))));
 		// unit that is too old for range
-		assertFalse("2.3", update.isUpdateOf(createIU("com.zoobar", Version.createOSGi(3, 1, 0))));
+		assertFalse("Update should not apply to com.zoobar version 3.1.0 (below range [4.0,4.3))", update.isUpdateOf(createIU("com.zoobar", Version.createOSGi(3, 1, 0))));
 		// version that is too new and outside of range
-		assertFalse("2.4", update.isUpdateOf(createIU("com.zoobar", Version.createOSGi(6, 1, 0))));
+		assertFalse("Update should not apply to com.zoobar version 6.1.0 (above range [4.0,4.3))", update.isUpdateOf(createIU("com.zoobar", Version.createOSGi(6, 1, 0))));
 		// unit with matching version but not matching id
-		assertFalse("2.6", update.isUpdateOf(createIU("com.other", Version.createOSGi(4, 1, 0))));
+		assertFalse("Update should not apply to com.other version 4.1.0 (different id)", update.isUpdateOf(createIU("com.other", Version.createOSGi(4, 1, 0))));
 	}
 
 	public void testFiltersOfInclusions() throws Exception {

@@ -30,15 +30,15 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		try {
 			location = TestData.getFile("metadataRepo", "multipleversions1").toURI();
 		} catch (Exception e) {
-			fail("0.99", e);
+			fail("Failed to load test data for multipleversions1", e);
 			return;
 		}
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		metadataRepositoryManager.addRepository(location);
 
 		IQueryResult<IInstallableUnit> query = metadataRepositoryManager.query(QueryUtil.createLatestIUQuery(), null);
-		assertEquals("1.0", 1, queryResultSize(query));
-		assertEquals("1.1", Version.createOSGi(2, 1, 0), query.iterator().next().getVersion());
+		assertEquals("Latest IU query should return exactly one result", 1, queryResultSize(query));
+		assertEquals("Latest IU should have version 2.1.0", Version.createOSGi(2, 1, 0), query.iterator().next().getVersion());
 	}
 
 	public void testLatestIUSingleRepo2() throws Exception {
@@ -46,15 +46,15 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		try {
 			location = TestData.getFile("metadataRepo", "multipleversions2").toURI();
 		} catch (Exception e) {
-			fail("0.99", e);
+			fail("Failed to load test data for multipleversions2", e);
 			return;
 		}
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		metadataRepositoryManager.addRepository(location);
 
 		IQueryResult<IInstallableUnit> query = metadataRepositoryManager.query(QueryUtil.createLatestIUQuery(), null);
-		assertEquals("1.0", 1, queryResultSize(query));
-		assertEquals("1.1", Version.createOSGi(3, 0, 0), query.iterator().next().getVersion());
+		assertEquals("Latest IU query should return exactly one result", 1, queryResultSize(query));
+		assertEquals("Latest IU should have version 3.0.0", Version.createOSGi(3, 0, 0), query.iterator().next().getVersion());
 	}
 
 	public void testLatestIUMultiRepo() throws Exception {
@@ -64,7 +64,7 @@ public class LatestIUTest extends AbstractProvisioningTest {
 			location1 = TestData.getFile("metadataRepo", "multipleversions1").toURI();
 			location2 = TestData.getFile("metadataRepo", "multipleversions2").toURI();
 		} catch (Exception e) {
-			fail("0.99", e);
+			fail("Failed to load test data for multipleversions1 and multipleversions2", e);
 			return;
 		}
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
@@ -72,7 +72,7 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		metadataRepositoryManager.addRepository(location2);
 
 		IQueryResult<IInstallableUnit> queryResult = metadataRepositoryManager.query(QueryUtil.createLatestIUQuery(), null);
-		assertEquals("1.0", 1, queryResultSize(queryResult));
-		assertEquals("1.1", Version.createOSGi(3, 0, 0), queryResult.iterator().next().getVersion());
+		assertEquals("Latest IU query across multiple repos should return exactly one result", 1, queryResultSize(queryResult));
+		assertEquals("Latest IU across multiple repos should have version 3.0.0", Version.createOSGi(3, 0, 0), queryResult.iterator().next().getVersion());
 	}
 }

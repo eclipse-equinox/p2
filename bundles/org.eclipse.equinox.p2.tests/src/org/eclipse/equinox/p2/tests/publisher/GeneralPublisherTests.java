@@ -50,13 +50,14 @@ public class GeneralPublisherTests {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));
 			retValue = (Integer) application.run(new String[0]);
 		} catch (Exception e) {
-			fail("0.99");
+			fail("Application execution should not throw exception");
 		} finally {
 			System.setOut(out);
 		}
 		assertTrue(buffer.toString().contains("A metadata repository must be specified."));
-		assertEquals("1.0", 1, retValue.intValue());
-		assertEquals("1.1", Messages.exception_noMetadataRepo, application.getStatus().getMessage());
+		assertEquals("Application should return error code 1 when metadata repository not specified", 1, retValue.intValue());
+		assertEquals("Application status message should indicate missing metadata repository", 
+				Messages.exception_noMetadataRepo, application.getStatus().getMessage());
 	}
 
 	@Test
@@ -69,13 +70,14 @@ public class GeneralPublisherTests {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));
 			retValue = (Integer) application.run(new String[] {"-metadataRepository foo", "-publishArtifacts"});
 		} catch (Exception e) {
-			fail("0.99");
+			fail("Application execution should not throw exception");
 		} finally {
 			System.setOut(out);
 		}
 		assertTrue(buffer.toString().contains("An artifact repository must be specified in order to publish artifacts."));
-		assertEquals("1.0", 1, retValue.intValue());
-		assertEquals("1.1", Messages.exception_noArtifactRepo, application.getStatus().getMessage());
+		assertEquals("Application should return error code 1 when artifact repository not specified for publishArtifacts", 1, retValue.intValue());
+		assertEquals("Application status message should indicate missing artifact repository", 
+				Messages.exception_noArtifactRepo, application.getStatus().getMessage());
 
 	}
 

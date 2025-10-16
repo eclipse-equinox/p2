@@ -882,14 +882,14 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		//Setup: get the artifacts.jar file
 		File compressedArtifactsXML = new File(compressedSource.getAbsoluteFile() + "/artifacts.jar");
 		//Setup: make sure artifacts.jar exists
-		assertTrue("1", compressedArtifactsXML.exists());
+		assertTrue("Source repository should contain artifacts.jar", compressedArtifactsXML.exists());
 
 		basicRunMirrorApplication("2", compressedSource.toURI(), destRepoLocation.toURI(), false, false);
 
 		//get the artifacts.jar file
 		File destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.jar");
 		//make sure artifacts.jar exists
-		assertTrue("5", destArtifactsXML.exists());
+		assertTrue("Destination repository should contain artifacts.jar after mirroring compressed source", destArtifactsXML.exists());
 	}
 
 	//for Bug 235683
@@ -900,24 +900,24 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		//Setup: get the artifacts.jar file
 		File compressedArtifactsXML = new File(compressedSource.getAbsoluteFile() + "/artifacts.jar");
 		//Setup: make sure artifacts.jar exists
-		assertTrue("1", compressedArtifactsXML.exists());
+		assertTrue("Source repository should contain artifacts.jar", compressedArtifactsXML.exists());
 
 		//Setup: create the destination
 		String name = "Destination Name " + destRepoLocation;
 		getArtifactRepositoryManager().createRepository(destRepoLocation.toURI(), name,
 				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 
-		assertTrue("2.1", new File(destRepoLocation, "artifacts.xml").exists());
+		assertTrue("Uncompressed destination repository should contain artifacts.xml", new File(destRepoLocation, "artifacts.xml").exists());
 		basicRunMirrorApplication("3", compressedSource.toURI(), destRepoLocation.toURI(), false, false);
 
 		//get the artifacts.jar file
 		File destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.jar");
 		//make sure artifacts.jar does not exist
-		assertFalse("6", destArtifactsXML.exists());
+		assertFalse("Uncompressed destination should not contain artifacts.jar", destArtifactsXML.exists());
 		//get the artifacts.xml file
 		destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.xml");
 		//make sure artifacts.xml exists
-		assertTrue("7", destArtifactsXML.exists());
+		assertTrue("Uncompressed destination should contain artifacts.xml after mirroring", destArtifactsXML.exists());
 	}
 
 	//for Bug 235683

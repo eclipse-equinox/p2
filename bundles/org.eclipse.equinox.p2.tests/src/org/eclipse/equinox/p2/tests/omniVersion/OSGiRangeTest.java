@@ -35,15 +35,15 @@ public class OSGiRangeTest extends VersionTesting {
 	public void testSingleVersionRange() {
 		VersionRange range;
 		range = new VersionRange("[1.0.0, 1.0.0.-)");
-		assertEquals("0.1", Version.parseVersion("1.0"), range.getMinimum());
-		assertTrue("0.9", !range.isIncluded(Version.parseVersion("0.9")));
-		assertTrue("1.0", range.isIncluded(Version.parseVersion("1")));
-		assertTrue("1.1", range.isIncluded(Version.parseVersion("1.0")));
-		assertTrue("1.2", range.isIncluded(Version.parseVersion("1.0.0")));
-		assertTrue("2.1", !range.isIncluded(Version.parseVersion("1.0.0.0")));
-		assertTrue("2.2", !range.isIncluded(Version.parseVersion("1.0.1")));
-		assertTrue("2.3", !range.isIncluded(Version.parseVersion("1.1")));
-		assertTrue("2.4", !range.isIncluded(Version.parseVersion("2")));
+		assertEquals("Version range minimum should be 1.0", Version.parseVersion("1.0"), range.getMinimum());
+		assertTrue("Version 0.9 should not be included in range [1.0.0, 1.0.0.-)", !range.isIncluded(Version.parseVersion("0.9")));
+		assertTrue("Version 1 should be included in range [1.0.0, 1.0.0.-)", range.isIncluded(Version.parseVersion("1")));
+		assertTrue("Version 1.0 should be included in range [1.0.0, 1.0.0.-)", range.isIncluded(Version.parseVersion("1.0")));
+		assertTrue("Version 1.0.0 should be included in range [1.0.0, 1.0.0.-)", range.isIncluded(Version.parseVersion("1.0.0")));
+		assertTrue("Version 1.0.0.0 should not be included in range [1.0.0, 1.0.0.-)", !range.isIncluded(Version.parseVersion("1.0.0.0")));
+		assertTrue("Version 1.0.1 should not be included in range [1.0.0, 1.0.0.-)", !range.isIncluded(Version.parseVersion("1.0.1")));
+		assertTrue("Version 1.1 should not be included in range [1.0.0, 1.0.0.-)", !range.isIncluded(Version.parseVersion("1.1")));
+		assertTrue("Version 2 should not be included in range [1.0.0, 1.0.0.-)", !range.isIncluded(Version.parseVersion("2")));
 	}
 
 	@Test
@@ -56,12 +56,12 @@ public class OSGiRangeTest extends VersionTesting {
 	public void testGreaterThan() {
 		// any version equal or greater than 1.0 is ok
 		VersionRange lowerBound = new VersionRange("1.0.0");
-		assertTrue("1.0", !lowerBound.isIncluded(Version.parseVersion("0.9")));
-		assertTrue("1.1", lowerBound.isIncluded(Version.parseVersion("1.0")));
-		assertTrue("1.2", lowerBound.isIncluded(Version.parseVersion("1.9.9.x")));
-		assertTrue("1.3", lowerBound.isIncluded(Version.parseVersion("999.999.999.foo")));
-		assertTrue("2.0", lowerBound.isIncluded(Version.parseVersion("raw:M")));
-		assertTrue("2.1", lowerBound.isIncluded(Version.parseVersion("raw:2147483647.2147483647.2147483647.0")));
+		assertTrue("Version 0.9 should not be included in range >= 1.0.0", !lowerBound.isIncluded(Version.parseVersion("0.9")));
+		assertTrue("Version 1.0 should be included in range >= 1.0.0", lowerBound.isIncluded(Version.parseVersion("1.0")));
+		assertTrue("Version 1.9.9.x should be included in range >= 1.0.0", lowerBound.isIncluded(Version.parseVersion("1.9.9.x")));
+		assertTrue("Version 999.999.999.foo should be included in range >= 1.0.0", lowerBound.isIncluded(Version.parseVersion("999.999.999.foo")));
+		assertTrue("Raw version M should be included in range >= 1.0.0", lowerBound.isIncluded(Version.parseVersion("raw:M")));
+		assertTrue("Very large version should be included in range >= 1.0.0", lowerBound.isIncluded(Version.parseVersion("raw:2147483647.2147483647.2147483647.0")));
 
 	}
 
@@ -69,12 +69,12 @@ public class OSGiRangeTest extends VersionTesting {
 	public void testLowerThan() {
 		// any version lower than 2.0 is ok
 		VersionRange upperBound = new VersionRange("[0,2.0)");
-		assertTrue("1.0", upperBound.isIncluded(Version.parseVersion("0.0")));
-		assertTrue("1.1", upperBound.isIncluded(Version.parseVersion("0.9")));
-		assertTrue("1.2", upperBound.isIncluded(Version.parseVersion("1.0")));
-		assertTrue("1.3", upperBound.isIncluded(Version.parseVersion("1.9.9.x")));
-		assertTrue("1.4", !upperBound.isIncluded(Version.parseVersion("2.0")));
-		assertTrue("1.5", !upperBound.isIncluded(Version.parseVersion("2.1")));
+		assertTrue("Version 0.0 should be included in range [0,2.0)", upperBound.isIncluded(Version.parseVersion("0.0")));
+		assertTrue("Version 0.9 should be included in range [0,2.0)", upperBound.isIncluded(Version.parseVersion("0.9")));
+		assertTrue("Version 1.0 should be included in range [0,2.0)", upperBound.isIncluded(Version.parseVersion("1.0")));
+		assertTrue("Version 1.9.9.x should be included in range [0,2.0)", upperBound.isIncluded(Version.parseVersion("1.9.9.x")));
+		assertTrue("Version 2.0 should not be included in range [0,2.0)", !upperBound.isIncluded(Version.parseVersion("2.0")));
+		assertTrue("Version 2.1 should not be included in range [0,2.0)", !upperBound.isIncluded(Version.parseVersion("2.1")));
 	}
 
 	@Test

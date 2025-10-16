@@ -28,9 +28,9 @@ public class ProvidedCapabilityTest extends AbstractProvisioningTest {
 		IProvidedCapability cap = MetadataFactory.createProvidedCapability("namespace", "name", DEFAULT_VERSION);
 		IProvidedCapability equal = MetadataFactory.createProvidedCapability("namespace", "name", DEFAULT_VERSION);
 		IProvidedCapability notEqual = MetadataFactory.createProvidedCapability("namespace", "name", Version.createOSGi(2, 0, 0));
-		assertEquals("1.0", cap, equal);
-		assertFalse("1.1", cap.equals(notEqual));
-		assertFalse("1.1", notEqual.equals(cap));
+		assertEquals("ProvidedCapability with same namespace, name and version should be equal", cap, equal);
+		assertFalse("ProvidedCapability with different version should not be equal", cap.equals(notEqual));
+		assertFalse("ProvidedCapability with different version should not be equal (reverse)", notEqual.equals(cap));
 	}
 
 	public void testProperties_Unmodifiable() {

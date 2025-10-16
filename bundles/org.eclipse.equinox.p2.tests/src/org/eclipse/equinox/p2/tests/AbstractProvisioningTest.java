@@ -1142,10 +1142,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			return;
 		}
 		if (expected == null || actual == null) {
-			assertTrue(message + ".1", false);
+			assertTrue(message + " - Arrays must both be non-null or both null", false);
 		}
 		if (expected.length != actual.length) {
-			assertTrue(message + ".2", false);
+			assertTrue(message + " - Array lengths must match (expected: " + expected.length + ", actual: " + actual.length + ")", false);
 		}
 		boolean[] found = new boolean[expected.length];
 		for (Object expectedelement : expected) {
@@ -1157,7 +1157,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 		for (int i = 0; i < found.length; i++) {
 			if (!found[i]) {
-				assertTrue(message + ".3." + i, false);
+				assertTrue(message + " - Expected element at index " + i + " (" + expected[i] + ") not found in actual array", false);
 			}
 		}
 	}
