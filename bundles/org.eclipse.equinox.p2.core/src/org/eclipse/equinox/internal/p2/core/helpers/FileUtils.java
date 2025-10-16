@@ -16,6 +16,8 @@ package org.eclipse.equinox.internal.p2.core.helpers;
 import java.io.*;
 import java.util.*;
 import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.stream.Stream;
 import java.util.zip.*;
 import org.eclipse.core.runtime.IPath;
@@ -276,26 +278,153 @@ public class FileUtils {
 	 * @throws IOException if there is an IO issue during this operation.
 	 */
 	public static void zip(File[] inclusions, File[] exclusions, File destinationArchive, IPathComputer pathComputer) throws IOException {
-		try (FileOutputStream fileOutput = new FileOutputStream(destinationArchive); ZipOutputStream output = new ZipOutputStream(fileOutput)) {
-			HashSet<File> exclusionSet = exclusions == null ? new HashSet<>() : new HashSet<>(Arrays.asList(exclusions));
-			HashSet<IPath> directoryEntries = new HashSet<>();
-			for (File inclusion : manifestFirst(inclusions)) {
-				pathComputer.reset();
-				zip(output, inclusion, exclusionSet, pathComputer, directoryEntries);
+		Set<File> exclusionSet = exclusions == null ? new HashSet<>() : new HashSet<>(Arrays.asList(exclusions));
+		
+		// Step 1: Collect all files to be included in the zip
+		List<FileEntry> filesToZip = new ArrayList<>();
+		Set<IPath> emptyDirectories = new HashSet<>();
+		
+		for (File inclusion : inclusions) {
+			pathComputer.reset();
+			collectFiles(inclusion, exclusionSet, pathComputer, filesToZip, emptyDirectories);
+		}
+		
+		// Step 2: Check if there's a META-INF/MANIFEST.MF file
+		FileEntry manifestEntry = null;
+		Manifest manifest = null;
+		for (FileEntry entry : filesToZip) {
+			if (JarFile.MANIFEST_NAME.equals(entry.zipPath.toString())) {
+				manifestEntry = entry;
+				// Read the manifest content
+				try (InputStream in = new BufferedInputStream(new FileInputStream(entry.sourceFile))) {
+					manifest = new Manifest(in);
+				}
+				break;
+			}
+		}
+		
+		// Step 3: Create the appropriate output stream (JarOutputStream if manifest exists)
+		try (FileOutputStream fileOutput = new FileOutputStream(destinationArchive)) {
+			ZipOutputStream output;
+			if (manifest != null) {
+				output = new JarOutputStream(fileOutput, manifest);
+				// Remove manifest from the list since JarOutputStream adds it automatically
+				filesToZip.remove(manifestEntry);
+			} else {
+				output = new ZipOutputStream(fileOutput);
+			}
+			
+			try {
+				// Step 4: Write all files to the zip, ensuring proper ordering
+				Set<IPath> writtenEntries = new HashSet<>();
+				
+				for (FileEntry entry : filesToZip) {
+					writeFileEntry(output, entry, writtenEntries);
+				}
+				
+				// Step 5: Write empty directory entries only
+				for (IPath emptyDir : emptyDirectories) {
+					writeDirectoryEntry(output, emptyDir, writtenEntries);
+				}
+			} finally {
+				output.close();
 			}
 		}
 	}
-
-	private static File[] manifestFirst(File[] inclusions) {
-		return Stream.of(inclusions).filter(file -> {
-			String name = file.getName();
-			return "META-INF".equals(name) || "MANIFEST.MF".equals(name); //$NON-NLS-1$ //$NON-NLS-2$
-		}).findAny().map(it -> {
-			List<File> result = new ArrayList<>(Arrays.asList(inclusions));
-			result.remove(it);
-			result.add(0, it);
-			return result.toArray(File[]::new);
-		}).orElse(inclusions);
+	
+	/**
+	 * Represents a file to be added to the zip archive.
+	 */
+	private static class FileEntry {
+		final File sourceFile;
+		final IPath zipPath;
+		final long lastModified;
+		
+		FileEntry(File sourceFile, IPath zipPath, long lastModified) {
+			this.sourceFile = sourceFile;
+			this.zipPath = zipPath;
+			this.lastModified = lastModified;
+		}
+	}
+	
+	/**
+	 * Recursively collects all files that should be included in the zip.
+	 */
+	private static void collectFiles(File source, Set<File> exclusions, IPathComputer pathComputer, 
+			List<FileEntry> filesToZip, Set<IPath> emptyDirectories) throws IOException {
+		if (exclusions.contains(source)) {
+			return;
+		}
+		
+		if (source.isDirectory()) {
+			File[] files = source.listFiles();
+			if (files == null) {
+				return;
+			}
+			
+			if (files.length == 0) {
+				// This is an empty directory - mark it for inclusion
+				IPath dirPath = pathComputer.computePath(source);
+				if (!dirPath.isEmpty()) {
+					emptyDirectories.add(dirPath);
+				}
+			} else {
+				// Recursively collect files from subdirectories
+				for (File file : files) {
+					collectFiles(file, exclusions, pathComputer, filesToZip, emptyDirectories);
+				}
+			}
+		} else if (source.isFile()) {
+			IPath entryPath = pathComputer.computePath(source);
+			if (entryPath.isAbsolute()) {
+				throw new IOException(Messages.Util_Absolute_Entry);
+			}
+			if (entryPath.segmentCount() == 0) {
+				throw new IOException(Messages.Util_Empty_Zip_Entry);
+			}
+			
+			filesToZip.add(new FileEntry(source, entryPath, source.lastModified()));
+		}
+	}
+	
+	/**
+	 * Writes a file entry to the zip output stream.
+	 */
+	private static void writeFileEntry(ZipOutputStream output, FileEntry entry, Set<IPath> writtenEntries) throws IOException {
+		if (writtenEntries.contains(entry.zipPath)) {
+			// Entry already written (duplicate)
+			return;
+		}
+		
+		try (InputStream input = new BufferedInputStream(new FileInputStream(entry.sourceFile))) {
+			ZipEntry zipEntry = new ZipEntry(entry.zipPath.toString());
+			zipEntry.setTime(entry.lastModified);
+			output.putNextEntry(zipEntry);
+			copyStream(input, true, output, false);
+			output.closeEntry();
+			writtenEntries.add(entry.zipPath);
+		} catch (ZipException ze) {
+			// Duplicate entry - ignore
+		}
+	}
+	
+	/**
+	 * Writes a directory entry to the zip output stream.
+	 */
+	private static void writeDirectoryEntry(ZipOutputStream output, IPath dirPath, Set<IPath> writtenEntries) throws IOException {
+		dirPath = dirPath.addTrailingSeparator();
+		if (writtenEntries.contains(dirPath)) {
+			return;
+		}
+		
+		try {
+			ZipEntry dirEntry = new ZipEntry(dirPath.toString());
+			output.putNextEntry(dirEntry);
+			output.closeEntry();
+			writtenEntries.add(dirPath);
+		} catch (ZipException ze) {
+			// Duplicate entry - ignore
+		}
 	}
 
 	/**
@@ -309,120 +438,32 @@ public class FileUtils {
 		zip(output, source, exclusions, pathComputer, new HashSet<>());
 	}
 
+	/**
+	 * Writes the given file or folder to the given ZipOutputStream.  The stream is not closed, we recurse into folders.
+	 * This method maintains compatibility with existing code that writes to an existing ZipOutputStream.
+	 * Note: When using this method with a JarOutputStream, ensure the manifest is added first before calling this method.
+	 * 
+	 * @param output - the ZipOutputStream to write into
+	 * @param source - the file or folder to zip
+	 * @param exclusions - set of files or folders to exclude
+	 * @param pathComputer - computer used to create the path of the files in the result.
+	 * @param directoryEntries - tracks which directory entries have been written
+	 */
 	public static void zip(ZipOutputStream output, File source, Set<File> exclusions, IPathComputer pathComputer, Set<IPath> directoryEntries) throws IOException {
-		if (exclusions.contains(source)) {
-			return;
+		// Collect files to be written
+		List<FileEntry> filesToZip = new ArrayList<>();
+		Set<IPath> emptyDirectories = new HashSet<>();
+		
+		collectFiles(source, exclusions, pathComputer, filesToZip, emptyDirectories);
+		
+		// Write all collected files
+		for (FileEntry entry : filesToZip) {
+			writeFileEntry(output, entry, directoryEntries);
 		}
-		if (source.isDirectory()) { //if the file path is a URL then isDir and isFile are both false
-			zipDir(output, source, exclusions, pathComputer, directoryEntries);
-		} else {
-			zipFile(output, source, pathComputer, directoryEntries);
-		}
-	}
-
-	private static void zipDirectoryEntry(ZipOutputStream output, IPath entry, long time, Set<IPath> directoryEntries) throws IOException {
-		entry = entry.addTrailingSeparator();
-		if (!directoryEntries.contains(entry)) {
-			//make sure parent entries are in the zip
-			if (entry.segmentCount() > 1) {
-				zipDirectoryEntry(output, entry.removeLastSegments(1), time, directoryEntries);
-			}
-
-			try {
-				ZipEntry dirEntry = new ZipEntry(entry.toString());
-				dirEntry.setTime(time);
-				output.putNextEntry(dirEntry);
-				directoryEntries.add(entry);
-			} catch (ZipException ze) {
-				//duplicate entries shouldn't happen because we checked the set
-			} finally {
-				try {
-					output.closeEntry();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
-		}
-	}
-
-	/*
-	 * Zip the contents of the given directory into the zip file represented by
-	 * the given zip stream. Prepend the given prefix to the file paths.
-	 */
-	private static void zipDir(ZipOutputStream output, File source, Set<File> exclusions, IPathComputer pathComputer, Set<IPath> directoryEntries) throws IOException {
-		File[] files = source.listFiles();
-		if (files.length == 0) {
-			zipDirectoryEntry(output, pathComputer.computePath(source), source.lastModified(), directoryEntries);
-		}
-
-		// Different OSs return files in a different order.  This affects the creation
-		// the dynamic path computer.  To address this, we sort the files such that
-		// those with deeper paths appear later, and files are always before directories
-		// foo/bar.txt
-		// foo/something/bar2.txt
-		// foo/something/else/bar3.txt
-		Arrays.sort(files, (arg0, arg1) -> {
-			IPath a = IPath.fromOSString(arg0.getAbsolutePath());
-			IPath b = IPath.fromOSString(arg1.getAbsolutePath());
-			if (a.segmentCount() == b.segmentCount()) {
-				if (arg0.isDirectory() && arg1.isFile()) {
-					return 1;
-				} else if (arg0.isDirectory() && arg1.isDirectory()) {
-					return 0;
-				} else if (arg0.isFile() && arg1.isDirectory()) {
-					return -1;
-				} else {
-					return 0;
-				}
-			}
-			return a.segmentCount() - b.segmentCount();
-		});
-
-		for (File file : manifestFirst(files)) {
-			zip(output, file, exclusions, pathComputer, directoryEntries);
-		}
-	}
-
-	/*
-	 * Add the given file to the zip file represented by the specified stream.
-	 * Prepend the given prefix to the path of the file.
-	 */
-	private static void zipFile(ZipOutputStream output, File source, IPathComputer pathComputer, Set<IPath> directoryEntries) throws IOException {
-		boolean isManifest = false; //manifest files are special
-		try (InputStream input = new BufferedInputStream(new FileInputStream(source))) {
-			IPath entryPath = pathComputer.computePath(source);
-			if (entryPath.isAbsolute()) {
-				throw new IOException(Messages.Util_Absolute_Entry);
-			}
-			if (entryPath.segmentCount() == 0) {
-				throw new IOException(Messages.Util_Empty_Zip_Entry);
-			}
-
-			//make sure parent directory entries are in the zip
-			if (entryPath.segmentCount() > 1) {
-				//manifest files should be first, add their directory entry afterwards
-				isManifest = JarFile.MANIFEST_NAME.equals(entryPath.toString());
-				if (!isManifest) {
-					zipDirectoryEntry(output, entryPath.removeLastSegments(1), source.lastModified(), directoryEntries);
-				}
-			}
-
-			ZipEntry zipEntry = new ZipEntry(entryPath.toString());
-			zipEntry.setTime(source.lastModified());
-			output.putNextEntry(zipEntry);
-			copyStream(input, true, output, false);
-		} catch (ZipException ze) {
-			//TODO: something about duplicate entries, and rethrow other exceptions
-		} finally {
-			try {
-				output.closeEntry();
-			} catch (IOException e) {
-				// ignore
-			}
-		}
-
-		if (isManifest) {
-			zipDirectoryEntry(output, IPath.fromOSString("META-INF"), source.lastModified(), directoryEntries); //$NON-NLS-1$
+		
+		// Write empty directory entries
+		for (IPath emptyDir : emptyDirectories) {
+			writeDirectoryEntry(output, emptyDir, directoryEntries);
 		}
 	}
 
