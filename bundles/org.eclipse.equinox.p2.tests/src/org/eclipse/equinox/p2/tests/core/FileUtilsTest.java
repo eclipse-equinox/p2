@@ -363,4 +363,170 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 		assertEquals(computed, desired);
 	}
 
+	/**
+	 * Test that zipping with a manifest creates a proper JAR with manifest first.
+	 */
+	public void testZipWithManifest() throws IOException {
+		File temp = getTempFolder();
+		File data = getTestData("1.0", "testData/core/jartest");
+		File archive = new File(temp, getUniqueString() + ".jar");
+		
+		try {
+			FileUtils.zip(data.listFiles(), null, archive, FileUtils.createRootPathComputer(data));
+		} catch (IOException e) {
+			fail("1.99", e);
+		}
+		
+		assertTrue("1.1", archive.exists());
+		assertTrue("1.2", archive.length() > 0);
+		
+		// Verify the manifest is the first entry
+		try (ZipFile zip = new ZipFile(archive)) {
+			Enumeration<? extends ZipEntry> entries = zip.entries();
+			assertTrue("2.1", entries.hasMoreElements());
+			ZipEntry firstEntry = entries.nextElement();
+			assertEquals("2.2 - Manifest should be first entry", "META-INF/MANIFEST.MF", firstEntry.getName());
+			
+			// Verify other entries exist
+			assertExists("2.3", archive, "test.txt");
+			assertExists("2.4", archive, "lib/library.jar");
+		}
+	}
+
+	/**
+	 * Test that zipping without a manifest creates a regular ZIP.
+	 */
+	public void testZipWithoutManifest() {
+		File temp = getTempFolder();
+		File data = getTestData("1.0", "testData/core/a2");
+		File archive = new File(temp, getUniqueString() + ".zip");
+		
+		try {
+			FileUtils.zip(data.listFiles(), null, archive, FileUtils.createRootPathComputer(data));
+		} catch (IOException e) {
+			fail("1.99", e);
+		}
+		
+		assertTrue("1.1", archive.exists());
+		assertTrue("1.2", archive.length() > 0);
+		assertExists("1.3", archive, "a.txt");
+		assertExists("1.4", archive, "b/b.txt");
+	}
+
+	/**
+	 * Test that empty directories are included in the zip.
+	 */
+	public void testZipWithEmptyDirectories() {
+		File temp = getTempFolder();
+		File data = getTestData("1.0", "testData/core/emptydir");
+		File archive = new File(temp, getUniqueString() + ".zip");
+		
+		try {
+			FileUtils.zip(data.listFiles(), null, archive, FileUtils.createRootPathComputer(data));
+		} catch (IOException e) {
+			fail("1.99", e);
+		}
+		
+		assertTrue("1.1", archive.exists());
+		assertTrue("1.2", archive.length() > 0);
+		
+		// Empty directory should be present
+		assertExists("1.3", archive, "emptysubdir/");
+		// Non-empty directory should have its file
+		assertExists("1.4", archive, "nonempty/file.txt");
+	}
+
+	/**
+	 * Test that directory entries are NOT added for non-empty directories.
+	 */
+	public void testZipNoDirectoryEntriesForNonEmpty() throws IOException {
+		File temp = getTempFolder();
+		File data = getTestData("1.0", "testData/core/a2");
+		File archive = new File(temp, getUniqueString() + ".zip");
+		
+		try {
+			FileUtils.zip(data.listFiles(), null, archive, FileUtils.createRootPathComputer(data));
+		} catch (IOException e) {
+			fail("1.99", e);
+		}
+		
+		assertTrue("1.1", archive.exists());
+		
+		// Check that directory entry "b/" does NOT exist (since it's non-empty)
+		try (ZipFile zip = new ZipFile(archive)) {
+			boolean foundBDir = false;
+			for (Enumeration<? extends ZipEntry> e = zip.entries(); e.hasMoreElements();) {
+				ZipEntry entry = e.nextElement();
+				if ("b/".equals(entry.getName())) {
+					foundBDir = true;
+					break;
+				}
+			}
+			assertFalse("1.2 - Non-empty directory 'b/' should not have a directory entry", foundBDir);
+		}
+		
+		// But the file inside should exist
+		assertExists("1.3", archive, "b/b.txt");
+	}
+
+	/**
+	 * Test manifest ordering with various file structures.
+	 */
+	public void testManifestAlwaysFirst() throws IOException {
+		File temp = getTempFolder();
+		File data = getTestData("1.0", "testData/core/jartest");
+		File archive = new File(temp, getUniqueString() + ".jar");
+		
+		try {
+			// Use dynamic path computer with different configurations
+			FileUtils.zip(data.listFiles(), null, archive, FileUtils.createDynamicPathComputer(1));
+		} catch (IOException e) {
+			fail("1.99", e);
+		}
+		
+		assertTrue("1.1", archive.exists());
+		
+		// Verify manifest is still first regardless of path computer
+		try (ZipFile zip = new ZipFile(archive)) {
+			Enumeration<? extends ZipEntry> entries = zip.entries();
+			assertTrue("2.1", entries.hasMoreElements());
+			ZipEntry firstEntry = entries.nextElement();
+			assertTrue("2.2 - First entry should be manifest", 
+					firstEntry.getName().equals("META-INF/MANIFEST.MF") || 
+					firstEntry.getName().equals("jartest/META-INF/MANIFEST.MF"));
+		}
+	}
+
+	/**
+	 * Test that duplicate files are handled correctly (first wins).
+	 */
+	public void testZipWithDuplicateFiles() throws IOException {
+		File temp = getTempFolder();
+		File data = getTestData("1.0", "testData/core/a");
+		File archive = new File(temp, getUniqueString() + ".zip");
+		
+		// Create an array with the same file twice
+		File[] inclusions = new File[] {new File(data, "a.txt"), new File(data, "a.txt")};
+		
+		try {
+			FileUtils.zip(inclusions, null, archive, FileUtils.createRootPathComputer(data));
+		} catch (IOException e) {
+			fail("1.99", e);
+		}
+		
+		assertTrue("1.1", archive.exists());
+		
+		// Should only have one entry for a.txt
+		try (ZipFile zip = new ZipFile(archive)) {
+			int count = 0;
+			for (Enumeration<? extends ZipEntry> e = zip.entries(); e.hasMoreElements();) {
+				ZipEntry entry = e.nextElement();
+				if ("a.txt".equals(entry.getName())) {
+					count++;
+				}
+			}
+			assertEquals("1.2 - Should have exactly one entry for a.txt", 1, count);
+		}
+	}
+
 }
