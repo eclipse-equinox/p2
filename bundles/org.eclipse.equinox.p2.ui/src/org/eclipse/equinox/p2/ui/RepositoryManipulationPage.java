@@ -217,7 +217,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		// Filter box
 		pattern = new Text(composite, SWT.SINGLE | SWT.BORDER | SWT.SEARCH | SWT.CANCEL);
 		pattern.getAccessible().addAccessibleListener(AccessibleListener.getNameAdapter(e -> e.result = DEFAULT_FILTER_TEXT));
-		pattern.setText(DEFAULT_FILTER_TEXT);
+		pattern.setMessage(DEFAULT_FILTER_TEXT);
 		pattern.selectAll();
 		pattern.addModifyListener(e -> applyFilter());
 
