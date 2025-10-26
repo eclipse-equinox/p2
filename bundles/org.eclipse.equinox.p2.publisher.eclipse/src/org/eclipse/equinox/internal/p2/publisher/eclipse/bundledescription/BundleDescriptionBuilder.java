@@ -16,6 +16,7 @@ package org.eclipse.equinox.internal.p2.publisher.eclipse.bundledescription;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.text.MessageFormat;
 import java.util.*;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -570,10 +571,40 @@ public class BundleDescriptionBuilder {
 		}
 	}
 
+	/**
+	 * Creates an OSGi filter expression for a Bundle Required Execution Environment (BREE).
+	 * <p>
+	 * This method generates a filter that can match against osgi.ee capabilities provided
+	 * by the runtime environment. The filter format is:
+	 * <ul>
+	 * <li>With version: {@code (&(osgi.ee=JavaSE)(version=X))}</li>
+	 * <li>Without version: {@code (osgi.ee=JavaSE)}</li>
+	 * </ul>
+	 * <p>
+	 * The method is designed to handle all current and future Java versions generically.
+	 * For example, JavaSE-25 will generate {@code (&(osgi.ee=JavaSE)(version=25))}.
+	 *
+	 * @param bree the Bundle-RequiredExecutionEnvironment string (e.g., "JavaSE-25", "JavaSE-1.8")
+	 * @return the OSGi filter expression string
+	 * @throws BundleException if the BREE format is invalid
+	 */
 	private static String createOSGiEERequirementFilter(String bree) throws BundleException {
+		if (bree == null || bree.trim().isEmpty()) {
+			throw new BundleException("Bundle-RequiredExecutionEnvironment cannot be null or empty."); //$NON-NLS-1$
+		}
+		
 		String[] nameVersion = getOSGiEENameVersion(bree);
 		String eeName = nameVersion[0];
 		String v = nameVersion[1];
+		
+		// Validate that we got a reasonable EE name - it should not be a placeholder or unknown value
+		if (eeName == null || eeName.trim().isEmpty() || 
+				"UNKNOWN".equalsIgnoreCase(eeName) || "UNSPECIFIED".equalsIgnoreCase(eeName)) { //$NON-NLS-1$ //$NON-NLS-2$
+			throw new BundleException(MessageFormat.format(
+					"Invalid execution environment: ''{0}''. Expected format like ''JavaSE-11'' or ''JavaSE-1.8''.", //$NON-NLS-1$
+					bree));
+		}
+		
 		String filterSpec;
 		if (v == null) {
 			filterSpec = "(osgi.ee=" + eeName + ")"; //$NON-NLS-1$ //$NON-NLS-2$
@@ -589,12 +620,30 @@ public class BundleDescriptionBuilder {
 				// do another sanity check
 				FrameworkUtil.createFilter(filterSpec);
 			} catch (InvalidSyntaxException e1) {
-				throw new BundleException("Error converting required execution environment.", e1); //$NON-NLS-1$
+				throw new BundleException("Error converting required execution environment '" + bree + "'.", e1); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		return filterSpec;
 	}
 
+	/**
+	 * Extracts the execution environment name and version from a BREE (Bundle Required Execution Environment) string.
+	 * <p>
+	 * This method handles various BREE formats generically to support both legacy and modern Java versions:
+	 * <ul>
+	 * <li>Legacy format: J2SE-1.4, J2SE-1.5 (converted to JavaSE)</li>
+	 * <li>Dotted format: JavaSE-1.6, JavaSE-1.8</li>
+	 * <li>Modern format: JavaSE-9, JavaSE-11, JavaSE-17, JavaSE-21, JavaSE-25, etc.</li>
+	 * <li>Compound format: J2SE-1.4/CDC-1.1, CDC/Foundation-1.1</li>
+	 * </ul>
+	 * <p>
+	 * For modern Java versions (9+), the version is a simple integer which is automatically
+	 * handled as a valid OSGi version (e.g., "25" becomes "25.0.0").
+	 * This ensures forward compatibility with future Java releases without requiring code changes.
+	 *
+	 * @param bree the Bundle-RequiredExecutionEnvironment string
+	 * @return an array containing [execution environment name, version] where version may be null
+	 */
 	static String[] getOSGiEENameVersion(String bree) {
 		String ee1 = null;
 		String ee2 = null;
@@ -614,6 +663,7 @@ public class BundleDescriptionBuilder {
 			try {
 				v1 = ee1.substring(v1idx + 1);
 				// sanity check version format
+				// This handles both dotted versions (1.8) and simple integers (9, 11, 17, 21, 25, etc.)
 				Version.parseVersion(v1);
 				ee1 = ee1.substring(0, v1idx);
 			} catch (IllegalArgumentException e) {
@@ -643,6 +693,7 @@ public class BundleDescriptionBuilder {
 			v1 = null;
 			v2 = null;
 		}
+		// Normalize J2SE to JavaSE for consistency
 		if ("J2SE".equals(ee1)) { //$NON-NLS-1$
 			ee1 = "JavaSE"; //$NON-NLS-1$
 		}
