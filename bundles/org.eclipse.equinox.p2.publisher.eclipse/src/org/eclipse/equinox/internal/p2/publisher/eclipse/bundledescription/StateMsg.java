@@ -16,7 +16,7 @@ package org.eclipse.equinox.internal.p2.publisher.eclipse.bundledescription;
 import org.eclipse.osgi.util.NLS;
 
 public class StateMsg extends NLS {
-	private static final String BUNDLE_NAME = "org.eclipse.osgi.internal.resolver.StateMessages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.publisher.eclipse.bundledescription.StateMessages"; //$NON-NLS-1$
 
 	public static String HEADER_REQUIRED;
 	public static String HEADER_PACKAGE_DUPLICATES;

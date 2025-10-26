@@ -40,13 +40,13 @@ public class BundleDescriptionBuilder {
 			Constants.BUNDLE_VERSION_ATTRIBUTE, PACKAGE_SPECIFICATION_VERSION, Constants.VERSION_ATTRIBUTE };
 	private static final String[] DEFINED_REQUIRE_BUNDLE_DIRECTIVES = {Constants.RESOLUTION_DIRECTIVE, Constants.VISIBILITY_DIRECTIVE};
 	private static final String[] DEFINED_FRAGMENT_HOST_DIRECTIVES = {Constants.EXTENSION_DIRECTIVE};
-	static final String[] DEFINED_BSN_DIRECTIVES = {Constants.SINGLETON_DIRECTIVE, Constants.FRAGMENT_ATTACHMENT_DIRECTIVE, Constants.MANDATORY_DIRECTIVE};
-	static final String[] DEFINED_BSN_MATCHING_ATTRS = {Constants.BUNDLE_VERSION_ATTRIBUTE, BundleDescriptionBuilder.OPTIONAL_ATTRIBUTE, BundleDescriptionBuilder.REPROVIDE_ATTRIBUTE};
+	private static final String[] DEFINED_BSN_DIRECTIVES = {Constants.SINGLETON_DIRECTIVE, Constants.FRAGMENT_ATTACHMENT_DIRECTIVE, Constants.MANDATORY_DIRECTIVE};
+	private static final String[] DEFINED_BSN_MATCHING_ATTRS = {Constants.BUNDLE_VERSION_ATTRIBUTE, BundleDescriptionBuilder.OPTIONAL_ATTRIBUTE, BundleDescriptionBuilder.REPROVIDE_ATTRIBUTE};
 	private static final String[] DEFINED_REQUIRE_CAPABILITY_DIRECTIVES = {Constants.RESOLUTION_DIRECTIVE, Constants.FILTER_DIRECTIVE, Namespace.REQUIREMENT_CARDINALITY_DIRECTIVE};
 	private static final String[] DEFINED_REQUIRE_CAPABILITY_ATTRS = {};
 	private static final String[] DEFINED_OSGI_VALIDATE_HEADERS = {Constants.IMPORT_PACKAGE, Constants.DYNAMICIMPORT_PACKAGE, Constants.EXPORT_PACKAGE, Constants.FRAGMENT_HOST, Constants.BUNDLE_SYMBOLICNAME, Constants.REQUIRE_BUNDLE};
-	static final String GENERIC_REQUIRE = "Eclipse-GenericRequire"; //$NON-NLS-1$
-	static final String GENERIC_CAPABILITY = "Eclipse-GenericCapability"; //$NON-NLS-1$
+	private static final String GENERIC_REQUIRE = "Eclipse-GenericRequire"; //$NON-NLS-1$
+	private static final String GENERIC_CAPABILITY = "Eclipse-GenericCapability"; //$NON-NLS-1$
 
 	private static final String ATTR_TYPE_STRING = "string"; //$NON-NLS-1$
 	private static final String ATTR_TYPE_VERSION = "version"; //$NON-NLS-1$
@@ -241,7 +241,7 @@ public class BundleDescriptionBuilder {
 		return result;
 	}
 
-	static BundleSpecification createRequiredBundle(ManifestElement spec) {
+	private static BundleSpecification createRequiredBundle(ManifestElement spec) {
 		BundleSpecificationImpl result = new BundleSpecificationImpl();
 		result.setName(spec.getValue());
 		result.setVersionRange(getVersionRange(spec.getAttribute(Constants.BUNDLE_VERSION_ATTRIBUTE)));
@@ -289,7 +289,7 @@ public class BundleDescriptionBuilder {
 		return allImports.toArray(new ImportPackageSpecification[allImports.size()]);
 	}
 
-	public static void addImportPackages(ManifestElement importPackage, List<ImportPackageSpecification> allImports, int manifestVersion, boolean dynamic) {
+	private static void addImportPackages(ManifestElement importPackage, List<ImportPackageSpecification> allImports, int manifestVersion, boolean dynamic) {
 		String[] importNames = importPackage.getValueComponents();
 		for (String importName : importNames) {
 			// do not allow for multiple imports of same package of manifest version < 2
@@ -333,7 +333,7 @@ public class BundleDescriptionBuilder {
 		return result;
 	}
 
-	static ExportPackageDescription[] createExportPackages(ManifestElement[] exported, ManifestElement[] provides, List<String> providedExports, boolean strict) {
+	private static ExportPackageDescription[] createExportPackages(ManifestElement[] exported, ManifestElement[] provides, List<String> providedExports, boolean strict) {
 		int numExports = (exported == null ? 0 : exported.length) + (provides == null ? 0 : provides.length);
 		if (numExports == 0) {
 			return null;
@@ -350,7 +350,7 @@ public class BundleDescriptionBuilder {
 		return allExports.toArray(new ExportPackageDescription[allExports.size()]);
 	}
 
-	static void addExportPackages(ManifestElement exportPackage, List<ExportPackageDescription> allExports, boolean strict) {
+	private static void addExportPackages(ManifestElement exportPackage, List<ExportPackageDescription> allExports, boolean strict) {
 		String[] exportNames = exportPackage.getValueComponents();
 		for (String exportName : exportNames) {
 			// if we are in strict mode and the package is marked as internal, skip it.
@@ -397,7 +397,7 @@ public class BundleDescriptionBuilder {
 		}
 	}
 
-	static Map<String, String> getDirectives(ManifestElement element, String[] definedDirectives) {
+	private static Map<String, String> getDirectives(ManifestElement element, String[] definedDirectives) {
 		Enumeration<String> keys = element.getDirectiveKeys();
 		if (keys == null) {
 			return null;
@@ -418,7 +418,7 @@ public class BundleDescriptionBuilder {
 		return arbitraryDirectives;
 	}
 
-	static Map<String, Object> getAttributes(ManifestElement element, String[] definedAttrs) {
+	private static Map<String, Object> getAttributes(ManifestElement element, String[] definedAttrs) {
 		Enumeration<String> keys = element.getKeys();
 		Map<String, Object> arbitraryAttrs = null;
 		if (keys == null) {
@@ -502,7 +502,7 @@ public class BundleDescriptionBuilder {
 		return components;
 	}
 
-	static HostSpecification createHostSpecification(ManifestElement spec) {
+	private static HostSpecification createHostSpecification(ManifestElement spec) {
 		if (spec == null) {
 			return null;
 		}
@@ -523,7 +523,7 @@ public class BundleDescriptionBuilder {
 		return result == null ? null : result.toArray(new GenericSpecification[result.size()]);
 	}
 
-	static List<GenericSpecification> convertBREEs(String[] brees, List<GenericSpecification> result) throws BundleException {
+	private static List<GenericSpecification> convertBREEs(String[] brees, List<GenericSpecification> result) throws BundleException {
 		if (brees == null || brees.length == 0) {
 			return result;
 		}
@@ -595,7 +595,7 @@ public class BundleDescriptionBuilder {
 		return filterSpec;
 	}
 
-	static String[] getOSGiEENameVersion(String bree) {
+	private static String[] getOSGiEENameVersion(String bree) {
 		String ee1 = null;
 		String ee2 = null;
 		String v1 = null;
@@ -655,7 +655,7 @@ public class BundleDescriptionBuilder {
 		return new String[] {eeName, v1};
 	}
 
-	static List<GenericSpecification> createOSGiRequires(ManifestElement[] osgiRequires, List<GenericSpecification> result) throws BundleException {
+	private static List<GenericSpecification> createOSGiRequires(ManifestElement[] osgiRequires, List<GenericSpecification> result) throws BundleException {
 		if (osgiRequires == null) {
 			return result;
 		}
@@ -743,7 +743,7 @@ public class BundleDescriptionBuilder {
 		return result == null ? null : result.toArray(new GenericDescription[result.size()]);
 	}
 
-	static List<GenericDescription> createOSGiCapabilities(ManifestElement[] osgiCapabilities, List<GenericDescription> result, BundleDescription description) throws BundleException {
+	private static List<GenericDescription> createOSGiCapabilities(ManifestElement[] osgiCapabilities, List<GenericDescription> result, BundleDescription description) throws BundleException {
 		if (result == null) {
 			result = new ArrayList<>(osgiCapabilities == null ? 1 : osgiCapabilities.length + 1);
 		}
@@ -756,7 +756,7 @@ public class BundleDescriptionBuilder {
 		return createOSGiCapabilities(osgiCapabilities, result, (Integer) null);
 	}
 
-	static List<GenericDescription> createOSGiCapabilities(ManifestElement[] osgiCapabilities, List<GenericDescription> result, Integer profileIndex) throws BundleException {
+	private static List<GenericDescription> createOSGiCapabilities(ManifestElement[] osgiCapabilities, List<GenericDescription> result, Integer profileIndex) throws BundleException {
 		if (osgiCapabilities == null) {
 			return result;
 		}
@@ -833,7 +833,7 @@ public class BundleDescriptionBuilder {
 		return new VersionRange(versionRange);
 	}
 
-	public static void checkImportExportSyntax(String headerKey, ManifestElement[] elements, boolean export, boolean dynamic, boolean jreBundle) throws BundleException {
+	private static void checkImportExportSyntax(String headerKey, ManifestElement[] elements, boolean export, boolean dynamic, boolean jreBundle) throws BundleException {
 		if (elements == null) {
 			return;
 		}
