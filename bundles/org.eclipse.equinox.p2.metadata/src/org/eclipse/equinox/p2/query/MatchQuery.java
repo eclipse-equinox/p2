@@ -54,6 +54,7 @@ public abstract class MatchQuery<T> implements IMatchQuery<T> {
 	 * Clients should call {@link #perform(Iterator)}
 	 * @since 2.0
 	 */
+	@Deprecated
 	@Override
 	public abstract boolean isMatch(T candidate);
 
@@ -61,6 +62,7 @@ public abstract class MatchQuery<T> implements IMatchQuery<T> {
 	 * Performs this query on the given iterator, passing all objects in the iterator
 	 * that match the criteria of this query to the given result.
 	 */
+	@Deprecated
 	@Override
 	public final IQueryResult<T> perform(Iterator<T> iterator) {
 		Collector<T> result = new Collector<>();
@@ -85,6 +87,7 @@ public abstract class MatchQuery<T> implements IMatchQuery<T> {
 	 *
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
+	@Deprecated
 	public void prePerform() {
 		// nothing to do by default
 	}
@@ -101,10 +104,12 @@ public abstract class MatchQuery<T> implements IMatchQuery<T> {
 	 *
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
+	@Deprecated
 	public void postPerform() {
 		// nothing to do by default
 	}
 
+	@Deprecated
 	@Override
 	public IExpression getExpression() {
 		return null;

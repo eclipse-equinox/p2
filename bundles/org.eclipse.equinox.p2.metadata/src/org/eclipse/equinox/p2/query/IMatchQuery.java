@@ -53,5 +53,6 @@ public interface IMatchQuery<T> extends IQuery<T> {
 	 * @noreference This method is not intended to be referenced by clients.
 	 * @since 2.0
 	 */
+	@Deprecated
 	public boolean isMatch(T candidate);
 }
