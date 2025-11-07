@@ -36,8 +36,10 @@ import org.eclipse.osgi.util.NLS;
 @Deprecated
 public class MD5ArtifactComparator implements IArtifactComparator {
 
+	@Deprecated
 	public static String MD5_COMPARATOR_ID = "org.eclipse.equinox.artifact.md5.comparator"; //$NON-NLS-1$
 
+	@Deprecated
 	@Override
 	public IStatus compare(IArtifactRepository source, IArtifactDescriptor sourceDescriptor,
 			IArtifactRepository destination, IArtifactDescriptor destDescriptor) {
