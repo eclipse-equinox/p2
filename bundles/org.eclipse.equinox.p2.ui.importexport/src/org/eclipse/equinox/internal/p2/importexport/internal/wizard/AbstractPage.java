@@ -589,8 +589,8 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		FileDialog dialog = new FileDialog(getContainer().getShell(), getBrowseDialogStyle() | SWT.SHEET);
 		dialog.setText(getDialogTitle());
 		dialog.setFilterPath(getDestinationValue());
-		dialog.setFilterExtensions(new String[] { Messages.EXTENSION_p2F, Messages.EXTENSION_ALL });
-		dialog.setFilterNames(new String[] { Messages.EXTENSION_p2F_NAME, Messages.EXTENSION_ALL_NAME });
+		dialog.setFilterExtensions(Messages.EXTENSION_p2F, Messages.EXTENSION_ALL);
+		dialog.setFilterNames(Messages.EXTENSION_p2F_NAME, Messages.EXTENSION_ALL_NAME);
 		String selectedFileName = dialog.open();
 
 		if (selectedFileName != null) {
