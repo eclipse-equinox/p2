@@ -75,6 +75,7 @@
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<configuration>
 					<argLine>-Xmx512m -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=${dropinsProduct} -Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.repository -Dorg.eclipse.equinox.p2.transport.ecf.retry=5</argLine>
+					<forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
 					<appArgLine>-consoleLog -debug</appArgLine>
 					<explodedBundles>
 						<explodedBundle>org.apache.ant</explodedBundle>
