@@ -426,7 +426,7 @@ public class TrustAuthorityDialog extends SelectionDialog {
 					destination.setFilterPath(getFilterPath(EXPORT_FILTER_PATH));
 					destination.setText(ProvUIMessages.TrustAuthorityDialog_ExportDialogTitle);
 					if (certificate != null) {
-						destination.setFilterExtensions(new String[] { "*.der" }); //$NON-NLS-1$
+						destination.setFilterExtensions("*.der"); //$NON-NLS-1$
 						destination.setFileName(certificate.getSerialNumber().toString() + ".der"); //$NON-NLS-1$
 						var path = destination.open();
 						setFilterPath(EXPORT_FILTER_PATH, destination.getFilterPath());

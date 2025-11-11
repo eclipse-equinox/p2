@@ -259,7 +259,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 					destination.setFilterPath(getFilterPath(EXPORT_FILTER_PATH));
 					destination.setText(ProvUIMessages.TrustCertificateDialog_ExportDialogTitle);
 					if (cert != null) {
-						destination.setFilterExtensions(new String[] { "*.der" }); //$NON-NLS-1$
+						destination.setFilterExtensions("*.der"); //$NON-NLS-1$
 						destination.setFileName(cert.getSerialNumber().toString() + ".der"); //$NON-NLS-1$
 						String path = destination.open();
 						setFilterPath(EXPORT_FILTER_PATH, destination.getFilterPath());
@@ -274,7 +274,7 @@ public class TrustCertificateDialog extends SelectionDialog {
 									.log(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ex.getMessage(), ex));
 						}
 					} else {
-						destination.setFilterExtensions(new String[] { "*.asc" }); //$NON-NLS-1$
+						destination.setFilterExtensions("*.asc"); //$NON-NLS-1$
 						destination.setFileName(userFriendlyFingerPrint(key) + ".asc"); //$NON-NLS-1$
 						String path = destination.open();
 						setFilterPath(EXPORT_FILTER_PATH, destination.getFilterPath());
