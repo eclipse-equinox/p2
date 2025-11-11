@@ -70,9 +70,9 @@ public class MethodInfo extends ClassFileStruct {
 			}
 		}
 		int attributesIndex = 0;
-		int readOffset = 8;
+		long readOffset = 8;
 		for (int i = 0; i < this.attributesCount; i++) {
-			constantPoolEntry = constantPool.decodeEntry(u2At(classFileBytes, readOffset, offset));
+			constantPoolEntry = constantPool.decodeEntry(u2At(classFileBytes, (int)readOffset, offset));
 			if (constantPoolEntry.getKind() != ConstantPoolConstant.CONSTANT_Utf8) {
 				throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 			}
@@ -106,9 +106,9 @@ public class MethodInfo extends ClassFileStruct {
 			} else {
 				this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, constantPool, offset + readOffset);
 			}
-			readOffset += (6 + u4At(classFileBytes, readOffset + 2, offset));
+			readOffset += (6 + u4At(classFileBytes, (int)readOffset + 2, offset));
 		}
-		this.attributeBytes = readOffset;
+		this.attributeBytes = (int)readOffset;
 	}
 
 	/*
