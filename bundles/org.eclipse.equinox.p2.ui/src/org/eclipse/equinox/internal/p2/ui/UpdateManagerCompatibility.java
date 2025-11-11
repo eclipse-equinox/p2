@@ -191,7 +191,7 @@ public class UpdateManagerCompatibility {
 	public static MetadataRepositoryElement[] importSites(Shell shell) {
 		FileDialog dialog = new FileDialog(shell);
 		dialog.setText(ProvUIMessages.UpdateManagerCompatibility_ImportSitesTitle);
-		dialog.setFilterExtensions(new String[] {"*.xml", "*"}); //$NON-NLS-1$ //$NON-NLS-2$
+		dialog.setFilterExtensions("*.xml", "*"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		MetadataRepositoryElement[] sites = null;
 
@@ -234,7 +234,7 @@ public class UpdateManagerCompatibility {
 		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 		dialog.setText(ProvUIMessages.UpdateManagerCompatibility_ExportSitesTitle);
 		dialog.setFileName("bookmarks.xml"); //$NON-NLS-1$
-		dialog.setFilterExtensions(new String[] {"*.xml", "*"}); //$NON-NLS-1$ //$NON-NLS-2$
+		dialog.setFilterExtensions("*.xml", "*"); //$NON-NLS-1$ //$NON-NLS-2$
 		dialog.setOverwrite(true);
 
 		String bookmarksFile = dialog.open();
