@@ -47,7 +47,7 @@ class ConfigApplier {
 	private final URI baseLocation;
 	private final boolean deepRefresh;
 	private int maxRefreshTry;
-	private Bundle systemBundle;
+	private final Bundle systemBundle;
 
 	ConfigApplier(BundleContext context, Bundle callingBundle) {
 		deepRefresh = Boolean.parseBoolean(context.getProperty("equinox.simpleconfigurator.deeprefresh"));
