@@ -13,9 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.spi.AgentServiceName;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
+import org.osgi.service.component.annotations.Component;
 
+@Component(name = "org.eclipse.equinox.p2.transport.ecf")
+@AgentServiceName(Transport.class)
 public class ECFTransportComponent implements IAgentServiceFactory {
 
 	@Override
