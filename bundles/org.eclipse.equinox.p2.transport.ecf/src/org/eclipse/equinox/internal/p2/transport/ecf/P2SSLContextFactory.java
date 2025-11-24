@@ -15,7 +15,7 @@ import org.eclipse.ecf.core.security.SSLContextFactory;
 import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Component;
 
-@Component(property = Constants.SERVICE_RANKING + "=100")
+@Component(property = Constants.SERVICE_RANKING + ":Integer=100")
 public class P2SSLContextFactory implements SSLContextFactory {
 
 	@Override
