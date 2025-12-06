@@ -30,12 +30,15 @@ import org.eclipse.osgi.util.NLS;
 @Deprecated
 public class MD5Verifier extends MessageDigestProcessingStep {
 
+	@Deprecated
 	protected String expectedMD5;
 
+	@Deprecated
 	public MD5Verifier() {
 		super();
 	}
 
+	@Deprecated
 	public MD5Verifier(String expected) {
 		super();
 		this.expectedMD5 = expected;
@@ -43,6 +46,7 @@ public class MD5Verifier extends MessageDigestProcessingStep {
 	}
 
 	//This handle the case where the MD5 verification is initiated by a processing step
+	@Deprecated
 	@Override
 	public void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(agent, descriptor, context);
@@ -69,6 +73,7 @@ public class MD5Verifier extends MessageDigestProcessingStep {
 		}
 	}
 
+	@Deprecated
 	@Override
 	protected void onClose(String digestString) {
 		// if the hashes don't line up set the status to error.
