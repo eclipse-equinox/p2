@@ -262,12 +262,12 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 			var dialog = new FileDialog(getShell(), SWT.SAVE);
 			dialog.setFilterPath(getFilterPath(EXPORT_FILTER_PATH));
 			dialog.setText(ProvSDKMessages.TrustPreferencePage_fileExportTitle);
-			dialog.setFilterExtensions(new String[] { "*.asc" }); //$NON-NLS-1$
+			dialog.setFilterExtensions("*.asc"); //$NON-NLS-1$
 			var destination = new FileDialog(exportButton.getShell(), SWT.SAVE);
 			destination.setFilterPath(getFilterPath(EXPORT_FILTER_PATH));
 			destination.setText(ProvSDKMessages.TrustPreferencePage_Export);
 			if (element instanceof X509Certificate certificate) {
-				destination.setFilterExtensions(new String[] { "*.der" }); //$NON-NLS-1$
+				destination.setFilterExtensions("*.der"); //$NON-NLS-1$
 				destination.setFileName(certificate.getSerialNumber().toString() + ".der"); //$NON-NLS-1$
 				var path = destination.open();
 				setFilterPath(EXPORT_FILTER_PATH, destination.getFilterPath());
@@ -283,7 +283,7 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 				}
 			} else {
 				var key = (PGPPublicKey) element;
-				destination.setFilterExtensions(new String[] { "*.asc" }); //$NON-NLS-1$
+				destination.setFilterExtensions("*.asc"); //$NON-NLS-1$
 				destination.setFileName(PGPPublicKeyService.toHexFingerprint(key) + ".asc"); //$NON-NLS-1$
 				var path = destination.open();
 				setFilterPath(EXPORT_FILTER_PATH, destination.getFilterPath());
@@ -306,7 +306,7 @@ public class TrustPreferencePage extends PreferencePage implements IWorkbenchPre
 			var dialog = new FileDialog(getShell(), SWT.OPEN);
 			dialog.setFilterPath(getFilterPath(ADD_FILTER_PATH));
 			dialog.setText(ProvSDKMessages.TrustPreferencePage_fileImportTitle);
-			dialog.setFilterExtensions(new String[] { "*.asc;*.der" }); //$NON-NLS-1$
+			dialog.setFilterExtensions("*.asc;*.der"); //$NON-NLS-1$
 			var path = dialog.open();
 			setFilterPath(ADD_FILTER_PATH, dialog.getFilterPath());
 			if (path == null) {
