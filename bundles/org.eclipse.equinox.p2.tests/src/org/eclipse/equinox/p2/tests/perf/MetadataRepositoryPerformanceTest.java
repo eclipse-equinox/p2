@@ -49,9 +49,9 @@ public class MetadataRepositoryPerformanceTest extends ProvisioningPerformanceTe
 		super.tearDown();
 	}
 
-	public void testQueryLocalRepository() {
+	public void testQueryLocalRepository() throws Exception {
 		final int IU_COUNT = 3000;
-		new PerformanceTestRunner() {
+		PerformanceTestRunner runner = new PerformanceTestRunner() {
 			IQuery<IInstallableUnit>[] queries = new IQuery[IU_COUNT];
 
 			@Override
@@ -71,6 +71,8 @@ public class MetadataRepositoryPerformanceTest extends ProvisioningPerformanceTe
 					repository.query(query, null);
 				}
 			}
-		}.run(this, "Test query local metadata repo for " + IU_COUNT + " ius", REPEATS, 10);
+		};
+		runner.setFingerprintName("Test query local metadata repo for " + IU_COUNT + " ius");
+		runner.run(getClass(), getName(), REPEATS, 10);
 	}
 }

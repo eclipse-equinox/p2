@@ -26,9 +26,9 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 public class PublisherPerformanceTest extends ProvisioningPerformanceTest {
 	private static final int REPEATS = 5;
 
-	public void testQueryPublisherResult() {
+	public void testQueryPublisherResult() throws Exception {
 		final int IU_COUNT = 3000;
-		new PerformanceTestRunner() {
+		PerformanceTestRunner runner = new PerformanceTestRunner() {
 			IQuery<IInstallableUnit>[] queries = new IQuery[IU_COUNT];
 			PublisherResult result;
 
@@ -49,12 +49,14 @@ public class PublisherPerformanceTest extends ProvisioningPerformanceTest {
 					result.query(query, null);
 				}
 			}
-		}.run(this, "Test query PublisherResult for " + IU_COUNT + " ius", REPEATS, 10);
+		};
+		runner.setFingerprintName("Test query PublisherResult for " + IU_COUNT + " ius");
+		runner.run(getClass(), getName(), REPEATS, 10);
 	}
 
-	public void testLimitQueryPublisherResult() {
+	public void testLimitQueryPublisherResult() throws Exception {
 		final int IU_COUNT = 3000;
-		new PerformanceTestRunner() {
+		PerformanceTestRunner runner = new PerformanceTestRunner() {
 			IQuery<IInstallableUnit>[] queries = new IQuery[IU_COUNT];
 			PublisherResult result;
 
@@ -75,6 +77,8 @@ public class PublisherPerformanceTest extends ProvisioningPerformanceTest {
 					result.query(query, null);
 				}
 			}
-		}.run(this, "Test query PublisherResult for " + IU_COUNT + " ius", REPEATS, 10);
+		};
+		runner.setFingerprintName("Test query PublisherResult for " + IU_COUNT + " ius");
+		runner.run(getClass(), getName(), REPEATS, 10);
 	}
 }
