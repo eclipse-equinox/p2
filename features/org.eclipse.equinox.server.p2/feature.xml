@@ -20,14 +20,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="org.sat4j.core"
-         version="0.0.0"/>
-
-   <plugin
-         id="org.sat4j.pb"
-         version="0.0.0"/>
-
-   <plugin
          id="org.eclipse.equinox.app"
          version="0.0.0"/>
 
