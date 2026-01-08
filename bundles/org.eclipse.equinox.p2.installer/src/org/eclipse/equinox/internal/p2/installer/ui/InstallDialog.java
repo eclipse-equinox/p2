@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -510,9 +510,6 @@ public class InstallDialog {
 			public void run() {
 				try {
 					result.setStatus(operation.install(new Monitor()));
-				} catch (ThreadDeath t) {
-					//must rethrow or the thread won't die
-					throw t;
 				} catch (RuntimeException t) {
 					result.failed(t);
 				} catch (Error t) {
