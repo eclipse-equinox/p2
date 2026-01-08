@@ -2,18 +2,18 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %bundleName
 Bundle-SymbolicName: org.eclipse.equinox.p2.ui.sdk.scheduler;singleton:=true
-Bundle-Version: 1.6.600.qualifier
+Bundle-Version: 1.7.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.ui.sdk.scheduler.AutomaticUpdatePlugin
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.equinox.internal.p2.ui.sdk.scheduler;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.sdk.scheduler.migration;x-internal:=true
-Require-Bundle: org.eclipse.ui,
+Require-Bundle: org.eclipse.ui;bundle-version="3.208.0",
  org.eclipse.core.runtime,
  org.eclipse.equinox.p2.updatechecker,
  org.eclipse.equinox.p2.ui,
  org.eclipse.equinox.p2.repository;bundle-version="2.3.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.engine,
