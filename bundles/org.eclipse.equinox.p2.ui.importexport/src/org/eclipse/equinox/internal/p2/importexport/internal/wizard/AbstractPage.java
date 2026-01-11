@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2018 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2026 WindRiver Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -82,7 +82,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		ArrayList<Object> checkState = new ArrayList<>();
 
 		ImportExportFilteredTree(Composite parent, int treeStyle, PatternFilter filter, boolean useNewLook) {
-			super(parent, treeStyle, filter, useNewLook);
+			super(parent, treeStyle, filter, useNewLook, true);
 		}
 
 		@Override

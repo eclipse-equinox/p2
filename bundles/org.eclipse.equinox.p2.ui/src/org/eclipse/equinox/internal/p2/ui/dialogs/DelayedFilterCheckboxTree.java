@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2018 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -24,10 +24,10 @@ import org.eclipse.ui.progress.WorkbenchJob;
 
 /**
  * FilteredTree extension that creates a ContainerCheckedTreeViewer, manages the
- * check state across filtering (working around bugs in ContainerCheckedTreeViewer),
- * and preloads all metadata repositories before allowing filtering, in order to
- * coordinate background fetch and filtering.  It also manages a cache of expanded
- * elements that can survive a change of input.
+ * check state across filtering (working around bugs in
+ * ContainerCheckedTreeViewer), and preloads all metadata repositories before
+ * allowing filtering, in order to coordinate background fetch and filtering. It
+ * also manages a cache of expanded elements that can survive a change of input.
  *
  * @since 3.4
  */
@@ -51,8 +51,9 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	Set<Object> expanded = new HashSet<>();
 	ContainerCheckedTreeViewer checkboxViewer;
 
-	public DelayedFilterCheckboxTree(Composite parent, int treeStyle, PatternFilter filter, IPreFilterJobProvider jobProvider) {
-		super(parent, true);
+	public DelayedFilterCheckboxTree(Composite parent, int treeStyle, PatternFilter filter,
+			IPreFilterJobProvider jobProvider) {
+		super(parent, true, true);
 		this.display = parent.getDisplay();
 		this.patternFilter = filter;
 		init(treeStyle, filter);
@@ -69,7 +70,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 					clearCheckStateCache();
 				} else {
 					ArrayList<Object> toRemove = new ArrayList<>(1);
-					// See bug 258117.  Ideally we would get check state changes
+					// See bug 258117. Ideally we would get check state changes
 					// for children when the parent state changed, but we aren't, so
 					// we need to remove all children from the additive check state
 					// cache.
@@ -88,8 +89,8 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 						for (Object element2 : checkState) {
 							if (checkboxViewer.getComparer().equals(element2, event.getElement())) {
 								toRemove.add(element2);
-								// Do not break out of the loop.  We may have duplicate equal
-								// elements in the cache.  Since the cache is additive, we want
+								// Do not break out of the loop. We may have duplicate equal
+								// elements in the cache. Since the cache is additive, we want
 								// to be sure we've gotten everything.
 							}
 						}
@@ -176,8 +177,9 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	}
 
 	/*
-	 * Overridden to hook a listener on the job and set the deferred content provider
-	 * to synchronous mode before a filter is done.
+	 * Overridden to hook a listener on the job and set the deferred content
+	 * provider to synchronous mode before a filter is done.
+	 *
 	 * @see org.eclipse.ui.dialogs.FilteredTree#doCreateRefreshJob()
 	 */
 	@Override
@@ -319,7 +321,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 
 	void rememberExpansions() {
 		// The expansions are additive, but we are using a set to keep out
-		// duplicates.  In practice, this means expanded items from different
+		// duplicates. In practice, this means expanded items from different
 		// inputs will remain expanded, such as categories with the same name
 		// in different repos.
 		expanded.addAll(Arrays.asList(getViewer().getExpandedElements()));
