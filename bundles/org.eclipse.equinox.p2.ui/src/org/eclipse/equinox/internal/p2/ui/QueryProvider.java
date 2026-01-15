@@ -89,6 +89,53 @@ public class QueryProvider {
 		return QueryUtil.createCompoundQuery(query, filterQuery, true);
 	}
 
+	/**
+	 * Creates a query that matches IUs that are either groups or members of any category.
+	 * This is used when showing a flat view to include both installable features (groups)
+	 * and items that are part of categories.
+	 * 
+	 * Note: This method creates a compound query from individual category member queries.
+	 * While this could impact performance with a large number of categories, it follows
+	 * the established pattern in this class and ensures consistency with category view behavior.
+	 *
+	 * @param queryable the queryable to search for categories
+	 * @param topLevelQuery the base query for visible IUs (typically groups, with environment filter already applied)
+	 * @param context the view query context
+	 * @param targetProfile the target profile for environment filtering
+	 * @return a compound query matching groups or category members
+	 */
+	private IQuery<IInstallableUnit> createGroupsOrCategoryMembersQuery(IQueryable<IInstallableUnit> queryable, IQuery<IInstallableUnit> topLevelQuery, IUViewQueryContext context, IProfile targetProfile) {
+		// First, get all categories
+		IQuery<IInstallableUnit> categoryQuery = QueryUtil.createIUCategoryQuery();
+		categoryQuery = createEnvironmentFilterQuery(context, targetProfile, categoryQuery);
+		IQueryResult<IInstallableUnit> categories = queryable.query(categoryQuery, null);
+
+		// If there are no categories, just return the top level query
+		if (categories.isEmpty()) {
+			return topLevelQuery;
+		}
+
+		// Collect queries for all category members
+		List<IQuery<IInstallableUnit>> memberQueries = new ArrayList<>();
+		for (IInstallableUnit category : categories) {
+			IQuery<IInstallableUnit> memberQuery = QueryUtil.createIUCategoryMemberQuery(category);
+			// Apply environment filter to category members as well
+			memberQuery = createEnvironmentFilterQuery(context, targetProfile, memberQuery);
+			memberQueries.add(memberQuery);
+		}
+
+		// If there are no valid category member queries, return just the top level query
+		if (memberQueries.isEmpty()) {
+			return topLevelQuery;
+		}
+
+		// Combine all member queries with OR to get union of all category members
+		IQuery<IInstallableUnit> allCategoryMembersQuery = QueryUtil.createCompoundQuery(memberQueries, false);
+
+		// Finally, combine groups OR category members
+		return QueryUtil.createCompoundQuery(topLevelQuery, allCategoryMembersQuery, false);
+	}
+
 	public ElementQueryDescriptor getQueryDescriptor(final QueriedElement element) {
 		// Initialize queryable, queryContext, and queryType from the element.
 		// In some cases we override this.
@@ -128,6 +175,11 @@ public class QueryProvider {
 				// Showing child IU's of a group of repositories, or of a single repository
 				if (element instanceof MetadataRepositories || element instanceof MetadataRepositoryElement) {
 					if (context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_FLAT || !context.getUseCategories()) {
+						// When not grouping by categories, show both groups and items that are members of any category
+						// The cast is safe because in the AVAILABLE_IUS case, queryable is always an IQueryable<IInstallableUnit>
+						@SuppressWarnings("unchecked")
+						IQueryable<IInstallableUnit> iuQueryable = (IQueryable<IInstallableUnit>) queryable;
+						topLevelQuery = createGroupsOrCategoryMembersQuery(iuQueryable, topLevelQuery, context, targetProfile);
 						AvailableIUWrapper wrapper = new AvailableIUWrapper(queryable, element, false, context.getShowAvailableChildren());
 						if (showLatest) {
 							topLevelQuery = QueryUtil.createLatestQuery(topLevelQuery);
