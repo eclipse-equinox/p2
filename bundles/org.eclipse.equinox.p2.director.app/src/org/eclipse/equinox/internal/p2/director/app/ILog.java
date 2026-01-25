@@ -28,16 +28,6 @@ public interface ILog {
 	void log(IStatus status);
 
 	/**
-	 *
-	 * @deprecated Use {@link ILog#printOut(String)} or
-	 *             {@link ILog#printErr(String)}
-	 */
-	@Deprecated
-	default void log(String message) {
-		printOut(message);
-	}
-
-	/**
 	 * Notify that logging is completed &amp; cleanup resources
 	 */
 	void close();
