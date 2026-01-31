@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -145,7 +145,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * Returns an exception of severity error with the given error message.
 	 */
 	private CoreException fail(String message, Throwable throwable) {
-		return new CoreException(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, message, throwable));
+		return new CoreException(Status.error(message, throwable));
 	}
 
 	/**
@@ -163,11 +163,9 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			range = new VersionRange(version, true, version, true);
 		}
 		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id, range);
-		Iterator<IInstallableUnit> matches = metadataRepoMan.query(query, null).iterator();
 		// pick the newest match
 		IInstallableUnit newest = null;
-		while (matches.hasNext()) {
-			IInstallableUnit candidate = matches.next();
+		for (IInstallableUnit candidate : metadataRepoMan.query(query, null)) {
 			if (newest == null || (newest.getVersion().compareTo(candidate.getVersion()) < 0)) {
 				newest = candidate;
 			}

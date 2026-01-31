@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -148,7 +148,7 @@ public class InstallDescriptionParser {
 			try {
 				description.setRoots(new IVersionedId[] {new VersionedId(id, version)});
 			} catch (IllegalArgumentException e) {
-				LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid version in install description: " + version, e)); //$NON-NLS-1$
+				LogHelper.log(Status.error("Invalid version in install description: " + version, e)); //$NON-NLS-1$
 			}
 		}
 
@@ -160,7 +160,7 @@ public class InstallDescriptionParser {
 				try {
 					roots.add(VersionedId.parse(rootList1));
 				} catch (IllegalArgumentException e) {
-					LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid version in install description: " + rootList1, e)); //$NON-NLS-1$
+					LogHelper.log(Status.error("Invalid version in install description: " + rootList1, e)); //$NON-NLS-1$
 				}
 			}
 			if (!roots.isEmpty()) {
@@ -206,7 +206,7 @@ public class InstallDescriptionParser {
 				uri = URIUtil.makeAbsolute(uri, base);
 				result.add(uri);
 			} catch (URISyntaxException e) {
-				LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid URL in install description: " + urlSpec, e)); //$NON-NLS-1$
+				LogHelper.log(Status.error("Invalid URL in install description: " + urlSpec, e)); //$NON-NLS-1$
 			}
 		}
 		if (result.isEmpty()) {

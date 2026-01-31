@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -23,7 +23,6 @@ import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.installer.InstallerActivator;
 import org.eclipse.equinox.internal.p2.installer.Messages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
@@ -115,7 +114,7 @@ public final class ProxiesDialog {
 			String selection = typeCombo.getText();
 			IProxyData selectedProxy = service.getProxyData(selection);
 			if (selectedProxy == null) {
-				updateStatus(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, IStatus.OK, Messages.ProxiesDialog_UnknownProxyTypeMessage, null));
+				updateStatus(Status.error(Messages.ProxiesDialog_UnknownProxyTypeMessage));
 			} else {
 				data = selectedProxy;
 				applyData();
@@ -219,7 +218,7 @@ public final class ProxiesDialog {
 		try {
 			new URI(hostText.getText());
 		} catch (URISyntaxException e) {
-			updateStatus(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, IStatus.OK, Messages.ProxiesDialog_InvalitHostMessage, null));
+			updateStatus(Status.error(Messages.ProxiesDialog_InvalitHostMessage));
 			return false;
 		}
 		return true;
@@ -237,7 +236,7 @@ public final class ProxiesDialog {
 				openMessage(Messages.ProxiesDialog_ServiceNotAvailableMessage, SWT.ICON_ERROR | SWT.OK);
 			}
 		} catch (Exception e) {
-			LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, e.getMessage(), e));
+			LogHelper.log(Status.error(e.getMessage(), e));
 			openMessage(Messages.ProxiesDialog_FailedToSetProxyMessage + e.getLocalizedMessage(), SWT.ICON_ERROR | SWT.OK);
 		}
 	}
@@ -247,17 +246,17 @@ public final class ProxiesDialog {
 			return;
 		}
 		if (hostText.getText().length() == 0) {
-			updateStatus(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, IStatus.OK, Messages.ProxiesDialog_EmptyHostMessage, null));
+			updateStatus(Status.error(Messages.ProxiesDialog_EmptyHostMessage));
 			return;
 		}
 
 		if (userIdText.getText().length() == 0) {
-			updateStatus(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, IStatus.OK, Messages.ProxiesDialog_EmptyUserMessage, null));
+			updateStatus(Status.error(Messages.ProxiesDialog_EmptyUserMessage));
 			return;
 		}
 
 		if (passwordText.getText().length() == 0) {
-			updateStatus(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, IStatus.OK, Messages.ProxiesDialog_EmptyPasswordMessage, null));
+			updateStatus(Status.error(Messages.ProxiesDialog_EmptyPasswordMessage));
 			return;
 		}
 
@@ -265,16 +264,16 @@ public final class ProxiesDialog {
 			//Port checks
 			String portAsString = portText.getText();
 			if (portAsString == null || portAsString.length() == 0) {
-				updateStatus(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, IStatus.OK, Messages.ProxiesDialog_EmptyProtMessage, null));
+				updateStatus(Status.error(Messages.ProxiesDialog_EmptyProtMessage));
 				return;
 			}
 			int port = Integer.parseInt(portAsString);
 			if (port < 0) {
-				updateStatus(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, IStatus.OK, Messages.ProxiesDialog_NegativValue, null));
+				updateStatus(Status.error(Messages.ProxiesDialog_NegativValue));
 				return;
 			}
 		} catch (NumberFormatException e) {
-			updateStatus(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, IStatus.OK, Messages.ProxiesDialog_WrongFormat, null));
+			updateStatus(Status.error(Messages.ProxiesDialog_WrongFormat));
 			return;
 		}
 		updateStatus(Status.OK_STATUS);
