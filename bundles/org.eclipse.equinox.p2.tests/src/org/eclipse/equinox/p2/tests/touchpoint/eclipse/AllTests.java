@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated touchpoint tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
 		EclipseTouchpointTest.class, AddJVMArgumentActionTest.class, AddProgramArgumentActionTest.class,
 		AddProgramPropertyActionTest.class, AddRepositoryActionTest.class, AddSourceBundleActionTest.class,
 		CheckTrustActionTest.class, ChmodActionTest.class, CollectActionTest.class, InstallBundleActionTest.class,

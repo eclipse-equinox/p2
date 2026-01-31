@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.mirror;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated mirror repository tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
 		ArtifactMirrorApplicationTest.class, MetadataMirrorApplicationTest.class, ArtifactRepositoryCleanupTest.class,
 		MetadataRepositoryCleanupTest.class, NewMirrorApplicationArtifactTest.class,
 		NewMirrorApplicationMetadataTest.class, MirrorApplicationTest.class

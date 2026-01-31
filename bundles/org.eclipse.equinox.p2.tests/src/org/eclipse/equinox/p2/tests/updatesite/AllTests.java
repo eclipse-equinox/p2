@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatesite;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated director tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ CategoryXMLActionTest.class, CategoryIUXMLActionTest.class, DoesNotCacheStaleData.class,
+@Suite
+@SelectClasses({ CategoryXMLActionTest.class, CategoryIUXMLActionTest.class, DoesNotCacheStaleData.class,
 		SiteXMLActionTest.class, UpdateSiteTest.class, LocalUpdatesiteTest.class, })
 public class AllTests {
 //test suite

@@ -14,14 +14,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated metadata repository tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
 		BatchExecuteMetadataRepositoryTest.class, CompositeMetadataRepositoryTest.class,
 		JarURLMetadataRepositoryTest.class, LocalMetadataRepositoryTest.class, SPIMetadataRepositoryTest.class,
 		StandaloneSerializationTest.class, MetadataRepositoryManagerTest.class, NoFailOver.class,

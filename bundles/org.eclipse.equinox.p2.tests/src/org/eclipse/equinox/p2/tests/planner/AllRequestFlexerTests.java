@@ -13,11 +13,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
 		TestRequestFlexerIUProperties.class, TestRequestFlexerOneInstalledOneBeingInstalled.class,
 		TestRequestFlexerOneInstalledReplacingIt.class, TestRequestFlexerOneInstalledTwoBeingInstalled.class,
 		TestRequestFlexerProduct.class, TestRequestFlexerProduct2.class, TestRequestFlexerProductWithLegacyMarkup.class,

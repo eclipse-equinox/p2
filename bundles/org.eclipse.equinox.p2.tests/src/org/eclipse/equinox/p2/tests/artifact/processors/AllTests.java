@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.processors;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated director tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ ZipVerifierProcessorTest.class, ChecksumVerifierTest.class,
+@Suite
+@SelectClasses({ ZipVerifierProcessorTest.class, ChecksumVerifierTest.class,
 		ChecksumUtilitiesTest.class, PGPSignatureVerifierTest.class, ProduceChecksumTest.class,
 		ChecksumPriorityTest.class })
 public class AllTests {

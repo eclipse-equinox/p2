@@ -13,15 +13,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * This is the master test suite for all automated provisioning tests that require some
  * manual set. These tests can't be run automatically as part of a build.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ org.eclipse.equinox.p2.tests.full.DirectorTest.class })
+@Suite
+@SelectClasses({ org.eclipse.equinox.p2.tests.full.DirectorTest.class })
 public class ManualTests {
 //test suite
 }

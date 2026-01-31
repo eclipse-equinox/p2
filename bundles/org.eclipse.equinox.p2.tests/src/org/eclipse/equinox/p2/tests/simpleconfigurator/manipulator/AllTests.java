@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.simpleconfigurator.manipulator;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated director tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ SimpleConfiguratorManipulatorUtilsTest.class, SimpleConfiguratorManipulatorTests.class })
+@Suite
+@SelectClasses({ SimpleConfiguratorManipulatorUtilsTest.class, SimpleConfiguratorManipulatorTests.class })
 public class AllTests {
 // test suite
 }

@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all engine tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
 		CertificateCheckerTest.class, DownloadManagerTest.class, InstructionParserTest.class, EngineTest.class,
 		PhaseApplicabilityTest.class, PhaseSetTest.class, PhaseTest.class, ParameterizedProvisioningActionTest.class,
 		ProfileMetadataRepositoryTest.class, ProfileTest.class, ProfilePreferencesTest.class, ProfileRegistryTest.class,

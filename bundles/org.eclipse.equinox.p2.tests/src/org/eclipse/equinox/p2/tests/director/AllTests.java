@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated director tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ AutomatedDirectorTest.class, Bug203637.class, OperationGenerationTest.class,
+@Suite
+@SelectClasses({ AutomatedDirectorTest.class, Bug203637.class, OperationGenerationTest.class,
 		OracleTest.class,
 		OracleTest2.class, ReplacePlanTest.class, RollbackTest.class, SingletonTest.class, UninstallTest.class,
 		UpdateTest.class, IUListFormatterTest.class, DirectorApplicationTest.class })

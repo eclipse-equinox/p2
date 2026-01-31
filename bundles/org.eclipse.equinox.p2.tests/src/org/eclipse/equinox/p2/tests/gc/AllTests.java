@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.gc;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated gc tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ GCCleanTest.class })
+@Suite
+@SelectClasses({ GCCleanTest.class })
 public class AllTests {
 // test suite
 }

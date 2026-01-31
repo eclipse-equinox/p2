@@ -14,14 +14,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all metadata tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ ArtifactKeyParsingTest.class, FragmentMethodTest.class, FragmentTest.class,
+@Suite
+@SelectClasses({ ArtifactKeyParsingTest.class, FragmentMethodTest.class, FragmentTest.class,
 		InstallableUnitTest.class, InstallableUnitPatchTest.class, IUPersistenceTest.class, LatestIUTest.class,
 		LicenseTest.class, MultipleIUAndFragmentTest.class, PersistNegation.class, PersistFragment.class,
 		ProvidedCapabilityTest.class, RequirementToString.class, RequirementParsingTest.class })

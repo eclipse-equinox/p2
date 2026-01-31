@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatechecker;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * All automated tests for the org.eclipse.equinox.p2.updatechecker bundle
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ UpdateCheckerTest.class })
+@Suite
+@SelectClasses({ UpdateCheckerTest.class })
 public class AllTests {
 	// test suite
 }

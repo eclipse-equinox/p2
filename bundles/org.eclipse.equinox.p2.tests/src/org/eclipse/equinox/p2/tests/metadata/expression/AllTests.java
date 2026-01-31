@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.expression;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated director tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ ExpressionTest.class, FilterTest.class })
+@Suite
+@SelectClasses({ ExpressionTest.class, FilterTest.class })
 public class AllTests {
 //test suite
 }

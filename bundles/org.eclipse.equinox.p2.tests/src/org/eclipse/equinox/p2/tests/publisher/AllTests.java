@@ -41,12 +41,12 @@ import org.eclipse.equinox.p2.tests.publisher.actions.ProductFileTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.RootFilesActionTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.RootIUActionTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.VersionAdviceTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ AbstractPublisherActionTest.class, AccumulateConfigDataActionTest.class,
+@Suite
+@SelectClasses({ AbstractPublisherActionTest.class, AccumulateConfigDataActionTest.class,
 		AdviceFileParserTest.class, ANYConfigCUsActionTest.class, BundlesActionTest.class, CategoryPublisherTest.class,
 		ConfigCUsActionTest.class, ContextRepositoryTest.class, DefaultCUsActionTest.class,
 		EquinoxExecutableActionTest.class, EquinoxLauncherCUActionTest.class, FeaturesActionTest.class,

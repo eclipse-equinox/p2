@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.natives;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated director tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
 		ChmodActionTest.class, CleanupzipActionTest.class, CollectActionTest.class, LinkActionTest.class,
 		MkdirActionTest.class, NativeTouchpointTest.class, RmdirActionTest.class, UnzipActionTest.class,
 		CopyActionTest.class, RemoveActionTest.class, SimpleBackupStoreTest.class,

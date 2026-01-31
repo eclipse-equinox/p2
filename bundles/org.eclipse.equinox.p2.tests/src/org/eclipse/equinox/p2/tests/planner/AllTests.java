@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated planner tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ AbsolutePlanTest.class, ActualChangeRequestTest.class, ActualChangeRequestTest2.class,
+@Suite
+@SelectClasses({ AbsolutePlanTest.class, ActualChangeRequestTest.class, ActualChangeRequestTest2.class,
 		AdditionalConstraints.class, AddIUProperty.class, AgentPlanTestInRunningInstance.class,
 		AgentPlanTestInExternalInstance.class, AgentPlanTestInExternalInstanceForCohostedMode.class, AllOptional.class,
 		AllOrbit.class, AllRequestFlexerTests.class, AnotherSingleton.class, Bug207319.class, Bug249605.class,

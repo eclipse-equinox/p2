@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ql;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated director tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ EvaluatorTest.class, PerformanceTest.class, TestQueryReimplementation.class })
+@Suite
+@SelectClasses({ EvaluatorTest.class, PerformanceTest.class, TestQueryReimplementation.class })
 public class AllTests {
 // test suite
 }

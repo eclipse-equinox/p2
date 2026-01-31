@@ -14,8 +14,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * This is the master test suite for all automated provisioning tests. It runs
@@ -25,8 +25,8 @@ import org.junit.runners.Suite;
  *
  * PLEASE ADD SUITES IN THE PACKAGE NAME ORDER.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ org.eclipse.equinox.p2.tests.publisher.AllTests.class,
+@Suite
+@SelectClasses({ org.eclipse.equinox.p2.tests.publisher.AllTests.class,
 		org.eclipse.equinox.frameworkadmin.tests.AllTests.class,
 		org.eclipse.equinox.p2.tests.ant.AllTests.class,
 		org.eclipse.equinox.p2.tests.artifact.processors.AllTests.class,

@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated core tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ AggregateQueryTest.class, BackupTest.class, CollectorTest.class,
+@Suite
+@SelectClasses({ AggregateQueryTest.class, BackupTest.class, CollectorTest.class,
 		CompoundQueryableTest.class,
 		FileUtilsTest.class, OrderedPropertiesTest.class, ProvisioningAgentTest.class, QueryTest.class,
 		URLUtilTest.class })
