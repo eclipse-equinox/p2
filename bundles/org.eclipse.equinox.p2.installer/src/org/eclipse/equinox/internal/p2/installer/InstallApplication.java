@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -56,7 +56,7 @@ public class InstallApplication implements IApplication {
 	 * Throws an exception of severity error with the given error message.
 	 */
 	private static CoreException fail(String message, Throwable throwable) {
-		return new CoreException(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, message, throwable));
+		return new CoreException(Status.error(message, throwable));
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class InstallApplication implements IApplication {
 		if (cause instanceof CoreException) {
 			return ((CoreException) cause).getStatus();
 		}
-		return new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, Messages.App_Error, cause);
+		return Status.error(Messages.App_Error, cause);
 	}
 
 	private void launchProduct(InstallDescription description) throws CoreException {

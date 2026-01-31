@@ -136,7 +136,7 @@ public class InstallDialog {
 
 		synchronized void failed(Throwable t) {
 			String msg = Messages.Dialog_InternalError;
-			status = new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, msg, t);
+			status = Status.error(msg, t);
 		}
 
 		synchronized IStatus getStatus() {
