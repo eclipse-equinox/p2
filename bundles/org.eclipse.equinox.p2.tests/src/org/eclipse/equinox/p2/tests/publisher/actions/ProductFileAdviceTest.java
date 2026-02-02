@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2009, 2024 EclipseSource and others.
+* Copyright (c) 2009, 2026 EclipseSource and others.
  *
  * This
 * program and the accompanying materials are made available under the terms of
@@ -75,13 +75,13 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 	 */
 	public void testGetVMArguments() {
 		String[] vmArgumentsWin32 = productFileAdviceWin32.getVMArguments();
-		assertEquals("1.0", 2, vmArgumentsWin32.length);
-		assertEquals("1.1", "vmArg", vmArgumentsWin32[0]);
-		assertEquals("1.2", "-Dfoo=b a r", vmArgumentsWin32[1]);
+		assertEquals(2, vmArgumentsWin32.length);
+		assertEquals("vmArg", vmArgumentsWin32[0]);
+		assertEquals("-Dfoo=b a r", vmArgumentsWin32[1]);
 
 		String[] vmArguments2 = productFileAdvice2.getVMArguments();
-		assertEquals("2.0", 1, vmArguments2.length);
-		assertEquals("2.1", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8272", vmArguments2[0]);
+		assertEquals(1, vmArguments2.length);
+		assertEquals("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8272", vmArguments2[0]);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 	 */
 	public void testGetBundles() {
 		BundleInfo[] bundles = productFileAdviceWin32.getBundles();
-		assertEquals("1.0", 3, bundles.length);
+		assertEquals(3, bundles.length);
 		for (int i = 0; i < 3; i++) {
 			if (bundles[i].getSymbolicName().equals("org.eclipse.equinox.common")) {
 				assertEquals(2, bundles[i].getStartLevel());
@@ -108,8 +108,8 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 		assertEquals("2.0", 1, bundles.length);
 		for (int i = 0; i < 1; i++) {
 			if (bundles[i].getSymbolicName().equals("org.eclipse.core.commands")) {
-				assertTrue("2.1", bundles[i].getStartLevel() == 2);
-				assertTrue("2.2", bundles[i].isMarkedAsStarted() == false);
+				assertTrue(bundles[i].getStartLevel() == 2);
+				assertTrue(bundles[i].isMarkedAsStarted() == false);
 			} else {
 				fail("unknown bundle: " + bundles[i].getSymbolicName());
 			}
@@ -128,8 +128,8 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 				assertEquals(2, bundles[i].getStartLevel());
 				assertEquals(true, bundles[i].isMarkedAsStarted());
 			} else if (bundles[i].getSymbolicName().equals("org.eclipse.core.runtime")) {
-				assertTrue("1.1", bundles[i].getStartLevel() == 2);
-				assertTrue("1.2", bundles[i].isMarkedAsStarted() == true);
+				assertTrue(bundles[i].getStartLevel() == 2);
+				assertTrue(bundles[i].isMarkedAsStarted() == true);
 			} else {
 				fail("unknown bundle: " + bundles[i].getSymbolicName());
 			}
@@ -222,7 +222,8 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 	public void testSimpleConfiguratorConfigURL() throws Exception {
 		File rootFolder = getTestFolder("simpleConfiguratorConfigURL");
 		File sampleProduct = new File(rootFolder, "sample.product");
-		copy("Copying sample.product", TestData.getFile("ProductActionTest/productWithConfig", "sample.product"), sampleProduct);
+		// Copying sample.product
+		copy(TestData.getFile("ProductActionTest/productWithConfig", "sample.product"), sampleProduct);
 
 		Properties configProperties = new Properties();
 		configProperties.put("org.eclipse.equinox.simpleconfigurator.configUrl", "file:org.eclipse.equinox.simpleconfigurator/bundles.info");

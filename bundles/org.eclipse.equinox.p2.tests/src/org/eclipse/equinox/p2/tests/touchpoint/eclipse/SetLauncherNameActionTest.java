@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -124,7 +124,7 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		File bundle = new File(tempFolder, "plugins/aBundle_1.0.0.jar");
 		bundle.getParentFile().mkdirs();
-		copy("1.0", getTestData("1.1", "/testData/testRepos/simple.1/plugins/aBundle_1.0.0.jar"), bundle);
+		copy(getTestData("1.1", "/testData/testRepos/simple.1/plugins/aBundle_1.0.0.jar"), bundle);
 		manipulator.getConfigData().addBundle(new BundleInfo(bundle.toURI()));
 		manipulator.save(false);
 

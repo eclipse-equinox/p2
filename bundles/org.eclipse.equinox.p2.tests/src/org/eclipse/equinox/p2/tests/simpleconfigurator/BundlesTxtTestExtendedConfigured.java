@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2013 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -28,7 +28,7 @@ public class BundlesTxtTestExtendedConfigured extends BundlesTxtTestExtended {
 		super.setUp();
 		//subdir extension will be loaded
 		testData = getTempFolder();
-		copy("preparing testData", getTestData("simpleconfigurator extensions", "testData/simpleConfiguratorTest"), testData);
+		copy(getTestData("simpleconfigurator extensions", "testData/simpleConfiguratorTest"), testData);
 		Activator.EXTENSIONS = testData.toString();
 		System.setProperty("p2.fragments", Activator.EXTENSIONS);
 		AbstractSharedInstallTest.setReadOnly(testData, true);

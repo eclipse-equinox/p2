@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -55,14 +55,17 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		}
 
 		String configuration = new File(userBase, "configuration").getAbsolutePath();
-		String[] command = new String[] {(new File(output, getExeFolder() + "/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
+		String[] command = { (new File(output, getExeFolder() + "/eclipse")).getAbsolutePath(),
+				"--launcher.suppressErrors", "-nosplash", "-application",
+				"org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm",
+				exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true" };
 		run(message, command);
 	}
 
 	public static void setReadOnly(File target, boolean readOnly) {
 		if (WINDOWS) {
 			String targetPath = target.getAbsolutePath();
-			String[] command = new String[] {"attrib", readOnly ? "+r" : "-r", targetPath, "/s", "/d"};
+			String[] command = { "attrib", readOnly ? "+r" : "-r", targetPath, "/s", "/d" };
 			run("setReadOnly " + readOnly + " failed on" + target.getAbsolutePath(), command);
 			if (target.isDirectory()) {
 				targetPath += "\\*.*";
@@ -70,7 +73,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 				run("setReadOnly " + readOnly + " failed on" + target.getAbsolutePath(), command);
 			}
 		} else {
-			String[] command = new String[] {"chmod", "-R", readOnly ? "a-w" : "a+w", target.getAbsolutePath()};
+			String[] command = { "chmod", "-R", readOnly ? "a-w" : "a+w", target.getAbsolutePath() };
 			run("setReadOnly " + readOnly + " failed on" + target.getAbsolutePath(), command);
 		}
 	}
@@ -95,18 +98,18 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		try {
 			File userBundlesInfo = new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
 			File userConfigIni = new File(userBase, "configuration/config.ini");
-			assertFalse("0.1", userBundlesInfo.exists());
-			assertFalse("0.2", userConfigIni.exists());
+			assertFalse(userBundlesInfo.exists());
+			assertFalse(userConfigIni.exists());
 			reconcileReadOnly("0.21");
-			assertFalse("0.3", userBundlesInfo.exists());
-			assertTrue("0.4", userConfigIni.exists());
+			assertFalse(userBundlesInfo.exists());
+			assertTrue(userConfigIni.exists());
 
 			Properties props = new Properties();
 			try (InputStream is = Files.newInputStream(userConfigIni.toPath())) {
 				props.load(is);
 			}
-			assertTrue("0.5", props.containsKey("osgi.sharedConfiguration.area"));
-			assertTrue("0.6", props.size() == 1);
+			assertTrue(props.containsKey("osgi.sharedConfiguration.area"));
+			assertEquals(1, props.size());
 		} finally {
 			cleanupReadOnlyInstall();
 		}
@@ -120,25 +123,25 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		assertInitialized();
 		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
 		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
-		add("0.2", "dropins", jar);
+		add("dropins", jar);
 		setupReadOnlyInstall();
 		try {
 			File userBundlesInfo = new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
 			File userConfigIni = new File(userBase, "configuration/config.ini");
-			assertFalse("0.1", userBundlesInfo.exists());
-			assertFalse("0.2", userConfigIni.exists());
+			assertFalse(userBundlesInfo.exists());
+			assertFalse(userConfigIni.exists());
 
 			reconcileReadOnly("0.21");
 
-			assertTrue("0.3", userBundlesInfo.exists());
-			assertTrue("0.4", userConfigIni.exists());
+			assertTrue(userBundlesInfo.exists());
+			assertTrue(userConfigIni.exists());
 
 			assertTrue(isInBundlesInfo(userBundlesInfo, "myBundle", null));
 
 			// remove the bundle from the dropins and reconcile
 			setReadOnly(readOnlyBase, false);
-			assertTrue("0.7", readOnlyBase.canWrite());
-			remove("1.0", "dropins", "myBundle_1.0.0.jar");
+			assertTrue(readOnlyBase.canWrite());
+			remove("dropins", "myBundle_1.0.0.jar");
 			setReadOnly(readOnlyBase, true);
 
 			reconcileReadOnly("0.21");
@@ -146,7 +149,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		} finally {
 			cleanupReadOnlyInstall();
 			// try to remove it in case an exception was thrown
-			remove("1.0", "dropins", "myBundle_1.0.0.jar");
+			remove("dropins", "myBundle_1.0.0.jar");
 		}
 	}
 
@@ -162,18 +165,18 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		setupReadOnlyInstall();
 		try {
 			dropins.mkdir();
-
-			copy("copying to dropins", jar, new File(dropins, jar.getName()));
+			// copying to dropins
+			copy(jar, new File(dropins, jar.getName()));
 
 			File userBundlesInfo = new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
 			File userConfigIni = new File(userBase, "configuration/config.ini");
-			assertFalse("0.1", userBundlesInfo.exists());
-			assertFalse("0.2", userConfigIni.exists());
+			assertFalse(userBundlesInfo.exists());
+			assertFalse(userConfigIni.exists());
 
 			reconcileReadOnly("0.21");
 
-			assertTrue("0.3", userBundlesInfo.exists());
-			assertTrue("0.4", userConfigIni.exists());
+			assertTrue(userBundlesInfo.exists());
+			assertTrue(userConfigIni.exists());
 
 			assertTrue(isInBundlesInfo(userBundlesInfo, "myBundle", null));
 

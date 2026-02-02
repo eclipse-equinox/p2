@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -16,11 +16,15 @@ package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.SourceManipulator;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddSourceBundleAction;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -55,7 +59,7 @@ public class AddSourceBundleActionTest extends AbstractProvisioningTest {
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
 		File osgiTarget = new File(targetPlugins, "org.eclipse.osgi.source_3.4.2.R34x_v20080826-1230.jar");
-		copy("2.0", osgiSource, osgiTarget);
+		copy(osgiSource, osgiTarget);
 
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(osgiTarget);
 		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -35,7 +37,7 @@ public class Bug252682 extends AbstractProvisioningTest {
 		super.setUp();
 		File reporegistry1 = getTestData("test data bug 252682", "testData/bug252682");
 		File tempFolder = getTempFolder();
-		copy("0.2", reporegistry1, tempFolder);
+		copy(reporegistry1, tempFolder);
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), tempFolder, null, false);
 		profile = registry.getProfile("Bug252682");
 		assertNotNull(profile);

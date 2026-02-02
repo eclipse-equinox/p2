@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -229,8 +229,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 	}
 
-	public static void copy(String message, File source, File target) {
-		copy(message, source, target, null);
+	public static void copy(File source, File target) throws IOException {
+		copy(source, target, null);
 	}
 
 	/*
@@ -238,7 +238,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * - if we have a file, then copy the file
 	 * - if we have a directory then merge
 	 */
-	public static void copy(String message, File source, File target, FileFilter filter) {
+	public static void copy(File source, File target, FileFilter filter) throws IOException {
 		if (!source.exists()) {
 			return;
 		}
@@ -251,23 +251,21 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			}
 			File[] children = source.listFiles(filter);
 			for (File child : children) {
-				copy(message, child, new File(target, child.getName()));
+				copy(child, new File(target, child.getName()));
 			}
 			return;
 		}
 		try (InputStream input = Files.newInputStream(source.toPath());
 				OutputStream output = Files.newOutputStream(target.toPath())) {
 			input.transferTo(output);
-		} catch (IOException e) {
-			fail(message, e);
 		}
 	}
 
-	public static void move(String message, File source, File target) {
+	public static void move(String message, File source, File target) throws IOException {
 		move(message, source, target, null);
 	}
 
-	public static void move(String message, File source, File target, FileFilter filter) {
+	public static void move(String message, File source, File target, FileFilter filter) throws IOException {
 		// no work to do
 		if (!source.exists()) {
 			return;
@@ -304,7 +302,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 
 		// if the rename didn't work then try a copy/delete
-		copy(message, source, target);
+		copy(source, target);
 		if (target.exists()) {
 			delete(source);
 		}

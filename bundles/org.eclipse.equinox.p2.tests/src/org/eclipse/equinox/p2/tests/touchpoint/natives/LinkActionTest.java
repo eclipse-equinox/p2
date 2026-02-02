@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,10 @@
 package org.eclipse.equinox.p2.tests.touchpoint.natives;
 
 import java.io.File;
-import java.util.*;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.LinkAction;
@@ -31,7 +34,7 @@ public class LinkActionTest extends AbstractProvisioningTest {
 		super("");
 	}
 
-	public void testExecuteUndo() {
+	public void testExecuteUndo() throws IOException {
 		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
 		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -39,7 +42,7 @@ public class LinkActionTest extends AbstractProvisioningTest {
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
 		File zipTarget = new File(installFolder, "a.zip");
-		copy("2.0", zipSource, zipTarget);
+		copy(zipSource, zipTarget);
 
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
@@ -60,6 +63,6 @@ public class LinkActionTest extends AbstractProvisioningTest {
 		assertOK("3.1", action.undo(parameters));
 		File linkFile = new File((String) parameters.get(ActionConstants.PARM_TARGET_DIR));
 		linkFile = new File(linkFile, (String) parameters.get(ActionConstants.PARM_LINK_NAME));
-		assertFalse("3.2", linkFile.exists());
+		assertFalse(linkFile.exists());
 	}
 }

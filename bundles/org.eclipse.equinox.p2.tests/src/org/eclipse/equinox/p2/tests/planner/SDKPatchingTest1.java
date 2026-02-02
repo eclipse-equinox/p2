@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2017 IBM Corporation and others.
+ *  Copyright (c) 2005, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -18,8 +18,15 @@ import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.IRequirementChange;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -35,7 +42,7 @@ public class SDKPatchingTest1 extends AbstractProvisioningTest {
 		super.setUp();
 		File reporegistry1 = getTestData("test data for sdkpatching test", "testData/sdkpatchingtest");
 		File tempFolder = getTempFolder();
-		copy("0.2", reporegistry1, tempFolder);
+		copy(reporegistry1, tempFolder);
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), tempFolder, null, false);
 		profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull(profile);

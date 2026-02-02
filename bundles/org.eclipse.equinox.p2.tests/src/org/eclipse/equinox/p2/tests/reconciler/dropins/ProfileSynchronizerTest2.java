@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010 Sonatype Inc. and others.
+ *  Copyright (c) 2010, 2026 Sonatype Inc. and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -41,7 +41,8 @@ public class ProfileSynchronizerTest2 extends AbstractProvisioningTest {
 		initializeReconciler();
 
 		File tmpFolder = getTempFolder();
-		copy("copying initialProfile", getTestData("p2 folder for synchronizer test", "testData/profileSynchronizerTest2/"), tmpFolder);
+		// copying initialProfile
+		copy(getTestData("p2 folder for synchronizer test", "testData/profileSynchronizerTest2/"), tmpFolder);
 		agent = getAgentProvider().createAgent(new File(tmpFolder, "p2").toURI());
 		registry = agent.getService(IProfileRegistry.class);
 		IEngine engine = agent.getService(IEngine.class);

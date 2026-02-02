@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017, 2021 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -17,6 +17,7 @@ package org.eclipse.equinox.p2.tests.mirror;
 import static org.junit.Assert.assertNotEquals;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
@@ -1010,7 +1011,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testBaselineCompareUsingMD5Comparator() {
+	public void testBaselineCompareUsingMD5Comparator() throws IOException {
 		//Setup create descriptors with different md5 values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/content.xml");
@@ -1022,7 +1023,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		File baselineBinaryDirectory = new File(baselineLocation, "binary");
 		baselineBinaryDirectory.mkdir();
 		File baselineContentLocation = new File(baselineBinaryDirectory, "testKeyId_1.2.3");
-		AbstractProvisioningTest.copy("Copying File to baseline", artifact2, baselineContentLocation);
+		// Copying File to baseline
+		AbstractProvisioningTest.copy(artifact2, baselineContentLocation);
 
 		IArtifactDescriptor descriptor1 = PublisherHelper.createArtifactDescriptor(dupKey, artifact1);
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, baselineContentLocation);

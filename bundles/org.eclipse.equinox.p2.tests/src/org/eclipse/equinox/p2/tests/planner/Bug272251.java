@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2017 IBM Corporation and others.
+ *  Copyright (c) 2005, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -37,7 +37,7 @@ public class Bug272251 extends AbstractProvisioningTest {
 		super.setUp();
 		File reporegistry1 = getTestData("test data bug 272251", "testData/bug272251/profileRegistry/");
 		File tempFolder = getTempFolder();
-		copy("0.2", reporegistry1, tempFolder);
+		copy(reporegistry1, tempFolder);
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), tempFolder, null, false);
 		profile = registry.getProfile("PlatformProfile");
 		assertNotNull(profile);

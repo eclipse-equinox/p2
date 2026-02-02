@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2011, 2023 Wind River and others.
+ *  Copyright (c) 2011, 2026 Wind River and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -39,7 +39,8 @@ public class Bug351944 extends AbstractProvisioningTest {
 		super.setUp();
 		File testData = AbstractProvisioningTest.getTestData("artifact repository", "testData/bug351944");
 		artifactRepoFile = getTempFolder();
-		copy("Copy to temporary folder", testData, artifactRepoFile);
+		// Copy to temporary folder
+		copy(testData, artifactRepoFile);
 		changeWritePermission(artifactRepoFile, false);
 	}
 

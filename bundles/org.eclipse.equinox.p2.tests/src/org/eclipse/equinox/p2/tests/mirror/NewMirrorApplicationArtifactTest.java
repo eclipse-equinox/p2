@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2021 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -1077,7 +1077,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	}
 
 	@Theory
-	public void testBaselineCompareUsingComparator(String comparator) {
+	public void testBaselineCompareUsingComparator(String comparator) throws IOException {
 		// Setup create descriptors with different checksums
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/content.xml");
@@ -1089,7 +1089,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		File baselineBinaryDirectory = new File(baselineLocation, "binary");
 		baselineBinaryDirectory.mkdir();
 		File baselineContentLocation = new File(baselineBinaryDirectory, "testKeyId_1.2.3");
-		AbstractProvisioningTest.copy("Copying File to baseline", artifact2, baselineContentLocation);
+		AbstractProvisioningTest.copy(artifact2, baselineContentLocation);
 
 		IArtifactDescriptor descriptor1 = PublisherHelper.createArtifactDescriptor(dupKey, artifact1);
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, baselineContentLocation);
