@@ -43,13 +43,15 @@ public class SharedProfilePreferencesTest extends AbstractProvisioningTest {
 		File baseInstall = getTempFolder();
 		File baseInstallToCopyTo = new File(baseInstall, "p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		baseInstallToCopy.mkdirs();
-		copy("copy base install", baseInstallToCopy, baseInstallToCopyTo);
+		// copy base install
+		copy(baseInstallToCopy, baseInstallToCopyTo);
 
 		File userHomeToCopy = getTestData("useHome", "testData/sharedPrefs/test1/userHome");
 		File userHome = getTempFolder();
 		File userHomeToCopyTo = new File(userHome, "p2/org.eclipse.equinox.p2.engine/");
 		userHomeToCopyTo.mkdirs();
-		copy("copy user home data", userHomeToCopy, userHomeToCopyTo);
+		// copy user home data
+		copy(userHomeToCopy, userHomeToCopyTo);
 
 		System.setProperty("osgi.sharedConfiguration.area", new File(baseInstall, "configuration").toURI().toString());
 		System.setProperty("osgi.configuration.area", new File(userHome, "configuration").toURI().toString() + '/');

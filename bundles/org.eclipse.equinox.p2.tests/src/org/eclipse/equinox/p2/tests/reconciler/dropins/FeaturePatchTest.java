@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
 import java.io.File;
+import java.io.IOException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -42,7 +43,7 @@ public class FeaturePatchTest extends AbstractReconcilerTest {
 	 * Test the case where we have a feature in the drop-ins folder and then
 	 * we try and apply a feature patch to it.
 	 */
-	public void testPatchingDroppedInFeature() {
+	public void testPatchingDroppedInFeature() throws IOException {
 		// TODO enable once we fix being able to patch a feature from the drop-ins
 		if (DISABLED) {
 			return;
@@ -50,9 +51,9 @@ public class FeaturePatchTest extends AbstractReconcilerTest {
 		assertInitialized();
 		// copy the feature into the dropins folder
 		File file = getTestData("1.0", "testData/reconciler/features/myFeature_1.0.0");
-		add("1.1", "dropins/features", file);
+		add("dropins/features", file);
 		file = getTestData("1.2", "testData/reconciler/plugins/myBundle_1.0.0.jar");
-		add("1.3", "dropins/plugins", file);
+		add("dropins/plugins", file);
 		// reconcile
 		reconcile("1.4");
 		// check all is good
@@ -60,9 +61,9 @@ public class FeaturePatchTest extends AbstractReconcilerTest {
 
 		// copy the patch into the dropins folder
 		file = getTestData("2.0", "testData/reconciler/features/myFeaturePatch_2.0.0");
-		add("2.1", "dropins/features", file);
+		add("dropins/features", file);
 		file = getTestData("2.2", "testData/reconciler/plugins/myBundle_2.0.0.jar");
-		add("2.3", "dropins/plugins", file);
+		add("dropins/plugins", file);
 		// reconcile
 		reconcile("2.4");
 		// check all is good
@@ -70,10 +71,10 @@ public class FeaturePatchTest extends AbstractReconcilerTest {
 		assertExistsInBundlesInfo("2.6", "myBundle", "2.0.0");
 
 		// cleanup
-		remove("3.0", "dropins/features", "myFeature_1.0.0");
-		remove("3.1", "dropins/plugins", "myBundle_1.0.0.jar");
-		remove("3.2", "dropins/features", "myFeaturePatch_2.0.0");
-		remove("3.3", "dropins/plugins", "myBundle_2.0.0.jar");
+		remove("dropins/features", "myFeature_1.0.0");
+		remove("dropins/plugins", "myBundle_1.0.0.jar");
+		remove("dropins/features", "myFeaturePatch_2.0.0");
+		remove("dropins/plugins", "myBundle_2.0.0.jar");
 		assertDoesNotExistInBundlesInfo("3.4", "myBundle");
 	}
 
@@ -81,31 +82,31 @@ public class FeaturePatchTest extends AbstractReconcilerTest {
 	 * Test the case where the feature patch adds a new bundle (with a new id) to the system.
 	 * For more information see bug 240370.
 	 */
-	public void testAddBundle() {
+	public void testAddBundle() throws IOException {
 		// TODO enable this test when bug 240370 is fixed.
 		if (DISABLED) {
 			return;
 		}
 		assertInitialized();
 		File file = getTestData("1.0", "testData/reconciler/features/myFeature_1.0.0");
-		add("1.1", "dropins/features", file);
+		add("dropins/features", file);
 		file = getTestData("1.2", "testData/reconciler/plugins/myBundle_1.0.0.jar");
-		add("1.3", "dropins/plugins", file);
+		add("dropins/plugins", file);
 		reconcile("1.4");
 		assertExistsInBundlesInfo("1.5", "myBundle", "1.0.0");
 
 		file = getTestData("2.0", "testData/reconciler/features/myFeaturePatch_1.0.0");
-		add("2.1", "dropins/features", file);
+		add("dropins/features", file);
 		file = getTestData("2.2", "testData/reconciler/plugins/mySingletonBundle_1.0.0.jar");
-		add("2.3", "dropins/plugins", file);
+		add("dropins/plugins", file);
 		reconcile("2.4");
 		assertExistsInBundlesInfo("2.5", "myBundle", "1.0.0");
 		assertExistsInBundlesInfo("2.6", "mySingletonBundle", "1.0.0");
 
-		remove("3.0", "dropins/features", "myFeature_1.0.0");
-		remove("3.1", "dropins/plugins", "myBundle_1.0.0.jar");
-		remove("3.2", "dropins/features", "myFeaturePatch_1.0.0");
-		remove("3.3", "dropins/plugins", "mySingletonBundle_1.0.0.jar");
+		remove("dropins/features", "myFeature_1.0.0");
+		remove("dropins/plugins", "myBundle_1.0.0.jar");
+		remove("dropins/features", "myFeaturePatch_1.0.0");
+		remove("dropins/plugins", "mySingletonBundle_1.0.0.jar");
 		assertDoesNotExistInBundlesInfo("3.4", "myBundle");
 		assertDoesNotExistInBundlesInfo("3.5", "mySingletonBundle");
 	}

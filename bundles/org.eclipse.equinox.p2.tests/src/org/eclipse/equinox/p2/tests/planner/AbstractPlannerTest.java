@@ -92,7 +92,7 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 		super.setUp();
 		File reporegistry1 = getTestData("loading planner test data", getTestDataPath());
 		File tempFolder = getTempFolder();
-		copy("0.2", reporegistry1, tempFolder);
+		copy(reporegistry1, tempFolder);
 		IProfileRegistry realProfileRegistry = getProfileRegistry();
 		//Tweak the running profile registry
 		Field profileStore = SimpleProfileRegistry.class.getDeclaredField("store");

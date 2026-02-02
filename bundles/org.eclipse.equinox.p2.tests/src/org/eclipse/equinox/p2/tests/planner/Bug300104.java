@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010, 2017 IBM Corporation and others.
+ *  Copyright (c) 2010, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -43,7 +43,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 		super.setUp();
 		File reporegistry1 = getTestData("test data bug 300104", "testData/bug300104/p2");
 		File tempFolder = new File(getTempFolder(), "p2");
-		copy("0.2", reporegistry1, tempFolder);
+		copy(reporegistry1, tempFolder);
 
 		IProvisioningAgentProvider provider = getAgentProvider();
 		agent = provider.createAgent(tempFolder.toURI());

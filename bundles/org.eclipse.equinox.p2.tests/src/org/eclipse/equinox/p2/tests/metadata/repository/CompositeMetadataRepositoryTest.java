@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,6 +16,7 @@
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -360,36 +361,32 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertFalse("2.5", Boolean.parseBoolean(compressed));
 	}
 
-	public void testLoadingRepositoryLocal() {
+	public void testLoadingRepositoryLocal() throws IOException, ProvisionException, OperationCanceledException {
 		File testData = getTestData("0.5", "/testData/metadataRepo/composite/good.local");
-		copy("0.6", testData, repoLocation);
+		copy(testData, repoLocation);
 
-		CompositeMetadataRepository compRepo = null;
-		try {
-			compRepo = (CompositeMetadataRepository) getMetadataRepositoryManager().loadRepository(repoLocation.toURI(), null);
-		} catch (ProvisionException e) {
-			fail("0.9", e);
-		}
+		CompositeMetadataRepository compRepo = (CompositeMetadataRepository) getMetadataRepositoryManager()
+				.loadRepository(repoLocation.toURI(), null);
 
 		List<URI> children = compRepo.getChildren();
 
 		//ensure children are correct
 		URI child1 = URIUtil.append(compRepo.getLocation(), "one");
-		assertTrue("1.0", children.contains(child1));
+		assertTrue(children.contains(child1));
 		URI child2 = URIUtil.append(compRepo.getLocation(), "two");
-		assertTrue("1.1", children.contains(child2));
-		assertEquals("1.2", 2, children.size());
+		assertTrue(children.contains(child2));
+		assertEquals(2, children.size());
 
 		//ensure correct properties
-		assertEquals("2.0", "metadata name", compRepo.getName());
+		assertEquals("metadata name", compRepo.getName());
 		Map<String, String> properties = compRepo.getProperties();
-		assertEquals("2.1", 2, properties.size());
+		assertEquals(2, properties.size());
 		String timestamp = properties.get(IRepository.PROP_TIMESTAMP);
-		assertNotNull("2.2", timestamp);
-		assertEquals("2.3", "1234", timestamp);
+		assertNotNull(timestamp);
+		assertEquals("1234", timestamp);
 		String compressed = properties.get(IRepository.PROP_COMPRESSED);
-		assertNotNull("2.4", compressed);
-		assertFalse("2.5", Boolean.parseBoolean(compressed));
+		assertNotNull(compressed);
+		assertFalse(Boolean.parseBoolean(compressed));
 	}
 
 	public void testCompressedPersistence() {
@@ -417,21 +414,20 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testMissingRequireattributeWhileParsing() {
+	public void testMissingRequireattributeWhileParsing()
+			throws IOException, ProvisionException, OperationCanceledException {
 		File badCompositeContent = getTestData("0.1", "/testData/metadataRepo/composite/Bad/missingRequiredAttribute");
-		copy("0.2", badCompositeContent, repoLocation);
+		copy(badCompositeContent, repoLocation);
 
 		CompositeMetadataRepository compRepo = null;
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream()));
 			compRepo = (CompositeMetadataRepository) getMetadataRepositoryManager().loadRepository(repoLocation.toURI(), null);
-		} catch (ProvisionException e) {
-			fail("1.99", e);
 		} finally {
 			System.setOut(out);
 		}
-		assertEquals("2.0", 1, compRepo.getChildren().size());
+		assertEquals(1, compRepo.getChildren().size());
 	}
 
 	public void testEnabledAndSystemValues() {
@@ -639,29 +635,25 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		return (CompositeMetadataRepository) factory.create(location, name, CompositeMetadataRepository.REPOSITORY_TYPE, null);
 	}
 
-	public void testRelativeChildren() {
+	public void testRelativeChildren() throws IOException, URISyntaxException {
 		// setup
 		File one = getTestData("0.0", "testData/testRepos/simple.1");
 		File two = getTestData("0.1", "testData/testRepos/simple.2");
 		File temp = getTempFolder();
-		copy("0.2", one, new File(temp, "one"));
-		copy("0.3", two, new File(temp, "two"));
+		copy(one, new File(temp, "one"));
+		copy(two, new File(temp, "two"));
 
 		// create the composite repository and add the children
 		URI location = new File(temp, "comp").toURI();
 		CompositeMetadataRepository repository = createRepository(location, "test");
-		try {
-			repository.addChild(new URI("../one"));
-			repository.addChild(new URI("../two"));
-		} catch (URISyntaxException e) {
-			fail("1.99", e);
-		}
+		repository.addChild(new URI("../one"));
+		repository.addChild(new URI("../two"));
 
 		// query the number of IUs
 		List<URI> children = repository.getChildren();
-		assertEquals("2.0", 2, children.size());
+		assertEquals(2, children.size());
 		IQueryResult<IInstallableUnit> queryResult = repository.query(QueryUtil.createIUAnyQuery(), getMonitor());
-		assertEquals("2.1", 2, queryResultSize(queryResult));
+		assertEquals(2, queryResultSize(queryResult));
 
 		// ensure the child URIs are stored as relative
 		CompositeRepositoryState state = repository.toState();

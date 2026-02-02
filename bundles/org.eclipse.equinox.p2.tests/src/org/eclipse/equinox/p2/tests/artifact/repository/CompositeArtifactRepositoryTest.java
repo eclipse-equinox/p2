@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2021 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -947,42 +947,38 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testRelativeChildren() {
+	public void testRelativeChildren() throws IOException, URISyntaxException {
 		// setup
 		File one = getTestData("0.0", "testData/testRepos/simple.1");
 		File two = getTestData("0.1", "testData/testRepos/simple.2");
 		File temp = getTempFolder();
-		copy("0.2", one, new File(temp, "one"));
-		copy("0.3", two, new File(temp, "two"));
+		copy(one, new File(temp, "one"));
+		copy(two, new File(temp, "two"));
 
 		// create the composite repository and add the children
 		URI location = new File(temp, "comp").toURI();
 		CompositeArtifactRepository repository = createRepository(location, "test");
-		try {
-			repository.addChild(new URI("../one"));
-			repository.addChild(new URI("../two"));
-		} catch (URISyntaxException e) {
-			fail("1.99", e);
-		}
+		repository.addChild(new URI("../one"));
+		repository.addChild(new URI("../two"));
 
 		// query the number of artifacts
 		List<URI> children = repository.getChildren();
-		assertEquals("2.0", 2, children.size());
-		assertEquals("2.1", 2, getArtifactKeyCount(repository));
+		assertEquals(2, children.size());
+		assertEquals(2, getArtifactKeyCount(repository));
 
 		// ensure the child URIs are stored as relative
 		CompositeRepositoryState state = repository.toState();
 		URI[] childURIs = state.getChildren();
-		assertNotNull("3.0", childURIs);
-		assertEquals("3.1", 2, childURIs.length);
-		assertFalse("3.2", childURIs[0].isAbsolute());
-		assertFalse("3.3", childURIs[1].isAbsolute());
+		assertNotNull(childURIs);
+		assertEquals(2, childURIs.length);
+		assertFalse(childURIs[0].isAbsolute());
+		assertFalse(childURIs[1].isAbsolute());
 
 		// cleanup
 		delete(temp);
 	}
 
-	public void testRelativeRemoveChild() {
+	public void testRelativeRemoveChild() throws URISyntaxException {
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream()));
@@ -993,15 +989,13 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			repository.addChild(one);
 			repository.addChild(two);
 			List<URI> children = repository.getChildren();
-			assertEquals("1.0", 2, children.size());
+			assertEquals(2, children.size());
 			// remove an absolute URI (child one should be first since order is important)
 			repository.removeChild(children.iterator().next());
-			assertEquals("1.1", 1, repository.getChildren().size());
+			assertEquals(1, repository.getChildren().size());
 			// remove a relative URI (child two)
 			repository.removeChild(two);
-			assertEquals("1.2", 0, repository.getChildren().size());
-		} catch (URISyntaxException e) {
-			fail("99.0", e);
+			assertEquals(0, repository.getChildren().size());
 		} finally {
 			System.setOut(out);
 		}
@@ -1202,7 +1196,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	/*
 	 * Verify behaviour of contains(IArtifactDescriptor) when a child is marked bad
 	 */
-	public void testContainsDescriptorBadChild() {
+	public void testContainsDescriptorBadChild() throws URISyntaxException {
 		CompositeArtifactRepository source = null;
 		IArtifactRepository childOne = null;
 		IArtifactRepository childTwo = null;
@@ -1223,8 +1217,6 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			source.addChild(childTwo.getLocation());
 			// Should contain the descriptor as the 'good' child has it.
 			assertTrue("Composite repo should contain the descriptor", source.contains(desc));
-		} catch (Exception e) {
-			fail(e.getMessage(), e);
 		} finally {
 			if (source != null) {
 				getArtifactRepositoryManager().removeRepository(source.getLocation());
@@ -1241,7 +1233,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	/*
 	 * Verify behaviour of contains(IArtifactKey) when a child is marked bad
 	 */
-	public void testContainsKeyBadChild() {
+	public void testContainsKeyBadChild() throws URISyntaxException {
 		CompositeArtifactRepository source = null;
 		IArtifactRepository childOne = null;
 		IArtifactRepository childTwo = null;
@@ -1262,8 +1254,6 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			source.addChild(childTwo.getLocation());
 			// Should contain the descriptor as the 'good' child has it.
 			assertTrue("Composite repo should contain the descriptor", source.contains(desc));
-		} catch (Exception e) {
-			fail(e.getMessage(), e);
 		} finally {
 			if (source != null) {
 				getArtifactRepositoryManager().removeRepository(source.getLocation());
@@ -1280,7 +1270,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	/*
 	 * Verify the behaviour of getAritfactKeys() when a child is marked bad
 	 */
-	public void testGetArtifactKeysBadChild() {
+	public void testGetArtifactKeysBadChild() throws URISyntaxException {
 		CompositeArtifactRepository source = null;
 		IArtifactRepository childOne = null;
 		IArtifactRepository childTwo = null;
@@ -1302,8 +1292,6 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			source.addChild(childTwo.getLocation());
 
 			assertTrue("Composite repo does not contain key, but it is available", source.contains(key));
-		} catch (Exception e) {
-			fail(e.getMessage(), e);
 		} finally {
 			if (source != null) {
 				getArtifactRepositoryManager().removeRepository(source.getLocation());
@@ -1320,7 +1308,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	/*
 	 * Verify the behaviour of getArtifactDescriptors(IArtifactKey) when a child is marked bad
 	 */
-	public void testGetArtifactDescriptorsBadChild() {
+	public void testGetArtifactDescriptorsBadChild() throws URISyntaxException {
 		CompositeArtifactRepository source = null;
 		IArtifactRepository childOne = null;
 		IArtifactRepository childTwo = null;
@@ -1345,8 +1333,6 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			source.addChild(childTwo.getLocation());
 
 			assertTrue("Composite repo does not contain descriptor, but it is available", Arrays.asList(source.getArtifactDescriptors(key)).contains(desc));
-		} catch (Exception e) {
-			fail(e.getMessage(), e);
 		} finally {
 			if (source != null) {
 				getArtifactRepositoryManager().removeRepository(source.getLocation());

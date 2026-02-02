@@ -15,7 +15,9 @@ package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
@@ -56,7 +58,7 @@ public class MarkStartedActionTest extends AbstractProvisioningTest {
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
 		File osgiTarget = new File(targetPlugins, "org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
-		copy("2.0", osgiSource, osgiTarget);
+		copy(osgiSource, osgiTarget);
 
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(osgiTarget);
 		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
@@ -102,7 +104,7 @@ public class MarkStartedActionTest extends AbstractProvisioningTest {
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
 		File osgiTarget = new File(targetPlugins, "org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
-		copy("2.0", osgiSource, osgiTarget);
+		copy(osgiSource, osgiTarget);
 
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(osgiTarget);
 		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
@@ -151,7 +153,7 @@ public class MarkStartedActionTest extends AbstractProvisioningTest {
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
 		File osgiTarget = new File(targetPlugins, "org.eclipse.osgi.fragment_1.0.0.jar");
-		copy("2.0", osgiSource, osgiTarget);
+		copy(osgiSource, osgiTarget);
 
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(osgiTarget);
 		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());

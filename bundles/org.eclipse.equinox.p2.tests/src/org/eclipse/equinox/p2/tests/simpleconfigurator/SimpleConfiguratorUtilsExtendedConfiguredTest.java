@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -33,7 +33,8 @@ public class SimpleConfiguratorUtilsExtendedConfiguredTest extends SimpleConfigu
 	public void setUp() throws Exception {
 		super.setUp();
 		testData = getTempFolder();
-		copy("preparing readonly data", getTestData("simpleconfigurator extensions", "testData/simpleConfiguratorExtendedTest"), testData);
+		// preparing readonly data
+		copy(getTestData("simpleconfigurator extensions", "testData/simpleConfiguratorExtendedTest"), testData);
 		testData = new File(testData, "extensions");
 		AbstractSharedInstallTest.setReadOnly(testData.getParentFile(), true);
 		AbstractSharedInstallTest.reallyReadOnly(testData.getParentFile(), true);

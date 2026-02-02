@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2018 IBM Corporation and others.
+ *  Copyright (c) 2005, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -102,7 +102,7 @@ public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 		// Droplet containing 'org.foo.bar', 'org.foo.bar.feature.feature.jar' and 'org.foo.bar.feature.feature.group'
 		File fragTestData = getTestData("0.1", "/testData/testRepos/foo-droplet");
 		File fragDir = getTempFolder();
-		copy("Copying ..", fragTestData, fragDir);
+		copy(fragTestData, fragDir);
 		SharedInstallTests.setReadOnly(fragDir, true);
 		AbstractSharedInstallTest.reallyReadOnly(fragDir, true);
 		EngineActivator.EXTENDED = true;

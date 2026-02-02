@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,10 +14,14 @@
 package org.eclipse.equinox.p2.tests.directorywatcher;
 
 import java.io.File;
-import java.util.*;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 
 /**
  * @since 1.0
@@ -48,7 +52,7 @@ public class ProfileSynchronizerTest extends AbstractDirectoryWatcherTest {
 	 * TODO we don't want to test to see if the bundles are in the repo, but if
 	 * the bundles are filtered when they are installed into a profile.
 	 */
-	public void _testPlatformFilter() {
+	public void _testPlatformFilter() throws IOException {
 		String base = "/testData/profileSynchronizer/";
 		String[] extensions = new String[] {"bbb_1.0.0.jar", "bbb.linux_1.0.0.jar", "bbb.win32_1.0.0.jar"};
 		Set<File> jars = new HashSet<>();
@@ -58,13 +62,13 @@ public class ProfileSynchronizerTest extends AbstractDirectoryWatcherTest {
 		File folder = getTempFolder();
 		toRemove.add(folder);
 		for (File next : jars) {
-			copy("1.0 " + next.getAbsolutePath(), next, new File(folder, next.getName()));
+			copy(next, new File(folder, next.getName()));
 		}
 
 		// We should have an empty repository because we haven't done anything yet
 		TestRepositoryWatcher watcher = TestRepositoryWatcher.createWatcher(folder);
-		assertEquals("2.0", 0, watcher.getInstallableUnits().length);
-		assertEquals("2.1", 0, watcher.getArtifactKeys().length);
+		assertEquals(0, watcher.getInstallableUnits().length);
+		assertEquals(0, watcher.getArtifactKeys().length);
 
 		watcher.poll();
 
@@ -79,11 +83,11 @@ public class ProfileSynchronizerTest extends AbstractDirectoryWatcherTest {
 		}
 
 		IInstallableUnit[] ius = watcher.getInstallableUnits();
-		assertEquals("3.0", expected.size(), ius.length);
+		assertEquals(expected.size(), ius.length);
 		for (IInstallableUnit iu : ius) {
 			assertTrue("3.1 " + iu.getId(), expected.contains(iu.getId()));
 		}
-		assertEquals("3.2", expected.size(), watcher.getArtifactKeys().length);
+		assertEquals(expected.size(), watcher.getArtifactKeys().length);
 	}
 
 	/*
@@ -93,29 +97,29 @@ public class ProfileSynchronizerTest extends AbstractDirectoryWatcherTest {
 	 * TODO we don't want to test to see if the bundles are in the repo, but if
 	 * the bundles are filtered when they are installed into a profile.
 	 */
-	public void _testMultipleVersions() {
+	public void _testMultipleVersions() throws IOException {
 		File one = getTestData("0.1", "/testData/profileSynchronizer/ccc_1.0.0.jar");
 		File two = getTestData("0.2", "/testData/profileSynchronizer/ccc_2.0.0.jar");
 		File folder = getTempFolder();
 		toRemove.add(folder);
 
-		copy("1.0", one, new File(folder, one.getName()));
-		copy("1.1", two, new File(folder, two.getName()));
+		copy(one, new File(folder, one.getName()));
+		copy(two, new File(folder, two.getName()));
 
 		TestRepositoryWatcher watcher = TestRepositoryWatcher.createWatcher(folder);
 
 		// We should have an empty repository because we haven't done anything yet
-		assertEquals("2.0", 0, watcher.getInstallableUnits().length);
-		assertEquals("2.1", 0, watcher.getArtifactKeys().length);
+		assertEquals(0, watcher.getInstallableUnits().length);
+		assertEquals(0, watcher.getArtifactKeys().length);
 
 		watcher.poll();
 
 		IInstallableUnit[] ius = watcher.getInstallableUnits();
 		IArtifactKey[] artifacts = watcher.getArtifactKeys();
-		assertEquals("3.0", 1, ius.length);
-		assertEquals("3.1", "ccc", ius[0].getId());
-		assertEquals("3.2", Version.create("2.0.0"), ius[0].getVersion());
-		assertEquals("4.0", 1, artifacts.length);
+		assertEquals(1, ius.length);
+		assertEquals("ccc", ius[0].getId());
+		assertEquals(Version.create("2.0.0"), ius[0].getVersion());
+		assertEquals(1, artifacts.length);
 	}
 
 }

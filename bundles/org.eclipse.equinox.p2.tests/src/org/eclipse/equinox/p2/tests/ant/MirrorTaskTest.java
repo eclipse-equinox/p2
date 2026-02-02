@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2021 IBM Corporation and others.
+ *  Copyright (c) 2009, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -16,8 +16,8 @@ package org.eclipse.equinox.p2.tests.ant;
 import static org.junit.Assert.assertNotEquals;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -723,7 +723,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	/*
 	 * Modified from org.eclipse.equinox.p2.tests.mirror.ArtifactMirrorApplicationTest
 	 */
-	public void testBaselineCompareUsingComparator() throws FileNotFoundException {
+	public void testBaselineCompareUsingComparator() throws IOException {
 		// Setup create descriptors with different checksum values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/content.xml");
@@ -735,7 +735,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		File baselineBinaryDirectory = new File(baselineLocation, "binary");
 		baselineBinaryDirectory.mkdir();
 		File baselineContentLocation = new File(baselineBinaryDirectory, "testKeyId_1.2.3");
-		AbstractProvisioningTest.copy("Copying File to baseline", artifact2, baselineContentLocation);
+		AbstractProvisioningTest.copy(artifact2, baselineContentLocation);
 
 		IArtifactDescriptor descriptor1 = PublisherHelper.createArtifactDescriptor(dupKey, artifact1);
 		IArtifactDescriptor descriptor2 = PublisherHelper.createArtifactDescriptor(dupKey, baselineContentLocation);

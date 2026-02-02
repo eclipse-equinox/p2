@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,8 +14,11 @@
 package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.File;
+import java.io.IOException;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
-import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.ProfileMetadataRepository;
+import org.eclipse.equinox.internal.p2.engine.ProfileMetadataRepositoryFactory;
+import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -47,75 +50,68 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testLoad() {
+	public void testLoad() throws IOException, ProvisionException {
 		File testData = getTestData("0.1", "testData/sdkpatchingtest");
 		//assert that test data is intact (see bug 285158)
 		File profileFile = new File(new File(testData, "SDKPatchingTest.profile"), "1228337371455.profile.gz");
-		assertTrue("0.15", profileFile.exists());
+		assertTrue(profileFile.exists());
 		File tempFolder = getTempFolder();
-		copy("0.2", testData, tempFolder);
+		copy(testData, tempFolder);
 
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), tempFolder, null, false);
 		IProfile profile = registry.getProfile("SDKPatchingTest");
-		assertNotNull("0.3", profile);
+		assertNotNull(profile);
 
 		IQueryResult<IInstallableUnit> profileCollector = profile.query(QueryUtil.createIUAnyQuery(), getMonitor());
-		assertFalse("0.4", profileCollector.isEmpty());
+		assertFalse(profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
-		assertTrue("0.5", simpleProfileFolder.exists());
+		assertTrue(simpleProfileFolder.exists());
 
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
 		factory.setAgent(getAgent());
-		ProfileMetadataRepository repo = null;
-		try {
-			repo = (ProfileMetadataRepository) factory.load(simpleProfileFolder.toURI(), 0, getMonitor());
-		} catch (ProvisionException e1) {
-			fail("0.99", e1);
-		}
+		ProfileMetadataRepository repo = (ProfileMetadataRepository) factory.load(simpleProfileFolder.toURI(), 0,
+				getMonitor());
 
 		IQueryResult<IInstallableUnit> repoCollector = repo.query(QueryUtil.createIUAnyQuery(), getMonitor());
-		assertFalse("1.0", repoCollector.isEmpty());
+		assertFalse(repoCollector.isEmpty());
 		assertContains("1.1", repoCollector, profileCollector);
 	}
 
-	public void testLoadTimestampedProfile() {
+	public void testLoadTimestampedProfile() throws IOException, ProvisionException {
 		File testData = getTestData("0.1", "testData/sdkpatchingtest");
 		File tempFolder = getTempFolder();
-		copy("0.2", testData, tempFolder);
+		copy(testData, tempFolder);
 
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), tempFolder, null, false);
 		IProfile profile = registry.getProfile("SDKPatchingTest");
-		assertNotNull("0.3", profile);
+		assertNotNull(profile);
 
 		IQueryResult<IInstallableUnit> profileCollector = profile.query(QueryUtil.createIUAnyQuery(), getMonitor());
-		assertFalse("0.4", profileCollector.isEmpty());
+		assertFalse(profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
-		assertTrue("0.5", simpleProfileFolder.exists());
+		assertTrue(simpleProfileFolder.exists());
 
 		File timeStampedProfile = new File(simpleProfileFolder, "" + profile.getTimestamp() + ".profile.gz");
-		assertTrue("0.6", timeStampedProfile.exists());
+		assertTrue(timeStampedProfile.exists());
 
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
 		factory.setAgent(getAgent());
-		ProfileMetadataRepository repo = null;
-		try {
-			repo = (ProfileMetadataRepository) factory.load(timeStampedProfile.toURI(), 0, getMonitor());
-		} catch (ProvisionException e1) {
-			fail("0.99", e1);
-		}
+		ProfileMetadataRepository repo = (ProfileMetadataRepository) factory.load(timeStampedProfile.toURI(), 0,
+				getMonitor());
 
 		IQueryResult<IInstallableUnit> repoCollector = repo.query(QueryUtil.createIUAnyQuery(), getMonitor());
-		assertFalse("1.0", repoCollector.isEmpty());
+		assertFalse(repoCollector.isEmpty());
 		assertContains("1.1", repoCollector, profileCollector);
 	}
 
-	public void DISABLED_testDefaultAgentRepoAndBundlePoolFromProfileRepo() throws InterruptedException {
+	public void DISABLED_testDefaultAgentRepoAndBundlePoolFromProfileRepo()
+			throws InterruptedException, IOException, ProvisionException {
 		File testData = getTestData("0.1", "testData/sdkpatchingtest");
 		// /p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		File tempFolder = getTempFolder();
-		copy("0.2", testData, tempFolder);
+		copy(testData, tempFolder);
 		final SimpleArtifactRepositoryFactory simpleFactory = new SimpleArtifactRepositoryFactory();
 		simpleFactory.setAgent(getAgent());
 		simpleFactory.create(tempFolder.toURI(), "", "", null);
@@ -126,32 +122,27 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		File profileRegistryFolder = new File(tempFolder, "p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), profileRegistryFolder, null, false);
 		IProfile profile = registry.getProfile("SDKPatchingTest");
-		assertNotNull("1.0", profile);
+		assertNotNull(profile);
 
 		IQueryResult<IInstallableUnit> profileCollector = profile.query(QueryUtil.createIUAnyQuery(), getMonitor());
-		assertFalse("1.1", profileCollector.isEmpty());
+		assertFalse(profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(profileRegistryFolder, "SDKPatchingTest.profile");
-		assertTrue("1.2", simpleProfileFolder.exists());
+		assertTrue(simpleProfileFolder.exists());
 
 		File timeStampedProfile = new File(simpleProfileFolder, "" + profile.getTimestamp() + ".profile");
-		assertTrue("1.3", timeStampedProfile.exists());
+		assertTrue(timeStampedProfile.exists());
 
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
-		assertNotNull("2.0", manager);
-		assertFalse("2.1", manager.contains(tempFolder.toURI()));
+		assertNotNull(manager);
+		assertFalse(manager.contains(tempFolder.toURI()));
 
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
 		factory.setAgent(getAgent());
-		ProfileMetadataRepository repo = null;
-		try {
-			repo = (ProfileMetadataRepository) factory.load(timeStampedProfile.toURI(), 0, getMonitor());
-		} catch (ProvisionException e1) {
-			fail("2.99", e1);
-		}
+		ProfileMetadataRepository repo = (ProfileMetadataRepository) factory.load(timeStampedProfile.toURI(), 0, getMonitor());
 
 		IQueryResult<IInstallableUnit> repoCollector = repo.query(QueryUtil.createIUAnyQuery(), getMonitor());
-		assertFalse("3.0", repoCollector.isEmpty());
+		assertFalse(repoCollector.isEmpty());
 		assertContains("3.1", repoCollector, profileCollector);
 
 		int maxTries = 20;

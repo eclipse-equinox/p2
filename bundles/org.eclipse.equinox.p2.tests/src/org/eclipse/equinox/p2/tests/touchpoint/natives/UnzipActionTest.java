@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2026` IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -13,14 +13,22 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.natives;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.IBackupStore;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.UnzipAction;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -43,7 +51,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 		super(name);
 	}
 
-	public void testExecuteUndo() {
+	public void testExecuteUndo() throws IOException {
 		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
 		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -51,7 +59,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
 		File zipTarget = new File(installFolder, "a.zip");
-		copy("2.0", zipSource, zipTarget);
+		copy(zipSource, zipTarget);
 
 		InstallableUnitDescription iuDesc = new MetadataFactory.InstallableUnitDescription();
 		iuDesc.setId("test");
@@ -83,7 +91,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 		assertFalse(aTxt.exists());
 	}
 
-	public void testExecuteUndoBackup() {
+	public void testExecuteUndoBackup() throws IOException {
 		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
 		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -91,7 +99,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
 		File zipTarget = new File(installFolder, "a.zip");
-		copy("2.0", zipSource, zipTarget);
+		copy(zipSource, zipTarget);
 
 		InstallableUnitDescription iuDesc = new MetadataFactory.InstallableUnitDescription();
 		iuDesc.setId("testExecuteUndoBackup");
@@ -141,7 +149,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 	 * Tests executing and undoing an unzip action when the profile
 	 * id contains characters that are not valid in file names. See bug 274182.
 	 */
-	public void testUndoBackUpWithSymbolsInProfileId() {
+	public void testUndoBackUpWithSymbolsInProfileId() throws IOException {
 		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
 		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -150,7 +158,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
 		File zipTarget = new File(installFolder, "a.zip");
-		copy("2.0", zipSource, zipTarget);
+		copy(zipSource, zipTarget);
 
 		InstallableUnitDescription iuDesc = new MetadataFactory.InstallableUnitDescription();
 		iuDesc.setId(profileId);
@@ -197,7 +205,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 	/**
 	 * Test that when a path is used only files from that path down are unzipped to target as well as undo works.
 	 */
-	public void testPath() {
+	public void testPath() throws IOException {
 		String a = "a.txt";
 		String b = "foo/b.txt";
 		String c = "foo/bar/car/c.txt";
@@ -225,7 +233,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 	/**
 	 * Tests that only the files specified by inclusion path are unzipped as well as undo works.
 	 */
-	public void testInclusion() {
+	public void testInclusion() throws IOException {
 		String a = "a.txt";
 		String b = "foo/b.txt";
 		String c = "foo/bar/car/c.txt";
@@ -253,7 +261,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 	/**
 	 * Tests that only the files specified by exclusion path are not unzipped as well as undo works.
 	 */
-	public void testExclusion() {
+	public void testExclusion() throws IOException {
 		String a = "a.txt";
 		String b = "foo/b.txt";
 		String c = "foo/bar/car/c.txt";
@@ -281,7 +289,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 	/**
 	 * Tests that only the files specified by inclusion path and not in exclusion path are  unzipped as well as undo works.
 	 */
-	public void testInclusionAndExclusion() {
+	public void testInclusionAndExclusion() throws IOException {
 		String a = "a.txt";
 		String b = "foo/b.txt";
 		String c = "foo/bar/car/c.txt";
@@ -292,7 +300,8 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 		testUnzip(parameters, getTempFolder(), new String[] {a, b}, new String[] {c});
 	}
 
-	private void testUnzip(Map<String, String> params, File installFolder, String[] shoudlExistNames, String[] shoudlNotExistNames) {
+	private void testUnzip(Map<String, String> params, File installFolder, String[] shoudlExistNames,
+			String[] shoudlNotExistNames) throws IOException {
 
 		ArrayList<File> shoudlExist = new ArrayList<>();
 		ArrayList<File> shoudlNotExist = new ArrayList<>();
@@ -315,7 +324,7 @@ public class UnzipActionTest extends AbstractProvisioningTest {
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.dir.zip");
 		File zipTarget = new File(installFolder, "a.dir.zip");
-		copy("2.0", zipSource, zipTarget);
+		copy(zipSource, zipTarget);
 
 		InstallableUnitDescription iuDesc = new MetadataFactory.InstallableUnitDescription();
 		iuDesc.setId("test");

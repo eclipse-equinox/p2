@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2020 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -325,27 +325,25 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * The folder can be one of dropins, plugins or features.
 	 * If the file handle points to a directory, then do a deep copy.
 	 */
-	public void add(String message, String target, File file) {
+	public void add(String target, File file) throws IOException {
 		if (!(target.startsWith("dropins") || target.startsWith("plugins") || target.startsWith("features"))) {
 			fail("Destination folder for resource copying should be either dropins, plugins or features.");
 		}
 		File destinationParent = new File(output, getRootFolder() + target);
 		destinationParent.mkdirs();
-		copy(message, file, new File(destinationParent, file.getName()));
+		copy(file, new File(destinationParent, file.getName()));
 	}
 
 	/*
 	 * Create a link file in the links folder. Point it to the given extension location.
 	 */
-	public void createLinkFile(String message, String filename, String extensionLocation) {
+	public void createLinkFile(String message, String filename, String extensionLocation) throws IOException {
 		File file = new File(output, getRootFolder() + "links/" + filename + ".link");
 		file.getParentFile().mkdirs();
 		Properties properties = new Properties();
 		properties.put("path", extensionLocation);
 		try (BufferedWriter writer = Files.newBufferedWriter(file.toPath())) {
 			properties.store(writer, null);
-		} catch (IOException e) {
-			fail(message, e);
 		}
 	}
 
@@ -357,17 +355,17 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		file.delete();
 	}
 
-	public void add(String message, String target, File[] files) {
+	public void add(String target, File[] files) throws IOException {
 		assertNotNull(files);
 		for (File file : files) {
-			add(message, target, file);
+			add(target, file);
 		}
 	}
 
 	/*
 	 * Remove the given filename from the given folder.
 	 */
-	public boolean remove(String message, String target, String filename) {
+	public boolean remove(String target, String filename) {
 		if (!(target.startsWith("dropins") || target.startsWith("plugins") || target.startsWith("features"))) {
 			fail("Target folder for resource deletion should be either dropins, plugins or features.");
 		}
@@ -382,10 +380,10 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	/*
 	 * Remove the files with the given names from the target folder.
 	 */
-	public void remove(String message, String target, String[] names) {
+	public void remove(String target, String[] names) {
 		assertNotNull(names);
 		for (String name : names) {
-			remove(message, target, name);
+			remove(target, name);
 		}
 	}
 

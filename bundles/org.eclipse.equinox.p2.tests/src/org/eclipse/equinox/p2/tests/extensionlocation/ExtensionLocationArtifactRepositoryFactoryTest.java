@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -15,7 +15,10 @@ package org.eclipse.equinox.p2.tests.extensionlocation;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.extensionlocation.Constants;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationArtifactRepositoryFactory;
@@ -172,81 +175,62 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		fail("1.0");
 	}
 
-	public void testNormalFeaturesandPluginsDirectory() {
+	public void testNormalFeaturesandPluginsDirectory() throws IOException, ProvisionException {
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
-		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
+		copy(getTestData("1.1", "/testData/extensionlocation"), directory);
 		URI location = directory.toURI();
-		try {
-			IArtifactRepository repo = factory.load(location, 0, getMonitor());
-			if (getArtifactKeyCount(repo) != 2) {
-				fail("2.1");
-			}
-		} catch (ProvisionException ex) {
-			fail("2.0");
+		IArtifactRepository repo = factory.load(location, 0, getMonitor());
+		if (getArtifactKeyCount(repo) != 2) {
+			fail("2.1");
 		}
 	}
 
-	public void testNormalFeaturesDirectory() {
+	public void testNormalFeaturesDirectory() throws IOException, ProvisionException {
 		File directory = new File(tempDirectory, "exists/features");
 		directory.mkdirs();
 		File features = new File(directory, "features");
 		features.mkdir();
-		copy("1.0", getTestData("1.1", "/testData/extensionlocation/features"), features);
+		copy(getTestData("1.1", "/testData/extensionlocation/features"), features);
 		URI location = directory.toURI();
-		try {
-			IArtifactRepository repo = factory.load(location, 0, getMonitor());
-			if (getArtifactKeyCount(repo) != 1) {
-				fail("2.1");
-			}
-		} catch (ProvisionException ex) {
-			fail("2.0");
+		IArtifactRepository repo = factory.load(location, 0, getMonitor());
+		if (getArtifactKeyCount(repo) != 1) {
+			fail("2.1");
 		}
 	}
 
-	public void testNormalPluginsDirectory() {
+	public void testNormalPluginsDirectory() throws IOException, ProvisionException {
 		File directory = new File(tempDirectory, "exists/plugins");
 		directory.mkdirs();
 		File plugins = new File(directory, "plugins");
 		plugins.mkdir();
-		copy("1.0", getTestData("1.1", "/testData/extensionlocation/plugins"), plugins);
+		copy(getTestData("1.1", "/testData/extensionlocation/plugins"), plugins);
 		URI location = directory.toURI();
-		try {
-			IArtifactRepository repo = factory.load(location, 0, getMonitor());
-			if (getArtifactKeyCount(repo) != 1) {
-				fail("2.1");
-			}
-		} catch (ProvisionException ex) {
-			fail("2.0");
+		IArtifactRepository repo = factory.load(location, 0, getMonitor());
+		if (getArtifactKeyCount(repo) != 1) {
+			fail("2.1");
 		}
 	}
 
-	public void testEclipseBaseNormalFeaturesandPluginsDirectory() {
+	public void testEclipseBaseNormalFeaturesandPluginsDirectory() throws IOException, ProvisionException {
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
 		File eclipseDirectory = new File(directory, "eclipse");
-		copy("1.1", getTestData("1.1", "/testData/extensionlocation"), eclipseDirectory);
-		try {
-			IArtifactRepository repo = factory.load(directory.toURI(), 0, getMonitor());
-			if (getArtifactKeyCount(repo) != 2) {
-				fail("1.0");
-			}
-		} catch (ProvisionException e) {
-			fail("0.5", e);
+		copy(getTestData("1.1", "/testData/extensionlocation"), eclipseDirectory);
+		IArtifactRepository repo = factory.load(directory.toURI(), 0, getMonitor());
+		if (getArtifactKeyCount(repo) != 2) {
+			fail("1.0");
 		}
 	}
 
-	public void testEclipseBaseModifiableRepository() {
+	public void testEclipseBaseModifiableRepository() throws IOException, ProvisionException {
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
 		File eclipseDirectory = new File(directory, "eclipse");
-		copy("1.1", getTestData("1.1", "/testData/extensionlocation"), eclipseDirectory);
-		try {
-			IArtifactRepository repo = factory.load(directory.toURI(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, getMonitor());
-			assertNull("1.0", repo);
-		} catch (ProvisionException e) {
-			fail("0.5", e);
-		}
+		copy(getTestData("1.1", "/testData/extensionlocation"), eclipseDirectory);
+		IArtifactRepository repo = factory.load(directory.toURI(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE,
+				getMonitor());
+		assertNull(repo);
 	}
 
 	public void testUpdateSiteXMLURL() {
@@ -279,7 +263,7 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		File artifactsXML = new File(directory, "artifacts.xml");
 		artifactsXML.createNewFile();
 
-		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
+		copy(getTestData("1.1", "/testData/extensionlocation"), directory);
 		URI location = directory.toURI();
 		try {
 			factory.load(location, 0, getMonitor());
@@ -297,7 +281,7 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		File artifactsXML = new File(directory, "artifacts.xml");
 		artifactsXML.createNewFile();
 
-		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
+		copy(getTestData("1.1", "/testData/extensionlocation"), directory);
 		File extensionLocation = new File(tempDirectory.getAbsolutePath() + Constants.EXTENSION_LOCATION);
 		URI location = extensionLocation.toURI();
 		try {
@@ -316,7 +300,7 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		File contentXML = new File(directory, "content.xml");
 		contentXML.createNewFile();
 
-		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
+		copy(getTestData("1.1", "/testData/extensionlocation"), directory);
 		URI location = directory.toURI();
 		try {
 			factory.load(location, 0, getMonitor());
@@ -334,7 +318,7 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		File compositeArtifactsXML = new File(directory, "compositeArtifacts.xml");
 		compositeArtifactsXML.createNewFile();
 
-		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
+		copy(getTestData("1.1", "/testData/extensionlocation"), directory);
 		URI location = directory.toURI();
 		try {
 			factory.load(location, 0, getMonitor());
@@ -352,7 +336,7 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		File compositeContentXML = new File(directory, "compositeContent.xml");
 		compositeContentXML.createNewFile();
 
-		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
+		copy(getTestData("1.1", "/testData/extensionlocation"), directory);
 		URI location = directory.toURI();
 		try {
 			factory.load(location, 0, getMonitor());

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -14,13 +14,18 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.PlatformConfigurationWrapper;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.UninstallFeatureAction;
 import org.eclipse.equinox.internal.p2.update.Site;
@@ -49,7 +54,7 @@ public class UninstallFeatureActionTest extends AbstractProvisioningTest {
 		super("");
 	}
 
-	public void testExecuteUndo() {
+	public void testExecuteUndo() throws IOException {
 		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
 		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -61,7 +66,7 @@ public class UninstallFeatureActionTest extends AbstractProvisioningTest {
 		File targetPlugins = new File(installFolder, "features");
 		assertTrue(targetPlugins.mkdir());
 		File featureTarget = new File(targetPlugins, "org.eclipse.rcp_3.3.0.v20070607-8y8eE8NEbsN3X_fjWS8HPNG");
-		copy("2.0", featureSource, featureTarget);
+		copy(featureSource, featureTarget);
 
 		FeatureParser parser = new FeatureParser();
 		Feature feature = parser.parse(featureTarget);

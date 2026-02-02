@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,10 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
-import java.util.*;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
@@ -41,7 +44,7 @@ public class LinkActionTest extends AbstractProvisioningTest {
 		super("");
 	}
 
-	public void testExecuteUndo() {
+	public void testExecuteUndo() throws IOException {
 		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
 		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
@@ -49,7 +52,7 @@ public class LinkActionTest extends AbstractProvisioningTest {
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
 		File zipTarget = new File(installFolder, "a.zip");
-		copy("2.0", zipSource, zipTarget);
+		copy(zipSource, zipTarget);
 
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(ActionConstants.PARM_AGENT, getAgent());
@@ -83,7 +86,7 @@ public class LinkActionTest extends AbstractProvisioningTest {
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
 		File dirBundleTarget = new File(targetPlugins, "directoryBased_1.0.0");
-		copy("2.0", dirBundleSource, dirBundleTarget);
+		copy(dirBundleSource, dirBundleTarget);
 
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(dirBundleTarget);
 		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
@@ -128,7 +131,7 @@ public class LinkActionTest extends AbstractProvisioningTest {
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
 		File dirBundleTarget = new File(targetPlugins, "directoryBased_1.0.0");
-		copy("2.0", dirBundleSource, dirBundleTarget);
+		copy(dirBundleSource, dirBundleTarget);
 
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(dirBundleTarget);
 		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());

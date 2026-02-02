@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2013 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -26,7 +26,8 @@ public class NonExclusiveModeExtendedConfigured extends NonExclusiveModeExtended
 	public void setUp() throws Exception {
 		super.setUp();
 		testData = getTempFolder();
-		copy("preparing testData", getTestData("simpleconfigurator extensions", "testData/simpleConfiguratorExtendedTest/extensions"), testData);
+		copy(getTestData("simpleconfigurator extensions", "testData/simpleConfiguratorExtendedTest/extensions"),
+				testData);
 		Activator.EXTENSIONS = testData.toString();
 		AbstractSharedInstallTest.setReadOnly(testData, true);
 	}

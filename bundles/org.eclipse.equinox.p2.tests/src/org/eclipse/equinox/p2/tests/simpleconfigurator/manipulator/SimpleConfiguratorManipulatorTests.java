@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -102,11 +102,11 @@ public class SimpleConfiguratorManipulatorTests extends AbstractProvisioningTest
 		File target = new File(configURL.getPath());
 		target.getParentFile().mkdirs();
 		target.createNewFile();
-		copy("Copying ..", mainTestData, target);
+		copy(mainTestData, target);
 
 		File fragTestData = getTestData("0.1", "/testData/simpleConfiguratorExtendedTest");
 		File fragDir = getTempFolder();
-		copy("Copying ..", fragTestData, fragDir);
+		copy(fragTestData, fragDir);
 		SharedInstallTests.setReadOnly(fragDir, true);
 		AbstractSharedInstallTest.reallyReadOnly(fragDir, true);
 		Activator.EXTENDED = true;

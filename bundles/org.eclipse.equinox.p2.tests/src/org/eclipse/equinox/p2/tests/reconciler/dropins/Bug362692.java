@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
 import java.io.File;
+import java.io.IOException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -40,7 +41,7 @@ public class Bug362692 extends AbstractReconcilerTest {
 		return suite;
 	}
 
-	public void testReconcile() {
+	public void testReconcile() throws IOException {
 		// assert initial state
 		assertInitialized();
 		assertDoesNotExistInBundlesInfo("0.1", "b");
@@ -49,7 +50,7 @@ public class Bug362692 extends AbstractReconcilerTest {
 
 		// add bundle to dropins
 		File plugins = getTestData("2.0", "testData/bug362692/plugins");
-		add("2.1", "dropins", plugins);
+		add("dropins", plugins);
 
 		// reconcile + clean
 		reconcile("3.0", true);
@@ -68,7 +69,7 @@ public class Bug362692 extends AbstractReconcilerTest {
 		assertExistsInBundlesInfo("7.2", "d", "2.0.0", "dropins");
 
 		// cleanup
-		remove("99.0", "dropins", "plugins");
+		remove("dropins", "plugins");
 		reconcile("99.1", true);
 		assertDoesNotExistInBundlesInfo("99.2", "b");
 		assertDoesNotExistInBundlesInfo("99.3", "c");

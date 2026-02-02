@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2026 Cloudsmith Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,12 +14,17 @@
 package org.eclipse.equinox.p2.tests.touchpoint.natives;
 
 import java.io.File;
-import java.util.*;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.CopyAction;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -152,7 +157,7 @@ public class CopyActionTest extends AbstractProvisioningTest {
 
 	}
 
-	public void testOverwrite() {
+	public void testOverwrite() throws IOException {
 		Map<String, Object> parameters = createParameters("/testData/nativeTouchpoint/aFolder/a.txt", "a.txt", true);
 		Map<String, Object> safeParameters = Collections.unmodifiableMap(parameters);
 
@@ -160,7 +165,7 @@ public class CopyActionTest extends AbstractProvisioningTest {
 		File target = new File((String) parameters.get(ActionConstants.PARM_COPY_TARGET));
 
 		// test an overwrite - by first copying the b file
-		copy("2.0", getTestData("1.0", "/testData/nativeTouchpoint/aFolder/b.txt"), target);
+		copy(getTestData("1.0", "/testData/nativeTouchpoint/aFolder/b.txt"), target);
 
 		CopyAction action = new CopyAction();
 		action.execute(safeParameters);
@@ -173,7 +178,7 @@ public class CopyActionTest extends AbstractProvisioningTest {
 		assertFalse("Target should be removed after undo", target.exists());
 	}
 
-	public void testBlockedOverwrite() {
+	public void testBlockedOverwrite() throws IOException {
 		Map<String, Object> parameters = createParameters("/testData/nativeTouchpoint/aFolder/a.txt", "a.txt", false);
 		Map<String, Object> safeParameters = Collections.unmodifiableMap(parameters);
 
@@ -181,7 +186,7 @@ public class CopyActionTest extends AbstractProvisioningTest {
 		File target = new File((String) parameters.get(ActionConstants.PARM_COPY_TARGET));
 
 		// test an overwrite - by first copying the b file
-		copy("2.0", getTestData("1.0", "/testData/nativeTouchpoint/aFolder/b.txt"), target);
+		copy(getTestData("1.0", "/testData/nativeTouchpoint/aFolder/b.txt"), target);
 
 		CopyAction action = new CopyAction();
 		assertFalse("copy action status", action.execute(safeParameters).isOK());

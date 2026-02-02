@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -73,7 +73,7 @@ public class FoldersRepositoryTest {
 		URL sourceBase = TestActivator.getContext().getBundle().getEntry("/testData/directorywatcher1");
 		File sourceFolder = new File(FileLocator.toFileURL(sourceBase).getPath());
 
-		AbstractProvisioningTest.copy("0.99", sourceFolder, pluginsFolder);
+		AbstractProvisioningTest.copy(sourceFolder, pluginsFolder);
 		FileFilter filter = pathname -> !pathname.getName().equals("CVS");
 		File[] fileList = pluginsFolder.listFiles(filter);
 		assertEquals(2, fileList.length);

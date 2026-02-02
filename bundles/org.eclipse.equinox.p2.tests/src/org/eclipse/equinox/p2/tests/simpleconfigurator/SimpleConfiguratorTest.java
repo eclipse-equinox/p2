@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012,2018 Red Hat, Inc. and others.
+ * Copyright (c) 2012, 2026 Red Hat, Inc. and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -43,11 +43,11 @@ public class SimpleConfiguratorTest extends AbstractProvisioningTest {
 		File tmp = getTempFolder();
 		final String USER_PATH = "testData/simpleconfigurator/user";
 		userConfiguration = new File(tmp, USER_PATH);
-		copy("copyUserConfiguration", getTestData("userConfiguration", USER_PATH), userConfiguration);
+		copy(getTestData("userConfiguration", USER_PATH), userConfiguration);
 
 		final String MASTER_PATH = "testData/simpleconfigurator/master";
 		masterConfguration = new File(tmp, MASTER_PATH);
-		copy("copymasterConfiguration", getTestData("masterConfiguration", MASTER_PATH), masterConfguration);
+		copy(getTestData("masterConfiguration", MASTER_PATH), masterConfguration);
 
 		sharedConfiguration[0] = userConfiguration.toURL();
 

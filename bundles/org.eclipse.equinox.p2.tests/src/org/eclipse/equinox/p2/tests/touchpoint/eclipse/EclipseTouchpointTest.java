@@ -143,7 +143,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
 		File osgiTarget = new File(targetPlugins, "org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
-		copy("2.0", osgiSource, osgiTarget);
+		copy(osgiSource, osgiTarget);
 
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(osgiTarget);
 		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
@@ -181,7 +181,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
 		File osgiTarget = new File(targetPlugins, "org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
-		copy("2.0", osgiSource, osgiTarget);
+		copy(osgiSource, osgiTarget);
 
 		BundleDescription bundleDescription = BundlesAction.createBundleDescription(osgiTarget);
 		IArtifactKey key = BundlesAction.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());

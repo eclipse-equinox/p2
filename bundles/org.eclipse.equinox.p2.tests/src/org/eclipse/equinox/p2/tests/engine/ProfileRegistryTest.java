@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.Profile;
@@ -190,10 +189,10 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertNull(registry.getProfile(PROFILE_NAME));
 	}
 
-	public void testBogusRegistry() {
+	public void testBogusRegistry() throws IOException {
 		File testData = getTestData("0.1", "testData/engineTest/bogusRegistryContent");
 		File tempFolder = getTempFolder();
-		copy("0.2", testData, tempFolder);
+		copy(testData, tempFolder);
 		createAndValidateProfileRegistry(tempFolder, "SDKProfile");
 	}
 
@@ -270,10 +269,10 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 	}
 
-	public void testProfileLockingNested() {
+	public void testProfileLockingNested() throws IOException {
 		File testData = getTestData("0.1", "testData/engineTest/SimpleRegistry");
 		File tempFolder = getTempFolder();
-		copy("0.2", testData, tempFolder);
+		copy(testData, tempFolder);
 
 		final String SIMPLE_PROFILE = "Simple";
 
@@ -340,10 +339,10 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		*/
 	}
 
-	public void testProfileLockingInProcessMultiThreads() {
+	public void testProfileLockingInProcessMultiThreads() throws IOException {
 		File testData = getTestData("0.1", "testData/engineTest/SimpleRegistry");
 		File tempFolder = getTempFolder();
-		copy("0.2", testData, tempFolder);
+		copy(testData, tempFolder);
 
 		final String SIMPLE_PROFILE = "Simple";
 		final SimpleProfileRegistry simpleRgy = createAndValidateProfileRegistry(tempFolder, SIMPLE_PROFILE);

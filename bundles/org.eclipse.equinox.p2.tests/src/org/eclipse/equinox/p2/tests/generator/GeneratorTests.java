@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2017 IBM Corporation and others.
+ *  Copyright (c) 2005, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -101,7 +101,7 @@ public class GeneratorTests extends AbstractProvisioningTest {
 				continue;
 			}
 			// tycho surefire uses rather "-" instead of "_" (maven convention). PDE uses "_". We need to be P2 compatible.
-			copy("1.0 Populating input bundles.", bundleFile, new File(plugins, bundle.getSymbolicName() + "_" + bundle.getVersion() + ".jar"));
+			copy(bundleFile, new File(plugins, bundle.getSymbolicName() + "_" + bundle.getVersion() + ".jar"));
 		}
 
 		String[] arguments = new String[] {"-metadataRepository", rootFolder.toURL().toExternalForm().toString(), "-artifactRepository", rootFolder.toURL().toExternalForm().toString(), "-source", rootFolder.getAbsolutePath(), "-publishArtifacts", "-noDefaultIUs"};
@@ -140,7 +140,7 @@ public class GeneratorTests extends AbstractProvisioningTest {
 		File rootFolder = getTestFolder("basicUpdateSite");
 
 		File updateSite = getTestData("1.0 finding update site", "testData/testRepos/updateSite");
-		copy("2.0 copying update site", updateSite, rootFolder);
+		copy(updateSite, rootFolder);
 
 		new File(rootFolder, "content.xml").delete();
 		new File(rootFolder, "artifacts.xml").delete();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2017 Ericsson AB and others.
+ * Copyright (c) 2013, 2026 Ericsson AB and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -125,7 +125,7 @@ public class BaseChangeExtendedConfigured extends BaseChange {
 	protected void setUp() throws Exception {
 		super.setUp();
 		extensions = getTestFolder("ext");
-		copy("", getTestData("", "testData/reconciler/extensions/ext1"), extensions);
+		copy(getTestData("", "testData/reconciler/extensions/ext1"), extensions);
 		setReadOnly(extensions, true);
 	}
 

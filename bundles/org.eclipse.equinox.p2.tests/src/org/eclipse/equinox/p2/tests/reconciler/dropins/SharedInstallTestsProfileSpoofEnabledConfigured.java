@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2003, 2017 IBM Corporation and others.
+ *  Copyright (c) 2003, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -78,7 +78,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 	protected void setUp() throws Exception {
 		super.setUp();
 		extensions = getTempFolder();
-		copy("", getTestData("", "testData/reconciler/extensions/ext1"), extensions);
+		copy(getTestData("", "testData/reconciler/extensions/ext1"), extensions);
 		setReadOnly(extensions, true);
 		AbstractSharedInstallTest.reallyReadOnly(extensions);
 	}
@@ -124,7 +124,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 		assertInitialized();
 		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
 		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
-		add("0.2", "dropins", jar);
+		add("dropins", jar);
 		setupReadOnlyInstall();
 		try {
 			File userBundlesInfo = new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
@@ -144,7 +144,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 			setReadOnly(readOnlyBase, false);
 			AbstractSharedInstallTest.removeReallyReadOnly(readOnlyBase);
 			assertTrue(readOnlyBase.canWrite());
-			remove("1.0", "dropins", "myBundle_1.0.0.jar");
+			remove("dropins", "myBundle_1.0.0.jar");
 			setReadOnly(readOnlyBase, true);
 			AbstractSharedInstallTest.reallyReadOnly(readOnlyBase);
 
@@ -166,7 +166,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 			setReadOnly(readOnlyBase, false);
 			AbstractSharedInstallTest.removeReallyReadOnly(readOnlyBase);
 			assertTrue(readOnlyBase.canWrite());
-			add("0.211", "dropins", jar);
+			add("dropins", jar);
 			setReadOnly(readOnlyBase, true);
 			AbstractSharedInstallTest.reallyReadOnly(readOnlyBase);
 
@@ -178,7 +178,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 		} finally {
 			cleanupReadOnlyInstall();
 			// try to remove it in case an exception was thrown
-			remove("1.0", "dropins", "myBundle_1.0.0.jar");
+			remove("dropins", "myBundle_1.0.0.jar");
 		}
 	}
 
@@ -195,8 +195,8 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 		setupReadOnlyInstall();
 		try {
 			dropins.mkdir();
-
-			copy("copying to dropins", jar, new File(dropins, jar.getName()));
+			// copying to dropins
+			copy(jar, new File(dropins, jar.getName()));
 
 			File userBundlesInfo = new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
 			File userConfigIni = new File(userBase, "configuration/config.ini");
@@ -230,7 +230,8 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 
 			//no extension - new bundles.info should be written
 			dropins.mkdir();
-			copy("copying to dropins", jar, new File(dropins, jar.getName()));
+			// copying to dropins
+			copy(jar, new File(dropins, jar.getName()));
 			reconcileReadOnly("0.22", null, false);
 
 			assertTrue(isInBundlesInfo(userBundlesInfo, "myBundle", null));
