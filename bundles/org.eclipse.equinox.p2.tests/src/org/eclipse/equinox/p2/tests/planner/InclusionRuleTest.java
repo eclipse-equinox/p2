@@ -43,7 +43,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 
 		b1 = createIU("B", Version.create("1.0.0"), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, a2});
+		createTestMetdataRepository(a1, a2);
 
 		planner = createPlanner();
 		engine = createEngine();

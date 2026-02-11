@@ -26,7 +26,7 @@ public class TopLevelFilterTest extends AbstractProvisioningTest {
 	public void testInstallIUWithFilter() {
 		IInstallableUnit iu = createIU("ThingWithFilter", Version.create("1.0.0"), "(os=linux)", new IProvidedCapability[] {new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", Version.create("1.0.0"))});
 		IProfile p = createProfile(getClass().getName());
-		createTestMetdataRepository(new IInstallableUnit[] {iu});
+		createTestMetdataRepository(iu);
 		ProfileChangeRequest req = new ProfileChangeRequest(p);
 		req.addInstallableUnits(iu);
 		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 Code 9 and others.
+ * Copyright (c) 2008, 2026 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -179,9 +179,9 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	 * Do not call this method, it is called by <code>setupPublisherInfo</code>.
 	 */
 	protected void insertPublisherInfoBehavior() {
-		when(publisherInfo.getMetadataRepository()).thenReturn(createTestMetdataRepository(new IInstallableUnit[0]));
+		when(publisherInfo.getMetadataRepository()).thenReturn(createTestMetdataRepository());
 		when(publisherInfo.getContextMetadataRepository())
-				.thenReturn(createTestMetdataRepository(new IInstallableUnit[0]));
+				.thenReturn(createTestMetdataRepository());
 	}
 
 	public void cleanup() {

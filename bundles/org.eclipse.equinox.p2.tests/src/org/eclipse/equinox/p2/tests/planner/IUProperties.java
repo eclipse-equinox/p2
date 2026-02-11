@@ -45,7 +45,7 @@ public class IUProperties extends AbstractProvisioningTest {
 
 		c = createIU("C", Version.createOSGi(2, 0, 0), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b11, c});
+		createTestMetdataRepository(a1, b1, b11, c);
 
 		profileId = "TestProfile." + getName();
 		profile = createProfile(profileId);

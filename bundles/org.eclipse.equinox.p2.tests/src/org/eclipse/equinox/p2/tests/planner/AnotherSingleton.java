@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -43,7 +43,7 @@ public class AnotherSingleton extends AbstractProvisioningTest {
 		IRequirement c2 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 2.0.0]"), null, false, false);
 		y = createIU("Y", Version.createOSGi(2, 0, 0), new IRequirement[] {c2});
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, x, y});
+		createTestMetdataRepository(a1, a2, x, y);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

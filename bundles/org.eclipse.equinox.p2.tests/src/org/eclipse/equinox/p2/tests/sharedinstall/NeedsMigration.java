@@ -53,7 +53,7 @@ public class NeedsMigration extends AbstractProvisioningTest {
 		planner = createPlanner();
 		engine = createEngine();
 		scheduler = new MigrationSupport();
-		createTestMetdataRepository(new IInstallableUnit[] {sdk1, sdk2, egit1, egit2, cdt1, eppPackage});
+		createTestMetdataRepository(sdk1, sdk2, egit1, egit2, cdt1, eppPackage);
 		needsMigrationMethod = scheduler.getClass().getDeclaredMethod("findUnitstoMigrate", IProfile.class, IProfile.class);
 		needsMigrationMethod.setAccessible(true);
 	}

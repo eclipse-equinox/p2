@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -18,8 +18,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.PlannerStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -42,7 +48,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		b = createIU("B", Version.create("1.0.0"), true);
 		b2 = createIU("B", Version.create("2.0.0"), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a, b2, b});
+		createTestMetdataRepository(a, b2, b);
 
 		planner = createPlanner();
 		engine = createEngine();

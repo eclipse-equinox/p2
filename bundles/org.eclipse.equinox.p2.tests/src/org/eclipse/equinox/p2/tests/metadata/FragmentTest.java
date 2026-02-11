@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -13,10 +13,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import junit.framework.AssertionFailedError;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -35,7 +40,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		IInstallableUnit iuf2 = createBundleFragment(IDF2);
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
 		req.addInstallableUnits(iu1, iuf1, iuf2);
-		createTestMetdataRepository(new IInstallableUnit[] {iu1, iuf1});
+		createTestMetdataRepository(iu1, iuf1);
 		IQueryable<IInstallableUnit> additions = createPlanner().getProvisioningPlan(req, null, null).getAdditions();
 		{
 			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(ID1), null).iterator();
@@ -55,7 +60,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		IInstallableUnit iuf1 = createBundleFragment(IDF1);
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
 		req.addInstallableUnits(iu1, iuf1);
-		createTestMetdataRepository(new IInstallableUnit[] {iu1, iuf1});
+		createTestMetdataRepository(iu1, iuf1);
 		IQueryable<IInstallableUnit> additions = createPlanner().getProvisioningPlan(req, null, null).getAdditions();
 		{
 			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(ID1), null).iterator();
@@ -89,7 +94,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		IInstallableUnit iuf1 = createBundleFragment(IDF1);
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
 		req.addInstallableUnits(iu1, iuf1, iu2);
-		createTestMetdataRepository(new IInstallableUnit[] {iu1, iuf1, iu2});
+		createTestMetdataRepository(iu1, iuf1, iu2);
 		IQueryable<IInstallableUnit> additions = createPlanner().getProvisioningPlan(req, null, null).getAdditions();
 		{
 			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(ID1), null).iterator();
@@ -127,7 +132,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
 		req.addInstallableUnits(iu1, iuf1);
-		createTestMetdataRepository(new IInstallableUnit[] {iu1, iuf1});
+		createTestMetdataRepository(iu1, iuf1);
 		IQueryable<IInstallableUnit> additions = createPlanner().getProvisioningPlan(req, null, null).getAdditions();
 		{
 			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(ID1), null).iterator();

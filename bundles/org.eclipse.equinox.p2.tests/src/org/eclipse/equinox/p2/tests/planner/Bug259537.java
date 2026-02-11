@@ -44,7 +44,7 @@ public class Bug259537 extends AbstractProvisioningTest {
 		IRequirement c2 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 3.0.0)"), null, false, false);
 		f1 = createIU("F", Version.createOSGi(2, 0, 0), new IRequirement[] {c1, c2});
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, f1});
+		createTestMetdataRepository(a1, b1, f1);
 
 		profileId = "TestProfile." + getName();
 		profile = createProfile(profileId);
@@ -71,7 +71,7 @@ public class Bug259537 extends AbstractProvisioningTest {
 		IRequirement c1 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 2.0.0)"), null, false, false);
 		IRequirement c2 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 3.0.0)"), null, false, false);
 		f2 = createIU("F", Version.createOSGi(2, 1, 0), new IRequirement[] {c1, c2});
-		createTestMetdataRepository(new IInstallableUnit[] {a2, b2, f2});
+		createTestMetdataRepository(a2, b2, f2);
 		ProfileChangeRequest req2 = new ProfileChangeRequest(getProfile("TestProfile." + getName()));
 		req2.addInstallableUnits(f2);
 		req2.remove(f1);
@@ -94,7 +94,7 @@ public class Bug259537 extends AbstractProvisioningTest {
 		IRequirement d1 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 2.0.0)"), null, false, false);
 		IRequirement d2 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 3.0.0)"), null, false, false);
 		f3 = createIU("F", Version.createOSGi(2, 2, 0), new IRequirement[] {d1, d2});
-		createTestMetdataRepository(new IInstallableUnit[] {a3, b3, f3, x1, x2});
+		createTestMetdataRepository(a3, b3, f3, x1, x2);
 
 		IProfileChangeRequest req4 = new ProfileChangeRequest(getProfile("TestProfile." + getName()));
 		req4.add(y1);
@@ -112,7 +112,7 @@ public class Bug259537 extends AbstractProvisioningTest {
 		assertOK("Engine failed", engine.perform(provisioningPlan5, null));
 
 		a4 = createIU("A", Version.create("1.3.0"), true);
-		createTestMetdataRepository(new IInstallableUnit[] {a4});
+		createTestMetdataRepository(a4);
 
 		//Part 4, we remove F2 and the repo only contains newer version of the required bundles
 		ProfileChangeRequest req3 = new ProfileChangeRequest(getProfile("TestProfile." + getName()));

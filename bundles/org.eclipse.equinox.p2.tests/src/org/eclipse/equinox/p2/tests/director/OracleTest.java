@@ -17,7 +17,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class OracleTest extends AbstractProvisioningTest {
@@ -46,7 +49,7 @@ public class OracleTest extends AbstractProvisioningTest {
 
 		d2 = createIU("D", Version.createOSGi(2, 0, 0), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, c1, d1, b1});
+		createTestMetdataRepository(a1, c1, d1, b1);
 
 		profile = createProfile("TestProfile." + getName());
 		director = createDirector();
@@ -58,7 +61,7 @@ public class OracleTest extends AbstractProvisioningTest {
 		request.addInstallableUnits(a1);
 		assertEquals(IStatus.OK, director.provision(request, null, null).getSeverity());
 
-		createTestMetdataRepository(new IInstallableUnit[] {d2});
+		createTestMetdataRepository(d2);
 		//		assertEquals(new Oracle().canInstall(new IInstallableUnit[] {b1}, profile, null), true);
 		request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(b1);

@@ -35,14 +35,14 @@ public class UpdateQueryTest extends AbstractProvisioningTest {
 	}
 
 	public void testUpdateWithDifferentId() {
-		IMetadataRepository repo = createTestMetdataRepository(new IInstallableUnit[] {a1, updateOfA});
+		IMetadataRepository repo = createTestMetdataRepository(a1, updateOfA);
 		IQueryResult<IInstallableUnit> c = repo.query(new UpdateQuery(a1), null);
 		assertEquals(1, queryResultSize(c));
 		assertEquals(updateOfA, c.iterator().next());
 	}
 
 	public void testWithSuperiorVersion() {
-		IMetadataRepository repo2 = createTestMetdataRepository(new IInstallableUnit[] {a11, a1});
+		IMetadataRepository repo2 = createTestMetdataRepository(a11, a1);
 		IQueryResult<IInstallableUnit> c2 = repo2.query(new UpdateQuery(a1), null);
 		assertEquals(1, queryResultSize(c2));
 		assertEquals(a11, c2.iterator().next());

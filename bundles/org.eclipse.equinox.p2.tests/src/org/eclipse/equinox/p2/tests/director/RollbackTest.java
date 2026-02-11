@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -57,7 +57,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		req[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
 		d1 = createIU("D", Version.create("1.0.0"), req);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1, d1});
+		createTestMetdataRepository(a1, b1, c1, d1);
 
 		profile = createProfile("TestProfile." + getName());
 		director = createDirector();
@@ -86,9 +86,9 @@ public class RollbackTest extends AbstractProvisioningTest {
 		request1.setProfileProperty("test1", "test");
 		request1.setProfileProperty("test2", "test");
 		IStatus status = director.provision(request1, null, new NullProgressMonitor());
-		assertEquals("1.0", IStatus.OK, status.getCode());
-		assertEquals("2.0", "test", profile.getProperty("test1"));
-		assertEquals("3.0", "test", profile.getProperty("test2"));
+		assertEquals(IStatus.OK, status.getCode());
+		assertEquals("test", profile.getProperty("test1"));
+		assertEquals("test", profile.getProperty("test2"));
 
 		assertEquals(2, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 
@@ -97,19 +97,19 @@ public class RollbackTest extends AbstractProvisioningTest {
 		request2.setProfileProperty("test2", "bad");
 		request2.setProfileProperty("test3", "test");
 		status = director.provision(request2, null, new NullProgressMonitor());
-		assertEquals("5.0", IStatus.OK, status.getCode());
-		assertEquals("6.0", null, profile.getProperty("test1"));
-		assertEquals("7.0", "bad", profile.getProperty("test2"));
-		assertEquals("8.0", "test", profile.getProperty("test3"));
+		assertEquals(IStatus.OK, status.getCode());
+		assertNull(profile.getProperty("test1"));
+		assertEquals("bad", profile.getProperty("test2"));
+		assertEquals("test", profile.getProperty("test3"));
 
 		assertEquals(3, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		IProfile revertProfile = profileRegistry.getProfile(profile.getProfileId(), profileRegistry.listProfileTimestamps(profile.getProfileId())[1]);
 
 		status = director.revert(profile, revertProfile, new ProvisioningContext(getAgent()), new NullProgressMonitor());
-		assertEquals("10.0", IStatus.OK, status.getCode());
-		assertEquals("11.0", "test", profile.getProperty("test1"));
-		assertEquals("12.0", "test", profile.getProperty("test2"));
-		assertEquals("13.0", null, profile.getProperty("test3"));
+		assertEquals(IStatus.OK, status.getCode());
+		assertEquals("test", profile.getProperty("test1"));
+		assertEquals("test", profile.getProperty("test2"));
+		assertNull(profile.getProperty("test3"));
 	}
 
 	public void testRollbackIUs() {
@@ -120,7 +120,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		request1.addInstallableUnits(a1);
 		request1.addInstallableUnits(b1);
 		IStatus status = director.provision(request1, null, new NullProgressMonitor());
-		assertEquals("1.0", IStatus.OK, status.getCode());
+		assertEquals(IStatus.OK, status.getCode());
 
 		IQueryResult<IInstallableUnit> profileIUs = profile.query(QueryUtil.createIUAnyQuery(), null);
 		assertContains("2.0", profileIUs, a1);
@@ -132,7 +132,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		request2.removeInstallableUnits(new IInstallableUnit[] {a1});
 		request2.addInstallableUnits(c1);
 		status = director.provision(request2, null, new NullProgressMonitor());
-		assertEquals("5.0", IStatus.OK, status.getCode());
+		assertEquals(IStatus.OK, status.getCode());
 
 		profileIUs = profile.query(QueryUtil.createIUAnyQuery(), null);
 		assertNotContains("6.0", profileIUs, a1);
@@ -143,7 +143,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		IProfile revertProfile = profileRegistry.getProfile(profile.getProfileId(), profileRegistry.listProfileTimestamps(profile.getProfileId())[1]);
 
 		status = director.revert(profile, revertProfile, new ProvisioningContext(getAgent()), new NullProgressMonitor());
-		assertEquals("10.0", IStatus.OK, status.getCode());
+		assertEquals(IStatus.OK, status.getCode());
 
 		profileIUs = profile.query(QueryUtil.createIUAnyQuery(), null);
 		assertContains("11.0", profileIUs, a1);
@@ -160,9 +160,9 @@ public class RollbackTest extends AbstractProvisioningTest {
 		request1.setInstallableUnitProfileProperty(a1, "test1", "test");
 		request1.setInstallableUnitProfileProperty(a1, "test2", "test");
 		IStatus status = director.provision(request1, null, new NullProgressMonitor());
-		assertEquals("1.0", IStatus.OK, status.getCode());
-		assertEquals("2.0", "test", profile.getInstallableUnitProperty(a1, "test1"));
-		assertEquals("3.0", "test", profile.getInstallableUnitProperty(a1, "test2"));
+		assertEquals(IStatus.OK, status.getCode());
+		assertEquals("test", profile.getInstallableUnitProperty(a1, "test1"));
+		assertEquals("test", profile.getInstallableUnitProperty(a1, "test2"));
 
 		assertEquals(2, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 
@@ -171,19 +171,19 @@ public class RollbackTest extends AbstractProvisioningTest {
 		request2.setInstallableUnitProfileProperty(a1, "test2", "bad");
 		request2.setInstallableUnitProfileProperty(a1, "test3", "test");
 		status = director.provision(request2, null, new NullProgressMonitor());
-		assertEquals("5.0", IStatus.OK, status.getCode());
-		assertEquals("6.0", null, profile.getInstallableUnitProperty(a1, "test1"));
-		assertEquals("7.0", "bad", profile.getInstallableUnitProperty(a1, "test2"));
-		assertEquals("8.0", "test", profile.getInstallableUnitProperty(a1, "test3"));
+		assertEquals(IStatus.OK, status.getCode());
+		assertNull(profile.getInstallableUnitProperty(a1, "test1"));
+		assertEquals("bad", profile.getInstallableUnitProperty(a1, "test2"));
+		assertEquals("test", profile.getInstallableUnitProperty(a1, "test3"));
 
 		assertEquals(3, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		IProfile revertProfile = profileRegistry.getProfile(profile.getProfileId(), profileRegistry.listProfileTimestamps(profile.getProfileId())[1]);
 
 		status = director.revert(profile, revertProfile, new ProvisioningContext(getAgent()), new NullProgressMonitor());
-		assertEquals("10.0", IStatus.OK, status.getCode());
-		assertEquals("11.0", "test", profile.getInstallableUnitProperty(a1, "test1"));
-		assertEquals("12.0", "test", profile.getInstallableUnitProperty(a1, "test2"));
-		assertEquals("13.0", null, profile.getInstallableUnitProperty(a1, "test3"));
+		assertEquals(IStatus.OK, status.getCode());
+		assertEquals("test", profile.getInstallableUnitProperty(a1, "test1"));
+		assertEquals("test", profile.getInstallableUnitProperty(a1, "test2"));
+		assertNull(profile.getInstallableUnitProperty(a1, "test3"));
 	}
 
 	public void testRollbackDependentIUProfileProperties() {
@@ -195,9 +195,9 @@ public class RollbackTest extends AbstractProvisioningTest {
 		request1.setInstallableUnitProfileProperty(d1, "test1", "test");
 		request1.setInstallableUnitProfileProperty(a1, "test2", "test");
 		IStatus status = director.provision(request1, null, new NullProgressMonitor());
-		assertEquals("1.0", IStatus.OK, status.getCode());
-		assertEquals("2.0", "test", profile.getInstallableUnitProperty(d1, "test1"));
-		assertEquals("3.0", "test", profile.getInstallableUnitProperty(a1, "test2"));
+		assertEquals(IStatus.OK, status.getCode());
+		assertEquals("test", profile.getInstallableUnitProperty(d1, "test1"));
+		assertEquals("test", profile.getInstallableUnitProperty(a1, "test2"));
 
 		assertEquals(2, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 
@@ -207,19 +207,19 @@ public class RollbackTest extends AbstractProvisioningTest {
 		request2.setInstallableUnitProfileProperty(b1, "test3", "test");
 
 		status = director.provision(request2, null, new NullProgressMonitor());
-		assertEquals("5.0", IStatus.OK, status.getCode());
-		assertEquals("6.0", null, profile.getInstallableUnitProperty(d1, "test1"));
-		assertEquals("7.0", null, profile.getInstallableUnitProperty(a1, "test2"));
-		assertEquals("8.0", "test", profile.getInstallableUnitProperty(b1, "test3"));
+		assertEquals(IStatus.OK, status.getCode());
+		assertNull(profile.getInstallableUnitProperty(d1, "test1"));
+		assertNull(profile.getInstallableUnitProperty(a1, "test2"));
+		assertEquals("test", profile.getInstallableUnitProperty(b1, "test3"));
 
 		assertEquals(3, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		IProfile revertProfile = profileRegistry.getProfile(profile.getProfileId(), profileRegistry.listProfileTimestamps(profile.getProfileId())[1]);
 
 		status = director.revert(profile, revertProfile, new ProvisioningContext(getAgent()), new NullProgressMonitor());
-		assertEquals("10.0", IStatus.OK, status.getCode());
-		assertEquals("11.0", "test", profile.getInstallableUnitProperty(d1, "test1"));
-		assertEquals("12.0", "test", profile.getInstallableUnitProperty(a1, "test2"));
-		assertEquals("13.0", null, profile.getInstallableUnitProperty(b1, "test3"));
+		assertEquals(IStatus.OK, status.getCode());
+		assertEquals("test", profile.getInstallableUnitProperty(d1, "test1"));
+		assertEquals("test", profile.getInstallableUnitProperty(a1, "test2"));
+		assertNull(profile.getInstallableUnitProperty(b1, "test3"));
 	}
 
 }

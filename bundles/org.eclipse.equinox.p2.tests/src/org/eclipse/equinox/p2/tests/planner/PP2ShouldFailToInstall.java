@@ -51,7 +51,7 @@ public class PP2ShouldFailToInstall extends AbstractProvisioningTest {
 		IRequirement[][] scopepp2 = new IRequirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "p2.feature", new VersionRange("[1.0.0, 1.0.0]"), null, false, false)}};
 		pp2 = createIUPatch("PP2", Version.create("5.0.0"), true, new IRequirementChange[] {changepp2}, scopepp2, lifeCyclepp2);
 
-		createTestMetdataRepository(new IInstallableUnit[] {p2Feature, p1, p2, p1b, p2b, pp1, pp2});
+		createTestMetdataRepository(p2Feature, p1, p2, p1b, p2b, pp1, pp2);
 
 		profile1 = createProfile("TestProfile." + getName());
 		planner = createPlanner();

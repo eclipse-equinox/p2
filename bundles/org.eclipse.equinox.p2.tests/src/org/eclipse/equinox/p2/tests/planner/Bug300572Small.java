@@ -49,7 +49,7 @@ public class Bug300572Small extends AbstractProvisioningTest {
 		IRequirementChange changeP2 = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[3.0.0,3.0.0]"), null, false, false, true));
 		p2 = createIUPatch("P", Version.create("2.0.0"), true, new IRequirementChange[] {changeP2}, new IRequirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, null);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b2, b3, p1});
+		createTestMetdataRepository(a1, b1, b2, b3, p1);
 
 		planner = createPlanner();
 		engine = createEngine();

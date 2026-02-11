@@ -49,7 +49,7 @@ public class MissingOptionalWithDependencies2 extends AbstractProvisioningTest {
 		req[2] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[2.0.0, 2.0.0]"), null, false, false, true);
 		d = createIU("D", req);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1, c2, d});
+		createTestMetdataRepository(a1, b1, c1, c2, d);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

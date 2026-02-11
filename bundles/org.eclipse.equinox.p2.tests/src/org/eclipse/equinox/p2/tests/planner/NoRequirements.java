@@ -30,7 +30,7 @@ public class NoRequirements extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		a1 = createIU("A", Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]")));
-		createTestMetdataRepository(new IInstallableUnit[] {a1});
+		createTestMetdataRepository(a1);
 		profile = createProfile(NoRequirements.class.getName());
 		planner = createPlanner();
 	}

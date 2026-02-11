@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2026 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -73,7 +73,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		IRequirement[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
-		createTestMetdataRepository(new IInstallableUnit[] {a, act1});
+		createTestMetdataRepository(a, act1);
 
 		IProfile profile = getProfile(IProfileRegistry.SELF);
 		IPlanner planner = createPlanner();
@@ -95,7 +95,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IRequirement[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
 		IInstallableUnit a2 = createIU("A", Version.createOSGi(2, 0, 0));
-		createTestMetdataRepository(new IInstallableUnit[] {a, a2, act1});
+		createTestMetdataRepository(a, a2, act1);
 
 		IProfile profile = getProfile(IProfileRegistry.SELF);
 		IPlanner planner = createPlanner();
@@ -115,7 +115,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
 		IInstallableUnit b = createEclipseIU("B");
 
-		createTestMetdataRepository(new IInstallableUnit[] {a, act1, b});
+		createTestMetdataRepository(a, act1, b);
 
 		IPlanner planner = createPlanner();
 		IEngine engine = createEngine();
@@ -147,7 +147,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IRequirement[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "Common"), metaReq);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a, act1, common});
+		createTestMetdataRepository(a, act1, common);
 
 		IProfile profile = getProfile(IProfileRegistry.SELF);
 		IPlanner planner = createPlanner();
@@ -176,7 +176,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IRequirement[] metaReq2 = createRequiredCapabilities("p2.action", "action2", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit b = createIUWithMetaRequirement("B", DEFAULT_VERSION, true, NO_REQUIRES, metaReq2);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a, b, act1, act2,});
+		createTestMetdataRepository(a, b, act1, act2);
 
 		IPlanner planner = createPlanner();
 		IEngine engine = createEngine();
@@ -222,7 +222,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IInstallableUnit b = createIUWithMetaRequirement("B", DEFAULT_VERSION, true, NO_REQUIRES, metaReq2);
 
 		IInstallableUnit c = createEclipseIU("C");
-		createTestMetdataRepository(new IInstallableUnit[] {a, b, act1, act2, c, act1b, a111});
+		createTestMetdataRepository(a, b, act1, act2, c, act1b, a111);
 
 		IPlanner planner = createPlanner();
 		IEngine engine = createEngine();
@@ -291,7 +291,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IRequirement[] metaReqd = createRequiredCapabilities("p2.action", "action2", new VersionRange("[2.0.0, 2.0.0]"));
 		IInstallableUnit d = createIUWithMetaRequirement("D", DEFAULT_VERSION, true, NO_REQUIRES, metaReqd);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a, act1, d, act1v2});
+		createTestMetdataRepository(a, act1, d, act1v2);
 
 		IProfile profile = getProfile(IProfileRegistry.SELF);
 		IPlanner planner = createPlanner();

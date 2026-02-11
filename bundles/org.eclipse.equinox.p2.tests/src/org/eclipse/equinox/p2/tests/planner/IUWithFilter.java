@@ -36,7 +36,7 @@ public class IUWithFilter extends AbstractProvisioningTest {
 		iud.setRequirements(createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]")));
 		iud.setFilter("(invalid=true)");
 		a1 = MetadataFactory.createInstallableUnit(iud);
-		createTestMetdataRepository(new IInstallableUnit[] {a1});
+		createTestMetdataRepository(a1);
 		profile = createProfile(IUWithFilter.class.getName());
 		planner = createPlanner();
 	}

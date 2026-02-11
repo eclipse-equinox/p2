@@ -48,7 +48,7 @@ public class PatchTestOptional extends AbstractProvisioningTest {
 		IRequirement[][] scopepp1 = new IRequirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, P2_FEATURE, new VersionRange("[1.0.0,1.0.0]"), null, false, false)}};
 		pp1 = createIUPatch(PP1, Version.create("3.0.0"), true, new IRequirementChange[] {changepp1}, scopepp1, lifeCyclepp1);
 
-		createTestMetdataRepository(new IInstallableUnit[] {p2Feature, p1, p2, p1b, p2b, pp1});
+		createTestMetdataRepository(p2Feature, p1, p2, p1b, p2b, pp1);
 
 		profile1 = createProfile("TestProfile." + getName());
 		planner = createPlanner();

@@ -52,7 +52,7 @@ public class PatchTest2 extends AbstractProvisioningTest {
 		p4 = createIUPatch("P", Version.create("1.0.0"), true, new IRequirementChange[] {change}, new IRequirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.6.0, 1.7.0]"), null, false, false, false)}, {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.3.0, 1.5.0]"), null, false, false, false)}}, null);
 		p5 = createIUPatch("P", Version.create("1.0.0"), true, new IRequirementChange[] {change}, new IRequirement[][] {{MetadataFactory.createRequirement("foo", "bar", new VersionRange("[1.0.0, 2.0.0)"), null, false, false, false), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.5.0]"), null, false, false, false)}}, null);
 		p6 = createIUPatch("P", Version.create("1.0.0"), true, new IRequirementChange[] {change}, new IRequirement[][] {}, null);
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, p1, p2, p3, p4, p5, p6});
+		createTestMetdataRepository(a1, b1, p1, p2, p3, p4, p5, p6);
 
 		profile1 = createProfile("TestProfile." + getName());
 		planner = createPlanner();

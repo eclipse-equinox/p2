@@ -60,7 +60,7 @@ public class TestRequestFlexerIUProperties extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		IULoader.loadIUs(this);
-		createTestMetdataRepository(new IInstallableUnit[] {sdk1, platform1});
+		createTestMetdataRepository(sdk1, platform1);
 		planner = createPlanner();
 		engine = createEngine();
 		context = new ProvisioningContext(getAgent());
@@ -69,7 +69,7 @@ public class TestRequestFlexerIUProperties extends AbstractProvisioningTest {
 	public void testWithChanginRootFromOptionalToStrict() {
 		profile = createProfile("TestProfile." + getName());
 		assertOK(installAsRoots(profile, new IInstallableUnit[] {sdk1}, false, planner, engine));
-		createTestMetdataRepository(new IInstallableUnit[] {sdk1, platform1, sdk2, platform2, egit1, egit2});
+		createTestMetdataRepository(sdk1, platform1, sdk2, platform2, egit1, egit2);
 
 		IProfileChangeRequest originalRequest = planner.createChangeRequest(profile);
 		originalRequest.add(egit2);
@@ -94,7 +94,7 @@ public class TestRequestFlexerIUProperties extends AbstractProvisioningTest {
 	public void testWithChanginRootFromOptionalToStrictByRemovingIUProperty() {
 		profile = createProfile("TestProfile." + getName());
 		assertOK(installAsRoots(profile, new IInstallableUnit[] {sdk1}, false, planner, engine));
-		createTestMetdataRepository(new IInstallableUnit[] {sdk1, platform1, sdk2, platform2, egit1, egit2});
+		createTestMetdataRepository(sdk1, platform1, sdk2, platform2, egit1, egit2);
 
 		IProfileChangeRequest originalRequest = planner.createChangeRequest(profile);
 		originalRequest.add(egit2);
@@ -119,7 +119,7 @@ public class TestRequestFlexerIUProperties extends AbstractProvisioningTest {
 	public void testWithChanginRootFromStrictToOptional() {
 		profile = createProfile("TestProfile." + getName());
 		assertOK(installAsRoots(profile, new IInstallableUnit[] {sdk1}, true, planner, engine));
-		createTestMetdataRepository(new IInstallableUnit[] {sdk1, platform1, sdk2, platform2, egit1, egit2});
+		createTestMetdataRepository(sdk1, platform1, sdk2, platform2, egit1, egit2);
 
 		IProfileChangeRequest originalRequest = planner.createChangeRequest(profile);
 		originalRequest.add(egit2);
@@ -152,7 +152,7 @@ public class TestRequestFlexerIUProperties extends AbstractProvisioningTest {
 	public void testRandomIUProperty() {
 		profile = createProfile("TestProfile." + getName());
 		assertOK(installAsRoots(profile, new IInstallableUnit[] {sdk1}, true, planner, engine));
-		createTestMetdataRepository(new IInstallableUnit[] {sdk1, platform1, sdk2, platform2, egit1, egit2});
+		createTestMetdataRepository(sdk1, platform1, sdk2, platform2, egit1, egit2);
 
 		IProfileChangeRequest originalRequest = planner.createChangeRequest(profile);
 		originalRequest.add(egit3);

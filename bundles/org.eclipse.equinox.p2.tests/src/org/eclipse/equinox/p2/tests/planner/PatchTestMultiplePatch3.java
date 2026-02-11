@@ -59,7 +59,7 @@ public class PatchTestMultiplePatch3 extends AbstractProvisioningTest {
 		IRequirement[][] scopepp2 = new IRequirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, P2_FEATURE, new VersionRange("[1.0.0, 1.0.0]"), null, false, false)}};
 		pp2 = createIUPatch(PP2, Version.create("5.0.0"), true, new IRequirementChange[] {changepp2}, scopepp2, lifeCyclepp2);
 		pp2 = createIUPatch(PP2, Version.create("5.0.0"), null, new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "missingThing", new VersionRange("[1.0.0, 1.0.0]"), null, false, false)}, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, true, null, new IRequirementChange[] {changepp2}, scopepp2, lifeCyclepp2, NO_REQUIRES);
-		createTestMetdataRepository(new IInstallableUnit[] {p2Feature, p1, p2, p3, p1b, p1c, pp1, pp2});
+		createTestMetdataRepository(p2Feature, p1, p2, p3, p1b, p1c, pp1, pp2);
 
 		profile1 = createProfile("TestProfile." + getName());
 		planner = createPlanner();

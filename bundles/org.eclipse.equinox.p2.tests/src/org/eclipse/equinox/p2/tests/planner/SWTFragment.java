@@ -41,7 +41,7 @@ public class SWTFragment extends AbstractProvisioningTest {
 		iud.setFilter("(os=linux)");
 		IInstallableUnit swtL = MetadataFactory.createInstallableUnit(iud2);
 
-		createTestMetdataRepository(new IInstallableUnit[] {swt, swtL, swtW});
+		createTestMetdataRepository(swt, swtL, swtW);
 		IProfile profile = createProfile(IUWithFilter.class.getName());
 		IPlanner planner = createPlanner();
 

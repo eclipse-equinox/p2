@@ -39,7 +39,7 @@ public class DisabledExplanation extends AbstractProvisioningTest {
 		req[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, true);
 		b1 = createIU("B", Version.create("1.0.0"), req);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1});
+		createTestMetdataRepository(a1, b1);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

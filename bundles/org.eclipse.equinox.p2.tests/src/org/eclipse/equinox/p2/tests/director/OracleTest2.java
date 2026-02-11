@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -17,8 +17,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class OracleTest2 extends AbstractProvisioningTest {
@@ -57,7 +62,7 @@ public class OracleTest2 extends AbstractProvisioningTest {
 		desc2.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("C", new VersionRange("[1.0.0, 2.3.0)"), IUpdateDescriptor.NORMAL, null));
 		c2 = MetadataFactory.createInstallableUnit(desc2);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, c1});
+		createTestMetdataRepository(a1, c1);
 
 		profile = createProfile("TestProfile." + getName());
 		director = createDirector();
@@ -82,7 +87,7 @@ public class OracleTest2 extends AbstractProvisioningTest {
 	public void testInstallA1bis() {
 		profile = createProfile("testInstallA1bis." + getName());
 		director = createDirector();
-		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, c1, c2, b1});
+		createTestMetdataRepository(a1, a2, c1, c2, b1);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(a1);
 		assertEquals(IStatus.OK, director.provision(request, null, null).getSeverity());

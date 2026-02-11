@@ -48,7 +48,7 @@ public class Bug306279d extends AbstractProvisioningTest {
 		reqY[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange(Version.createOSGi(3, 0, 0), true, Version.createOSGi(3, 1, 0), false), null, false, false, true);
 		y = createIU("Y", Version.create("1.0.0"), reqY);
 
-		createTestMetdataRepository(new IInstallableUnit[] {x, y, a, b1, b2, b3});
+		createTestMetdataRepository(x, y, a, b1, b2, b3);
 	}
 
 	public void testNoBInstalled() throws OperationCanceledException {

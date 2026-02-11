@@ -52,7 +52,7 @@ public class MinimalInstall2 extends AbstractProvisioningTest {
 		userRegionRoot2 = createIU("UserRegionRoot2", reqs);
 		kernelProxy = createIU("KernelProxy", Version.create("1.0.0"), new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "KernelProxy", Version.create("1.0.0")), MetadataFactory.createProvidedCapability("java.package", "kernel.package", Version.create("1.0.0"))});
 
-		createTestMetdataRepository(new IInstallableUnit[] {kernelRoot, kernelBundle, userRegionRoot, userRegionBundle, userRegionRoot2, kernelProxy});
+		createTestMetdataRepository(kernelRoot, kernelBundle, userRegionRoot, userRegionBundle, userRegionRoot2, kernelProxy);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

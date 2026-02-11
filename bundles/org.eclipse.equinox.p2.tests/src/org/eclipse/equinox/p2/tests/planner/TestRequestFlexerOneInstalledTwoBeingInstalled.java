@@ -64,7 +64,7 @@ public class TestRequestFlexerOneInstalledTwoBeingInstalled extends AbstractProv
 		super.setUp();
 		profile = createProfile("TestProfile." + getName());
 		IULoader.loadIUs(this);
-		createTestMetdataRepository(new IInstallableUnit[] {sdk1, platform1});
+		createTestMetdataRepository(sdk1, platform1);
 		planner = createPlanner();
 		engine = createEngine();
 		context = new ProvisioningContext(getAgent());
@@ -87,7 +87,7 @@ public class TestRequestFlexerOneInstalledTwoBeingInstalled extends AbstractProv
 	}
 
 	public void testConflictWithTheBase() {
-		createTestMetdataRepository(new IInstallableUnit[] {sdk1, platform1, sdk2, platform2, egit1, egit2, egit3, svn1, svn2, svn3});
+		createTestMetdataRepository(sdk1, platform1, sdk2, platform2, egit1, egit2, egit3, svn1, svn2, svn3);
 
 		IProfileChangeRequest originalRequest = planner.createChangeRequest(profile);
 		originalRequest.add(egit2);

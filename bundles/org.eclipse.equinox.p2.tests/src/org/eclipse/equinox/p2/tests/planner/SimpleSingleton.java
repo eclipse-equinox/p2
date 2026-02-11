@@ -45,7 +45,7 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 		IRequirement c2 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 2.0.0]"), null, false, false);
 		y = createIU("Y", Version.createOSGi(2, 0, 0), new IRequirement[] {c1, c2});
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, y});
+		createTestMetdataRepository(a1, a2, y);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

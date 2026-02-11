@@ -45,7 +45,7 @@ public class MissingNonGreedyRequirement extends AbstractProvisioningTest {
 		reqB[1] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, true, false, true);
 		a1 = createIU("A", Version.create("1.0.0"), reqB);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1});
+		createTestMetdataRepository(a1, b1, c1);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

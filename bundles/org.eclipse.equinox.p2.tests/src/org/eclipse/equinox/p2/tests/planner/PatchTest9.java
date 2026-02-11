@@ -51,7 +51,7 @@ public class PatchTest9 extends AbstractProvisioningTest {
 		IRequirementChange anotherChangeC = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.1.0, 1.3.0)"), null, true, false, true));
 		pp1 = createIUPatch("P", Version.create("1.0.0"), true, new IRequirementChange[] {changeB, anotherChangeC}, new IRequirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, null);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b2, c1, p1, pp1});
+		createTestMetdataRepository(a1, b1, b2, c1, p1, pp1);
 
 		profile1 = createProfile("TestProfile." + getName());
 		planner = createPlanner();

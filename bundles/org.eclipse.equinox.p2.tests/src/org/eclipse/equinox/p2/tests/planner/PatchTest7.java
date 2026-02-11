@@ -61,7 +61,7 @@ public class PatchTest7 extends AbstractProvisioningTest {
 		pp1 = createIUPatch("PP", Version.create("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, new IRequirementChange[] {changeY}, scopePP, null, new IRequirement[0]);
 
 		//		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1, x1, y1, y2, f1, p1, pp1});
-		createTestMetdataRepository(new IInstallableUnit[] {c1, y1, y2, f1, pp1});
+		createTestMetdataRepository(c1, y1, y2, f1, pp1);
 
 		profile1 = createProfile("TestProfile." + getName());
 		planner = createPlanner();

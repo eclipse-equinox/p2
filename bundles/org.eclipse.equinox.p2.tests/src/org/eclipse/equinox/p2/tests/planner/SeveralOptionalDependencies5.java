@@ -44,7 +44,7 @@ public class SeveralOptionalDependencies5 extends AbstractProvisioningTest {
 		c1 = createIU("C", Version.create("1.0.0"), new IRequirement[] {reqD});
 
 		b1 = createIU("B", Version.create("1.0.0"), true);
-		createTestMetdataRepository(new IInstallableUnit[] {x1, a1, b1, c1});
+		createTestMetdataRepository(x1, a1, b1, c1);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

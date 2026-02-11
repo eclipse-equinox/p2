@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -33,7 +33,7 @@ public class Bug207319 extends AbstractProvisioningTest {
 		a = createIU("A", Version.create("1.0.0"));
 		b = createIU("B", Version.create("1.0.0"), new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", Version.create("1.0.0"))});
 		c = createIU("C", Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]")));
-		createTestMetdataRepository(new IInstallableUnit[] {a, b, c});
+		createTestMetdataRepository(a, b, c);
 		profile = createProfile(Bug207319.class.getName());
 		director = createDirector();
 

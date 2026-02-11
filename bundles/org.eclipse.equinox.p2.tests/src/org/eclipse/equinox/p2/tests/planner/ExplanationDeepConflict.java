@@ -39,7 +39,7 @@ public class ExplanationDeepConflict extends AbstractProvisioningTest {
 		IInstallableUnit innerSdkPart = createIU("InnerSDKPart", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "InnerInnerSDKPart", new VersionRange("[1.0.0, 1.0.0]")));
 		IInstallableUnit innerInnerSDKPart = createIU("InnerInnerSDKPart", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {sdk, sdkPart, innerSdkPart, innerInnerSDKPart});
+		createTestMetdataRepository(sdk, sdkPart, innerSdkPart, innerInnerSDKPart);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();
@@ -57,7 +57,7 @@ public class ExplanationDeepConflict extends AbstractProvisioningTest {
 		IInstallableUnit cdtPart = createIU("CDTPart", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "InnerInnerSDKPart", new VersionRange("[2.0.0, 2.0.0]")));
 		IInstallableUnit innerInnerSDKPart2 = createIU("InnerInnerSDKPart", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("2.0.0")), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {cdt, cdtPart, innerInnerSDKPart2});
+		createTestMetdataRepository(cdt, cdtPart, innerInnerSDKPart2);
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(cdt);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);

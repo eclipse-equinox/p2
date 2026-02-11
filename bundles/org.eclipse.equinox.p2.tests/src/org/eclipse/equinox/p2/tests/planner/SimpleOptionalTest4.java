@@ -50,7 +50,7 @@ public class SimpleOptionalTest4 extends AbstractProvisioningTest {
 		reqA[3] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[4.0.0,4.0.0]"), null, true, false, true);
 		a1 = createIU("A", Version.create("1.0.0"), reqA);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b2, b3, b4});
+		createTestMetdataRepository(a1, b1, b2, b3, b4);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

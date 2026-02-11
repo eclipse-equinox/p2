@@ -39,7 +39,7 @@ public class Bug252638 extends AbstractProvisioningTest {
 		IRequirement lifeCycle = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 3.0.0)"), null, false, false, false);
 		p1 = createIUPatch("P", Version.create("1.0.0"), true, new IRequirementChange[] {change}, new IRequirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, lifeCycle);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, p1});
+		createTestMetdataRepository(a1, p1);
 
 		profile1 = createProfile("TestProfile." + getName());
 		planner = createPlanner();

@@ -37,7 +37,7 @@ public class SingletonOptionallyInstalled extends AbstractProvisioningTest {
 
 		a2 = createIU("A", Version.create("2.0.0"), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, a2});
+		createTestMetdataRepository(a1, a2);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

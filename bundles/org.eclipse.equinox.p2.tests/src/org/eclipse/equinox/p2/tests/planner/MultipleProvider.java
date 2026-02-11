@@ -46,7 +46,7 @@ public class MultipleProvider extends AbstractProvisioningTest {
 
 		b14 = createIU("B1", Version.create("1.4.0"), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b11, b12, b13, b14});
+		createTestMetdataRepository(a1, b1, b11, b12, b13, b14);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

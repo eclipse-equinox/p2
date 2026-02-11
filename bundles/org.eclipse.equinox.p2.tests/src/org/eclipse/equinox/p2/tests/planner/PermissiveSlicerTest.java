@@ -127,7 +127,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		IRequirement[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
 
-		PermissiveSlicer slicer = new PermissiveSlicer(createTestMetdataRepository(new IInstallableUnit[] {a, act1}), Collections.emptyMap(), true, false, false, false, false);
+		PermissiveSlicer slicer = new PermissiveSlicer(createTestMetdataRepository(a, act1), Collections.emptyMap(), true, false, false, false, false);
 		IQueryable<IInstallableUnit> result = slicer.slice(List.of(a), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(result.query(QueryUtil.createIUQuery("Action1"), null)));
 	}
@@ -147,7 +147,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 	public void testMissingNecessaryPiece() {
 		IRequirement[] req = createRequiredCapabilities("B", "B", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit iuA = createIU("A", DEFAULT_VERSION, null, req, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, true);
-		PermissiveSlicer slicer = new PermissiveSlicer(createTestMetdataRepository(new IInstallableUnit[] {iuA}), Collections.emptyMap(), true, false, false, false, false);
+		PermissiveSlicer slicer = new PermissiveSlicer(createTestMetdataRepository(iuA), Collections.emptyMap(), true, false, false, false, false);
 		IQueryable<IInstallableUnit> result = slicer.slice(List.of(iuA), new NullProgressMonitor());
 		assertNotNull(result);
 		assertNotOK(slicer.getStatus());

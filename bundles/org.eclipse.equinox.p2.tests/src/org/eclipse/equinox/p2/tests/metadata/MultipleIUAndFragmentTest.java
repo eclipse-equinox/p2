@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -15,7 +15,10 @@ package org.eclipse.equinox.p2.tests.metadata;
 
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -44,7 +47,7 @@ public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
 		iu3 = createBundleFragment(IDF1);
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
 		req.addInstallableUnits(iu1, iu2, iu3);
-		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2, iu3});
+		createTestMetdataRepository(iu1, iu2, iu3);
 		IQueryable<IInstallableUnit> additions = createPlanner().getProvisioningPlan(req, null, null).getAdditions();
 		{
 			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(ID1), null).iterator();

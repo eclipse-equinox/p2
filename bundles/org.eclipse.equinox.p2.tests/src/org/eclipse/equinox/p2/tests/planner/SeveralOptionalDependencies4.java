@@ -39,7 +39,7 @@ public class SeveralOptionalDependencies4 extends AbstractProvisioningTest {
 		a2 = createIU("A", Version.create("2.0.0"), true);
 		b1 = createIU("B", Version.create("1.0.0"), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {x1, a1, b1, a2});
+		createTestMetdataRepository(x1, a1, b1, a2);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();
