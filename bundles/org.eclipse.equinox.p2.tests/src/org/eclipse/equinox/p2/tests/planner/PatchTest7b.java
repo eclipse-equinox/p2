@@ -60,7 +60,7 @@ public class PatchTest7b extends AbstractProvisioningTest {
 		IRequirement[][] scopePP = new IRequirement[0][0]; //new Requirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, false)}};
 		pp1 = createIUPatch("PP", Version.create("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, new IRequirementChange[] {changeY}, scopePP, null, new IRequirement[0]);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1, x1, y1, y2, f1, p1, pp1});
+		createTestMetdataRepository(a1, b1, c1, x1, y1, y2, f1, p1, pp1);
 		//		createTestMetdataRepository(new IInstallableUnit[] {c1, y1, y2, f1, pp1});
 
 		profile1 = createProfile("TestProfile." + getName());

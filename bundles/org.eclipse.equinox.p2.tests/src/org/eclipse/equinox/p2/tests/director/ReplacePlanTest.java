@@ -62,7 +62,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.4.0)"));
 		fap = createIU("fa", Version.createOSGi(1, 1, 0), requires, NO_PROPERTIES, false);
 
-		createTestMetdataRepository(new IInstallableUnit[] {f1, fa, frag1});
+		createTestMetdataRepository(f1, fa, frag1);
 
 		profile = createProfile("TestProfile." + getName());
 		director = createDirector();
@@ -72,12 +72,12 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		request.addInstallableUnits(fa, frag1);
 		director.provision(request, null, null);
 
-		createTestMetdataRepository(new IInstallableUnit[] {f1_1, f1_4, frag1_1, frag1_4});
+		createTestMetdataRepository(f1_1, f1_4, frag1_1, frag1_4);
 	}
 
 	public void testSimpleReplace() {
-		IInstallableUnit[] oldUnits = new IInstallableUnit[] {fa};
-		IInstallableUnit[] newUnits = new IInstallableUnit[] {fap};
+		IInstallableUnit[] oldUnits = { fa };
+		IInstallableUnit[] newUnits = { fap };
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.removeInstallableUnits(oldUnits);
 		request.addInstallableUnits(newUnits);
@@ -95,7 +95,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		request.removeInstallableUnits(new IInstallableUnit[] {frag1});
 		request.addInstallableUnits(frag1_4);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(getAgent()), null);
-		assertTrue("1.0", plan.getStatus().isOK());
+		assertTrue(plan.getStatus().isOK());
 	}
 
 }

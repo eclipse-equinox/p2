@@ -83,7 +83,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		t2 = createIU("t2", Version.createOSGi(2, 0, 0), new IRequirement[] {pr2});
 
 		// create a repo with the data in it
-		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, a3, a4, w, x, y, z, platform1, platform2, sdk1, sdk2, third1, third2, s1, s2, t1, t2, random});
+		createTestMetdataRepository(a1, a2, a3, a4, w, x, y, z, platform1, platform2, sdk1, sdk2, third1, third2, s1, s2, t1, t2, random);
 
 		profile = createProfile("TestProfile.MultipleSingleton" + getName());
 		planner = createPlanner();

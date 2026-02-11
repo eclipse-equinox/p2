@@ -61,7 +61,7 @@ public class NonMinimalState2 extends AbstractProvisioningTest {
 		IRequirement cap1 = MetadataFactory.createRequirement("org.eclipse.equinox.p2.iu", "org.eclipse.tptp.platform.agentcontroller", VersionRange.emptyRange, null, false, false);
 		IRequirement cap2 = MetadataFactory.createRequirement("org.eclipse.equinox.p2.iu", "org.eclipse.tptp.platform.iac.administrator", VersionRange.emptyRange, null, false, false);
 		IInstallableUnit iu = createEclipseIU("org.eclipse.hyades.execution", Version.createOSGi(1, 0, 0), new IRequirement[] {cap1, cap2}, null);
-		createTestMetdataRepository(new IInstallableUnit[] {iu});
+		createTestMetdataRepository(iu);
 		IPlanner planner = createPlanner();
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);

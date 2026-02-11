@@ -68,7 +68,7 @@ public class FindingPatchesThroughUpdates extends AbstractProvisioningTest {
 						VersionRange.emptyRange, null, false, false) } },
 				lifeCycle4, NO_REQUIRES);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, a120, patchA1, patchA2, anotherPatch2, anotherPatch3});
+		createTestMetdataRepository(a1, a120, patchA1, patchA2, anotherPatch2, anotherPatch3);
 
 		planner = createPlanner();
 	}

@@ -39,7 +39,7 @@ public class Bug255984 extends AbstractProvisioningTest {
 
 		b = createIU("B", Version.create("1.0.0"), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a, b});
+		createTestMetdataRepository(a, b);
 
 		planner = createPlanner();
 		engine = createEngine();

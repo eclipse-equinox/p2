@@ -47,7 +47,7 @@ public class DropinsScenario extends AbstractProvisioningTest {
 		IRequirement[] reqBs = new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[0.0.0, 1.0.0]"), null, false, false, true)};
 		bs = createIU("BS", Version.create("0.0.0"), reqBs);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, a0, b0, as, bs});
+		createTestMetdataRepository(a1, b1, a0, b0, as, bs);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

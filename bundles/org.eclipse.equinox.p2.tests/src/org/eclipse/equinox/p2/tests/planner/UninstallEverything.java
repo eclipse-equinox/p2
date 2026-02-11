@@ -32,7 +32,7 @@ public class UninstallEverything extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		a = createIU("A", Version.create("1.0.0"));
-		createTestMetdataRepository(new IInstallableUnit[] {a});
+		createTestMetdataRepository(a);
 		profile = createProfile(Bug207319.class.getName());
 		director = createDirector();
 

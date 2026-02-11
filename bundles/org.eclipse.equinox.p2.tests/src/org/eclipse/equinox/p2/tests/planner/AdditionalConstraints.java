@@ -48,7 +48,7 @@ public class AdditionalConstraints extends AbstractProvisioningTest {
 
 		x1 = createIU("X", Version.createOSGi(2, 0, 0), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 2.0.0]")));
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b2, b3, x1});
+		createTestMetdataRepository(a1, b1, b2, b3, x1);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

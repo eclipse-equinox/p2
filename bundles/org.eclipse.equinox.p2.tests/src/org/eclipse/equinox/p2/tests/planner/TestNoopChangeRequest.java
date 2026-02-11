@@ -24,7 +24,7 @@ public class TestNoopChangeRequest extends AbstractProvisioningTest {
 
 		a = createIU("A");
 
-		createTestMetdataRepository(new IInstallableUnit[] {a});
+		createTestMetdataRepository(a);
 
 		planner = createPlanner();
 		engine = createEngine();

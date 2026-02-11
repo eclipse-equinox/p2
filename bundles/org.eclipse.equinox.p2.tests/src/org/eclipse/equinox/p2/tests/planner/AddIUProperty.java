@@ -16,7 +16,9 @@ package org.eclipse.equinox.p2.tests.planner;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -40,7 +42,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 
 		a2 = createIU("A", Version.create("2.0.0"), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, a2});
+		createTestMetdataRepository(a1, a2);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

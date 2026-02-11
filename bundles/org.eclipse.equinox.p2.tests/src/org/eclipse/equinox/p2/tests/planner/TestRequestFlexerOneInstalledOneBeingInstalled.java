@@ -60,7 +60,7 @@ public class TestRequestFlexerOneInstalledOneBeingInstalled extends AbstractProv
 		super.setUp();
 		profile = createProfile("TestProfile." + getName());
 		IULoader.loadIUs(this);
-		createTestMetdataRepository(new IInstallableUnit[] {sdk1, platform1, sdk2, platform2, egit1, egit2});
+		createTestMetdataRepository(sdk1, platform1, sdk2, platform2, egit1, egit2);
 		planner = createPlanner();
 		engine = createEngine();
 		assertOK(install(profile, new IInstallableUnit[] {sdk1}, true, planner, engine));

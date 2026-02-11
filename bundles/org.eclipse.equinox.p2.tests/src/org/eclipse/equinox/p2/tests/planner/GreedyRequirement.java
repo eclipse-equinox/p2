@@ -41,7 +41,7 @@ public class GreedyRequirement extends AbstractProvisioningTest {
 		reqC[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true);
 		c1 = createIU("C", Version.create("1.0.0"), reqC);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1});
+		createTestMetdataRepository(a1, b1, c1);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

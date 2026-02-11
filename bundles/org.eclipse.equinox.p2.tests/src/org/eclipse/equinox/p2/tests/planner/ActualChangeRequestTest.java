@@ -18,8 +18,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.PlannerStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -40,7 +46,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 
 		b = createIU("B", Version.create("1.0.0"), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a, b});
+		createTestMetdataRepository(a, b);
 
 		planner = createPlanner();
 		engine = createEngine();

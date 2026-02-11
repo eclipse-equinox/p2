@@ -33,7 +33,7 @@ public class Bug270668 extends AbstractProvisioningTest {
 		a1 = createIU("A", Version.create("1.0.0"), "(os=win32)", new IProvidedCapability[] {new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", Version.create("1.0.0"))});
 		b1 = createIU("B", Version.create("1.0.0"), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1});
+		createTestMetdataRepository(a1, b1);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

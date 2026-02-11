@@ -40,7 +40,7 @@ public class IUWithFilter2 extends AbstractProvisioningTest {
 
 		b1 = createIU("B", Version.create("1.0.0"), "(invalid=true)", NO_PROVIDES);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, b1});
+		createTestMetdataRepository(a1, a2, b1);
 		profile = createProfile(IUWithFilter2.class.getName());
 		planner = createPlanner();
 	}

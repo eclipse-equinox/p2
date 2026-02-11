@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -17,8 +17,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -47,7 +52,7 @@ public class UpdateTest extends AbstractProvisioningTest {
 		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, f1Id, new VersionRange("[1.0.0, 1.4.0)"));
 		fap = createIU(faId, Version.createOSGi(1, 1, 0), requires, NO_PROPERTIES, false);
 
-		createTestMetdataRepository(new IInstallableUnit[] {f1, fa});
+		createTestMetdataRepository(f1, fa);
 
 		profile = createProfile("UpdateTest." + getName());
 		director = createDirector();
@@ -56,7 +61,7 @@ public class UpdateTest extends AbstractProvisioningTest {
 		request.addInstallableUnits(fa);
 		assertOK("1.0", director.provision(request, null, null));
 		assertProfileContains("Profile setup", profile, new IInstallableUnit[] {f1, fa});
-		createTestMetdataRepository(new IInstallableUnit[] {f1_1, f1_4});
+		createTestMetdataRepository(f1_1, f1_4);
 	}
 
 	public void testInstall() {

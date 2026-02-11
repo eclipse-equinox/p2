@@ -51,7 +51,7 @@ public class PatchTestUsingNegativeRequirement extends AbstractProvisioningTest 
 		IRequirementChange change = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), negativeRequirementForPatch);
 		p1 = createIUPatch("P", Version.create("1.0.0"), true, new IRequirementChange[] {change}, new IRequirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, null);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1, p1});
+		createTestMetdataRepository(a1, b1, c1, p1);
 
 		profile1 = createProfile("TestProfile." + getName());
 		planner = createPlanner();

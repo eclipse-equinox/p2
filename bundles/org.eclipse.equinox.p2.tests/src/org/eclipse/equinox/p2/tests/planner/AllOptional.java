@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -44,7 +44,7 @@ public class AllOptional extends AbstractProvisioningTest {
 		d1 = createIU("D", Version.create("1.0.0"), true);
 		e1 = createIU("E", Version.create("1.0.0"), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1, d1, e1});
+		createTestMetdataRepository(a1, b1, c1, d1, e1);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

@@ -73,7 +73,7 @@ public class PropertyMatchRequirement extends AbstractProvisioningTest {
 	}
 
 	public void testMandatoryPresent() {
-		createTestMetdataRepository(new IInstallableUnit[] {providerIu, consumerIu});
+		createTestMetdataRepository(providerIu, consumerIu);
 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.add(consumerIu);
@@ -88,7 +88,7 @@ public class PropertyMatchRequirement extends AbstractProvisioningTest {
 	}
 
 	public void testMandatoryAbsent() {
-		createTestMetdataRepository(new IInstallableUnit[] {consumerIu});
+		createTestMetdataRepository(consumerIu);
 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.add(consumerIu);

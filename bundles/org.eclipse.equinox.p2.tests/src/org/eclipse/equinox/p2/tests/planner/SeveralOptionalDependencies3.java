@@ -35,7 +35,7 @@ public class SeveralOptionalDependencies3 extends AbstractProvisioningTest {
 		IRequirement reqD = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, true, false, true); //will not match
 		x1 = createIU("X", Version.create("1.0.0"), new IRequirement[] {reqA, reqB, reqC, reqD});
 
-		createTestMetdataRepository(new IInstallableUnit[] {x1});
+		createTestMetdataRepository(x1);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();

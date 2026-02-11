@@ -38,7 +38,7 @@ public class ExplanationForPartialInstallation extends AbstractProvisioningTest 
 		IInstallableUnit sdkPart = createIU("SDKPart", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
 		IInstallableUnit sdkPart2 = createIU("SDKPart", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("2.0.0")), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {sdk, sdkPart, sdkPart2});
+		createTestMetdataRepository(sdk, sdkPart, sdkPart2);
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();
@@ -57,7 +57,7 @@ public class ExplanationForPartialInstallation extends AbstractProvisioningTest 
 
 		IInstallableUnit emf = createIU("EMF", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {cdt, emf});
+		createTestMetdataRepository(cdt, emf);
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(cdt, emf);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
@@ -85,7 +85,7 @@ public class ExplanationForPartialInstallation extends AbstractProvisioningTest 
 
 		IInstallableUnit emf = createIU("EMF", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {cdt, emf});
+		createTestMetdataRepository(cdt, emf);
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(cdt, emf);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);

@@ -34,7 +34,7 @@ public class ExplanationTest extends AbstractProvisioningTest {
 
 		c = createIU("C", Version.create("1.0.0"), new IRequirement[] {MetadataFactory.createRequirement("java.package", "a.b.c", new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true)}, NO_PROPERTIES, true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {root, b, c});
+		createTestMetdataRepository(root, b, c);
 
 		planner = createPlanner();
 	}

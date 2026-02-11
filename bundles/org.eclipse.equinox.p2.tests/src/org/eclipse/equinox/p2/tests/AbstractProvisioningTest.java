@@ -879,7 +879,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Adds a test metadata repository to the system that provides the given units.
 	 * The repository will automatically be removed in the tearDown method.
 	 */
-	protected IMetadataRepository createTestMetdataRepository(IInstallableUnit[] units) {
+	protected IMetadataRepository createTestMetdataRepository(IInstallableUnit... units) {
 		IMetadataRepository repo = new TestMetadataRepository(getAgent(), units);
 		MetadataRepositoryManager repoMan = (MetadataRepositoryManager) getMetadataRepositoryManager();
 		assertNotNull(repoMan);

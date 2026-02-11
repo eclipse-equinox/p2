@@ -17,10 +17,22 @@ import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.operations.RequestFlexer;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.planner.*;
-import org.eclipse.equinox.p2.tests.*;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.IUDescription;
+import org.eclipse.equinox.p2.tests.IULoader;
 
 public class TestRequestFlexerProduct extends AbstractProvisioningTest {
 	public IInstallableUnit sdk1;
@@ -53,16 +65,16 @@ public class TestRequestFlexerProduct extends AbstractProvisioningTest {
 	private ProvisioningContext context;
 
 	private void setupSDK1() {
-		IRequirement[] reqPlatform1 = new IRequirement[1];
-		reqPlatform1[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "platform", new VersionRange("[1.0.0,1.0.0]"), null, false, false, true);
+		IRequirement[] reqPlatform1 = { MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "platform",
+				new VersionRange("[1.0.0,1.0.0]"), null, false, false, true) };
 		Map<String, String> p = new HashMap<>();
 		p.put(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PRODUCT, Boolean.TRUE.toString());
 		sdk1 = createIU("SDK", Version.create("1.0.0"), null, reqPlatform1, new IProvidedCapability[0], p, null, null, true);
 	}
 
 	private void setupSDK2() {
-		IRequirement[] reqPlatform1 = new IRequirement[1];
-		reqPlatform1[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "platform", new VersionRange("[2.0.0,2.0.0]"), null, false, false, true);
+		IRequirement[] reqPlatform1 = { MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "platform",
+				new VersionRange("[2.0.0,2.0.0]"), null, false, false, true) };
 		Map<String, String> p = new HashMap<>();
 		p.put(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PRODUCT, Boolean.TRUE.toString());
 		IUpdateDescriptor update = MetadataFactory.createUpdateDescriptor("SDK", new VersionRange("[1.0.0,2.0.0)"), 0, "description");
@@ -77,7 +89,7 @@ public class TestRequestFlexerProduct extends AbstractProvisioningTest {
 		IULoader.loadIUs(this);
 		setupSDK1();
 		setupSDK2();
-		createTestMetdataRepository(new IInstallableUnit[] {sdk1, platform1, sdk2, platform2, egit1, egit2, eppPackage});
+		createTestMetdataRepository(sdk1, platform1, sdk2, platform2, egit1, egit2, eppPackage);
 		planner = createPlanner();
 		engine = createEngine();
 		assertOK(installAsRoots(profile, new IInstallableUnit[] {sdk1}, true, planner, engine));

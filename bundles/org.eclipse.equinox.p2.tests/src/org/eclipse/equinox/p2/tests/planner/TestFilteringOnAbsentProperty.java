@@ -74,7 +74,7 @@ public class TestFilteringOnAbsentProperty extends AbstractProvisioningTest {
 			iuTop = MetadataFactory.createInstallableUnit(desc_top);
 		}
 
-		createTestMetdataRepository(new IInstallableUnit[] {iuA, iuABundled, iuTop});
+		createTestMetdataRepository(iuA, iuABundled, iuTop);
 	}
 
 	public void testWithBundledProperty() {

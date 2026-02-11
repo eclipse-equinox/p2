@@ -44,7 +44,7 @@ public class ORTesting extends AbstractProvisioningTest {
 		IInstallableUnit mylyn35 = createIU("org.eclipse.mylyn35");
 		IInstallableUnit iuA = MetadataFactory.createInstallableUnit(iudA);
 
-		createTestMetdataRepository(new IInstallableUnit[] {mylyn34, mylyn35, iuA});
+		createTestMetdataRepository(mylyn34, mylyn35, iuA);
 		IProfile profile = createProfile("TestProfile." + getName());
 		IPlanner planner = createPlanner();
 

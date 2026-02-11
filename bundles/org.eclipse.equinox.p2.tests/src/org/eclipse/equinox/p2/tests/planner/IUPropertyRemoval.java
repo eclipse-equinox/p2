@@ -38,7 +38,7 @@ public class IUPropertyRemoval extends AbstractProvisioningTest {
 
 		b1 = createIU("B1", Version.create("1.0.0"), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1});
+		createTestMetdataRepository(a1, b1);
 
 		profileId = "TestProfile." + getName();
 		profile = createProfile(profileId);

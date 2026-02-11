@@ -43,7 +43,7 @@ public class PatchTest5 extends AbstractProvisioningTest {
 		IRequirement[][] scope = new IRequirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0,1.0.0]"), null, false, false)}};
 		p1 = createIUPatch("P", Version.create("1.0.0"), true, new IRequirementChange[] {change}, scope, lifeCycle);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, f1, top, p1});
+		createTestMetdataRepository(a1, b1, f1, top, p1);
 
 		profile1 = createProfile("TestProfile." + getName());
 		planner = createPlanner();

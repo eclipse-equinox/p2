@@ -64,7 +64,7 @@ public class PatchTestUpdate extends AbstractProvisioningTest {
 		pp2 = createIUPatch(PP2, Version.create("5.0.0"), true, new IRequirementChange[] {changepp2}, scopepp2, lifeCyclepp2);
 
 		p2Feature20 = createIU(P2_FEATURE, Version.createOSGi(2, 0, 0), new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, P1, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, P2, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true)});
-		createTestMetdataRepository(new IInstallableUnit[] {p2Feature, p1, p2, p1b, p2b, pp1, pp2, p2Feature20});
+		createTestMetdataRepository(p2Feature, p1, p2, p1b, p2b, pp1, pp2, p2Feature20);
 
 		profile1 = createProfile("TestProfile." + getName());
 		planner = createPlanner();

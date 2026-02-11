@@ -63,7 +63,7 @@ public class Bug306279c extends AbstractProvisioningTest {
 		//		req.add(negation);
 		//		pcr.addExtraRequirements(req);
 
-		createTestMetdataRepository(new IInstallableUnit[] {x, y, a1, a2, b});
+		createTestMetdataRepository(x, y, a1, a2, b);
 		IProvisioningPlan result = planner.getProvisioningPlan(pcr, null, null);
 		assertEquals(IStatus.OK, result.getStatus().getCode());
 

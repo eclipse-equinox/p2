@@ -49,7 +49,7 @@ public class SingletonTest extends AbstractProvisioningTest {
 
 		junit40 = createIU("junit", Version.createOSGi(4, 0, 1));
 
-		createTestMetdataRepository(new IInstallableUnit[] {f1, f1_1, junit38, junit40, f2, f2_1});
+		createTestMetdataRepository(f1, f1_1, junit38, junit40, f2, f2_1);
 
 		profile = createProfile("TestProfile." + getName());
 		director = createDirector();

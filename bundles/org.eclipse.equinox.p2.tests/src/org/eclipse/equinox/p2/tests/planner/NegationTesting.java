@@ -95,7 +95,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		iud3.addProvidedCapabilities(capabilities3);
 		IInstallableUnit iu3 = MetadataFactory.createInstallableUnit(iud3);
 
-		IMetadataRepository repo = createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2, iu3});
+		IMetadataRepository repo = createTestMetdataRepository(iu1, iu2, iu3);
 
 		// Verify that the slice includes iu3 because the requirement from iu1 is a range including the provided capability of iu3.
 		Slicer slicer = new Slicer(repo, Collections.emptyMap(), false);
@@ -153,7 +153,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		iud3.addProvidedCapabilities(capabilities3);
 		IInstallableUnit iu3 = MetadataFactory.createInstallableUnit(iud3);
 
-		IMetadataRepository repo = createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2, iu3});
+		IMetadataRepository repo = createTestMetdataRepository(iu1, iu2, iu3);
 
 		//Test the slicer. The slice will not contain iu3 because none of the range of iu1 cause it to be brought in.
 		Slicer slicer = new Slicer(repo, Collections.emptyMap(), false);
@@ -185,7 +185,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		iud2.addProvidedCapabilities(capabilities2);
 		IInstallableUnit iu2 = MetadataFactory.createInstallableUnit(iud2);
 
-		IMetadataRepository repo = createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2});
+		IMetadataRepository repo = createTestMetdataRepository(iu1, iu2);
 
 		//Test the slicer. The slice will not contain iu3 because none of the range of iu1 cause it to be brought in.
 		Slicer slicer = new Slicer(repo, Collections.emptyMap(), false);
@@ -239,7 +239,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		iud3.addRequirements(requirements3);
 		IInstallableUnit iu3 = MetadataFactory.createInstallableUnit(iud3);
 
-		IMetadataRepository repo = createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2, iu3});
+		IMetadataRepository repo = createTestMetdataRepository(iu1, iu2, iu3);
 
 		// Verify that the slice includes iu3 because the requirement from iu1 is a range including the provided capability of iu3.
 		Slicer slicer = new Slicer(repo, Collections.emptyMap(), false);
@@ -308,7 +308,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		iud4.addRequirements(reqs4);
 		IInstallableUnit iu4 = MetadataFactory.createInstallableUnit(iud4);
 
-		IMetadataRepository repo = createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2, iu3, iu4});
+		IMetadataRepository repo = createTestMetdataRepository(iu1, iu2, iu3, iu4);
 
 		// Verify that the slice includes iu3
 		Slicer slicer = new Slicer(repo, Collections.emptyMap(), false);
@@ -341,7 +341,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 
 	public void testNegationThroughExtraRequirements() {
 		IInstallableUnit iu = createIU("TESTNEGATION");
-		createTestMetdataRepository(new IInstallableUnit[] {iu});
+		createTestMetdataRepository(iu);
 		IProfile profile = createProfile("TestProfile." + getName());
 		IPlanner planner = createPlanner();
 		IProfileChangeRequest request = planner.createChangeRequest(profile);

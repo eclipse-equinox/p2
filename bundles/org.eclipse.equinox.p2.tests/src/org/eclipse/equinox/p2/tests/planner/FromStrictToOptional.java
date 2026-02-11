@@ -44,7 +44,7 @@ public class FromStrictToOptional extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		IULoader.loadIUs(this);
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b2, c1});
+		createTestMetdataRepository(a1, b1, b2, c1);
 		planner = createPlanner();
 		engine = createEngine();
 		assertOK(install(profile, new IInstallableUnit[] {a1}, true, planner, engine));

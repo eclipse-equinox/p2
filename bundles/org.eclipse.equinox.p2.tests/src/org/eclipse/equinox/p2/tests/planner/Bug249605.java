@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -49,7 +49,7 @@ public class Bug249605 extends AbstractProvisioningTest {
 		IRequirementChange change3 = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.3.0, 1.4.0)"), null, false, false, true));
 		p3 = createIUPatch("P", Version.create("1.3.0"), null, new IRequirement[0], new IProvidedCapability[0], new HashMap<>(), null, null, true, MetadataFactory.createUpdateDescriptor("P", new VersionRange("[1.0.0, 1.3.0)"), 0, null), new IRequirementChange[] {change3}, new IRequirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, null, new IRequirement[0]);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b2, b3, p1, p2, p3});
+		createTestMetdataRepository(a1, b1, b2, b3, p1, p2, p3);
 
 		profile1 = createProfile("TestProfile." + getName());
 		planner = createPlanner();
