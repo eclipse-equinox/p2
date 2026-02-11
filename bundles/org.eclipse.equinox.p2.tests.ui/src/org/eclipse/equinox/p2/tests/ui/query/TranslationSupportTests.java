@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -15,9 +15,11 @@
 package org.eclipse.equinox.p2.tests.ui.query;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -46,33 +48,27 @@ public class TranslationSupportTests extends AbstractQueryTest {
 		TranslationSupport.getInstance().setTranslationSource(oldTranslationSource);
 	}
 
-	public void testFeatureProperties() {
+	public void testFeatureProperties() throws IOException, ProvisionException, OperationCanceledException {
 		IMetadataRepositoryManager repoMan = getAgent().getService(IMetadataRepositoryManager.class);
 		File site = getTestData("0.1", "/testData/metadataRepo/externalized");
 		URI location = site.toURI();
-		IMetadataRepository repository;
-		try {
-			repository = repoMan.loadRepository(location, getMonitor());
-		} catch (ProvisionException e) {
-			fail("1.99", e);
-			return;
-		}
+		IMetadataRepository repository = repoMan.loadRepository(location, getMonitor());
 		IQueryResult<IInstallableUnit> result = repository.query(QueryUtil.createIUQuery("test.feature.feature.group"),
 				getMonitor());
-		assertTrue("1.0", !result.isEmpty());
+		assertFalse(result.isEmpty());
 		IInstallableUnit unit = result.iterator().next();
 
 		ICopyright copyright = unit.getCopyright(null);
-		assertEquals("1.1", "Test Copyright", copyright.getBody());
+		assertEquals("Test Copyright", copyright.getBody());
 		ILicense license = unit.getLicenses(null).iterator().next();
-		assertEquals("1.2", "Test License", license.getBody());
+		assertEquals("Test License", license.getBody());
 		// assertEquals("1.3", "license.html", license.getURL().toExternalForm());
 		String name = unit.getProperty(IInstallableUnit.PROP_NAME, null);
-		assertEquals("1.4", "Test Feature Name", name);
+		assertEquals("Test Feature Name", name);
 		String description = unit.getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
-		assertEquals("1.5", "Test Description", description);
+		assertEquals("Test Description", description);
 		String provider = unit.getProperty(IInstallableUnit.PROP_PROVIDER, null);
-		assertEquals("1.6", "Test Provider Name", provider);
+		assertEquals("Test Provider Name", provider);
 	}
 
 	public void testLocalizedLicense() throws URISyntaxException {
@@ -116,8 +112,8 @@ public class TranslationSupportTests extends AbstractQueryTest {
 		installableUnitFragmentDescription.addProvidedCapabilities(list);
 		installableUnitFragmentDescription.setId("german fragment");
 		installableUnitFragmentDescription.setVersion(Version.createOSGi(1, 0, 0));
-		installableUnitFragmentDescription.setHost(MetadataFactory
-				.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false));
+		installableUnitFragmentDescription.setHost(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
+				"some IU", ANY_VERSION, null, false, false));
 		installableUnitFragmentDescription.setProperty(
 				org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription.PROP_TYPE_FRAGMENT, "true");
 		installableUnitFragmentDescription.setProperty("de.license", germanLicense);
@@ -134,8 +130,8 @@ public class TranslationSupportTests extends AbstractQueryTest {
 		installableUnitFragmentDescription.addProvidedCapabilities(list);
 		installableUnitFragmentDescription.setId("cnd french fragment");
 		installableUnitFragmentDescription.setVersion(Version.createOSGi(1, 0, 0));
-		installableUnitFragmentDescription.setHost(MetadataFactory
-				.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false));
+		installableUnitFragmentDescription.setHost(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID,
+				"some IU", ANY_VERSION, null, false, false));
 		installableUnitFragmentDescription.setProperty(
 				org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription.PROP_TYPE_FRAGMENT, "true");
 		installableUnitFragmentDescription.setProperty("fr_CA.license", canadianFRLicense);

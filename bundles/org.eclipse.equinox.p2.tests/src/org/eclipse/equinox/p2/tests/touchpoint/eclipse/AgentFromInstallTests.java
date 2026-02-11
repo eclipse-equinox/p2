@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Ericsson AB and others.
+ * Copyright (c) 2013, 2026 Ericsson AB and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
+import java.io.IOException;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.AgentFromInstall;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -22,7 +23,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class AgentFromInstallTests extends AbstractProvisioningTest {
 
-	public void testNormalEclipseFromInstallFolder() {
+	public void testNormalEclipseFromInstallFolder() throws IOException {
 		File installFolder = getTestData("normalEclipse", "testData/configAreaToAgent/normalEclipse");
 		IProvisioningAgent agent = AgentFromInstall.createAgentFrom(getAgentProvider(), installFolder, null, null);
 		assertNotNull(agent);
@@ -31,7 +32,7 @@ public class AgentFromInstallTests extends AbstractProvisioningTest {
 		assertEquals("SDKProfile", profile.getProfileId());
 	}
 
-	public void testNormalEclipseFromConfiguration() {
+	public void testNormalEclipseFromConfiguration() throws IOException {
 		File configurationFolder = getTestData("normalEclipse", "testData/configAreaToAgent/normalEclipse/configuration");
 		IProvisioningAgent agent = AgentFromInstall.createAgentFrom(getAgentProvider(), null, configurationFolder, null);
 		assertNotNull(agent);
@@ -40,7 +41,7 @@ public class AgentFromInstallTests extends AbstractProvisioningTest {
 		assertEquals("SDKProfile", profile.getProfileId());
 	}
 
-	public void testSharedInstallWithoutBase() {
+	public void testSharedInstallWithoutBase() throws IOException {
 		File configurationFolder = getTestData("sharedWithoutBaseAvailable", "testData/configAreaToAgent/sharedWithoutBaseAvailable");
 		IProvisioningAgent agent = AgentFromInstall.createAgentFrom(getAgentProvider(), null, configurationFolder, null);
 		assertNotNull(agent);
@@ -54,13 +55,13 @@ public class AgentFromInstallTests extends AbstractProvisioningTest {
 		assertNull(agent);
 	}
 
-	public void testTooManyProfiles() {
+	public void testTooManyProfiles() throws IOException {
 		File configurationFolder = getTestData("sharedWithoutBaseAvailable", "testData/configAreaToAgent/tooManyProfiles");
 		IProvisioningAgent agent = AgentFromInstall.createAgentFrom(getAgentProvider(), null, configurationFolder, null);
 		assertNull(agent);
 	}
 
-	public void testTooManyProfilesWithProfileId() {
+	public void testTooManyProfilesWithProfileId() throws IOException {
 		File configurationFolder = getTestData("sharedWithoutBaseAvailable", "testData/configAreaToAgent/tooManyProfiles");
 		IProvisioningAgent agent = AgentFromInstall.createAgentFrom(getAgentProvider(), null, configurationFolder, "OtherProfile");
 		assertNotNull(agent);

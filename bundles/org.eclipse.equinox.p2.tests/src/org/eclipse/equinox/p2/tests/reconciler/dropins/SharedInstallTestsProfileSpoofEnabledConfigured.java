@@ -44,11 +44,11 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 		super(name);
 	}
 
-	private static void reconcileReadOnly(String message, File extensions) {
-		reconcileReadOnly(message, extensions, false);
+	private static void reconcileReadOnly(File extensions) {
+		reconcileReadOnly(extensions, false);
 	}
 
-	private static void reconcileReadOnly(String message, File extensions, boolean debug) {
+	private static void reconcileReadOnly(File extensions, boolean debug) {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
@@ -71,7 +71,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 				command = new String[] {(new File(output, getExeFolder() + "eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-debug", "-consolelog", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-configuration", configuration, "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"};
 			}
 		}
-		run(message, command);
+		run("", command);
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 			File userConfigIni = new File(userBase, "configuration/config.ini");
 			assertFalse(userBundlesInfo.exists());
 			assertFalse(userConfigIni.exists());
-			reconcileReadOnly("", extensions);
+			reconcileReadOnly(extensions);
 			assertFalse(userBundlesInfo.exists());
 			assertTrue(userConfigIni.exists());
 
@@ -122,7 +122,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 		}
 
 		assertInitialized();
-		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
+		assertDoesNotExistInBundlesInfo("myBundle");
 		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
 		add("dropins", jar);
 		setupReadOnlyInstall();
@@ -132,7 +132,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 			assertFalse(userBundlesInfo.exists());
 			assertFalse(userConfigIni.exists());
 
-			reconcileReadOnly("0.21", extensions);
+			reconcileReadOnly(extensions);
 
 			assertTrue(userBundlesInfo.exists());
 			assertTrue(userConfigIni.exists());
@@ -148,12 +148,12 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 			setReadOnly(readOnlyBase, true);
 			AbstractSharedInstallTest.reallyReadOnly(readOnlyBase);
 
-			reconcileReadOnly("0.21", extensions, false);
+			reconcileReadOnly(extensions, false);
 
 			assertFalse(isInBundlesInfo(userBundlesInfo, "myBundle", null));
 			assertTrue(isInBundlesInfo(userBundlesInfo, "zzz", null));
 
-			reconcileReadOnly("0.2105", null, false);
+			reconcileReadOnly(null, false);
 
 			// those two will never pass. Disabling extensions while no dropins change
 			// causes master profile to be loaded and user bundles *not* touched
@@ -171,7 +171,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 			AbstractSharedInstallTest.reallyReadOnly(readOnlyBase);
 
 			//no extension - new bundles.info should be written
-			reconcileReadOnly("0.22", null, false);
+			reconcileReadOnly(null, false);
 
 			assertTrue(isInBundlesInfo(userBundlesInfo, "myBundle", null));
 			assertFalse(isInBundlesInfo(userBundlesInfo, "zzz", null));
@@ -189,7 +189,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 		}
 
 		assertInitialized();
-		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
+		assertDoesNotExistInBundlesInfo("myBundle");
 		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
 		File dropins = new File(userBase, "dropins");
 		setupReadOnlyInstall();
@@ -203,7 +203,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 			assertFalse(userBundlesInfo.exists());
 			assertFalse(userConfigIni.exists());
 
-			reconcileReadOnly("0.21", extensions);
+			reconcileReadOnly(extensions);
 
 			assertTrue(userBundlesInfo.exists());
 			assertTrue(userConfigIni.exists());
@@ -213,11 +213,11 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 			// remove the bundle from the dropins and reconcile
 			delete(dropins);
 
-			reconcileReadOnly("0.21", extensions);
+			reconcileReadOnly(extensions);
 			assertFalse(isInBundlesInfo(userBundlesInfo, "myBundle", null));
 			assertTrue(isInBundlesInfo(userBundlesInfo, "zzz", null));
 
-			reconcileReadOnly("0.2105", null, false);
+			reconcileReadOnly(null, false);
 
 			// those two will never pass. Disabling extensions while no dropins change
 			// causes master profile to be loaded and user bundles *not* touched
@@ -232,7 +232,7 @@ public class SharedInstallTestsProfileSpoofEnabledConfigured extends SharedInsta
 			dropins.mkdir();
 			// copying to dropins
 			copy(jar, new File(dropins, jar.getName()));
-			reconcileReadOnly("0.22", null, false);
+			reconcileReadOnly(null, false);
 
 			assertTrue(isInBundlesInfo(userBundlesInfo, "myBundle", null));
 			assertFalse(isInBundlesInfo(userBundlesInfo, "zzz", null));

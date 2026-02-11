@@ -330,7 +330,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	/**
 	 * Runs mirror app on source with missing artifact with "-ignoreErrors"
 	 */
-	private void mirrorWithError(boolean verbose) {
+	private void mirrorWithError(boolean verbose) throws IOException {
 		File errorSourceLocation = getTestData("loading error data", "testData/artifactRepo/missingSingleArtifact");
 		File validSourceLocation = getTestData("loading error data", "testData/artifactRepo/simple");
 		//repo contains an artifact entry for a file that does not exist on disk. this should throw a file not found exception
@@ -947,11 +947,11 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 		//get the artifacts.xml file
 		destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.xml");
 		//make sure artifacts.xml does not exist
-		assertFalse("7", destArtifactsXML.exists());
+		assertFalse(destArtifactsXML.exists());
 	}
 
 	@Test
-	public void testMirrorApplicationWithCompositeSource() {
+	public void testMirrorApplicationWithCompositeSource() throws IOException {
 		//Setup Make composite repository
 		File repoLocation = new File(getTempFolder(), "CompositeArtifactMirrorTest");
 		AbstractProvisioningTest.delete(repoLocation);
@@ -980,7 +980,9 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			assertContains("3", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			assertContains("4", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("5", getArtifactKeyCount(sourceRepoLocation.toURI()) + getArtifactKeyCount(sourceRepo2Location.toURI()), getArtifactKeyCount(destRepoLocation.toURI()));
+			assertEquals(
+					getArtifactKeyCount(sourceRepoLocation.toURI()) + getArtifactKeyCount(sourceRepo2Location.toURI()),
+					getArtifactKeyCount(destRepoLocation.toURI()));
 		} catch (ProvisionException e) {
 			fail("Could not load destination", e);
 		}
@@ -1016,7 +1018,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	public static String[] defaultComparator = { null, ArtifactChecksumComparator.COMPARATOR_ID + ".sha-256" };
 
 	@Theory
-	public void testCompareUsingComparator(String comparator) {
+	public void testCompareUsingComparator(String comparator) throws IOException {
 		// Setup create descriptors with different checksums
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
@@ -1228,7 +1230,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 
 	//for Bug 259112
 	@Test
-	public void testErrorLoggingNoVerbose() {
+	public void testErrorLoggingNoVerbose() throws IOException {
 		//initialize log file
 		FrameworkLog log = ServiceHelper.getService(Activator.getContext(), FrameworkLog.class);
 		assertNotNull("Assert log file is not null", log);

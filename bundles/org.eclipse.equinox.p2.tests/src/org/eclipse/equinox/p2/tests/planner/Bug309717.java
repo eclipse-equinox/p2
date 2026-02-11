@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010 Sonatype, Inc and others.
+ *  Copyright (c) 2010, 2026 Sonatype, Inc and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -29,7 +30,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug309717 extends AbstractProvisioningTest {
 
-	public void testUpdate() throws ProvisionException, OperationCanceledException, URISyntaxException {
+	public void testUpdate() throws ProvisionException, OperationCanceledException, URISyntaxException, IOException {
 		IProvisioningAgent agent = getAgentProvider().createAgent(getTestData("test data bug309717", "testData/bug309717/p2").toURI());
 
 		IMetadataRepository repo1 = agent.getService(IMetadataRepositoryManager.class)

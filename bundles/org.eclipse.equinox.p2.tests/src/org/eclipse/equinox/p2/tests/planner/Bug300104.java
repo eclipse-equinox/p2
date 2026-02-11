@@ -14,6 +14,7 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import java.io.File;
+import java.io.IOException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -57,7 +58,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 		return c.iterator().next();
 	}
 
-	public void testInstallPatchesInOrder() throws ProvisionException {
+	public void testInstallPatchesInOrder() throws ProvisionException, IOException {
 
 		// generated metadata was massaged to remove artifact aspects which would require tests to also
 		// provide artifacts.
@@ -71,7 +72,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 
 	}
 
-	public void testInstallPatchesInOrderStricy() throws ProvisionException {
+	public void testInstallPatchesInOrderStricy() throws ProvisionException, IOException {
 
 		// generated metadata was massaged to remove artifact aspects which would require tests to also
 		// provide artifacts.
@@ -85,14 +86,14 @@ public class Bug300104 extends AbstractProvisioningTest {
 
 	}
 
-	public void testInstallOnlyLaterPatch() throws ProvisionException {
+	public void testInstallOnlyLaterPatch() throws ProvisionException, IOException {
 		boolean optional = true;
 		installHello(optional);
 
 		applyHelloPatch2();
 	}
 
-	private void installHello(boolean optional) throws ProvisionException {
+	private void installHello(boolean optional) throws ProvisionException, IOException {
 		// install hello 1.0 and related feature.
 		repo = loadMetadataRepository(getTestData("Repository for 300104", "testData/bug300104/hello1.0").toURI());
 		ProfileChangeRequest installFeature1 = new ProfileChangeRequest(profileRegistry.getProfile(profileLoadedId));
@@ -123,7 +124,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 		return optional ? ProfileInclusionRules.createOptionalInclusionRule(unit) : ProfileInclusionRules.createStrictInclusionRule(unit);
 	}
 
-	private void applyHelloPatch1() throws ProvisionException {
+	private void applyHelloPatch1() throws ProvisionException, IOException {
 		// install first feature patch which updates hello to version 1.0.1
 		/*
 		    <unit id='hellopatch.feature.group' version='1.0.0' singleton='false'>
@@ -150,7 +151,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 		assertEquals(1, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.1.200911201237")), new NullProgressMonitor())));
 	}
 
-	private void applyHelloPatch2() throws ProvisionException {
+	private void applyHelloPatch2() throws ProvisionException, IOException {
 		// install newer version of feature patch which updates
 		// hello to version 1.0.1 with later qualifier and
 		// adds unit hello2 1.0.0

@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
+import java.io.IOException;
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
@@ -25,7 +26,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 public class MultipleLocationsNotFoundDialogTest extends AbstractProvisioningTest {
 
-	public void testRemoveRepositories() {
+	public void testRemoveRepositories() throws IOException {
 		// Set up a composite repo. This was copied from
 		// ColocatedRepositoryTrackerTest.
 		final String compositeRepo = "testData/bug338495/good.local";
@@ -43,7 +44,7 @@ public class MultipleLocationsNotFoundDialogTest extends AbstractProvisioningTes
 		verify(tracker, times(1)).removeRepositories(locations, provisioningSession);
 	}
 
-	public void testDisableRepositories() {
+	public void testDisableRepositories() throws IOException {
 		// Set up a composite repo. This was adapted from
 		// ColocatedRepositoryTrackerTest.
 		final String compositeRepo = "testData/bug338495/good.local";

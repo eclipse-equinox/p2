@@ -14,6 +14,7 @@
 
 package org.eclipse.equinox.p2.tests.ui.operations;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.*;
@@ -29,12 +30,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class OperationFactoryTest extends AbstractProvisioningTest {
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
-
-	public void testCreateInstallOperation() {
+	public void testCreateInstallOperation() throws IOException {
 		OperationFactory of = new OperationFactory();
 		Collection<IVersionedId> versions = new ArrayList<>();
 		versions.add(new VersionedId("aBundle", "1.0.0"));
@@ -47,7 +43,7 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testCreateInstallOperationWithUnspecifiedVersion() {
+	public void testCreateInstallOperationWithUnspecifiedVersion() throws IOException {
 		OperationFactory of = new OperationFactory();
 		Collection<IVersionedId> versions = new ArrayList<>();
 		versions.add(new VersionedId("aBundle", (Version) null));
@@ -73,15 +69,15 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 		assertNotNull("An exception was expected", exceptionMet);
 	}
 
-	public void testMissingElementToUninstall() {
+	public void testMissingElementToUninstall() throws IOException {
 		createProfileWithOneIU(getUniqueString());
 
-		//While we are at it, test the installedElements
+		// While we are at it, test the installedElements
 		OperationFactory of = new OperationFactory();
 		IQueryResult<IInstallableUnit> installedElements = of.listInstalledElements(true, new NullProgressMonitor());
 		assertEquals(1, installedElements.toSet().size());
 
-		//Now test various removal scenarios
+		// Now test various removal scenarios
 		testUninstall(new VersionedId("aBundle", (Version) null), false);
 		testUninstall(new VersionedId("aBundle", Version.create("1.0.0")), false);
 		testUninstall(new VersionedId("aBundle", Version.create("2.0.0")), true);
@@ -90,8 +86,8 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 		testUninstall(createEclipseIU("doesNotExist"), true);
 	}
 
-	private void createProfileWithOneIU(String profileName) {
-		//create a profile and set it as self
+	private void createProfileWithOneIU(String profileName) throws IOException {
+		// create a profile and set it as self
 		try {
 			IProfileRegistry profileRegistry = getProfileRegistry();
 			profileRegistry.addProfile(profileName);
@@ -103,7 +99,7 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 			fail("Error while setting up uninstall test", e);
 		}
 
-		//install something using the install operation
+		// install something using the install operation
 		OperationFactory of = new OperationFactory();
 		Collection<IVersionedId> versions = new ArrayList<>();
 		versions.add(new VersionedId("aBundle", (Version) null));
@@ -138,7 +134,7 @@ public class OperationFactoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testUpdateOperation() {
+	public void testUpdateOperation() throws IOException {
 		createProfileWithOneIU(getUniqueString());
 		OperationFactory of = new OperationFactory();
 		{

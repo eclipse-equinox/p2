@@ -101,7 +101,7 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		assertTrue("Unexpected format", expectedFormat(destination));
 	}
 
-	public void testRepo2RunnableFailOnError() {
+	public void testRepo2RunnableFailOnError() throws IOException {
 		source = getTestData("Error loading data", "testData/mirror/mirrorSourceRepo3").toURI();
 		URI binary = getTestData("Error loading binary data", "testData/testRepos/binary.repo").toURI();
 

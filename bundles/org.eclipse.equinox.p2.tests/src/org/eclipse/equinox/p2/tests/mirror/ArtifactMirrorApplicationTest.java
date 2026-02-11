@@ -15,6 +15,7 @@
 package org.eclipse.equinox.p2.tests.mirror;
 
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThrows;
 
 import java.io.File;
 import java.io.IOException;
@@ -303,7 +304,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	/**
 	 * Runs mirror app on source with missing artifact with "-ignoreErrors"
 	 */
-	private void mirrorWithError(boolean verbose) {
+	private void mirrorWithError(boolean verbose) throws IOException {
 		File errorSourceLocation = getTestData("loading error data", "testData/mirror/mirrorErrorSourceRepo");
 		//repo contains an artifact entry for a file that does not exist on disk. this should throw a file not found exception
 		try {
@@ -322,15 +323,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Target contains
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToEmpty() {
+	public void testArtifactMirrorToEmpty() throws ProvisionException {
 		artifactMirrorToEmpty("1.0", true); // run the test with append set to true
 
-		try {
-			//verify destination's content
-			assertContentEquals("1.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
-		} catch (ProvisionException e) {
-			fail("1.2", e);
-		}
+		// verify destination's content
+		assertContentEquals("1.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null),
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 	}
 
 	/**
@@ -339,15 +337,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Target contains
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToEmptyWithClean() {
+	public void testArtifactMirrorToEmptyWithClean() throws ProvisionException {
 		artifactMirrorToEmpty("2.0", false);
 
-		try {
-			//verify destination's content
-			assertContentEquals("2.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
-		} catch (ProvisionException e) {
-			fail("2.2", e);
-		}
+		// verify destination's content
+		assertContentEquals("2.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null),
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 	}
 
 	/**
@@ -356,15 +351,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Target contains A, B
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToFullDuplicate() {
+	public void testArtifactMirrorToFullDuplicate() throws ProvisionException {
 		artifactMirrorToFullDuplicate("3.0", true); //run the test with append set to true
 
-		try {
-			//verify destination's content
-			assertContentEquals("3.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
-		} catch (ProvisionException e) {
-			fail("3.2", e);
-		}
+		// verify destination's content
+		assertContentEquals("3.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null),
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 	}
 
 	/**
@@ -373,15 +365,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Target contains A, B
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToFullDuplicateWithClean() {
+	public void testArtifactMirrorToFullDuplicateWithClean() throws ProvisionException {
 		artifactMirrorToFullDuplicate("4.0", false);
 
-		try {
-			//verify destination's content
-			assertContentEquals("4.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
-		} catch (ProvisionException e) {
-			fail("4.2", e);
-		}
+		// verify destination's content
+		assertContentEquals("4.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null),
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 	}
 
 	/**
@@ -390,18 +379,18 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Target contains C, D
 	 * Expected is A, B, C, D
 	 */
-	public void testArtifactMirrorToPopulated() {
+	public void testArtifactMirrorToPopulated() throws ProvisionException {
 		artifactMirrorToPopulated("5.0", true); //run the test with append set to true
 
-		try {
-			//verify destination's content
-			assertContains("5.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
-			assertContains("5.2", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
-			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("5.3", getArtifactKeyCount(sourceRepoLocation.toURI()) + getArtifactKeyCount(sourceRepo2Location.toURI()), getArtifactKeyCount(destRepoLocation.toURI()));
-		} catch (ProvisionException e) {
-			fail("5.4", e);
-		}
+		// verify destination's content
+		assertContains("5.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null),
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+		assertContains("5.2", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null),
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+		// checks that the destination has the correct number of keys (no extras)
+		assertEquals("5.3",
+				getArtifactKeyCount(sourceRepoLocation.toURI()) + getArtifactKeyCount(sourceRepo2Location.toURI()),
+				getArtifactKeyCount(destRepoLocation.toURI()));
 	}
 
 	/**
@@ -410,15 +399,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Target contains C, D
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToPopulatedWithClean() {
+	public void testArtifactMirrorToPopulatedWithClean() throws ProvisionException {
 		artifactMirrorToPopulated("6.0", false);
 
-		try {
-			//verify destination's content
-			assertContentEquals("6.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
-		} catch (ProvisionException e) {
-			fail("6.2", e);
-		}
+		// verify destination's content
+		assertContentEquals("6.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null),
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 	}
 
 	/**
@@ -427,15 +413,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Target contains  A, B
 	 * Expected is A, B, C, D
 	 */
-	public void testArtifactMirrorToPartialDuplicate() {
+	public void testArtifactMirrorToPartialDuplicate() throws ProvisionException {
 		artifactMirrorToPartialDuplicate("7.0", true); //run the test with append set to true
 
-		try {
-			//verify destination's content
-			assertContentEquals("7.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
-		} catch (ProvisionException e) {
-			fail("7.2", e);
-		}
+		// verify destination's content
+		assertContentEquals("7.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null),
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 	}
 
 	/**
@@ -444,15 +427,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Target contains  A, B
 	 * Expected is A, B, C, D
 	 */
-	public void testArtifactMirrorToPartialDuplicateWithClean() {
+	public void testArtifactMirrorToPartialDuplicateWithClean() throws ProvisionException {
 		artifactMirrorToPartialDuplicate("8.0", false);
 
-		try {
-			//verify destination's content
-			assertContentEquals("8.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
-		} catch (ProvisionException e) {
-			fail("8.2", e);
-		}
+		// verify destination's content
+		assertContentEquals("8.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null),
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 	}
 
 	/**
@@ -461,15 +441,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Target contains A, B, C, D
 	 * Expected is A, B, C, D
 	 */
-	public void testArtifactMirrorToPopulatedWithFullDuplicate() {
+	public void testArtifactMirrorToPopulatedWithFullDuplicate() throws ProvisionException {
 		artifactMirrorToPopulatedWithFullDuplicate("9.0", true); //run the test with append set to true
 
-		try {
-			//verify destination's content
-			assertContentEquals("9.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
-		} catch (ProvisionException e) {
-			fail("9.2", e);
-		}
+		// verify destination's content
+		assertContentEquals("9.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null),
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 	}
 
 	/**
@@ -478,15 +455,12 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Target contains A, B, C, D
 	 * Expected is A, B
 	 */
-	public void testArtifactMirrorToPopulatedWithFullDuplicateWithClean() {
+	public void testArtifactMirrorToPopulatedWithFullDuplicateWithClean() throws ProvisionException {
 		artifactMirrorToPopulatedWithFullDuplicate("10.0", false);
 
-		try {
-			//verify destination's content
-			assertContentEquals("10.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
-		} catch (ProvisionException e) {
-			fail("10.2", e);
-		}
+		// verify destination's content
+		assertContentEquals("10.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null),
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 	}
 
 	/**
@@ -495,18 +469,18 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Target contains A, B, E, F
 	 * Expected is A, B, C, D, E, F
 	 */
-	public void testArtifactMirrorToPopulatedWithPartialDuplicate() {
+	public void testArtifactMirrorToPopulatedWithPartialDuplicate() throws ProvisionException {
 		artifactMirrorToPopulatedWithPartialDuplicate("11.0", true); //run the test with append set to true
 
-		try {
-			//verify destination's content
-			assertContains("11.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
-			assertContains("11.2", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
-			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("11.3", getArtifactKeyCount(sourceRepo2Location.toURI()) + getArtifactKeyCount(sourceRepo3Location.toURI()), getArtifactKeyCount(destRepoLocation.toURI()));
-		} catch (ProvisionException e) {
-			fail("11.4", e);
-		}
+		// verify destination's content
+		assertContains("11.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null),
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+		assertContains("11.2", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null),
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
+		// checks that the destination has the correct number of keys (no extras)
+		assertEquals(
+				getArtifactKeyCount(sourceRepo2Location.toURI()) + getArtifactKeyCount(sourceRepo3Location.toURI()),
+				getArtifactKeyCount(destRepoLocation.toURI()));
 	}
 
 	/**
@@ -515,68 +489,50 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Target contains A, B, E, F
 	 * Expected is A, B, C, D
 	 */
-	public void testArtifactMirrorToPopulatedWithPartialDuplicateWithClean() {
+	public void testArtifactMirrorToPopulatedWithPartialDuplicateWithClean() throws ProvisionException {
 		artifactMirrorToPopulatedWithPartialDuplicate("12.0", false);
 
-		try {
-			//verify destination's content
-			assertContentEquals("12.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
-		} catch (ProvisionException e) {
-			fail("12.2", e);
-		}
+		// verify destination's content
+		assertContentEquals("12.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null),
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 	}
 
 	/**
 	 * Tests MirrorApplication's behaviour when given an invalid source repository
 	 */
-	public void testArtifactMirrorFromInvalid() throws MalformedURLException, Exception {
+	public void testArtifactMirrorFromInvalid() throws Exception {
 		File invalidRepository = new File(getTempFolder(), getUniqueString());
 		delete(invalidRepository);
 
-		try {
-			basicRunMirrorApplication("13.1", invalidRepository.toURL(), destRepoLocation.toURL(), true);
-			//we expect a provision exception to be thrown. We should never get here.
-			fail("13.0 ProvisionExpection not thrown");
-		} catch (ProvisionException e) {
-			return; //correct type of exception has been thrown
-		}
+			assertThrows(ProvisionException.class,
+					() -> basicRunMirrorApplication("13.1", invalidRepository.toURL(), destRepoLocation.toURL(), true));
 	}
 
 	/**
 	 * Tests MirrorApplication's behaviour when given an invalid destination repository
 	 */
-	public void testArtifactMirrorToInvalid() throws MalformedURLException, Exception {
-		try {
-			//Setup: create a URI pointing to an unmodifiable place
-			URI invalidDestRepository = new URI("http://eclipse.org/equinox/foobar/abcdefg");
+	public void testArtifactMirrorToInvalid() throws Exception {
+		// Setup: create a URI pointing to an unmodifiable place
+		URI invalidDestRepository = new URI("http://eclipse.org/equinox/foobar/abcdefg");
 
-			//run the application with the modifiable destination
-			basicRunMirrorApplication("14.1", sourceRepoLocation.toURL(), invalidDestRepository.toURL(), true);
-			//we're expecting an UnsupportedOperationException so we should never get here
-			fail("14.0 UnsupportedOperationException not thrown");
-		} catch (ProvisionException e) {
-			return; //correct type of exception has been thrown
-		}
+		// run the application with the modifiable destination
+		assertThrows(ProvisionException.class, () -> basicRunMirrorApplication("14.1", sourceRepoLocation.toURL(),
+				invalidDestRepository.toURL(), true));
 	}
 
 	/**
 	 * Tests MirrorApplication's behaviour when given both an invalid source and an invalid destination repository
 	 */
-	public void testArtifactMirrorBothInvalid() throws MalformedURLException, Exception {
-		//Setup: create a file that is not a valid repository
+	public void testArtifactMirrorBothInvalid() throws Exception {
+		// Setup: create a file that is not a valid repository
 		File invalidRepository = new File(getTempFolder(), getUniqueString());
-		//Setup: delete any leftover data
+		// Setup: delete any leftover data
 		delete(invalidRepository);
 
-		try {
-			//Setup: create a URI pointing to an unmodifiable place
-			URI invalidDestRepository = new URI("http://eclipse.org/equinox/foobar/abcdefg");
-			basicRunMirrorApplication("15.1", invalidRepository.toURL(), invalidDestRepository.toURL(), true);
-			//We expect the ProvisionException to be thrown
-			fail("15.0 ProvisionException not thrown");
-		} catch (ProvisionException e) {
-			return; //correct type of exception was thrown
-		}
+		// Setup: create a URI pointing to an unmodifiable place
+		URI invalidDestRepository = new URI("http://eclipse.org/equinox/foobar/abcdefg");
+		assertThrows(ProvisionException.class, () -> basicRunMirrorApplication("15.1", invalidRepository.toURL(),
+				invalidDestRepository.toURL(), true));
 	}
 
 	/**
@@ -675,8 +631,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		assertContains("20.3", getArtifactRepositoryManager().loadRepository(sourceRepo4Location.toURI(), null),
 				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 		// checks that the destination has the correct number of keys (no extras)
-		assertEquals("20.4",
-				getArtifactKeyCount(sourceRepoLocation.toURI()) + getArtifactKeyCount(sourceRepo4Location.toURI()),
+		assertEquals(getArtifactKeyCount(sourceRepoLocation.toURI()) + getArtifactKeyCount(sourceRepo4Location.toURI()),
 				getArtifactKeyCount(destRepoLocation.toURI()));
 	}
 
@@ -684,18 +639,11 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Tests how mirror application handles an unspecified source
 	 */
 	public void testArtifactMirrorNullSource() throws Exception {
-		String[] args = null;
 
 		//create arguments without a "-source"
-		args = new String[] {"-destination", "file:" + destRepoLocation.getAbsolutePath()};
+		String[] args = { "-destination", "file:" + destRepoLocation.getAbsolutePath() };
 
-		try {
-			runMirrorApplication("21.1", args);
-			//We expect the IllegalStateException to be thrown
-			fail("21.3 IllegalStateException not thrown");
-		} catch (IllegalArgumentException e) {
-			return; //expected type of exception has been thrown
-		}
+		assertThrows(IllegalArgumentException.class, () -> runMirrorApplication("21.1", args));
 	}
 
 	/**
@@ -705,13 +653,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		//create arguments without a "-destination"
 		String[] args = { "-source", "file:" + sourceRepoLocation.getAbsolutePath() };
 
-		try {
-			runMirrorApplication("22.1", args);
-			//We expect the IllegalStateException to be thrown
-			fail("22.3 IllegalStateException not thrown");
-		} catch (IllegalArgumentException e) {
-			return; //expected type of exception has been thrown
-		}
+		assertThrows(IllegalArgumentException.class, () -> runMirrorApplication("22.1", args));
 	}
 
 	/**
@@ -719,15 +661,9 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	public void testArtifactMirrorNullBoth() throws Exception {
 		//create arguments with neither "-destination" nor "-source"
-		String[] args = new String[] {};
+		String[] args = {};
 
-		try {
-			runMirrorApplication("23.0", args);
-			//We expect the IllegalStateException to be thrown
-			fail("23.2 IllegalStateException not thrown");
-		} catch (IllegalArgumentException e) {
-			return; //expected type of exception has been thrown
-		}
+		assertThrows(IllegalArgumentException.class, () -> runMirrorApplication("23.0", args));
 	}
 
 	/**
@@ -741,7 +677,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 				null);
 		IArtifactRepository destinationRepository = getArtifactRepositoryManager()
 				.loadRepository(destRepoLocation.toURI(), null);
-		assertEquals("24.1", sourceRepository.getName(), destinationRepository.getName());
+		assertEquals(sourceRepository.getName(), destinationRepository.getName());
 		assertRepositoryProperties("24.2", sourceRepository.getProperties(), destinationRepository.getProperties());
 	}
 
@@ -760,7 +696,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		artifactMirrorToEmpty("25.2", true);
 
 		IArtifactRepository repository = getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null);
-		assertEquals("25.3", name, repository.getName());
+		assertEquals(name, repository.getName());
 		assertRepositoryProperties("25.4", properties, repository.getProperties());
 	}
 
@@ -768,7 +704,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 *  * Ensures that a repository created by the mirror application has specified name
 	 * For Bug 256909
 	 */
-	public void testNewArtifactRepoWithNewName() {
+	public void testNewArtifactRepoWithNewName() throws ProvisionException {
 		String name = "Bug 256909 test - new";
 		try {
 			//set the arguments
@@ -782,11 +718,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			fail("Error running mirror application", e);
 		}
 
-		try {
-			assertEquals("Assert name was set correct", name, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getName());
-		} catch (ProvisionException e) {
-			fail("Cannot obtain destination", e);
-		}
+		assertEquals("Assert name was set correct", name,
+				getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getName());
 	}
 
 	/**
@@ -807,7 +740,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//set the arguments
-			String[] args = new String[] {"-source", sourceRepoLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-destinationName", newName};
+			String[] args = { "-source", sourceRepoLocation.toURL().toExternalForm(), "-destination",
+					destRepoLocation.toURL().toExternalForm(), "-destinationName", newName };
 			//run the mirror application
 			runMirrorApplication("Bug 256909 Test", args);
 		} catch (MalformedURLException e) {
@@ -850,14 +784,14 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		//Setup: get the artifacts.jar file
 		File compressedArtifactsXML = new File(compressedSource.getAbsoluteFile() + "/artifacts.jar");
 		//Setup: make sure artifacts.jar exists
-		assertTrue("1", compressedArtifactsXML.exists());
+		assertTrue(compressedArtifactsXML.exists());
 
 		basicRunMirrorApplication("2", compressedSource.toURL(), destRepoLocation.toURL(), false);
 
 		//get the artifacts.jar file
 		File destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.jar");
 		//make sure artifacts.jar exists
-		assertTrue("5", destArtifactsXML.exists());
+		assertTrue(destArtifactsXML.exists());
 	}
 
 	//for Bug 235683
@@ -867,24 +801,24 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		//Setup: get the artifacts.jar file
 		File compressedArtifactsXML = new File(compressedSource.getAbsoluteFile() + "/artifacts.jar");
 		//Setup: make sure artifacts.jar exists
-		assertTrue("1", compressedArtifactsXML.exists());
+		assertTrue(compressedArtifactsXML.exists());
 
 		//Setup: create the destination
 		String name = "Destination Name " + destRepoLocation;
 		getArtifactRepositoryManager().createRepository(destRepoLocation.toURI(), name,
 				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 
-		assertTrue("2.1", new File(destRepoLocation, "artifacts.xml").exists());
+		assertTrue(new File(destRepoLocation, "artifacts.xml").exists());
 		basicRunMirrorApplication("3", compressedSource.toURL(), destRepoLocation.toURL(), false);
 
 		//get the artifacts.jar file
 		File destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.jar");
 		//make sure artifacts.jar does not exist
-		assertFalse("6", destArtifactsXML.exists());
+		assertFalse(destArtifactsXML.exists());
 		//get the artifacts.xml file
 		destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.xml");
 		//make sure artifacts.xml exists
-		assertTrue("7", destArtifactsXML.exists());
+		assertTrue(destArtifactsXML.exists());
 	}
 
 	//for Bug 235683
@@ -894,7 +828,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		//Setup: get the artifacts.xml file
 		File artifactsXML = new File(uncompressedSource.getAbsoluteFile() + "/artifacts.xml");
 		//Setup: make sure artifacts.xml exists
-		assertTrue("1", artifactsXML.exists());
+		assertTrue(artifactsXML.exists());
 
 		//Setup: create the destination
 		String name = "Destination Name " + destRepoLocation;
@@ -903,20 +837,20 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		getArtifactRepositoryManager().createRepository(destRepoLocation.toURI(), name,
 				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, property);
 
-		assertTrue("2.1", new File(destRepoLocation, "artifacts.jar").exists());
+		assertTrue(new File(destRepoLocation, "artifacts.jar").exists());
 		basicRunMirrorApplication("3", uncompressedSource.toURL(), destRepoLocation.toURL(), false);
 
 		//get the artifacts.jar file
 		File destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.jar");
 		//make sure artifacts.jar does exist
-		assertTrue("6", destArtifactsXML.exists());
+		assertTrue(destArtifactsXML.exists());
 		//get the artifacts.xml file
 		destArtifactsXML = new File(destRepoLocation.getAbsolutePath() + "/artifacts.xml");
 		//make sure artifacts.xml does not exist
-		assertFalse("7", destArtifactsXML.exists());
+		assertFalse(destArtifactsXML.exists());
 	}
 
-	public void testMirrorApplicationWithCompositeSource() {
+	public void testMirrorApplicationWithCompositeSource() throws IOException {
 		//Setup Make composite repository
 		File repoLocation = new File(getTempFolder(), "CompositeArtifactMirrorTest");
 		AbstractProvisioningTest.delete(repoLocation);
@@ -952,7 +886,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	//for Bug 250527
-	public void testIgnoreErrorsArguement() {
+	public void testIgnoreErrorsArguement() throws IOException {
 		destRepoLocation.mkdir();
 		//run test without verbose
 		mirrorWithError(false);
@@ -962,7 +896,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		//Order in which mirror application mirrors artifacts is random.
 	}
 
-	public void testCompareUsingComparator() {
+	public void testCompareUsingComparator() throws IOException {
 		//Setup create descriptors with different md5 values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
@@ -1153,7 +1087,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	//for Bug 259112
-	public void testErrorLoggingNoVerbose() {
+	public void testErrorLoggingNoVerbose() throws IOException {
 		//initialize log file
 		FrameworkLog log = ServiceHelper.getService(Activator.getContext(), FrameworkLog.class);
 		assertNotNull("Assert log file is not null", log);
@@ -1193,7 +1127,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	//for Bug 259112
-	public void testErrorLoggingWithVerbose() {
+	public void testErrorLoggingWithVerbose() throws IOException {
 		//initialize log file
 		FrameworkLog log = ServiceHelper.getService(Activator.getContext(), FrameworkLog.class);
 		assertNotNull("Assert log file is not null", log);

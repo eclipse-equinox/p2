@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010 Sonatype, Inc and others.
+ *  Copyright (c) 2010, 2026 Sonatype, Inc and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Set;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -35,7 +36,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug306279b extends AbstractProvisioningTest {
 
-	public void testGreedy() throws ProvisionException, OperationCanceledException {
+	public void testGreedy() throws ProvisionException, OperationCanceledException, IOException {
 		IProvisioningAgent agent = getAgentProvider().createAgent(getTestData("test data bug306279", "testData/bug306279/p2").toURI());
 
 		IMetadataRepository repo1 = agent.getService(IMetadataRepositoryManager.class).loadRepository(getTestData("helios", "testData/bug306279/repo/helios").toURI(), null);
@@ -55,6 +56,5 @@ public class Bug306279b extends AbstractProvisioningTest {
 
 		assertOK("resolution failed", plan.getStatus());
 		assertEquals(0, plan.getAdditions().query(QueryUtil.createIUQuery("org.eclipse.rap.jface.databinding"), new NullProgressMonitor()).toUnmodifiableSet().size());
-		System.out.println(plan);
 	}
 }

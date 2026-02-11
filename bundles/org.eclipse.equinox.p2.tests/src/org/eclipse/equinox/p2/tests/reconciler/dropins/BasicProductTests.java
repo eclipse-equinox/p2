@@ -46,14 +46,14 @@ public class BasicProductTests extends AbstractSharedBundleProductTest {
 		Configuration config = loadConfiguration();
 		addBundleToConfiguration(config, targetURLString);
 		saveConfiguration(config);
-		reconcile("4.0");
-		assertExistsInBundlesInfo("5.0", "myBundle");
+		reconcile();
+		assertExistsInBundlesInfo("myBundle");
 
 		// cleanup/remove the bundle and verify
 		assertTrue(delete(target));
 		removeBundleFromConfiguration(config, targetURLString);
-		reconcile("6.5");
-		assertDoesNotExistInBundlesInfo("7.0", "myBundle");
+		reconcile();
+		assertDoesNotExistInBundlesInfo("myBundle");
 	}
 
 	public void testReplace() throws IOException {
@@ -69,8 +69,8 @@ public class BasicProductTests extends AbstractSharedBundleProductTest {
 		Configuration config = loadConfiguration();
 		addBundleToConfiguration(config, targetURLString);
 		saveConfiguration(config);
-		reconcile("2.0");
-		assertExistsInBundlesInfo("2.1", "myBundle", "1.0.0");
+		reconcile();
+		assertExistsInBundlesInfo("myBundle", "1.0.0");
 
 		// replace with a higher version and reconcile
 		// leave the old version in the shared bundle area
@@ -81,15 +81,15 @@ public class BasicProductTests extends AbstractSharedBundleProductTest {
 		removeBundleFromConfiguration(config, targetURLString);
 		addBundleToConfiguration(config, higherTargetURLString);
 		saveConfiguration(config);
-		reconcile("3.5");
-		assertExistsInBundlesInfo("3.6", "myBundle", "2.0.0");
-		assertDoesNotExistInBundlesInfo("3.7.0", "myBundle", "1.0.0");
+		reconcile();
+		assertExistsInBundlesInfo("myBundle", "2.0.0");
+		assertDoesNotExistInBundlesInfo("myBundle", "1.0.0");
 
 		// cleanup/remove and verify
 		assertTrue(delete(target));
 		assertTrue(delete(higherTarget));
 		removeBundleFromConfiguration(config, higherTargetURLString);
-		reconcile("6.5");
-		assertDoesNotExistInBundlesInfo("7.0", "myBundle");
+		reconcile();
+		assertDoesNotExistInBundlesInfo("myBundle");
 	}
 }

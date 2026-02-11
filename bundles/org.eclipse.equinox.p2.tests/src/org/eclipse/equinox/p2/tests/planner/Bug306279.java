@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010 Sonatype, Inc and others.
+ *  Copyright (c) 2010, 2026 Sonatype, Inc and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,14 +14,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
+import java.io.IOException;
 import java.net.URI;
 import java.util.Set;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
@@ -31,7 +33,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug306279 extends AbstractProvisioningTest {
 
-	public void testGreedy() throws ProvisionException, OperationCanceledException {
+	public void testGreedy() throws ProvisionException, OperationCanceledException, IOException {
 		URI heliosRepo = getTestData("helios", "testData/bug306279/repo/helios").toURI();
 		URI rienaRepo2 = getTestData("rienatoolbox-a", "testData/bug306279/repo/rienatoolbox-a").toURI();
 		IMetadataRepository repo1 = getMetadataRepositoryManager().loadRepository(heliosRepo, null);

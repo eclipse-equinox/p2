@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2017 Sonatype Corporation and others.
+ * Copyright (c) 2010, 2026 Sonatype Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,7 +37,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class EPPPackageInstallStability_bug323322 extends AbstractProvisioningTest {
 
-	public void testInstallEppJavaPackage() throws ProvisionException {
+	public void testInstallEppJavaPackage() throws ProvisionException, IOException {
 		IProvisioningAgentProvider provider = getAgentProvider();
 		IProvisioningAgent agent = provider.createAgent(getTempFolder().toURI());
 		IMetadataRepositoryManager repoMgr = agent.getService(IMetadataRepositoryManager.class);

@@ -1027,7 +1027,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	/*
 	 * Look up and return a file handle to the given entry in the bundle.
 	 */
-	public static File getTestData(String message, String entry) {
+	public static File getTestData(String message, String entry) throws IOException {
 		if (entry == null) {
 			fail(message + " entry is null.");
 		}
@@ -1035,18 +1035,13 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (base == null) {
 			fail(message + " entry not found in bundle: " + entry);
 		}
-		try {
-			String osPath = IPath.fromOSString(FileLocator.toFileURL(base).getPath()).toOSString();
-			File result = new File(osPath);
-			if (!result.getCanonicalPath().equals(result.getPath())) {
-				fail(message + " result path: " + result.getPath() + " does not match canonical path: " + result.getCanonicalFile().getPath());
-			}
-			return result;
-		} catch (IOException e) {
-			fail(message, e);
+		String osPath = IPath.fromOSString(FileLocator.toFileURL(base).getPath()).toOSString();
+		File result = new File(osPath);
+		if (!result.getCanonicalPath().equals(result.getPath())) {
+			fail(message + " result path: " + result.getPath() + " does not match canonical path: "
+					+ result.getCanonicalFile().getPath());
 		}
-		// avoid compile error... should never reach this code
-		return null;
+		return result;
 	}
 
 	protected static void assertInstallOperand(IProvisioningPlan plan, IInstallableUnit iu) {

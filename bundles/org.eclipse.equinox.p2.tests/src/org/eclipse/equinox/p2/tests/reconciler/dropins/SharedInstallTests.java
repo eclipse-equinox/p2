@@ -81,7 +81,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 	protected static void cleanupReadOnlyInstall() {
 		delete(userBase);
 		setReadOnly(readOnlyBase, false);
-		assertTrue("0.7", readOnlyBase.canWrite());
+		assertTrue(readOnlyBase.canWrite());
 	}
 
 	protected void setupReadOnlyInstall() {
@@ -121,7 +121,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		}
 
 		assertInitialized();
-		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
+		assertDoesNotExistInBundlesInfo("myBundle");
 		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
 		add("dropins", jar);
 		setupReadOnlyInstall();
@@ -159,7 +159,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 		}
 
 		assertInitialized();
-		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
+		assertDoesNotExistInBundlesInfo("myBundle");
 		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
 		File dropins = new File(userBase, "dropins");
 		setupReadOnlyInstall();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2018 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -17,6 +17,7 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 import static org.junit.Assert.assertThrows;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
@@ -113,23 +114,23 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		IMetadataRepository repo = createTestRepository(manager, null);
 		Map<String, String> properties = repo.getProperties();
-		assertTrue("1.0", !properties.containsKey(TEST_KEY));
+		assertFalse(properties.containsKey(TEST_KEY));
 		repo.setProperty(TEST_KEY, TEST_VALUE);
 
 		//the previously obtained properties should not be affected by subsequent changes
-		assertTrue("1.1", !properties.containsKey(TEST_KEY));
+		assertFalse(properties.containsKey(TEST_KEY));
 		properties = repo.getProperties();
-		assertTrue("1.2", properties.containsKey(TEST_KEY));
+		assertTrue(properties.containsKey(TEST_KEY));
 
 		//going back to repo manager, should still get the new property
 		repo = manager.loadRepository(repoLocation.toURI(), null);
 		properties = repo.getProperties();
-		assertTrue("1.3", properties.containsKey(TEST_KEY));
+		assertTrue(properties.containsKey(TEST_KEY));
 
 		//setting a null value should remove the key
 		repo.setProperty(TEST_KEY, null);
 		properties = repo.getProperties();
-		assertTrue("1.4", !properties.containsKey(TEST_KEY));
+		assertFalse(properties.containsKey(TEST_KEY));
 	}
 
 	public void testAddRemoveIUs() throws ProvisionException {
@@ -137,10 +138,10 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createIU("foo");
 		repo.addInstallableUnits(Arrays.asList(iu));
 		IQueryResult<IInstallableUnit> result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
-		assertEquals("1.0", 1, queryResultSize(result));
+		assertEquals(1, queryResultSize(result));
 		repo.removeAll();
 		result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
-		assertTrue("1.1", result.isEmpty());
+		assertTrue(result.isEmpty());
 	}
 
 	public void testRemoveByQuery() throws ProvisionException {
@@ -149,13 +150,13 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IInstallableUnit iu2 = createIU("bar");
 		repo.addInstallableUnits(Arrays.asList(iu, iu2));
 		IQueryResult<IInstallableUnit> result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
-		assertEquals("1.0", 2, queryResultSize(result));
+		assertEquals(2, queryResultSize(result));
 		repo.removeInstallableUnits(Arrays.asList(iu));
 		result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
-		assertEquals("1.1", 1, queryResultSize(result));
+		assertEquals(1, queryResultSize(result));
 		repo.removeInstallableUnits(Arrays.asList(iu2));
 		result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
-		assertTrue("1.2", result.isEmpty());
+		assertTrue(result.isEmpty());
 
 	}
 
@@ -210,9 +211,9 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 			//now remove and reload the repository
 			manager.removeRepository(repoURI);
 			repo = manager.loadRepository(repoURI, null);
-			assertTrue("1.0", manager.isEnabled(repoURI));
-			assertTrue("1.1", wasEnabled[0]);
-			assertEquals("1.2", 1, callCount[0]);
+			assertTrue(manager.isEnabled(repoURI));
+			assertTrue(wasEnabled[0]);
+			assertEquals(1, callCount[0]);
 		} finally {
 			eventBus.removeListener(listener);
 		}
@@ -250,9 +251,9 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		try {
 			//ensure refreshing the repository doesn't disable it
 			manager.refreshRepository(repoURL, null);
-			assertTrue("1.0", manager.isEnabled(repoURL));
-			assertTrue("1.1", wasEnabled[0]);
-			assertEquals("1.2", 1, callCount[0]);
+			assertTrue(manager.isEnabled(repoURL));
+			assertTrue(wasEnabled[0]);
+			assertEquals(1, callCount[0]);
 		} finally {
 			getEventBus().removeListener(listener);
 		}
@@ -279,7 +280,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(Set.of(ref2), repo.getReferences());
 	}
 
-	public void testUniqueURIs() throws ProvisionException, OperationCanceledException {
+	public void testUniqueURIs() throws ProvisionException, OperationCanceledException, IOException {
 		// The test data bug 278668 has multiple installable units with the same license uri
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("test data bug 278668", "testData/bug278668").toURI(), null);
 		URI last = null;

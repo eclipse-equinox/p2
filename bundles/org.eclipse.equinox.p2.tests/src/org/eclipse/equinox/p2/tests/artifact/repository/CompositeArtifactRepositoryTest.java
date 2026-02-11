@@ -270,7 +270,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertTrue("1.4", !properties.containsKey(TEST_KEY));
 	}
 
-	public void testAddChild() {
+	public void testAddChild() throws IOException {
 		//Setup: create an uncompressed repository
 		CompositeArtifactRepository compRepo = createRepo(false);
 
@@ -291,7 +291,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertContentEquals("Verifying contents", compRepo, repo);
 	}
 
-	public void testRemoveChild() {
+	public void testRemoveChild() throws IOException {
 		//Setup: create an uncompressed repository
 		CompositeArtifactRepository compRepo = createRepo(false);
 
@@ -306,7 +306,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertEquals("Children size after remove", 0, compRepo.getChildren().size());
 	}
 
-	public void testAddRepeatChild() {
+	public void testAddRepeatChild() throws IOException {
 		//Setup: create an uncompressed repository
 		CompositeArtifactRepository compRepo = createRepo(false);
 
@@ -322,7 +322,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertEquals("Children size after repeat entry", 1, compRepo.getChildren().size());
 	}
 
-	public void testAddMultipleChildren() {
+	public void testAddMultipleChildren() throws IOException {
 		//Setup: create an uncompressed repository
 		CompositeArtifactRepository compRepo = createRepo(false);
 
@@ -353,7 +353,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertEquals("Assert Correct Number of Keys", getArtifactKeyCount(repo1) + getArtifactKeyCount(repo2), getArtifactKeyCount(compRepo));
 	}
 
-	public void testRemoveNonexistantChild() {
+	public void testRemoveNonexistantChild() throws IOException {
 		//Setup: create an uncompressed repository
 		CompositeArtifactRepository compRepo = createRepo(false);
 
@@ -370,7 +370,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertEquals("Children size after remove", 1, compRepo.getChildren().size());
 	}
 
-	public void testRemoveAllChildren() {
+	public void testRemoveAllChildren() throws IOException {
 		//Setup: create an uncompressed repository
 		CompositeArtifactRepository compRepo = createRepo(false);
 
@@ -388,7 +388,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertEquals("Children size after removeAllChildren", 0, compRepo.getChildren().size());
 	}
 
-	public void testContainsKey() {
+	public void testContainsKey() throws IOException {
 		//Setup: create the repository
 		CompositeArtifactRepository compRepo = createRepo(false);
 		//add the child
@@ -416,7 +416,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertFalse("Asserting key is not in composite repo", compRepo.contains(key));
 	}
 
-	public void testContainsDescriptor() {
+	public void testContainsDescriptor() throws IOException {
 		//Setup: create the repository
 		CompositeArtifactRepository compRepo = createRepo(false);
 		//add the child
@@ -447,7 +447,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertFalse("Asserting key is not in composite repo", compRepo.contains(descriptor));
 	}
 
-	public void testGetArtifactFromDescriptor() {
+	public void testGetArtifactFromDescriptor() throws IOException {
 		//Setup: create the repository
 		CompositeArtifactRepository compRepo = createRepo(false);
 		//add the child
@@ -523,7 +523,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testGetArtifactsFromRequests() {
+	public void testGetArtifactsFromRequests() throws IOException {
 		//Setup: create the repository
 		CompositeArtifactRepository compRepo = createRepo(false);
 		//add the child
@@ -631,7 +631,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 				hasItem(statusWithMessageWhich(containsString(testData.getAbsolutePath()))));
 	}
 
-	public void testLoadingRepositoryRemote() {
+	public void testLoadingRepositoryRemote() throws IOException, URISyntaxException, ProvisionException {
 		File knownGoodRepoLocation = getTestData("0.1", "/testData/artifactRepo/composite/good.remote");
 
 		CompositeArtifactRepository compRepo = null;
@@ -639,75 +639,65 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		try {
 			System.setOut(new PrintStream(new StringBufferStream()));
 			compRepo = (CompositeArtifactRepository) getArtifactRepositoryManager().loadRepository(knownGoodRepoLocation.toURI(), null);
-		} catch (ProvisionException e) {
-			fail("0.99", e);
 		} finally {
 			System.setOut(out);
 		}
 
 		List<URI> children = compRepo.getChildren();
 
-		try {
-			//ensure children are correct
-			URI child1 = URIUtil.fromString("http://www.eclipse.org/foo");
-			assertTrue("1.0", children.contains(child1));
-			URI child2 = URIUtil.fromString("http://www.eclipse.org/bar");
-			assertTrue("1.1", children.contains(child2));
-			assertEquals("1.2", 2, children.size());
-		} catch (URISyntaxException e) {
-			fail("1.99", e);
-		}
+		// ensure children are correct
+		URI child1 = URIUtil.fromString("http://www.eclipse.org/foo");
+		assertTrue(children.contains(child1));
+		URI child2 = URIUtil.fromString("http://www.eclipse.org/bar");
+		assertTrue(children.contains(child2));
+		assertEquals(2, children.size());
 
 		//ensure correct properties
-		assertEquals("2.0", "artifact name", compRepo.getName());
+		assertEquals("artifact name", compRepo.getName());
 		Map<String, String> properties = compRepo.getProperties();
-		assertEquals("2.1", 3, properties.size());
+		assertEquals(3, properties.size());
 		String timestamp = properties.get(IRepository.PROP_TIMESTAMP);
-		assertNotNull("2.2", timestamp);
-		assertEquals("2.3", "1234", timestamp);
+		assertNotNull(timestamp);
+		assertEquals("1234", timestamp);
 		String compressed = properties.get(IRepository.PROP_COMPRESSED);
-		assertNotNull("2.4", compressed);
-		assertFalse("2.4", Boolean.parseBoolean(compressed));
+		assertNotNull(compressed);
+		assertFalse(Boolean.parseBoolean(compressed));
 	}
 
-	public void testLoadingRepositoryLocal() {
+	public void testLoadingRepositoryLocal() throws IOException, ProvisionException {
 		File knownGoodRepoLocation = getTestData("0.1", "/testData/artifactRepo/composite/good.local");
 
-		CompositeArtifactRepository compRepo = null;
-		try {
-			compRepo = (CompositeArtifactRepository) getArtifactRepositoryManager().loadRepository(knownGoodRepoLocation.toURI(), null);
-		} catch (ProvisionException e) {
-			fail("0.99", e);
-		}
+		CompositeArtifactRepository compRepo = (CompositeArtifactRepository) getArtifactRepositoryManager()
+				.loadRepository(knownGoodRepoLocation.toURI(), null);
 
 		List<URI> children = compRepo.getChildren();
 
 		//ensure children are correct
-		assertTrue("1.0", children.contains(URIUtil.append(compRepo.getLocation(), "one")));
-		assertTrue("1.1", children.contains(URIUtil.append(compRepo.getLocation(), "two")));
-		assertEquals("1.2", 2, children.size());
+		assertTrue(children.contains(URIUtil.append(compRepo.getLocation(), "one")));
+		assertTrue(children.contains(URIUtil.append(compRepo.getLocation(), "two")));
+		assertEquals(2, children.size());
 
 		//ensure correct properties
-		assertEquals("2.0", "artifact name", compRepo.getName());
+		assertEquals("artifact name", compRepo.getName());
 		Map<String, String> properties = compRepo.getProperties();
-		assertEquals("2.1", 2, properties.size());
+		assertEquals(2, properties.size());
 		String timestamp = properties.get(IRepository.PROP_TIMESTAMP);
-		assertNotNull("2.2", timestamp);
-		assertEquals("2.3", "1234", timestamp);
+		assertNotNull(timestamp);
+		assertEquals("1234", timestamp);
 		String compressed = properties.get(IRepository.PROP_COMPRESSED);
-		assertNotNull("2.4", compressed);
-		assertFalse("2.5", Boolean.parseBoolean(compressed));
+		assertNotNull(compressed);
+		assertFalse(Boolean.parseBoolean(compressed));
 	}
 
-	public void testCompressedPersistence() {
+	public void testCompressedPersistence() throws IOException {
 		persistenceTest(true);
 	}
 
-	public void testUncompressedPersistence() {
+	public void testUncompressedPersistence() throws IOException {
 		persistenceTest(false);
 	}
 
-	public void testSyntaxErrorWhileParsing() {
+	public void testSyntaxErrorWhileParsing() throws IOException {
 		File badCompositeArtifacts = getTestData("1", "/testData/artifactRepo/composite/Bad/syntaxError");
 		PrintStream err = System.err;
 		StringBuilder buffer = new StringBuilder();
@@ -723,7 +713,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testMissingRequireattributeWhileParsing() {
+	public void testMissingRequireattributeWhileParsing() throws IOException {
 		File badCompositeArtifacts = getTestData("1", "/testData/artifactRepo/composite/Bad/missingRequiredAttribute");
 		CompositeArtifactRepository compRepo = null;
 		PrintStream out = System.out;
@@ -780,7 +770,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertFalse("Running verify on invalid repository", validator.validateComposite(compRepo).isOK());
 	}
 
-	public void testAddChildWithValidate() throws ProvisionException {
+	public void testAddChildWithValidate() throws ProvisionException, IOException {
 		// Setup create descriptors with different checksum values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
@@ -851,7 +841,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertTrue("Ensuring not previously loaded repo is system", repo2System != null ? repo2System.equals(Boolean.toString(true)) : false);
 	}
 
-	private void persistenceTest(boolean compressed) {
+	private void persistenceTest(boolean compressed) throws IOException {
 		//Setup: create an uncompressed repository
 		CompositeArtifactRepository compRepo = createRepo(compressed);
 
@@ -1040,7 +1030,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	/*
 	 * Test a retry request by a child composite repository
 	 */
-	public void testChildRetryRequest() {
+	public void testChildRetryRequest() throws ProvisionException, URISyntaxException {
 		class BadMirrorSite extends TestArtifactRepository {
 			int downloadAttempts = 0;
 
@@ -1086,8 +1076,6 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			assertTrue(status.isOK());
 			// There should have been two download attempts at the child
 			assertEquals(2, child.downloadAttempts);
-		} catch (Exception e) {
-			fail("Exception", e);
 		} finally {
 			if (source != null) {
 				getArtifactRepositoryManager().removeRepository(source.getLocation());
@@ -1406,7 +1394,8 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testFailingChildFailsCompleteRepository() throws ProvisionException, OperationCanceledException {
+	public void testFailingChildFailsCompleteRepository()
+			throws ProvisionException, OperationCanceledException, IOException {
 		boolean exception = false;
 		IArtifactRepository repo = null;
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
@@ -1436,7 +1425,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 	}
 
-	public void testFailingChildLoadsCompleteRepository() {
+	public void testFailingChildLoadsCompleteRepository() throws IOException {
 		boolean exception = false;
 		IArtifactRepository repo = null;
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();

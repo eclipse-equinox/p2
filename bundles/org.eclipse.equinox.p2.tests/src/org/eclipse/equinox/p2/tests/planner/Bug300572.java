@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010 Sonatype, Inc and others.
+ *  Copyright (c) 2010, 2026 Sonatype, Inc and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import java.util.Arrays;
+import java.io.IOException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
@@ -35,14 +35,13 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 //This test verify that one patch can replace another one.
 public class Bug300572 extends AbstractProvisioningTest {
-	public void testInstallSecondPatch() throws ProvisionException {
+	public void testInstallSecondPatch() throws ProvisionException, IOException {
 		IProvisioningAgentProvider provider = getAgentProvider();
 		IProvisioningAgent agent = provider.createAgent(getTestData("Bug300572 data", "testData/bug300572/p2").toURI());
 		IMetadataRepositoryManager repoMgr = agent.getService(IMetadataRepositoryManager.class);
 		//The following repo contains the second patch to be installed
 		IMetadataRepository repo = repoMgr.loadRepository(getTestData("bug300572 data", "testData/bug300572/repo/").toURI(), new NullProgressMonitor());
-		IInstallableUnit[] ius = repo.query(QueryUtil.createIUQuery("hellopatch.feature.group"), null).toArray(IInstallableUnit.class);
-		System.out.println(Arrays.toString(ius));
+		repo.query(QueryUtil.createIUQuery("hellopatch.feature.group"), null).toArray(IInstallableUnit.class);
 
 		IPlanner planner = agent.getService(IPlanner.class);
 		//The profile already contains a a feature (hellofeature) and a patch for it (hellopatch).

@@ -55,9 +55,9 @@ public class FeaturePatchTest extends AbstractReconcilerTest {
 		file = getTestData("1.2", "testData/reconciler/plugins/myBundle_1.0.0.jar");
 		add("dropins/plugins", file);
 		// reconcile
-		reconcile("1.4");
+		reconcile();
 		// check all is good
-		assertExistsInBundlesInfo("1.5", "myBundle", "1.0.0");
+		assertExistsInBundlesInfo("myBundle", "1.0.0");
 
 		// copy the patch into the dropins folder
 		file = getTestData("2.0", "testData/reconciler/features/myFeaturePatch_2.0.0");
@@ -65,17 +65,17 @@ public class FeaturePatchTest extends AbstractReconcilerTest {
 		file = getTestData("2.2", "testData/reconciler/plugins/myBundle_2.0.0.jar");
 		add("dropins/plugins", file);
 		// reconcile
-		reconcile("2.4");
+		reconcile();
 		// check all is good
-		assertExistsInBundlesInfo("2.5", "myBundle", "1.0.0");
-		assertExistsInBundlesInfo("2.6", "myBundle", "2.0.0");
+		assertExistsInBundlesInfo("myBundle", "1.0.0");
+		assertExistsInBundlesInfo("myBundle", "2.0.0");
 
 		// cleanup
 		remove("dropins/features", "myFeature_1.0.0");
 		remove("dropins/plugins", "myBundle_1.0.0.jar");
 		remove("dropins/features", "myFeaturePatch_2.0.0");
 		remove("dropins/plugins", "myBundle_2.0.0.jar");
-		assertDoesNotExistInBundlesInfo("3.4", "myBundle");
+		assertDoesNotExistInBundlesInfo("myBundle");
 	}
 
 	/*
@@ -92,23 +92,23 @@ public class FeaturePatchTest extends AbstractReconcilerTest {
 		add("dropins/features", file);
 		file = getTestData("1.2", "testData/reconciler/plugins/myBundle_1.0.0.jar");
 		add("dropins/plugins", file);
-		reconcile("1.4");
-		assertExistsInBundlesInfo("1.5", "myBundle", "1.0.0");
+		reconcile();
+		assertExistsInBundlesInfo("myBundle", "1.0.0");
 
 		file = getTestData("2.0", "testData/reconciler/features/myFeaturePatch_1.0.0");
 		add("dropins/features", file);
 		file = getTestData("2.2", "testData/reconciler/plugins/mySingletonBundle_1.0.0.jar");
 		add("dropins/plugins", file);
-		reconcile("2.4");
-		assertExistsInBundlesInfo("2.5", "myBundle", "1.0.0");
-		assertExistsInBundlesInfo("2.6", "mySingletonBundle", "1.0.0");
+		reconcile();
+		assertExistsInBundlesInfo("myBundle", "1.0.0");
+		assertExistsInBundlesInfo("mySingletonBundle", "1.0.0");
 
 		remove("dropins/features", "myFeature_1.0.0");
 		remove("dropins/plugins", "myBundle_1.0.0.jar");
 		remove("dropins/features", "myFeaturePatch_1.0.0");
 		remove("dropins/plugins", "mySingletonBundle_1.0.0.jar");
-		assertDoesNotExistInBundlesInfo("3.4", "myBundle");
-		assertDoesNotExistInBundlesInfo("3.5", "mySingletonBundle");
+		assertDoesNotExistInBundlesInfo("myBundle");
+		assertDoesNotExistInBundlesInfo("mySingletonBundle");
 	}
 
 }

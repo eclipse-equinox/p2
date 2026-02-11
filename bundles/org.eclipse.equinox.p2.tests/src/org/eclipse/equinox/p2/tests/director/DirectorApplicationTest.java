@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2011 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -163,7 +163,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	/**
 	 * Test the application's behaviour given a single metadata and artifact repository where the metadata repo is invalid
 	 */
-	public void testSingleRepoCreationMetadataInvalid() {
+	public void testSingleRepoCreationMetadataInvalid() throws Exception {
 		//Setup: create repos
 		File metadataRepo = new File(getTempFolder(), "DirectorApp Metadata");
 		//Valid repository
@@ -183,8 +183,6 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 			outputBuffer = runDirectorApp("2.2", args);
 		} catch (ProvisionException e) {
 			//expected, fall through
-		} catch (Exception e) {
-			fail("2.3", e);
 		}
 
 		assertTrue(outputBuffer.toString().contains("No repository found at " + metadataRepo.toURI().toString()));
@@ -195,9 +193,9 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		destinationRepo.delete();
 
 		//ensures that repository has not been mistakenly created
-		assertFalse("2.4", metadataRepo.exists());
-		assertTrue("2.5", artifactRepo.exists());
-		assertFalse("2.6", destinationRepo.exists());
+		assertFalse(metadataRepo.exists());
+		assertTrue(artifactRepo.exists());
+		assertFalse(destinationRepo.exists());
 
 		//Cleanup: delete the folders
 		delete(metadataRepo);
@@ -207,7 +205,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	/**
 	 * Test the application's behaviour given a single metadata and artifact repository where the artifact repo is invalid
 	 */
-	public void testSingleRepoCreationArtifactInvalid() {
+	public void testSingleRepoCreationArtifactInvalid() throws Exception {
 		//Setup: create repos
 		//Valid repository
 		File metadataRepo = getTestData("3.0", "/testData/mirror/mirrorSourceRepo1 with space");
@@ -226,8 +224,6 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 			outputBuffer = runDirectorApp("3.2", args);
 		} catch (ProvisionException e) {
 			//expected, fall through
-		} catch (Exception e) {
-			fail("3.3", e);
 		}
 
 		assertTrue(outputBuffer.toString().contains("No repository found at " + artifactRepo.toURI().toString()));
@@ -238,9 +234,9 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		destinationRepo.delete();
 
 		//ensures that repository has not been mistakenly created
-		assertFalse("3.4", artifactRepo.exists());
-		assertTrue("3.5", metadataRepo.exists());
-		assertFalse("3.6", destinationRepo.exists());
+		assertFalse(artifactRepo.exists());
+		assertTrue(metadataRepo.exists());
+		assertFalse(destinationRepo.exists());
 
 		//Cleanup: delete the folders
 		delete(artifactRepo);
@@ -299,7 +295,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	/**
 	 * Test the application's behaviour given multiple metadata and artifact repositories where both metadata repos are invalid
 	 */
-	public void testMultipleRepoCreationAllMetadataInvalid() {
+	public void testMultipleRepoCreationAllMetadataInvalid() throws Exception {
 		//Setup: Create the folders
 		File metadataRepo1 = new File(getTempFolder(), "DirectorApp Metadata1");
 		File metadataRepo2 = new File(getTempFolder(), "DirectorApp Metadata2");
@@ -321,8 +317,6 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 			runDirectorApp("5.3", args);
 		} catch (ProvisionException e) {
 			//expected, fall through
-		} catch (Exception e) {
-			fail("5.5", e);
 		}
 		//remove the agent data produced by the director
 		delete(new File(destinationRepo, "p2"));
@@ -370,11 +364,11 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		destinationRepo.delete();
 
 		//ensures that repositories have not been mistakenly created
-		assertFalse("6.7", metadataRepo1.exists());
-		assertTrue("6.8", metadataRepo2.exists());
-		assertTrue("6.9", artifactRepo1.exists());
-		assertTrue("6.10", artifactRepo2.exists());
-		assertFalse("6.11", destinationRepo.exists());
+		assertFalse(metadataRepo1.exists());
+		assertTrue(metadataRepo2.exists());
+		assertTrue(artifactRepo1.exists());
+		assertTrue(artifactRepo2.exists());
+		assertFalse(destinationRepo.exists());
 
 		//Cleanup: delete the folders
 		delete(metadataRepo1);
@@ -384,7 +378,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	/**
 	 * Test the application's behaviour given multiple metadata and artifact repositories where both artifact repos are invalid
 	 */
-	public void testMultipleRepoCreationAllArtifactInvalid() {
+	public void testMultipleRepoCreationAllArtifactInvalid() throws Exception {
 		//Setup: Create the folders
 		File artifactRepo1 = new File(getTempFolder(), "DirectorApp Artifact1");
 		File artifactRepo2 = new File(getTempFolder(), "DirectorApp Artifact2");
@@ -406,8 +400,6 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 			runDirectorApp("7.3", args);
 		} catch (ProvisionException e) {
 			//expected, fall through
-		} catch (Exception e) {
-			fail("7.5", e);
 		}
 		//remove the agent data produced by the director
 		delete(new File(destinationRepo, "p2"));
@@ -415,11 +407,11 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		destinationRepo.delete();
 
 		//ensures that repositories have not been mistakenly created
-		assertTrue("7.6", metadataRepo1.exists());
-		assertTrue("7.7", metadataRepo2.exists());
-		assertFalse("7.8", artifactRepo1.exists());
-		assertFalse("7.9", artifactRepo2.exists());
-		assertFalse("7.10", destinationRepo.exists());
+		assertTrue(metadataRepo1.exists());
+		assertTrue(metadataRepo2.exists());
+		assertFalse(artifactRepo1.exists());
+		assertFalse(artifactRepo2.exists());
+		assertFalse(destinationRepo.exists());
 
 		//Cleanup: delete the folders
 		delete(artifactRepo1);
@@ -546,7 +538,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	 * Test the application's behaviour given multiple metadata and artifact repositories where all repos are valid
 	 * Note: this test should end with "The installable unit invalidIU has not been found."
 	 */
-	public void testMultipleRepoCreationNoneInvalid() {
+	public void testMultipleRepoCreationNoneInvalid() throws Exception {
 		//Setup: Create the folders
 		//Valid repositories
 		File artifactRepo1 = getTestData("11.0", "/testData/mirror/mirrorSourceRepo1 with space");
@@ -562,24 +554,18 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		//Setup: create the args
 		String[] args = getMultipleRepoArgs("11.4", metadataRepo1, metadataRepo2, artifactRepo1, artifactRepo2, destinationRepo, installIU);
 
-		try {
-			runDirectorApp("11.5", args);
-		} catch (ProvisionException e) {
-			fail("11.6", e);
-		} catch (Exception e) {
-			fail("11.7", e);
-		}
+		runDirectorApp("11.5", args);
 		//remove the agent data produced by the director
 		delete(new File(destinationRepo, "p2"));
 		//this will only succeed if the destination is empty, which is what we expect because the install failed
 		destinationRepo.delete();
 
 		//ensures that repositories have not been mistakenly created
-		assertTrue("11.8", metadataRepo1.exists());
-		assertTrue("11.9", metadataRepo2.exists());
-		assertTrue("11.10", artifactRepo1.exists());
-		assertTrue("11.11", artifactRepo2.exists());
-		assertFalse("11.12", destinationRepo.exists());
+		assertTrue(metadataRepo1.exists());
+		assertTrue(metadataRepo2.exists());
+		assertTrue(artifactRepo1.exists());
+		assertTrue(artifactRepo2.exists());
+		assertFalse(destinationRepo.exists());
 
 		//Cleanup: delete the folders
 		delete(destinationRepo);
@@ -656,7 +642,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		delete(destinationRepo);
 	}
 
-	public void testDownloadOnlyFlag() {
+	public void testDownloadOnlyFlag() throws Exception {
 		//Setup: get repositories
 		File artifactRepo = getTestData("testDownloadOnly", "/testData/testRepos/sitewithnestedfeatures");
 		File metadataRepo = getTestData("testDownloadOnly", "/testData/testRepos/sitewithnestedfeatures");
@@ -669,12 +655,8 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		//Setup: create the args
 		String[] args = getSingleRepoArgs("testDownloadOnly", metadataRepo, artifactRepo, destinationRepo, installIU, "-downloadOnly");
 
-		try {
-			StringBuilder buffer = runDirectorApp("testDownloadOnly", args);
-			assertTrue(buffer.toString().contains("Installing fff.feature.group 1.0.0."));
-		} catch (Exception e) {
-			fail("fail", e);
-		}
+		StringBuilder buffer = runDirectorApp("testDownloadOnly", args);
+		assertTrue(buffer.toString().contains("Installing fff.feature.group 1.0.0."));
 
 		assertTrue(destinationRepo.exists());
 

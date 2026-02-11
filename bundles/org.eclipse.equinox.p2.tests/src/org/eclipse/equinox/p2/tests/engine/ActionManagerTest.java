@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,7 @@
 package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -54,7 +54,7 @@ public class ActionManagerTest extends AbstractProvisioningTest {
 
 	@SuppressWarnings("deprecation") // java.io.File.toURL()
 	// temporarily disabling this test until API is done
-	public void DISABLED_testDynamicAction() throws MalformedURLException, BundleException, InterruptedException {
+	public void DISABLED_testDynamicAction() throws BundleException, InterruptedException, IOException {
 		ActionManager manager = new ActionManager();
 		assertNull(manager.getAction("dummy.touchpointAndAction.dummy", new VersionRange("1.0.0")));
 		File dummy = getTestData("0.1", "/testData/engineTest/dummy.touchpointAndAction_1.0.0.jar");

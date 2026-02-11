@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2010 IBM Corporation and others.
+ *  Copyright (c) 2009, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
 package org.eclipse.equinox.p2.tests.updatesite;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
@@ -28,7 +29,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class DoesNotCacheStaleData extends AbstractProvisioningTest {
 
-	public void testLoadBadSiteForMetadata() {
+	public void testLoadBadSiteForMetadata() throws IOException {
 		URI siteURI = getTestData("badUpdateSite", "testData/updatesite/badSiteXML/site.xml").toURI();
 		File f = URIUtil.toFile(UpdateSiteMetadataRepositoryFactory.getLocalRepositoryLocation(siteURI));
 		File contentXml = new File(f, "content.xml");
@@ -53,7 +54,7 @@ public class DoesNotCacheStaleData extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testLoadBadSiteForArtifact() {
+	public void testLoadBadSiteForArtifact() throws IOException {
 		URI siteURI = getTestData("badUpdateSite", "testData/updatesite/badSiteXML/site.xml").toURI();
 		File f = URIUtil.toFile(UpdateSiteMetadataRepositoryFactory.getLocalRepositoryLocation(siteURI));
 		File contentXml = new File(f, "artifacts.xml");

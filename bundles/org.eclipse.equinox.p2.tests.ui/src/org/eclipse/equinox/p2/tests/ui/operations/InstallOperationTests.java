@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010, 2017 IBM Corporation and others.
+ *  Copyright (c) 2010, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.operations;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -34,7 +35,7 @@ import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
  * Tests various aspects of install operations
  */
 public class InstallOperationTests extends AbstractProvisioningUITest {
-	public void testInstallerPlan() throws ProvisionException {
+	public void testInstallerPlan() throws ProvisionException, IOException {
 		URI uri = getTestData("InstallHandler", "testData/installPlan").toURI();
 		Set<IInstallableUnit> ius = getMetadataRepositoryManager().loadRepository(uri, getMonitor())
 				.query(QueryUtil.createIUQuery("A"), getMonitor()).toSet();
@@ -51,7 +52,7 @@ public class InstallOperationTests extends AbstractProvisioningUITest {
 				getProfile(TESTPROFILE).query(QueryUtil.createIUQuery("Action1"), getMonitor()).isEmpty());
 	}
 
-	public void testDetectMissingRequirement() throws ProvisionException, OperationCanceledException {
+	public void testDetectMissingRequirement() throws ProvisionException, OperationCanceledException, IOException {
 		URI uriA, uriB, uriC;
 		IMetadataRepository repoA, repoB, repoC;
 		String testDataFileLocation = "testData/provisioningContextTests/";

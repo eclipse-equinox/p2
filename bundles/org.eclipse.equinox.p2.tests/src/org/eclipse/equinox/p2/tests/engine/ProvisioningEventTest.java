@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2012, 2017 Wind River and others.
+ *  Copyright (c) 2012, 2026 Wind River and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -15,6 +15,7 @@ package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,7 +90,8 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testCollectEvent() throws ProvisionException, OperationCanceledException, InterruptedException {
+	public void testCollectEvent()
+			throws ProvisionException, OperationCanceledException, InterruptedException, IOException {
 		class ProvTestListener implements ProvisioningListener {
 			int requestsNumber = 0;
 			boolean called = false;
@@ -141,8 +143,10 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testPhaseEvent() throws ProvisionException, OperationCanceledException, InterruptedException {
-		final String[] phaseSets = new String[] {PhaseSetFactory.PHASE_COLLECT, PhaseSetFactory.PHASE_CHECK_TRUST, PhaseSetFactory.PHASE_INSTALL, PhaseSetFactory.PHASE_CONFIGURE};
+	public void testPhaseEvent()
+			throws ProvisionException, OperationCanceledException, InterruptedException, IOException {
+		final String[] phaseSets = { PhaseSetFactory.PHASE_COLLECT, PhaseSetFactory.PHASE_CHECK_TRUST,
+				PhaseSetFactory.PHASE_INSTALL, PhaseSetFactory.PHASE_CONFIGURE };
 
 		class ProvTestListener implements ProvisioningListener {
 			String publishUnWantedPhaseEvent = null;
@@ -253,19 +257,19 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			IInstallableUnit testIU = createResolvedIU(createEclipseIU(iuId, Version.create("1.0.0"), new IRequirement[0], new TouchpointData(data)));
 			plan.addInstallableUnit(testIU);
 			IStatus result = engine.perform(plan, PhaseSetFactory.createDefaultPhaseSet(), new NullProgressMonitor());
-			assertTrue("0.2", result.isOK());
+			assertTrue(result.isOK());
 			Set<IInstallableUnit> installedIUs = profile.available(QueryUtil.ALL_UNITS, null).toUnmodifiableSet();
-			assertEquals("0.3", 1, installedIUs.size());
+			assertEquals(1, installedIUs.size());
 			plan = engine.createPlan(profile, null);
 			plan.removeInstallableUnit(testIU);
 			result = engine.perform(plan, PhaseSetFactory.createDefaultPhaseSet(), new NullProgressMonitor());
-			assertTrue("0.4", result.isOK());
+			assertTrue(result.isOK());
 			// make sure the listener handles all event already that are dispatched asynchronously
 			listener.latch.await(10, TimeUnit.SECONDS);
-			assertEquals("0.5", 1, listener.preConfigureEvent);
-			assertEquals("0.6", 1, listener.postConfigureEvent);
-			assertEquals("0.7", 1, listener.preUnConfigureEvent);
-			assertEquals("0.8", 1, listener.postUnConfigureEvent);
+			assertEquals(1, listener.preConfigureEvent);
+			assertEquals(1, listener.postConfigureEvent);
+			assertEquals(1, listener.preUnConfigureEvent);
+			assertEquals(1, listener.postUnConfigureEvent);
 		} finally {
 			getEventBus().removeListener(listener);
 		}
@@ -351,10 +355,10 @@ public class ProvisioningEventTest extends AbstractProvisioningTest {
 			assertFalse(result.isOK());
 			// make sure the listener handles all event already that are dispatched asynchronously
 			listener.latch.await(10, TimeUnit.SECONDS);
-			assertEquals("0.5", 2, listener.preConfigureEvent);
-			assertEquals("0.6", 1, listener.postConfigureEvent);
-			assertEquals("0.7", 1, listener.preUnConfigureEventForUndo);
-			assertEquals("0.8", 2, listener.postUnConfigureEventForUndo);
+			assertEquals(2, listener.preConfigureEvent);
+			assertEquals(1, listener.postConfigureEvent);
+			assertEquals(1, listener.preUnConfigureEventForUndo);
+			assertEquals(2, listener.postUnConfigureEventForUndo);
 		} finally {
 			getEventBus().removeListener(listener);
 		}

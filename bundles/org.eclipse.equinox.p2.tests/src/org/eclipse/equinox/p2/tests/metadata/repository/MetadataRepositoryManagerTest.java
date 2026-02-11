@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2021 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -25,10 +25,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.core.runtime.jobs.Job;
@@ -53,9 +55,6 @@ import org.eclipse.equinox.p2.tests.FailingMetadataRepositoryFactory;
 import org.eclipse.equinox.p2.tests.StringBufferStream;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.TestRepositoryListener;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * Tests for API of {@link IMetadataRepositoryManager}.
@@ -102,35 +101,35 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	/**
 	 * Tests for {@link IRepositoryManager#contains(URI)}.
 	 */
-	public void testContains() {
+	public void testContains() throws IOException {
 		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
 		URI location = site.toURI();
 		manager.removeRepository(location);
-		assertEquals("1.0", false, manager.contains(location));
+		assertFalse(manager.contains(location));
 		manager.addRepository(location);
-		assertEquals("1.1", true, manager.contains(location));
+		assertTrue(manager.contains(location));
 		manager.removeRepository(location);
-		assertEquals("1.2", false, manager.contains(location));
+		assertFalse(manager.contains(location));
 	}
 
-	public void testEnablement() {
+	public void testEnablement() throws IOException {
 		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
 		URI location = site.toURI();
 		manager.addRepository(location);
-		assertEquals("1.0", true, manager.isEnabled(location));
+		assertTrue(manager.isEnabled(location));
 		TestRepositoryListener listener = new TestRepositoryListener(location);
 		getEventBus().addListener(listener);
 
 		manager.setEnabled(location, false);
 		listener.waitForEvent();
-		assertEquals("2.0", false, listener.lastEnablement);
-		assertEquals("2.1", false, manager.isEnabled(location));
+		assertFalse(listener.lastEnablement);
+		assertFalse(manager.isEnabled(location));
 		listener.reset();
 
 		manager.setEnabled(location, true);
 		listener.waitForEvent();
-		assertEquals("3.0", true, listener.lastEnablement);
-		assertEquals("3.1", true, manager.isEnabled(location));
+		assertTrue(listener.lastEnablement);
+		assertTrue(manager.isEnabled(location));
 		listener.reset();
 	}
 
@@ -162,7 +161,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 * Tests that adding a repository that is already known but disabled
 	 * causes the repository to be enabled. See bug 241307 for discussion.
 	 */
-	public void testEnablementOnAdd() {
+	public void testEnablementOnAdd() throws IOException {
 		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
 		URI location = site.toURI();
 		manager.addRepository(location);
@@ -173,15 +172,15 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		//adding the location again should cause it to be enabled
 		manager.addRepository(location);
 		listener.waitForEvent();
-		assertEquals("1.0", true, listener.lastEnablement);
-		assertEquals("1.1", true, manager.isEnabled(location));
+		assertTrue(listener.lastEnablement);
+		assertTrue(manager.isEnabled(location));
 	}
 
 	public void testGetKnownRepositories() throws ProvisionException {
 		int nonSystemCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_NON_SYSTEM).length;
 		int systemCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_SYSTEM).length;
 		int allCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
-		assertEquals("1.0", allCount, nonSystemCount + systemCount);
+		assertEquals(allCount, nonSystemCount + systemCount);
 
 		//create a new repository
 		File repoLocation = getTempLocation();
@@ -191,9 +190,9 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		int newAllCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
 
 		//there should be one more non-system repository
-		assertEquals("2.0", nonSystemCount + 1, newNonSystemCount);
-		assertEquals("2.1", systemCount, newSystemCount);
-		assertEquals("2.2", allCount + 1, newAllCount);
+		assertEquals(nonSystemCount + 1, newNonSystemCount);
+		assertEquals(systemCount, newSystemCount);
+		assertEquals(allCount + 1, newAllCount);
 
 		//make the repository a system repository
 		testRepo.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
@@ -202,9 +201,9 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		newNonSystemCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_NON_SYSTEM).length;
 		newSystemCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_SYSTEM).length;
 		newAllCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
-		assertEquals("3.0", nonSystemCount, newNonSystemCount);
-		assertEquals("3.1", systemCount + 1, newSystemCount);
-		assertEquals("3.2", allCount + 1, newAllCount);
+		assertEquals(nonSystemCount, newNonSystemCount);
+		assertEquals(systemCount + 1, newSystemCount);
+		assertEquals(allCount + 1, newAllCount);
 
 		int disabledCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED).length;
 		allCount = newAllCount;
@@ -215,15 +214,15 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		//should be one less enabled repository and one more disabled repository
 		int newDisabledCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED).length;
 		newAllCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
-		assertEquals("4.0", disabledCount + 1, newDisabledCount);
-		assertEquals("4.1", allCount - 1, newAllCount);
+		assertEquals(disabledCount + 1, newDisabledCount);
+		assertEquals(allCount - 1, newAllCount);
 
 		//re-loading the repository should not change anything
 		manager.loadRepository(testRepo.getLocation(), null);
 		newDisabledCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED).length;
 		newAllCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
-		assertEquals("5.0", disabledCount + 1, newDisabledCount);
-		assertEquals("5.1", allCount - 1, newAllCount);
+		assertEquals(disabledCount + 1, newDisabledCount);
+		assertEquals(allCount - 1, newAllCount);
 
 		//re-enable the repository
 		manager.setEnabled(testRepo.getLocation(), true);
@@ -231,14 +230,14 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		//should be back to the original counts
 		newDisabledCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED).length;
 		newAllCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
-		assertEquals("6.0", disabledCount, newDisabledCount);
-		assertEquals("6.1", allCount, newAllCount);
+		assertEquals(disabledCount, newDisabledCount);
+		assertEquals(allCount, newAllCount);
 	}
 
 	/**
 	 * Tests contention for the repository load lock
 	 */
-	public void testLoadContention() {
+	public void testLoadContention() throws IOException, InterruptedException {
 		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
 		final URI location = site.toURI();
 		final List<Exception> failures = new ArrayList<>();
@@ -264,12 +263,8 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		Job job2 = new LoadJob();
 		job1.schedule();
 		job2.schedule();
-		try {
-			job1.join();
-			job2.join();
-		} catch (InterruptedException e) {
-			fail("4.99", e);
-		}
+		job1.join();
+		job2.join();
 		if (!failures.isEmpty()) {
 			fail("1.0", failures.iterator().next());
 		}
@@ -288,8 +283,8 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 			manager.loadRepository(location, null);
 			fail("1.0");//should fail
 		} catch (ProvisionException e) {
-			assertEquals("1.1", IStatus.ERROR, e.getStatus().getSeverity());
-			assertEquals("1.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+			assertEquals(IStatus.ERROR, e.getStatus().getSeverity());
+			assertEquals(ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
 		} finally {
 			System.setOut(out);
 		}
@@ -299,7 +294,8 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 * Tests that loading a disabled system repository does not damage its properties.
 	 * This is a regression test for bug 267707.
 	 */
-	public void testLoadDisabledSystemRepository() throws ProvisionException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+	public void testLoadDisabledSystemRepository() throws ProvisionException, SecurityException, NoSuchFieldException,
+			IllegalArgumentException, IllegalAccessException, IOException {
 		File site = getTestData("Repositoy", "/testData/metadataRepo/goodNonSystem/");
 		URI location = site.toURI();
 		manager.removeRepository(location);
@@ -322,7 +318,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	/**
 	 * Tests loading a repository that is malformed
 	 */
-	public void testLoadBrokenRepository() {
+	public void testLoadBrokenRepository() throws IOException {
 		File site = getTestData("Repository", "/testData/metadataRepo/bad/");
 		URI location = site.toURI();
 		PrintStream err = System.err;
@@ -331,8 +327,8 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 			manager.loadRepository(location, null);
 			fail("1.0");//should fail
 		} catch (ProvisionException e) {
-			assertEquals("1.1", IStatus.ERROR, e.getStatus().getSeverity());
-			assertEquals("1.2", ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
+			assertEquals(IStatus.ERROR, e.getStatus().getSeverity());
+			assertEquals(ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
 		} finally {
 			System.setErr(err);
 		}
@@ -343,7 +339,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 * update site repository. The load should fail due to the malformed simple repository,
 	 * and not fall back to the well-formed update site repository. See bug 247566 for details.
 	 */
-	public void testLoadBrokenSimpleRepositoryWithGoodUpdateSite() {
+	public void testLoadBrokenSimpleRepositoryWithGoodUpdateSite() throws IOException {
 		File site = getTestData("Repository", "/testData/metadataRepo/badSimpleGoodUpdateSite/");
 		URI location = site.toURI();
 		PrintStream err = System.err;
@@ -352,8 +348,8 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 			manager.loadRepository(location, null);
 			fail("1.0");//should fail
 		} catch (ProvisionException e) {
-			assertEquals("1.1", IStatus.ERROR, e.getStatus().getSeverity());
-			assertEquals("1.2", ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
+			assertEquals(IStatus.ERROR, e.getStatus().getSeverity());
+			assertEquals(ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
 		} finally {
 			System.setErr(err);
 		}
@@ -414,7 +410,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		cacheFile.delete();
 	}
 
-	public void testNickname() throws ProvisionException {
+	public void testNickname() throws ProvisionException, IOException {
 		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
 		URI location = site.toURI();
 		manager.addRepository(location);
@@ -436,16 +432,12 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		assertNull(nick);
 	}
 
-	public void testPathWithSpaces() {
+	public void testPathWithSpaces() throws IOException, ProvisionException, OperationCanceledException {
 		File site = getTestData("Repository", "/testData/metadataRepo/good with spaces/");
 		URI location = site.toURI();
-		try {
-			IMetadataRepository repository = manager.loadRepository(location, getMonitor());
-			IQueryResult<IInstallableUnit> result = repository.query(QueryUtil.createIUQuery("test.bundle"), getMonitor());
-			assertEquals("1.0", 1, queryResultSize(result));
-		} catch (ProvisionException e) {
-			fail("=.99", e);
-		}
+		IMetadataRepository repository = manager.loadRepository(location, getMonitor());
+		IQueryResult<IInstallableUnit> result = repository.query(QueryUtil.createIUQuery("test.bundle"), getMonitor());
+		assertEquals(1, queryResultSize(result));
 	}
 
 	public void testRelativePath() throws URISyntaxException {
@@ -456,21 +448,21 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	/**
 	 * Tests for {@link IMetadataRepositoryManager#refreshRepository(URI, org.eclipse.core.runtime.IProgressMonitor)}.
 	 */
-	public void testRefresh() throws ProvisionException {
+	public void testRefresh() throws ProvisionException, IOException {
 		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
 		URI location = site.toURI();
 		manager.addRepository(location);
 		manager.refreshRepository(location, getMonitor());
-		assertTrue("1.0", manager.contains(location));
-		assertTrue("1.1", manager.isEnabled(location));
+		assertTrue(manager.contains(location));
+		assertTrue(manager.isEnabled(location));
 
 		//tests that refreshing doesn't lose repository properties
 		manager.setEnabled(location, false);
 		manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, "MyNick");
 		manager.refreshRepository(location, getMonitor());
-		assertTrue("2.0", manager.contains(location));
-		assertFalse("2.1", manager.isEnabled(location));
-		assertEquals("2.2", "MyNick", manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME));
+		assertTrue(manager.contains(location));
+		assertFalse(manager.isEnabled(location));
+		assertEquals("MyNick", manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME));
 
 		// Set the nickname back to null for other tests
 		manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, null);
@@ -480,7 +472,8 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 * Repository references were originally encoded as URL, but we now encode
 	 * as URI. This test ensures we handle both old and new references.
 	 */
-	public void testRepositoryReferenceCompatibility() throws URISyntaxException {
+	public void testRepositoryReferenceCompatibility()
+			throws URISyntaxException, IOException, ProvisionException, OperationCanceledException {
 		File site = getTestData("Repository", "/testData/metadataRepo/unencodedreporeferences/");
 		URI location = site.toURI();
 		final List<URI> references = new ArrayList<>();
@@ -495,22 +488,20 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		getEventBus().addListener(referenceCollector);
 		try {
 			manager.loadRepository(location, getMonitor());
-		} catch (ProvisionException e) {
-			fail("=.99", e);
 		} finally {
 			getEventBus().removeListener(referenceCollector);
 		}
-		assertEquals("1.0", 4, references.size());
-		assertTrue("1.1", references.contains(new URI("https://download.eclipse.org/url/with/spaces/a%20b")));
-		assertTrue("1.2", references.contains(new URI("file:/c:/tmp/url%20with%20spaces/")));
-		assertTrue("1.3", references.contains(new URI("https://download.eclipse.org/uri/with/spaces/a%20b")));
-		assertTrue("1.4", references.contains(new URI("file:/c:/tmp/uri%20with%20spaces/")));
+		assertEquals(4, references.size());
+		assertTrue(references.contains(new URI("https://download.eclipse.org/url/with/spaces/a%20b")));
+		assertTrue(references.contains(new URI("file:/c:/tmp/url%20with%20spaces/")));
+		assertTrue(references.contains(new URI("https://download.eclipse.org/uri/with/spaces/a%20b")));
+		assertTrue(references.contains(new URI("file:/c:/tmp/uri%20with%20spaces/")));
 	}
 
 	/**
 	 * Tests for {@link IRepositoryManager#setRepositoryProperty}.
 	 */
-	public void testSetRepositoryProperty() {
+	public void testSetRepositoryProperty() throws IOException, ProvisionException, OperationCanceledException {
 		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
 		URI location = site.toURI();
 		manager.removeRepository(location);
@@ -520,55 +511,43 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		manager.setRepositoryProperty(location, IRepository.PROP_NAME, "TestName");
 		manager.setRepositoryProperty(location, IRepository.PROP_DESCRIPTION, "TestDescription");
 		manager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, "false");
-		assertEquals("1.0", "TestName", manager.getRepositoryProperty(location, IRepository.PROP_NAME));
-		assertEquals("1.1", "TestDescription", manager.getRepositoryProperty(location, IRepository.PROP_DESCRIPTION));
-		assertEquals("1.2", "false", manager.getRepositoryProperty(location, IRepository.PROP_SYSTEM));
+		assertEquals("TestName", manager.getRepositoryProperty(location, IRepository.PROP_NAME));
+		assertEquals("TestDescription", manager.getRepositoryProperty(location, IRepository.PROP_DESCRIPTION));
+		assertEquals("false", manager.getRepositoryProperty(location, IRepository.PROP_SYSTEM));
 
 		//loading the repository should overwrite test values
-		try {
-			manager.loadRepository(location, getMonitor());
-		} catch (ProvisionException e) {
-			fail("1.99", e);
-		}
+		manager.loadRepository(location, getMonitor());
 
-		assertEquals("2.0", "Good Test Repository", manager.getRepositoryProperty(location, IRepository.PROP_NAME));
-		assertEquals("2.1", "Good test repository description", manager.getRepositoryProperty(location, IRepository.PROP_DESCRIPTION));
-		assertEquals("2.2", "true", manager.getRepositoryProperty(location, IRepository.PROP_SYSTEM));
+		assertEquals("Good Test Repository", manager.getRepositoryProperty(location, IRepository.PROP_NAME));
+		assertEquals("Good test repository description",
+				manager.getRepositoryProperty(location, IRepository.PROP_DESCRIPTION));
+		assertEquals("true", manager.getRepositoryProperty(location, IRepository.PROP_SYSTEM));
 	}
 
 	/**
 	 * Tests that trailing slashes do not affect repository identity.
 	 */
-	public void testTrailingSlashes() {
+	public void testTrailingSlashes()
+			throws IOException, URISyntaxException, ProvisionException, OperationCanceledException {
 		File site = getTestData("Repository", "/testData/metadataRepo/good/");
-		URI locationSlash, locationNoSlash;
-		try {
-			locationSlash = site.toURI();
-			String locationString = locationSlash.toString();
-			locationString = locationString.substring(0, locationString.length() - 1);
-			locationNoSlash = new URI(locationString);
-		} catch (URISyntaxException e) {
-			fail("0.99", e);
-			return;
-		}
+		URI locationSlash = site.toURI();
+		String locationString = locationSlash.toString();
+		locationString = locationString.substring(0, locationString.length() - 1);
+		URI locationNoSlash = new URI(locationString);
 
 		manager.addRepository(locationNoSlash);
-		try {
-			IMetadataRepository repoSlash = manager.loadRepository(locationSlash, null);
-			IMetadataRepository repoNoSlash = manager.loadRepository(locationNoSlash, null);
-			assertSame("1.0", repoNoSlash, repoSlash);
-		} catch (ProvisionException e) {
-			fail("1.99", e);
-		}
+		IMetadataRepository repoSlash = manager.loadRepository(locationSlash, null);
+		IMetadataRepository repoNoSlash = manager.loadRepository(locationNoSlash, null);
+		assertSame(repoNoSlash, repoSlash);
 	}
 
-	public void testReadableFilter() throws ProvisionException {
+	public void testReadableFilter() throws ProvisionException, IOException {
 		File site = getTestData("readable", "/testData/metadataRepo/badFilter/readable");
 		IMetadataRepository loadRepository = manager.loadRepository(site.toURI(), null);
 		assertEquals(1, loadRepository.query(QueryUtil.createIUAnyQuery(), null).toSet().size());
 	}
 
-	public void testUnreadableFailingFilter() {
+	public void testUnreadableFailingFilter() throws IOException {
 		File site = getTestData("unreadable", "/testData/metadataRepo/badFilter/unreadable");
 		PrintStream out = System.out;
 		try {

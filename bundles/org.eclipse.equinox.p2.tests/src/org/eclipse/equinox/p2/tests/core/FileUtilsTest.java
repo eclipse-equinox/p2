@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008,2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -38,56 +38,40 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 	/*
 	 * Test that we can expand zip files and gzip'd tar files.
 	 */
-	public void testUnzip() {
+	public void testUnzip() throws IOException {
 		File temp = getTempFolder();
 		File one = new File(temp, "a.txt");
 		File two = new File(temp, "b/b.txt");
 
 		File data = getTestData("1.0", "testData/core/a.zip");
-		try {
-			FileUtils.unzipFile(data, temp);
-		} catch (IOException e) {
-			fail("1.99", e);
-		}
-		assertTrue("1.1", one.exists());
+		FileUtils.unzipFile(data, temp);
+		assertTrue(one.exists());
 		delete(one);
-		assertTrue("1.2", !one.exists());
+		assertFalse(one.exists());
 
 		data = getTestData("2.0", "testData/core/a2.zip");
-		try {
-			FileUtils.unzipFile(data, temp);
-		} catch (IOException e) {
-			fail("2.99", e);
-		}
-		assertTrue("2.1", one.exists());
-		assertTrue("2.2", two.exists());
+		FileUtils.unzipFile(data, temp);
+		assertTrue(one.exists());
+		assertTrue(two.exists());
 		delete(one);
 		delete(two);
-		assertTrue("2.3", !one.exists());
-		assertTrue("2.4", !two.exists());
+		assertFalse(one.exists());
+		assertFalse(two.exists());
 
 		data = getTestData("3.0", "testData/core/a.tar.gz");
-		try {
-			FileUtils.unzipFile(data, temp);
-		} catch (IOException e) {
-			fail("3.99", e);
-		}
-		assertTrue("3.1", one.exists());
+		FileUtils.unzipFile(data, temp);
+		assertTrue(one.exists());
 		delete(one);
-		assertTrue("3.2", !one.exists());
+		assertFalse(one.exists());
 
 		data = getTestData("2.0", "testData/core/a2.tar.gz");
-		try {
-			FileUtils.unzipFile(data, temp);
-		} catch (IOException e) {
-			fail("3.99", e);
-		}
-		assertTrue("3.1", one.exists());
-		assertTrue("3.2", two.exists());
+		FileUtils.unzipFile(data, temp);
+		assertTrue(one.exists());
+		assertTrue(two.exists());
 		delete(one);
 		delete(two);
-		assertTrue("3.3", !one.exists());
-		assertTrue("3.4", !two.exists());
+		assertFalse(one.exists());
+		assertFalse(two.exists());
 
 	}
 
@@ -149,35 +133,27 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 		assertTrue("File not deleted", extracted.delete());
 	}
 
-	public void testZipRootPathComputer() {
+	public void testZipRootPathComputer() throws IOException {
 		File temp = getTempFolder();
 
 		File data = getTestData("1.0", "testData/core/a");
 		File archive = new File(temp, getUniqueString() + ".zip");
-		try {
-			FileUtils.zip(data.listFiles(), null, archive, FileUtils.createRootPathComputer(data));
-		} catch (IOException e) {
-			fail("1.99", e);
-		}
-		assertTrue("1.1", archive.exists());
-		assertTrue("1.2", archive.length() > 0);
+		FileUtils.zip(data.listFiles(), null, archive, FileUtils.createRootPathComputer(data));
+		assertTrue(archive.exists());
+		assertTrue(archive.length() > 0);
 		assertExists("1.3", archive, "a.txt");
 
 		data = getTestData("2.0", "testData/core/a2");
 		archive = new File(temp, getUniqueString() + ".zip");
-		try {
-			FileUtils.zip(data.listFiles(), null, archive, FileUtils.createRootPathComputer(data));
-		} catch (IOException e) {
-			fail("2.99", e);
-		}
-		assertTrue("2.1", archive.exists());
-		assertTrue("2.2", archive.length() > 0);
+		FileUtils.zip(data.listFiles(), null, archive, FileUtils.createRootPathComputer(data));
+		assertTrue(archive.exists());
+		assertTrue(archive.length() > 0);
 		assertExists("2.3", archive, "a.txt");
 		assertExists("2.4", archive, "b/b.txt");
 		assertExists("2.5", archive, "b/");
 	}
 
-	public void testZipDynamicPathComputer() {
+	public void testZipDynamicPathComputer() throws IOException {
 		File temp = getTempFolder();
 
 		File data = getTestData("1.0", "testData/core/a2");
@@ -190,24 +166,16 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 		}
 
 		archive = new File(temp, getUniqueString() + ".zip");
-		try {
-			FileUtils.zip(data.listFiles(), null, archive, FileUtils.createDynamicPathComputer(1));
-		} catch (IOException e) {
-			fail("2.99", e);
-		}
-		assertTrue("2.1", archive.exists());
-		assertTrue("2.2", archive.length() > 0);
+		FileUtils.zip(data.listFiles(), null, archive, FileUtils.createDynamicPathComputer(1));
+		assertTrue(archive.exists());
+		assertTrue(archive.length() > 0);
 		assertExists("2.3", archive, "a.txt");
 		assertExists("2.4", archive, "b.txt");
 
 		archive = new File(temp, getUniqueString() + ".zip");
-		try {
-			FileUtils.zip(data.listFiles(), null, archive, FileUtils.createDynamicPathComputer(2));
-		} catch (IOException e) {
-			fail("3.99", e);
-		}
-		assertTrue("3.1", archive.exists());
-		assertTrue("3.2", archive.length() > 0);
+		FileUtils.zip(data.listFiles(), null, archive, FileUtils.createDynamicPathComputer(2));
+		assertTrue(archive.exists());
+		assertTrue(archive.length() > 0);
 		assertExists("3.3", archive, "a2/a.txt");
 		assertExists("3.3.1", archive, "a2/");
 		assertExists("3.4", archive, "b/b.txt");
@@ -215,20 +183,16 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 
 		archive = new File(temp, getUniqueString() + ".zip");
 		File[] input = new File[] {getTestData("4.0", "testData/core/x/y"), getTestData("4.0", "testData/core/z")};
-		try {
-			FileUtils.zip(input, null, archive, FileUtils.createDynamicPathComputer(2));
-		} catch (IOException e) {
-			fail("4.99", e);
-		}
-		assertTrue("4.1", archive.exists());
-		assertTrue("4.2", archive.length() > 0);
+		FileUtils.zip(input, null, archive, FileUtils.createDynamicPathComputer(2));
+		assertTrue(archive.exists());
+		assertTrue(archive.length() > 0);
 		assertExists("4.3", archive, "features/feature.txt");
 		assertExists("4.3.1", archive, "features/");
 		assertExists("4.4", archive, "plugins/bundle.txt");
 		assertExists("4.4.1", archive, "plugins/");
 	}
 
-	public void testZipParentPrefixComputer() {
+	public void testZipParentPrefixComputer() throws IOException {
 		File temp = getTempFolder();
 
 		File data = getTestData("1.0", "testData/core/a2");
@@ -240,36 +204,24 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 			// should fail
 		}
 
-		try {
-			FileUtils.zip(data.listFiles(), null, archive, FileUtils.createParentPrefixComputer(1));
-		} catch (IOException e) {
-			fail("1.99", e);
-		}
-		assertTrue("1.1", archive.exists());
-		assertTrue("1.2", archive.length() > 0);
+		FileUtils.zip(data.listFiles(), null, archive, FileUtils.createParentPrefixComputer(1));
+		assertTrue(archive.exists());
+		assertTrue(archive.length() > 0);
 		assertExists("1.3", archive, "a.txt");
 		assertExists("1.4", archive, "b.txt");
 
 		archive = new File(temp, getUniqueString() + ".zip");
-		try {
-			FileUtils.zip(data.listFiles(), null, archive, FileUtils.createParentPrefixComputer(2));
-		} catch (IOException e) {
-			fail("2.99", e);
-		}
-		assertTrue("2.1", archive.exists());
-		assertTrue("2.2", archive.length() > 0);
+		FileUtils.zip(data.listFiles(), null, archive, FileUtils.createParentPrefixComputer(2));
+		assertTrue(archive.exists());
+		assertTrue(archive.length() > 0);
 		assertExists("2.3", archive, "a2/a.txt");
 		assertExists("2.4", archive, "b/b.txt");
 
 		archive = new File(temp, getUniqueString() + ".zip");
-		File[] input = new File[] {getTestData("4.0", "testData/core/x/y"), getTestData("4.0", "testData/core/z")};
-		try {
-			FileUtils.zip(input, null, archive, FileUtils.createParentPrefixComputer(2));
-		} catch (IOException e) {
-			fail("3.99", e);
-		}
-		assertTrue("3.1", archive.exists());
-		assertTrue("3.2", archive.length() > 0);
+		File[] input = { getTestData("4.0", "testData/core/x/y"), getTestData("4.0", "testData/core/z") };
+		FileUtils.zip(input, null, archive, FileUtils.createParentPrefixComputer(2));
+		assertTrue(archive.exists());
+		assertTrue(archive.length() > 0);
 		assertExists("3.3", archive, "features/feature.txt");
 		assertExists("3.4", archive, "plugins/bundle.txt");
 	}

@@ -66,24 +66,24 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		add("dropins/features", featureFile);
 		File bundleFile = getTestData("2.3", "testData/reconciler/plugins/myBundle_1.0.0.jar");
 		add("dropins/plugins", bundleFile);
-		assertDoesNotExistInBundlesInfo("2.5", "myBundle");
+		assertDoesNotExistInBundlesInfo("myBundle");
 		assertFalse(isInstalled("myBundle", "1.0.0"));
-		reconcile("2.7");
+		reconcile();
 
 		// make sure the feature is listed in a site in the configuration
 		Configuration config = getConfiguration();
-		assertFeatureExists("3.0", config, "myFeature", "1.0.0");
+		assertFeatureExists(config, "myFeature", "1.0.0");
 		assertTrue(isInstalled("myFeature.feature.group", "1.0.0"));
 		assertTrue(isInstalled("myBundle", "1.0.0"));
-		assertExistsInBundlesInfo("3.3", "myBundle");
+		assertExistsInBundlesInfo("myBundle");
 
 		// cleanup
 		remove("dropins/plugins", bundleFile.getName());
 		remove("dropins/features", featureFile.getName());
-		reconcile("99.2");
+		reconcile();
 		config = getConfiguration();
 		assertFalse(isInstalled("myFeature.feature.group", "1.0.0"));
-		assertDoesNotExistInBundlesInfo("99.5", "myBundle");
+		assertDoesNotExistInBundlesInfo("myBundle");
 		assertFalse(isInstalled("myBundle", "1.0.0"));
 	}
 
@@ -106,8 +106,8 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 			<feature id="bbb.feature" version="1.0.0" />
 		</site>
 		*/
-		assertDoesNotExistInBundlesInfo("3.01", "bbb");
-		assertDoesNotExistInBundlesInfo("3.02", "ccc");
+		assertDoesNotExistInBundlesInfo("bbb");
+		assertDoesNotExistInBundlesInfo("ccc");
 		assertFalse(isInstalled("bbb", "1.0.0"));
 		assertFalse(isInstalled("ccc", "1.0.0"));
 		Site site = createSite(Site.POLICY_USER_EXCLUDE, true, false, siteLocation, null);
@@ -115,14 +115,14 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		site.addFeature(feature);
 		configuration.add(site);
 		save("3.2", configuration);
-		reconcile("3.3");
-		assertExistsInBundlesInfo("3.41", "bbb");
-		assertExistsInBundlesInfo("3.42", "ccc");
+		reconcile();
+		assertExistsInBundlesInfo("bbb");
+		assertExistsInBundlesInfo("ccc");
 		assertTrue(isInstalled("bbb", "1.0.0"));
 		assertTrue(isInstalled("ccc", "1.0.0"));
 		// make sure the feature is listed in a site in the configuration
 		configuration = getConfiguration();
-		assertFeatureExists("3.6", configuration, "bbb.feature", "1.0.0");
+		assertFeatureExists(configuration, "bbb.feature", "1.0.0");
 
 		// change the configuration so the site is disabled
 		assertTrue(removeSite(configuration, siteLocation));
@@ -131,11 +131,11 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		site.addFeature(feature);
 		configuration.add(site);
 		save("4.1", configuration);
-		reconcile("4.2");
+		reconcile();
 
 		// verify
-		assertDoesNotExistInBundlesInfo("5.01", "bbb");
-		assertDoesNotExistInBundlesInfo("5.02", "ccc");
+		assertDoesNotExistInBundlesInfo("bbb");
+		assertDoesNotExistInBundlesInfo("ccc");
 		assertFalse(isInstalled("bbb", "1.0.0"));
 		assertFalse(isInstalled("ccc", "1.0.0"));
 	}
@@ -168,13 +168,13 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		site.addFeature(feature);
 		configuration.add(site);
 		save("5.0", configuration);
-		reconcile("6.0");
-		assertExistsInBundlesInfo("7.0", "bbb", "1.0.0");
-		assertTrue("7.1", isInstalled("bbb", "1.0.0"));
-		assertExistsInBundlesInfo("7.2", "ccc", "1.0.0");
-		assertTrue("7.3", isInstalled("ccc", "1.0.0"));
+		reconcile();
+		assertExistsInBundlesInfo("bbb", "1.0.0");
+		assertTrue(isInstalled("bbb", "1.0.0"));
+		assertExistsInBundlesInfo("ccc", "1.0.0");
+		assertTrue(isInstalled("ccc", "1.0.0"));
 		configuration = getConfiguration();
-		assertFeatureExists("8.0", configuration, "bbb.feature", "1.0.0");
+		assertFeatureExists(configuration, "bbb.feature", "1.0.0");
 
 		// remove the feature and its bundle from the platform.xml but leave the second bundle
 		configuration = getConfiguration();
@@ -182,19 +182,19 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		site = createSite(Site.POLICY_USER_INCLUDE, true, false, siteLocation, new String[] {"plugins/ccc_1.0.0.jar"});
 		configuration.add(site);
 		save("9.1", configuration);
-		reconcile("10.0");
-		assertDoesNotExistInBundlesInfo("10.1", "bbb", "1.0.0");
+		reconcile();
+		assertDoesNotExistInBundlesInfo("bbb", "1.0.0");
 		assertFalse("10.2", isInstalled("bbb", "1.0.0"));
-		assertExistsInBundlesInfo("10.3", "ccc", "1.0.0");
-		assertTrue("10.4", isInstalled("ccc", "1.0.0"));
+		assertExistsInBundlesInfo("ccc", "1.0.0");
+		assertTrue(isInstalled("ccc", "1.0.0"));
 
 		// cleanup
 		configuration = getConfiguration();
 		removeSite(configuration, siteLocation);
 		save("99.2", configuration);
-		reconcile("99.3");
-		assertDoesNotExistInBundlesInfo("99.4", "ccc", "1.0.0");
-		assertFalse("99.5", isInstalled("ccc", "1.0.0"));
+		reconcile();
+		assertDoesNotExistInBundlesInfo("ccc", "1.0.0");
+		assertFalse(isInstalled("ccc", "1.0.0"));
 	}
 
 	/*
@@ -224,36 +224,36 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		site.addFeature(feature);
 		configuration.add(site);
 		save("5.0", configuration);
-		reconcile("6.0");
-		assertExistsInBundlesInfo("7.0", "bbb", "1.0.0");
-		assertTrue("7.1", isInstalled("bbb", "1.0.0"));
-		assertExistsInBundlesInfo("7.2", "ccc", "1.0.0");
-		assertTrue("7.3", isInstalled("ccc", "1.0.0"));
+		reconcile();
+		assertExistsInBundlesInfo("bbb", "1.0.0");
+		assertTrue(isInstalled("bbb", "1.0.0"));
+		assertExistsInBundlesInfo("ccc", "1.0.0");
+		assertTrue(isInstalled("ccc", "1.0.0"));
 		configuration = getConfiguration();
-		assertFeatureExists("8.0", configuration, "bbb.feature", "1.0.0");
+		assertFeatureExists(configuration, "bbb.feature", "1.0.0");
 
 		// remove the feature and its bundle from the platform.xml but leave the second bundle
 		configuration = getConfiguration();
-		assertTrue("9.0", removeSite(configuration, siteLocation));
+		assertTrue(removeSite(configuration, siteLocation));
 		site = createSite(Site.POLICY_USER_INCLUDE, true, false, siteLocation, new String[] {"plugins/ccc_1.0.0.jar"});
 		configuration.add(site);
 		save("9.1", configuration);
 		File parent = new File(temp, "eclipse");
-		assertTrue("9.2", delete(new File(parent, "plugins/bbb_1.0.0.jar")));
-		assertTrue("9.3", delete(new File(parent, "features/bbb.feature_1.0.0")));
-		reconcile("10.0");
-		assertDoesNotExistInBundlesInfo("10.1", "bbb", "1.0.0");
-		assertFalse("10.2", isInstalled("bbb", "1.0.0"));
-		assertExistsInBundlesInfo("10.3", "ccc", "1.0.0");
-		assertTrue("10.4", isInstalled("ccc", "1.0.0"));
+		assertTrue(delete(new File(parent, "plugins/bbb_1.0.0.jar")));
+		assertTrue(delete(new File(parent, "features/bbb.feature_1.0.0")));
+		reconcile();
+		assertDoesNotExistInBundlesInfo("bbb", "1.0.0");
+		assertFalse(isInstalled("bbb", "1.0.0"));
+		assertExistsInBundlesInfo("ccc", "1.0.0");
+		assertTrue(isInstalled("ccc", "1.0.0"));
 
 		// cleanup
 		configuration = getConfiguration();
 		removeSite(configuration, siteLocation);
 		save("99.2", configuration);
-		reconcile("99.3");
-		assertDoesNotExistInBundlesInfo("99.4", "ccc", "1.0.0");
-		assertFalse("99.5", isInstalled("ccc", "1.0.0"));
+		reconcile();
+		assertDoesNotExistInBundlesInfo("ccc", "1.0.0");
+		assertFalse(isInstalled("ccc", "1.0.0"));
 	}
 
 	/*
@@ -278,24 +278,24 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		site.addFeature(feature);
 		configuration.add(site);
 		save("2.0", configuration);
-		reconcile("2.1");
-		assertExistsInBundlesInfo("2.2", "bbb", "1.0.0");
-		assertTrue("2.3", isInstalled("bbb", "1.0.0"));
-		assertDoesNotExistInBundlesInfo("2.4", "ccc");
-		assertFalse("2.4", isInstalled("ccc", "1.0.0"));
+		reconcile();
+		assertExistsInBundlesInfo("bbb", "1.0.0");
+		assertTrue(isInstalled("bbb", "1.0.0"));
+		assertDoesNotExistInBundlesInfo("ccc");
+		assertFalse(isInstalled("ccc", "1.0.0"));
 		configuration = getConfiguration();
-		assertFeatureExists("3.0", configuration, "bbb.feature", "1.0.0");
-		assertTrue("3.1", isInstalled("bbb.feature.feature.group", "1.0.0"));
+		assertFeatureExists(configuration, "bbb.feature", "1.0.0");
+		assertTrue(isInstalled("bbb.feature.feature.group", "1.0.0"));
 
 		// cleanup
 		configuration = getConfiguration();
 		removeSite(configuration, siteLocation);
 		save("99.2", configuration);
-		reconcile("99.3");
-		assertDoesNotExistInBundlesInfo("99.4", "bbb", "1.0.0");
-		assertFalse("99.5", isInstalled("bbb", "1.0.0"));
-		assertDoesNotExistInBundlesInfo("99.6", "ccc", "1.0.0");
-		assertFalse("99.7", isInstalled("ccc", "1.0.0"));
+		reconcile();
+		assertDoesNotExistInBundlesInfo("bbb", "1.0.0");
+		assertFalse(isInstalled("bbb", "1.0.0"));
+		assertDoesNotExistInBundlesInfo("ccc", "1.0.0");
+		assertFalse(isInstalled("ccc", "1.0.0"));
 	}
 
 	/*
@@ -318,23 +318,23 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		site.addFeature(feature);
 		configuration.add(site);
 		save("5.0", configuration);
-		reconcile("6.0");
-		assertExistsInBundlesInfo("7.0", "bbb", "1.0.0");
-		assertTrue("7.1", isInstalled("bbb", "1.0.0"));
-		assertExistsInBundlesInfo("7.2", "ccc", "1.0.0");
-		assertTrue("7.3", isInstalled("ccc", "1.0.0"));
+		reconcile();
+		assertExistsInBundlesInfo("bbb", "1.0.0");
+		assertTrue(isInstalled("bbb", "1.0.0"));
+		assertExistsInBundlesInfo("ccc", "1.0.0");
+		assertTrue(isInstalled("ccc", "1.0.0"));
 		configuration = getConfiguration();
-		assertFeatureExists("8.0", configuration, "bbb.feature", "1.0.0");
+		assertFeatureExists(configuration, "bbb.feature", "1.0.0");
 
 		// remove the site from the platform.xml
 		configuration = getConfiguration();
-		assertTrue("9.0", removeSite(configuration, siteLocation));
+		assertTrue(removeSite(configuration, siteLocation));
 		save("9.1", configuration);
-		reconcile("10.0");
-		assertDoesNotExistInBundlesInfo("10.1", "bbb", "1.0.0");
-		assertFalse("10.2", isInstalled("bbb", "1.0.0"));
-		assertDoesNotExistInBundlesInfo("10.3", "ccc", "1.0.0");
-		assertFalse("10.4", isInstalled("ccc", "1.0.0"));
+		reconcile();
+		assertDoesNotExistInBundlesInfo("bbb", "1.0.0");
+		assertFalse(isInstalled("bbb", "1.0.0"));
+		assertDoesNotExistInBundlesInfo("ccc", "1.0.0");
+		assertFalse(isInstalled("ccc", "1.0.0"));
 	}
 
 	/*
@@ -365,26 +365,26 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		createLinkFile("2.0", "myLink", temp.getCanonicalFile().getAbsolutePath());
 
 		// reconcile
-		reconcile("3.0");
+		reconcile();
 
 		// ensure everything was added ok
-		assertExistsInBundlesInfo("4.0", "bbb");
+		assertExistsInBundlesInfo("bbb");
 		assertTrue(isInstalled("bbb", "1.0.0"));
-		assertExistsInBundlesInfo("4.2", "ccc");
+		assertExistsInBundlesInfo("ccc");
 		assertTrue(isInstalled("ccc", "1.0.0"));
 		assertTrue(isInstalled("bbb.feature.feature.group", "1.0.0"));
-		assertFeatureExists("4.5", getConfiguration(), "bbb.feature", "1.0.0");
+		assertFeatureExists(getConfiguration(), "bbb.feature", "1.0.0");
 
 		// delete the link file from the links/ folder
 		removeLinkFile("5.0", "myLink");
 
 		// reconcile
-		reconcile("6.0");
+		reconcile();
 
 		// ensure things were uninstalled
-		assertDoesNotExistInBundlesInfo("7.0", "bbb");
+		assertDoesNotExistInBundlesInfo("bbb");
 		assertFalse(isInstalled("bbb", "1.0.0"));
-		assertDoesNotExistInBundlesInfo("7.2", "ccc");
+		assertDoesNotExistInBundlesInfo("ccc");
 		assertFalse(isInstalled("ccc", "1.0.0"));
 		assertFalse(isInstalled("bbb.feature.feature.group", "1.0.0"));
 		boolean found = false;
@@ -405,7 +405,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		assertInitialized();
 
 		// initial reconciliation to create platform.xml
-		reconcile("0.1");
+		reconcile();
 
 		File temp = getTempFolder();
 		toRemove.add(temp);
@@ -419,9 +419,9 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		site.addFeature(feature);
 		configuration.add(site);
 		save("2.0", configuration);
-		reconcile("2.1");
+		reconcile();
 
-		assertExistsInBundlesInfo("3.0", "zzz");
+		assertExistsInBundlesInfo("zzz");
 		assertTrue(isInstalled("zzz", "1.0.0"));
 		assertTrue(isInstalled("zFeature.feature.group", "1.0.0"));
 		IInstallableUnit unit = getRemoteIU("zzz", "1.0.0");
@@ -431,8 +431,8 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 		configuration = getConfiguration();
 		assertTrue(removeSite(configuration, siteLocation));
 		save("99.1", configuration);
-		reconcile("99.2");
-		assertDoesNotExistInBundlesInfo("99.3", "zzz", "1.0.0");
+		reconcile();
+		assertDoesNotExistInBundlesInfo("zzz", "1.0.0");
 		assertFalse(isInstalled("zzz", "1.0.0"));
 		assertFalse(isInstalled("zFeature.feature.group", "1.0.0"));
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2010 IBM Corporation and others.
+ *  Copyright (c) 2005, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -13,13 +13,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
+import java.io.IOException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
 import org.eclipse.equinox.internal.p2.engine.DownloadManager;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class CorruptedJar extends AbstractProvisioningTest {
@@ -32,19 +35,12 @@ public class CorruptedJar extends AbstractProvisioningTest {
 		// TODO Auto-generated method stub
 		super.setUp();
 		IArtifactRepositoryManager mgr = getArtifactRepositoryManager();
-		try {
-			source = mgr.loadRepository((getTestData("CorruptedJar repo", testDataLocation).toURI()), null);
-		} catch (Exception e) {
-			fail("1.0", e);
-		}
-		try {
-			target = mgr.createRepository(getTestFolder("CorruptedJarTarget").toURI(), "CorruptedJar target repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		} catch (Exception e) {
-			fail("2.0", e);
-		}
+		source = mgr.loadRepository((getTestData("CorruptedJar repo", testDataLocation).toURI()), null);
+		target = mgr.createRepository(getTestFolder("CorruptedJarTarget").toURI(), "CorruptedJar target repo",
+				IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 	}
 
-	public void testDownloadCorruptedJar() {
+	public void testDownloadCorruptedJar() throws IOException {
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 		ctx.setArtifactRepositories(getTestData("CorruptedJar repo", testDataLocation).toURI());
 		DownloadManager mgr = new DownloadManager(ctx, getAgent());

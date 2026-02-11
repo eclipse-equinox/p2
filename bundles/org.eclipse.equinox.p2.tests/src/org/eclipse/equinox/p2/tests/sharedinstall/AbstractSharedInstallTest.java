@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2017 Ericsson AB and others.
+ * Copyright (c) 2013, 2026 Ericsson AB and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -47,7 +47,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		return new File(userBase, "configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
 	}
 
-	protected String getTestRepo() {
+	protected String getTestRepo() throws IOException {
 		return getTestData("repo for shared install tests", "testData/sharedInstall/repo").toURI().toString();
 	}
 
@@ -106,7 +106,7 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		fail("Key: " + key + " not found.");
 	}
 
-	protected void installFeature1AndVerifierInUser() {
+	protected void installFeature1AndVerifierInUser() throws IOException {
 		//TODO Install something into eclipse - make sure that this can be done in an automated setup
 		runEclipse("Installing in user", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature1.feature.group,Verifier.feature.group", "-repository", getTestRepo()});
 	}
@@ -121,37 +121,37 @@ public abstract class AbstractSharedInstallTest extends AbstractReconcilerTest {
 		super.tearDown();
 	}
 
-	protected void installFeature1InUser() {
+	protected void installFeature1InUser() throws IOException {
 		runEclipse("user2", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature1.feature.group", "-repository", getTestRepo()});
 	}
 
-	protected void installFeature1InUserWithoutSpecifyingConfiguration() {
+	protected void installFeature1InUserWithoutSpecifyingConfiguration() throws IOException {
 		runEclipse("user2", output, new String[] {"-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature1.feature.group", "-repository", getTestRepo()});
 	}
 
-	protected void installFeature2InUser() {
+	protected void installFeature2InUser() throws IOException {
 		runEclipse("user2", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature2.feature.group", "-repository", getTestRepo()});
 	}
 
-	protected void installVerifierInBase() {
+	protected void installVerifierInBase() throws IOException {
 		setReadOnly(readOnlyBase, false);
 		runEclipse("Running eclipse", output, new String[] {"-application", "org.eclipse.equinox.p2.director", "-installIU", "Verifier.feature.group", "-repository", getTestRepo()});
 		setReadOnly(readOnlyBase, true);
 	}
 
-	protected void installVerifierAndFeature1InBase() {
+	protected void installVerifierAndFeature1InBase() throws IOException {
 		setReadOnly(readOnlyBase, false);
 		runEclipse("Running eclipse", output, new String[] {"-application", "org.eclipse.equinox.p2.director", "-installIU", "Verifier.feature.group,p2TestFeature1.feature.group", "-repository", getTestRepo()});
 		setReadOnly(readOnlyBase, true);
 	}
 
-	protected void uninstallFeature1InBase() {
+	protected void uninstallFeature1InBase() throws IOException {
 		setReadOnly(readOnlyBase, false);
 		runEclipse("Running eclipse", output, new String[] {"-application", "org.eclipse.equinox.p2.director", "-uninstallIU", "p2TestFeature1.feature.group", "-repository", getTestRepo()});
 		setReadOnly(readOnlyBase, true);
 	}
 
-	protected void installFeature2InBase() {
+	protected void installFeature2InBase() throws IOException {
 		setReadOnly(readOnlyBase, false);
 		runEclipse("Running eclipse", output, new String[] {"-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature2.feature.group", "-repository", getTestRepo()});
 		setReadOnly(readOnlyBase, true);

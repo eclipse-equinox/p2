@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -25,8 +26,14 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddRepositoryAction;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.ProfileScope;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -82,8 +89,8 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		args.put("enabled", "bogus enablement");
 		IStatus result = action.execute(args);
 		//Any value other than "true" for enablement results in a disabled repository
-		assertTrue("1.0", result.isOK());
-		assertTrue("1.1", !getArtifactRepositoryManager().isEnabled(locationURI));
+		assertTrue(result.isOK());
+		assertFalse(getArtifactRepositoryManager().isEnabled(locationURI));
 	}
 
 	private void addAgent(Map<String, Object> args) {
@@ -95,7 +102,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		addAgent(args);
 		args.put("location", "bogus location");
 		IStatus result = action.execute(args);
-		assertTrue("1.0", !result.isOK());
+		assertFalse(result.isOK());
 	}
 
 	public void testInvalidType() {
@@ -103,7 +110,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		addAgent(args);
 		args.put("type", "bogus type");
 		IStatus result = action.execute(args);
-		assertTrue("1.0", !result.isOK());
+		assertFalse(result.isOK());
 	}
 
 	public void testMissingEnablement() {
@@ -112,7 +119,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		addAgent(args);
 		args.remove("enabled");
 		IStatus result = action.execute(args);
-		assertTrue("1.0", result.isOK());
+		assertTrue(result.isOK());
 	}
 
 	public void testMissingType() {
@@ -120,43 +127,43 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		addAgent(args);
 		args.remove("type");
 		IStatus result = action.execute(args);
-		assertTrue("1.0", !result.isOK());
+		assertFalse(result.isOK());
 	}
 
 	public void testNoArguments() {
 		IStatus result = action.execute(new HashMap<>());
-		assertTrue("1.0", !result.isOK());
+		assertFalse(result.isOK());
 	}
 
 	public void testUndo() {
 		Map<String, Object> args = getValidArguments();
 		addAgent(args);
 		IStatus result = action.execute(args);
-		assertTrue("1.0", result.isOK());
+		assertTrue(result.isOK());
 
 		result = action.undo(args);
-		assertTrue("1.1", result.isOK());
+		assertTrue(result.isOK());
 	}
 
 	public void testMultipleActionAdd() {
 		Map<String, Object> args = getValidArguments();
 		addAgent(args);
 		IStatus result = action.execute(args);
-		assertTrue("1.0", result.isOK());
+		assertTrue(result.isOK());
 
 		result = action.execute(args);
-		assertTrue("1.1", result.isOK());
+		assertTrue(result.isOK());
 
 		result = action.undo(args);
-		assertTrue("1.2", result.isOK());
+		assertTrue(result.isOK());
 
-		assertTrue("2.0", locationExists(null, TEST_LOCATION));
+		assertTrue(locationExists(null, TEST_LOCATION));
 	}
 
 	public void testUserWins() {
 		try {
 			getArtifactRepositoryManager().addRepository(new URI(TEST_LOCATION));
-			assertTrue("0.1", locationExists(null, TEST_LOCATION));
+			assertTrue(locationExists(null, TEST_LOCATION));
 		} catch (URISyntaxException e) {
 			// Should not occur
 		}
@@ -164,12 +171,12 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		Map<String, Object> args = getValidArguments();
 		addAgent(args);
 		IStatus result = action.execute(args);
-		assertTrue("1.0", result.isOK());
+		assertTrue(result.isOK());
 
 		result = action.undo(args);
-		assertTrue("1.1", result.isOK());
+		assertTrue(result.isOK());
 
-		assertTrue("2.0", locationExists(null, TEST_LOCATION));
+		assertTrue(locationExists(null, TEST_LOCATION));
 	}
 
 	/**
@@ -202,7 +209,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	/**
 	 * Tests adding a repository during an update (bug 266881).
 	 */
-	public void testBug266881() throws ProvisionException {
+	public void testBug266881() throws ProvisionException, IOException {
 		//need to install a real bundle with an artifact to check for GC bug
 		URI site = getTestData("0.1", "/testData/testRepos/simple.1").toURI();
 		getMetadataRepositoryManager().addRepository(site);
@@ -217,9 +224,9 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		final IInstallableUnit[] oldIUs = new IInstallableUnit[] {oldIU};
 		request.addInstallableUnits(oldIUs);
 		IStatus result = createDirector().provision(request, new ProvisioningContext(getAgent()), getMonitor());
-		assertTrue("1.0", result.isOK());
+		assertTrue(result.isOK());
 
-		assertTrue("1.1", !getArtifactRepositoryManager().contains(locationURI));
+		assertFalse(getArtifactRepositoryManager().contains(locationURI));
 
 		//define new IU
 		version = Version.createOSGi(1, 1, 0);
@@ -239,12 +246,12 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		if (!result.isOK()) {
 			LogHelper.log(result);
 		}
-		assertTrue("2.0", result.isOK());
+		assertTrue(result.isOK());
 
 		//check that the artifact is still there
 		profile = getProfile(id);
 		IArtifactRepository artifacts = getArtifactRepositoryManager().loadRepository(Util.getBundlePoolLocation(getAgent(), profile), getMonitor());
-		assertEquals("3.0", 1, getArtifactKeyCount(artifacts));
+		assertEquals(1, getArtifactKeyCount(artifacts));
 
 		//check that profile property is set
 		assertProfileContains("3.1", profile, newIUs);
@@ -252,7 +259,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		Preferences pref = new ProfileScope(getAgentLocation(), profile.getProfileId()).getNode("org.eclipse.equinox.p2.artifact.repository/repositories/" + getKey(TEST_LOCATION));
 		String value = pref.get(KEY_URI, null);
 
-		assertEquals("3.2", value, TEST_LOCATION);
+		assertEquals(value, TEST_LOCATION);
 	}
 
 	/*

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,7 @@
 package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import org.eclipse.equinox.internal.p2.engine.TouchpointManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -51,7 +51,7 @@ public class TouchpointManagerTest extends AbstractProvisioningTest {
 
 	@SuppressWarnings("deprecation") // java.io.File.toURL()
 	// temporarily disabling this test until API is done
-	public void DISABLED_testDynamicTouchpoint() throws MalformedURLException, BundleException, InterruptedException {
+	public void DISABLED_testDynamicTouchpoint() throws BundleException, InterruptedException, IOException {
 		TouchpointManager manager = new TouchpointManager();
 		assertNull(manager.getTouchpoint("dummy", "1.0.0"));
 		File dummy = getTestData("0.1", "/testData/engineTest/dummy.touchpointAndAction_1.0.0.jar");

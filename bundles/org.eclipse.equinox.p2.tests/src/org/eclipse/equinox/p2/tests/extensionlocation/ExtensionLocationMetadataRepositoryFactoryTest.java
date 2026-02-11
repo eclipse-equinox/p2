@@ -222,7 +222,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		assertNull("3.0", repo);
 	}
 
-	public void testUpdateSiteXMLURL() {
+	public void testUpdateSiteXMLURL() throws IOException {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		try {
 			factory.load(site.toURI(), 0, getMonitor());
@@ -234,7 +234,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		fail("1.0");
 	}
 
-	public void testXXXSiteXXXXMLURL() {
+	public void testXXXSiteXXXXMLURL() throws IOException {
 		File site = getTestData("0.1", "/testData/updatesite/xxxsitexxx");
 		try {
 			factory.load(site.toURI(), 0, getMonitor());
