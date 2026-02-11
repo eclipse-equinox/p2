@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -13,8 +13,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatesite;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -28,6 +31,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorSelector;
 import org.eclipse.equinox.internal.p2.artifact.repository.RawMirrorRequest;
@@ -82,264 +86,135 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		return new TestSuite(UpdateSiteTest.class);
 	}
 
-	public void testRelativeSiteURL() {
+	public void testRelativeSiteURL() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/siteurl");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 
-		try {
-			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
-			assertEquals(1, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.4", e);
-		}
+		int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
+		assertEquals(1, featureCount);
 	}
 
-	public void testAbsoluteSiteURL() {
+	public void testAbsoluteSiteURL() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/siteurl2");
 		File siteDirectory = getTestData("0.1", "/testData/updatesite/siteurl2/siteurl/");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 			updatesite.getSite().setLocationURIString(siteDirectory.toURI().toString());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
 
-		try {
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.4", e);
-		}
 	}
 
-	public void testDefaultDigestURL() {
+	public void testDefaultDigestURL() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/digest");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 
-		try {
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.4", e);
-		}
 	}
 
-	public void testZippedDefaultDigestURL() throws URISyntaxException {
+	public void testZippedDefaultDigestURL() throws URISyntaxException, IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/digest/site.zip");
 		URI siteURI = new URI("jar:" + site.toURI() + "!/");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(siteURI, getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
+		UpdateSite updatesite = UpdateSite.load(siteURI, getTransport(), getMonitor());
 
-		try {
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.4", e);
-		}
 	}
 
-	public void testRelativeDigestURL() {
+	public void testRelativeDigestURL() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/digesturl");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 
-		try {
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.4", e);
-		}
 	}
 
-	public void testAbsoluteDigestURL() {
+	public void testAbsoluteDigestURL() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/digesturl2");
 		File digestDirectory = getTestData("0.1", "/testData/updatesite/digesturl2/digesturl/");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-			updatesite.getSite().setDigestURIString(digestDirectory.toURI().toString());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
+		updatesite.getSite().setDigestURIString(digestDirectory.toURI().toString());
 
-		try {
-			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
-			assertEquals(1, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.4", e);
-		}
+		int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
+		assertEquals(1, featureCount);
 	}
 
 	/*
 	 * Test in which we load an update site from a valid site.xml file. Handle
 	 * all the variations in the file.
 	 */
-	public void testNoDigestGoodSite() {
+	public void testNoDigestGoodSite() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/site");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
-		try {
-			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
-			assertEquals(1, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.4", e);
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
+		int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
+		assertEquals(1, featureCount);
 	}
 
-	public void testNoEndingSlashURL() {
+	public void testNoEndingSlashURL() throws IOException, ProvisionException {
 		File base = getTestData("0.1", "/testData/updatesite");
-		UpdateSite updatesite = null;
-		try {
-			URI siteURL = base.toURI().resolve("site");
-			updatesite = UpdateSite.load(siteURL, getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
-		try {
-			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
-			assertEquals(1, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.4", e);
-		}
+		URI siteURL = base.toURI().resolve("site");
+		UpdateSite updatesite = UpdateSite.load(siteURL, getTransport(), getMonitor());
+		int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
+		assertEquals(1, featureCount);
 	}
 
-	public void testSiteXMLURL() {
+	public void testSiteXMLURL() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/site/site.xml");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
-		try {
-			int featureCount = updatesite.loadFeatures(getMonitor()).length;
-			assertEquals(1, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.4", e);
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
+		int featureCount = updatesite.loadFeatures(getMonitor()).length;
+		assertEquals(1, featureCount);
 	}
 
-	public void testSiteWithSpaces() {
+	public void testSiteWithSpaces() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/site with spaces/");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
-		try {
-			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
-			assertEquals(1, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.4", e);
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
+		int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
+		assertEquals(1, featureCount);
 	}
 
-	public void testXXXSiteXXXXMLURL() {
+	public void testXXXSiteXXXXMLURL() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/xxxsitexxx/xxxsitexxx.xml");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
-		try {
-			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
-			assertEquals(1, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.4", e);
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
+		int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
+		assertEquals(1, featureCount);
 	}
 
-	public void testBadXXXSiteXXXXMLURL() {
+	public void testBadXXXSiteXXXXMLURL() throws IOException {
 		File siteDir = getTestData("0.1", "/testData/updatesite/xxxsitexxx");
 		File site = new File(siteDir, "site.xml");
-		try {
-			UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-			fail("0.2");
-		} catch (ProvisionException e) {
-			// expected
-		}
+		assertThrows(ProvisionException.class,
+				() -> UpdateSite.load(site.toURI(), getTransport(), getMonitor()));
 	}
 
-	public void testBadDigestGoodSite() {
+	public void testBadDigestGoodSite() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/baddigestgoodsite");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
-		try {
-			updatesite.loadFeatures(new NullProgressMonitor());
-		} catch (ProvisionException e) {
-			fail("0.4", e);
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
+		updatesite.loadFeatures(new NullProgressMonitor());
 	}
 
-	public void testCorruptDigestGoodSite() {
+	public void testCorruptDigestGoodSite() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/corruptdigestgoodsite");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		StringBuilder buffer = new StringBuilder();
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));
 			updatesite.loadFeatures(new NullProgressMonitor());
-		} catch (ProvisionException e) {
-			fail("0.4", e);
 		} finally {
 			System.setOut(out);
 		}
 		assertTrue(buffer.toString().contains("Content is not allowed in prolog."));
 	}
 
-	public void testBadDigestBadSite() {
+	public void testBadDigestBadSite() throws IOException {
 		File site = getTestData("0.1", "/testData/updatesite/baddigestbadsite");
-		try {
-			UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-			fail("0.2");
-		} catch (ProvisionException e) {
-			// expected
-		}
+		assertThrows(ProvisionException.class, () -> UpdateSite.load(site.toURI(), getTransport(), getMonitor()));
 	}
 
-	public void testBadSiteXML() {
+	public void testBadSiteXML() throws IOException {
 		// handle the case where the site.xml doesn't parse correctly
 		File site = getTestData("0.1", "/testData/updatesite/badSiteXML");
-		try {
-			UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-			fail("0.2");
-		} catch (ProvisionException e) {
-			// expected exception
-		}
+		assertThrows(ProvisionException.class, () -> UpdateSite.load(site.toURI(), getTransport(), getMonitor()));
 	}
 
 	/*
@@ -349,276 +224,207 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		// ensure we have a validate, empty location
 		File temp = getTempFolder();
 		temp.mkdirs();
-		try {
-			UpdateSite.load(temp.toURI(), getTransport(), getMonitor());
-			fail("0.2");
-		} catch (ProvisionException e) {
-			// we expect an exception
-		}
+		assertThrows(ProvisionException.class, () -> UpdateSite.load(temp.toURI(), getTransport(), getMonitor()));
 	}
 
-	public void testNullSite() {
-		try {
-			assertNull("1.0", UpdateSite.load(null, getTransport(), getMonitor()));
-		} catch (ProvisionException e) {
-			fail("1.99", e);
-		}
+	public void testNullSite() throws ProvisionException {
+		assertNull("1.0", UpdateSite.load(null, getTransport(), getMonitor()));
 	}
 
-	public void testBadFeatureURL() {
+	public void testBadFeatureURL() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/badfeatureurl");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		StringBuilder buffer = new StringBuilder();
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(0, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.5");
-
 		} finally {
 			System.setOut(out);
 		}
 		assertTrue(buffer.toString().contains("Error reading feature"));
 	}
 
-	public void testGoodFeatureURL() {
+	public void testGoodFeatureURL() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/goodfeatureurl");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
-		try {
-			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
-			assertEquals(1, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.5");
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
+		int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
+		assertEquals(1, featureCount);
 	}
 
-	public void testZippedGoodFeatureURL() throws URISyntaxException {
+	public void testZippedGoodFeatureURL() throws URISyntaxException, IOException, ProvisionException {
 
 		File site = getTestData("0.1", "/testData/updatesite/goodfeatureurl/site.zip");
 		URI siteURI = new URI("jar:" + site.toURI() + "!/");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(siteURI, getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
+		UpdateSite updatesite = UpdateSite.load(siteURI, getTransport(), getMonitor());
 
-		try {
-			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
-			assertEquals(1, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.5");
-		}
+		int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
+		assertEquals(1, featureCount);
 	}
 
-	public void testIncludedFeature() {
+	public void testIncludedFeature() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/includedfeature");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
-		try {
-			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
-			assertEquals(2, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.5");
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
+		int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
+		assertEquals(2, featureCount);
 	}
 
-	public void testIncludedFeatureArchive() {
+	public void testIncludedFeatureArchive() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/includedfeaturearchive");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
-		try {
-			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
-			assertEquals(2, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.5");
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
+		int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
+		assertEquals(2, featureCount);
 	}
 
-	public void testBadIncludedFeatureArchive() {
+	public void testBadIncludedFeatureArchive() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/badincludedfeaturearchive");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		StringBuilder buffer = new StringBuilder();
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.5");
 		} finally {
 			System.setOut(out);
 		}
 		assertTrue(buffer.toString().contains("Error reading feature"));
 	}
 
-	public void testNoFeatureIdAndVersion() {
+	public void testNoFeatureIdAndVersion() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/nofeatureidandversion");
-		UpdateSite updatesite = null;
-		try {
-			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("0.2", e);
-		}
-		try {
-			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
-			assertEquals(2, featureCount);
-		} catch (ProvisionException e) {
-			fail("0.5");
-		}
+		UpdateSite updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
+		int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
+		assertEquals(2, featureCount);
 	}
 
 	public void testSiteFeatureVersionEquals() {
 		SiteFeature a = new SiteFeature();
 		SiteFeature b = new SiteFeature();
-		assertEquals("1.0", a, b);
+		assertEquals(a, b);
 		b.setFeatureVersion("1.0.0");
 		a.setFeatureVersion("1.0.0");
 		b.setFeatureVersion("1.0.0");
-		assertEquals("1.1", a, b);
+		assertEquals(a, b);
 		b.setFeatureVersion("2.0.0");
-		assertFalse("1.2", a.equals(b));
+		assertFalse(a.equals(b));
 		b.setFeatureVersion(null);
-		assertFalse("1.3", a.equals(b));
-		assertFalse("1.4", b.equals(a));
+		assertFalse(a.equals(b));
+		assertFalse(b.equals(a));
 	}
 
 	public void testSiteFeatureLabelEquals() {
 		SiteFeature a = new SiteFeature();
 		SiteFeature b = new SiteFeature();
-		assertEquals("1.0", a, b);
+		assertEquals(a, b);
 		a.setLabel("foo");
 		b.setLabel("foo");
-		assertEquals("1.1", a, b);
+		assertEquals(a, b);
 		b.setLabel("bar");
-		assertFalse("1.2", a.equals(b));
+		assertFalse(a.equals(b));
 		b.setLabel(null);
-		assertFalse("1.3", a.equals(b));
-		assertFalse("1.4", b.equals(a));
+		assertFalse(a.equals(b));
+		assertFalse(b.equals(a));
 	}
 
 	public void testSiteFeatureIDEquals() {
 		SiteFeature a = new SiteFeature();
 		SiteFeature b = new SiteFeature();
-		assertEquals("1.0", a, b);
+		assertEquals(a, b);
 		a.setFeatureIdentifier("org.foo");
 		b.setFeatureIdentifier("org.foo");
-		assertEquals("1.1", a, b);
+		assertEquals(a, b);
 		b.setFeatureIdentifier("org.bar");
-		assertFalse("1.2", a.equals(b));
+		assertFalse(a.equals(b));
 		b.setFeatureIdentifier(null);
-		assertFalse("1.3", a.equals(b));
-		assertFalse("1.4", b.equals(a));
+		assertFalse(a.equals(b));
+		assertFalse(b.equals(a));
 	}
 
 	public void testSiteFeatureEquals() {
 		SiteFeature a = new SiteFeature();
 		SiteFeature b = new SiteFeature();
-		assertEquals("1.0", a, b);
+		assertEquals(a, b);
 		a.setURLString("http://foo");
-		assertFalse("1.1", a.equals(b));
+		assertFalse(a.equals(b));
 		b.setURLString("http://foo");
-		assertEquals("1.2", a, b);
+		assertEquals(a, b);
 		a.setURLString("http://FOO");
-		assertEquals("1.3", a, b);
+		assertEquals(a, b);
 		a.setURLString("file://FOO");
-		assertFalse("1.4", a.equals(b));
+		assertFalse(a.equals(b));
 		a.setURLString(null);
-		assertFalse("1.5", a.equals(b));
-		assertFalse("1.6", b.equals(a));
+		assertFalse(a.equals(b));
+		assertFalse(b.equals(a));
 	}
 
 	public void testSiteFeatureHash() {
 		SiteFeature a = new SiteFeature();
 		SiteFeature b = new SiteFeature();
-		assertEquals("1.0", a.hashCode(), b.hashCode());
+		assertEquals(a.hashCode(), b.hashCode());
 		a.setURLString("http://foo");
 		b.setURLString("http://foo");
-		assertEquals("1.1", a.hashCode(), b.hashCode());
+		assertEquals(a.hashCode(), b.hashCode());
 		a.setURLString("http://FOO/");
-		assertEquals("1.2", a.hashCode(), b.hashCode());
+		assertEquals(a.hashCode(), b.hashCode());
 		a.setURLString("foo");
 		b.setURLString("FoO");
-		assertEquals("1.3", a.hashCode(), b.hashCode());
+		assertEquals(a.hashCode(), b.hashCode());
 	}
 
 	public void testSiteFeatureNotEquals() {
 		SiteFeature a = new SiteFeature();
 		SiteFeature b = new SiteFeature();
-		assertEquals("1.0", a, b);
+		assertEquals(a, b);
 		a.setURLString("file:/c:/foo");
-		assertFalse("1.1", a.equals(b));
+		assertFalse(a.equals(b));
 		b.setURLString("file:/c:/bar");
-		assertFalse("1.2", a.equals(b));
-		assertFalse("1.3", b.equals(a));
+		assertFalse(a.equals(b));
+		assertFalse(b.equals(a));
 		a.setURLString("http://foo");
 		b.setURLString("http://bar/");
-		assertFalse("1.4", b.equals(a));
+		assertFalse(b.equals(a));
 	}
 
 	public void testSiteFeatureFileURL() {
 		SiteFeature a = new SiteFeature();
 		SiteFeature b = new SiteFeature();
-		assertEquals("1.0", a, b);
+		assertEquals(a, b);
 		a.setURLString("file:/c:/foo");
 		b.setURLString("file:/c:/FOO");
 		if (a.equals(b)) {
-			assertEquals("1.1", a.hashCode(), b.hashCode());
+			assertEquals(a.hashCode(), b.hashCode());
 		}
 		a.setURLString("FILE:/c:/foo");
 		b.setURLString("file:/c:/FOO");
 		if (a.equals(b)) {
-			assertEquals("1.2", a.hashCode(), b.hashCode());
+			assertEquals(a.hashCode(), b.hashCode());
 		}
 		a.setURLString("HTTP://example.com");
 		b.setURLString("HTtP://example.com");
 		if (a.equals(b)) {
-			assertEquals("1.3", a.hashCode(), b.hashCode());
+			assertEquals(a.hashCode(), b.hashCode());
 		}
 		a.setURLString("HTTP://eXaMpLe.com");
 		b.setURLString("HTtP://example.com");
 		if (a.equals(b)) {
-			assertEquals("1.4", a.hashCode(), b.hashCode());
+			assertEquals(a.hashCode(), b.hashCode());
 		}
 		a.setURLString("HTTP://eXaMpLe.com/");
 		b.setURLString("HTtP://example.com");
 		assertEquals(a, b);
 		if (a.equals(b)) {
-			assertEquals("1.5", a.hashCode(), b.hashCode());
+			assertEquals(a.hashCode(), b.hashCode());
 		}
 		a.setURLString("http://localhost");
 		b.setURLString("http://127.0.0.1");
 		if (a.equals(b)) {
-			assertEquals("1.6", a.hashCode(), b.hashCode());
+			assertEquals(a.hashCode(), b.hashCode());
 		}
 	}
 
-	public void testRepoWithFeatureWithNullUpdateURL() {
+	public void testRepoWithFeatureWithNullUpdateURL() throws IOException {
 		IMetadataRepositoryManager repoMan = getAgent().getService(IMetadataRepositoryManager.class);
 		assertNotNull(repoMan);
 		File site = getTestData("Update site", "/testData/updatesite/missingUpdateURLFeature/");
@@ -629,20 +435,20 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			System.setOut(new PrintStream(new StringBufferStream(buffer)));
 			metadataRepo = repoMan.loadRepository(site.toURI(), null);
 		} catch (ProvisionException e) {
-			fail("Can't load repository missingUpdateURLFeature");
+			fail("Can't load repository missingUpdateURLFeature", e);
 		} finally {
 			System.setOut(out);
 		}
 		assertTrue(buffer.toString().contains("Invalid site reference null in feature test.featurewithmissingupdateurl."));
 		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery("test.featurewithmissingupdateurl.feature.group", Version.create("1.0.0"));
 		IQueryResult<IInstallableUnit> result = metadataRepo.query(query, null);
-		assertEquals("1.0", 1, queryResultSize(result));
+		assertEquals(1, queryResultSize(result));
 	}
 
 	/**
 	 * Tests that a feature requiring a bundle with no range is converted correctly.
 	 */
-	public void testBug243422() {
+	public void testBug243422() throws IOException {
 		IMetadataRepositoryManager repoMan = getAgent().getService(IMetadataRepositoryManager.class);
 		assertNotNull(repoMan);
 		File site = getTestData("Update site", "/testData/updatesite/UpdateSite243422/");
@@ -650,21 +456,21 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		try {
 			metadataRepo = repoMan.loadRepository(site.toURI(), null);
 		} catch (ProvisionException e) {
-			fail("Can't load repository UpdateSite243422");
+			fail("Can't load repository UpdateSite243422", e);
 		}
 		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery("org.eclipse.jdt.astview.feature.feature.group", Version.create("1.0.1"));
 		IQueryResult<IInstallableUnit> result = metadataRepo.query(query, null);
-		assertEquals("1.0", 1, queryResultSize(result));
+		assertEquals(1, queryResultSize(result));
 		IInstallableUnit featureIU = result.iterator().next();
 		for (IRequirement requirement : featureIU.getRequirements()) {
 			IRequiredCapability req = (IRequiredCapability) requirement;
 			if (req.getName().equals("org.eclipse.ui.ide")) {
-				assertEquals("2.0", VersionRange.emptyRange, req.getRange());
+				assertEquals(VersionRange.emptyRange, req.getRange());
 			}
 		}
 	}
 
-	public void testShortenVersionNumberInFeature() {
+	public void testShortenVersionNumberInFeature() throws IOException {
 		IArtifactRepositoryManager repoMan = getAgent().getService(IArtifactRepositoryManager.class);
 		assertNotNull(repoMan);
 		File site = getTestData("Update site", "/testData/updatesite/240121/UpdateSite240121/");
@@ -672,7 +478,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		try {
 			artifactRepo = repoMan.loadRepository(site.toURI(), null);
 		} catch (ProvisionException e) {
-			fail("Can't load repository UpdateSite240121");
+			fail("Can't load repository UpdateSite240121", e);
 		}
 		IQueryResult<IArtifactKey> keys = artifactRepo.query(new ArtifactKeyQuery(null, "Plugin240121", null), null);
 		assertEquals(1, queryResultSize(keys));
@@ -687,32 +493,27 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	 * Tests that the feature jar IU has the appropriate touchpoint instruction for
 	 * unzipping the feature on install.
 	 */
-	public void testFeatureJarUnzipInstruction() {
+	public void testFeatureJarUnzipInstruction() throws IOException, ProvisionException, OperationCanceledException {
 		IMetadataRepositoryManager repoMan = getAgent().getService(IMetadataRepositoryManager.class);
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI location = null;
 		location = site.toURI();
-		IMetadataRepository repository;
-		try {
-			repository = repoMan.loadRepository(location, getMonitor());
-		} catch (ProvisionException e) {
-			fail("1.99", e);
-			return;
-		}
+		IMetadataRepository repository = repoMan.loadRepository(location, getMonitor());
 		IQueryResult<IInstallableUnit> result = repository.query(QueryUtil.createIUQuery("test.feature.feature.jar"), getMonitor());
-		assertTrue("1.0", !result.isEmpty());
+		assertFalse(result.isEmpty());
 		IInstallableUnit unit = result.iterator().next();
 		Collection<ITouchpointData> data = unit.getTouchpointData();
-		assertEquals("1.1", 1, data.size());
+		assertEquals(1, data.size());
 		Map<String, ITouchpointInstruction> instructions = data.iterator().next().getInstructions();
-		assertEquals("1.2", 1, instructions.size());
-		assertEquals("1.3", "true", instructions.get("zipped").getBody());
+		assertEquals(1, instructions.size());
+		assertEquals("true", instructions.get("zipped").getBody());
 	}
 
 	/**
 	 * TODO Failing test, see bug 265528.
 	 */
-	public void _testFeatureSiteReferences() throws ProvisionException, URISyntaxException {
+	public void _testFeatureSiteReferences()
+			throws ProvisionException, URISyntaxException, IOException, InterruptedException {
 		File site = getTestData("0.1", "/testData/updatesite/siteFeatureReferences");
 		URI siteURI = site.toURI();
 		URI testUpdateSite = new URI("https://download.eclipse.org/test/updatesite/");
@@ -723,20 +524,16 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		manager.removeRepository(testUpdateSite);
 		manager.removeRepository(testDiscoverySite);
 		IMetadataRepository repository = manager.loadRepository(siteURI, 0, getMonitor());
-		try {
-			//wait for site references to be published asynchronously
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			fail("4.99", e);
-		}
+		// wait for site references to be published asynchronously
+		Thread.sleep(1000);
 		assertNotNull(repository);
-		assertTrue("1.0", manager.contains(testUpdateSite));
-		assertTrue("1.1", manager.contains(testDiscoverySite));
-		assertFalse("1.2", manager.isEnabled(testUpdateSite));
-		assertFalse("1.3", manager.isEnabled(testDiscoverySite));
+		assertTrue(manager.contains(testUpdateSite));
+		assertTrue(manager.contains(testDiscoverySite));
+		assertFalse(manager.isEnabled(testUpdateSite));
+		assertFalse(manager.isEnabled(testDiscoverySite));
 	}
 
-	public void testMetadataRepoCount() {
+	public void testMetadataRepoCount() throws IOException, ProvisionException, OperationCanceledException {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI siteURI = site.toURI();
 
@@ -752,17 +549,12 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			}
 		}
 
-		try {
-			metadataRepoMan.loadRepository(site.toURI(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("1.0", e);
-			return;
-		}
+		metadataRepoMan.loadRepository(site.toURI(), getMonitor());
 		URI[] afterKnownRepos = metadataRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		assertTrue("1.1", afterKnownRepos.length == knownRepos.length + 1);
+		assertTrue(afterKnownRepos.length == knownRepos.length + 1);
 	}
 
-	public void testArtifactRepoCount() {
+	public void testArtifactRepoCount() throws IOException, ProvisionException {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI siteURI = site.toURI();
 
@@ -778,19 +570,14 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			}
 		}
 
-		try {
-			artifactRepoMan.loadRepository(site.toURI(), getMonitor());
-		} catch (ProvisionException e) {
-			fail("1.0", e);
-			return;
-		}
+		artifactRepoMan.loadRepository(site.toURI(), getMonitor());
 		URI[] afterKnownRepos = artifactRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		assertTrue("1.1", afterKnownRepos.length == knownRepos.length + 1);
+		assertTrue(afterKnownRepos.length == knownRepos.length + 1);
 	}
 
 
 	@SuppressWarnings("removal")
-	public void testMirrors() {
+	public void testMirrors() throws Exception {
 		String testDataLocation = "/testData/updatesite/packedSiteWithMirror";
 		File targetLocation = null;
 		URI siteURI = getTestData("0.1", testDataLocation).toURI();
@@ -817,17 +604,13 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 				}
 			}
 
-			if (descriptor == null) {
-				fail("0.3");
-			}
+			assertNotNull(descriptor);
 
 			RawMirrorRequest mirror = new RawMirrorRequest(descriptor, new ArtifactDescriptor(descriptor), targetRepository, getTransport());
 			mirror.perform(sourceRepo, getMonitor());
 
 			assertTrue(mirror.getResult().isOK());
 			assertTrue(targetRepository.contains(key));
-		} catch (Exception e) {
-			fail("0.2", e);
 		} finally {
 			if (targetLocation != null) {
 				delete(targetLocation);
@@ -901,15 +684,11 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			}
 		}
 
-		private synchronized void getRepoLocation() {
-			Field locationField = null;
-			try {
-				locationField = UpdateSiteArtifactRepository.class.getDeclaredField("location");
-				locationField.setAccessible(true);
-				repoLocation = (URI) locationField.get(repo);
-			} catch (Exception e) {
-				fail("0.3", e);
-			}
+		private synchronized void getRepoLocation()
+				throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+			Field locationField = UpdateSiteArtifactRepository.class.getDeclaredField("location");
+			locationField.setAccessible(true);
+			repoLocation = (URI) locationField.get(repo);
 		}
 
 		private MirrorInfo[] computeMirrors(String mirrorsURL) {

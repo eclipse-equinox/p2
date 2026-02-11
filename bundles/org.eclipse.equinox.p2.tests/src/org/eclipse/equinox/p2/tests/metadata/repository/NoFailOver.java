@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2010 IBM Corporation and others.
+ *  Copyright (c) 2009, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.io.File;
+import java.io.IOException;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -26,7 +27,7 @@ public class NoFailOver extends AbstractProvisioningTest {
 	/**
 	 * Tests fail over on an metadata repository
 	 */
-	public void testMetadataDoesNotOver() {
+	public void testMetadataDoesNotOver() throws IOException {
 		File repoLocation = getTestData("fail over", "testData/noFailOver");
 		try {
 			getMetadataRepositoryManager().loadRepository(repoLocation.toURI(), null);
@@ -39,7 +40,7 @@ public class NoFailOver extends AbstractProvisioningTest {
 	/**
 	 * Tests fail over on an artifact repository
 	 */
-	public void testArtifactDoesNotOver() {
+	public void testArtifactDoesNotOver() throws IOException {
 		File repoLocation = getTestData("fail over", "testData/noFailOver");
 		try {
 			getArtifactRepositoryManager().loadRepository(repoLocation.toURI(), null);

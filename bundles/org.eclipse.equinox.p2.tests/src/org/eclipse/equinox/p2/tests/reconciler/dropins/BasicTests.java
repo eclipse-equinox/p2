@@ -74,15 +74,15 @@ public class BasicTests extends AbstractReconcilerTest {
 	 */
 	public void testDirectoryBasedPlugin() throws IOException {
 		assertInitialized();
-		assertDoesNotExistInBundlesInfo("1.0", "directoryBased");
+		assertDoesNotExistInBundlesInfo("directoryBased");
 		File dir = getTestData("1.1", "testData/reconciler/plugins/directoryBased_1.0.0");
 		add("dropins", dir);
-		reconcile("1.3");
-		assertExistsInBundlesInfo("1.4", "directoryBased", "1.0.0");
+		reconcile();
+		assertExistsInBundlesInfo("directoryBased", "1.0.0");
 
 		remove("dropins", "directoryBased_1.0.0");
-		reconcile("2.1");
-		assertDoesNotExistInBundlesInfo("2.2", "directoryBased");
+		reconcile();
+		assertDoesNotExistInBundlesInfo("directoryBased");
 	}
 
 	/*
@@ -97,46 +97,46 @@ public class BasicTests extends AbstractReconcilerTest {
 	public void testMove1() throws IOException {
 		// assert initial state
 		assertInitialized();
-		assertDoesNotExistInBundlesInfo("0.2", "a");
-		assertDoesNotExistInBundlesInfo("0.1", "b");
+		assertDoesNotExistInBundlesInfo("a");
+		assertDoesNotExistInBundlesInfo("b");
 
 		// add bundle to dropins
 		File jar = getTestData("2.0", "testData/reconciler/move/b_1.0.0.jar");
 		add("dropins", jar);
 
 		// reconcile
-		reconcile("3.0");
+		reconcile();
 
 		// assert bundle installed
-		assertExistsInBundlesInfo("4.0", "b", "1.0.0", "dropins");
+		assertExistsInBundlesInfo("b", "1.0.0", "dropins");
 
 		// move bundle to plugins
 		remove("dropins", "b_1.0.0.jar");
 		add("plugins", jar);
 
 		// reconcile
-		reconcile("6.0");
+		reconcile();
 
 		// assert bundle still installed
-		assertExistsInBundlesInfo("7.0", "b", "1.0.0", "plugins");
+		assertExistsInBundlesInfo("b", "1.0.0", "plugins");
 
 		// cleanup
 		remove("plugins", "b_1.0.0.jar");
-		reconcile("99.1");
-		assertDoesNotExistInBundlesInfo("99.2", "b");
+		reconcile();
+		assertDoesNotExistInBundlesInfo("b");
 	}
 
 	public void testOneSessionInstallRemovalOfDependentFeatures() throws IOException {
 		assertInitialized();
-		assertDoesNotExistInBundlesInfo("0.1", "c");
+		assertDoesNotExistInBundlesInfo("c");
 
 		// add bundle to dropins
 		File jar = getTestData("2.0", "testData/reconciler/installuninstall/c_1.0.0.jar");
 		add("dropins", jar);
 
 		// reconcile
-		reconcile("3.0");
-		assertExistsInBundlesInfo("4.0", "c", "1.0.0", "c_1.0.0.jar");
+		reconcile();
+		assertExistsInBundlesInfo("c", "1.0.0", "c_1.0.0.jar");
 
 		//remove b, do not reconcile yet
 		remove("dropins", jar.getName());
@@ -144,9 +144,9 @@ public class BasicTests extends AbstractReconcilerTest {
 		File jar2 = getTestData("4.2", "testData/reconciler/installuninstall/d_1.0.0.jar");
 		add("dropins", jar2);
 
-		reconcile("5.0");
+		reconcile();
 		//b was removed. It should be uninstalled, too.
-		assertDoesNotExistInBundlesInfo("5.0", "c");
+		assertDoesNotExistInBundlesInfo("c");
 	}
 
 	/*
@@ -163,37 +163,37 @@ public class BasicTests extends AbstractReconcilerTest {
 	public void testMove2() throws IOException {
 		// assert initial state
 		assertInitialized();
-		assertDoesNotExistInBundlesInfo("0.1", "a");
-		assertDoesNotExistInBundlesInfo("0.2", "b");
+		assertDoesNotExistInBundlesInfo("a");
+		assertDoesNotExistInBundlesInfo("b");
 
 		// add first bundle to dropins
 		File jar = getTestData("2.0", "testData/reconciler/move/b_1.0.0.jar");
 		add("dropins", jar);
-		reconcile("2.2");
-		assertExistsInBundlesInfo("2.3", "b", "1.0.0", "dropins");
+		reconcile();
+		assertExistsInBundlesInfo("b", "1.0.0", "dropins");
 
 		// add second bundle to dropins
 		jar = getTestData("3.0", "testData/reconciler/move/a_1.0.0.jar");
 		add("dropins", jar);
-		reconcile("3.2");
-		assertExistsInBundlesInfo("3.3", "a", "1.0.0", "dropins");
+		reconcile();
+		assertExistsInBundlesInfo("a", "1.0.0", "dropins");
 
 		// move bundle to plugins
 		remove("dropins", "b_1.0.0.jar");
 		jar = getTestData("5.1", "testData/reconciler/move/b_1.0.0.jar");
 		add("plugins", jar);
-		reconcile("5.3");
+		reconcile();
 
 		// assert bundle still installed
-		assertExistsInBundlesInfo("7.0", "b", "1.0.0", "plugins");
-		assertExistsInBundlesInfo("7.1", "a", "1.0.0", "dropins");
+		assertExistsInBundlesInfo("b", "1.0.0", "plugins");
+		assertExistsInBundlesInfo("a", "1.0.0", "dropins");
 
 		// cleanup
 		remove("dropins", "a_1.0.0.jar");
 		remove("plugins", "b_1.0.0.jar");
-		reconcile("99.2");
-		assertDoesNotExistInBundlesInfo("99.3", "a");
-		assertDoesNotExistInBundlesInfo("99.4", "b");
+		reconcile();
+		assertDoesNotExistInBundlesInfo("a");
+		assertDoesNotExistInBundlesInfo("b");
 	}
 
 	/*
@@ -201,19 +201,19 @@ public class BasicTests extends AbstractReconcilerTest {
 	 */
 	public void testNonSingleton() throws IOException {
 		assertInitialized();
-		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
+		assertDoesNotExistInBundlesInfo("myBundle");
 		// copy bundle to dropins and reconcile
 		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
 		add("dropins", jar);
-		reconcile("0.3");
+		reconcile();
 		// bundle should exist
-		assertExistsInBundlesInfo("0.4", "myBundle");
+		assertExistsInBundlesInfo("myBundle");
 
 		// remove the bundle from the dropins and reconcile
 		remove("dropins", "myBundle_1.0.0.jar");
-		reconcile("1.1");
+		reconcile();
 		// bundle should not exist anymore
-		assertDoesNotExistInBundlesInfo("1.2", "myBundle");
+		assertDoesNotExistInBundlesInfo("myBundle");
 
 		// Add 2 versions of the same non-singleton bundle to the dropins folder and
 		// ensure that both of them exist after reconciliation.
@@ -221,23 +221,23 @@ public class BasicTests extends AbstractReconcilerTest {
 		add("dropins", jar);
 		jar = getTestData("2.2", "testData/reconciler/plugins/myBundle_2.0.0.jar");
 		add("dropins", jar);
-		reconcile("2.4");
+		reconcile();
 		// bundle should exist - both versions since we have non-singleton bundles
-		assertExistsInBundlesInfo("2.5", "myBundle", "1.0.0");
-		assertExistsInBundlesInfo("2.6", "myBundle", "2.0.0");
+		assertExistsInBundlesInfo("myBundle", "1.0.0");
+		assertExistsInBundlesInfo("myBundle", "2.0.0");
 
 		// start with 2 non-singleton versions of the same bundle and remove the lower
 		// version and reconcile. should have just the higher version left.
 		remove("dropins", "myBundle_1.0.0.jar");
-		reconcile("3.1");
+		reconcile();
 		// only the higher version should exist
-		assertDoesNotExistInBundlesInfo("3.2", "myBundle", "1.0.0");
-		assertExistsInBundlesInfo("3.3", "myBundle", "2.0.0");
+		assertDoesNotExistInBundlesInfo("myBundle", "1.0.0");
+		assertExistsInBundlesInfo("myBundle", "2.0.0");
 
 		// cleanup
 		remove("dropins", "myBundle_2.0.0.jar");
-		reconcile("99.1");
-		assertDoesNotExistInBundlesInfo("99.2", "myBundle", "2.0.0");
+		reconcile();
+		assertDoesNotExistInBundlesInfo("myBundle", "2.0.0");
 	}
 
 	/*
@@ -247,58 +247,58 @@ public class BasicTests extends AbstractReconcilerTest {
 	public void testSingleton() throws IOException {
 		assertInitialized();
 		// empty state
-		assertDoesNotExistInBundlesInfo("1.0", "mySingletonBundle");
+		assertDoesNotExistInBundlesInfo("mySingletonBundle");
 
 		// add first version
 		File jar = getTestData("2.0", "testData/reconciler/plugins/mySingletonBundle_1.0.0.jar");
 		add("dropins", jar);
-		reconcile("2.3");
+		reconcile();
 
 		// only lowest version of the bundle exists
-		assertExistsInBundlesInfo("3.0", "mySingletonBundle", "1.0.0");
-		assertDoesNotExistInBundlesInfo("3.1", "mySingletonBundle", "2.0.0");
+		assertExistsInBundlesInfo("mySingletonBundle", "1.0.0");
+		assertDoesNotExistInBundlesInfo("mySingletonBundle", "2.0.0");
 
 		// add higher version
 		jar = getTestData("4.0", "testData/reconciler/plugins/mySingletonBundle_2.0.0.jar");
 		add("dropins", jar);
-		reconcile("4.3");
+		reconcile();
 
 		// highest version of the bundle has replaced the lower one
-		assertDoesNotExistInBundlesInfo("5.1", "mySingletonBundle", "1.0.0");
-		assertExistsInBundlesInfo("5.2", "mySingletonBundle", "2.0.0");
+		assertDoesNotExistInBundlesInfo("mySingletonBundle", "1.0.0");
+		assertExistsInBundlesInfo("mySingletonBundle", "2.0.0");
 
 		// re-add the lower version
 		jar = getTestData("6.0", "testData/reconciler/plugins/mySingletonBundle_1.0.0.jar");
 		add("dropins", jar);
-		reconcile("6.3");
+		reconcile();
 
 		// nothing changes
-		assertDoesNotExistInBundlesInfo("7.1", "mySingletonBundle", "1.0.0");
-		assertExistsInBundlesInfo("7.2", "mySingletonBundle", "2.0.0");
+		assertDoesNotExistInBundlesInfo("mySingletonBundle", "1.0.0");
+		assertExistsInBundlesInfo("mySingletonBundle", "2.0.0");
 
 		// add back lower version
 		jar = getTestData("8.0", "testData/reconciler/plugins/mySingletonBundle_1.0.0.jar");
 		add("dropins", jar);
-		reconcile("8.3");
+		reconcile();
 
 		// no change
-		assertDoesNotExistInBundlesInfo("9.1", "mySingletonBundle", "1.0.0");
-		assertExistsInBundlesInfo("9.2", "mySingletonBundle", "2.0.0");
+		assertDoesNotExistInBundlesInfo("mySingletonBundle", "1.0.0");
+		assertExistsInBundlesInfo("mySingletonBundle", "2.0.0");
 
 		// remove higher version
 		remove("dropins", "mySingletonBundle_2.0.0.jar");
-		reconcile("10.2");
+		reconcile();
 
 		// lower should be there
-		assertExistsInBundlesInfo("11.0", "mySingletonBundle", "1.0.0");
-		assertDoesNotExistInBundlesInfo("11.1", "mySingletonBundle", "2.0.0");
+		assertExistsInBundlesInfo("mySingletonBundle", "1.0.0");
+		assertDoesNotExistInBundlesInfo("mySingletonBundle", "2.0.0");
 
 		// cleanup
 		remove("dropins", "mySingletonBundle_1.0.0.jar");
 		remove("dropins", "mySingletonBundle_2.0.0.jar");
-		reconcile("99.2");
-		assertDoesNotExistInBundlesInfo("99.3", "mySingletonBundle", "1.0.0");
-		assertDoesNotExistInBundlesInfo("99.4", "mySingletonBundle", "2.0.0");
+		reconcile();
+		assertDoesNotExistInBundlesInfo("mySingletonBundle", "1.0.0");
+		assertDoesNotExistInBundlesInfo("mySingletonBundle", "2.0.0");
 	}
 
 	/*
@@ -307,7 +307,7 @@ public class BasicTests extends AbstractReconcilerTest {
 	 */
 	public void testSimpleRepoWithSiteXMLPlaceHolder() throws IOException {
 		assertInitialized();
-		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
+		assertDoesNotExistInBundlesInfo("myBundle");
 
 		// copy bundles and repo files to dropins and reconcile
 		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
@@ -322,16 +322,16 @@ public class BasicTests extends AbstractReconcilerTest {
 		File dummySiteXML = getTestData("2.0", "testData/reconciler/simplerepo/site.xml");
 		add("dropins/simplerepo", dummySiteXML);
 
-		reconcile("2.0");
+		reconcile();
 
 		// bundle should exist - both versions since we have non-singleton bundles
-		assertDoesNotExistInBundlesInfo("2.1", "myBundle", "1.0.0");
-		assertExistsInBundlesInfo("2.2", "myBundle", "2.0.0");
+		assertDoesNotExistInBundlesInfo("myBundle", "1.0.0");
+		assertExistsInBundlesInfo("myBundle", "2.0.0");
 
 		// cleanup
 		remove("dropins", "simplerepo");
-		reconcile("99.1");
-		assertDoesNotExistInBundlesInfo("99.2", "myBundle");
+		reconcile();
+		assertDoesNotExistInBundlesInfo("myBundle");
 	}
 
 	/*
@@ -340,7 +340,7 @@ public class BasicTests extends AbstractReconcilerTest {
 	 */
 	public void testSimpleRepo() throws IOException {
 		assertInitialized();
-		assertDoesNotExistInBundlesInfo("0.1", "myBundle");
+		assertDoesNotExistInBundlesInfo("myBundle");
 
 		// copy bundles and repo files to dropins and reconcile
 		File jar = getTestData("2.0", "testData/reconciler/plugins/myBundle_1.0.0.jar");
@@ -353,16 +353,16 @@ public class BasicTests extends AbstractReconcilerTest {
 		File metadataRepo = getTestData("2.0", "testData/reconciler/simplerepo/content.xml");
 		add("dropins/simplerepo", metadataRepo);
 
-		reconcile("2.0");
+		reconcile();
 
 		// bundle should exist - both versions since we have non-singleton bundles
-		assertDoesNotExistInBundlesInfo("2.1", "myBundle", "1.0.0");
-		assertExistsInBundlesInfo("2.2", "myBundle", "2.0.0");
+		assertDoesNotExistInBundlesInfo("myBundle", "1.0.0");
+		assertExistsInBundlesInfo("myBundle", "2.0.0");
 
 		// cleanup
 		remove("dropins", "simplerepo");
-		reconcile("99.1");
-		assertDoesNotExistInBundlesInfo("99.2", "myBundle");
+		reconcile();
+		assertDoesNotExistInBundlesInfo("myBundle");
 	}
 
 	/*
@@ -374,33 +374,33 @@ public class BasicTests extends AbstractReconcilerTest {
 		assertInitialized();
 
 		// empty state
-		assertDoesNotExistInBundlesInfo("1.0", "A");
-		assertDoesNotExistInBundlesInfo("1.1", "B");
+		assertDoesNotExistInBundlesInfo("A");
+		assertDoesNotExistInBundlesInfo("B");
 
 		// setup the test data
 		File jar = getTestData("2.0", "testData/reconciler/251167/A_1.0.0.jar");
 		add("dropins", jar);
 		jar = getTestData("2.2", "testData/reconciler/251167/B_1.0.0.jar");
 		add("dropins", jar);
-		reconcile("2.4");
+		reconcile();
 
-		assertExistsInBundlesInfo("3.0", "A");
-		assertExistsInBundlesInfo("3.1", "B");
+		assertExistsInBundlesInfo("A");
+		assertExistsInBundlesInfo("B");
 		assertTrue(isInstalled("A", "1.0.0"));
 		assertTrue(isInstalled("B", "1.0.0"));
 
 		// remove B
 		remove("dropins", "B_1.0.0.jar");
-		reconcile("4.1");
+		reconcile();
 
-		assertExistsInBundlesInfo("5.0", "A");
-		assertDoesNotExistInBundlesInfo("5.1", "B");
+		assertExistsInBundlesInfo("A");
+		assertDoesNotExistInBundlesInfo("B");
 		assertTrue(isInstalled("A", "1.0.0"));
 		assertFalse(isInstalled("B", "1.0.0"));
 
 		// cleanup
 		remove("dropins", "A_1.0.0.jar");
-		reconcile("6.1");
+		reconcile();
 		assertFalse(isInstalled("A", "1.0.0"));
 	}
 
@@ -411,15 +411,15 @@ public class BasicTests extends AbstractReconcilerTest {
 	 */
 	public void test_p2Repo() throws IOException {
 		assertInitialized();
-		assertDoesNotExistInBundlesInfo("0.1", "zzz");
+		assertDoesNotExistInBundlesInfo("zzz");
 		assertFalse(isInstalled("zFeature", "1.0.0"));
 
 		File source = getTestData("1.0", "testData/reconciler/basicRepo.jar");
 		add("dropins", source);
 
-		reconcile("2.0");
+		reconcile();
 
-		assertExistsInBundlesInfo("3.0", "zzz");
+		assertExistsInBundlesInfo("zzz");
 		assertTrue(isInstalled("zzz", "1.0.0"));
 		assertTrue(isInstalled("zFeature.feature.group", "1.0.0"));
 		IInstallableUnit unit = getRemoteIU("zzz", "1.0.0");
@@ -427,8 +427,8 @@ public class BasicTests extends AbstractReconcilerTest {
 
 		// cleanup
 		remove("dropins", "basicRepo.jar");
-		reconcile("4.1");
-		assertDoesNotExistInBundlesInfo("4.2", "zzz");
+		reconcile();
+		assertDoesNotExistInBundlesInfo("zzz");
 		assertFalse(isInstalled("zzz", "1.0.0"));
 		assertFalse(isInstalled("zFeature.feature.group", "1.0.0"));
 	}
@@ -446,19 +446,19 @@ public class BasicTests extends AbstractReconcilerTest {
 		String linkFilename = getUniqueString();
 		createLinkFile("1.2", linkFilename, temp.getAbsolutePath());
 
-		reconcile("2.0");
+		reconcile();
 
-		assertDoesNotExistInBundlesInfo("3.0", "bbb");
+		assertDoesNotExistInBundlesInfo("bbb");
 		assertFalse(isInstalled("bbb", "1.0.0"));
-		assertExistsInBundlesInfo("3.3", "ccc");
+		assertExistsInBundlesInfo("ccc");
 		assertTrue(isInstalled("ccc", "1.0.0"));
 
 		// cleanup
 		removeLinkFile("4.0", linkFilename);
-		reconcile("4.1");
-		assertDoesNotExistInBundlesInfo("5.0", "bbb");
+		reconcile();
+		assertDoesNotExistInBundlesInfo("bbb");
 		assertFalse(isInstalled("bbb", "1.0.0"));
-		assertDoesNotExistInBundlesInfo("5.3", "ccc");
+		assertDoesNotExistInBundlesInfo("ccc");
 		assertFalse(isInstalled("ccc", "1.0.0"));
 	}
 }

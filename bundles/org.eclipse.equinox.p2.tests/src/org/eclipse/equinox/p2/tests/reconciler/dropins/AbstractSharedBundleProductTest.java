@@ -158,7 +158,7 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 		updateConfigIni(infos);
 
 		// reconcile to ensure everything is ok
-		reconcile("5.0");
+		reconcile();
 	}
 
 	private void updateConfigIni(Map<String, BundleInfo> infos) {

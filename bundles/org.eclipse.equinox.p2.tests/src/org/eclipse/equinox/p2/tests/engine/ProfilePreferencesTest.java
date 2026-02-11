@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,8 +15,10 @@
 package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Hashtable;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.ProvisioningAgent;
@@ -45,23 +47,19 @@ public class ProfilePreferencesTest extends AbstractProvisioningTest {
 	/**
 	 * Tests that a node corresponding to a non-existent profile cannot be persisted.
 	 */
-	public void testInvalidProfile() {
-		try {
-			//reading and storing for a non-existent profile shouldn't cause any errors
-			IAgentLocation agentLocation = getAgent().getService(IAgentLocation.class);
-			String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
-			Preferences node = prefServ.getRootNode().node("/profile/" + locationString + "/NonExistantProfile/testing");
-			node.sync();
-		} catch (BackingStoreException e) {
-			fail("1.0", e);
-		}
+	public void testInvalidProfile() throws BackingStoreException {
+		// reading and storing for a non-existent profile shouldn't cause any errors
+		IAgentLocation agentLocation = getAgent().getService(IAgentLocation.class);
+		String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
+		Preferences node = prefServ.getRootNode().node("/profile/" + locationString + "/NonExistantProfile/testing");
+		node.sync();
 	}
 
 	/**
 	 * Profile preferences looks up the agent location using an LDAP filter. Make
 	 * sure it can handle an agent location that contains characters that are not valid in an LDAP filter
 	 */
-	public void testInvalidFilterChars() {
+	public void testInvalidFilterChars() throws IOException {
 		File folder = getTestData("Prefs", "/testData/ProfilePreferencesTest/with(invalid)chars/");
 		URI location = folder.toURI();
 		ProvisioningAgent agent = new ProvisioningAgent();
@@ -73,14 +71,14 @@ public class ProfilePreferencesTest extends AbstractProvisioningTest {
 		ServiceRegistration<IProvisioningAgent> reg = TestActivator.getContext().registerService(IProvisioningAgent.class, agent, props);
 		try {
 			Preferences prefs = new ProfileScope(agentLocation, "TestProfile").getNode("org.eclipse.equinox.p2.ui.sdk");
-			assertEquals("1.0", "always", prefs.get("allowNonOKPlan", ""));
+			assertEquals("always", prefs.get("allowNonOKPlan", ""));
 		} finally {
 			reg.unregister();
 		}
 
 	}
 
-	public void testProfilePreference() {
+	public void testProfilePreference() throws OperationCanceledException, InterruptedException {
 		Preferences pref = null;
 		String key = "Test";
 		String value = "Value";
@@ -116,11 +114,7 @@ public class ProfilePreferencesTest extends AbstractProvisioningTest {
 	/**
 	 * Wait for preferences to be flushed to disk
 	 */
-	private void waitForSave() {
-		try {
-			Job.getJobManager().join(ProfilePreferences.PROFILE_SAVE_JOB_FAMILY, null);
-		} catch (InterruptedException e) {
-			fail("4.99", e);
-		}
+	private void waitForSave() throws OperationCanceledException, InterruptedException {
+		Job.getJobManager().join(ProfilePreferences.PROFILE_SAVE_JOB_FAMILY, null);
 	}
 }

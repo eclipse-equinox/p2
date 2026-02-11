@@ -14,7 +14,7 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
@@ -106,7 +106,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 	 * Tests loading cache extensions from a profile whose install directory contains spaces
 	 */
 	@SuppressWarnings("deprecation") // java.io.File.toURL()
-	public void testBug262073() throws MalformedURLException {
+	public void testBug262073() throws IOException {
 		Map<String, String> properties = new HashMap<>();
 		File site = getTestData("Repository", "/testData/artifactRepo/simple with spaces/");
 		//use URL here so spaces are not encoded
@@ -221,7 +221,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		assertFalse(Boolean.parseBoolean(installedIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)));
 	}
 
-	public void testInstallPartialIUValidationFailure() throws ProvisionException {
+	public void testInstallPartialIUValidationFailure() throws ProvisionException, IOException {
 
 		File installFolder = getTempFolder();
 		Map<String, String> profileProperties = new HashMap<>();

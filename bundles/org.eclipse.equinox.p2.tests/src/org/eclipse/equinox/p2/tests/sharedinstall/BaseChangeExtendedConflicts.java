@@ -98,17 +98,17 @@ public class BaseChangeExtendedConflicts extends BaseChange {
 		return result;
 	}
 
-	protected void installFeature1AndVerifierInUser(File... extension) {
+	protected void installFeature1AndVerifierInUser(File... extension) throws IOException {
 		//TODO Install something into eclipse - make sure that this can be done in an automated setup
 		runEclipse("Installing in user", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature1.feature.group,Verifier.feature.group", "-repository", getTestRepo()}, extension);
 	}
 
-	protected void installFeature2InUser(File... extension) {
+	protected void installFeature2InUser(File... extension) throws IOException {
 		runEclipse("user2", output, new String[] {"-configuration", userBase.getAbsolutePath() + java.io.File.separatorChar + "configuration", "-application", "org.eclipse.equinox.p2.director", "-installIU", "p2TestFeature2.feature.group", "-repository", getTestRepo()}, extension);
 	}
 
 	@Override
-	protected void installVerifierInBase() {
+	protected void installVerifierInBase() throws IOException {
 		setReadOnly(readOnlyBase, false);
 		runEclipse("Running eclipse", output, new String[] {"-application", "org.eclipse.equinox.p2.director", "-installIU", "Verifier.feature.group", "-repository", getTestRepo()});
 		setReadOnly(readOnlyBase, true);

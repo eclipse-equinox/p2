@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import java.io.IOException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -30,7 +31,7 @@ public class Bug329279 extends AbstractProvisioningTest {
 	private IProfile profile;
 	private IPlanner planner;
 
-	public void testInstallSourceFeature() throws ProvisionException, OperationCanceledException {
+	public void testInstallSourceFeature() throws ProvisionException, OperationCanceledException, IOException {
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("Repo for 329279", "testData/bug329279/repo/").toURI(), new NullProgressMonitor());

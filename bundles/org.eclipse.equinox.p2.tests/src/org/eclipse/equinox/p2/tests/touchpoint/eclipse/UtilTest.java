@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,6 +15,7 @@
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class UtilTest extends AbstractProvisioningTest {
 		assertEquals(cacheDir.toURL().toExternalForm(), Util.getBundlePoolLocation(getAgent(), profile).toString());
 	}
 
-	public void testCheckRunnableArtifactRepos() throws ProvisionException {
+	public void testCheckRunnableArtifactRepos() throws ProvisionException, IOException {
 		File withFlag = getTestData("Get artifact repo in runnable format", "testData/utilTest/repoWithFlag");
 		File withoutFlag = getTestData("Get artifact repo in runnable format", "testData/utilTest/repoWithoutFlag");
 		IArtifactRepository repoWithFlag = getArtifactRepositoryManager().loadRepository(withFlag.toURI(), new NullProgressMonitor());

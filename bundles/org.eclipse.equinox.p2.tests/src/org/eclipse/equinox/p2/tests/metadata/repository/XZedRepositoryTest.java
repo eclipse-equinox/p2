@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2017 Rapicorp, Inc and others.
+ * Copyright (c) 2015, 2026 Rapicorp, Inc and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,9 +13,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
+import java.io.IOException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
@@ -27,28 +31,28 @@ import org.junit.Test;
 public class XZedRepositoryTest extends AbstractProvisioningTest {
 
 	@Test
-	public void testLoadContentJarAndXZ() throws ProvisionException, OperationCanceledException {
+	public void testLoadContentJarAndXZ() throws ProvisionException, OperationCanceledException, IOException {
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/metadata/contentJarAndXZ").toURI(), null);
 		IQueryResult<IInstallableUnit> units = repo.query(QueryUtil.createIUQuery("testIU", Version.create("2.0.0")), null);
 		assertEquals(1, units.toSet().size());
 	}
 
 	@Test
-	public void testLoadXzAndContentJar() throws ProvisionException, OperationCanceledException {
+	public void testLoadXzAndContentJar() throws ProvisionException, OperationCanceledException, IOException {
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/metadata/xzAndContentJar").toURI(), null);
 		IQueryResult<IInstallableUnit> units = repo.query(QueryUtil.createIUQuery("iuFromXZ", Version.create("2.0.0")), null);
 		assertEquals(1, units.toSet().size());
 	}
 
 	@Test
-	public void testLoadXzAndContentXML() throws ProvisionException, OperationCanceledException {
+	public void testLoadXzAndContentXML() throws ProvisionException, OperationCanceledException, IOException {
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/metadata/xzAndContentXML").toURI(), null);
 		IQueryResult<IInstallableUnit> units = repo.query(QueryUtil.createIUQuery("iuFromXZ", Version.create("2.0.0")), null);
 		assertEquals(1, units.toSet().size());
 	}
 
 	@Test
-	public void testLoadXzBusted() throws OperationCanceledException {
+	public void testLoadXzBusted() throws OperationCanceledException, IOException {
 		boolean repoCanLoad = true;
 		try {
 			getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/metadata/xzBusted").toURI(), null);
@@ -59,14 +63,14 @@ public class XZedRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testLoadXzOnly() throws ProvisionException, OperationCanceledException {
+	public void testLoadXzOnly() throws ProvisionException, OperationCanceledException, IOException {
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/metadata/xzOnly").toURI(), null);
 		IQueryResult<IInstallableUnit> units = repo.query(QueryUtil.createIUQuery("iuFromXZ", Version.create("2.0.0")), null);
 		assertEquals(1, units.toSet().size());
 	}
 
 	@Test
-	public void testArtifactsJarAndXZ() throws ProvisionException, OperationCanceledException {
+	public void testArtifactsJarAndXZ() throws ProvisionException, OperationCanceledException, IOException {
 		IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/artifacts/artifactsJarAndXZ").toURI(), null);
 		IQueryResult<IArtifactKey> units = repo.query(new ArtifactKeyQuery("osgi.bundle", "aaPlugin", new VersionRange("[1.0.0, 1.0.0]")), null);
 
@@ -74,7 +78,7 @@ public class XZedRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testxzAndArtifactsJar() throws ProvisionException, OperationCanceledException {
+	public void testxzAndArtifactsJar() throws ProvisionException, OperationCanceledException, IOException {
 		IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/artifacts/xzAndArtifactsJar").toURI(), null);
 		IQueryResult<IArtifactKey> units = repo.query(new ArtifactKeyQuery("osgi.bundle", "aaPluginFromXZ", new VersionRange("[1.0.0, 1.0.0]")), null);
 
@@ -82,7 +86,7 @@ public class XZedRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testxzAndArtifactsXML() throws ProvisionException, OperationCanceledException {
+	public void testxzAndArtifactsXML() throws ProvisionException, OperationCanceledException, IOException {
 		IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/artifacts/xzAndArtifactsXML").toURI(), null);
 		IQueryResult<IArtifactKey> units = repo.query(new ArtifactKeyQuery("osgi.bundle", "aaPluginFromXZ", new VersionRange("[1.0.0, 1.0.0]")), null);
 
@@ -90,7 +94,7 @@ public class XZedRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testxzOnly() throws ProvisionException, OperationCanceledException {
+	public void testxzOnly() throws ProvisionException, OperationCanceledException, IOException {
 		IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/artifacts/xzOnly").toURI(), null);
 		IQueryResult<IArtifactKey> units = repo.query(new ArtifactKeyQuery("osgi.bundle", "aaPluginFromXZ", new VersionRange("[1.0.0, 1.0.0]")), null);
 
@@ -98,7 +102,7 @@ public class XZedRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testLoadArtifactsXzBusted() throws OperationCanceledException {
+	public void testLoadArtifactsXzBusted() throws OperationCanceledException, IOException {
 		boolean repoCanLoad = true;
 		try {
 			getMetadataRepositoryManager().loadRepository(getTestData("xzedRepo", "testData/xzRepoTests/artifacts/xzBusted").toURI(), null);

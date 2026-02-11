@@ -14,8 +14,10 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
@@ -57,13 +59,10 @@ public class Bug302582d extends AbstractProvisioningTest {
 		return c.iterator().next();
 	}
 
-	public void testInstall() {
+	public void testInstall() throws OperationCanceledException, IOException, ProvisionException {
 		IMetadataRepositoryManager mgr = agent.getService(IMetadataRepositoryManager.class);
-		try {
-			repo = mgr.loadRepository(getTestData("test data bug bug302582d repo", "testData/bug302582d/repo").toURI(), null);
-		} catch (ProvisionException e) {
-			assertNull(e); //This guarantees that the error does not go unnoticed
-		}
+		repo = mgr.loadRepository(getTestData("test data bug bug302582d repo", "testData/bug302582d/repo").toURI(),
+				null);
 		IQueryResult<IInstallableUnit> ius = repo.query(QueryUtil.createIUAnyQuery(), null);
 		IPlanner planner = getPlanner(agent);
 		IProvisioningPlan plan = planner.getProvisioningPlan(createRequest(ius), null, new NullProgressMonitor());

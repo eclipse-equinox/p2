@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import junit.framework.Test;
@@ -168,7 +169,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		assertEquals("1.0", IStatus.ERROR, result.getSeverity());
 	}
 
-	public void testFileFirstArtifactRepositoryListContext() {
+	public void testFileFirstArtifactRepositoryListContext() throws IOException {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
 		URI[] artifactRepos = new URI[2];
 		artifactRepos[0] = getTestData("Simple Artifact Repo", testDataFileLocation).toURI();
@@ -188,7 +189,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		getArtifactRepositoryManager().removeRepository(artifactRepos[1]);
 	}
 
-	public void testFileLastArtifactRepositoryListContext() {
+	public void testFileLastArtifactRepositoryListContext() throws IOException {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
 		URI[] artifactRepos = new URI[2];
 		artifactRepos[0] = URIUtil.toJarURI(getTestData("Simple Artifact Repo Zip", testDataFileZipLocation).toURI(), null);
@@ -209,17 +210,15 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 
 	}
 
-	public void testNoFileArtifactRepositoryListContext() {
+	public void testNoFileArtifactRepositoryListContext() throws IOException, URISyntaxException {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
 		URI[] artifactRepos = new URI[2];
-		try {
-			artifactRepos[0] = URIUtil.toJarURI(getTestData("Simple Artifact Repo Zip", testDataFileZipLocation).toURI(), null);
-			// This file doesn't exist, but we need an absolute path anyway so we can remove the URI later
-			String absolute = getTempFolder() + "/test2";
-			artifactRepos[1] = URIUtil.toJarURI(URIUtil.fromString(absolute), null);
-		} catch (URISyntaxException e) {
-			fail(e.getMessage());
-		}
+		artifactRepos[0] = URIUtil.toJarURI(getTestData("Simple Artifact Repo Zip", testDataFileZipLocation).toURI(),
+				null);
+		// This file doesn't exist, but we need an absolute path anyway so we can remove
+		// the URI later
+		String absolute = getTempFolder() + "/test2";
+		artifactRepos[1] = URIUtil.toJarURI(URIUtil.fromString(absolute), null);
 
 		context.setArtifactRepositories(artifactRepos);
 		DownloadManager manager = createDownloadManager(context);

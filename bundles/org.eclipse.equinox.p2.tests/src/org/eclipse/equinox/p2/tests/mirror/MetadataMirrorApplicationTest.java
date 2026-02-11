@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2017 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
 package org.eclipse.equinox.p2.tests.mirror;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -818,52 +819,37 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	//for Bug 235683
-	public void testMirrorCompressedSource() {
+	public void testMirrorCompressedSource() throws Exception {
 		File compressedSource = getTestData("0", "/testData/mirror/mirrorCompressedRepo");
 
 		//Setup: get the content.jar file
 		File compressedMetadataXML = new File(compressedSource.getAbsoluteFile() + "/content.jar");
 		//Setup: make sure content.jar exists
-		assertTrue("1", compressedMetadataXML.exists());
+		assertTrue(compressedMetadataXML.exists());
 
-		try {
-			basicRunMirrorApplication("2", compressedSource.toURL(), destRepoLocation.toURL(), false);
-		} catch (MalformedURLException e) {
-			fail("3", e);
-		} catch (Exception e) {
-			fail("4", e);
-		}
+		basicRunMirrorApplication("2", compressedSource.toURL(), destRepoLocation.toURL(), false);
 
 		//get the content.jar file
 		File destMetadataXML = new File(destRepoLocation.getAbsolutePath() + "/content.jar");
 		//make sure content.jar exists
-		assertTrue("5", destMetadataXML.exists());
+		assertTrue(destMetadataXML.exists());
 	}
 
 	//for Bug 235683
-	public void testMirrorCompressedSourcetoUncompressedDestination() {
+	public void testMirrorCompressedSourcetoUncompressedDestination() throws Exception {
 		File compressedSource = getTestData("0", "/testData/mirror/mirrorCompressedRepo");
 
 		//Setup: get the content.jar file
 		File compressedMetadataXML = new File(compressedSource.getAbsoluteFile() + "/content.jar");
 		//Setup: make sure content.jar exists
-		assertTrue("1", compressedMetadataXML.exists());
+		assertTrue(compressedMetadataXML.exists());
 
 		//Setup: create the destination
-		try {
-			String name = "Destination Name " + destRepoLocation;
-			getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		} catch (ProvisionException e) {
-			fail("2", e);
-		}
+		String name = "Destination Name " + destRepoLocation;
+		getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), name,
+				IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 
-		try {
-			basicRunMirrorApplication("3", compressedSource.toURL(), destRepoLocation.toURL(), false);
-		} catch (MalformedURLException e) {
-			fail("4", e);
-		} catch (Exception e) {
-			fail("5", e);
-		}
+		basicRunMirrorApplication("3", compressedSource.toURL(), destRepoLocation.toURL(), false);
 
 		//get the content.jar file
 		File destMetadataXML = new File(destRepoLocation.getAbsolutePath() + "/content.jar");
@@ -875,44 +861,35 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 		assertTrue("7", destMetadataXML.exists());
 	}
 
-	public void testMirrorUncompressedSourceToCompressedDestination() {
+	public void testMirrorUncompressedSourceToCompressedDestination() throws Exception {
 		File uncompressedSource = getTestData("0", "/testData/mirror/mirrorSourceRepo3");
 
 		//Setup: get the content.xml file
 		File uncompressedContentXML = new File(uncompressedSource.getAbsoluteFile() + "/content.xml");
 		//Setup: make sure content.xml exists
-		assertTrue("1", uncompressedContentXML.exists());
+		assertTrue(uncompressedContentXML.exists());
 
 		//Setup: create the destination
-		try {
-			String name = "Destination Name " + destRepoLocation;
-			Map<String, String> property = new HashMap<>();
-			property.put(IRepository.PROP_COMPRESSED, "true");
-			getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, property);
-		} catch (ProvisionException e) {
-			fail("2", e);
-		}
+		String name = "Destination Name " + destRepoLocation;
+		Map<String, String> property = new HashMap<>();
+		property.put(IRepository.PROP_COMPRESSED, "true");
+		getMetadataRepositoryManager().createRepository(destRepoLocation.toURI(), name,
+				IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, property);
 
-		assertTrue("2.1", new File(destRepoLocation, "content.jar").exists());
-		try {
-			basicRunMirrorApplication("3", uncompressedSource.toURL(), destRepoLocation.toURL(), false);
-		} catch (MalformedURLException e) {
-			fail("4", e);
-		} catch (Exception e) {
-			fail("5", e);
-		}
+		assertTrue(new File(destRepoLocation, "content.jar").exists());
+		basicRunMirrorApplication("3", uncompressedSource.toURL(), destRepoLocation.toURL(), false);
 
 		//get the content.jar file
 		File destMetadataXML = new File(destRepoLocation.getAbsolutePath() + "/content.jar");
 		//make sure content.jar does exist
-		assertTrue("6", destMetadataXML.exists());
+		assertTrue(destMetadataXML.exists());
 		//get the content.xml file
 		destMetadataXML = new File(destRepoLocation.getAbsolutePath() + "/content.xml");
 		//make sure content.xml exists
-		assertFalse("7", destMetadataXML.exists());
+		assertFalse(destMetadataXML.exists());
 	}
 
-	public void testMirrorApplicationWithCompositeSource() {
+	public void testMirrorApplicationWithCompositeSource() throws IOException {
 		//Setup Make composite repository
 		File repoLocation = new File(getTempFolder(), "CompositeMetadataMirrorTest");
 		AbstractProvisioningTest.delete(repoLocation);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2023 Erik Brangs.
+ *  Copyright (c) 2023, 2026 Erik Brangs.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
+import java.io.IOException;
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
@@ -27,7 +28,7 @@ import org.mockito.Mockito;
 
 public class LocationNotFoundDialogTest extends AbstractProvisioningTest {
 
-	public void testCorrectLocation() {
+	public void testCorrectLocation() throws IOException {
 		// Set up a composite repo. This was copied from
 		// ColocatedRepositoryTrackerTest.
 		final String compositeRepo = "testData/bug338495/good.local";
@@ -51,7 +52,7 @@ public class LocationNotFoundDialogTest extends AbstractProvisioningTest {
 		inOrder.verify(provUI, times(1)).signalRepositoryOperationComplete(null, true);
 	}
 
-	public void testRemoveRepository() {
+	public void testRemoveRepository() throws IOException {
 		// Set up a composite repo. This was copied from
 		// ColocatedRepositoryTrackerTest.
 		final String compositeRepo = "testData/bug338495/good.local";
@@ -67,7 +68,7 @@ public class LocationNotFoundDialogTest extends AbstractProvisioningTest {
 		verify(tracker, times(1)).removeRepositories(new URI[] { location }, provisioningSession);
 	}
 
-	public void testDisableRepository() {
+	public void testDisableRepository() throws IOException {
 		// Set up a composite repo. This was adapted from
 		// ColocatedRepositoryTrackerTest.
 		final String compositeRepo = "testData/bug338495/good.local";

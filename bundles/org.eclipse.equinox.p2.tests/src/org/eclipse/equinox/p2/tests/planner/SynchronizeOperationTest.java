@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2011, 2017 Sonatype, Inc. and others.
+ *  Copyright (c) 2011, 2026 Sonatype, Inc. and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -15,12 +15,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -53,7 +53,7 @@ import org.osgi.framework.ServiceReference;
 public class SynchronizeOperationTest extends AbstractProvisioningTest {
 
 	//Directly test the operation
-	public void testSyncOperation() throws ProvisionException {
+	public void testSyncOperation() throws ProvisionException, IOException {
 		ServiceReference<IProvisioningAgentProvider> providerRef = TestActivator.context.getServiceReference(IProvisioningAgentProvider.class);
 		IProvisioningAgentProvider provider = TestActivator.context.getService(providerRef);
 
@@ -64,8 +64,8 @@ public class SynchronizeOperationTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = mgr.loadRepository(repoLocation, new NullProgressMonitor());
 		ProvisioningSession session = new ProvisioningSession(firstAgent);
 		SynchronizeOperation sync = new SynchronizeOperation(session, repo.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toUnmodifiableSet());
-		Set<IInstallableUnit> installedIUs = firstAgent.getService(IProfileRegistry.class).getProfile("DefaultProfile").query(new UserVisibleRootQuery(), new NullProgressMonitor()).toUnmodifiableSet();
-		System.out.println(installedIUs);
+		firstAgent.getService(IProfileRegistry.class).getProfile("DefaultProfile")
+				.query(new UserVisibleRootQuery(), new NullProgressMonitor()).toUnmodifiableSet();
 		sync.setProfileId("DefaultProfile");
 		sync.resolveModal(new NullProgressMonitor());
 		IProvisioningPlan plan = sync.getProvisioningPlan();
@@ -73,7 +73,7 @@ public class SynchronizeOperationTest extends AbstractProvisioningTest {
 	}
 
 	//Test a copy of the helper code
-	public void testCopyOfHelper() throws ProvisionException {
+	public void testCopyOfHelper() throws ProvisionException, IOException {
 		ServiceReference<IProvisioningAgentProvider> providerRef = TestActivator.context.getServiceReference(IProvisioningAgentProvider.class);
 		IProvisioningAgentProvider provider = TestActivator.context.getService(providerRef);
 

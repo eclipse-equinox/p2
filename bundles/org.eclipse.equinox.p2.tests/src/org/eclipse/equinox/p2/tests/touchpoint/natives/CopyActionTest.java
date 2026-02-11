@@ -39,7 +39,7 @@ public class CopyActionTest extends AbstractProvisioningTest {
 		super("");
 	}
 
-	public void testExecuteUndo() {
+	public void testExecuteUndo() throws IOException {
 		Map<String, Object> parameters = createParameters("/testData/nativeTouchpoint/aFolder/a.txt", "a.txt", false);
 		Map<String, Object> safeParameters = Collections.unmodifiableMap(parameters);
 
@@ -55,7 +55,7 @@ public class CopyActionTest extends AbstractProvisioningTest {
 		assertFalse("Target should be removed after undo", target.exists());
 	}
 
-	public void testCopyDirectory() {
+	public void testCopyDirectory() throws IOException {
 		Map<String, Object> parameters = createParameters("/testData/nativeTouchpoint/aFolder/", "aFolder", false);
 		Map<String, Object> safeParameters = Collections.unmodifiableMap(parameters);
 
@@ -72,7 +72,7 @@ public class CopyActionTest extends AbstractProvisioningTest {
 		assertFalse("Target should be removed after undo", target.exists());
 	}
 
-	public void testMergeDirectory() {
+	public void testMergeDirectory() throws IOException {
 		Map<String, Object> parameters1 = createParameters("/testData/nativeTouchpoint/xFolder/", "aFolder", true);
 		Map<String, Object> safeParameters1 = Collections.unmodifiableMap(parameters1);
 
@@ -109,7 +109,7 @@ public class CopyActionTest extends AbstractProvisioningTest {
 		assertFalse("Target should not exist after undo", target.exists());
 	}
 
-	public void testMergeOverwrite() {
+	public void testMergeOverwrite() throws IOException {
 		Map<String, Object> parameters1 = createParameters("/testData/nativeTouchpoint/bcFolder/", "aFolder", true);
 		Map<String, Object> safeParameters1 = Collections.unmodifiableMap(parameters1);
 
@@ -135,7 +135,7 @@ public class CopyActionTest extends AbstractProvisioningTest {
 		assertFalse("Target should not exist after undo", target.exists());
 	}
 
-	public void testBlockedMergeOverwrite() {
+	public void testBlockedMergeOverwrite() throws IOException {
 		Map<String, Object> parameters1 = createParameters("/testData/nativeTouchpoint/bcFolder/", "aFolder", false);
 		Map<String, Object> safeParameters1 = Collections.unmodifiableMap(parameters1);
 
@@ -207,7 +207,8 @@ public class CopyActionTest extends AbstractProvisioningTest {
 	 * - copy of directory - check that it merges
 	 * - copy of directory with overwrite false/true
 	 */
-	private Map<String, Object> createParameters(String sourceName, String targetName, boolean overwrite) {
+	private Map<String, Object> createParameters(String sourceName, String targetName, boolean overwrite)
+			throws IOException {
 		Map<String, String> profileProperties = new HashMap<>();
 		File installFolder = getTempFolder();
 		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());

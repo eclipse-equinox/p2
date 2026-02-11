@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2010, 2017 Sonatype, Inc and others.
+ *  Copyright (c) 2010, 2026 Sonatype, Inc and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -32,7 +33,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug311330 extends AbstractProvisioningTest {
-	public void testValidateProfile() throws ProvisionException {
+	public void testValidateProfile() throws ProvisionException, IOException {
 		IProvisioningAgentProvider provider = getAgentProvider();
 		IProvisioningAgent agent = provider.createAgent(getTestData("bug311330 data", "testData/bug311330/p2").toURI());
 		IPlanner planner = agent.getService(IPlanner.class);

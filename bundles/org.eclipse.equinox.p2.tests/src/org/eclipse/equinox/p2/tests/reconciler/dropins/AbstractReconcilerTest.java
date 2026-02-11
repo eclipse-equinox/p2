@@ -124,15 +124,11 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 				}
 			});
 		} else if (platform.getName().toLowerCase().endsWith(".zip")) {
-			try {
-				FileUtils.unzipFile(platform, output);
-			} catch (IOException e) {
-				fail("0.99", e);
-			}
+			FileUtils.unzipFile(platform, output);
 		} else if (platform.getName().toLowerCase().endsWith(".dmg")) {
-			extractDmg("1.1", platform);
+			extractDmg(platform);
 		} else {
-			untar("1.0", platform);
+			untar(platform);
 		}
 		File exe = new File(output, getExeFolder() + "eclipse.exe");
 		if (!exe.exists()) {
@@ -193,24 +189,24 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	/*
 	 * Untar the given file in the output directory.
 	 */
-	private void untar(String message, File file) {
+	private void untar(File file) {
 		String name = file.getName();
 		File gzFile = new File(output, name);
 		output.mkdirs();
-		run(message, new String[] {"cp", file.getAbsolutePath(), gzFile.getAbsolutePath()});
-		run(message, new String[] {"tar", "-zpxf", gzFile.getAbsolutePath()});
+		run("", new String[] { "cp", file.getAbsolutePath(), gzFile.getAbsolutePath() });
+		run("", new String[] { "tar", "-zpxf", gzFile.getAbsolutePath() });
 		gzFile.delete();
 	}
 
 	/*
 	 * extract dmg given file in the output directory.
 	 */
-	private void extractDmg(String message, File file) {
+	private void extractDmg(File file) {
 		output.mkdirs();
-		run(message, new String[] { "hdiutil", "attach", file.getAbsolutePath() });
-		run(message, new String[] { "cp", "-r", "/Volumes/Eclipse/Eclipse.app", output.getAbsolutePath() + "/" });
-		run(message, new String[] { "hdiutil", "detach", "/Volumes/Eclipse" });
-		run(message, new String[] { "xattr", "-rc", output.getAbsolutePath() + "/Eclipse.app" });
+		run("", new String[] { "hdiutil", "attach", file.getAbsolutePath() });
+		run("", new String[] { "cp", "-r", "/Volumes/Eclipse/Eclipse.app", output.getAbsolutePath() + "/" });
+		run("", new String[] { "hdiutil", "detach", "/Volumes/Eclipse" });
+		run("", new String[] { "xattr", "-rc", output.getAbsolutePath() + "/Eclipse.app" });
 	}
 
 	/*
@@ -447,63 +443,55 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		return false;
 	}
 
-	public void reconcile(String message) {
-		reconcile(message, false);
+	public void reconcile() {
+		reconcile(false);
 	}
 
 	/*
 	 * Run the reconciler to discover changes in the drop-ins folder and update the system state.
 	 */
-	public void reconcile(String message, boolean clean) {
+	public void reconcile(boolean clean) {
 		List<String> args = new ArrayList<>();
 		args.add("-application");
 		args.add("org.eclipse.equinox.p2.reconciler.application");
 		if (clean) {
 			args.add("-clean");
 		}
-		runEclipse(message, args.toArray(new String[args.size()]));
+		runEclipse("", args.toArray(new String[args.size()]));
 	}
 
 	/*
 	 * If a bundle with the given id and version exists in the bundles.info file then
 	 * throw an AssertionFailedException.
 	 */
-	public void assertDoesNotExistInBundlesInfo(String message, String bundleId, String version) {
-		try {
-			assertTrue(message, !isInBundlesInfo(bundleId, version));
-		} catch (IOException e) {
-			fail(message, e);
-		}
+	public void assertDoesNotExistInBundlesInfo(String bundleId, String version) throws IOException {
+		assertFalse(isInBundlesInfo(bundleId, version));
 	}
 
 	/*
 	 * If a bundle with the given id in the bundles.info file then throw an AssertionFailedException.
 	 */
-	public void assertDoesNotExistInBundlesInfo(String message, String bundleId) {
-		assertDoesNotExistInBundlesInfo(message, bundleId, null);
+	public void assertDoesNotExistInBundlesInfo(String bundleId) throws IOException {
+		assertDoesNotExistInBundlesInfo(bundleId, null);
 	}
 
 	/*
 	 * If a bundle with the given id and version does not exist in the bundles.info file then
 	 * throw an AssertionFailedException.
 	 */
-	public void assertExistsInBundlesInfo(String message, String bundleId, String version) {
-		assertExistsInBundlesInfo(message, bundleId, version, null);
+	public void assertExistsInBundlesInfo(String bundleId, String version) throws IOException {
+		assertExistsInBundlesInfo(bundleId, version, null);
 	}
 
-	public void assertExistsInBundlesInfo(String message, String bundleId, String version, String location) {
-		try {
-			assertTrue(message, isInBundlesInfo(bundleId, version, location));
-		} catch (IOException e) {
-			fail(message, e);
-		}
+	public void assertExistsInBundlesInfo(String bundleId, String version, String location) throws IOException {
+		assertTrue(isInBundlesInfo(bundleId, version, location));
 	}
 
 	/*
 	 * If a bundle with the given id does not exist in the bundles.info file then throw an AssertionFailedException.
 	 */
-	public void assertExistsInBundlesInfo(String message, String bundleId) {
-		assertExistsInBundlesInfo(message, bundleId, null);
+	public void assertExistsInBundlesInfo(String bundleId) throws IOException {
+		assertExistsInBundlesInfo(bundleId, null);
 	}
 
 	/*
@@ -639,9 +627,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * a version is specified then match the version, otherwise any version will
 	 * do.
 	 */
-	public void assertFeatureExists(String message, Configuration configuration, String id, String version) {
+	public void assertFeatureExists(Configuration configuration, String id, String version) {
 		List<Site> sites = configuration.getSites();
-		assertNotNull(message, sites);
+		assertNotNull(sites);
 		boolean found = false;
 		for (Site site : sites) {
 			Feature[] features = site.getFeatures();
@@ -655,7 +643,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 				}
 			}
 		}
-		assertTrue(message, found);
+		assertTrue(found);
 	}
 
 	/*

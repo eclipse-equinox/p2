@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2015, 2018 Mykola Nikishov.
+ *  Copyright (c) 2015, 2026 Mykola Nikishov.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -15,6 +15,7 @@ package org.eclipse.equinox.p2.tests.publisher;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -43,13 +44,13 @@ public class ChecksumGenerationTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testGenerationFile() {
+	public void testGenerationFile() throws IOException {
 		IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(new ArtifactKey("classifierTest", "idTest", Version.createOSGi(1, 0, 0)), getTestData("Artifact to generate from", "testData/artifactRepo/simpleWithMD5/plugins/aaPlugin_1.0.0.jar"));
 		assertEquals(String.format("%s checksum property", checksumProperty), checksumValue, ad.getProperty(checksumProperty));
 	}
 
 	@Test
-	public void testGenerationFolder() {
+	public void testGenerationFolder() throws IOException {
 		IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(new ArtifactKey("classifierTest", "idTest", Version.createOSGi(1, 0, 0)), getTestData("Artifact to generate from", "testData/artifactRepo/simpleWithMD5/plugins/"));
 		assertEquals(String.format("%s checksum property", checksumProperty), null, ad.getProperty(checksumProperty));
 	}

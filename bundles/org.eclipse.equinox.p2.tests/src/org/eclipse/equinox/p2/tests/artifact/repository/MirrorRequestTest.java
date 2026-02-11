@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2020 IBM Corporation and others.
+ *  Copyright (c) 2005, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -23,10 +23,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -132,7 +130,8 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	 * <li>original repository, which has a valid canonical artifact</li>
 	 * </ul>
 	 */
-	public void testFailToCanonicalWithMirrors() {
+	public void testFailToCanonicalWithMirrors() throws NoSuchFieldException, SecurityException,
+			IllegalArgumentException, IllegalAccessException, IOException {
 		OrderedMirrorSelector selector = new OrderedMirrorSelector(sourceRepository);
 		try {
 			RemoteRepo src = new RemoteRepo((SimpleArtifactRepository) sourceRepository);
@@ -151,7 +150,8 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 	}
 
 	// Test that SimpleArtifactRepository & MirrorRequest use mirrors in the event of a failure.
-	public void testMirrorFailOver() {
+	public void testMirrorFailOver() throws NoSuchFieldException, SecurityException, IllegalArgumentException,
+			IllegalAccessException, IOException {
 		OrderedMirrorSelector selector = new OrderedMirrorSelector(sourceRepository);
 		try {
 			// call test
@@ -350,7 +350,8 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		IArtifactRepository repo;
 		MirrorSelector oldSelector = null;
 
-		OrderedMirrorSelector(IArtifactRepository repo) {
+		OrderedMirrorSelector(IArtifactRepository repo) throws IOException, NoSuchFieldException, SecurityException,
+				IllegalArgumentException, IllegalAccessException {
 			super(repo, getTransport());
 			this.repo = repo;
 			// Setting this property forces SimpleArtifactRepository to use mirrors despite being a local repo
@@ -362,16 +363,13 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		}
 
 		// Hijack the source repository's MirrorSelector
-		private void setSelector() {
+		private void setSelector()
+				throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 			Field mirrorField = null;
-			try {
 				mirrorField = SimpleArtifactRepository.class.getDeclaredField("mirrors");
 				mirrorField.setAccessible(true);
 				oldSelector = (MirrorSelector) mirrorField.get(repo); // Store the old value so we can restore it
 				mirrorField.set(repo, this);
-			} catch (Exception e) {
-				fail("0.2", e);
-			}
 		}
 
 		// Clear the mirror selector we place on the repository

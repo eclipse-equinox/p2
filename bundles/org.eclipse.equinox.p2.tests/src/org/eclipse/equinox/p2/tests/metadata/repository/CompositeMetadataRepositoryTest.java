@@ -204,7 +204,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue("1.4", !properties.containsKey(TEST_KEY));
 	}
 
-	public void testAddChild() {
+	public void testAddChild() throws IOException {
 		//Setup: create an uncompressed repository
 		CompositeMetadataRepository compRepo = createRepo(false);
 
@@ -225,7 +225,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertContentEquals("Verifying contents", compRepo, repo);
 	}
 
-	public void testRemoveChild() {
+	public void testRemoveChild() throws IOException {
 		//Setup: create an uncompressed repository
 		CompositeMetadataRepository compRepo = createRepo(false);
 
@@ -240,7 +240,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals("Children size after remove", 0, compRepo.getChildren().size());
 	}
 
-	public void testAddRepeatChild() {
+	public void testAddRepeatChild() throws IOException {
 		//Setup: create an uncompressed repository
 		CompositeMetadataRepository compRepo = createRepo(false);
 
@@ -256,7 +256,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals("Children size after repeat entry", 1, compRepo.getChildren().size());
 	}
 
-	public void testAddMultipleChildren() {
+	public void testAddMultipleChildren() throws IOException {
 		//Setup: create an uncompressed repository
 		CompositeMetadataRepository compRepo = createRepo(false);
 
@@ -286,7 +286,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(QueryUtil.createIUAnyQuery(), null), repo2.query(QueryUtil.createIUAnyQuery(), null)), compRepo.query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet().size());
 	}
 
-	public void testRemoveNonexistantChild() {
+	public void testRemoveNonexistantChild() throws IOException {
 		//Setup: create an uncompressed repository
 		CompositeMetadataRepository compRepo = createRepo(false);
 
@@ -303,7 +303,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals("Children size after remove", 1, compRepo.getChildren().size());
 	}
 
-	public void testRemoveAllChildren() {
+	public void testRemoveAllChildren() throws IOException {
 		//Setup: create an uncompressed repository
 		CompositeMetadataRepository compRepo = createRepo(false);
 
@@ -321,7 +321,8 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals("Children size after removeAllChildren", 0, compRepo.getChildren().size());
 	}
 
-	public void testLoadingRepositoryRemote() {
+	public void testLoadingRepositoryRemote()
+			throws IOException, ProvisionException, OperationCanceledException, URISyntaxException {
 		File knownGoodRepoLocation = getTestData("0.1", "/testData/metadataRepo/composite/good.remote");
 
 		CompositeMetadataRepository compRepo = null;
@@ -330,35 +331,29 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		try {
 			System.setOut(new PrintStream(new StringBufferStream()));
 			compRepo = (CompositeMetadataRepository) getMetadataRepositoryManager().loadRepository(knownGoodRepoLocation.toURI(), null);
-		} catch (ProvisionException e) {
-			fail("0.99", e);
 		} finally {
 			System.setOut(out);
 		}
 
 		List<URI> children = compRepo.getChildren();
 
-		try {
-			//ensure children are correct
-			URI child1 = URIUtil.fromString("http://www.eclipse.org/foo");
-			assertTrue("1.0", children.contains(child1));
-			URI child2 = URIUtil.fromString("http://www.eclipse.org/bar");
-			assertTrue("1.1", children.contains(child2));
-			assertEquals("1.2", 2, children.size());
-		} catch (URISyntaxException e) {
-			fail("1.99", e);
-		}
+		// ensure children are correct
+		URI child1 = URIUtil.fromString("http://www.eclipse.org/foo");
+		assertTrue(children.contains(child1));
+		URI child2 = URIUtil.fromString("http://www.eclipse.org/bar");
+		assertTrue(children.contains(child2));
+		assertEquals(2, children.size());
 
 		//ensure correct properties
-		assertEquals("2.0", "metadata name", compRepo.getName());
+		assertEquals("metadata name", compRepo.getName());
 		Map<String, String> properties = compRepo.getProperties();
-		assertEquals("2.1", 3, properties.size());
+		assertEquals(3, properties.size());
 		String timestamp = properties.get(IRepository.PROP_TIMESTAMP);
-		assertNotNull("2.2", timestamp);
-		assertEquals("2.3", "1234", timestamp);
+		assertNotNull(timestamp);
+		assertEquals("1234", timestamp);
 		String compressed = properties.get(IRepository.PROP_COMPRESSED);
-		assertNotNull("2.4", compressed);
-		assertFalse("2.5", Boolean.parseBoolean(compressed));
+		assertNotNull(compressed);
+		assertFalse(Boolean.parseBoolean(compressed));
 	}
 
 	public void testLoadingRepositoryLocal() throws IOException, ProvisionException, OperationCanceledException {
@@ -389,15 +384,15 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertFalse(Boolean.parseBoolean(compressed));
 	}
 
-	public void testCompressedPersistence() {
+	public void testCompressedPersistence() throws IOException {
 		persistenceTest(true);
 	}
 
-	public void testUncompressedPersistence() {
+	public void testUncompressedPersistence() throws IOException {
 		persistenceTest(false);
 	}
 
-	public void testSyntaxErrorWhileParsing() {
+	public void testSyntaxErrorWhileParsing() throws IOException {
 		File badCompositeContent = getTestData("1", "/testData/metadataRepo/composite/Bad/syntaxError");
 
 		StringBuilder buffer = new StringBuilder();
@@ -462,38 +457,24 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue("Ensuring not previously loaded repo is system", repo2System != null ? repo2System.equals(Boolean.toString(true)) : false);
 	}
 
-	public void testGetLatestIU() {
+	public void testGetLatestIU() throws IOException {
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		URI location1;
-		URI location2;
-		try {
-			location1 = TestData.getFile("metadataRepo", "multipleversions1").toURI();
-			location2 = TestData.getFile("metadataRepo", "multipleversions2").toURI();
-		} catch (Exception e) {
-			fail("0.99", e);
-			return;
-		}
+		URI location1 = TestData.getFile("metadataRepo", "multipleversions1").toURI();
+		URI location2 = TestData.getFile("metadataRepo", "multipleversions2").toURI();
 		CompositeMetadataRepository compositeRepo = createRepo(false);
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
 		IQueryResult<IInstallableUnit> queryResult = compositeRepo.query(QueryUtil.createLatestIUQuery(), monitor);
-		assertEquals("1.0", 1, queryResultSize(queryResult));
-		assertEquals("1.1", Version.createOSGi(3, 0, 0), queryResult.iterator().next().getVersion());
-		assertTrue("1.2", monitor.isDone());
-		assertTrue("1.3", monitor.isWorkDone());
+		assertEquals(1, queryResultSize(queryResult));
+		assertEquals(Version.createOSGi(3, 0, 0), queryResult.iterator().next().getVersion());
+		assertTrue(monitor.isDone());
+		assertTrue(monitor.isWorkDone());
 	}
 
-	public void testGetLatestIULessThan3() {
+	public void testGetLatestIULessThan3() throws IOException {
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		URI location1;
-		URI location2;
-		try {
-			location1 = TestData.getFile("metadataRepo", "multipleversions1").toURI();
-			location2 = TestData.getFile("metadataRepo", "multipleversions2").toURI();
-		} catch (Exception e) {
-			fail("0.99", e);
-			return;
-		}
+		URI location1 = TestData.getFile("metadataRepo", "multipleversions1").toURI();
+		URI location2 = TestData.getFile("metadataRepo", "multipleversions2").toURI();
 		CompositeMetadataRepository compositeRepo = createRepo(false);
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
@@ -507,13 +488,13 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			}
 		});
 		IQueryResult<IInstallableUnit> queryResult = compositeRepo.query(cQuery, monitor);
-		assertEquals("1.0", 1, queryResultSize(queryResult));
-		assertEquals("1.1", Version.createOSGi(2, 2, 0), queryResult.iterator().next().getVersion());
-		assertTrue("1.2", monitor.isDone());
-		assertTrue("1.3", monitor.isWorkDone());
+		assertEquals(1, queryResultSize(queryResult));
+		assertEquals(Version.createOSGi(2, 2, 0), queryResult.iterator().next().getVersion());
+		assertTrue(monitor.isDone());
+		assertTrue(monitor.isWorkDone());
 	}
 
-	private void persistenceTest(boolean compressed) {
+	private void persistenceTest(boolean compressed) throws IOException {
 		//Setup: create an uncompressed repository
 		CompositeMetadataRepository compRepo = createRepo(compressed);
 
@@ -601,7 +582,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 	 * Note that we had to change this test method when we changed the
 	 * behaviour of the composite repos to aggressively load the children.
 	 */
-	public void testNonLocalRepo() {
+	public void testNonLocalRepo() throws URISyntaxException {
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream()));
@@ -613,17 +594,15 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			repository.addChild(childOne);
 			repository.addChild(childTwo);
 			repository.addChild(childThree);
-			assertEquals("1.0", 3, repository.getChildren().size());
+			assertEquals(3, repository.getChildren().size());
 			repository.removeChild(childTwo);
-			assertEquals("1.1", 2, repository.getChildren().size());
+			assertEquals(2, repository.getChildren().size());
 			// add a child which already exists... should do nothing
 			repository.addChild(childOne);
-			assertEquals("1.2", 2, repository.getChildren().size());
+			assertEquals(2, repository.getChildren().size());
 			// add the same child but with a relative URI. again it should do nothing
 			repository.addChild(new URI("one"));
-			assertEquals("1.3", 2, repository.getChildren().size());
-		} catch (URISyntaxException e) {
-			fail("99.0", e);
+			assertEquals(2, repository.getChildren().size());
 		} finally {
 			System.setOut(out);
 		}
@@ -658,16 +637,16 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		// ensure the child URIs are stored as relative
 		CompositeRepositoryState state = repository.toState();
 		URI[] childURIs = state.getChildren();
-		assertNotNull("3.0", childURIs);
-		assertEquals("3.1", 2, childURIs.length);
-		assertFalse("3.2", childURIs[0].isAbsolute());
-		assertFalse("3.3", childURIs[1].isAbsolute());
+		assertNotNull(childURIs);
+		assertEquals(2, childURIs.length);
+		assertFalse(childURIs[0].isAbsolute());
+		assertFalse(childURIs[1].isAbsolute());
 
 		// cleanup
 		delete(temp);
 	}
 
-	public void testRelativeRemoveChild() {
+	public void testRelativeRemoveChild() throws URISyntaxException {
 		PrintStream out = System.out;
 		try {
 			System.setOut(new PrintStream(new StringBufferStream()));
@@ -678,21 +657,20 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			repository.addChild(one);
 			repository.addChild(two);
 			List<URI> children = repository.getChildren();
-			assertEquals("1.0", 2, children.size());
+			assertEquals(2, children.size());
 			// remove an absolute URI (child one should be first since order is important)
 			repository.removeChild(children.iterator().next());
-			assertEquals("1.1", 1, repository.getChildren().size());
+			assertEquals(1, repository.getChildren().size());
 			// remove a relative URI (child two)
 			repository.removeChild(two);
-			assertEquals("1.2", 0, repository.getChildren().size());
-		} catch (URISyntaxException e) {
-			fail("99.0", e);
+			assertEquals(0, repository.getChildren().size());
 		} finally {
 			System.setOut(out);
 		}
 	}
 
-	public void testFailingChildFailsCompleteRepository() throws ProvisionException, OperationCanceledException {
+	public void testFailingChildFailsCompleteRepository()
+			throws ProvisionException, OperationCanceledException, IOException {
 		boolean exception = false;
 		IMetadataRepository repo = null;
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
@@ -722,7 +700,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	}
 
-	public void testFailingChildLoadsCompleteRepository() {
+	public void testFailingChildLoadsCompleteRepository() throws IOException {
 		boolean exception = false;
 		IMetadataRepository repo = null;
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();

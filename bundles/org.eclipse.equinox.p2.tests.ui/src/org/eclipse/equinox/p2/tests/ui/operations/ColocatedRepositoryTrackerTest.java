@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2011 Sonatype, Inc. and others.
+ *  Copyright (c) 2011, 2026 Sonatype, Inc. and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.operations;
 
+import java.io.IOException;
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -24,7 +25,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 public class ColocatedRepositoryTrackerTest extends AbstractProvisioningTest {
-	public void testAdditionOfChildren() throws ProvisionException, OperationCanceledException {
+	public void testAdditionOfChildren() throws ProvisionException, OperationCanceledException, IOException {
 		final String compositeRepo = "testData/bug338495/good.local";
 		final URI compositeRepoURI = getTestData("composite repo", compositeRepo).toURI();
 		final String childRepo = "testData/bug338495/good.local/one";
@@ -35,11 +36,16 @@ public class ColocatedRepositoryTrackerTest extends AbstractProvisioningTest {
 
 		ColocatedRepositoryTracker tracker = new ColocatedRepositoryTracker(provUI);
 		tracker.addRepository(compositeRepoURI, "main", provSession);
-		getMetadataRepositoryManager().loadRepository(compositeRepoURI, new NullProgressMonitor()); //Force the loading the composite repo to show the problem
-		assertOK(tracker.validateRepositoryLocation(ProvisioningUI.getDefaultUI().getSession(), childRepoOneURI, false, new NullProgressMonitor()));
+		getMetadataRepositoryManager().loadRepository(compositeRepoURI, new NullProgressMonitor()); // Force the loading
+																									// the composite
+																									// repo to show the
+																									// problem
+		assertOK(tracker.validateRepositoryLocation(ProvisioningUI.getDefaultUI().getSession(), childRepoOneURI, false,
+				new NullProgressMonitor()));
 		tracker.addRepository(childRepoOneURI, "child", provSession);
 
 		assertTrue(getMetadataRepositoryManager().isEnabled(childRepoOneURI));
-		assertEquals(Boolean.FALSE.toString(), getMetadataRepositoryManager().getRepositoryProperty(childRepoOneURI, IRepository.PROP_SYSTEM));
+		assertEquals(Boolean.FALSE.toString(),
+				getMetadataRepositoryManager().getRepositoryProperty(childRepoOneURI, IRepository.PROP_SYSTEM));
 	}
 }

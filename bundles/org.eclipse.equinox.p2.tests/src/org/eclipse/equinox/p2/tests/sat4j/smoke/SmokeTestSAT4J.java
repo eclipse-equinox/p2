@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2008 IBM Corporation and others.
+ *  Copyright (c) 2005, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -16,6 +16,7 @@ package org.eclipse.equinox.p2.tests.sat4j.smoke;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
@@ -41,7 +42,7 @@ public class SmokeTestSAT4J extends AbstractProvisioningTest {
 		return null;
 	}
 
-	public void testBogusFile() {
+	public void testBogusFile() throws IOException {
 		File data = getTestData("Opb file 247638", "testData/sat4j/Bug247638.opb");
 		Exception raised = null;
 		try {

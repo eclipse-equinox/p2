@@ -44,35 +44,35 @@ public class Bug362692 extends AbstractReconcilerTest {
 	public void testReconcile() throws IOException {
 		// assert initial state
 		assertInitialized();
-		assertDoesNotExistInBundlesInfo("0.1", "b");
-		assertDoesNotExistInBundlesInfo("0.2", "c");
-		assertDoesNotExistInBundlesInfo("0.3", "d");
+		assertDoesNotExistInBundlesInfo("b");
+		assertDoesNotExistInBundlesInfo("c");
+		assertDoesNotExistInBundlesInfo("d");
 
 		// add bundle to dropins
 		File plugins = getTestData("2.0", "testData/bug362692/plugins");
 		add("dropins", plugins);
 
 		// reconcile + clean
-		reconcile("3.0", true);
+		reconcile(true);
 
 		// assert highest versions of bundles are installed
-		assertExistsInBundlesInfo("4.0", "b", "2.0.0", "dropins");
-		assertExistsInBundlesInfo("4.1", "c", "2.0.0", "dropins");
-		assertExistsInBundlesInfo("4.2", "d", "2.0.0", "dropins");
+		assertExistsInBundlesInfo("b", "2.0.0", "dropins");
+		assertExistsInBundlesInfo("c", "2.0.0", "dropins");
+		assertExistsInBundlesInfo("d", "2.0.0", "dropins");
 
 		// reconcile + clean
-		reconcile("6.0", true);
+		reconcile(true);
 
 		// assert highest versions of bundles still are installed
-		assertExistsInBundlesInfo("7.0", "b", "2.0.0", "dropins");
-		assertExistsInBundlesInfo("7.1", "c", "2.0.0", "dropins");
-		assertExistsInBundlesInfo("7.2", "d", "2.0.0", "dropins");
+		assertExistsInBundlesInfo("b", "2.0.0", "dropins");
+		assertExistsInBundlesInfo("c", "2.0.0", "dropins");
+		assertExistsInBundlesInfo("d", "2.0.0", "dropins");
 
 		// cleanup
 		remove("dropins", "plugins");
-		reconcile("99.1", true);
-		assertDoesNotExistInBundlesInfo("99.2", "b");
-		assertDoesNotExistInBundlesInfo("99.3", "c");
-		assertDoesNotExistInBundlesInfo("99.4", "d");
+		reconcile(true);
+		assertDoesNotExistInBundlesInfo("b");
+		assertDoesNotExistInBundlesInfo("c");
+		assertDoesNotExistInBundlesInfo("d");
 	}
 }

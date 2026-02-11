@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2017 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -16,13 +16,13 @@ package org.eclipse.equinox.p2.tests.engine;
 import static org.junit.Assert.assertThrows;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -129,7 +129,8 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testPauseAndResume() throws ProvisionException, OperationCanceledException, InterruptedException {
+	public void testPauseAndResume()
+			throws ProvisionException, OperationCanceledException, InterruptedException, IOException {
 		URI repoLoc = getTestData("Load test data.", "/testData/pausefeature").toURI();
 		final PhaseSet phaseSet = (PhaseSet) PhaseSetFactory.createDefaultPhaseSet();
 		pause = new PauseJob("pause") {
@@ -244,7 +245,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testPauseAndResumeMoreThanOnce() throws ProvisionException, InterruptedException {
+	public void testPauseAndResumeMoreThanOnce() throws ProvisionException, InterruptedException, IOException {
 		URI repoLoc = getTestData("Load test data.", "/testData/pausefeature").toURI();
 		final PhaseSet phaseSet = (PhaseSet) PhaseSetFactory.createDefaultPhaseSet();
 		final int threhold = 3;
@@ -294,7 +295,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 	}
 
 	@Test
-	public void testCancelPausedProvisioing() throws ProvisionException, InterruptedException {
+	public void testCancelPausedProvisioing() throws ProvisionException, InterruptedException, IOException {
 		URI repoLoc = getTestData("Load test data.", "/testData/pausefeature").toURI();
 		final PhaseSet phaseSet = (PhaseSet) PhaseSetFactory.createDefaultPhaseSet();
 		class ProvListener implements ProvisioningListener {

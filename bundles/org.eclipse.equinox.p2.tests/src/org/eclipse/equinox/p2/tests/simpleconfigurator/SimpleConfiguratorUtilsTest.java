@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -167,36 +167,28 @@ public class SimpleConfiguratorUtilsTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testRead34BundlesInfo() {
+	public void testRead34BundlesInfo() throws IOException, URISyntaxException {
 
 		File data = getTestData("1.0", "testData/simpleConfiguratorTest/3.4.bundles.info");
 		File baseFile = getTempFolder();
 		URI baseURI = baseFile.toURI();
-		try {
-			List<BundleInfo> infos = SimpleConfiguratorUtils.readConfiguration(data.toURL(), baseURI);
-			if (Activator.EXTENSIONS == null) {
-				// base bundles only
-				assertEquals("1.1", 2, infos.size());
-			} else {
-				// including bundles from configured extensions
-				assertEquals("1.1", 6, infos.size());
-			}
-
-			BundleInfo a = new BundleInfo("a", "1.0.0", new URI("plugins/a_1.0.0.jar"), 4, false);
-			a.setBaseLocation(baseURI);
-			BundleInfo b = new BundleInfo("b", "1.0.0", new URI("plugins/b_1.0.0.jar"), -1, true);
-			b.setBaseLocation(baseURI);
-
-			assertEquals("1.2", a, infos.get(0));
-			assertEquals("1.3", b, infos.get(1));
-
-		} catch (URISyntaxException e) {
-			fail("1.97", e);
-		} catch (MalformedURLException e) {
-			fail("1.98", e);
-		} catch (IOException e) {
-			fail("1.99", e);
+		List<BundleInfo> infos = SimpleConfiguratorUtils.readConfiguration(data.toURL(), baseURI);
+		if (Activator.EXTENSIONS == null) {
+			// base bundles only
+			assertEquals(2, infos.size());
+		} else {
+			// including bundles from configured extensions
+			assertEquals(6, infos.size());
 		}
+
+		BundleInfo a = new BundleInfo("a", "1.0.0", new URI("plugins/a_1.0.0.jar"), 4, false);
+		a.setBaseLocation(baseURI);
+		BundleInfo b = new BundleInfo("b", "1.0.0", new URI("plugins/b_1.0.0.jar"), -1, true);
+		b.setBaseLocation(baseURI);
+
+		assertEquals(a, infos.get(0));
+		assertEquals(b, infos.get(1));
+
 	}
 
 	public void testReadVersionLine() {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 compeople AG and others.
+ * Copyright (c) 2007, 2026 compeople AG and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -173,20 +173,17 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void test_248772() {
+	public void test_248772() throws ProvisionException {
 		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
 		factory.setAgent(getAgent());
 		URI location = null;
 		location = new File(getTempFolder(), getUniqueString()).toURI();
 		factory.create(location, "test type", null, null);
-		try {
-			//bug 248951, ask for a modifiable repo
-			IArtifactRepository repo = factory.load(location, IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, new NullProgressMonitor());
-			assertNotNull(repo);
-			assertTrue(repo.isModifiable());
-		} catch (ProvisionException e) {
-			fail("2.0", e);
-		}
+		// bug 248951, ask for a modifiable repo
+		IArtifactRepository repo = factory.load(location, IRepositoryManager.REPOSITORY_HINT_MODIFIABLE,
+				new NullProgressMonitor());
+		assertNotNull(repo);
+		assertTrue(repo.isModifiable());
 	}
 
 	public void testErrorStatus() throws IOException {
@@ -244,7 +241,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testRelativeRepositoryLocation() throws ProvisionException {
+	public void testRelativeRepositoryLocation() throws ProvisionException, IOException {
 		IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "helloworld", Version.createOSGi(1, 0, 0)));
 		URI repo = getTestData("CorruptedJar repo", "testData/artifactRepo/jarfiles").toURI();
 
