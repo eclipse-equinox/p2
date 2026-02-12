@@ -89,7 +89,6 @@ public class PGPPublicKeyStore {
 		return readPublicKeys(new String(input.readAllBytes(), StandardCharsets.US_ASCII));
 	}
 
-	@SuppressWarnings("unchecked")
 	public static Set<PGPPublicKey> readPublicKeys(String armoredPublicKeyring) {
 		if (armoredPublicKeyring == null) {
 			return Set.of();
