@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -134,7 +134,11 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 				if (element instanceof IIUElement) {
 					if (((IIUElement) element).shouldShowVersion()) {
-						return iu.getVersion().toString();
+						String toBeUpdateId = null;
+						if (element instanceof AvailableUpdateElement elm) {
+							toBeUpdateId = elm.getIUToBeUpdated().getVersion().toString();
+						}
+						return (toBeUpdateId == null) ? iu.getVersion().toString() : toBeUpdateId + " → " + iu.getVersion().toString(); //$NON-NLS-1$
 					}
 					return ""; //$NON-NLS-1$
 				}
