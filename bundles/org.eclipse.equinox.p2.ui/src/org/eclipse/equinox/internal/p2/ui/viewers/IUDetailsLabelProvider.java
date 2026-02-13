@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -19,8 +19,7 @@ import java.util.HashMap;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.*;
-import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
-import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
+import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
@@ -122,7 +121,11 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 				// If it's an element, determine if version should be shown
 				if (element instanceof IIUElement) {
 					if (((IIUElement) element).shouldShowVersion()) {
-						return iu.getVersion().toString();
+						String toBeUpdateId = null;
+						if (element instanceof AvailableUpdateElement elm) {
+							toBeUpdateId = elm.getIUToBeUpdated().getVersion().toString();
+						}
+						return (toBeUpdateId == null) ? iu.getVersion().toString() : toBeUpdateId + " → " + iu.getVersion().toString(); //$NON-NLS-1$
 					}
 					return BLANK;
 				}
