@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2018 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -137,7 +137,8 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 
 		contentProvider = new ProvElementContentProvider();
 		tableViewer.setContentProvider(contentProvider);
-		labelProvider = new IUDetailsLabelProvider(null, ProvUI.getIUColumnConfig(), getShell());
+		IUColumnConfig[] columnConf = getColumnConfig();
+		labelProvider = new IUDetailsLabelProvider(null, columnConf, getShell());
 		tableViewer.setLabelProvider(labelProvider);
 		tableViewer.setInput(root);
 		setInitialCheckState();

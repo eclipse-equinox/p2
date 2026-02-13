@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -24,8 +24,7 @@ import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
-import org.eclipse.equinox.p2.operations.ProvisioningJob;
+import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
@@ -125,9 +124,31 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 				return super.getToolTipText(element);
 			}
 		});
+		final int DEFAULT_COLUMN_WIDTH = 200;
+		// check the operation is for update or installation
+		boolean isUpdate = (resolvedOperation instanceof UpdateOperation);
+		if (isUpdate) {
+			TreeViewerColumn versionColumnOld = new TreeViewerColumn(treeViewer, SWT.LEFT);
+			versionColumnOld.getColumn().setText(ProvUIMessages.ProvUI_VersionColumnTitle_Old);
+			versionColumnOld.getColumn().setWidth(DEFAULT_COLUMN_WIDTH);
+			versionColumnOld.setLabelProvider(new ColumnLabelProvider() {
+				@Override
+				public String getText(Object element) {
+					IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
+					if (element instanceof IIUElement iuElement) {
+						if (iuElement.shouldShowVersion() && element instanceof AvailableUpdateElement elm) {
+							return elm.getIUToBeUpdated().getVersion().toString();
+						}
+						return ""; //$NON-NLS-1$
+					}
+					return iu.getVersion().toString();
+				}
+			});
+		}
+
 		TreeViewerColumn versionColumn = new TreeViewerColumn(treeViewer, SWT.LEFT);
-		versionColumn.getColumn().setText(ProvUIMessages.ProvUI_VersionColumnTitle);
-		versionColumn.getColumn().setWidth(200);
+		versionColumn.getColumn().setText(isUpdate ? ProvUIMessages.ProvUI_VersionColumnTitle_New : ProvUIMessages.ProvUI_VersionColumnTitle);
+		versionColumn.getColumn().setWidth(DEFAULT_COLUMN_WIDTH);
 		versionColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -143,7 +164,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		});
 		TreeViewerColumn idColumn = new TreeViewerColumn(treeViewer, SWT.LEFT);
 		idColumn.getColumn().setText(ProvUIMessages.ProvUI_IdColumnTitle);
-		idColumn.getColumn().setWidth(200);
+		idColumn.getColumn().setWidth(DEFAULT_COLUMN_WIDTH);
 
 		idColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
