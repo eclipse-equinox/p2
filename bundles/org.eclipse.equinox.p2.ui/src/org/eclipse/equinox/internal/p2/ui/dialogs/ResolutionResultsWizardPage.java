@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -125,8 +125,33 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 				return super.getToolTipText(element);
 			}
 		});
+		// check the operation is for update or installation
+		boolean isUpdate = (resolvedOperation instanceof org.eclipse.equinox.p2.operations.UpdateOperation) ? true : false;
+		if (isUpdate) {
+			TreeViewerColumn versionColumnOld = new TreeViewerColumn(treeViewer, SWT.LEFT);
+			versionColumnOld.getColumn().setText(ProvUIMessages.ProvUI_VersionColumnTitle_Old);
+			versionColumnOld.getColumn().setWidth(200);
+			versionColumnOld.setLabelProvider(new ColumnLabelProvider() {
+				@Override
+				public String getText(Object element) {
+					IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
+					if (element instanceof IIUElement) {
+						if (((IIUElement) element).shouldShowVersion()) {
+							String toBeUpdateId = null;
+							if (element instanceof AvailableUpdateElement elm) {
+								toBeUpdateId = elm.getIUToBeUpdated().getVersion().toString();
+							}
+							return toBeUpdateId;
+						}
+						return ""; //$NON-NLS-1$
+					}
+					return iu.getVersion().toString();
+				}
+			});
+		}
+
 		TreeViewerColumn versionColumn = new TreeViewerColumn(treeViewer, SWT.LEFT);
-		versionColumn.getColumn().setText(ProvUIMessages.ProvUI_VersionColumnTitle);
+		versionColumn.getColumn().setText(isUpdate ? ProvUIMessages.ProvUI_VersionColumnTitle_New : ProvUIMessages.ProvUI_VersionColumnTitle);
 		versionColumn.getColumn().setWidth(200);
 		versionColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override

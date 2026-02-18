@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -19,8 +19,7 @@ import java.util.HashMap;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.*;
-import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
-import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
+import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
@@ -105,7 +104,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 					return name;
 				}
 				// If the iu name is not available, we return blank if we know know we are
-				// showing id in another column.  Otherwise we return id so the user doesn't
+				// showing id in another column. Otherwise we return id so the user doesn't
 				// see blank iu's.
 				if (showingId) {
 					return BLANK;
@@ -119,6 +118,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 				}
 				return BLANK;
 			case IUColumnConfig.COLUMN_VERSION :
+			case IUColumnConfig.NEW_COLUMN_VERSION :
 				// If it's an element, determine if version should be shown
 				if (element instanceof IIUElement) {
 					if (((IIUElement) element).shouldShowVersion()) {
@@ -128,6 +128,15 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 				}
 				// It's a raw IU, return the version
 				return iu.getVersion().toString();
+			case IUColumnConfig.OLD_COLUMN_VERSION :
+				if (element instanceof IIUElement) {
+					if (((IIUElement) element).shouldShowVersion()) {
+						if (element instanceof AvailableUpdateElement elm) {
+							return elm.getIUToBeUpdated().getVersion().toString();
+						}
+					}
+				}
+				return BLANK;
 			case IUColumnConfig.COLUMN_PROVIDER :
 				return iu.getProperty(IInstallableUnit.PROP_PROVIDER, null);
 			case IUColumnConfig.COLUMN_SIZE :
