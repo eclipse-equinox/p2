@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -231,6 +231,8 @@ public class ProvUIMessages extends NLS {
 	public static String ProvUI_IdColumnTitle;
 	public static String ProvUI_ProviderColumnTitle;
 	public static String ProvUI_VersionColumnTitle;
+	public static String ProvUI_VersionColumnTitle_Old;
+	public static String ProvUI_VersionColumnTitle_New;
 	public static String ProvUI_WarningTitle;
 	public static String ProvUIMessages_NotAccepted_EnterFor_0;
 	public static String ProvUIMessages_SavedNotAccepted_EnterFor_0;

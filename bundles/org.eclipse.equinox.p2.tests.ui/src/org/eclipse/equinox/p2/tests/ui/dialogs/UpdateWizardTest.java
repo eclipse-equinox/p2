@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2026 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,10 +18,6 @@ import org.eclipse.core.tests.harness.FussyProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.License;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
-import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
-import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
-import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.operations.ProfileModificationJob;
@@ -209,60 +205,5 @@ public class UpdateWizardTest extends WizardTest {
 		} finally {
 			dialog.getShell().close();
 		}
-	}
-
-	@SuppressWarnings("cast")
-	public void testIUDetailsLabelProviderVersionText() {
-		InstallableUnitDescription installedDesc = new InstallableUnitDescription();
-		String IU_ID = "TestIU";
-		installedDesc.setId(IU_ID);
-		installedDesc.setVersion(Version.createOSGi(1, 0, 0));
-		installedDesc.setSingleton(true);
-
-		installedDesc.setCapabilities(new IProvidedCapability[] { MetadataFactory
-				.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, IU_ID, installedDesc.getVersion()) });
-
-		IInstallableUnit installedIU = MetadataFactory.createInstallableUnit(installedDesc);
-
-		// Create available IU (version 2.0.0)
-		InstallableUnitDescription availableDesc = new InstallableUnitDescription();
-
-		availableDesc.setId(IU_ID);
-		availableDesc.setVersion(Version.createOSGi(2, 0, 0));
-		availableDesc.setSingleton(true);
-
-		availableDesc.setCapabilities(new IProvidedCapability[] { MetadataFactory
-				.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, IU_ID, availableDesc.getVersion()) });
-
-		IInstallableUnit availableIU = MetadataFactory.createInstallableUnit(availableDesc);
-
-		// Create UI root element
-		IUElementListRoot root = new IUElementListRoot(getProvisioningUI());
-
-		// Get profile id
-		String profileId = getProvisioningUI().getProfileId();
-
-		// Create AvailableUpdateElement
-		AvailableUpdateElement element = new AvailableUpdateElement(root, availableIU, installedIU, profileId, true);
-
-		assertTrue("invalid type for Available IU", element.getIU() instanceof IInstallableUnit);
-		assertTrue("invalid type for Installed IU", element.getIU() instanceof IInstallableUnit);
-		assertEquals("Invalid available IU version", "2.0.0", element.getIU().getVersion().toString());
-		assertEquals("Invalid installed IU version", "1.0.0", element.getIUToBeUpdated().getVersion().toString());
-
-		IUDetailsLabelProvider labelProvider = new IUDetailsLabelProvider();
-
-		int versionColumnIndex = -1;
-		IUColumnConfig[] configs = ProvUI.getIUColumnConfig();
-		for (int i = 0; i < configs.length; i++) {
-			if (configs[i].getColumnType() == IUColumnConfig.COLUMN_VERSION) {
-
-				versionColumnIndex = i;
-				break;
-			}
-		}
-
-		String versionText = labelProvider.getColumnText(element, versionColumnIndex);
-		assertEquals("Invalid version upgrade", "1.0.0 → 2.0.0", versionText);
 	}
 }
