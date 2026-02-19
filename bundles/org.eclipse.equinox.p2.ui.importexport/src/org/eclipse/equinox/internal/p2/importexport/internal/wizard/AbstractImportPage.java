@@ -111,7 +111,7 @@ public abstract class AbstractImportPage extends AbstractPage {
 					IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 					IQueryResult<IInstallableUnit> collector = profile.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, false)), new NullProgressMonitor());
 					if (collector.isEmpty()) {
-						return true;
+						return false;
 					}
 				}
 				return false;
