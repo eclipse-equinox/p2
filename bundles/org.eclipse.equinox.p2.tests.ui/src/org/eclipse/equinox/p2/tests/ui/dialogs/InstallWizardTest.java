@@ -56,7 +56,7 @@ public class InstallWizardTest extends WizardTest {
 		iu.setCapabilities(new IProvidedCapability[] {
 				MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion()) });
 		toInstall = MetadataFactory.createInstallableUnit(iu);
-		createTestMetdataRepository(new IInstallableUnit[] { toInstall });
+		createTestMetdataRepository(toInstall);
 	}
 
 	public void testInstallWizardResolved() {

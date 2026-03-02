@@ -84,7 +84,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 
 	public void testChooseUpdateOverPatch() {
 		createTestMetdataRepository(
-				new IInstallableUnit[] { a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2 });
+				a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2);
 		install(a1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);
@@ -99,7 +99,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 
 	public void testForcePatchOverUpdate() {
 		createTestMetdataRepository(
-				new IInstallableUnit[] { a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2 });
+				a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2);
 		install(a1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);
@@ -124,7 +124,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 
 	public void testRecognizePatchIsInstalled() {
 		createTestMetdataRepository(
-				new IInstallableUnit[] { a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2 });
+				a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2);
 		install(a1, true, false);
 		install(firstPatchForA1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
@@ -143,7 +143,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 
 	public void testChooseNotTheNewest() {
 		createTestMetdataRepository(
-				new IInstallableUnit[] { a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2 });
+				a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2);
 		install(a1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);
@@ -169,7 +169,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 	}
 
 	public void testChooseLatestPatches() {
-		createTestMetdataRepository(new IInstallableUnit[] { a1, firstPatchForA1, secondPatchForA1, thirdPatchForA1 });
+		createTestMetdataRepository(a1, firstPatchForA1, secondPatchForA1, thirdPatchForA1);
 		install(a1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);
@@ -187,8 +187,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 	}
 
 	public void testLatestHasDifferentId() {
-		createTestMetdataRepository(new IInstallableUnit[] { a1, firstPatchForA1, secondPatchForA1, thirdPatchForA1,
-				a120WithDifferentId, a130, a140WithDifferentId });
+		createTestMetdataRepository(a1, firstPatchForA1, secondPatchForA1, thirdPatchForA1, a120WithDifferentId, a130, a140WithDifferentId);
 		install(a1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);
@@ -204,7 +203,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 
 	// bug 300445
 	public void testRemoveSelectionAfterResolve() {
-		createTestMetdataRepository(new IInstallableUnit[] { a1, a130, b1, b12 });
+		createTestMetdataRepository(a1, a130, b1, b12);
 		install(a1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);
@@ -221,7 +220,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 
 	// bug 290858
 	public void testSearchForUpdatesInJob() {
-		createTestMetdataRepository(new IInstallableUnit[] { a1, a130, b1, b12 });
+		createTestMetdataRepository(a1, a130, b1, b12);
 		install(a1, true, false);
 		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<>();
 		iusInvolved.add(a1);

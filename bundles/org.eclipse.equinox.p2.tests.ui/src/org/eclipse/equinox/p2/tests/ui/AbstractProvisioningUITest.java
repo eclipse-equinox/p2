@@ -94,7 +94,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 				NO_TP_DATA, false, update, NO_REQUIRES);
 
 		category = createNamedIU(CATEGORYIU, CATEGORYIU, Version.create("1.0.0"), true);
-		createTestMetdataRepository(new IInstallableUnit[] { top1, top2, uninstalled, upgrade });
+		createTestMetdataRepository(top1, top2, uninstalled, upgrade);
 
 		metaManager = getAgent().getService(IMetadataRepositoryManager.class);
 		artifactManager = getAgent().getService(IArtifactRepositoryManager.class);

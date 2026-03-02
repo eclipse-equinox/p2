@@ -93,31 +93,31 @@ public class RemediationTest extends WizardTest {
 		((InstallableUnit) jboss60).setLicenses(licenses);
 		switch (type) {
 		case INSTALLATION_SUCCEEDED:
-			createTestMetdataRepository(new IInstallableUnit[] { jboss60, m2e11, m2e12 });
+			createTestMetdataRepository(jboss60, m2e11, m2e12);
 			install(m2e12, true, false);
 			toInstall = jboss60;
 			break;
 		case INSTALLATION_REMEDIATED:
-			createTestMetdataRepository(new IInstallableUnit[] { jboss60, m2e11, m2e12 });
+			createTestMetdataRepository(jboss60, m2e11, m2e12);
 			install(m2e11, true, false);
 			toInstall = jboss60;
 			break;
 		case INSTALLATION_FAILED:
-			createTestMetdataRepository(new IInstallableUnit[] { jboss60, m2e11 });
+			createTestMetdataRepository(jboss60, m2e11);
 			install(m2e11, true, false);
 			toInstall = jboss60;
 			break;
 		case CHECK_FOR_UPDATES:
-			createTestMetdataRepository(new IInstallableUnit[] { jboss60, m2e11, m2e12 });
+			createTestMetdataRepository(jboss60, m2e11, m2e12);
 			install(m2e11, true, false);
 			break;
 		case UPDATE_ONE_IU:
-			createTestMetdataRepository(new IInstallableUnit[] { jboss55, jboss60, m2e11, m2e12 });
+			createTestMetdataRepository(jboss55, jboss60, m2e11, m2e12);
 			install(jboss55, true, false);
 			install(m2e11, true, false);
 			break;
 		default:
-			createTestMetdataRepository(new IInstallableUnit[] { jboss60, m2e11 });
+			createTestMetdataRepository(jboss60, m2e11);
 			install(m2e11, true, false);
 
 		}
