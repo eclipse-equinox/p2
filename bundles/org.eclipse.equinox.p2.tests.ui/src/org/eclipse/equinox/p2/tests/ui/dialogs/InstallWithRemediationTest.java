@@ -59,7 +59,7 @@ public class InstallWithRemediationTest extends WizardTest {
 				.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, TOPLEVELIU, iu.getVersion()) });
 		toInstall = MetadataFactory.createInstallableUnit(iu);
 
-		createTestMetdataRepository(new IInstallableUnit[] { toInstall, anotherIUToInstall });
+		createTestMetdataRepository(toInstall, anotherIUToInstall);
 	}
 
 	//

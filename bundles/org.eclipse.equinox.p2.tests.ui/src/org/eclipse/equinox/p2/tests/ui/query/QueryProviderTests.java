@@ -49,7 +49,7 @@ public class QueryProviderTests extends AbstractProvisioningUITest {
 		b = createIU(B, Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, C),
 				groupProperties, true);
 		c = createIU(C, Version.create("1.0.0"), NO_REQUIRES, NO_PROPERTIES, true);
-		testRepo = createTestMetdataRepository(new IInstallableUnit[] { cat, nestedCategory, a, b, c });
+		testRepo = createTestMetdataRepository(cat, nestedCategory, a, b, c);
 	}
 
 	public void testNestedCategories() {

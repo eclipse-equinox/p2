@@ -87,7 +87,7 @@ public class EECompatibilityTest extends WizardTest {
 	public void testEEIssueSkipsRemediation() {
 		IInstallableUnit unsatisfiableUnit = unsatisfiableUnit();
 		IInstallableUnit unsatisfiedFeature = createFeature(unsatisfiableUnit);
-		createTestMetdataRepository(new IInstallableUnit[] { unsatisfiableUnit, unsatisfiedFeature });
+		createTestMetdataRepository(unsatisfiableUnit, unsatisfiedFeature);
 		IInstallableUnit[] units = new IInstallableUnit[] { iuRequiringTooRecentEE, createFeature(unsatisfiedFeature) };
 		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(getProvisioningUI(), null,
 				Arrays.asList(units), null);
