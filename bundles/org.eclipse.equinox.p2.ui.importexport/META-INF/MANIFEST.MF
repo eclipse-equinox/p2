@@ -5,10 +5,10 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.ui.importexport;singleton:=true
 Bundle-Version: 1.5.0.qualifier
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime;bundle-version="[3.29.0,4.0.0)",
- org.eclipse.equinox.p2.ui,
+ org.eclipse.core.runtime;bundle-version="[3.34.200,4.0.0)",
+ org.eclipse.equinox.p2.ui;bundle-version="[2.3.0,3)",
  org.eclipse.equinox.p2.extensionlocation,
- org.eclipse.equinox.p2.metadata;bundle-version="2.1.0",
+ org.eclipse.equinox.p2.metadata;bundle-version="[2.8.0,3)",
  org.eclipse.ui.forms;bundle-version="3.14.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-Localization: plugin
