@@ -16,7 +16,7 @@ Export-Package: org.eclipse.equinox.internal.p2.operations;x-friends:="org.eclip
    org.eclipse.equinox.p2.metadata,
    org.eclipse.equinox.p2.planner,
    org.eclipse.equinox.p2.query"
-Require-Bundle: org.eclipse.equinox.common;bundle-version="3.6.0",
+Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.15.100,4)",
  org.eclipse.core.jobs;bundle-version="3.5.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
