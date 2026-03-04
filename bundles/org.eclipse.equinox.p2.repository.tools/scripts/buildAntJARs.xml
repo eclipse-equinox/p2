@@ -1,10 +1,19 @@
 <?xml version="1.0"?>
 <project name="project" default="default">
-	<target name="default" description="Jar up the binaries that were compiled by the jdt builder" >
-		<mkdir dir="lib" />
-		<delete file="lib/repository-tools-ant.jar" failonerror="false"/>
+	<target name="default" description="Jar up the binaries that were compiled by the jdt builder"
+		depends="checkSourceUpToDate" unless="jarUpToDate">
+		<mkdir dir="lib"/>
+		<uptodate property="checkSourceUpToDate" targetfile="lib/repository-tools-ant.jar">
+			<srcfiles dir="src_ant" includes="**/*"/>
+		</uptodate>
 		<jar destfile="lib/repository-tools-ant.jar" basedir="bin_ant"/>
-		<eclipse.convertPath fileSystemPath="${basedir}/lib" property="resourcePath"/>
-		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
+	</target>
+	<target name="jar" unless="checkSourceUpToDate">
+	</target>
+
+	<target name="checkSourceUpToDate" description="Check if the source files are up to date with the jar file">
+		<uptodate property="jarUpToDate" targetfile="${basedir}/lib/repository-tools-ant.jar">
+			<srcfiles dir="${basedir}/src_ant" includes="**/*"/>
+		</uptodate>
 	</target>
 </project>

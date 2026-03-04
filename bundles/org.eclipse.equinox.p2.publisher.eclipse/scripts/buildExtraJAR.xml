@@ -15,11 +15,11 @@
 
 	<target name="buildScripts" depends="init" description="Build from generated scripts">
 		<tstamp/>
-		<eclipse.buildScript elements="plugin@${plugin}" 
-			buildDirectory="${buildDirectory}" 
-			configInfo="*,*,*" 
-			baseLocation="${baseLocation}" 
-			buildingOSGi="true" 
+		<eclipse.buildScript elements="plugin@${plugin}"
+			buildDirectory="${buildDirectory}"
+			configInfo="*,*,*"
+			baseLocation="${baseLocation}"
+			buildingOSGi="true"
 			outputUpdateJars="false"
 			pluginpath="${basedir}"
 			forceContextQualifier="z${DSTAMP}${TSTAMP}"
@@ -28,9 +28,15 @@
 		<ant antfile="${basedir}/build.xml" target="ant_tasks/pdepublishing-ant.jar"/>
 	</target>
 
-	<target name="default" description="Jar up the binaries that were compiled by the jdt builder" >
+	<target name="checkSourceUpToDate">
+		<uptodate property="jarUpToDate" targetfile="${basedir}/ant_tasks/pdepublishing-ant.jar">
+			<srcfiles dir="${basedir}/src_ant" includes="**/*"/>
+		</uptodate>
+	</target>
+
+	<target name="default" depends="checkSourceUpToDate" unless="jarUpToDate"
+		description="Jar up the binaries that were compiled by the jdt builder" >
 		<mkdir dir="${basedir}/ant_tasks" />
-		<delete file="${basedir}/ant_tasks/pdepublishing-ant.jar" failonerror="false"/>
 		<jar destfile="${basedir}/ant_tasks/pdepublishing-ant.jar" basedir="bin_ant"/>
 	</target>
 </project>

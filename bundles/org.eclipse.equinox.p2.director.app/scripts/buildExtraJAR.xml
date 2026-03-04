@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="org.eclipse.equinox.p2.director.app" default="default" basedir="..">
 
-	<target name="default" description="Jar up the binaries that were compiled by the jdt builder" >
+	<target name="default" depends="checkSourceUpToDate" unless="jar.uptodate"
+		description="Jar up the binaries that were compiled by the jdt builder">
 		<mkdir dir="${basedir}/ant_tasks" />
-		<delete file="${basedir}/ant_tasks/director-ant.jar" failonerror="false"/>
 		<jar destfile="${basedir}/ant_tasks/director-ant.jar" basedir="${basedir}/bin_ant"/>
+	</target>
+
+	<target name="checkSourceUpToDate" description="Check if the source files are up to date with the jar file">
+		<uptodate property="jar.uptodate" targetfile="${basedir}/ant_tasks/director-ant.jar">
+			<srcfiles dir="${basedir}/src_ant" includes="**/*"/>
+		</uptodate>
 	</target>
 
 </project>
