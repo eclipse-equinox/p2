@@ -117,12 +117,6 @@
       </application>
    </extension>
 
-	<extension point="org.eclipse.equinox.p2.artifact.repository.artifactComparators">		
-		<artifactComparator 
-			class="org.eclipse.equinox.p2.internal.repository.comparator.MD5ArtifactComparator"
-			id="org.eclipse.equinox.artifact.md5.comparator">
-		</artifactComparator>
-	</extension>
 	<extension point="org.eclipse.equinox.p2.artifact.repository.artifactComparators">
 		<artifactComparator
 			class="org.eclipse.equinox.p2.internal.repository.comparator.ArtifactChecksumComparator"
