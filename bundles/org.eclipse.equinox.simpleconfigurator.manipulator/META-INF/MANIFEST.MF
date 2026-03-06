@@ -17,6 +17,6 @@ Bundle-Vendor: %providerName
 Export-Package: org.eclipse.equinox.internal.simpleconfigurator.manipulator;x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse",
  org.eclipse.equinox.simpleconfigurator.manipulator;version="2.0.0";uses:="org.osgi.framework"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4)"
+Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)"
 Service-Component: OSGI-INF/configurator.xml
 Automatic-Module-Name: org.eclipse.equinox.simpleconfigurator.manipulator
