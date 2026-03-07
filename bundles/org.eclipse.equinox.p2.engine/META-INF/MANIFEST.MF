@@ -29,7 +29,7 @@ Export-Package: org.eclipse.equinox.internal.p2.engine;
    org.eclipse.equinox.p2.query",
  org.eclipse.equinox.p2.engine.query;version="2.0.0";uses:="org.eclipse.equinox.p2.engine,org.eclipse.equinox.p2.metadata,org.eclipse.equinox.p2.query",
  org.eclipse.equinox.p2.engine.spi;version="2.0.0";uses:="org.eclipse.core.runtime,org.eclipse.equinox.p2.engine"
-Require-Bundle: org.eclipse.equinox.common,
+Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.18.0,4)",
  org.eclipse.equinox.registry,
  org.eclipse.core.jobs;bundle-version="[3.4.0,4.0.0)"
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.metadata.repository
