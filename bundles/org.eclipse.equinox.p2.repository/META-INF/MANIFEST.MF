@@ -67,6 +67,8 @@ Export-Package: org.eclipse.equinox.internal.p2.persistence;
    org.eclipse.equinox.p2.repository"
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.registry;bundle-version="3.3.0"
+Require-Capability: osgi.implementation;
+  filter:="(|(p2.agent.service.name=org.eclipse.equinox.internal.p2.repository.Transport)(p2.agent.servicename=org.eclipse.equinox.internal.p2.repository.Transport))"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Import-Package: org.bouncycastle.bcpg;version="1.72.0",
