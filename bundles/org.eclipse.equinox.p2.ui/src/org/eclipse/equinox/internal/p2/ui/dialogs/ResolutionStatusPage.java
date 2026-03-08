@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 IBM Corporation and others.
+ * Copyright (c) 2009, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -43,7 +43,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	private static final String NAME_COLUMN_WIDTH = "NameColumnWidth"; //$NON-NLS-1$
 	private static final String VERSION_COLUMN_WIDTH = "VersionColumnWidth"; //$NON-NLS-1$
 	private static final String ID_COLUMN_WIDTH = "IDColumnWidth"; //$NON-NLS-1$
-	private IUColumnConfig nameColumn, versionColumn, idColumn;
+	private IUColumnConfig nameColumn, versionColumnOld, versionColumn, idColumn;
 
 	protected ResolutionStatusPage(String pageName, ProvisioningUI ui, ProvisioningOperationWizard wizard) {
 		super(pageName, ui, wizard);
@@ -318,12 +318,14 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		// resolution errors are reported by ID.
 		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME,
 				ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH);
-		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION,
+		versionColumnOld = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle_Old,
+				IUColumnConfig.OLD_COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH);
+		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle_New, IUColumnConfig.COLUMN_VERSION,
 				ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH);
 		idColumn = new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID,
 				ILayoutConstants.DEFAULT_COLUMN_WIDTH);
 		getColumnWidthsFromSettings();
-		return new IUColumnConfig[] { nameColumn, versionColumn, idColumn };
+		return new IUColumnConfig[] { nameColumn, versionColumnOld, versionColumn, idColumn };
 	}
 
 	private boolean isLocked(AvailableIUElement elementToBeUpdated) {
