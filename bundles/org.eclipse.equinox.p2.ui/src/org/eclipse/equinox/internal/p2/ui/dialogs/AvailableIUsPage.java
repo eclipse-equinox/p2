@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -277,6 +277,14 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		updateSelection();
 	}
 
+	private void updatePageCompleteAsync() {
+		Display displayPage = availableIUGroup.getCheckboxTreeViewer().getControl().getDisplay();
+		displayPage.asyncExec(() -> {
+			Object[] checked = availableIUGroup.getCheckboxTreeViewer().getCheckedElements();
+			setPageComplete(checked.length > 0);
+		});
+	}
+
 	private void createViewControlsArea(Composite parent) {
 		showLatestVersionsCheckbox = new Button(parent, SWT.CHECK);
 		showLatestVersionsCheckbox.setText(ProvUIMessages.AvailableIUsPage_ShowLatestVersions);
@@ -285,12 +293,14 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			public void widgetDefaultSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				updatePageCompleteAsync();
 			}
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				updatePageCompleteAsync();
 			}
 		});
 
@@ -301,12 +311,14 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			public void widgetDefaultSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				updatePageCompleteAsync();
 			}
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				updatePageCompleteAsync();
 			}
 		});
 
@@ -317,12 +329,14 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			public void widgetDefaultSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				updatePageCompleteAsync();
 			}
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				updatePageCompleteAsync();
 			}
 		});
 
@@ -343,12 +357,14 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			public void widgetDefaultSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				updatePageCompleteAsync();
 			}
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				updatePageCompleteAsync();
 			}
 		});
 
