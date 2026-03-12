@@ -448,6 +448,8 @@ public class ValidationDialogServiceUI extends UIServices implements IArtifactUI
 				var authorityChain = AuthorityChecker.getAuthorityChain(location);
 				if (authorityChain.size() > 3) {
 					authorityChain.subList(2, authorityChain.size() - 1).clear();
+				} else if (authorityChain.size() == 1) {
+					authorityChain = AuthorityChecker.getAuthorityChain(URI.create(location + "/")); //$NON-NLS-1$
 				}
 				var ius = entry.getValue();
 				var certificates = authorityCertificates.get(location);
