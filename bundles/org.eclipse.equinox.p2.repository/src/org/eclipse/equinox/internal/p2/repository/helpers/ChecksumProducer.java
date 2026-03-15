@@ -61,20 +61,6 @@ public class ChecksumProducer {
 	}
 
 	/**
-	 * @param file should not be <code>null</code>
-	 * @return MD5 checksum of the file or <code>null</code> in case of NoSuchAlgorithmException
-	 */
-	@Deprecated
-	// bug #509401 - still here to not break x-friends like in bug #507193
-	public static String computeMD5(File file) throws IOException {
-		try {
-			return produce(file, "MD5", null); //$NON-NLS-1$
-		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-			return null;
-		}
-	}
-
-	/**
 	 * @param file         should not be <code>null</code>
 	 * @param algorithm    {@link java.security.MessageDigest#getInstance(String)}
 	 * @param providerName {@link Provider#getName()}
