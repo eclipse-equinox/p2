@@ -995,7 +995,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 				} catch (InterruptedException e) {
 					// ignore
 				}
-				overallStatus.addAll(jobStatus);
+				jobStatus.forEach(overallStatus::add);
 			} finally {
 				monitor.done();
 			}
