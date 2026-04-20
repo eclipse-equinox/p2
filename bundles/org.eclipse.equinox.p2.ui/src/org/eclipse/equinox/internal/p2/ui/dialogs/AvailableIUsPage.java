@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -285,12 +285,20 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			public void widgetDefaultSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				Display.getDefault().asyncExec(() -> {
+					Object[] checked = availableIUGroup.getCheckboxTreeViewer().getCheckedElements();
+					setPageComplete(checked.length > 0);
+				});
 			}
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				Display.getDefault().asyncExec(() -> {
+					Object[] checked = availableIUGroup.getCheckboxTreeViewer().getCheckedElements();
+					setPageComplete(checked.length > 0);
+				});
 			}
 		});
 
@@ -301,12 +309,20 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			public void widgetDefaultSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				Display.getDefault().asyncExec(() -> {
+					Object[] checked = availableIUGroup.getCheckboxTreeViewer().getCheckedElements();
+					setPageComplete(checked.length > 0);
+				});
 			}
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				Display.getDefault().asyncExec(() -> {
+					Object[] checked = availableIUGroup.getCheckboxTreeViewer().getCheckedElements();
+					setPageComplete(checked.length > 0);
+				});
 			}
 		});
 
@@ -317,12 +333,20 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			public void widgetDefaultSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				Display.getDefault().asyncExec(() -> {
+					Object[] checked = availableIUGroup.getCheckboxTreeViewer().getCheckedElements();
+					setPageComplete(checked.length > 0);
+				});
 			}
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				Display.getDefault().asyncExec(() -> {
+					Object[] checked = availableIUGroup.getCheckboxTreeViewer().getCheckedElements();
+					setPageComplete(checked.length > 0);
+				});
 			}
 		});
 
@@ -343,12 +367,20 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			public void widgetDefaultSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				Display.getDefault().asyncExec(() -> {
+					Object[] checked = availableIUGroup.getCheckboxTreeViewer().getCheckedElements();
+					setPageComplete(checked.length > 0);
+				});
 			}
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateQueryContext();
 				availableIUGroup.updateAvailableViewState();
+				Display.getDefault().asyncExec(() -> {
+					Object[] checked = availableIUGroup.getCheckboxTreeViewer().getCheckedElements();
+					setPageComplete(checked.length > 0);
+				});
 			}
 		});
 
