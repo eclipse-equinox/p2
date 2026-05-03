@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2015 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,14 +14,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated metadata repository tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
 		BatchExecuteMetadataRepositoryTest.class, CompositeMetadataRepositoryTest.class,
 		JarURLMetadataRepositoryTest.class, LocalMetadataRepositoryTest.class, SPIMetadataRepositoryTest.class,
 		StandaloneSerializationTest.class, MetadataRepositoryManagerTest.class, NoFailOver.class,
