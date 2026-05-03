@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2018 Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2026 Cloudsmith Inc and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.repository;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated repository bundle tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ CacheManagerTest.class, RepositoryHelperTest.class, RepositoryExtensionPointTest.class,
+@Suite
+@SelectClasses({ CacheManagerTest.class, RepositoryHelperTest.class, RepositoryExtensionPointTest.class,
 		FileReaderTest2.class, ChecksumHelperTest.class })
 public class AllTests {
 	// test suite

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2008 IBM Corporation and others.
+ *  Copyright (c) 2005, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -13,11 +13,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.sat4j.smoke;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ SmokeTestSAT4J.class })
+@Suite
+@SelectClasses({ SmokeTestSAT4J.class })
 public class AllTests {
 	// test suite
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2026 Cloudsmith Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Tests the OmniVersion implementation of Version and VersionRange.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ CommonPatternsTest.class, FormatArrayTest.class, FormatATest.class, FormatDTest.class,
+@Suite
+@SelectClasses({ CommonPatternsTest.class, FormatArrayTest.class, FormatATest.class, FormatDTest.class,
 		FormatNTest.class, FormatProcessingTest.class, FormatPTest.class, FormatQTest.class, FormatRTest.class,
 		FormatSTest.class, FormatTest.class, FormatRangeTest.class, MultiplicityTest.class, OSGiRangeTest.class,
 		OSGiVersionTest.class, RawRangeTest.class, RawRangeWithOriginalTest.class, RawVersionTest.class,

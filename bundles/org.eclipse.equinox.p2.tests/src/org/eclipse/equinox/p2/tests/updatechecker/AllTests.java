@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatechecker;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * All automated tests for the org.eclipse.equinox.p2.updatechecker bundle
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ UpdateCheckerTest.class })
+@Suite
+@SelectClasses({ UpdateCheckerTest.class })
 public class AllTests {
 	// test suite
 }
