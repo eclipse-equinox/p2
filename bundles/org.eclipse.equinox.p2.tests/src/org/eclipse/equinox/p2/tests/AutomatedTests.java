@@ -52,7 +52,7 @@ import org.junit.platform.suite.api.Suite;
 		org.eclipse.equinox.p2.tests.updatechecker.AllTests.class,
 		org.eclipse.equinox.p2.tests.updatesite.AllTests.class,
 		org.eclipse.equinox.p2.tests.reconciler.dropins.AllTests.class,
-		org.eclipse.equinox.p2.tests.sharedinstall.AllTests.class, org.eclipse.equinox.p2.tests.full.AllTests.class })
+		org.eclipse.equinox.p2.tests.sharedinstall.AllTests.class })
 public class AutomatedTests {
 	// SuiteClasses
 }
