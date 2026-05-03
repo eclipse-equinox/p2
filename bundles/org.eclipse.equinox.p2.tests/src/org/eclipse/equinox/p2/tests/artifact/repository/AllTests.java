@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated artifact repository tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
+@Suite
+@SelectClasses({
 		ArtifactLockingTest.class, ArtifactOutputStreamTest.class, ArtifactRepositoryManagerTest.class,
 		ArtifactRepositoryMissingSizeData.class, ArtifactRepositoryWithReferenceDescriptors.class,
 		BatchExecuteArtifactRepositoryTest.class, Bug252308.class, Bug265577.class, Bug351944.class,

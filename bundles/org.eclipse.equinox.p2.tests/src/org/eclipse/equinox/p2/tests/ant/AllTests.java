@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009 IBM Corporation and others.
+ *  Copyright (c) 2009, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ant;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all automated artifact repository tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ CompositeRepositoryTaskTest.class, MirrorTaskTest.class, Repo2RunnableTaskTests.class })
+@Suite
+@SelectClasses({ CompositeRepositoryTaskTest.class, MirrorTaskTest.class, Repo2RunnableTaskTests.class })
 public class AllTests {
 // test suite
 }

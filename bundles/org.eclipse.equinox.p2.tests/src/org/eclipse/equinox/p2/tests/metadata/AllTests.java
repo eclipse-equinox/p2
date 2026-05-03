@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,14 +14,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * Performs all metadata tests.
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({ ArtifactKeyParsingTest.class, FragmentMethodTest.class, FragmentTest.class,
+@Suite
+@SelectClasses({ ArtifactKeyParsingTest.class, FragmentMethodTest.class, FragmentTest.class,
 		InstallableUnitTest.class, InstallableUnitPatchTest.class, IUPersistenceTest.class, LatestIUTest.class,
 		LicenseTest.class, MultipleIUAndFragmentTest.class, PersistNegation.class, PersistFragment.class,
 		ProvidedCapabilityTest.class, RequirementToString.class, RequirementParsingTest.class })
