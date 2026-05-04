@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -18,11 +18,13 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.core.commands.*;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
@@ -44,8 +46,7 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -111,8 +112,33 @@ public class ProvUI {
 				|| (style & StatusManager.SHOW) == StatusManager.SHOW) {
 			if (status.getSeverity() == IStatus.INFO) {
 				final MessageDialogWithLink dialog = new MessageDialogWithLink(ProvUI.getDefaultParentShell(),
-						ProvUIMessages.ProvUI_InformationTitle, null, status.getMessage(), MessageDialog.INFORMATION, 0,
-						IDialogConstants.OK_LABEL);
+						ProvUIMessages.ProvUI_InformationTitle, null, status.getMessage(), MessageDialog.INFORMATION, 1,
+						"Check for Updates", IDialogConstants.OK_LABEL) { //$NON-NLS-1$
+					@Override
+					protected void buttonPressed(int buttonId) {
+						if (buttonId == 0) {
+							ProvisioningUI ui = ProvisioningUI.getDefaultUI();
+							Job job = new Job(ProvUIMessages.UpdateIUOperationLabel) {
+								@Override
+								protected IStatus run(IProgressMonitor monitor) {
+									UpdateOperation operation = ui.getUpdateOperation(null, null);
+									IStatus iStatus = operation.resolveModal(monitor);
+									Display display = getShell().getDisplay();
+									display.asyncExec(() -> {
+										if (iStatus.getSeverity() != IStatus.CANCEL) {
+											close();
+											ui.openUpdateWizard(false, operation, null);
+										}
+									});
+									return status;
+								}
+							};
+							job.schedule();
+							return;
+						}
+						super.buttonPressed(buttonId);
+					}
+				};
 				if (status.getCode() == UpdateOperation.STATUS_NOTHING_TO_UPDATE) {
 					dialog.addSelectionListener(SelectionListener.widgetSelectedAdapter(
 							e -> ProvisioningUI.getDefaultUI().manipulateRepositories(dialog.getShell())));
