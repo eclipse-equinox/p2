@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -47,6 +47,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.*;
 import org.eclipse.ui.dialogs.PatternFilter;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -91,6 +92,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class RepositoryManipulationPage extends PreferencePage implements IWorkbenchPreferencePage, ICopyable {
 	final static String DEFAULT_FILTER_TEXT = ProvUIMessages.RepositoryManipulationPage_DefaultFilterString;
 	private final static int FILTER_DELAY = 200;
+	private static final String UPDATE = "org.eclipse.equinox.p2.ui.sdk.update"; //$NON-NLS-1$
 
 	StructuredViewerProvisioningListener listener;
 	CheckboxTableViewer repositoryViewer;
@@ -99,6 +101,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	Policy policy;
 	Display display;
 	boolean changed = false;
+	boolean repoAddedOrEdited;
 	MetadataRepositoryElementComparator comparator;
 	RepositoryDetailsLabelProvider labelProvider;
 	RepositoryTracker tracker;
@@ -504,6 +507,16 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		}
 		originalNameCache.clear();
 		originalURICache.clear();
+		
+		if (repoAddedOrEdited) {
+			Display.getDefault().asyncExec(() -> {
+				try {
+					PlatformUI.getWorkbench().getService(IHandlerService.class).executeCommand(UPDATE, null);
+				} catch (Exception e) {
+					// nothing to report
+				}
+			});
+		}
 		return super.performOk();
 	}
 
@@ -682,6 +695,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				repositoryViewer.update(element, null);
 			}
 		}
+		if (updated.length > 0) {
+			repoAddedOrEdited = true;
+		}
 		changed = true;
 	}
 
@@ -762,6 +778,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			}
 			if (originalURICache.size() > 0 || originalNameCache.size() > 0) {
 				changed = true;
+				repoAddedOrEdited = true;
 			} else {
 				changed = false;
 			}
@@ -885,6 +902,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 						element.setNickname(nickname);
 					}
 					changed = true;
+					repoAddedOrEdited = true;
 					safeRefresh(element);
 				}
 

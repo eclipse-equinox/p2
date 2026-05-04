@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2015 Red Hat Inc.
+ *  Copyright (c) 2015, 2026 Red Hat Inc and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -19,6 +19,7 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.*;
@@ -47,9 +48,25 @@ public class MessageDialogWithLink extends MessageDialog {
 			this.link = new Link(composite, getMessageLabelStyle());
 			this.link.setText(this.linkMessage);
 			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).hint(convertHorizontalDLUsToPixels(IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH), SWT.DEFAULT).applyTo(this.link);
-			for (SelectionListener linkListener : this.linkListeners) {
-				this.link.addSelectionListener(linkListener);
-			}
+			this.link.addSelectionListener(new SelectionListener() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					// First notify existing listeners
+					for (SelectionListener listener : linkListeners) {
+						listener.widgetSelected(e);
+					}
+
+					Shell shell = getShell();
+					if (shell != null && !shell.isDisposed()) {
+						shell.close();
+					}
+				}
+
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+					widgetSelected(e);
+				}
+			});
 		}
 		return composite;
 	}
