@@ -282,6 +282,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		displayPage.asyncExec(() -> {
 			Object[] checked = availableIUGroup.getCheckboxTreeViewer().getCheckedElements();
 			setPageComplete(checked.length > 0);
+			availableIUGroup.setChecked(new Object[0]);
 		});
 	}
 
