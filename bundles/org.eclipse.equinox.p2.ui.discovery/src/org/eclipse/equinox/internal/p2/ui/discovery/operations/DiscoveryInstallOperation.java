@@ -121,33 +121,6 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 			checkForUnavailable(installableUnits);
 			return installableUnits.toArray(new IInstallableUnit[installableUnits.size()]);
 
-			// MultiStatus status = new MultiStatus(DiscoveryUi.ID_PLUGIN, 0,
-			// Messages.PrepareInstallProfileJob_ok, null);
-			// ius = installableUnits.toArray(new
-			// IInstallableUnit[installableUnits.size()]);
-			// ProfileChangeRequest profileChangeRequest =
-			// InstallAction.computeProfileChangeRequest(ius, profileId,
-			// status, new SubProgressMonitor(monitor, installableConnectors.size()));
-			// if (status.getSeverity() > IStatus.WARNING) {
-			// throw new CoreException(status);
-			// }
-			// if (profileChangeRequest == null) {
-			// // failed but no indication as to why
-			// throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN,
-			// Messages.PrepareInstallProfileJob_computeProfileChangeRequestFailed, null));
-			// }
-			// PlannerResolutionOperation operation = new PlannerResolutionOperation(
-			// Messages.PrepareInstallProfileJob_calculatingRequirements, profileId,
-			// profileChangeRequest, null,
-			// status, true);
-			// IStatus operationStatus = operation.execute(new SubProgressMonitor(monitor,
-			// installableConnectors.size()));
-			// if (operationStatus.getSeverity() > IStatus.WARNING) {
-			// throw new CoreException(operationStatus);
-			// }
-			//
-			// plannerResolutionOperation = operation;
-
 		} catch (URISyntaxException e) {
 			// should never happen, since we already validated URLs.
 			throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN,
@@ -282,9 +255,6 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 			if (repositoryLocations.add(uri)) {
 				checkCancelled(monitor);
 				repositoryTracker.addRepository(uri, null, session);
-				// ProvisioningUtil.addMetaDataRepository(url.toURI(), true);
-				// ProvisioningUtil.addArtifactRepository(url.toURI(), true);
-				// ProvisioningUtil.setColocatedRepositoryEnablement(url.toURI(), true);
 			}
 			monitor.worked(1);
 		}
