@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: testRC
+Bundle-SymbolicName: testRC
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Capability: my.cap;filter:="(my.attr=my.value)"
+Import-Package: org.osgi.framework
+Require-Bundle: some.other.bundle

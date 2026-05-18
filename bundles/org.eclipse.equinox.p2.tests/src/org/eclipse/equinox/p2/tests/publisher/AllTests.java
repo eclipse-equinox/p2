@@ -20,6 +20,7 @@ import org.eclipse.equinox.p2.tests.publisher.actions.ANYConfigCUsActionTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.AbstractPublisherActionTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.AccumulateConfigDataActionTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.AdviceFileParserTest;
+import org.eclipse.equinox.p2.tests.publisher.actions.BundlesActionRequireCapabilityFilterTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.BundlesActionTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.CategoryPublisherTest;
 import org.eclipse.equinox.p2.tests.publisher.actions.ConfigCUsActionTest;
@@ -46,7 +47,8 @@ import org.junit.platform.suite.api.Suite;
 
 @Suite
 @SelectClasses({ AbstractPublisherActionTest.class, AccumulateConfigDataActionTest.class,
-		AdviceFileParserTest.class, ANYConfigCUsActionTest.class, BundlesActionTest.class, CategoryPublisherTest.class,
+		AdviceFileParserTest.class, ANYConfigCUsActionTest.class, BundlesActionRequireCapabilityFilterTest.class,
+		BundlesActionTest.class, CategoryPublisherTest.class,
 		ConfigCUsActionTest.class, ContextRepositoryTest.class, DefaultCUsActionTest.class,
 		EquinoxExecutableActionTest.class, EquinoxLauncherCUActionTest.class, FeaturesActionTest.class,
 		JREActionTest.class, LocalizationTests.class, LocalUpdateSiteActionTest.class, ChecksumGenerationTest.class,
