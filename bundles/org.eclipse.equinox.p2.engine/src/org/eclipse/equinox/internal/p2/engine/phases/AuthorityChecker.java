@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.Messages;
@@ -163,9 +163,10 @@ public class AuthorityChecker {
 	}
 
 	public boolean isTrustAlways() {
-		var preferences = getEnngineProfilePreferences();
-		if (preferences != null) {
-			return preferences.getBoolean(TRUST_ALL_AUTHORITIES, false);
+		if (profile != null) {
+			var profileScope = new ProfileScope(agent.getService(IAgentLocation.class), profile.getProfileId());
+			return Platform.getPreferencesService().getBoolean(EngineActivator.ID, TRUST_ALL_AUTHORITIES, false,
+					new IScopeContext[] { profileScope, DefaultScope.INSTANCE });
 		}
 		return false;
 	}

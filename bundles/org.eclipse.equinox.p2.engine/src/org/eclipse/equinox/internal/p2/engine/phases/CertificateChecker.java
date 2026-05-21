@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPPublicKeyStore;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
@@ -544,7 +544,8 @@ public class CertificateChecker {
 		if (profile != null) {
 			ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
 					profile.getProfileId());
-			return profileScope.getNode(EngineActivator.ID).getBoolean(TRUST_ALWAYS_PROPERTY, false);
+			return Platform.getPreferencesService().getBoolean(EngineActivator.ID, TRUST_ALWAYS_PROPERTY, false,
+					new IScopeContext[] { profileScope, DefaultScope.INSTANCE });
 		}
 		return false;
 	}
