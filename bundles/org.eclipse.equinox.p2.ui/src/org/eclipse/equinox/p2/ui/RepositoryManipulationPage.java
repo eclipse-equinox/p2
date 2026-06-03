@@ -507,7 +507,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		}
 		originalNameCache.clear();
 		originalURICache.clear();
-		
+
 		if (repoAddedOrEdited) {
 			Display.getDefault().asyncExec(() -> {
 				try {
