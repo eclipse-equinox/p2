@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2018 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -117,7 +117,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 
 	@Override
 	public IWizardPage getPreviousPage(IWizardPage page) {
-		if (page == errorPage) {
+		if (page == errorPage && page != mainPage) {
 			return mainPage;
 		}
 		return super.getPreviousPage(page);
