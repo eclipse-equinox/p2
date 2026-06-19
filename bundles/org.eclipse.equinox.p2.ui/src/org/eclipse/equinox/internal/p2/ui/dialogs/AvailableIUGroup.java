@@ -99,7 +99,8 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// increase primary column width because we might be nesting names under categories and require more space than a flat list
 		IUColumnConfig nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH + 15);
 		IUColumnConfig versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_COLUMN_WIDTH);
-		return new IUColumnConfig[] {nameColumn, versionColumn};
+		IUColumnConfig idColumn = new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH);
+		return new IUColumnConfig[] {nameColumn, versionColumn, idColumn};
 	}
 
 	/**
