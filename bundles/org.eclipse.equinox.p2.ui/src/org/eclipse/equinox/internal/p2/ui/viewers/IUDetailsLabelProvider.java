@@ -96,6 +96,15 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 
 		switch (columnContent) {
 			case IUColumnConfig.COLUMN_ID :
+				// If it's an element, determine if the id should be shown.
+				// Categories (groups) reuse the same rule as the version column.
+				if (element instanceof IIUElement) {
+					if (((IIUElement) element).shouldShowVersion()) {
+						return iu.getId();
+					}
+					return BLANK;
+				}
+				// It's a raw IU, return the id
 				return iu.getId();
 			case IUColumnConfig.COLUMN_NAME :
 				// Get the iu name in the current locale

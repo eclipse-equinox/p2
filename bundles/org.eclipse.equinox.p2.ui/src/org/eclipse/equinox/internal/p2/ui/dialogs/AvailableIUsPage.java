@@ -51,6 +51,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	private static final String FILTER_ON_ENV = "FilterOnEnv"; //$NON-NLS-1$
 	private static final String NAME_COLUMN_WIDTH = "AvailableNameColumnWidth"; //$NON-NLS-1$
 	private static final String VERSION_COLUMN_WIDTH = "AvailableVersionColumnWidth"; //$NON-NLS-1$
+	private static final String ID_COLUMN_WIDTH = "AvailableIdColumnWidth"; //$NON-NLS-1$
 	private static final String LIST_WEIGHT = "AvailableListSashWeight"; //$NON-NLS-1$
 	private static final String DETAILS_WEIGHT = "AvailableDetailsSashWeight"; //$NON-NLS-1$
 	private static final String LINKACTION = "linkAction"; //$NON-NLS-1$
@@ -68,6 +69,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	SashForm sashForm;
 	IUColumnConfig nameColumn;
 	IUColumnConfig versionColumn;
+	IUColumnConfig idColumn;
 	StructuredViewerProvisioningListener profileListener;
 	Display display;
 	int batchCount = 0;
@@ -121,9 +123,10 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		}
 		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH + 15);
 		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_COLUMN_WIDTH);
+		idColumn = new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH);
 
 		getColumnWidthsFromSettings();
-		availableIUGroup = new AvailableIUGroup(getProvisioningUI(), aboveSash, JFaceResources.getDialogFont(), queryContext, new IUColumnConfig[] {nameColumn, versionColumn}, filterConstant);
+		availableIUGroup = new AvailableIUGroup(getProvisioningUI(), aboveSash, JFaceResources.getDialogFont(), queryContext, new IUColumnConfig[] {nameColumn, versionColumn, idColumn}, filterConstant);
 
 		// Selection listeners must be registered on both the normal selection
 		// events and the check mark events.  Must be done after buttons
@@ -566,6 +569,9 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 				if (section.get(VERSION_COLUMN_WIDTH) != null) {
 					versionColumn.setWidthInPixels(section.getInt(VERSION_COLUMN_WIDTH));
 				}
+				if (section.get(ID_COLUMN_WIDTH) != null) {
+					idColumn.setWidthInPixels(section.getInt(ID_COLUMN_WIDTH));
+				}
 			} catch (NumberFormatException e) {
 				// Ignore if there actually was a value that didn't parse.
 			}
@@ -614,6 +620,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		section.put(NAME_COLUMN_WIDTH, col.getWidth());
 		col = availableIUGroup.getCheckboxTreeViewer().getTree().getColumn(1);
 		section.put(VERSION_COLUMN_WIDTH, col.getWidth());
+		col = availableIUGroup.getCheckboxTreeViewer().getTree().getColumn(2);
+		section.put(ID_COLUMN_WIDTH, col.getWidth());
 
 		int[] weights = sashForm.getWeights();
 		section.put(LIST_WEIGHT, weights[0]);
