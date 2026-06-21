@@ -64,6 +64,10 @@ public class AutomaticUpdateScheduler implements EventHandler {
 
 	@Override
 	public void handleEvent(Event event) {
+		if (!AutomaticUpdatePlugin.getDefault().getPreferenceStore()
+				.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED)) {
+			return; // Do nothing if updates are generally disabled
+		}
 		AutomaticUpdatePlugin.getDefault().setScheduler(this);
 
 		Job updateJob = new Job("Update Job") { //$NON-NLS-1$
