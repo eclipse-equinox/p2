@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,7 +18,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -29,6 +31,7 @@ import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 
 /**
  * Class for showing a repository name and location
@@ -93,9 +96,11 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 	}
 
 	protected boolean handleOk() {
-		IStatus status = validateRepositoryURL(false);
-		location = getUserLocation();
-		name = nickname.getText().trim();
+		IStatus status = validateRepositoryURL(true);
+		if (status.isOK()) {
+			location = getUserLocation();
+			name = nickname.getText().trim();
+		}
 		return status.isOK();
 	}
 
@@ -153,7 +158,15 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 				// the location is reverted to the original one that has not been saved
 				status[0] = Status.OK_STATUS;
 			} else {
-				BusyIndicator.showWhile(getShell().getDisplay(), () -> status[0] = getRepositoryTracker().validateRepositoryLocation(ui.getSession(), userLocation, contactRepositories, null));
+				BusyIndicator.showWhile(getShell().getDisplay(), () -> {
+					status[0] = getRepositoryTracker().validateRepositoryLocation(ui.getSession(), userLocation, false,
+							null);
+					// If contactRepositories is true, actually try to load the repository to verify
+					// it's reachable
+					if (contactRepositories && status[0].isOK()) {
+						status[0] = validateRepositoryReachability(userLocation);
+					}
+				});
 			}
 		}
 		// At this point the subclasses may have decided to opt out of
@@ -166,6 +179,25 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 		updateStatus(status[0]);
 		return status[0];
 
+	}
+
+	/**
+	 * Validate that the repository at the given location is reachable by attempting
+	 * to load it.
+	 *
+	 * @param uri the repository location to validate
+	 * @return a status indicating whether the repository is reachable
+	 */
+	protected IStatus validateRepositoryReachability(URI uri) {
+		try {
+			IMetadataRepositoryManager manager = ProvUI
+					.getMetadataRepositoryManager(ui.getSession());
+			manager.loadRepository(uri, null);
+			return Status.OK_STATUS;
+		} catch (ProvisionException e) {
+			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID,
+					RepositoryTracker.STATUS_INVALID_REPOSITORY_LOCATION, e.getMessage(), e);
+		}
 	}
 
 	@Override
