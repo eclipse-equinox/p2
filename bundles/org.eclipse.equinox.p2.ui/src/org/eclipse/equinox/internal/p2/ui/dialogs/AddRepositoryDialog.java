@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2019 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -132,7 +132,7 @@ public abstract class AddRepositoryDialog extends RepositoryNameAndLocationDialo
 	}
 
 	protected IStatus addRepository() {
-		IStatus status = validateRepositoryURL(false);
+		IStatus status = validateRepositoryURL(true);
 		if (status.isOK()) {
 			addedLocation = getUserLocation();
 			String nick = nickname.getText().trim();
