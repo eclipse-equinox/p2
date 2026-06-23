@@ -17,8 +17,7 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.Collection;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
@@ -127,7 +126,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		});
 		final int DEFAULT_COLUMN_WIDTH = 200;
 		// check the operation is for update or installation
-		boolean isUpdate = (resolvedOperation instanceof UpdateOperation);
+		boolean isUpdate = shouldShowAvailableVersionColumn() && resolvedOperation instanceof UpdateOperation;
 		if (isUpdate) {
 			TreeViewerColumn versionColumnOld = new TreeViewerColumn(treeViewer, SWT.LEFT);
 			versionColumnOld.getColumn().setText(ProvUIMessages.ProvUI_VersionColumnTitle_Old);

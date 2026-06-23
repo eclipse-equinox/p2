@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
+import org.eclipse.equinox.p2.operations.UninstallOperation;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IMessageProvider;
@@ -318,14 +319,18 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		// resolution errors are reported by ID.
 		nameColumn = new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME,
 				ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH);
-		versionColumnOld = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle_Old,
-				IUColumnConfig.OLD_COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH);
+		if (shouldShowAvailableVersionColumn()) {
+			versionColumnOld = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle_Old,
+					IUColumnConfig.OLD_COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH);
+		}
 		versionColumn = new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle_New, IUColumnConfig.COLUMN_VERSION,
 				ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH);
 		idColumn = new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID,
 				ILayoutConstants.DEFAULT_COLUMN_WIDTH);
 		getColumnWidthsFromSettings();
-		return new IUColumnConfig[] { nameColumn, versionColumnOld, versionColumn, idColumn };
+		return shouldShowAvailableVersionColumn()
+				? new IUColumnConfig[] { nameColumn, versionColumnOld, versionColumn, idColumn }
+				: new IUColumnConfig[] { nameColumn, versionColumn, idColumn };
 	}
 
 	private boolean isLocked(AvailableIUElement elementToBeUpdated) {
@@ -333,5 +338,13 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 			return updateElement.isLockedForUpdate();
 		}
 		return false;
+	}
+
+	protected boolean shouldShowAvailableVersionColumn() {
+		ProvisioningOperationWizard profWizard = getProvisioningWizard();
+		Integer severity = profWizard.getCurrentStatus().getSeverity();
+		// If the original request has been modified, then the ProvisioningOperation
+		// severity Status will be IStatus.ERROR
+		return !(profWizard.operation instanceof UninstallOperation || severity.equals(IStatus.ERROR));
 	}
 }
