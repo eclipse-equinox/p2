@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2018 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -505,34 +505,30 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	}
 
 	private IPreFilterJobProvider getPreFilterJobProvider() {
-		return () -> {
-			switch (filterConstant) {
-				case AVAILABLE_ALL :
-					Job preFilterJob = new LoadMetadataRepositoryJob(getProvisioningUI());
-					preFilterJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_REPOSITORY_EVENTS, Boolean.toString(true));
-					return preFilterJob;
-				case AVAILABLE_NONE :
-				case AVAILABLE_LOCAL :
-					return null;
-				default :
-					if (repositoryFilter == null) {
-						return null;
-					}
-					Job job = new Job("Repository Load Job") { //$NON-NLS-1$
-						@Override
-						protected IStatus run(IProgressMonitor monitor) {
-							try {
-								getProvisioningUI().loadMetadataRepository(repositoryFilter, false, monitor);
-								return Status.OK_STATUS;
-							} catch (ProvisionException e) {
-								return e.getStatus();
-							}
-						}
+		return () -> switch (filterConstant) {
+		case AVAILABLE_ALL -> {
+			Job preFilterJob = new LoadMetadataRepositoryJob(getProvisioningUI());
+			preFilterJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_REPOSITORY_EVENTS, Boolean.toString(true));
+			yield preFilterJob;
+		}
+		case AVAILABLE_NONE, AVAILABLE_LOCAL -> null;
+		default -> repositoryFilter == null ? null : createRepositoryLoadJob();
+		};
+	}
 
-					};
-					job.setPriority(Job.SHORT);
-					return job;
+	private Job createRepositoryLoadJob() {
+		Job job = new Job("Repository Load Job") { //$NON-NLS-1$
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					getProvisioningUI().loadMetadataRepository(repositoryFilter, false, monitor);
+					return Status.OK_STATUS;
+				} catch (ProvisionException e) {
+					return e.getStatus();
+				}
 			}
 		};
+		job.setPriority(Job.SHORT);
+		return job;
 	}
 }

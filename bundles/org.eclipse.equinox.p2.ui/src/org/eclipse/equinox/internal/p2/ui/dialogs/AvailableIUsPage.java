@@ -205,17 +205,14 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		progressBarLabel.setText(ProvUIMessages.AvailableIUsPage_Fetching);
 		new ProgressBar(progressBarComposite, SWT.INDETERMINATE);
 		IContentProvider contentProvider = availableIUGroup.getCheckboxTreeViewer().getContentProvider();
-		if (contentProvider instanceof DeferredQueryContentProvider) {
-			((DeferredQueryContentProvider) contentProvider).addOnFetchingActionListener(new IDeferredQueryTreeListener() {
+		if (contentProvider instanceof DeferredQueryContentProvider deferredQueryContentProvider) {
+			deferredQueryContentProvider.addOnFetchingActionListener(new IDeferredQueryTreeListener() {
 
 				@Override
 				public void finishedFetchingDeferredChildren(Object o, Object placeHolder) {
-					if (o instanceof QueriedElement queriedElement) {
-						if (queriedElement.getCachedChildren().length > 0) {
-							if (progressBarRefCount > 0) {
-								progressBarRefCount--;
-							}
-						}
+					if (o instanceof QueriedElement queriedElement && (queriedElement.getCachedChildren().length > 0)
+							&& (progressBarRefCount > 0)) {
+						progressBarRefCount--;
 					}
 					changeProgressBarVisibility(progressBarComposite);
 				}
@@ -631,8 +628,8 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	void updateDetails() {
 		// First look for an empty explanation.
 		Object[] elements = availableIUGroup.getStructuredViewer().getStructuredSelection().toArray();
-		if (elements.length == 1 && elements[0] instanceof EmptyElementExplanation) {
-			String description = ((EmptyElementExplanation) elements[0]).getDescription();
+		if (elements.length == 1 && elements[0] instanceof EmptyElementExplanation emptyElementExplanation) {
+			String description = emptyElementExplanation.getDescription();
 			if (description != null) {
 				iuDetailsGroup.setDetailText(description);
 				return;

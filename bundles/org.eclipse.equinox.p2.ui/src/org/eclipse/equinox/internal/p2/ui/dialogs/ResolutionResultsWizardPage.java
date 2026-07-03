@@ -107,8 +107,8 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 			@Override
 			public Image getImage(Object element) {
-				if (element instanceof ProvElement) {
-					return ((ProvElement) element).getImage(element);
+				if (element instanceof ProvElement provElement) {
+					return provElement.getImage(element);
 				}
 				if (ProvUI.getAdapter(element, IInstallableUnit.class) != null) {
 					return ProvUIImages.getImage(ProvUIImages.IMG_IU);
@@ -118,7 +118,8 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 			@Override
 			public String getToolTipText(Object element) {
-				if (element instanceof AvailableIUElement && ((AvailableIUElement) element).getImageOverlayId(null) == ProvUIImages.IMG_INFO) {
+				if (element instanceof AvailableIUElement updateElement
+						&& updateElement.getImageOverlayId(null) == ProvUIImages.IMG_INFO) {
 					return ProvUIMessages.RemedyElementNotHighestVersion;
 				}
 				return super.getToolTipText(element);
@@ -136,8 +137,8 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 				public String getText(Object element) {
 					IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 					if (element instanceof IIUElement iuElement) {
-						if (iuElement.shouldShowVersion() && element instanceof AvailableUpdateElement elm) {
-							return elm.getIUToBeUpdated().getVersion().toString();
+						if (iuElement.shouldShowVersion() && element instanceof AvailableUpdateElement updateElement) {
+							return updateElement.getIUToBeUpdated().getVersion().toString();
 						}
 						return ""; //$NON-NLS-1$
 					}
@@ -153,8 +154,8 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 			@Override
 			public String getText(Object element) {
 				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
-				if (element instanceof IIUElement) {
-					if (((IIUElement) element).shouldShowVersion()) {
+				if (element instanceof IIUElement iuElement) {
+					if (iuElement.shouldShowVersion()) {
 						return iu.getVersion().toString();
 					}
 					return ""; //$NON-NLS-1$
@@ -284,8 +285,8 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		}
 		Object[] elements = root.getChildren(root);
 		for (Object element : elements) {
-			if (element instanceof QueriedElement) {
-				((QueriedElement) element).setQueryable(getQueryable(operation.getProvisioningPlan()));
+			if (element instanceof QueriedElement queriedElement) {
+				queriedElement.setQueryable(getQueryable(operation.getProvisioningPlan()));
 			}
 		}
 	}

@@ -108,8 +108,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 
 		tableViewer.addCheckStateListener(event -> {
 			// If the checkEvent is on a locked update element, uncheck it and select it.
-			if (event.getElement() instanceof AvailableUpdateElement) {
-				AvailableUpdateElement checkedElement = (AvailableUpdateElement) event.getElement();
+			if (event.getElement() instanceof AvailableUpdateElement checkedElement) {
 				if (checkedElement.isLockedForUpdate()) {
 					event.getCheckable().setChecked(checkedElement, false);
 					// Select the element so that the locked description is displayed

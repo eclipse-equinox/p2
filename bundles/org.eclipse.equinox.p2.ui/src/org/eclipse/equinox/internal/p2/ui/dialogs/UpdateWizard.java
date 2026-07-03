@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -41,8 +41,8 @@ public class UpdateWizard extends WizardWithLicenses {
 	public static Collection<IInstallableUnit> getIUsToReplace(Object[] elements) {
 		Set<IInstallableUnit> iusToReplace = new HashSet<>();
 		for (Object element : elements) {
-			if (element instanceof AvailableUpdateElement) {
-				iusToReplace.add(((AvailableUpdateElement) element).getIUToBeUpdated());
+			if (element instanceof AvailableUpdateElement updateElement) {
+				iusToReplace.add(updateElement.getIUToBeUpdated());
 			}
 		}
 		return iusToReplace;
@@ -51,8 +51,8 @@ public class UpdateWizard extends WizardWithLicenses {
 	public static IInstallableUnit[] getReplacementIUs(Object[] elements) {
 		Set<IInstallableUnit> replacements = new HashSet<>();
 		for (Object element : elements) {
-			if (element instanceof AvailableUpdateElement) {
-				replacements.add(((AvailableUpdateElement) element).getIU());
+			if (element instanceof AvailableUpdateElement updateElement) {
+				replacements.add(updateElement.getIU());
 			}
 		}
 		return replacements.toArray(new IInstallableUnit[replacements.size()]);
@@ -61,8 +61,8 @@ public class UpdateWizard extends WizardWithLicenses {
 	public static Update[] makeUpdatesFromElements(Object[] elements) {
 		Set<Update> updates = new HashSet<>();
 		for (Object element : elements) {
-			if (element instanceof AvailableUpdateElement) {
-				updates.add(((AvailableUpdateElement) element).getUpdate());
+			if (element instanceof AvailableUpdateElement updateElement) {
+				updates.add(updateElement.getUpdate());
 			}
 		}
 		return updates.toArray(new Update[updates.size()]);
@@ -188,12 +188,12 @@ public class UpdateWizard extends WizardWithLicenses {
 	private IUElementListRoot getAllPossibleUpdatesRoot() {
 		if (firstPageRoot == null) {
 			firstPageRoot = new IUElementListRoot(ui);
-			if (operation != null && operation instanceof UpdateOperation) {
+			if (operation != null && operation instanceof UpdateOperation updateOperation) {
 				Update[] updates;
 				if (getPolicy().getShowLatestVersionsOnly()) {
-					updates = ((UpdateOperation) operation).getSelectedUpdates();
+					updates = updateOperation.getSelectedUpdates();
 				} else {
-					updates = ((UpdateOperation) operation).getPossibleUpdates();
+					updates = updateOperation.getPossibleUpdates();
 				}
 				ArrayList<AvailableUpdateElement> allPossible = new ArrayList<>(updates.length);
 				for (Update update : updates) {
