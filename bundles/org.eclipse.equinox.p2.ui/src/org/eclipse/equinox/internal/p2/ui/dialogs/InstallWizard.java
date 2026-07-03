@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -74,9 +74,8 @@ public class InstallWizard extends WizardWithLicenses {
 			return;
 		}
 		root = new IUElementListRoot(ui);
-		if (operation instanceof RemediationOperation) {
-			AvailableIUElement[] elements = ElementUtils
-					.requestToElement(((RemediationOperation) operation).getCurrentRemedy(), true);
+		if (operation instanceof RemediationOperation remedyOperation) {
+			AvailableIUElement[] elements = ElementUtils.requestToElement(remedyOperation.getCurrentRemedy(), true);
 			root.setChildren(elements);
 			planSelections = elements;
 		} else {

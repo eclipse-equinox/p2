@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2020 IBM Corporation and others.
+ * Copyright (c) 2009, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -552,8 +552,8 @@ public class RepositorySelectionGroup {
 					if (isNewText) {
 						URI loc = manipulator.locationFromString(selectedRepo);
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=293068
-						if (loc != null && manipulator instanceof ColocatedRepositoryTracker) {
-							String parsedNickname = ((ColocatedRepositoryTracker) manipulator).getParsedNickname(loc);
+						if (loc != null && manipulator instanceof ColocatedRepositoryTracker tracker) {
+							String parsedNickname = tracker.getParsedNickname(loc);
 							if (parsedNickname != null) {
 								return parsedNickname;
 							}
@@ -588,8 +588,8 @@ public class RepositorySelectionGroup {
 					}
 					if (status.isOK() && location != null) {
 						String nick = null;
-						if (manipulator instanceof ColocatedRepositoryTracker) {
-							nick = ((ColocatedRepositoryTracker) manipulator).getParsedNickname(location);
+						if (manipulator instanceof ColocatedRepositoryTracker tracker) {
+							nick = tracker.getParsedNickname(location);
 						}
 						manipulator.addRepository(location, nick, ui.getSession());
 						fillRepoCombo(getSiteString(location));

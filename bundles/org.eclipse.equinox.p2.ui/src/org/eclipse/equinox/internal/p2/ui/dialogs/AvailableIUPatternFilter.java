@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -90,8 +90,8 @@ public class AvailableIUPatternFilter extends PatternFilter {
 		}
 
 		String text = null;
-		if (element instanceof IIUElement) {
-			IInstallableUnit iu = ((IIUElement) element).getIU();
+		if (element instanceof IIUElement iuElement) {
+			IInstallableUnit iu = iuElement.getIU();
 			if (checkName) {
 				// Get the iu name in the default locale
 				text = iu.getProperty(IInstallableUnit.PROP_NAME, null);

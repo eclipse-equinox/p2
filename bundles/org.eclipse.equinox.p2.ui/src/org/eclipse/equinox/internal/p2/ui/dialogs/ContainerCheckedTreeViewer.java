@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2018 IBM Corporation and others.
+ * Copyright (c) 2005, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -114,8 +114,8 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 		if (item instanceof TreeItem treeItem) {
 			treeItem.setGrayed(false);
 			// BEGIN MODIFICATION OF COPIED CLASS
-			if (element instanceof QueriedElement && treeItem.getChecked()) {
-				if (!((QueriedElement) element).hasQueryable()) {
+			if (element instanceof QueriedElement queriedElement && treeItem.getChecked()) {
+				if (!queriedElement.hasQueryable()) {
 					// We have checked an element that will take some time
 					// to get its children. Use this opportunity to auto-expand
 					// the tree so that the check mark is not misleading. Don't
@@ -207,8 +207,8 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	@Override
 	protected void setExpanded(Item item, boolean expand) {
 		super.setExpanded(item, expand);
-		if (expand && item instanceof TreeItem) {
-			initializeItem((TreeItem) item);
+		if (expand && item instanceof TreeItem treeItem) {
+			initializeItem(treeItem);
 		}
 	}
 

@@ -131,8 +131,8 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	}
 
 	protected String getIUDescription(Object element) {
-		if (element instanceof AvailableIUElement) {
-			return getIUDescription((AvailableIUElement) element);
+		if (element instanceof AvailableIUElement updateElement) {
+			return getIUDescription(updateElement);
 		}
 		IInstallableUnit selectedIU = ElementUtils.elementToIU(element);
 		if (selectedIU != null) {
@@ -329,8 +329,8 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	}
 
 	private boolean isLocked(AvailableIUElement elementToBeUpdated) {
-		if (elementToBeUpdated instanceof AvailableUpdateElement) {
-			return ((AvailableUpdateElement) elementToBeUpdated).isLockedForUpdate();
+		if (elementToBeUpdated instanceof AvailableUpdateElement updateElement) {
+			return updateElement.isLockedForUpdate();
 		}
 		return false;
 	}
