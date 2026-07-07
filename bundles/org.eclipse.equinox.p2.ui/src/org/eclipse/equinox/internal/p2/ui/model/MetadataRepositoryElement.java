@@ -139,7 +139,10 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 
 	private IMetadataRepository getMetadataRepository(IProgressMonitor monitor) throws ProvisionException {
 		if (queryable == null) {
-			queryable = getProvisioningUI().loadMetadataRepository(location, false, monitor);
+			// Use manager directly so ProvisionException propagates to fetchChildren's catch,
+			// preventing a second load via getQueryable() and a duplicate error dialog.
+			queryable = ProvUI.getMetadataRepositoryManager(getProvisioningUI().getSession()).loadRepository(location,
+					monitor);
 		}
 		return (IMetadataRepository) queryable;
 
