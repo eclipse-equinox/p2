@@ -706,6 +706,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			MetadataRepositoryElement[] imported = UpdateManagerCompatibility.importSites(getShell());
 			if (imported.length > 0) {
 				changed = true;
+				repoAddedOrEdited = true;
 				for (MetadataRepositoryElement element : imported) {
 					getInput().put(element);
 				}
