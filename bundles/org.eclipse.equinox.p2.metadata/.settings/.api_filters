@@ -1,27 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.equinox.p2.metadata" version="2">
-    <resource path="META-INF/MANIFEST.MF">
-        <filter comment="&quot;Signatures affected by ecj change: https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/3814" id="924844039">
-            <message_arguments>
-                <message_argument value="2.9.700"/>
-                <message_argument value="2.9.600"/>
-            </message_arguments>
-        </filter>
-        <filter comment="&quot;Signatures affected by ecj change: https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/3814" id="935329855">
-            <message_arguments>
-                <message_argument value="org.eclipse.equinox.p2.metadata"/>
-                <message_argument value="2.5.0"/>
-                <message_argument value="2.4.0"/>
-            </message_arguments>
-        </filter>
-        <filter comment="&quot;Signatures affected by ecj change: https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/3814" id="935329855">
-            <message_arguments>
-                <message_argument value="org.eclipse.equinox.p2.metadata.expression"/>
-                <message_argument value="2.1.0"/>
-                <message_argument value="2.0.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="src/org/eclipse/equinox/p2/query/CompoundQueryable.java" type="org.eclipse.equinox.p2.query.CompoundQueryable">
         <filter id="576720909">
             <message_arguments>
