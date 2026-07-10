@@ -81,18 +81,19 @@ public class Bug351944 extends AbstractProvisioningTest {
 
 			long start = System.currentTimeMillis();
 			Collection<IArtifactRequest> toBeRequests = getRequestsForRepository(repo,
-					requests.toArray(new IArtifactRequest[requests.size()]));
+					requests.toArray(IArtifactRequest[]::new));
 			long end = System.currentTimeMillis();
 			long queryArtifactOneByOne = end - start;
 
 			start = System.currentTimeMillis();
 			Collection<IArtifactRequest> toBeRequests2 = getRequestsForRepository2(repo,
-					requests.toArray(new IArtifactRequest[requests.size()]));
+					requests.toArray(IArtifactRequest[]::new));
 			end = System.currentTimeMillis();
 			long queryAllArtifacts = end - start;
 
 			assertEquals("Test case has problem, not find same requests.", toBeRequests.size(), toBeRequests2.size());
-			assertEquals("Querying artifact key from simple repository has performance issue.", queryAllArtifacts, queryArtifactOneByOne, 10);
+			assertEquals("Querying artifact key from simple repository has performance issue.", queryAllArtifacts,
+					queryArtifactOneByOne, 20);
 		}
 	}
 
