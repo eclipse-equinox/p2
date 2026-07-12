@@ -815,7 +815,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * @see IArtifactDescriptor#ARTIFACT_CHECKSUM
 	 */
 	public static boolean isChecksumsEnabled(IProvisioningAgent agent) {
-		return !FALSE.equals(getAgentPropertyWithFallback(agent, PROPERTY_ECLIPSE_P2_CHECKSUMS_DISABLE));
+		return !Boolean.parseBoolean(getAgentPropertyWithFallback(agent, PROPERTY_ECLIPSE_P2_CHECKSUMS_DISABLE));
 	}
 
 	/**
