@@ -17,13 +17,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository;
 
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.equinox.internal.p2.core.helpers.SecureXMLUtil;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.util.tracker.ServiceTracker;
+import org.xml.sax.SAXException;
 
 /**
  * The activator class controls the plug-in life cycle. This activator has
@@ -33,7 +33,6 @@ import org.osgi.util.tracker.ServiceTracker;
 public class Activator implements BundleActivator {
 
 	public static final String ID = "org.eclipse.equinox.p2.repository"; //$NON-NLS-1$
-	private static ServiceTracker<SAXParserFactory, SAXParserFactory> xmlTracker;
 
 	private static BundleContext context;
 
@@ -41,7 +40,6 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext aContext) throws Exception {
 		synchronized (Activator.class) {
 			Activator.context = aContext;
-
 		}
 		// Force the startup of the registry bundle to make sure that the preference
 		// scope is registered
@@ -52,10 +50,6 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext aContext) throws Exception {
 		synchronized (Activator.class) {
 			Activator.context = null;
-			if (xmlTracker != null) {
-				xmlTracker.close();
-				xmlTracker = null;
-			}
 		}
 	}
 
@@ -69,20 +63,10 @@ public class Activator implements BundleActivator {
 	}
 
 	public static SAXParserFactory getParserFactory() {
-		ServiceTracker<SAXParserFactory, SAXParserFactory> serviceTracker;
-		synchronized (Activator.class) {
-			if (xmlTracker == null) {
-				xmlTracker = new ServiceTracker<>(getContext(), SAXParserFactory.class, null);
-				xmlTracker.open();
-			}
-			serviceTracker = xmlTracker;
-		}
 		try {
-			return Objects.requireNonNull(serviceTracker.waitForService(TimeUnit.SECONDS.toMillis(10)),
-					"can't acquire service in a timely manner"); //$NON-NLS-1$
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			throw new IllegalStateException("Wait for service was interrupted"); //$NON-NLS-1$
+			return SecureXMLUtil.newSecureSAXParserFactory();
+		} catch (SAXException | ParserConfigurationException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 
