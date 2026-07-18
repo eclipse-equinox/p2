@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -129,13 +129,18 @@ public class QueryProvider {
 				if (element instanceof MetadataRepositories || element instanceof MetadataRepositoryElement) {
 					if (context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_FLAT || !context.getUseCategories()) {
 						AvailableIUWrapper wrapper = new AvailableIUWrapper(queryable, element, false, context.getShowAvailableChildren());
-						if (showLatest) {
-							topLevelQuery = QueryUtil.createLatestQuery(topLevelQuery);
-						}
 						if (targetProfile != null) {
 							wrapper.markInstalledIUs(targetProfile, hideInstalled);
 						}
-						return new ElementQueryDescriptor(queryable, topLevelQuery, new Collector<>(), wrapper);
+						// Include category members in flat view to avoid missing items.
+						Collector<IInstallableUnit> collector = new Collector<>();
+						@SuppressWarnings("unchecked")
+						IQueryable<IInstallableUnit> iuQueryable = (IQueryable<IInstallableUnit>) queryable;
+						Collection<IInstallableUnit> allCategoryMembers = collectAllCategoryMembers(iuQueryable);
+						collector.addAll(new CollectionResult<>(allCategoryMembers));
+
+						IQuery<IInstallableUnit> flatQuery = showLatest ? QueryUtil.createLatestQuery(topLevelQuery) : topLevelQuery;
+						return new ElementQueryDescriptor(queryable, flatQuery, collector, wrapper);
 					}
 					// Installed content not a concern for collecting categories
 					return new ElementQueryDescriptor(queryable, categoryQuery, new Collector<>(), new CategoryElementWrapper(queryable, element));
@@ -247,5 +252,33 @@ public class QueryProvider {
 			default :
 				return null;
 		}
+	}
+
+	/**
+	 * Collects all IUs reachable through categories, including nested ones,
+	 * so that flat view shows same content as category view.
+	 */
+	private static Collection<IInstallableUnit> collectAllCategoryMembers(IQueryable<IInstallableUnit> queryable) {
+		Collection<IInstallableUnit> allCategories = queryable.query(QueryUtil.createIUCategoryQuery(), null)
+				.toUnmodifiableSet();
+
+		Set<IInstallableUnit> visitedCategories = new HashSet<>();
+		Set<IInstallableUnit> members = new LinkedHashSet<>(); // set: an IU can belong to more than one category
+		Deque<IInstallableUnit> toProcess = new ArrayDeque<>(allCategories);
+
+		while (!toProcess.isEmpty()) {
+			IInstallableUnit category = toProcess.pop();
+			if (!visitedCategories.add(category)) {
+				continue; // already processed, avoid infinite loops
+			}
+			for (IInstallableUnit member : queryable.query(QueryUtil.createIUCategoryMemberQuery(category), null)) {
+				if (QueryUtil.isCategory(member)) {
+					toProcess.push(member); // nested category — walk its members too
+				} else {
+					members.add(member);
+				}
+			}
+		}
+		return members;
 	}
 }
