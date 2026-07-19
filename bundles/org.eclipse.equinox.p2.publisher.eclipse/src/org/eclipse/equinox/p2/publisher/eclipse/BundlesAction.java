@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
@@ -77,6 +78,43 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static final String FILTER_PROPERTY_INSTALL_SOURCE = "org.eclipse.update.install.sources"; //$NON-NLS-1$
 
 	public static final String INSTALL_SOURCE_FILTER = String.format("(%s=true)", FILTER_PROPERTY_INSTALL_SOURCE); //$NON-NLS-1$
+
+	/**
+	 * Prefix for profile properties that disable <code>Require-Capability</code>
+	 * requirements on bundles published by this action. The full property name is
+	 * formed by appending a dot and the OSGi namespace, for example:
+	 * <ul>
+	 * <li><code>org.eclipse.equinox.p2.disable.require.capability.osgi.ee</code>
+	 * disables <code>osgi.ee</code> requirements</li>
+	 * <li><code>org.eclipse.equinox.p2.disable.require.capability.my.cap</code>
+	 * disables <code>my.cap</code> requirements</li>
+	 * </ul>
+	 * When a namespace-specific property is set to <code>"true"</code> on a
+	 * profile, only requirements in that namespace are ignored during installation.
+	 * This can be useful to break cyclic dependencies in build scenarios.
+	 * Requirements are active by default (property absent or not equal to
+	 * <code>"true"</code>).
+	 *
+	 * @see #getFilterPropertyForNamespace(String)
+	 */
+	public static final String FILTER_PROPERTY_DISABLE_REQUIRE_CAPABILITY = "org.eclipse.equinox.p2.disable.require.capability"; //$NON-NLS-1$
+
+	/**
+	 * Returns the profile property name that disables <code>Require-Capability</code>
+	 * requirements in the given OSGi namespace. Setting this property to
+	 * <code>"true"</code> on a profile causes requirements in that namespace to be
+	 * ignored during installation.
+	 *
+	 * @param namespace the OSGi namespace (e.g. {@code "osgi.ee"}, {@code "my.cap"})
+	 * @return the full profile property name for the given namespace
+	 */
+	public static String getFilterPropertyForNamespace(String namespace) {
+		return FILTER_PROPERTY_DISABLE_REQUIRE_CAPABILITY + '.' + namespace;
+	}
+
+	private static IMatchExpression<IInstallableUnit> createRequireCapabilityFilter(String namespace) {
+		return InstallableUnit.parseFilter("(!(" + getFilterPropertyForNamespace(namespace) + "=true))"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
 
 	/**
 	 * A suffix used to match a bundle IU to its source
@@ -443,8 +481,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		boolean greedy = isGreedy(directives);
 		int minCard = getMinCardinality(directives);
 		int maxCard = getMaxCardinality(directives);
-		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter, null, minCard, maxCard,
-				greedy);
+		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter,
+				createRequireCapabilityFilter(namespace), minCard, maxCard, greedy);
 		reqsDeps.add(requireCap);
 	}
 
@@ -459,8 +497,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		boolean greedy = isGreedy(directives);
 		int minCard = getMinCardinality(directives);
 		int maxCard = getMaxCardinality(directives);
-		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter, null, minCard, maxCard,
-				greedy, bd.getSymbolicName());
+		IRequirement requireCap = MetadataFactory.createRequirement(namespace, capFilter,
+				createRequireCapabilityFilter(namespace), minCard, maxCard, greedy, bd.getSymbolicName());
 		reqsDeps.add(requireCap);
 	}
 
