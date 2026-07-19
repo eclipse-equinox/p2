@@ -17,6 +17,7 @@ import static java.lang.String.format;
 
 import java.net.URI;
 import java.util.*;
+import java.util.function.Consumer;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentService;
@@ -28,14 +29,14 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 /**
  * Represents a p2 agent instance.
  */
-public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCustomizer<IAgentServiceFactory, Object> {
+public class ProvisioningAgent implements IProvisioningAgent {
 
-	private final Map<String, Object> agentServices = Collections.synchronizedMap(new HashMap<>());
+	private final Map<String, Object> agentServices = Collections.synchronizedMap(new LinkedHashMap<>());
 	private BundleContext context;
 	private volatile boolean stopped = false;
 	private ServiceRegistration<IProvisioningAgent> reg;
-	private final Map<ServiceReference<IAgentServiceFactory>, ServiceTracker<IAgentServiceFactory, Object>> trackers = Collections
-			.synchronizedMap(new HashMap<>());
+	private final Map<String, ServiceTracker<IAgentServiceFactory, Object>> trackers = Collections
+			.synchronizedMap(new LinkedHashMap<>());
 
 	/**
 	 * Instantiates a provisioning agent.
@@ -50,42 +51,32 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 	public Object getService(String serviceName) {
 		//synchronize so concurrent gets always obtain the same service
 		synchronized (agentServices) {
-			checkRunning();
 			Object service = agentServices.get(serviceName);
 			if (service != null) {
 				return service;
 			}
-			//attempt to get factory service from service registry
-			Collection<ServiceReference<IAgentServiceFactory>> refs;
-			try {
-				refs = context.getServiceReferences(IAgentServiceFactory.class,
-						String.format("(|(%s=%s)(p2.agent.servicename=%s))", //$NON-NLS-1$ use old property as fallback
-								IAgentServiceFactory.PROP_AGENT_SERVICE_NAME, serviceName, serviceName));
-			} catch (InvalidSyntaxException e) {
-				e.printStackTrace();
-				return null;
-			}
-			if (refs == null || refs.isEmpty()) {
-				return null;
-			}
-			ServiceReference<IAgentServiceFactory> firstRef = Collections.max(refs);
-			//track the factory so that we can automatically remove the service when the factory goes away
-			ServiceTracker<IAgentServiceFactory, Object> tracker = new ServiceTracker<>(context, firstRef, this);
-			tracker.open();
-			IAgentServiceFactory factory = (IAgentServiceFactory) tracker.getService();
-			if (factory == null) {
-				tracker.close();
-				return null;
-			}
-			service = factory.createService(this);
-			if (service == null) {
-				tracker.close();
-				return null;
-			}
-			registerService(serviceName, service);
-			trackers.put(firstRef, tracker);
-			return service;
 		}
+		ServiceTracker<IAgentServiceFactory, Object> tracker = trackers.computeIfAbsent(serviceName,
+				ref -> {
+					try {
+						if (stopped) {
+							return null;
+						}
+						Filter filter = context.createFilter(
+								String.format("(&(%s=%s)(|(%s=%s)(p2.agent.servicename=%s)))", //$NON-NLS-1$
+										Constants.OBJECTCLASS, IAgentServiceFactory.class.getName(), //
+										IAgentServiceFactory.PROP_AGENT_SERVICE_NAME, serviceName, //
+										serviceName)); // use old property as fallback
+						return new ServiceTracker<>(context, filter, trackerCustomizer);
+					} catch (InvalidSyntaxException e) {
+						throw new AssertionError(e);
+					}
+				});
+		if (tracker == null) {
+			return null;
+		}
+		tracker.open();
+		return tracker.getService();
 	}
 
 	private void checkRunning() {
@@ -133,14 +124,7 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 
 	@Override
 	public void unregisterService(String serviceName, Object service) {
-		synchronized (agentServices) {
-			if (stopped) {
-				return;
-			}
-			if (agentServices.get(serviceName) == service) {
-				agentServices.remove(serviceName);
-			}
-		}
+		agentServices.remove(serviceName, service);
 		if (service instanceof IAgentService) {
 			((IAgentService) service).stop();
 		}
@@ -148,29 +132,20 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 
 	@Override
 	public void stop() {
-		List<Object> toStop;
-		synchronized (agentServices) {
-			toStop = new ArrayList<>(agentServices.values());
-		}
-		//give services a chance to do their own shutdown
-		for (Object service : toStop) {
-			if (service instanceof IAgentService) {
-				if (service != this) {
-					((IAgentService) service).stop();
+		stopped = true;
+		try {
+			disposeInTurns(agentServices.entrySet(), entry -> {
+				unregisterService(entry.getKey(), entry.getValue());
+			});
+		} finally {
+			try {
+				disposeInTurns(trackers.values(), ServiceTracker::close);
+			} finally {
+				if (reg != null) {
+					reg.unregister();
+					reg = null;
 				}
 			}
-		}
-		stopped = true;
-		//close all service trackers
-		synchronized (trackers) {
-			for (ServiceTracker<IAgentServiceFactory, Object> t : trackers.values()) {
-				t.close();
-			}
-			trackers.clear();
-		}
-		if (reg != null) {
-			reg.unregister();
-			reg = null;
 		}
 	}
 
@@ -178,49 +153,75 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 		this.reg = reg;
 	}
 
-	@Override
-	public Object addingService(ServiceReference<IAgentServiceFactory> reference) {
-		if (stopped) {
-			return null;
+	private final ServiceTrackerCustomizer<IAgentServiceFactory, Object> trackerCustomizer = new ServiceTrackerCustomizer<>() {
+		@Override
+		public Object addingService(ServiceReference<IAgentServiceFactory> reference) {
+			if (stopped) {
+				return null;
+			}
+			Object result = context.getService(reference).createService(ProvisioningAgent.this);
+			if (result instanceof IAgentService agentService) {
+				agentService.start();
+			}
+			return result;
 		}
-		return context.getService(reference);
-	}
 
-	@Override
-	public void modifiedService(ServiceReference<IAgentServiceFactory> reference, Object service) {
-		//nothing to do
-	}
+		@Override
+		public void modifiedService(ServiceReference<IAgentServiceFactory> reference, Object service) {
+			// nothing to do
+		}
 
-	@Override
-	public void removedService(ServiceReference<IAgentServiceFactory> reference, Object factoryService) {
-		if (stopped) {
-			return;
-		}
-		String serviceName = getAgentServiceName(reference);
-		if (serviceName == null) {
-			return;
-		}
-		Object registered = agentServices.get(serviceName);
-		if (registered == null) {
-			return;
-		}
-		if (FrameworkUtil.getBundle(registered.getClass()) == FrameworkUtil.getBundle(factoryService.getClass())) {
-			//the service we are holding is going away
-			unregisterService(serviceName, registered);
-			ServiceTracker<IAgentServiceFactory, Object> toRemove = trackers.remove(reference);
-			if (toRemove != null) {
-				toRemove.close();
+		@Override
+		public void removedService(ServiceReference<IAgentServiceFactory> reference, Object service) {
+			if (service instanceof IAgentService agentService) {
+				agentService.stop();
+			}
+			if (service != null) {
+				context.ungetService(reference);
 			}
 		}
-	}
 
-	private String getAgentServiceName(ServiceReference<IAgentServiceFactory> reference) {
-		Object property = reference.getProperty(IAgentServiceFactory.PROP_AGENT_SERVICE_NAME);
-		if (property instanceof String s) {
-			return s;
+	};
+
+	/**
+	 * Given a thread-safe collection, drain all elements one-by-one, disposing each
+	 * without holding locks and allowing concurrent modification form. Other
+	 * threads should not attempt to add elements to collection.<br>
+	 * Usage example:
+	 *
+	 * <pre>{@code
+	 * volatile boolean stopped = false;
+	 * ...
+	 * stopped = true; // prevent other threads from adding to the collection
+	 * disposeInTurns(agentServices.entrySet(), entry -> {
+	 * 	unregisterService(entry.getKey(), entry.getValue());
+	 * });
+	 * }</pre>
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	private <T> void disposeInTurns(Collection<T> input, Consumer<T> dispose) {
+		RuntimeException error = null;
+		while (!input.isEmpty()) {
+			Object[] toStop = input.toArray(Object[]::new);
+			Collections.reverse(Arrays.asList(toStop)); // Remove in an inverse order of adding
+			for (Object item : toStop) {
+				if (input.remove(item)) {
+					try {
+						dispose.accept((T) item);
+					} catch (RuntimeException e) {
+						if (error == null) {
+							error = e;
+						} else {
+							error.addSuppressed(e);
+						}
+					}
+				}
+			}
 		}
-		// backward compatibility
-		return (String) reference.getProperty("p2.agent.servicename"); //$NON-NLS-1$
+		if (error != null) {
+			throw error;
+		}
 	}
 
 }
