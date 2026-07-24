@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2026 Cloudsmith Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -55,6 +55,11 @@ public class LambdaExpression extends Unary {
 	@Override
 	public int getExpressionType() {
 		return TYPE_LAMBDA;
+	}
+
+	@Override
+	public void toLDAPString(StringBuilder buf) {
+		operand.toLDAPString(buf);
 	}
 
 	@Override

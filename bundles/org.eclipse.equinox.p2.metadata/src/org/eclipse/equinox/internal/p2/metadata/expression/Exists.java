@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2026 Cloudsmith Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -23,6 +23,11 @@ import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 final class Exists extends CollectionFilter {
 	Exists(Expression collection, LambdaExpression lambda) {
 		super(collection, lambda);
+	}
+
+	@Override
+	public void toLDAPString(StringBuilder buf) {
+		lambda.toLDAPString(buf);
 	}
 
 	@Override
