@@ -26,6 +26,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.progress.WorkbenchJob;
@@ -43,6 +44,8 @@ public class AutomaticUpdatesPopup extends UpdatesPopup {
 			AutomaticUpdateMessages.AutomaticUpdateScheduler_60Minutes,
 			AutomaticUpdateMessages.AutomaticUpdateScheduler_240Minutes };
 	private static final long MINUTE = 60 * 1000L;
+	private static final long ONE_DAY_IN_MS = 24 * 60 * MINUTE;
+	private static final long ONE_WEEK_IN_MS = 7 * 24 * 60 * MINUTE;
 	private static final String PREFS_HREF = "PREFS"; //$NON-NLS-1$
 	private static final String DIALOG_SETTINGS_SECTION = "AutomaticUpdatesPopup"; //$NON-NLS-1$
 
@@ -64,8 +67,37 @@ public class AutomaticUpdatesPopup extends UpdatesPopup {
 	@Override
 	protected Composite createDialogArea(Composite parent) {
 		Composite result = super.createDialogArea(parent);
+		createSnoozeSection(result);
 		createRemindSection(result);
 		return result;
+	}
+
+	private void createSnoozeSection(Composite parent) {
+		Composite snoozeComposite = new Composite(parent, SWT.NONE);
+		snoozeComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		RowLayout rowLayout = new RowLayout(SWT.HORIZONTAL);
+		rowLayout.spacing = 4;
+		rowLayout.marginLeft = 0;
+		snoozeComposite.setLayout(rowLayout);
+
+		Button tomorrowButton = new Button(snoozeComposite, SWT.PUSH);
+		tomorrowButton.setText(AutomaticUpdateMessages.AutomaticUpdatesPopup_RemindTomorrow);
+		tomorrowButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> snooze(ONE_DAY_IN_MS)));
+
+		Button weekButton = new Button(snoozeComposite, SWT.PUSH);
+		weekButton.setText(AutomaticUpdateMessages.AutomaticUpdatesPopup_RemindNextWeek);
+		weekButton.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> snooze(ONE_WEEK_IN_MS)));
+	}
+
+	/**
+	 * Stores a snooze timestamp of now + delayMs in preferences and closes the
+	 * popup without scheduling a normal remind job.
+	 */
+	void snooze(long delayMs) {
+		long snoozeUntil = System.currentTimeMillis() + delayMs;
+		prefs.setValue(PreferenceConstants.PREF_SNOOZE_UNTIL, snoozeUntil);
+		AutomaticUpdatePlugin.getDefault().savePreferences(); // flush to disk immediately
+		close(false);
 	}
 
 	private void createRemindSection(Composite parent) {

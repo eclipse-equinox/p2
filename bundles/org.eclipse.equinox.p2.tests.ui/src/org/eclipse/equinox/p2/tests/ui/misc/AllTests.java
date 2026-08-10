@@ -20,7 +20,7 @@ import org.junit.runners.Suite;
  * Performs all UI action tests.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ LicenseManagerTest.class, AutomaticUpdateSchedulerTest.class })
+@Suite.SuiteClasses({ LicenseManagerTest.class, AutomaticUpdaterTest.class })
 public class AllTests {
 // test suite
 }

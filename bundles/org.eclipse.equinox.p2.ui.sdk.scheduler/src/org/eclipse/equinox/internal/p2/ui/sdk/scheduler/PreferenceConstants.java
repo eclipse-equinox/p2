@@ -37,4 +37,5 @@ public class PreferenceConstants {
 	public static final String PREF_MIGRATED_34 = "migrated34Prefs"; //$NON-NLS-1$
 	public static final String PREF_GC_ON_STARTUP = "gcOnStartup"; //$NON-NLS-1$
 	public static final String PREF_LAST_AUTO_CHECK_FOR_UPDATES = "lastAutoCheckForUpdates"; //$NON-NLS-1$
+	public static final String PREF_SNOOZE_UNTIL = "snoozeUntil"; //$NON-NLS-1$
 }

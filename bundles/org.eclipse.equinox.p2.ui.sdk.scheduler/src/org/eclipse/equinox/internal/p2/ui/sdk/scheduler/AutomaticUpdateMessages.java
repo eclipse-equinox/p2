@@ -65,4 +65,6 @@ public class AutomaticUpdateMessages extends NLS {
 	public static String ErrorSavingPreferences;
 	public static String ErrorSavingClassicPreferences;
 	public static String ErrorLoadingPreferenceKeys;
+	public static String AutomaticUpdatesPopup_RemindTomorrow;
+	public static String AutomaticUpdatesPopup_RemindNextWeek;
 }

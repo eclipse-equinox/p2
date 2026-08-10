@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2023 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -106,8 +106,25 @@ public class AutomaticUpdater implements IUpdateListener {
 				.store(Calendar.getInstance().getTime());
 	}
 
+	private boolean isSnoozed() {
+		IPreferenceStore pref = getPreferenceStore();
+		long snoozeUntil = pref.getLong(PreferenceConstants.PREF_SNOOZE_UNTIL);
+		if (isSnoozeActive(snoozeUntil, System.currentTimeMillis())) {
+			return true;
+		}
+		if (snoozeUntil > 0) {
+			pref.setValue(PreferenceConstants.PREF_SNOOZE_UNTIL, 0L);
+		}
+		return false;
+	}
+
+	private static boolean isSnoozeActive(long snoozeUntil, long now) {
+		return snoozeUntil > 0 && now < snoozeUntil;
+	}
+
 	void updatesAvailable(final UpdateEvent event, final boolean notifyWithPopup) {
 		final boolean download = getPreferenceStore().getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY);
+		final boolean notifyWithPopupUnlessSnoozed = notifyWithPopup && !isSnoozed();
 		profileId = event.getProfileId();
 		iusWithUpdates = event.getIUs();
 		validateIusToUpdate();
@@ -129,7 +146,7 @@ public class AutomaticUpdater implements IUpdateListener {
 					StatusManager.getManager().handle(status, StatusManager.LOG);
 					asyncExec(this::clearUpdateAffordances);
 				} else {
-					asyncExec(() -> notifyUserOfUpdates(false, notifyWithPopup, false));
+					asyncExec(() -> notifyUserOfUpdates(false, notifyWithPopupUnlessSnoozed, false));
 				}
 			} else {
 				asyncExec(this::clearUpdateAffordances);
@@ -153,7 +170,7 @@ public class AutomaticUpdater implements IUpdateListener {
 					IStatus jobStatus = jobEvent.getResult();
 					if (jobStatus.isOK()) {
 						alreadyDownloaded = true;
-						asyncExec(() -> notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup,
+						asyncExec(() -> notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopupUnlessSnoozed,
 								showUpdateWizard));
 					} else if (jobStatus.getSeverity() != IStatus.CANCEL) {
 						StatusManager.getManager().handle(jobStatus, StatusManager.LOG);
@@ -162,7 +179,7 @@ public class AutomaticUpdater implements IUpdateListener {
 			});
 			job.schedule();
 		} else {
-			asyncExec(() -> notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup,
+			asyncExec(() -> notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopupUnlessSnoozed,
 					showUpdateWizard));
 		}
 
