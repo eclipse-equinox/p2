@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -14,18 +14,20 @@
 package org.eclipse.equinox.p2.ui;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
-import java.util.Iterator;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import java.util.*;
+import java.util.List;
+import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.CopyUtils;
 import org.eclipse.equinox.internal.p2.ui.dialogs.InstalledIUGroup;
-import org.eclipse.equinox.internal.p2.ui.model.ProfileSnapshots;
-import org.eclipse.equinox.internal.p2.ui.model.RollbackProfileElement;
+import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.internal.p2.ui.model.HistoryDiffElement.ChangeType;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.jface.action.Action;
@@ -36,6 +38,7 @@ import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -61,8 +64,14 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	private static final int REVERT_ID = IDialogConstants.CLIENT_ID;
 	private static final int DELETE_ID = IDialogConstants.CLIENT_ID + 1;
 	TableViewer configsViewer;
+	/** Shows full snapshot contents for a single-selection. */
 	TreeViewer configContentsViewer;
+	/** Shows Installed/Updated/Removed diff for a two-snapshot selection. */
+	TreeViewer configDiffViewer;
 	IUDetailsLabelProvider labelProvider;
+	IUDetailsLabelProvider diffLabelProvider;
+	Composite contentsStack;
+	StackLayout contentsStackLayout;
 	IAction revertAction;
 	Button revertButton, deleteButton;
 	String profileId;
@@ -242,32 +251,125 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	}
 
 	private void createContentsSection(Composite parent) {
-		Composite composite = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout();
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		composite.setLayout(layout);
-		GridData gd = new GridData(GridData.FILL_BOTH);
-		composite.setLayoutData(gd);
+		Composite outer = new Composite(parent, SWT.NONE);
+		GridLayout outerLayout = new GridLayout();
+		outerLayout.marginWidth = 0;
+		outerLayout.marginHeight = 0;
+		outer.setLayout(outerLayout);
+		outer.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		Label label = new Label(composite, SWT.NONE);
+		// Label switches text depending on mode; set initial text for single-select.
+		Label label = new Label(outer, SWT.NONE);
 		label.setText(ProvUIMessages.RevertDialog_ConfigContentsLabel);
-		configContentsViewer = new TreeViewer(composite,
+
+		// Stack that holds the two viewers; swapped on selection change.
+		contentsStack = new Composite(outer, SWT.NONE);
+		contentsStackLayout = new StackLayout();
+		contentsStack.setLayout(contentsStackLayout);
+		contentsStack.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		// ── Full contents viewer (single-selection) ──────────────────────────
+		Composite contentsComposite = new Composite(contentsStack, SWT.NONE);
+		contentsComposite.setLayout(new GridLayout());
+		configContentsViewer = new TreeViewer(contentsComposite,
 				SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		IUComparator comparator = new IUComparator(IUComparator.IU_NAME);
 		comparator.useColumnConfig(ProvUI.getIUColumnConfig());
 		configContentsViewer.setComparator(comparator);
 		configContentsViewer.setComparer(new ProvElementComparer());
 		configContentsViewer.setContentProvider(new DeferredQueryContentProvider());
-
 		// columns before labels or you get a blank table
 		setTreeColumns(configContentsViewer.getTree());
 		labelProvider = new IUDetailsLabelProvider();
 		configContentsViewer.setLabelProvider(labelProvider);
-
-		gd = new GridData(GridData.FILL_BOTH);
-		configContentsViewer.getControl().setLayoutData(gd);
+		configContentsViewer.getControl().setLayoutData(new GridData(GridData.FILL_BOTH));
 		CopyUtils.activateCopy(this, configContentsViewer.getControl());
+
+		// ── Diff viewer (two-snapshot selection) ─────────────────────────────
+		Composite diffComposite = new Composite(contentsStack, SWT.NONE);
+		diffComposite.setLayout(new GridLayout());
+		configDiffViewer = new TreeViewer(diffComposite,
+				SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		configDiffViewer.setComparator(new ViewerComparator());
+		configDiffViewer.setContentProvider(new ITreeContentProvider() {
+			@Override
+			public Object[] getElements(Object inputElement) {
+				if (inputElement instanceof Object[]) {
+					return (Object[]) inputElement;
+				}
+				return new Object[0];
+			}
+
+			@Override
+			public Object[] getChildren(Object element) {
+				if (element instanceof HistoryDiffCategoryElement cat) {
+					return cat.getChildren(element);
+				}
+				return new Object[0];
+			}
+
+			@Override
+			public Object getParent(Object element) {
+				return null;
+			}
+
+			@Override
+			public boolean hasChildren(Object element) {
+				return element instanceof HistoryDiffCategoryElement cat && cat.hasChildren();
+			}
+		});
+		// columns before labels or you get a blank table
+		setDiffTreeColumns(configDiffViewer.getTree());
+		diffLabelProvider = new IUDetailsLabelProvider(null, getDiffColumnConfig(), null);
+		configDiffViewer.setLabelProvider(diffLabelProvider);
+		configDiffViewer.getControl().setLayoutData(new GridData(GridData.FILL_BOTH));
+		CopyUtils.activateCopy(this, configDiffViewer.getControl());
+
+		// Show the full-contents viewer by default.
+		contentsStackLayout.topControl = contentsComposite;
+		contentsStack.layout();
+	}
+
+	private IUColumnConfig[] getDiffColumnConfig() {
+		return new IUColumnConfig[] {
+				new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, 25),
+				new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle_Old, IUColumnConfig.OLD_COLUMN_VERSION, 15),
+				new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle_New, IUColumnConfig.NEW_COLUMN_VERSION,
+						15) };
+	}
+
+	private void setTreeColumns(Tree tree) {
+		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
+		tree.setHeaderVisible(true);
+		for (int i = 0; i < columns.length; i++) {
+			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
+			tc.setResizable(true);
+			tc.setText(columns[i].getColumnTitle());
+			tc.setWidth(columns[i].getWidthInPixels(tree));
+		}
+	}
+
+	private void setDiffTreeColumns(Tree tree) {
+		IUColumnConfig[] columns = getDiffColumnConfig();
+		tree.setHeaderVisible(true);
+		for (int i = 0; i < columns.length; i++) {
+			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
+			tc.setResizable(true);
+			tc.setText(columns[i].getColumnTitle());
+			tc.setWidth(columns[i].getWidthInPixels(tree));
+		}
+	}
+
+	/** Switches the bottom pane to the full-contents viewer. */
+	private void showContentsViewer() {
+		contentsStackLayout.topControl = configContentsViewer.getControl().getParent();
+		contentsStack.layout();
+	}
+
+	/** Switches the bottom pane to the diff viewer. */
+	private void showDiffViewer() {
+		contentsStackLayout.topControl = configDiffViewer.getControl().getParent();
+		contentsStack.layout();
 	}
 
 	private void createRevertAction() {
@@ -320,13 +422,15 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		if (!selection.isEmpty()) {
 			if (selection.size() == 1) {
 				final Object selected = selection.getFirstElement();
-				if (selected instanceof RollbackProfileElement) {
+				if (selected instanceof RollbackProfileElement selectedElement) {
+					// Single snapshot — show full contents in the standard viewer.
+					showContentsViewer();
 					Object[] elements = configContentsViewer.getExpandedElements();
 					configContentsViewer.getTree().setRedraw(false);
-					configContentsViewer.setInput(selected);
+					configContentsViewer.setInput(selectedElement);
 					configContentsViewer.setExpandedElements(elements);
 					configContentsViewer.getTree().setRedraw(true);
-					boolean isNotCurrentProfile = !((RollbackProfileElement) selected).isCurrentProfile();
+					boolean isNotCurrentProfile = !selectedElement.isCurrentProfile();
 					revertAction.setEnabled(isNotCurrentProfile);
 					if (revertButton != null) {
 						revertButton.setEnabled(isNotCurrentProfile);
@@ -336,18 +440,56 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 					}
 					return;
 				}
+			} else if (selection.size() == 2) {
+				// Two snapshots selected — show Installed/Updated/Removed diff inline.
+				List<?> items = selection.toList();
+				if (items.get(0) instanceof RollbackProfileElement a
+						&& items.get(1) instanceof RollbackProfileElement b) {
+					RollbackProfileElement older = a.getTimestamp() < b.getTimestamp() ? a : b;
+					RollbackProfileElement newer = a.getTimestamp() < b.getTimestamp() ? b : a;
+					revertAction.setEnabled(false);
+					if (revertButton != null) {
+						revertButton.setEnabled(false);
+					}
+					if (deleteButton != null) {
+						deleteButton.setEnabled(false);
+					}
+					showDiffViewer();
+					configDiffViewer.setInput(null);
+					Job job = Job.create("", monitor -> { //$NON-NLS-1$
+						Object[] result = computeDiff(older, newer, monitor);
+						if (!monitor.isCanceled()) {
+							Tree tree = configDiffViewer.getTree();
+							if (!tree.isDisposed()) {
+								tree.getDisplay().asyncExec(() -> {
+									if (!tree.isDisposed()) {
+										configDiffViewer.getTree().setRedraw(false);
+										configDiffViewer.setInput(result);
+										configDiffViewer.expandAll();
+										configDiffViewer.getTree().setRedraw(true);
+									}
+								});
+							}
+						}
+					});
+					job.setSystem(true);
+					job.schedule();
+				}
+				return;
 			} else {
 				// multiple selections, can't revert or look at details
 				revertAction.setEnabled(false);
 				if (revertButton != null) {
 					revertButton.setEnabled(false);
 				}
+				showContentsViewer();
 				configContentsViewer.setInput(null);
 				deleteButton.setEnabled(computeDeleteEnablement());
 				return;
 			}
 		}
 		// Nothing is selected
+		showContentsViewer();
 		configContentsViewer.setInput(null);
 		revertAction.setEnabled(false);
 		if (revertButton != null) {
@@ -356,6 +498,56 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		if (deleteButton != null) {
 			deleteButton.setEnabled(computeDeleteEnablement());
 		}
+	}
+
+	private Object[] computeDiff(RollbackProfileElement older, RollbackProfileElement newer,
+			IProgressMonitor monitor) {
+		IProfile olderProfile = older.getProfileSnapshot(monitor);
+		if (olderProfile == null || monitor.isCanceled()) {
+			return new Object[0];
+		}
+		IProfile newerProfile = newer.getProfileSnapshot(monitor);
+		if (newerProfile == null || monitor.isCanceled()) {
+			return new Object[0];
+		}
+		Map<String, IInstallableUnit> previousById = new LinkedHashMap<>();
+		olderProfile.query(new UserVisibleRootQuery(), null).forEach(iu -> previousById.put(iu.getId(), iu));
+
+		Map<String, IInstallableUnit> selectedById = new LinkedHashMap<>();
+		newerProfile.query(new UserVisibleRootQuery(), null).forEach(iu -> selectedById.put(iu.getId(), iu));
+
+		List<HistoryDiffElement> added = new ArrayList<>();
+		List<HistoryDiffElement> removed = new ArrayList<>();
+		List<HistoryDiffElement> updated = new ArrayList<>();
+
+		for (IInstallableUnit iu : selectedById.values()) {
+			IInstallableUnit prev = previousById.get(iu.getId());
+			if (prev == null) {
+				added.add(new HistoryDiffElement(newer, iu, null, ChangeType.ADDED));
+			} else if (!prev.getVersion().equals(iu.getVersion())) {
+				updated.add(new HistoryDiffElement(newer, iu, prev, ChangeType.UPDATED));
+			}
+		}
+		for (IInstallableUnit iu : previousById.values()) {
+			if (!selectedById.containsKey(iu.getId())) {
+				removed.add(new HistoryDiffElement(newer, iu, null, ChangeType.REMOVED));
+			}
+		}
+
+		List<HistoryDiffCategoryElement> categories = new ArrayList<>();
+		if (!added.isEmpty()) {
+			categories.add(new HistoryDiffCategoryElement(null, ProvUIMessages.RevertProfilePage_DiffCategoryInstalled,
+					ChangeType.ADDED, added.toArray(new HistoryDiffElement[0])));
+		}
+		if (!updated.isEmpty()) {
+			categories.add(new HistoryDiffCategoryElement(null, ProvUIMessages.RevertProfilePage_DiffCategoryUpdated,
+					ChangeType.UPDATED, updated.toArray(new HistoryDiffElement[0])));
+		}
+		if (!removed.isEmpty()) {
+			categories.add(new HistoryDiffCategoryElement(null, ProvUIMessages.RevertProfilePage_DiffCategoryRemoved,
+					ChangeType.REMOVED, removed.toArray(new HistoryDiffElement[0])));
+		}
+		return categories.toArray();
 	}
 
 	boolean computeDeleteEnablement() {
@@ -373,18 +565,6 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			}
 		}
 		return okToDelete;
-	}
-
-	private void setTreeColumns(Tree tree) {
-		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
-		tree.setHeaderVisible(true);
-
-		for (int i = 0; i < columns.length; i++) {
-			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
-			tc.setResizable(true);
-			tc.setText(columns[i].getColumnTitle());
-			tc.setWidth(columns[i].getWidthInPixels(tree));
-		}
 	}
 
 	private IProfile getSelectedSnapshot() {
@@ -449,6 +629,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		if (activeControl == configContentsViewer.getControl()) {
 			text = CopyUtils.getIndentedClipboardText(configContentsViewer.getStructuredSelection().toArray(),
 					labelProvider);
+		} else if (activeControl == configDiffViewer.getControl()) {
+			text = CopyUtils.getIndentedClipboardText(configDiffViewer.getStructuredSelection().toArray(),
+					diffLabelProvider);
 		} else if (activeControl == configsViewer.getControl()) {
 			Object[] elements = configsViewer.getStructuredSelection().toArray();
 			StringBuilder buffer = new StringBuilder();
