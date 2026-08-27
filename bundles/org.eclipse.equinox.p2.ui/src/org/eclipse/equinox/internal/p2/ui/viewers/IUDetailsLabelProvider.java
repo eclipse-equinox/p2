@@ -142,6 +142,10 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 				        && elm.shouldShowVersion()) {
 				    return elm.getIUToBeUpdated().getVersion().toString();
 				}
+				if (element instanceof org.eclipse.equinox.internal.p2.ui.model.HistoryDiffElement diff
+						&& diff.getPreviousIU() != null) {
+					return diff.getPreviousIU().getVersion().toString();
+				}
 				return BLANK;
 			case IUColumnConfig.COLUMN_PROVIDER :
 				return iu.getProperty(IInstallableUnit.PROP_PROVIDER, null);

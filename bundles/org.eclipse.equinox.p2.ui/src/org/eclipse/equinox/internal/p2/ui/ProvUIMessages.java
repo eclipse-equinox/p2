@@ -248,6 +248,11 @@ public class ProvUIMessages extends NLS {
 	public static String QueryableUpdates_UpdateListProgress;
 	public static String SizeComputingWizardPage_SizeJobTitle;
 	public static String RevertDialog_ConfigContentsLabel;
+	public static String RevertDialog_ConfigChangesLabel;
+	public static String RevertProfilePage_DiffCategoryInstalled;
+	public static String RevertProfilePage_DiffCategoryUpdated;
+	public static String RevertProfilePage_DiffCategoryRemoved;
+	public static String RevertProfilePage_DiffNewVersionColumnTitle;
 	public static String RevertDialog_ConfigsLabel;
 	public static String RevertDialog_ConfirmRestartMessage;
 	public static String RevertDialog_RevertOperationLabel;
