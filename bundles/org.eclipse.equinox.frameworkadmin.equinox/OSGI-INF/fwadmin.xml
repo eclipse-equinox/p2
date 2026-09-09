@@ -9,5 +9,4 @@
    <property name="org.eclipse.equinox.frameworkhandler.launcher.name" type="String" value="Eclipse.exe"/>
    <property name="org.eclipse.equinox.frameworkhandler.launcher.version" type="String" value="3.2"/>
    <reference bind="setStartLevel" cardinality="1..1" interface="org.osgi.service.startlevel.StartLevel" name="StartLevel" policy="static"/>
-   <reference bind="setPlatformAdmin" cardinality="1..1" interface="org.eclipse.osgi.service.resolver.PlatformAdmin" name="PlatformAdmin" policy="static"/>
 </scr:component>

@@ -660,7 +660,9 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			}
 		}
 
-		bundleState.resolve(true);
+		if (bundleState.isFullySupported()) {
+			bundleState.resolve(true);
+		}
 		manipulator.getConfigData().setBundles(bundleState.getExpectedState());
 	}
 

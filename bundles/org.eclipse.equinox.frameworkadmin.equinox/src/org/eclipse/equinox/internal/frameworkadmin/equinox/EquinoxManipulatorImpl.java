@@ -25,7 +25,6 @@ import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.osgi.service.datalocation.Location;
-import org.eclipse.osgi.service.resolver.PlatformAdmin;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 import org.osgi.framework.startlevel.BundleStartLevel;
@@ -125,7 +124,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 	ServiceTracker cmTracker;
 	int trackingCount = -1;
-	private final PlatformAdmin platformAdmin;
 	private final StartLevel startLevelService;
 
 	// private final boolean runtime;
@@ -134,11 +132,10 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 	EquinoxFwAdminImpl fwAdmin = null;
 
-	EquinoxManipulatorImpl(BundleContext context, EquinoxFwAdminImpl fwAdmin, PlatformAdmin admin, StartLevel slService,
+	EquinoxManipulatorImpl(BundleContext context, EquinoxFwAdminImpl fwAdmin, StartLevel slService,
 			boolean runtime) {
 		this.context = context;
 		this.fwAdmin = fwAdmin;
-		this.platformAdmin = admin;
 		this.startLevelService = slService;
 		if (context != null) {
 			cmTracker = new ServiceTracker(context, ConfiguratorManipulator.class.getName(), null);
@@ -168,13 +165,20 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			return new SimpleBundlesState(fwAdmin, this, EquinoxConstants.FW_SYMBOLIC_NAME);
 		}
 
-		if (platformProperties.isEmpty()) {
-			return new EquinoxBundlesState(context, fwAdmin, this, platformAdmin, false);
+		try {
+			// XXX checking if fwDependent or fwIndependent platformProperties are updated
+			// after the platformProperties was created might be required for better
+			// implementation.
+			if (platformProperties.isEmpty()) {
+				return new EquinoxBundlesState(context, fwAdmin, this, false);
+			}
+			return new EquinoxBundlesState(context, fwAdmin, this, platformProperties);
+		} catch (UnsupportedOperationException e) {
+			// StateObjectFactory.defaultFactory could not find a resolver implementation
+			// (e.g. org.eclipse.osgi.compatibility.state is not installed): fall back to
+			// the simple, resolver-free implementation.
+			return new SimpleBundlesState(fwAdmin, this, EquinoxConstants.FW_SYMBOLIC_NAME);
 		}
-		// XXX checking if fwDependent or fwIndependent platformProperties are updated
-		// after the platformProperties was created might be required for better
-		// implementation.
-		return new EquinoxBundlesState(context, fwAdmin, this, platformAdmin, platformProperties);
 	}
 
 	@Override
@@ -384,10 +388,21 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		loadWithoutFwPersistentData();
 
 		BundlesState bundlesState = null;
-		if (EquinoxBundlesState.checkFullySupported()) {
-			bundlesState = new EquinoxBundlesState(context, fwAdmin, this, platformAdmin, !launcherData.isClean());
-			platformProperties = ((EquinoxBundlesState) bundlesState).getPlatformProperties();
-		} else {
+		// No BundleContext (e.g. standalone/non-OSGi-service manipulator instance):
+		// fall back to the simple, resolver-free implementation instead of failing
+		// with a NullPointerException below. If a BundleContext is available but no
+		// resolver implementation can be found (org.eclipse.osgi.compatibility.state
+		// not installed), EquinoxBundlesState's construction below throws
+		// UnsupportedOperationException, also handled by falling back.
+		if (context != null && EquinoxBundlesState.checkFullySupported()) {
+			try {
+				bundlesState = new EquinoxBundlesState(context, fwAdmin, this, !launcherData.isClean());
+				platformProperties = ((EquinoxBundlesState) bundlesState).getPlatformProperties();
+			} catch (UnsupportedOperationException e) {
+				bundlesState = null;
+			}
+		}
+		if (bundlesState == null) {
 			bundlesState = new SimpleBundlesState(fwAdmin, this, EquinoxConstants.FW_SYMBOLIC_NAME);
 			platformProperties.clear();
 		}

@@ -237,17 +237,15 @@ public class EquinoxBundlesState implements BundlesState {
 	 * version as defined by the {@link #getKey(BundleDescription)} method.
 	 */
 	private final HashMap<String, BundleDescription> nameVersionStateIndex = new HashMap<>();
-	private final PlatformAdmin platformAdmin;
 
 	/**
 	 * If useFwPersistentData flag equals false, this constructor will not take a
 	 * framework persistent data into account. Otherwise, it will.
 	 */
-	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, PlatformAdmin admin,
+	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator,
 			boolean useFwPersistentData) {
 		this.context = context;
 		this.fwAdmin = fwAdmin;
-		this.platformAdmin = admin;
 		// copy manipulator object for avoiding modifying the parameters of the
 		// manipulator.
 		this.manipulator = fwAdmin.getManipulator();
@@ -260,12 +258,11 @@ public class EquinoxBundlesState implements BundlesState {
 	 * This constructor does NOT take a framework persistent data into account. It
 	 * will create State object based on the specified platformProperties.
 	 */
-	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, PlatformAdmin admin,
+	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator,
 			Properties platformProperties) {
 		super();
 		this.context = context;
 		this.fwAdmin = fwAdmin;
-		this.platformAdmin = admin;
 		// copy manipulator object for avoiding modifying the parameters of the
 		// manipulator.
 		this.manipulator = fwAdmin.getManipulator();
@@ -525,7 +522,7 @@ public class EquinoxBundlesState implements BundlesState {
 	public String[] getUnsatisfiedConstraints(BundleInfo bInfo) {
 		URI realLocation = bInfo.getLocation();
 		BundleDescription description = getBundleByLocation(realLocation);
-		StateHelper helper = platformAdmin.getStateHelper();
+		StateHelper helper = state.getStateHelper();
 		VersionConstraint[] constraints = helper.getUnsatisfiedConstraints(description);
 		String[] ret = new String[constraints.length];
 		for (int i = 0; i < constraints.length; i++) {
@@ -674,7 +671,15 @@ public class EquinoxBundlesState implements BundlesState {
 
 	private void setStateObjectFactory() {
 		if (soFactory == null) {
-			soFactory = platformAdmin.getFactory();
+			// Use the standard OSGi StateObjectFactory.defaultFactory instead of the
+			// PlatformAdmin OSGi service (which requires the equinox fragment
+			// org.eclipse.osgi.compatibility.state to be present and registered as a
+			// service). defaultFactory is core org.eclipse.osgi API, explicitly designed
+			// for use outside a running Equinox framework; it still lazily loads the
+			// compatibility.state-provided resolver implementation via reflection when
+			// available, and throws UnsupportedOperationException otherwise (handled by
+			// callers, see EquinoxManipulatorImpl).
+			soFactory = StateObjectFactory.defaultFactory;
 		}
 	}
 
