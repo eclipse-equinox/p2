@@ -78,13 +78,13 @@
         <setEntry value="biz.aQute.repository@default:default"/>
         <setEntry value="biz.aQute.resolve@default:default"/>
         <setEntry value="bndtools.api@default:default"/>
+        <setEntry value="com.github.mwiede.jsch@default:default"/>
         <setEntry value="com.github.weisj.jsvg@default:default"/>
         <setEntry value="com.google.gson@default:default"/>
         <setEntry value="com.google.guava.failureaccess@default:default"/>
         <setEntry value="com.google.guava@default:default"/>
         <setEntry value="com.googlecode.javaewah.JavaEWAH@default:default"/>
         <setEntry value="com.ibm.icu@default:default"/>
-        <setEntry value="com.jcraft.jsch@default:default"/>
         <setEntry value="com.sun.jna.platform@default:default"/>
         <setEntry value="com.sun.jna@default:default"/>
         <setEntry value="jakarta.activation-api@default:default"/>
