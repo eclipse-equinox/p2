@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Red Hat, Inc. and others
+ * Copyright (c) 2013, 2026 Red Hat, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -38,6 +38,7 @@ public class RemedyIUDetail {
 	private Version requestedVersion;
 	private Version beingInstalledVersion;
 	private final IInstallableUnit iu;
+	private String reason;
 
 	public RemedyIUDetail(IInstallableUnit iu) {
 		this.iu = iu;
@@ -77,5 +78,13 @@ public class RemedyIUDetail {
 
 	public void setInstalledVersion(Version installedVersion) {
 		this.installedVersion = installedVersion;
+	}
+	
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 }

@@ -54,7 +54,7 @@ import org.junit.platform.suite.api.Suite;
 		SingletonOptionallyInstalled.class, SingletonOptionallyInstalled2.class, SWTFragment.class,
 		SynchronizeOperationTest.class, TestNoopChangeRequest.class, TestFilteringOnAbsentProperty.class,
 		TopLevelFilterTest.class, TwoVersionsOfWSDL.class, TychoUsage.class, UninstallEverything.class,
-		UpdateForTwoIUs.class, UpdateQueryTest.class, })
+		UpdateForTwoIUs.class, UpdateQueryTest.class, RemediationOperationReasonTest.class, })
 public class AllTests {
 // Enable the following
 // Bug252682.class,
