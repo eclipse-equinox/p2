@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2018 Red Hat, Inc. and others
+ * Copyright (c) 2013, 2026 Red Hat, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,16 +13,23 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URI;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.operations.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * <p>
@@ -176,7 +183,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 		} else {
 			remedy.setBeingInstalledRelaxedWeight(ZERO_WEIGHT);
 		}
-		computeRemedyDetails(remedy);
+		computeRemedyDetails(remedy, monitor);
 		return remedy;
 	}
 
@@ -237,7 +244,8 @@ public class RemediationOperation extends ProfileChangeOperation {
 		return remedies.size() > 0 ? Status.OK_STATUS : new Status(IStatus.ERROR, Constants.BUNDLE_ID, Messages.RemediationOperation_NoRemedyFound);
 	}
 
-	private void computeRemedyDetails(Remedy remedy) {
+	private void computeRemedyDetails(Remedy remedy, IProgressMonitor monitor) {
+		Collection<IInstallableUnit> resultingIUs = computeResultingIUs(remedy);
 		ArrayList<String> updateIds = new ArrayList<>();
 		for (IInstallableUnit addedIU : remedy.getRequest().getAdditions()) {
 			for (IInstallableUnit removedIU : remedy.getRequest().getRemovals()) {
@@ -267,16 +275,116 @@ public class RemediationOperation extends ProfileChangeOperation {
 				}
 			}
 			if (!found) {
-				createNotAddedRemedyDetail(addedIUinOriginalRequest, remedy);
+				createNotAddedRemedyDetail(addedIUinOriginalRequest, remedy, resultingIUs, monitor);
 				found = false;
 			}
 		}
 	}
 
-	private void createNotAddedRemedyDetail(IInstallableUnit iu, Remedy remedy) {
+	private Collection<IInstallableUnit> computeResultingIUs(Remedy remedy) {
+		ProfileChangeRequest changeRequest = remedy.getRequest();
+		Collection<IInstallableUnit> resultingIUs = new HashSet<>();
+		IProfile profile = changeRequest.getProfile();
+		if (profile != null) {
+			resultingIUs.addAll(profile.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet());
+		}
+		resultingIUs.removeAll(changeRequest.getRemovals());
+		resultingIUs.addAll(changeRequest.getAdditions());
+		return resultingIUs;
+	}
+
+	/**
+	 * Bounds how many hops the dependency chain in {@link #computeUnmetRequirementReason} will follow.
+	 */
+	private static final int MAX_EXPLANATION_DEPTH = 4;
+
+	private String computeUnmetRequirementReason(IInstallableUnit iu, Collection<IInstallableUnit> resultingIUs, IProgressMonitor monitor) {
+		List<String> chainLines = new ArrayList<>();
+		Set<String> visitedIds = new HashSet<>();
+		IInstallableUnit current = iu;
+		visitedIds.add(current.getId());
+		for (int depth = 0; depth < MAX_EXPLANATION_DEPTH; depth++) {
+			if (monitor != null && monitor.isCanceled()) {
+				break;
+			}
+			IRequirement unmet = firstUnmetRequirement(current, resultingIUs);
+			if (unmet == null) {
+				break;
+			}
+			String prefix = depth == 0 ? "" : current.getId() + " "; //$NON-NLS-1$ //$NON-NLS-2$
+			IInstallableUnit provider = findProvider(unmet, visitedIds, monitor);
+			if (provider == null) {
+				chainLines.add(NLS.bind(Messages.RemedyIUDetail_RequirementNotFound, prefix, describe(unmet)));
+				return String.join("\n", chainLines); //$NON-NLS-1$
+			}
+			chainLines.add(NLS.bind(Messages.RemedyIUDetail_RequirementChainStep,
+					new Object[] { prefix, describe(unmet), provider.getId(), provider.getVersion() }));
+			visitedIds.add(provider.getId());
+			current = provider;
+		}
+		if (chainLines.isEmpty()) {
+			return null;
+		}
+		chainLines.add(Messages.RemedyIUDetail_ChainTruncated);
+		return String.join("\n", chainLines); //$NON-NLS-1$
+	}
+
+	private IRequirement firstUnmetRequirement(IInstallableUnit unit, Collection<IInstallableUnit> availableIUs) {
+		for (IRequirement requirement : unit.getRequirements()) {
+			if (requirement.getMin() == 0) {
+				// optional requirement - not a blocker on its own
+				continue;
+			}
+			boolean satisfied = false;
+			for (IInstallableUnit candidate : availableIUs) {
+				if (requirement.isMatch(candidate)) {
+					satisfied = true;
+					break;
+				}
+			}
+			if (!satisfied) {
+				return requirement;
+			}
+		}
+		return null;
+	}
+
+	private IInstallableUnit findProvider(IRequirement requirement, Set<String> excludedIds, IProgressMonitor monitor) {
+		IMetadataRepositoryManager manager = session.getMetadataRepositoryManager();
+		if (manager == null) {
+			return null;
+		}
+		IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery(requirement.getMatches());
+		for (URI location : manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL)) {
+			if (monitor != null && monitor.isCanceled()) {
+				return null;
+			}
+			IMetadataRepository repository;
+			try {
+				repository = manager.loadRepository(location, monitor);
+			} catch (ProvisionException | OperationCanceledException e) {
+				continue;
+			}
+			for (IInstallableUnit candidate : repository.query(query, monitor)) {
+				if (!excludedIds.contains(candidate.getId())) {
+					return candidate;
+				}
+			}
+		}
+		return null;
+	}
+
+	private String describe(IRequirement requirement) {
+		String description = requirement.getDescription();
+		String text = description != null && !description.isBlank() ? description : requirement.toString();
+		return text.replace(", filter=(!(org.eclipse.equinox.p2.exclude.import=true))", ""); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	private void createNotAddedRemedyDetail(IInstallableUnit iu, Remedy remedy, Collection<IInstallableUnit> resultingIUs, IProgressMonitor monitor) {
 		RemedyIUDetail iuDetail = new RemedyIUDetail(iu);
 		iuDetail.setStatus(RemedyIUDetail.STATUS_NOT_ADDED);
 		iuDetail.setRequestedVersion(iu.getVersion());
+		iuDetail.setReason(computeUnmetRequirementReason(iu, resultingIUs, monitor));
 		remedy.addRemedyIUDetail(iuDetail);
 	}
 
