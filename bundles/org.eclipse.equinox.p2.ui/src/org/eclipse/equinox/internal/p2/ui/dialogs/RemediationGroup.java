@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2018 Red Hat, Inc. and others
+ * Copyright (c) 2013, 2026 Red Hat, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -299,6 +299,9 @@ public class RemediationGroup {
 					}
 					if (containerPage != null && containerPage.getWizard() instanceof UpdateWizard && compare(iuDetail.getBeingInstalledVersion(), iuDetail.getRequestedVersion()) < 0) {
 						toolTipText = ProvUIMessages.RemedyElementNotHighestVersion + "\n\n" + toolTipText; //$NON-NLS-1$
+					}
+					if (iuDetail.getReason() != null) {
+						toolTipText += (toolTipText.isEmpty() ? "" : "\n\n") + iuDetail.getReason(); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 					return toolTipText;
 				}

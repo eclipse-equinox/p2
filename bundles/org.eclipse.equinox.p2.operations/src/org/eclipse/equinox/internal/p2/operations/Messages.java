@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 IBM Corporation and others.
+ * Copyright (c) 2009, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -72,6 +72,9 @@ public class Messages extends NLS {
 	public static String RemediationOperation_ResolveJobName;
 	public static String RemediationOperation_RemediationJobName;
 	public static String RemediationOperation_NoRemedyFound;
+	public static String RemedyIUDetail_RequirementNotFound;
+	public static String RemedyIUDetail_RequirementChainStep;
+	public static String RemedyIUDetail_ChainTruncated;
 
 	public static String OperationFactory_noAgent;
 	public static String OperationFactory_noIUFound;
