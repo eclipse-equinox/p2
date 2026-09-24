@@ -554,7 +554,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		exportButton.setEnabled(elements.length > 0);
 		removeButton.setEnabled(elements.length > 0);
 		editButton.setEnabled(elements.length == 1);
-		refreshButton.setEnabled(elements.length == 1);
+		refreshButton.setEnabled(elements.length > 0);
 		if (elements.length >= 1) {
 			if (toggleMeansDisable(elements)) {
 				disableButton.setText(ProvUIMessages.RepositoryManipulationPage_DisableButton);
@@ -581,63 +581,29 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 	void refreshRepository() {
 		final MetadataRepositoryElement[] selected = getSelectedElements();
-		final ProvisionException[] fail = new ProvisionException[1];
-		final boolean[] remove = new boolean[1];
-		remove[0] = false;
-		if (selected.length != 1) {
+		if (selected.length == 0) {
 			return;
 		}
-		final URI location = selected[0].getLocation();
+		final Map<URI, ProvisionException> failures = new LinkedHashMap<>();
 		ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell());
 		try {
 			dialog.run(true, true, monitor -> {
-				monitor.beginTask(NLS.bind(ProvUIMessages.RepositoryManipulationPage_ContactingSiteMessage, location), 100);
+				SubMonitor sub = SubMonitor.convert(monitor, selected.length);
+				// Batch events so reload side effects (discovery etc.) are not reacted to one by one
+				ui.signalRepositoryOperationStart();
 				try {
-					// Batch the events for this operation so that any events on reload (discovery, etc.) will be ignored
-					// in the UI as they happen.
-					ui.signalRepositoryOperationStart();
-					tracker.clearRepositoryNotFound(location);
-					// If the managers don't know this repo, refreshing it will not work.
-					// We temporarily add it, but we must remove it in case the user cancels out of this page.
-					if (!includesRepo(tracker.getKnownRepositories(ui.getSession()), location)) {
-						remove[0] = true;
-						// We don't want to use the tracker here because it ensures that additions are
-						// reported as user events to be responded to.  We don't want, for example, the
-						// install wizard to change combo selections based on what is done here.
-						ProvUI.getMetadataRepositoryManager(ui.getSession()).addRepository(location);
-						ProvUI.getArtifactRepositoryManager(ui.getSession()).addRepository(location);
+					for (MetadataRepositoryElement element : selected) {
+						URI location = element.getLocation();
+						sub.setTaskName(NLS.bind(ProvUIMessages.RepositoryManipulationPage_ContactingSiteMessage, location));
+						ProvisionException fail = refreshRepository(location, sub.split(1));
+						if (fail != null) {
+							failures.put(location, fail);
+						}
 					}
-					// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=312332
-					// We assume repository colocation here.  Ideally we should not do this, but the
-					// RepositoryTracker API is swallowing the refresh errors.
-					SubMonitor sub = SubMonitor.convert(monitor, 200);
-					try {
-						ProvUI.getMetadataRepositoryManager(ui.getSession()).refreshRepository(location, sub.newChild(100));
-					} catch (ProvisionException e1) {
-						fail[0] = e1;
-					}
-					try {
-						ProvUI.getArtifactRepositoryManager(ui.getSession()).refreshRepository(location, sub.newChild(100));
-					} catch (ProvisionException e2) {
-						// Failure in the artifact repository.  We will not report this because the user has no separate visibility
-						// of the artifact repository.  We should log the error.  If this repository fails during a download, the error
-						// will be reported at that time to the user, when it matters.  This also prevents false error reporting when
-						// a metadata repository didn't actually have a colocated artifact repository.
-						LogHelper.log(e2);
-					}
-				} catch (OperationCanceledException e3) {
-					// Catch canceled login attempts
-					fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled, e3));
+				} catch (OperationCanceledException e) {
+					// Thrown by split() when the dialog is canceled, per-site cancels are already turned into a status
+					failures.put(null, new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled)));
 				} finally {
-					// Check if the monitor was canceled
-					if (fail[0] == null && monitor.isCanceled()) {
-						fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled));
-					}
-					// If we temporarily added a repo so we could read it, remove it.
-					if (remove[0]) {
-						ProvUI.getMetadataRepositoryManager(ui.getSession()).removeRepository(location);
-						ProvUI.getArtifactRepositoryManager(ui.getSession()).removeRepository(location);
-					}
 					ui.signalRepositoryOperationComplete(null, false);
 				}
 			});
@@ -646,23 +612,69 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		} catch (InterruptedException e) {
 			// nothing to report
 		}
-		if (fail[0] != null) {
-			// If the repo was not found, tell ProvUI that we will be reporting it.
-			// We are going to report problems directly to the status manager because we
-			// do not want the automatic repo location editing to kick in.
-			if (fail[0].getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
-				tracker.addNotFound(location);
+		boolean canceled = false;
+		ArrayList<ProvisionException> errors = new ArrayList<>();
+		for (Map.Entry<URI, ProvisionException> entry : failures.entrySet()) {
+			IStatus status = entry.getValue().getStatus();
+			// Reported directly below so the automatic repo location editing does not kick in
+			if (entry.getKey() != null && status.getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
+				tracker.addNotFound(entry.getKey());
 			}
-			if (!fail[0].getStatus().matches(IStatus.CANCEL)) {
-				// An error is only shown if the dialog was not canceled
-				ProvUI.handleException(fail[0], null, StatusManager.SHOW);
+			if (status.matches(IStatus.CANCEL)) {
+				canceled = true;
+			} else {
+				errors.add(entry.getValue());
 			}
-		} else {
-			// Confirm that it was successful
-			MessageDialog.openInformation(getShell(), ProvUIMessages.RepositoryManipulationPage_TestConnectionTitle, NLS.bind(ProvUIMessages.RepositoryManipulationPage_TestConnectionSuccess, URIUtil.toUnencodedString(location)));
 		}
-		repositoryViewer.update(selected[0], null);
+		if (errors.size() == 1) {
+			ProvUI.handleException(errors.get(0), null, StatusManager.SHOW);
+		} else if (!errors.isEmpty()) {
+			MultiStatus multi = new MultiStatus(ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.RepositoryManipulationPage_RefreshMultipleFailed);
+			errors.forEach(e -> multi.add(e.getStatus()));
+			StatusManager.getManager().handle(multi, StatusManager.SHOW);
+		} else if (!canceled) {
+			String message = selected.length == 1 ? NLS.bind(ProvUIMessages.RepositoryManipulationPage_TestConnectionSuccess, URIUtil.toUnencodedString(selected[0].getLocation())) : NLS.bind(ProvUIMessages.RepositoryManipulationPage_TestConnectionSuccessMultiple, selected.length);
+			MessageDialog.openInformation(getShell(), ProvUIMessages.RepositoryManipulationPage_TestConnectionTitle, message);
+		}
+		repositoryViewer.update(selected, null);
 		setDetails();
+	}
+
+	private ProvisionException refreshRepository(URI location, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor, 200);
+		ProvisionException fail = null;
+		boolean remove = false;
+		try {
+			tracker.clearRepositoryNotFound(location);
+			// Unknown repos cannot be refreshed, so add them temporarily
+			if (!includesRepo(tracker.getKnownRepositories(ui.getSession()), location)) {
+				remove = true;
+				// Bypass the tracker so the addition is not reported as a user event
+				ProvUI.getMetadataRepositoryManager(ui.getSession()).addRepository(location);
+				ProvUI.getArtifactRepositoryManager(ui.getSession()).addRepository(location);
+			}
+			// Assumes colocated repositories because RepositoryTracker swallows refresh errors
+			try {
+				ProvUI.getMetadataRepositoryManager(ui.getSession()).refreshRepository(location, sub.newChild(100));
+			} catch (ProvisionException e1) {
+				fail = e1;
+			}
+			try {
+				ProvUI.getArtifactRepositoryManager(ui.getSession()).refreshRepository(location, sub.newChild(100));
+			} catch (ProvisionException e2) {
+				// Only logged: artifact repos are invisible to the user and may legitimately be absent
+				LogHelper.log(e2);
+			}
+		} catch (OperationCanceledException e3) {
+			// Catch canceled login attempts
+			fail = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled, e3));
+		} finally {
+			if (remove) {
+				ProvUI.getMetadataRepositoryManager(ui.getSession()).removeRepository(location);
+				ProvUI.getArtifactRepositoryManager(ui.getSession()).removeRepository(location);
+			}
+		}
+		return fail;
 	}
 
 	boolean includesRepo(URI[] repos, URI repo) {
