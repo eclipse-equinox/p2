@@ -18,7 +18,9 @@ package org.eclipse.equinox.p2.metadata;
 
 import java.util.Collection;
 import java.util.Map;
+import org.eclipse.equinox.internal.p2.metadata.osgi.IUResource;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.osgi.resource.Resource;
 
 /**
  * An installable unit represents an atomic, indivisible unit of installable functionality
@@ -312,4 +314,41 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	 */
 	@Override
 	public boolean equals(Object obj);
+
+	/**
+	 * Translates this installable unit into a standard OSGi {@link Resource} as
+	 * described by the
+	 * <a href="https://docs.osgi.org/specification/osgi.core/8.0.0/framework.resource.html">Resource
+	 * API Specification</a>. This allows this installable unit to be used with
+	 * generic, standard OSGi tooling such as a {@code org.osgi.resource.Resolver}
+	 * or an {@code org.osgi.service.repository.Repository}.
+	 * <p>
+	 * Only requirements and capabilities that have a well known, version range
+	 * based shape (as for example produced for a bundle installable unit by
+	 * {@code org.eclipse.equinox.p2.publisher.eclipse.BundlesAction}) are
+	 * translated into their OSGi counterpart, namely:
+	 * </p>
+	 * <ul>
+	 * <li>the identity of this unit is exposed as an <code>osgi.identity</code>
+	 * capability</li>
+	 * <li>package capabilities/requirements are exposed as
+	 * <code>osgi.wiring.package</code> capabilities/requirements</li>
+	 * <li>bundle capabilities/requirements are exposed as
+	 * <code>osgi.wiring.bundle</code> capabilities/requirements, with the
+	 * exception of a fragment-host requirement that is exposed as an
+	 * <code>osgi.wiring.host</code> requirement</li>
+	 * </ul>
+	 * <p>
+	 * Generic requirements/capabilities that use an arbitrary LDAP filter (as they
+	 * can be declared through the <code>Require-Capability</code>/<code>Provide-Capability</code>
+	 * manifest headers) are passed through unmodified using their original p2
+	 * namespace, but the filter itself is not further interpreted.
+	 * </p>
+	 *
+	 * @return an OSGi {@link Resource} representing this installable unit
+	 * @since 2.10
+	 */
+	default Resource toResource() {
+		return new IUResource(this);
+	}
 }

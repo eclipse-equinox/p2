@@ -22,10 +22,10 @@ import org.junit.platform.suite.api.Suite;
  */
 @Suite
 @SelectClasses({ ArtifactKeyParsingTest.class, FragmentMethodTest.class, FragmentTest.class,
-		InstallableUnitTest.class, InstallableUnitPatchTest.class, IUPersistenceTest.class, LatestIUTest.class,
-		LicenseTest.class, MultipleIUAndFragmentTest.class, PersistNegation.class, PersistFragment.class,
-		ProvidedCapabilityTest.class, RequirementToString.class, RequirementParsingTest.class,
-		RequirementToLDAPFilterTest.class })
+		InstallableUnitTest.class, InstallableUnitPatchTest.class, InstallableUnitToResourceTest.class,
+		IUPersistenceTest.class, LatestIUTest.class, LicenseTest.class, MultipleIUAndFragmentTest.class,
+		PersistNegation.class, PersistFragment.class, ProvidedCapabilityTest.class, RequirementToString.class,
+		RequirementParsingTest.class, RequirementToLDAPFilterTest.class })
 public class AllTests {
 //test suite
 }
