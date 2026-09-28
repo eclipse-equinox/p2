@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.osgi;
 
+import static org.eclipse.equinox.internal.p2.metadata.osgi.IUResource.FEATURE_GROUP_ID_SUFFIX;
 import static org.eclipse.equinox.internal.p2.metadata.osgi.IUResource.NAMESPACE_JAVA_PACKAGE;
 import static org.eclipse.equinox.internal.p2.metadata.osgi.IUResource.NAMESPACE_OSGI_BUNDLE;
 
@@ -24,6 +25,7 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.metadata.osgi.namespace.FeatureNamespace;
 import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.HostNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
@@ -74,6 +76,18 @@ public class IURequirement implements Requirement {
 			if (hostName != null && hostName.equals(name)) {
 				this.namespace = HostNamespace.HOST_NAMESPACE;
 				versionAttribute = HostNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE;
+			} else {
+				this.namespace = BundleNamespace.BUNDLE_NAMESPACE;
+				versionAttribute = BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE;
+			}
+		} else if (resource.isFeature() && IInstallableUnit.NAMESPACE_IU_ID.equals(ns)) {
+			// a feature "contains" requirement: either another nested feature (its
+			// group IU id carries the FEATURE_GROUP_ID_SUFFIX, stripped here since it
+			// is a p2-internal convention) or a plain plugin/bundle (unsuffixed id).
+			if (name.endsWith(FEATURE_GROUP_ID_SUFFIX)) {
+				this.namespace = FeatureNamespace.FEATURE_NAMESPACE;
+				versionAttribute = FeatureNamespace.CAPABILITY_VERSION_ATTRIBUTE;
+				name = name.substring(0, name.length() - FEATURE_GROUP_ID_SUFFIX.length());
 			} else {
 				this.namespace = BundleNamespace.BUNDLE_NAMESPACE;
 				versionAttribute = BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE;

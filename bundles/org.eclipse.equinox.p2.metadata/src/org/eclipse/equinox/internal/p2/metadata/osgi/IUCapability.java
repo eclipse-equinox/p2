@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.osgi.namespace.FeatureNamespace;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
@@ -92,6 +93,16 @@ public class IUCapability implements Capability {
 			}
 			attrs.put(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE,
 					new Version(capability.getVersion().toString()));
+		} else if (resource.isFeature() && IInstallableUnit.NAMESPACE_IU_ID.equals(ns)
+				&& capability.getName().equals(resource.installableUnit.getId())) {
+//          <capability namespace='osgi.wiring.feature'>
+//            <attribute name='osgi.wiring.feature' value='org.acme.pool.feature'/>
+//            <attribute name='version' type='Version' value='1.5.6'/>
+//          </capability>
+			namespace = FeatureNamespace.FEATURE_NAMESPACE;
+			attrs.clear();
+			attrs.put(FeatureNamespace.FEATURE_NAMESPACE, resource.getId());
+			attrs.put(FeatureNamespace.CAPABILITY_VERSION_ATTRIBUTE, new Version(capability.getVersion().toString()));
 		} else {
 			//generic namespace definition e.g.
 //          <capability namespace='osgi.identity'>

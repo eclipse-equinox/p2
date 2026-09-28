@@ -23,6 +23,7 @@ import org.junit.platform.suite.api.Suite;
 @Suite
 @SelectClasses({ ArtifactKeyParsingTest.class, FragmentMethodTest.class, FragmentTest.class,
 		InstallableUnitTest.class, InstallableUnitPatchTest.class, InstallableUnitToResourceTest.class,
+		InstallableUnitFeatureToResourceTest.class,
 		IUPersistenceTest.class, LatestIUTest.class, LicenseTest.class, MultipleIUAndFragmentTest.class,
 		PersistNegation.class, PersistFragment.class, ProvidedCapabilityTest.class, RequirementToString.class,
 		RequirementParsingTest.class, RequirementToLDAPFilterTest.class })

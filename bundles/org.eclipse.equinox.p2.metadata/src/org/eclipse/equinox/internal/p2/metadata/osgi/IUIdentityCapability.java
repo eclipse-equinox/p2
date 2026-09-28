@@ -32,7 +32,7 @@ public class IUIdentityCapability implements Capability {
 	private final IUResource resource;
 	private final Map<String, Object> attributes;
 
-	public IUIdentityCapability(IUResource resource, boolean fragment) {
+	public IUIdentityCapability(IUResource resource, String type) {
 		this.resource = resource;
 		IInstallableUnit installableUnit = resource.installableUnit;
 //      <capability namespace='osgi.identity'>
@@ -41,11 +41,10 @@ public class IUIdentityCapability implements Capability {
 //        <attribute name='type' value='osgi.bundle'/>
 //      </capability>
 		this.attributes = Map.of(//
-				IdentityNamespace.IDENTITY_NAMESPACE, installableUnit.getId(), //
+				IdentityNamespace.IDENTITY_NAMESPACE, resource.getId(), //
 				IdentityNamespace.CAPABILITY_VERSION_ATTRIBUTE,
 				new Version(installableUnit.getVersion().toString()), //
-				IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE,
-				fragment ? IdentityNamespace.TYPE_FRAGMENT : IdentityNamespace.TYPE_BUNDLE);
+				IdentityNamespace.CAPABILITY_TYPE_ATTRIBUTE, type);
 	}
 
 	@Override

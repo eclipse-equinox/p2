@@ -81,6 +81,7 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata;
    org.osgi.resource",
  org.eclipse.equinox.p2.metadata.expression;version="2.0.0";uses:="org.eclipse.equinox.p2.metadata.index,org.eclipse.equinox.p2.query,org.osgi.framework",
  org.eclipse.equinox.p2.metadata.index;version="2.0.0";uses:="org.eclipse.equinox.p2.metadata.expression,org.eclipse.equinox.p2.query",
+ org.eclipse.equinox.p2.metadata.osgi.namespace;version="1.0.0";uses:="org.osgi.framework.namespace,org.osgi.resource",
  org.eclipse.equinox.p2.query;version="2.1.0";
   uses:="org.eclipse.core.runtime,
    org.eclipse.equinox.internal.p2.metadata.index,

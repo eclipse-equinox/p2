@@ -24,6 +24,9 @@ import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.metadata.osgi.namespace.FeatureNamespace;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
@@ -69,6 +72,27 @@ public class IUResource implements Resource {
 	 */
 	public static final String NAMESPACE_OSGI_FRAGMENT = "osgi.fragment"; //$NON-NLS-1$
 
+	/**
+	 * Suffix p2 appends to a feature's id to derive the id of its "group" IU,
+	 * mirrors <code>FeaturesAction.getTransformedId(String, boolean, boolean)</code>
+	 * that can't be referenced here for layering reasons. Used to recognize a
+	 * feature-to-feature containment requirement (as opposed to a
+	 * feature-to-plugin one, which uses the plain, unsuffixed bundle id).
+	 */
+	static final String FEATURE_GROUP_ID_SUFFIX = ".feature.group"; //$NON-NLS-1$
+
+	/**
+	 * Suffix p2 appends to a feature's id to derive the id of the IU
+	 * representing the feature's own jar/properties artifact (as opposed to its
+	 * "group" IU, see {@link #FEATURE_GROUP_ID_SUFFIX}), mirrors
+	 * <code>FeaturesAction.getTransformedId(String, boolean, boolean)</code> that
+	 * can't be referenced here for layering reasons. Every feature group IU
+	 * carries a requirement towards this IU purely so p2 can install the
+	 * feature.xml/properties content; it has no OSGi wiring meaning and is
+	 * therefore not translated into a {@link Requirement}.
+	 */
+	static final String FEATURE_JAR_ID_SUFFIX = ".feature.jar"; //$NON-NLS-1$
+
 	static final String PACKAGE_ATTRIBUTE_PROPERTY_PREFIX = NAMESPACE_JAVA_PACKAGE + ".attribute."; //$NON-NLS-1$
 	static final String PACKAGE_DIRECTIVE_PROPERTY_PREFIX = NAMESPACE_JAVA_PACKAGE + ".directive."; //$NON-NLS-1$
 
@@ -76,6 +100,7 @@ public class IUResource implements Resource {
 	private final Map<String, List<Requirement>> requirementsMap;
 	private final Map<String, List<Capability>> capabilitiesMap;
 	private final boolean fragment;
+	private final boolean feature;
 
 	public IUResource(IInstallableUnit installableUnit) {
 		this.installableUnit = installableUnit;
@@ -83,9 +108,15 @@ public class IUResource implements Resource {
 				.filter(capability -> NAMESPACE_OSGI_FRAGMENT.equals(capability.getNamespace()))
 				.map(IProvidedCapability::getName).findFirst().orElse(null);
 		this.fragment = hostName != null;
+		this.feature = QueryUtil.isGroup(installableUnit);
 		Collection<IRequirement> requirements = installableUnit.getRequirements();
 		requirementsMap = new HashMap<>(requirements.size());
 		for (IRequirement requirement : requirements) {
+			if (feature && isFeatureJarRequirement(requirement)) {
+				// p2-internal plumbing to install the feature.xml/properties artifact, no
+				// OSGi wiring counterpart
+				continue;
+			}
 			if (RequiredCapability.isVersionRangeRequirement(requirement.getMatches())) {
 				IURequirement req = new IURequirement(this, requirement, hostName);
 				requirementsMap.computeIfAbsent(req.getNamespace(), nil -> new ArrayList<>()).add(req);
@@ -111,13 +142,41 @@ public class IUResource implements Resource {
 		if (identityCapabilities == null || identityCapabilities.isEmpty()) {
 			// only synthesize an identity capability if the installable unit does not
 			// already provide one of its own (e.g. as produced by BundlesAction)
+			String type = feature ? FeatureNamespace.TYPE_FEATURE
+					: fragment ? IdentityNamespace.TYPE_FRAGMENT : IdentityNamespace.TYPE_BUNDLE;
 			capabilitiesMap.computeIfAbsent(IdentityNamespace.IDENTITY_NAMESPACE, nil -> new ArrayList<>())
-					.add(new IUIdentityCapability(this, fragment));
+					.add(new IUIdentityCapability(this, type));
 		}
+	}
+
+	private static boolean isFeatureJarRequirement(IRequirement requirement) {
+		IMatchExpression<IInstallableUnit> matches = requirement.getMatches();
+		return IInstallableUnit.NAMESPACE_IU_ID.equals(RequiredCapability.extractNamespace(matches))
+				&& RequiredCapability.extractName(matches).endsWith(FEATURE_JAR_ID_SUFFIX);
 	}
 
 	boolean isFragment() {
 		return fragment;
+	}
+
+	boolean isFeature() {
+		return feature;
+	}
+
+	/**
+	 * @return the identity to use for this resource: for a feature this is the
+	 *         installable unit id with the {@value #FEATURE_GROUP_ID_SUFFIX}
+	 *         suffix (a p2-internal convention, see
+	 *         {@value #FEATURE_GROUP_ID_SUFFIX}) stripped so it matches the id
+	 *         used by {@link FeatureNamespace} requirements/capabilities,
+	 *         otherwise the plain {@link IInstallableUnit#getId()}.
+	 */
+	String getId() {
+		String id = installableUnit.getId();
+		if (feature && id.endsWith(FEATURE_GROUP_ID_SUFFIX)) {
+			return id.substring(0, id.length() - FEATURE_GROUP_ID_SUFFIX.length());
+		}
+		return id;
 	}
 
 	@Override
