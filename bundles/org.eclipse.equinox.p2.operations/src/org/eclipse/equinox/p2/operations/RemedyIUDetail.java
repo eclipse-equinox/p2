@@ -79,7 +79,7 @@ public class RemedyIUDetail {
 	public void setInstalledVersion(Version installedVersion) {
 		this.installedVersion = installedVersion;
 	}
-	
+
 	public String getReason() {
 		return reason;
 	}
