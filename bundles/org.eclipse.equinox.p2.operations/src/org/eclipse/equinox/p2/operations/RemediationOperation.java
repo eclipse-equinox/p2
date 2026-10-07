@@ -317,7 +317,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 				return String.join("\n", chainLines); //$NON-NLS-1$
 			}
 			chainLines.add(NLS.bind(Messages.RemedyIUDetail_RequirementChainStep,
-					new Object[] { prefix, describe(unmet), provider.getId(), provider.getVersion() }));
+					prefix, describe(unmet), provider.getId(), provider.getVersion()));
 			visitedIds.add(provider.getId());
 			current = provider;
 		}
