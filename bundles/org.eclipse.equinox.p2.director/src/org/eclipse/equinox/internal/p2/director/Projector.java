@@ -982,6 +982,23 @@ public class Projector {
 		return v;
 	}
 
+	/**
+	 * The name of a Java system property controlling whether candidate solutions
+	 * are additionally validated against the real OSGi resolver for
+	 * <code>uses</code> constraint consistency (see {@link OsgiUsesOracle}), and,
+	 * if a violation is found, retried with the offending candidate forbidden.
+	 * Enabled by default; can be disabled by setting this property to
+	 * <code>false</code>.
+	 */
+	private static final String PROP_USES_CHECK = "eclipse.p2.projector.usesCheck"; //$NON-NLS-1$
+	/**
+	 * Upper bound on the number of additional solver invocations attempted while
+	 * trying to resolve a <code>uses</code> constraint violation, to guarantee
+	 * termination even if a solution can never be made fully consistent this
+	 * way.
+	 */
+	private static final int MAX_USES_RETRIES = 10;
+
 	public IStatus invokeSolver(IProgressMonitor monitor) {
 		if (result.getSeverity() == IStatus.ERROR) {
 			return result;
@@ -1004,6 +1021,7 @@ public class Projector {
 				if (DEBUG) {
 					Tracing.debug("Solver solution found in: " + (stop - start) + " ms."); //$NON-NLS-1$ //$NON-NLS-2$
 				}
+				resolveUsesViolations();
 			} else {
 				long stop = System.currentTimeMillis();
 				if (DEBUG) {
@@ -1022,6 +1040,59 @@ public class Projector {
 			System.out.println();
 		}
 		return result;
+	}
+
+	/**
+	 * CEGAR-style refinement loop: validates the current {@link #solution}
+	 * against the real OSGi resolver (see {@link OsgiUsesOracle}); if a
+	 * <code>uses</code> constraint violation is found, forbids the specific
+	 * candidate that the real resolver blames (via an additional SAT4J
+	 * assumption forcing it false) and re-solves, hoping the solver falls back
+	 * to a lower, mutually consistent alternative. Bounded by
+	 * {@link #MAX_USES_RETRIES} to guarantee termination; gives up and keeps the
+	 * last known solution if no further progress can be made (either no OSGi
+	 * {@link org.osgi.service.resolver.Resolver} service is available, no
+	 * actionable candidate can be identified, forbidding a candidate does not
+	 * change the outcome, or forbidding it makes the problem unsatisfiable).
+	 */
+	private void resolveUsesViolations() throws TimeoutException {
+		if (!Boolean.parseBoolean(System.getProperty(PROP_USES_CHECK, "true"))) { //$NON-NLS-1$
+			return;
+		}
+		Optional<org.osgi.framework.BundleContext> context = DirectorActivator.context;
+		if (context.isEmpty()) {
+			return;
+		}
+		List<Object> retryAssumptions = new ArrayList<>(assumptions);
+		Set<IInstallableUnit> forbidden = new LinkedHashSet<>();
+		for (int attempt = 0; attempt < MAX_USES_RETRIES; attempt++) {
+			OsgiUsesOracle.Violation violation = OsgiUsesOracle.validate(solution, context.get());
+			if (violation == null) {
+				if (DEBUG && !forbidden.isEmpty()) {
+					Tracing.debug("Uses constraint violation resolved after forbidding: " + forbidden); //$NON-NLS-1$
+				}
+				return;
+			}
+			IInstallableUnit culprit = OsgiUsesOracle.findCurrentCandidate(violation, solution);
+			if (culprit == null || !forbidden.add(culprit)) {
+				if (DEBUG) {
+					Tracing.debug("Uses constraint violation could not be resolved: " + violation.exception.getMessage()); //$NON-NLS-1$
+				}
+				return;
+			}
+			if (DEBUG) {
+				Tracing.debug("Uses constraint violation, retrying with " + culprit + " forbidden: " //$NON-NLS-1$ //$NON-NLS-2$
+						+ violation.exception.getMessage());
+			}
+			retryAssumptions.add(dependencyHelper.not(culprit));
+			if (!dependencyHelper.hasASolution(retryAssumptions)) {
+				// Forbidding this candidate makes the problem unsatisfiable altogether -
+				// revert and give up, keeping the last known (uses-inconsistent) solution.
+				retryAssumptions.remove(retryAssumptions.size() - 1);
+				return;
+			}
+			backToIU();
+		}
 	}
 
 	private void backToIU() {
