@@ -114,6 +114,11 @@ public class ProvUIMessages extends NLS {
 	public static String UninstallIUOperationTask;
 	public static String UninstallIUCommandLabel;
 	public static String UninstallIUCommandTooltip;
+	public static String DisableIUCommandLabel;
+	public static String DisableIUCommandTooltip;
+	public static String DisableAction_ConfirmMessage;
+	public static String EnableIUCommandLabel;
+	public static String EnableIUCommandTooltip;
 	public static String UninstallIUProgress;
 	public static String UninstallWizardPage_Description;
 	public static String UninstallWizardPage_Title;

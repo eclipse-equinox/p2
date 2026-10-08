@@ -64,6 +64,12 @@ public class Messages extends NLS {
 	public static String UninstallOperation_ProvisioningJobName;
 	public static String UninstallOperation_ResolveJobName;
 
+	public static String DisableOperation_ProvisioningJobName;
+	public static String DisableOperation_ResolveJobName;
+
+	public static String EnableOperation_ProvisioningJobName;
+	public static String EnableOperation_ResolveJobName;
+
 	public static String UpdateOperation_ProfileChangeRequestProgress;
 	public static String UpdateOperation_UpdateJobName;
 	public static String UpdateOperation_ResolveJobName;

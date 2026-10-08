@@ -227,7 +227,14 @@ public class QueryProvider {
 				if (profile == null) {
 					return null;
 				}
-				return new ElementQueryDescriptor(profile, policy.getVisibleInstalledIUQuery(), new Collector<>(), new InstalledIUElementWrapper(profile, element));
+				
+				IQuery<IInstallableUnit> rootQuery = policy.getVisibleInstalledIUQuery();
+				IQuery<IInstallableUnit> disabledQuery = new org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery(
+						org.eclipse.equinox.p2.operations.DisableIUOperation.PROP_DISABLED,
+						Boolean.TRUE.toString());
+				IQuery<IInstallableUnit> rootOrDisabledQuery = QueryUtil.createCompoundQuery(
+						java.util.List.of(rootQuery, disabledQuery), false);
+				return new ElementQueryDescriptor(profile, rootOrDisabledQuery, new Collector<>(), new InstalledIUElementWrapper(profile, element));
 
 			case METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {

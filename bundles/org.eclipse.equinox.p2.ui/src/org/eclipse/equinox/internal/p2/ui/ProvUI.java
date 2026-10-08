@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -69,6 +69,10 @@ public class ProvUI {
 	public static final String UPDATE_COMMAND_TOOLTIP = ProvUIMessages.UpdateIUCommandTooltip;
 	public static final String REVERT_COMMAND_LABEL = ProvUIMessages.RevertIUCommandLabel;
 	public static final String REVERT_COMMAND_TOOLTIP = ProvUIMessages.RevertIUCommandTooltip;
+	public static final String DISABLE_COMMAND_LABEL = ProvUIMessages.DisableIUCommandLabel;
+	public static final String DISABLE_COMMAND_TOOLTIP = ProvUIMessages.DisableIUCommandTooltip;
+	public static final String ENABLE_COMMAND_LABEL = ProvUIMessages.EnableIUCommandLabel;
+	public static final String ENABLE_COMMAND_TOOLTIP = ProvUIMessages.EnableIUCommandTooltip;
 
 	/**
 	 * A constant indicating that there was nothing to size (there was no valid plan

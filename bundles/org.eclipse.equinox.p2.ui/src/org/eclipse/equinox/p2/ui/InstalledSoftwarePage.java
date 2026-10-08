@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2020 IBM Corporation and others.
+ *  Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -57,13 +57,16 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	private static final int UPDATE_ID = IDialogConstants.CLIENT_ID;
 	private static final int UNINSTALL_ID = IDialogConstants.CLIENT_ID + 1;
 	private static final int PROPERTIES_ID = IDialogConstants.CLIENT_ID + 2;
+	private static final int DISABLE_ENABLE_ID = IDialogConstants.CLIENT_ID + 3;
 	private static final String BUTTON_ACTION = "org.eclipse.equinox.p2.ui.buttonAction"; //$NON-NLS-1$
+	private static final String DISABLE_ACTION_KEY = "disableAction"; //$NON-NLS-1$
+	private static final String ENABLE_ACTION_KEY = "enableAction"; //$NON-NLS-1$
 
 	AbstractContributionFactory factory;
 	Text detailsArea;
 	InstalledIUGroup installedIUGroup;
 	String profileId;
-	Button updateButton, uninstallButton, propertiesButton;
+	Button updateButton, uninstallButton, propertiesButton, disableEnableButton;
 	ProvisioningUI ui;
 
 	@Override
@@ -174,7 +177,16 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		};
 		uninstallButton = createButton(parent, UNINSTALL_ID, uninstallAction.getText());
 		uninstallButton.setData(BUTTON_ACTION, uninstallAction);
-
+		
+		DisableAction disableAction = new DisableAction(getProvisioningUI(),
+				installedIUGroup.getStructuredViewer(), profileId);
+		EnableAction enableAction = new EnableAction(getProvisioningUI(),
+				installedIUGroup.getStructuredViewer(), profileId);
+		disableEnableButton = createButton(parent, DISABLE_ENABLE_ID, disableAction.getText());
+		disableEnableButton.setData(BUTTON_ACTION, disableAction);
+		disableEnableButton.setData(DISABLE_ACTION_KEY, disableAction);
+		disableEnableButton.setData(ENABLE_ACTION_KEY, enableAction);
+	
 		// Properties action
 		PropertyDialogAction action = new PropertyDialogAction(new SameShellProvider(getShell()), installedIUGroup.getStructuredViewer());
 		propertiesButton = createButton(parent, PROPERTIES_ID, action.getText());
@@ -214,14 +226,34 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		if (updateButton == null || updateButton.isDisposed()) {
 			return;
 		}
+		// Toggle Disable/Enable button: swap label and action based on selection state.
+		if (disableEnableButton != null && !disableEnableButton.isDisposed()) {
+			DisableAction disableAction = (DisableAction) disableEnableButton.getData(DISABLE_ACTION_KEY);
+			EnableAction enableAction = (EnableAction) disableEnableButton.getData(ENABLE_ACTION_KEY);
+			if (enableAction != null && enableAction.isEnabled()) {
+				// Selected IU is currently disabled — offer Enable.
+				disableEnableButton.setText(enableAction.getText());
+				disableEnableButton.setToolTipText(enableAction.getToolTipText());
+				disableEnableButton.setData(BUTTON_ACTION, enableAction);
+				disableEnableButton.setEnabled(true);
+			} else if (disableAction != null && disableAction.isEnabled()) {
+				// Selected IU is active — offer Disable.
+				disableEnableButton.setText(disableAction.getText());
+				disableEnableButton.setToolTipText(disableAction.getToolTipText());
+				disableEnableButton.setData(BUTTON_ACTION, disableAction);
+				disableEnableButton.setEnabled(true);
+			} else {
+				// Nothing selectable — revert to Disable label, greyed out.
+				if (disableAction != null) {
+					disableEnableButton.setText(disableAction.getText());
+				}
+				disableEnableButton.setEnabled(false);
+			}
+		}
 		Button[] buttons = {updateButton, uninstallButton, propertiesButton};
 		for (Button button : buttons) {
 			Action action = (Action) button.getData(BUTTON_ACTION);
-			if (action == null || !action.isEnabled()) {
-				button.setEnabled(false);
-			} else {
-				button.setEnabled(true);
-			}
+			button.setEnabled(action != null && action.isEnabled());
 		}
 	}
 
@@ -261,6 +293,9 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 				break;
 			case PROPERTIES_ID :
 				((Action) propertiesButton.getData(BUTTON_ACTION)).run();
+				break;
+			case DISABLE_ENABLE_ID :
+				((Action) disableEnableButton.getData(BUTTON_ACTION)).run();
 				break;
 			default :
 				super.buttonPressed(buttonId);

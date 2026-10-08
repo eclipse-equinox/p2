@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Objects;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -43,7 +44,17 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 
 	@Override
 	protected String getImageId(Object obj) {
-		return isPatch ? ProvUIImages.IMG_PATCH_IU : ProvUIImages.IMG_IU;
+		if (isPatch) {
+			return ProvUIImages.IMG_PATCH_IU;
+		}
+		// Show greyed-out icon for IUs explicitly tagged as disabled (PROP_DISABLED = true).
+		IProfile profile = ProvUI.getProfileRegistry(getProvisioningUI().getSession()).getProfile(profileId);
+		if (profile != null && Boolean.TRUE.toString().equals(
+				profile.getInstallableUnitProperty(iu,
+						org.eclipse.equinox.p2.operations.DisableIUOperation.PROP_DISABLED))) {
+			return ProvUIImages.IMG_DISABLED_IU;
+		}
+		return ProvUIImages.IMG_IU;
 	}
 
 	@Override
