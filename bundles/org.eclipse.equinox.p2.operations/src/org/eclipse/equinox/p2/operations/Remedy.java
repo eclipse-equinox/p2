@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2017 Red Hat, Inc. and others
+ * Copyright (c) 2013, 2026 Red Hat, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,6 +16,7 @@ package org.eclipse.equinox.p2.operations;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 
 /**
@@ -32,6 +33,7 @@ public class Remedy {
 
 	private RemedyConfig config;
 	private ProfileChangeRequest request;
+	private IProvisioningPlan intermediaryPlan;
 	private int beingInstalledRelaxedWeight;
 	private int installationRelaxedWeight;
 	private final IProfileChangeRequest originalRequest;
@@ -55,6 +57,22 @@ public class Remedy {
 		return config;
 	}
 
+	public boolean isAllowPartialInstall() {
+		return config != null && config.allowPartialInstall;
+	}
+
+	public boolean isAllowDifferentVersion() {
+		return config != null && config.allowDifferentVersion;
+	}
+
+	public boolean isAllowInstalledUpdate() {
+		return config != null && config.allowInstalledUpdate;
+	}
+
+	public boolean isAllowInstalledRemoval() {
+		return config != null && config.allowInstalledRemoval;
+	}
+
 	public void setConfig(RemedyConfig config) {
 		this.config = config;
 	}
@@ -65,6 +83,14 @@ public class Remedy {
 
 	public void setRequest(ProfileChangeRequest request) {
 		this.request = request;
+	}
+
+	public IProvisioningPlan getIntermediaryPlan() {
+		return intermediaryPlan;
+	}
+
+	public void setIntermediaryPlan(IProvisioningPlan plan) {
+		this.intermediaryPlan = plan;
 	}
 
 	public int getBeingInstalledRelaxedWeight() {

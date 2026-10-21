@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Red Hat, Inc. and others
+ * Copyright (c) 2013, 2026 Red Hat, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -20,14 +20,21 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Shell;
 
 public class RemediationPage extends ResolutionStatusPage {
+
+	private static final int MINIMUM_DIALOG_HEIGHT_IN_CHARS = 50;
 
 	private RemediationGroup remediationGroup;
 
@@ -63,6 +70,39 @@ public class RemediationPage extends ResolutionStatusPage {
 
 	public RemediationGroup getRemediationGroup() {
 		return remediationGroup;
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		if (visible) {
+			ensureMinimumDialogHeight();
+		}
+	}
+
+	private void ensureMinimumDialogHeight() {
+		Shell shell = getShell();
+		if (shell == null || shell.isDisposed() || shell.getMaximized() || mainComposite == null) {
+			return;
+		}
+		FontMetrics fontMetrics;
+		GC gc = new GC(mainComposite);
+		try {
+			gc.setFont(JFaceResources.getDialogFont());
+			fontMetrics = gc.getFontMetrics();
+		} finally {
+			gc.dispose();
+		}
+		Rectangle available = shell.getMonitor().getClientArea();
+		int minimumHeight = Math.min(Dialog.convertHeightInCharsToPixels(fontMetrics, MINIMUM_DIALOG_HEIGHT_IN_CHARS), available.height);
+		Rectangle bounds = shell.getBounds();
+		if (bounds.height >= minimumHeight) {
+			return;
+		}
+		bounds.height = minimumHeight;
+		// keep the whole dialog on the screen
+		bounds.y = Math.max(available.y, Math.min(bounds.y, available.y + available.height - bounds.height));
+		shell.setBounds(bounds);
 	}
 
 	@Override
