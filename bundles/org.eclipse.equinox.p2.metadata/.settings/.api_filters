@@ -1,10 +1,66 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.equinox.p2.metadata" version="2">
+    <resource path="src/org/eclipse/equinox/internal/p2/metadata/expression/parser/ExpressionParser.java" type="org.eclipse.equinox.internal.p2.metadata.expression.parser.ExpressionParser">
+        <filter comment="ExpressionParser implements the internal IExpressionConstants only to share constants, so the leak is intentional" id="576725006">
+            <message_arguments>
+                <message_argument value="IExpressionConstants"/>
+                <message_argument value="ExpressionParser"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/metadata/expression/IContextExpression.java" type="org.eclipse.equinox.p2.metadata.expression.IContextExpression">
+        <filter comment="IContextExpression intentionally extends IExpression, which is part of the p2 expression API, so the leak is intentional" id="576725006">
+            <message_arguments>
+                <message_argument value="IExpression"/>
+                <message_argument value="IContextExpression&lt;T&gt;"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/metadata/expression/IFilterExpression.java" type="org.eclipse.equinox.p2.metadata.expression.IFilterExpression">
+        <filter comment="IFilterExpression intentionally extends IExpression as part of the p2 expression API, so the leak is intentional" id="576782386">
+            <message_arguments>
+                <message_argument value="IExpression"/>
+                <message_argument value="IFilterExpression"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/metadata/expression/IMatchExpression.java" type="org.eclipse.equinox.p2.metadata.expression.IMatchExpression">
+        <filter comment="IMatchExpression intentionally extends IExpression as part of the p2 expression API, so the leak is intentional" id="576725006">
+            <message_arguments>
+                <message_argument value="IExpression"/>
+                <message_argument value="IMatchExpression&lt;T&gt;"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/metadata/index/IQueryWithIndex.java" type="org.eclipse.equinox.p2.metadata.index.IQueryWithIndex">
+        <filter comment="IQueryWithIndex intentionally extends IQuery as part of the p2 query API, so the leak is intentional" id="576725006">
+            <message_arguments>
+                <message_argument value="IQuery&lt;T&gt;"/>
+                <message_argument value="IQueryWithIndex&lt;T&gt;"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/equinox/p2/query/CompoundQueryable.java" type="org.eclipse.equinox.p2.query.CompoundQueryable">
         <filter id="576720909">
             <message_arguments>
                 <message_argument value="IndexProvider&lt;T&gt;"/>
                 <message_argument value="CompoundQueryable&lt;T&gt;"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/query/ExpressionMatchQuery.java" type="org.eclipse.equinox.p2.query.ExpressionMatchQuery">
+        <filter comment="ExpressionMatchQuery is p2's own implementation of IMatchQuery, so the leak is intentional" id="576725006">
+            <message_arguments>
+                <message_argument value="IMatchQuery&lt;T&gt;"/>
+                <message_argument value="ExpressionMatchQuery&lt;T&gt;"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/query/MatchQuery.java" type="org.eclipse.equinox.p2.query.MatchQuery">
+        <filter comment="MatchQuery is p2's own base implementation of IMatchQuery, so the leak is intentional" id="576725006">
+            <message_arguments>
+                <message_argument value="IMatchQuery&lt;T&gt;"/>
+                <message_argument value="MatchQuery&lt;T&gt;"/>
             </message_arguments>
         </filter>
     </resource>

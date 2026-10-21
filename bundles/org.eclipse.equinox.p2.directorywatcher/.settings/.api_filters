@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.directorywatcher" version="2">
+    <resource path="src/org/eclipse/equinox/internal/provisional/p2/directorywatcher/CachingArtifactRepository.java" type="org.eclipse.equinox.internal.provisional.p2.directorywatcher.CachingArtifactRepository">
+        <filter comment="CachingArtifactRepository is an internal wrapper used by the directory watcher and intentionally implements IFileArtifactRepository" id="574619656">
+            <message_arguments>
+                <message_argument value="IFileArtifactRepository"/>
+                <message_argument value="CachingArtifactRepository"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

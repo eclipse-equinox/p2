@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.ui.discovery" version="2">
+    <resource path="src/org/eclipse/equinox/internal/p2/ui/discovery/operations/DiscoveryInstallOperation.java" type="org.eclipse.equinox.internal.p2.ui.discovery.operations.DiscoveryInstallOperation">
+        <filter comment="DiscoveryInstallOperation.run intentionally creates a RemediationOperation, which is @noreference for clients but is used by p2's own UI" id="640708718">
+            <message_arguments>
+                <message_argument value="RemediationOperation(ProvisioningSession, IProfileChangeRequest)"/>
+                <message_argument value="DiscoveryInstallOperation"/>
+            </message_arguments>
+        </filter>
+        <filter comment="DiscoveryInstallOperation.run intentionally calls ProfileChangeOperation.resolveModal(IProgressMonitor), which is @noreference for clients but is used by p2's own UI" id="640712815">
+            <message_arguments>
+                <message_argument value="ProfileChangeOperation"/>
+                <message_argument value="DiscoveryInstallOperation"/>
+                <message_argument value="resolveModal(IProgressMonitor)"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

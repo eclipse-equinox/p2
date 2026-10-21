@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.updatesite" version="2">
+    <resource path="src/org/eclipse/equinox/internal/p2/updatesite/artifact/UpdateSiteArtifactRepository.java" type="org.eclipse.equinox.internal.p2.updatesite.artifact.UpdateSiteArtifactRepository">
+        <filter comment="UpdateSiteArtifactRepository is the internal artifact repository for update sites and intentionally implements IArtifactRepository" id="574619656">
+            <message_arguments>
+                <message_argument value="IArtifactRepository"/>
+                <message_argument value="UpdateSiteArtifactRepository"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/updatesite/metadata/UpdateSiteMetadataRepository.java" type="org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRepository">
+        <filter comment="UpdateSiteMetadataRepository is the internal metadata repository for update sites and intentionally implements IMetadataRepository" id="574619656">
+            <message_arguments>
+                <message_argument value="IMetadataRepository"/>
+                <message_argument value="UpdateSiteMetadataRepository"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>
