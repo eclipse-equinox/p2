@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.equinox.internal.p2.importexport.P2ImportExport;
 import org.eclipse.equinox.internal.p2.importexport.internal.Constants;
 import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
@@ -61,6 +62,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	protected Combo destinationNameField;
 	protected P2ImportExport importexportService = null;
 	protected CheckboxTreeViewer viewer = null;
+	protected Label selectionCount;
 	protected Exception finishException;
 	protected boolean entryChanged = false;
 	protected static IProfileRegistry profileRegistry = null;
@@ -412,6 +414,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 				}
 				filteredTree.checkState.removeAll(toRemove);
 			}
+			updatePageCompletion();
 		});
 		parent.addControlListener(new ControlAdapter() {
 			private final int[] columnRate = new int[] { 6, 2, 2 };
@@ -463,6 +466,8 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		viewer.getControl().setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 		viewer.getControl().setSize(300, 200);
 		viewer.setInput(getInput());
+		selectionCount = new Label(group, SWT.NONE);
+		selectionCount.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false));
 		Composite buttons = new Composite(group, SWT.NONE);
 		buttons.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
 		buttons.setLayout(new RowLayout(SWT.HORIZONTAL));
@@ -632,6 +637,16 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	 * Determine if the page is complete and update the page appropriately.
 	 */
 	protected void updatePageCompletion() {
+		if (selectionCount != null && !selectionCount.isDisposed()) {
+			int count = viewer == null ? 0 : viewer.getCheckedElements().length;
+			if (count == 0) {
+				selectionCount.setText(""); //$NON-NLS-1$
+			} else {
+				String message = count == 1 ? Messages.AbstractPage_SingleSelectionCount
+						: Messages.AbstractPage_MultipleSelectionCount;
+				selectionCount.setText(NLS.bind(message, Integer.toString(count)));
+			}
+		}
 		boolean pageComplete = determinePageCompletion();
 		setPageComplete(pageComplete);
 		if (pageComplete) {
