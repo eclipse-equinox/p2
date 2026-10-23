@@ -485,6 +485,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		Button deselectAll = new Button(buttons, SWT.PUSH);
 		deselectAll.setText(Messages.AbstractPage_ButtonDeselectAll);
 		deselectAll.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> {
+			viewer.setCheckStateProvider(null);
 			for (TreeItem item : viewer.getTree().getItems()) {
 				viewer.setSubtreeChecked(item.getData(), false);
 			}
