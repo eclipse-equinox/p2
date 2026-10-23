@@ -176,6 +176,19 @@ public class ProvUIMessages extends NLS {
 	public static String ResolutionWizardPage_RelaxedConstraints;
 	public static String ResolutionWizardPage_RelaxedConstraintsTip;
 	public static String ResolutionStatusPage_ErrorIULocked;
+	public static String ResolutionProblems_MessageColumn;
+	public static String ResolutionProblems_GroupMissingRequirements;
+	public static String ResolutionProblems_GroupNotInstallable;
+	public static String ResolutionProblems_GroupConflicts;
+	public static String ResolutionProblems_GroupDependencies;
+	public static String ResolutionProblems_GroupToInstall;
+	public static String ResolutionProblems_GroupInstalled;
+	public static String ResolutionProblems_GroupUpdated;
+	public static String ResolutionProblems_GroupIgnored;
+	public static String ResolutionProblems_GroupOther;
+	public static String ResolutionProblems_UpdatedInstead;
+	public static String ResolutionProblems_NewerInstalled;
+	public static String ResolutionProblems_AlreadyInstalled;
 
 	// Dialogs
 	public static String AddRepositoryDialog_InvalidURL;

@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -158,6 +159,7 @@ public class RemediationOperation extends ProfileChangeOperation {
 		if (remedy.getRequest() == null) {
 			return null;
 		}
+		remedy.setIntermediaryPlan(av.getIntermediaryPlan());
 
 		if (configuration.allowInstalledUpdate && !configuration.allowInstalledRemoval) {
 			remedy.setInstallationRelaxedWeight(HIGH_WEIGHT);
@@ -255,9 +257,10 @@ public class RemediationOperation extends ProfileChangeOperation {
 			}
 		}
 
+		String requestedSoftwareLabel = describeOriginalRequest();
 		for (IInstallableUnit removedIU : remedy.getRequest().getRemovals()) {
 			if (!updateIds.contains(removedIU.getId())) {
-				createRemovalRemedyDetail(removedIU, remedy);
+				createRemovalRemedyDetail(removedIU, remedy, resultingIUs, requestedSoftwareLabel, monitor);
 			}
 		}
 
@@ -376,11 +379,46 @@ public class RemediationOperation extends ProfileChangeOperation {
 		remedy.addRemedyIUDetail(iuDetail);
 	}
 
-	private void createRemovalRemedyDetail(IInstallableUnit iu, Remedy remedy) {
+	private void createRemovalRemedyDetail(IInstallableUnit iu, Remedy remedy, Collection<IInstallableUnit> resultingIUs, String requestedSoftwareLabel, IProgressMonitor monitor) {
 		RemedyIUDetail iuDetail = new RemedyIUDetail(iu);
 		iuDetail.setStatus(RemedyIUDetail.STATUS_REMOVED);
 		iuDetail.setInstalledVersion(iu.getVersion());
+		iuDetail.setReason(computeRemovalReason(iu, remedy.getIntermediaryPlan(), requestedSoftwareLabel, monitor));
 		remedy.addRemedyIUDetail(iuDetail);
+	}
+
+	private String describeOriginalRequest() {
+		IInstallableUnit representative = null;
+		String locale = Locale.getDefault().toString();
+		for (IInstallableUnit iu : originalRequest.getAdditions()) {
+			if (Boolean.parseBoolean(iu.getProperty(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PRODUCT))) {
+				representative = iu;
+				break;
+			}
+		}
+		if (representative == null && !originalRequest.getAdditions().isEmpty()) {
+			representative = originalRequest.getAdditions().iterator().next();
+		}
+		if (representative == null) {
+			return ""; //$NON-NLS-1$
+		}
+		String name = representative.getProperty(IInstallableUnit.PROP_NAME, locale);
+		if (name == null || name.isBlank() || name.startsWith("%")) { //$NON-NLS-1$
+			name = representative.getId();
+		}
+		return name + " " + representative.getVersion(); //$NON-NLS-1$
+	}
+
+	private String computeRemovalReason(IInstallableUnit iu, IProvisioningPlan plan, String requestedSoftwareLabel, IProgressMonitor monitor) {
+		if (plan == null) {
+			return null;
+		}
+		Collection<IInstallableUnit> futureState = plan.getFutureState().query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet();
+		String reason = computeUnmetRequirementReason(iu, futureState, monitor);
+		if (reason == null) {
+			reason = NLS.bind(Messages.RemedyIUDetail_NotRequiredAnymore, requestedSoftwareLabel);
+		}
+		return reason;
 	}
 
 	private void createAdditionRemedyDetail(IInstallableUnit iu, Remedy remedy) {
