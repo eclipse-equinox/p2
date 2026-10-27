@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Eclipse contributors and others.
+ * Copyright (c) 2023, 2026 Eclipse contributors and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.preferences.*;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.Messages;
@@ -34,7 +34,6 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.metadata.spi.IInstallableUnitUIServices;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
@@ -164,14 +163,9 @@ public class AuthorityChecker {
 	}
 
 	public boolean isTrustAlways() {
-		if (profile != null) {
-			var profileScope = new ProfileScope(agent.getService(IAgentLocation.class), profile.getProfileId());
-			Location instanceLocation = Platform.getInstanceLocation();
-			if (instanceLocation == null || !instanceLocation.isSet()) {
-				return profileScope.getNode(EngineActivator.ID).getBoolean(TRUST_ALL_AUTHORITIES, false);
-			}
-			return Platform.getPreferencesService().getBoolean(EngineActivator.ID, TRUST_ALL_AUTHORITIES, false,
-					new IScopeContext[] { profileScope, DefaultScope.INSTANCE });
+		var preferences = getEnngineProfilePreferences();
+		if (preferences != null) {
+			return CertificateChecker.getTrustPreference(preferences, TRUST_ALL_AUTHORITIES);
 		}
 		return false;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2017 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -25,7 +25,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.preferences.*;
+import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPPublicKeyStore;
 import org.eclipse.equinox.internal.p2.artifact.processors.pgp.PGPSignatureVerifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
@@ -39,7 +40,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.IArtifactUIServices;
 import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.security.TrustEngine;
 import org.eclipse.osgi.signedcontent.*;
 import org.eclipse.osgi.util.NLS;
@@ -545,14 +545,22 @@ public class CertificateChecker {
 		if (profile != null) {
 			ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
 					profile.getProfileId());
-			Location instanceLocation = Platform.getInstanceLocation();
-			if (instanceLocation == null || !instanceLocation.isSet()) {
-				return profileScope.getNode(EngineActivator.ID).getBoolean(TRUST_ALWAYS_PROPERTY, false);
-			}
-			return Platform.getPreferencesService().getBoolean(EngineActivator.ID, TRUST_ALWAYS_PROPERTY, false,
-					new IScopeContext[] { profileScope, DefaultScope.INSTANCE });
+			return getTrustPreference(profileScope.getNode(EngineActivator.ID), TRUST_ALWAYS_PROPERTY);
 		}
 		return false;
+	}
+
+	/**
+	 * Reads a trust preference from the given profile preferences, falling back
+	 * to the default scope (where values from a product's
+	 * <code>plugin_customization.ini</code> end up) if it is not set there.
+	 */
+	static boolean getTrustPreference(IEclipsePreferences profilePreferences, String key) {
+		String value = profilePreferences.get(key, null);
+		if (value == null) {
+			value = DefaultScope.INSTANCE.getNode(EngineActivator.ID).get(key, null);
+		}
+		return Boolean.parseBoolean(value);
 	}
 
 	public IStatus setTrustAlways(boolean trustAlways) {
