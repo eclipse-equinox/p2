@@ -39,7 +39,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.IArtifactUIServices;
 import org.eclipse.equinox.p2.repository.spi.PGPPublicKeyService;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.security.TrustEngine;
 import org.eclipse.osgi.signedcontent.*;
 import org.eclipse.osgi.util.NLS;
@@ -545,11 +544,11 @@ public class CertificateChecker {
 		if (profile != null) {
 			ProfileScope profileScope = new ProfileScope(agent.getService(IAgentLocation.class),
 					profile.getProfileId());
-			Location instanceLocation = Platform.getInstanceLocation();
-			if (instanceLocation == null || !instanceLocation.isSet()) {
+			IPreferencesService preferencesService = EngineActivator.getPreferencesService();
+			if (preferencesService == null) {
 				return profileScope.getNode(EngineActivator.ID).getBoolean(TRUST_ALWAYS_PROPERTY, false);
 			}
-			return Platform.getPreferencesService().getBoolean(EngineActivator.ID, TRUST_ALWAYS_PROPERTY, false,
+			return preferencesService.getBoolean(EngineActivator.ID, TRUST_ALWAYS_PROPERTY, false,
 					new IScopeContext[] { profileScope, DefaultScope.INSTANCE });
 		}
 		return false;

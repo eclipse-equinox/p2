@@ -34,7 +34,6 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.metadata.spi.IInstallableUnitUIServices;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
@@ -166,11 +165,11 @@ public class AuthorityChecker {
 	public boolean isTrustAlways() {
 		if (profile != null) {
 			var profileScope = new ProfileScope(agent.getService(IAgentLocation.class), profile.getProfileId());
-			Location instanceLocation = Platform.getInstanceLocation();
-			if (instanceLocation == null || !instanceLocation.isSet()) {
+			IPreferencesService preferencesService = EngineActivator.getPreferencesService();
+			if (preferencesService == null) {
 				return profileScope.getNode(EngineActivator.ID).getBoolean(TRUST_ALL_AUTHORITIES, false);
 			}
-			return Platform.getPreferencesService().getBoolean(EngineActivator.ID, TRUST_ALL_AUTHORITIES, false,
+			return preferencesService.getBoolean(EngineActivator.ID, TRUST_ALL_AUTHORITIES, false,
 					new IScopeContext[] { profileScope, DefaultScope.INSTANCE });
 		}
 		return false;

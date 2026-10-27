@@ -21,14 +21,17 @@ import java.nio.file.Files;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
 
 public class EngineActivator implements BundleActivator {
 	private static BundleContext context;
+	private static ServiceTracker<IPreferencesService, IPreferencesService> preferencesServiceTracker;
 	/**
 	 * as for now it is exactly the same variable as in simpleconfigurator Activator
 	 * @noreference This field is not intended to be referenced by clients.
@@ -81,6 +84,21 @@ public class EngineActivator implements BundleActivator {
 	}
 
 	/**
+	 * Returns the {@link IPreferencesService} or <code>null</code> if it is not
+	 * available. The service is tracked on first use to avoid repeated lookups.
+	 */
+	public static synchronized IPreferencesService getPreferencesService() {
+		if (context == null) {
+			return null;
+		}
+		if (preferencesServiceTracker == null) {
+			preferencesServiceTracker = new ServiceTracker<>(context, IPreferencesService.class, null);
+			preferencesServiceTracker.open();
+		}
+		return preferencesServiceTracker.getService();
+	}
+
+	/**
 	 * This property indicates repositories that are passed via the fragments mechanism.
 	 */
 	public static final String P2_FRAGMENT_PROPERTY = "p2.fragment"; //$NON-NLS-1$
@@ -92,7 +110,13 @@ public class EngineActivator implements BundleActivator {
 
 	@Override
 	public void stop(BundleContext aContext) throws Exception {
-		EngineActivator.context = null;
+		synchronized (EngineActivator.class) {
+			if (preferencesServiceTracker != null) {
+				preferencesServiceTracker.close();
+				preferencesServiceTracker = null;
+			}
+			EngineActivator.context = null;
+		}
 	}
 
 	public static File[] getExtensionsDirectories() {
