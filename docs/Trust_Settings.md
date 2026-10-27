@@ -20,7 +20,6 @@ When verification fails, the **Trust Artifacts** dialog is shown.
 p2 tracks all external update sites contacted during installation and shows the **Trust Authorities** dialog so the user can approve the contacted sources.
 
 - **Configure Default via**: `org.eclipse.equinox.p2.engine/trustAllAuthorities=true` in `plugin_customization.ini` — silently trusts host certificates.
-- **Override via**: `-Dp2.trustAllAuthorities=true` in `eclipse.ini` (after `-vmargs`).
 - **Pre-approve specific authorities**: `-Dp2.trustedAuthorities=<comma-or-space-separated list>` (defaults include `https://download.eclipse.org` and `https://archive.eclipse.org`).
 - **UI setting**: `Preferences > Install/Update > Trust > Authorities`.
 
@@ -32,6 +31,8 @@ Each accepts `redirect` (http→https, ftp→ftps), `allow` (use the original pr
 ### Storage
 Settings are saved in the p2 **Profile Scope** (tied to the specific installation):
 `p2/org.eclipse.equinox.p2.engine/profileRegistry/<id>.profile/.data/.settings/org.eclipse.equinox.p2.engine.prefs`
+
+A value stored in the profile, e.g., by answering a trust dialog or via the preference page, takes precedence over the `plugin_customization.ini` default.
 
 ### References
 - [p2 Trust reference (Eclipse platform help)](https://help.eclipse.org/latest/topic/org.eclipse.platform.doc.user/reference/ref-p2-trust.htm)

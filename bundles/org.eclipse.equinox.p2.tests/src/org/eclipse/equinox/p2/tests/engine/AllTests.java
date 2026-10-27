@@ -26,7 +26,7 @@ import org.junit.platform.suite.api.Suite;
 		ProfileMetadataRepositoryTest.class, ProfileTest.class, ProfilePreferencesTest.class, ProfileRegistryTest.class,
 		ProvisioningContextTest.class, SurrogateProfileHandlerTest.class, ActionManagerTest.class,
 		TouchpointManagerTest.class, TouchpointTest.class, ProvisioningEventTest.class, VariableTest.class,
-		VariableTest2.class, VariableTest3.class, DebugHelperTest.class
+		VariableTest2.class, VariableTest3.class, DebugHelperTest.class, TrustPreferencesTest.class
 })
 public class AllTests {
 // test suite
