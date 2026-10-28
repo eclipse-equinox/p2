@@ -72,6 +72,7 @@ public class Messages extends NLS {
 	public static String RemediationOperation_ResolveJobName;
 	public static String RemediationOperation_RemediationJobName;
 	public static String RemediationOperation_NoRemedyFound;
+	public static String RemedyIUDetail_NotRequiredAnymore;
 	public static String RemedyIUDetail_RequirementNotFound;
 	public static String RemedyIUDetail_RequirementChainStep;
 	public static String RemedyIUDetail_ChainTruncated;
