@@ -13,8 +13,6 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.6.0",
  org.eclipse.equinox.p2.ui;bundle-version="[2.7.400,3)"
 Import-Package: org.bouncycastle.bcpg;version="1.69.0",
  org.bouncycastle.openpgp;version="1.69.0",
- org.eclipse.compare;resolution:=optional,
- org.eclipse.compare.structuremergeviewer;resolution:=optional,
  org.eclipse.equinox.internal.p2.artifact.processors.pgp,
  org.eclipse.equinox.internal.p2.engine.phases,
  org.eclipse.equinox.internal.p2.repository,
