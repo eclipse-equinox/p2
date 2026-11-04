@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2021 Code 9 and others.
+ * Copyright (c) 2008, 2026 Code 9 and others.
  *
  * This
  * program and the accompanying materials are made available under the terms of
@@ -478,6 +478,10 @@ public class BundlesAction extends AbstractPublisherAction {
 		Map<String, String> directives = req.getDirectives();
 
 		String capFilter = directives.get(Namespace.REQUIREMENT_FILTER_DIRECTIVE);
+		if (capFilter == null) {
+			// p2 cannot create a requirement without a filter, be lenient and ignore it
+			return;
+		}
 		boolean greedy = isGreedy(directives);
 		int minCard = getMinCardinality(directives);
 		int maxCard = getMaxCardinality(directives);
@@ -494,6 +498,10 @@ public class BundlesAction extends AbstractPublisherAction {
 		Map<String, String> directives = req.getDirectives();
 
 		String capFilter = directives.get(Namespace.REQUIREMENT_FILTER_DIRECTIVE);
+		if (capFilter == null) {
+			// p2 cannot create a requirement without a filter, be lenient and ignore it
+			return;
+		}
 		boolean greedy = isGreedy(directives);
 		int minCard = getMinCardinality(directives);
 		int maxCard = getMaxCardinality(directives);

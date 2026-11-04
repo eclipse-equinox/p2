@@ -145,6 +145,17 @@ public class BundlesActionRequireCapabilityFilterTest extends AbstractProvisioni
 	}
 
 	/**
+	 * A {@code Require-Capability} without a {@code filter} directive cannot be
+	 * represented by p2 and must be skipped instead of failing.
+	 */
+	public void testRequireCapabilityWithoutFilterIsIgnored() {
+		assertNull("Require-Capability without filter must be ignored",
+				findRequiredPropertiesMatchByNamespace(bundleIU.getRequirements(), "no.filter.cap"));
+		assertNotNull("my.cap requirement must still be published",
+				findRequiredPropertiesMatchByNamespace(bundleIU.getRequirements(), "my.cap"));
+	}
+
+	/**
 	 * {@code Import-Package} requirements must NOT carry the env filter because
 	 * they are not emitted via the {@code Require-Capability} code path.
 	 */
