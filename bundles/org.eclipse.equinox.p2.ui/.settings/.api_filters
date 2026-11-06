@@ -1,5 +1,84 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.equinox.p2.ui" version="2">
+    <resource path="src/org/eclipse/equinox/internal/p2/ui/dialogs/RemediationGroup.java" type="org.eclipse.equinox.internal.p2.ui.dialogs.RemediationGroup">
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="RemediationOperation"/>
+                <message_argument value="RemediationGroup"/>
+                <message_argument value="getRemedies()"/>
+            </message_arguments>
+        </filter>
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="Remedy"/>
+                <message_argument value="RemediationGroup"/>
+                <message_argument value="getRequest()"/>
+            </message_arguments>
+        </filter>
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="Remedy"/>
+                <message_argument value="RemediationGroup"/>
+                <message_argument value="isAllowPartialInstall()"/>
+            </message_arguments>
+        </filter>
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="Remedy"/>
+                <message_argument value="RemediationGroup"/>
+                <message_argument value="isAllowDifferentVersion()"/>
+            </message_arguments>
+        </filter>
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="Remedy"/>
+                <message_argument value="RemediationGroup"/>
+                <message_argument value="isAllowInstalledUpdate()"/>
+            </message_arguments>
+        </filter>
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="Remedy"/>
+                <message_argument value="RemediationGroup"/>
+                <message_argument value="isAllowInstalledRemoval()"/>
+            </message_arguments>
+        </filter>
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="RemedyIUDetail"/>
+                <message_argument value="RemediationGroup"/>
+                <message_argument value="getStatus()"/>
+            </message_arguments>
+        </filter>
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="RemedyIUDetail"/>
+                <message_argument value="RemediationGroup"/>
+                <message_argument value="getRequestedVersion()"/>
+            </message_arguments>
+        </filter>
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="RemedyIUDetail"/>
+                <message_argument value="RemediationGroup"/>
+                <message_argument value="getInstalledVersion()"/>
+            </message_arguments>
+        </filter>
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="RemedyIUDetail"/>
+                <message_argument value="RemediationGroup"/>
+                <message_argument value="getBeingInstalledVersion()"/>
+            </message_arguments>
+        </filter>
+        <filter id="640712815">
+            <message_arguments>
+                <message_argument value="RemedyIUDetail"/>
+                <message_argument value="RemediationGroup"/>
+                <message_argument value="getReason()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/equinox/internal/p2/ui/model/ElementUtils.java" type="org.eclipse.equinox.internal.p2.ui.model.ElementUtils">
         <filter id="640712815">
             <message_arguments>
