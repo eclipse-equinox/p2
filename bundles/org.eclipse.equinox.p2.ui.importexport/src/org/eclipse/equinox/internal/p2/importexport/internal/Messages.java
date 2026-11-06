@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 WindRiver Corporation and others.
+ * Copyright (c) 2011, 2026 WindRiver Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -49,6 +49,8 @@ public class Messages extends NLS {
 	public static String AbstractImportPage_SameVersionInstalled;
 	public static String AbstractPage_ButtonDeselectAll;
 	public static String AbstractPage_ButtonSelectAll;
+	public static String AbstractPage_SingleSelectionCount;
+	public static String AbstractPage_MultipleSelectionCount;
 	public static String ImportPage_TITLE;
 	public static String ImportWizard_CannotQuerySelection;
 	public static String ImportWizard_WINDOWTITLE;
