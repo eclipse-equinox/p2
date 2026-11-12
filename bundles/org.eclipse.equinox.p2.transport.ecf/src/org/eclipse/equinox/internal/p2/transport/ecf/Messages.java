@@ -60,7 +60,6 @@ public class Messages extends NLS {
 	public static String TransportErrorTranslator_507;
 	public static String TransportErrorTranslator_508;
 	public static String TransportErrorTranslator_510;
-	public static String TransportErrorTranslator_MalformedRemoteFileReference;
 	public static String TransportErrorTranslator_UnableToConnectToRepository_0;
 
 	public static String TransportErrorTranslator_UnknownErrorCode;
