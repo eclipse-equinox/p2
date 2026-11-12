@@ -12,10 +12,11 @@ Service-Component: OSGI-INF/ecfTransport.xml,
  OSGI-INF/org.eclipse.equinox.internal.p2.transport.ecf.P2SSLContextFactory.xml
 Bundle-Activator: org.eclipse.equinox.internal.p2.transport.ecf.Activator
 Bundle-ActivationPolicy: lazy
-Export-Package: org.eclipse.equinox.internal.p2.transport.ecf;x-friends:="org.eclipse.equinox.p2.discovery.compatibility,org.eclipse.equinox.p2.installer"
+Export-Package: org.eclipse.ecf.core.security;version="3.2.0",
+ org.eclipse.equinox.internal.p2.transport.ecf;x-friends:="org.eclipse.equinox.p2.discovery.compatibility,org.eclipse.equinox.p2.installer"
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Import-Package: org.eclipse.ecf.core.security;version="[3.2.0,4.0.0)",
+Import-Package: org.eclipse.ecf.core.security;version="[3.2.0,3.3.0)",
  org.eclipse.ecf.filetransfer;version="[5.0.0,6.0.0)",
  org.eclipse.ecf.filetransfer.events;version="[5.0.0,6.0.0)",
  org.eclipse.ecf.filetransfer.identity;version="[5.0.0,6.0.0)",

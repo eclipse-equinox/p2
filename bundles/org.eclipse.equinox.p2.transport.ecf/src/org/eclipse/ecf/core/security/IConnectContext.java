@@ -13,11 +13,9 @@ package org.eclipse.ecf.core.security;
 
 /**
  * A connect context for passing in information to the
- * {@link org.eclipse.ecf.core.IContainer#connect(org.eclipse.ecf.core.identity.ID, IConnectContext)}
+ * {@code org.eclipse.ecf.core.IContainer#connect(org.eclipse.ecf.core.identity.ID, IConnectContext)}
  * call.
  * 
- * @see org.eclipse.ecf.core.IContainer#connect(org.eclipse.ecf.core.identity.ID,
- *      IConnectContext)
  * @see ConnectContextFactory
  */
 public interface IConnectContext {
