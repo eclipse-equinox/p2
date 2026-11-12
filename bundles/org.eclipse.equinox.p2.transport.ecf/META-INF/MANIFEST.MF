@@ -15,14 +15,14 @@ Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.equinox.internal.p2.transport.ecf;x-friends:="org.eclipse.equinox.p2.discovery.compatibility,org.eclipse.equinox.p2.installer"
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Import-Package: org.eclipse.ecf.core;version="[3.0.0,4.0.0)",
- org.eclipse.ecf.core.identity;version="[3.3.0,4.0.0)",
+Import-Package: org.eclipse.ecf.core.identity;version="[3.3.0,4.0.0)",
  org.eclipse.ecf.core.security;version="[3.2.0,4.0.0)",
  org.eclipse.ecf.filetransfer;version="[5.0.0,6.0.0)",
  org.eclipse.ecf.filetransfer.events;version="[5.0.0,6.0.0)",
  org.eclipse.ecf.filetransfer.identity;version="[5.0.0,6.0.0)",
  org.eclipse.ecf.filetransfer.service;version="[5.0.0,6.0.0)",
  org.eclipse.ecf.provider.filetransfer;version="[3.2.0,4.0.0)",
+ org.eclipse.ecf.provider.filetransfer.browse;version="[3.2.0,4.0.0)",
  org.eclipse.osgi.util;version="1.1.0",
  org.osgi.framework;version="1.6.0",
  org.osgi.util.tracker;version="1.5.0"
