@@ -64,6 +64,12 @@
       </properties>
     </profile>
     <profile>
+      <id>updatesite</id>
+      <modules>
+        <module>releng/org.eclipse.equinox.p2.updatesite.repository</module>
+      </modules>
+    </profile>
+    <profile>
       <id>reconciler.product</id>
       <activation>
         <file><exists>reconciler.product</exists></file>
