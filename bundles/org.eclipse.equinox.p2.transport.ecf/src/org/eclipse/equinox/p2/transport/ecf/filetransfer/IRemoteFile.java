@@ -13,12 +13,10 @@
 
 package org.eclipse.equinox.p2.transport.ecf.filetransfer;
 
-import org.eclipse.core.runtime.IAdaptable;
-
 /**
  * Remote file representation.
  */
-public interface IRemoteFile extends IAdaptable {
+public interface IRemoteFile {
 
 	/**
 	 * Get remote file info associated with this remote file. 

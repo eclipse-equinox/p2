@@ -20,18 +20,14 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 /**
- * Helper class for eliminating direct references to Platform static methods
- * getAdapterManager and getExtensionRegistry. Note that instead of
- * Platform.getAdapterManager(), clients can call
- * PlatformHelper.getAdapterManager(). If this returns null, the Platform class
- * is not available.
+ * Helper class for eliminating direct references to the Platform static method
+ * getExtensionRegistry. If isPlatformAvailable() returns false, the Platform
+ * class is not available.
  */
 public class PlatformHelper {
 
 	@SuppressWarnings("rawtypes")
 	private static Class platformClass = null;
-
-	private static IAdapterManager adapterManagerCache = null;
 
 	private static IExtensionRegistry extensionRegistryCache = null;
 
@@ -68,24 +64,6 @@ public class PlatformHelper {
 
 	public synchronized static boolean isPlatformAvailable() {
 		return platformClass != null;
-	}
-
-	public synchronized static IAdapterManager getPlatformAdapterManager() {
-		if (adapterManagerCache != null)
-			return adapterManagerCache;
-		if (isPlatformAvailable()) {
-			try {
-				@SuppressWarnings("unchecked")
-				Method m = platformClass.getMethod("getAdapterManager", (Class[]) null); //$NON-NLS-1$
-				adapterManagerCache = (IAdapterManager) m.invoke(null, (Object[]) null);
-				return adapterManagerCache;
-			} catch (Exception e) {
-				Activator.getDefault().log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, IStatus.WARNING,
-						"Cannot get PlatformAdapterManager()", e)); //$NON-NLS-1$
-				return null;
-			}
-		}
-		return null;
 	}
 
 	public synchronized static IExtensionRegistry getExtensionRegistry() {

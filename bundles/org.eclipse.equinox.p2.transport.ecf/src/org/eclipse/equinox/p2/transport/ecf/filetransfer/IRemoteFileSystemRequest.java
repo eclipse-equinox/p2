@@ -13,12 +13,10 @@
 
 package org.eclipse.equinox.p2.transport.ecf.filetransfer;
 
-import org.eclipse.core.runtime.IAdaptable;
-
 /**
  * Remote file request.
  */
-public interface IRemoteFileSystemRequest extends IAdaptable {
+public interface IRemoteFileSystemRequest {
 
 	/**
 	 * Cancel this request.

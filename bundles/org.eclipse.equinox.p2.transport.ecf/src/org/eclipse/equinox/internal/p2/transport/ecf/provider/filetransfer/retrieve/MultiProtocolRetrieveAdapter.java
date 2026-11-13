@@ -16,7 +16,6 @@ package org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.retr
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.IAdapterManager;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification;
@@ -114,17 +113,4 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 		fileTransfer.sendRetrieveRequest(remoteFileID, rangeSpecification, transferListener, options);
 
 	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
-	 */
-	public <T> T getAdapter(Class<T> adapter) {
-		if (adapter == null)
-			return null;
-		final IAdapterManager adapterManager = Activator.getDefault().getAdapterManager();
-		if (adapterManager == null)
-			return null;
-		return (T) adapterManager.loadAdapter(this, adapter.getName());
-	}
-
 }

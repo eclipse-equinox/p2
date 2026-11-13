@@ -39,19 +39,6 @@ public class Activator implements BundleActivator {
 
 	private LogService logService;
 
-	private AdapterManagerTracker adapterManagerTracker;
-
-	public synchronized IAdapterManager getAdapterManager() {
-		if (this.context == null)
-			return null;
-		// First, try to get the adapter manager via
-		if (adapterManagerTracker == null) {
-			adapterManagerTracker = new AdapterManagerTracker(this.context);
-			adapterManagerTracker.open();
-		}
-		return adapterManagerTracker.getAdapterManager();
-	}
-
 	public Activator() {
 		// public null constructor
 	}
@@ -120,10 +107,6 @@ public class Activator implements BundleActivator {
 		if (debugOptionsTracker != null) {
 			debugOptionsTracker.close();
 			debugOptionsTracker = null;
-		}
-		if (adapterManagerTracker != null) {
-			adapterManagerTracker.close();
-			adapterManagerTracker = null;
 		}
 		context = null;
 		plugin = null;

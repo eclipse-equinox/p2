@@ -28,7 +28,6 @@ import java.util.Date;
 import java.util.Map;
 import org.eclipse.core.net.proxy.IProxyData;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.IAdapterManager;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -524,21 +523,6 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	 */
 	public synchronized boolean isDone() {
 		return done;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
-	 */
-	public <T> T getAdapter(Class<T> adapter) {
-		if (adapter == null)
-			return null;
-		if (adapter.isInstance(this)) {
-			return adapter.cast(this);
-		}
-		final IAdapterManager adapterManager = Activator.getDefault().getAdapterManager();
-		return (T) ((adapterManager == null) ? null : adapterManager.loadAdapter(this, adapter.getName()));
 	}
 
 	/**

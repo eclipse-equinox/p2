@@ -38,7 +38,6 @@ import org.eclipse.equinox.internal.p2.transport.ecf.core.security.ObjectCallbac
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.UnsupportedCallbackException;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferPausable;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRetrieveFileTransferOptions;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.InvalidFileRangeSpecificationException;
@@ -406,7 +405,7 @@ public class UrlConnectionRetrieveFileTransfer extends AbstractRetrieveFileTrans
 	 * #doPause()
 	 */
 	protected boolean doPause() {
-		if (isPaused() || !isConnected() || isDone())
+		if (!isHTTP11() || isPaused() || !isConnected() || isDone())
 			return false;
 		this.paused = true;
 		return this.paused;
@@ -423,21 +422,6 @@ public class UrlConnectionRetrieveFileTransfer extends AbstractRetrieveFileTrans
 		if (!isPaused() || isConnected())
 			return false;
 		return openStreamsForResume();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.retrieve.AbstractRetrieveFileTransfer
-	 * #getAdapter(java.lang.Class)
-	 */
-	public <T> T getAdapter(Class<T> adapter) {
-		if (adapter == null)
-			return null;
-		if (adapter.equals(IFileTransferPausable.class) && isHTTP11())
-			return adapter.cast(this);
-		return super.getAdapter(adapter);
 	}
 
 	protected String getConnectTimeout() {

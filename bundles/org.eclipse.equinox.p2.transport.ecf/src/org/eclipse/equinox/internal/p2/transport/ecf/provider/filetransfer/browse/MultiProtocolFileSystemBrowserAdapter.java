@@ -17,7 +17,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.IAdapterManager;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileSystemListener;
@@ -85,17 +84,4 @@ public class MultiProtocolFileSystemBrowserAdapter implements IRemoteFileSystemB
 
 		return fileSystemBrowser.sendBrowseRequest(directoryOrFileID, listener);
 	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
-	 */
-	public <T> T getAdapter(Class<T> adapter) {
-		if (adapter == null)
-			return null;
-		final IAdapterManager adapterManager = Activator.getDefault().getAdapterManager();
-		if (adapterManager == null)
-			return null;
-		return (T) adapterManager.loadAdapter(this, adapter.getName());
-	}
-
 }

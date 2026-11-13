@@ -13,7 +13,6 @@
 
 package org.eclipse.equinox.p2.transport.ecf.filetransfer.events;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.*;
 
 /**
@@ -40,7 +39,7 @@ import org.eclipse.equinox.p2.transport.ecf.filetransfer.*;
  * </p>
  * @since 3.0
  */
-public interface IFileTransferConnectStartEvent extends IAdaptable, IFileTransferEvent {
+public interface IFileTransferConnectStartEvent extends IFileTransferEvent {
 
 	/**
 	 * Cancel file transfer.

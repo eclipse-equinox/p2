@@ -12,15 +12,12 @@
 package org.eclipse.equinox.p2.transport.ecf.filetransfer;
 
 /**
- * Adapter interface for pausing and resuming IFileTransfer instances that
- * expose this adapter interface via
- * {@link IFileTransfer#getAdapter(Class adapter)}. To use this interface,
- * clients should do the following:
+ * Interface for pausing and resuming IFileTransfer instances. To use this
+ * interface, clients should do the following:
  * 
  * <pre>
  *   IFileTransfer fileTransfer;
- *   IFileTransferPausable pausable = (IFileTransferPausable) fileTransfer.getAdapter(IFileTransferPausable.class);
- *   if (pausable !=null) {
+ *   if (fileTransfer instanceof IFileTransferPausable pausable) {
  *      ... use it
  *   } else {
  *      ... does not support pausing

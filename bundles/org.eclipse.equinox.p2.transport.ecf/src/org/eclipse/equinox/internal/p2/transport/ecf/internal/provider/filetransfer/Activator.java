@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdapterManager;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionDelta;
 import org.eclipse.core.runtime.IExtensionPoint;
@@ -36,7 +35,6 @@ import org.eclipse.core.runtime.IRegistryChangeListener;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.util.LogHelper;
-import org.eclipse.equinox.internal.p2.transport.ecf.core.util.PlatformHelper;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRemoteFileSystemBrowser;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRemoteFileSystemBrowserFactory;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer;
@@ -103,8 +101,6 @@ public class Activator implements BundleActivator, IFileTransferProtocolToFactor
 	private Map retrieveFileTransferProtocolMap;
 
 	private Map browseFileTransferProtocolMap;
-
-	private ServiceTracker adapterManagerTracker = null;
 
 	private ServiceTracker proxyServiceTracker = null;
 
@@ -288,10 +284,6 @@ public class Activator implements BundleActivator, IFileTransferProtocolToFactor
 		if (fileTransferServiceRegistration != null) {
 			fileTransferServiceRegistration.unregister();
 			fileTransferServiceRegistration = null;
-		}
-		if (adapterManagerTracker != null) {
-			adapterManagerTracker.close();
-			adapterManagerTracker = null;
 		}
 		if (proxyServiceTracker != null) {
 			proxyServiceTracker.close();
@@ -560,20 +552,6 @@ public class Activator implements BundleActivator, IFileTransferProtocolToFactor
 		if (factory != null)
 			return factory.newInstance();
 		return null;
-	}
-
-	public IAdapterManager getAdapterManager() {
-		// First, try to get the adapter manager via
-		if (adapterManagerTracker == null) {
-			adapterManagerTracker = new ServiceTracker(this.context, IAdapterManager.class.getName(), null);
-			adapterManagerTracker.open();
-		}
-		IAdapterManager adapterManager = (IAdapterManager) adapterManagerTracker.getService();
-		// Then, if the service isn't there, try to get from Platform class via
-		// PlatformHelper class
-		if (adapterManager == null)
-			adapterManager = PlatformHelper.getPlatformAdapterManager();
-		return adapterManager;
 	}
 
 	public IURLConnectionModifier getURLConnectionModifier() {

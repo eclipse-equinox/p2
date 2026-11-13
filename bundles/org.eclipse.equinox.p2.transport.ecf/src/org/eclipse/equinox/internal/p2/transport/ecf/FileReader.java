@@ -282,7 +282,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 
 	private synchronized void pauseIfPossible(IIncomingFileTransfer source) {
 		if (isPaused() && !hasPaused) {
-			pasuable = source.getAdapter(IFileTransferPausable.class);
+			pasuable = source instanceof IFileTransferPausable p ? p : null;
 			if (pasuable != null) {
 				pasuable.pause();
 			}

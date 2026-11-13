@@ -125,7 +125,7 @@ public abstract class AbstractFileSystemBrowser {
 		this.proxy = proxy;
 	}
 
-	public abstract class RemoteFileSystemRequest implements IRemoteFileSystemRequest {
+	public class RemoteFileSystemRequest implements IRemoteFileSystemRequest {
 		public void cancel() {
 			synchronized (lock) {
 				if (job != null)
@@ -153,18 +153,7 @@ public abstract class AbstractFileSystemBrowser {
 	}
 
 	protected IRemoteFileSystemRequest createRemoteFileSystemRequest() {
-		return new RemoteFileSystemRequest() {
-			public <T> T getAdapter(Class<T> adapter) {
-				if (adapter == null) {
-					return null;
-				}
-				if (adapter.isInstance(this)) {
-					return adapter.cast(this);
-				}
-				return null;
-			}
-
-		};
+		return new RemoteFileSystemRequest();
 	}
 
 	/**

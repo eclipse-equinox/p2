@@ -17,11 +17,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.IAdapterManager;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFile;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileAttributes;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileInfo;
-import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Activator;
 
 /**
  *
@@ -96,20 +94,6 @@ public class URLRemoteFile implements IRemoteFile {
 				// not supported
 			}
 		};
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
-	 */
-	public <T> T getAdapter(Class<T> adapter) {
-		if (adapter == null)
-			return null;
-		if (adapter.isInstance(this))
-			return adapter.cast(this);
-		IAdapterManager adapterManager = Activator.getDefault().getAdapterManager();
-		if (adapterManager == null)
-			return null;
-		return (T) adapterManager.loadAdapter(this, adapter.getName());
 	}
 
 	/* (non-Javadoc)

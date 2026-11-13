@@ -15,11 +15,9 @@ package org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.brow
 
 import java.io.File;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.IAdapterManager;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFile;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileAttributes;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileInfo;
-import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Activator;
 
 /**
  * Local representation of an {@link IRemoteFile}.
@@ -79,16 +77,6 @@ public class LocalRemoteFile implements IRemoteFile {
 	 */
 	public IRemoteFileInfo getInfo() {
 		return info;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.core.runtime.IAdaptable#getAdapter(java.lang.Class)
-	 */
-	public <T> T getAdapter(Class<T> adapter) {
-		IAdapterManager adapterManager = Activator.getDefault().getAdapterManager();
-		if (adapterManager == null)
-			return null;
-		return (T) adapterManager.loadAdapter(this, adapter.getName());
 	}
 
 	public String toString() {
