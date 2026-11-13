@@ -78,7 +78,9 @@ class FileInfoReader {
 						throw new OperationCanceledException();
 					}
 				}
-			} catch (RemoteFileSystemException | FileCreateException e) {
+			} catch (RemoteFileSystemException e) {
+				exception.set(e);
+			} catch (FileCreateException e) {
 				exception.set(e);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
