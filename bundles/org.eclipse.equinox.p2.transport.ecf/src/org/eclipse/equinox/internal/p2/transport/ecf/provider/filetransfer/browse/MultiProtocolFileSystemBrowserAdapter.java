@@ -18,7 +18,6 @@ import java.net.URI;
 import java.net.URL;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
-import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileSystemListener;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileSystemRequest;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.RemoteFileSystemException;
@@ -32,7 +31,6 @@ import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetrans
 public class MultiProtocolFileSystemBrowserAdapter implements IRemoteFileSystemBrowser {
 
 	IConnectContext connectContext = null;
-	Proxy proxy = null;
 
 	/*
 	 * (non-Javadoc)
@@ -41,15 +39,6 @@ public class MultiProtocolFileSystemBrowserAdapter implements IRemoteFileSystemB
 	 */
 	public void setConnectContextForAuthentication(IConnectContext connectContext) {
 		this.connectContext = connectContext;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRemoteFileSystemBrowser#setProxy(org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy)
-	 */
-	public void setProxy(Proxy proxy) {
-		this.proxy = proxy;
 	}
 
 	/* (non-Javadoc)
@@ -73,14 +62,12 @@ public class MultiProtocolFileSystemBrowserAdapter implements IRemoteFileSystemB
 				LocalFileSystemBrowser fsb = new LocalFileSystemBrowser(directoryOrFileID, listener);
 				return fsb.sendBrowseRequest();
 			}
-			URLFileSystemBrowser ufsb = new URLFileSystemBrowser(directoryOrFileID, listener, url, connectContext, proxy);
+			URLFileSystemBrowser ufsb = new URLFileSystemBrowser(directoryOrFileID, listener, url, connectContext);
 			return ufsb.sendBrowseRequest();
 		}
 
 		// Set connect context
 		fileSystemBrowser.setConnectContextForAuthentication(connectContext);
-		// Set Proxy
-		fileSystemBrowser.setProxy(proxy);
 
 		return fileSystemBrowser.sendBrowseRequest(directoryOrFileID, listener);
 	}

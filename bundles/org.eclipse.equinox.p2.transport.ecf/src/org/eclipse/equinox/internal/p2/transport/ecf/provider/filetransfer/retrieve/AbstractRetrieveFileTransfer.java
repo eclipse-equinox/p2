@@ -403,17 +403,6 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.eclipse.equinox.p2.transport.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#setProxy
-	 * (org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy)
-	 */
-	public void setProxy(Proxy proxy) {
-		this.proxy = proxy;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
 	 * org.eclipse.equinox.p2.transport.ecf.filetransfer.IIncomingFileTransfer#getBytesReceived()
 	 */
 	public long getBytesReceived() {
@@ -893,16 +882,12 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	}
 
 	protected void setupProxies() {
-		// If it's been set directly (via ECF API) then this overrides platform
-		// settings
-		if (proxy == null) {
-			try {
-				proxy = ProxySetupHelper.getProxy(getRemoteFileURL().toExternalForm());
-			} catch (NoClassDefFoundError e) {
-				// If the proxy API is not available a NoClassDefFoundError will be thrown here.
-				// If that happens then we just want to continue on.
-				Activator.logNoProxyWarning(e);
-			}
+		try {
+			proxy = ProxySetupHelper.getProxy(getRemoteFileURL().toExternalForm());
+		} catch (NoClassDefFoundError e) {
+			// If the proxy API is not available a NoClassDefFoundError will be thrown here.
+			// If that happens then we just want to continue on.
+			Activator.logNoProxyWarning(e);
 		}
 		if (proxy != null)
 			setupProxy(proxy);

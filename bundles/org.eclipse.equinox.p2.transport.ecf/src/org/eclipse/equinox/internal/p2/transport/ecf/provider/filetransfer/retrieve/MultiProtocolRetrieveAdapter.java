@@ -17,7 +17,6 @@ import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
-import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
@@ -32,7 +31,6 @@ import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetrans
 public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 
 	IConnectContext connectContext = null;
-	Proxy proxy = null;
 
 	/*
 	 * (non-Javadoc)
@@ -41,15 +39,6 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 	 */
 	public void setConnectContextForAuthentication(IConnectContext connectContext) {
 		this.connectContext = connectContext;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer#setProxy(org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy)
-	 */
-	public void setProxy(Proxy proxy) {
-		this.proxy = proxy;
 	}
 
 	/*
@@ -75,8 +64,6 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 
 		// Set connect context
 		fileTransfer.setConnectContextForAuthentication(connectContext);
-		// Set Proxy
-		fileTransfer.setProxy(proxy);
 
 		// send request using given file transfer protocol
 		fileTransfer.sendRetrieveRequest(remoteFileID, transferListener, options);
@@ -106,8 +93,6 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 
 		// Set connect context
 		fileTransfer.setConnectContextForAuthentication(connectContext);
-		// Set Proxy
-		fileTransfer.setProxy(proxy);
 
 		// send request using given file transfer protocol
 		fileTransfer.sendRetrieveRequest(remoteFileID, rangeSpecification, transferListener, options);

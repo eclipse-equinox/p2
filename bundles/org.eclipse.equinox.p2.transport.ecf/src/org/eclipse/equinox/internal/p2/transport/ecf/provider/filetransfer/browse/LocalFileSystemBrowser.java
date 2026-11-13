@@ -35,7 +35,7 @@ public class LocalFileSystemBrowser extends AbstractFileSystemBrowser {
 	 * @throws RemoteFileSystemException if some problem 
 	 */
 	public LocalFileSystemBrowser(URI directoryID2, IRemoteFileSystemListener listener) throws RemoteFileSystemException {
-		super(directoryID2, listener, null, null, null);
+		super(directoryID2, listener, null, null);
 		try {
 			local = new File(directoryID2.toURL().getPath());
 		} catch (MalformedURLException | IllegalArgumentException e) {

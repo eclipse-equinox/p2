@@ -115,14 +115,13 @@ public abstract class AbstractFileSystemBrowser {
 	 */
 	protected abstract void runRequest() throws Exception;
 
-	public AbstractFileSystemBrowser(URI directoryOrFileID, IRemoteFileSystemListener listener, URL url, IConnectContext connectContext, Proxy proxy) {
+	public AbstractFileSystemBrowser(URI directoryOrFileID, IRemoteFileSystemListener listener, URL url, IConnectContext connectContext) {
 		Assert.isNotNull(directoryOrFileID);
 		this.fileID = directoryOrFileID;
 		Assert.isNotNull(listener);
 		this.listener = listener;
 		this.directoryOrFile = url;
 		this.connectContext = connectContext;
-		this.proxy = proxy;
 	}
 
 	public class RemoteFileSystemRequest implements IRemoteFileSystemRequest {
@@ -207,15 +206,12 @@ public abstract class AbstractFileSystemBrowser {
 	}
 
 	protected void setupProxies() {
-		// If it's been set directly (via ECF API) then this overrides platform settings
-		if (proxy == null) {
-			try {
-				proxy = ProxySetupHelper.getProxy(directoryOrFile.toExternalForm());
-			} catch (NoClassDefFoundError e) {
-				// If the proxy API is not available a NoClassDefFoundError will be thrown here.
-				// If that happens then we just want to continue on.
-				Activator.logNoProxyWarning(e);
-			}
+		try {
+			proxy = ProxySetupHelper.getProxy(directoryOrFile.toExternalForm());
+		} catch (NoClassDefFoundError e) {
+			// If the proxy API is not available a NoClassDefFoundError will be thrown here.
+			// If that happens then we just want to continue on.
+			Activator.logNoProxyWarning(e);
 		}
 		if (proxy != null)
 			setupProxy(proxy);

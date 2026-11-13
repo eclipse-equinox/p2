@@ -15,7 +15,6 @@ package org.eclipse.equinox.p2.transport.ecf.filetransfer.service;
 
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
-import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileSystemListener;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileSystemRequest;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.RemoteFileSystemException;
@@ -41,11 +40,4 @@ public interface IRemoteFileSystemBrowser {
 	 * @param connectContext the context, may be <code>null</code>
 	 */
 	public void setConnectContextForAuthentication(IConnectContext connectContext);
-
-	/**
-	 * Set the proxy to use for subsequent requests.
-	 *
-	 * @param proxy the proxy
-	 */
-	public void setProxy(Proxy proxy);
 }

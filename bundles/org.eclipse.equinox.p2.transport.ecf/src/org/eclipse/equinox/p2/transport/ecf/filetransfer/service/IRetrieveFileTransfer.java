@@ -16,7 +16,6 @@ package org.eclipse.equinox.p2.transport.ecf.filetransfer.service;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
-import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
@@ -53,11 +52,4 @@ public interface IRetrieveFileTransfer {
 	 * @param connectContext the context, may be <code>null</code>
 	 */
 	public void setConnectContextForAuthentication(IConnectContext connectContext);
-
-	/**
-	 * Set the proxy to use for subsequent requests.
-	 *
-	 * @param proxy the proxy
-	 */
-	public void setProxy(Proxy proxy);
 }

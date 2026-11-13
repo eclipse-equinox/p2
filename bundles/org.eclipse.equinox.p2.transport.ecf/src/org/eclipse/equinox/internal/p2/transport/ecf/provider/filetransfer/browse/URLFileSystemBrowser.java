@@ -69,10 +69,9 @@ public class URLFileSystemBrowser extends AbstractFileSystemBrowser {
 	 * @param listener listener
 	 * @param directoryOrFileURL directory or file url
 	 * @param connectContext connect context
-	 * @param proxy proxy
 	 */
-	public URLFileSystemBrowser(URI directoryOrFileID, IRemoteFileSystemListener listener, URL directoryOrFileURL, IConnectContext connectContext, Proxy proxy) {
-		super(directoryOrFileID, listener, directoryOrFileURL, connectContext, proxy);
+	public URLFileSystemBrowser(URI directoryOrFileID, IRemoteFileSystemListener listener, URL directoryOrFileURL, IConnectContext connectContext) {
+		super(directoryOrFileID, listener, directoryOrFileURL, connectContext);
 		proxyHelper = new JREProxyHelper();
 	}
 
