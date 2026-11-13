@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.director.app" version="2">
+    <resource path="src/org/eclipse/equinox/internal/p2/director/app/PrettyQuery.java" type="org.eclipse.equinox.internal.p2.director.app.PrettyQuery">
+        <filter comment="PrettyQuery is an internal wrapper that intentionally implements IQuery" id="574619656">
+            <message_arguments>
+                <message_argument value="IQuery&lt;T&gt;"/>
+                <message_argument value="PrettyQuery&lt;T&gt;"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

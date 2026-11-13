@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.ui.admin" version="2">
+    <resource path="src/org/eclipse/equinox/internal/p2/ui/admin/ProfilesView.java" type="org.eclipse.equinox.internal.p2.ui.admin.ProfilesView">
+        <filter comment="ProfilesView.addListeners intentionally calls ProvisioningUI.getOperationRunner(), which is @noreference for clients but is used by p2's own admin UI" id="640712815">
+            <message_arguments>
+                <message_argument value="ProvisioningUI"/>
+                <message_argument value="ProfilesView"/>
+                <message_argument value="getOperationRunner()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/ui/admin/RepositoriesView.java" type="org.eclipse.equinox.internal.p2.ui.admin.RepositoriesView">
+        <filter comment="RepositoriesView intentionally calls ProvisioningUI.getOperationRunner(), which is @noreference for clients but is used by p2's own admin UI" id="640712815">
+            <message_arguments>
+                <message_argument value="ProvisioningUI"/>
+                <message_argument value="RepositoriesView"/>
+                <message_argument value="getOperationRunner()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.metadata.repository" version="2">
+    <resource path="src/org/eclipse/equinox/internal/p2/metadata/repository/CompositeMetadataRepository.java" type="org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository">
+        <filter comment="CompositeMetadataRepository is the internal default implementation of ICompositeRepository for metadata" id="574619656">
+            <message_arguments>
+                <message_argument value="ICompositeRepository&lt;T&gt;"/>
+                <message_argument value="CompositeMetadataRepository"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/metadata/repository/MetadataRepositoryManager.java" type="org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager">
+        <filter comment="MetadataRepositoryManager is the internal default implementation of IMetadataRepositoryManager" id="574619656">
+            <message_arguments>
+                <message_argument value="IMetadataRepositoryManager"/>
+                <message_argument value="MetadataRepositoryManager"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/metadata/repository/io/MetadataWriter.java" type="org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter">
+        <filter comment="MetadataWriter.writeInstallableUnit intentionally calls IInstallableUnitPatch.getApplicabilityScope(), which is @noreference for clients but is needed to serialize patches" id="640712815">
+            <message_arguments>
+                <message_argument value="IInstallableUnitPatch"/>
+                <message_argument value="MetadataWriter"/>
+                <message_argument value="getApplicabilityScope()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="MetadataWriter.writeRequirementChange intentionally calls IRequirementChange.applyOn(), which is @noreference for clients but is needed to serialize requirement changes" id="640712815">
+            <message_arguments>
+                <message_argument value="IRequirementChange"/>
+                <message_argument value="MetadataWriter"/>
+                <message_argument value="applyOn()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="MetadataWriter.writeRequirementChange intentionally calls IRequirementChange.newValue(), which is @noreference for clients but is needed to serialize requirement changes" id="640712815">
+            <message_arguments>
+                <message_argument value="IRequirementChange"/>
+                <message_argument value="MetadataWriter"/>
+                <message_argument value="newValue()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.ui.importexport" version="2">
+    <resource path="src/org/eclipse/equinox/internal/p2/importexport/internal/wizard/ImportWizard.java" type="org.eclipse.equinox.internal.p2.importexport.internal.wizard.ImportWizard">
+        <filter comment="ImportWizard.recomputePlan intentionally subclasses InstallOperation, which is @noextend for clients but is used by p2's own import/export UI" id="571519004">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.internal.p2.importexport.internal.wizard.ImportWizard.recomputePlan(IRunnableContext, boolean)"/>
+                <message_argument value="InstallOperation"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

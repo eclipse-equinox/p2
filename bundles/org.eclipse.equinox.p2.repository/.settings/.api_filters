@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.repository" version="2">
+    <resource path="src/org/eclipse/equinox/p2/repository/artifact/spi/AbstractArtifactRepository.java" type="org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository">
+        <filter comment="AbstractArtifactRepository is the intended base class for clients and intentionally implements IArtifactRepository, so the leak is intentional" id="576725006">
+            <message_arguments>
+                <message_argument value="IArtifactRepository"/>
+                <message_argument value="AbstractArtifactRepository"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/repository/artifact/spi/ArtifactDescriptor.java" type="org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor">
+        <filter comment="ArtifactDescriptor is the intended base class for clients and intentionally implements IArtifactDescriptor, so the leak is intentional" id="576725006">
+            <message_arguments>
+                <message_argument value="IArtifactDescriptor"/>
+                <message_argument value="ArtifactDescriptor"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/repository/artifact/spi/ProcessingStepDescriptor.java" type="org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor">
+        <filter comment="ProcessingStepDescriptor is the intended base class for clients and intentionally implements IProcessingStepDescriptor, so the leak is intentional" id="576725006">
+            <message_arguments>
+                <message_argument value="IProcessingStepDescriptor"/>
+                <message_argument value="ProcessingStepDescriptor"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/repository/metadata/spi/AbstractMetadataRepository.java" type="org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository">
+        <filter comment="AbstractMetadataRepository is the intended base class for clients and intentionally implements IMetadataRepository, so the leak is intentional" id="576725006">
+            <message_arguments>
+                <message_argument value="IMetadataRepository"/>
+                <message_argument value="AbstractMetadataRepository"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/repository/spi/AbstractRepository.java" type="org.eclipse.equinox.p2.repository.spi.AbstractRepository">
+        <filter comment="AbstractRepository is the intended base class for clients and intentionally implements IRepository, so the leak is intentional" id="576725006">
+            <message_arguments>
+                <message_argument value="IRepository&lt;T&gt;"/>
+                <message_argument value="AbstractRepository&lt;T&gt;"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>
