@@ -39,13 +39,12 @@ public interface IIncomingFileTransfer extends IFileTransfer {
 	public IFileTransferListener getListener();
 
 	/**
-	 * Get file range specification for this incoming file transfer instance.  Will return
-	 * <code>null</code> if the retrieval is of the entire file.
+	 * Get the position this incoming file transfer started at.
 	 * 
-	 * @return file range specification for this incoming file transfer instance.  Returns
-	 * <code>null</code> if the retrieval is of the entire file.
+	 * @return the start position in bytes, or -1 if the retrieval is of the
+	 *         entire file.
 	 */
-	public IFileRangeSpecification getFileRangeSpecification();
+	public long getStartPosition();
 
 	/**
 	 * Obtains the name of the remote file if possible. The name will typically but not

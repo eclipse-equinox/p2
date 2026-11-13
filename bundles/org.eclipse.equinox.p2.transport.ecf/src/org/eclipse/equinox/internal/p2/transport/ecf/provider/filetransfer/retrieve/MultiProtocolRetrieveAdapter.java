@@ -17,7 +17,6 @@ import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer;
@@ -45,10 +44,9 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 	 * (non-Javadoc)
 	 * 
 	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer#sendRetrieveRequest(java.net.URI,
-	 *      org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener, java.util.Map)
+	 *      long, org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener, java.util.Map)
 	 */
-	public void sendRetrieveRequest(URI remoteFileID, IFileTransferListener transferListener, Map options) throws IncomingFileTransferException {
-
+	public void sendRetrieveRequest(URI remoteFileID, long startPosition, IFileTransferListener transferListener, Map<String, String> requestHeaders) throws IncomingFileTransferException {
 		Assert.isNotNull(remoteFileID);
 		Assert.isNotNull(transferListener);
 
@@ -66,36 +64,7 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 		fileTransfer.setConnectContextForAuthentication(connectContext);
 
 		// send request using given file transfer protocol
-		fileTransfer.sendRetrieveRequest(remoteFileID, transferListener, options);
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer#sendRetrieveRequest(java.net.URI,
-	 *      org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification,
-	 *      org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener, java.util.Map)
-	 */
-	public void sendRetrieveRequest(URI remoteFileID, IFileRangeSpecification rangeSpecification, IFileTransferListener transferListener, Map options) throws IncomingFileTransferException {
-		Assert.isNotNull(remoteFileID);
-		Assert.isNotNull(transferListener);
-
-		String protocol = remoteFileID.getScheme();
-
-		IRetrieveFileTransfer fileTransfer = Activator.getDefault().getFileTransfer(protocol);
-
-		// We will default to JRE-provided file transfer if nothing else
-		// available
-		// for given protocol
-		if (fileTransfer == null)
-			fileTransfer = new UrlConnectionRetrieveFileTransfer();
-
-		// Set connect context
-		fileTransfer.setConnectContextForAuthentication(connectContext);
-
-		// send request using given file transfer protocol
-		fileTransfer.sendRetrieveRequest(remoteFileID, rangeSpecification, transferListener, options);
+		fileTransfer.sendRetrieveRequest(remoteFileID, startPosition, transferListener, requestHeaders);
 
 	}
 }

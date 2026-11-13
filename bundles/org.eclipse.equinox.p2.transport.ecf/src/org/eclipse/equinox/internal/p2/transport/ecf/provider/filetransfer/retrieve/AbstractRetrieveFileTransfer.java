@@ -35,11 +35,9 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferPausable;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IIncomingFileTransfer;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRetrieveFileTransferOptions;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.events.IIncomingFileTransferReceiveDataEvent;
@@ -104,11 +102,11 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 
 	protected long lastModifiedTime = 0L;
 
-	protected Map options = null;
+	protected Map<String, String> requestHeaders = null;
 
 	protected boolean paused = false;
 
-	protected IFileRangeSpecification rangeSpecification = null;
+	protected long startPosition = -1;
 
 	protected Proxy proxy;
 
@@ -128,24 +126,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	}
 
 	protected InputStream wrapTransferReadInputStream(InputStream inputStream, IProgressMonitor monitor) {
-		return new PollingInputStream(inputStream, getRetryAttempts(), monitor, readTimeoutMessage, closeTimeoutMessage);
-	}
-
-	private int getRetryAttempts() {
-		int result = POLLING_RETRY_ATTEMPTS;
-		Map localOptions = getOptions();
-		if (localOptions != null) {
-			// See if the property is present, if so set
-			Object o = localOptions.get("org.eclipse.ecf.provider.filetransfer.retrieve.retryAttempts"); //$NON-NLS-1$
-			if (o != null) {
-				if (o instanceof Integer) {
-					result = ((Integer) o).intValue();
-				} else if (o instanceof String) {
-					result = Integer.parseInt(((String) o));
-				}
-			}
-		}
-		return result;
+		return new PollingInputStream(inputStream, POLLING_RETRY_ATTEMPTS, monitor, readTimeoutMessage, closeTimeoutMessage);
 	}
 
 	private final Function<IProgressMonitor, IStatus> fileTransferRunnable = new Function<>() {
@@ -210,46 +191,11 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	}
 
 	protected int getSocketReadTimeout() {
-		int result = READ_TIMEOUT;
-		Map localOptions = getOptions();
-		if (localOptions != null) {
-			// See if the connect timeout option is present, if so set
-			Object o = localOptions.get(IRetrieveFileTransferOptions.READ_TIMEOUT);
-			if (o != null) {
-				if (o instanceof Integer) {
-					result = ((Integer) o).intValue();
-				} else if (o instanceof String) {
-					result = Integer.parseInt(((String) o));
-				}
-				return result;
-			}
-			o = localOptions.get("org.eclipse.ecf.provider.filetransfer.httpclient.retrieve.readTimeout"); //$NON-NLS-1$
-			if (o != null) {
-				if (o instanceof Integer) {
-					result = ((Integer) o).intValue();
-				} else if (o instanceof String) {
-					result = Integer.parseInt(((String) o));
-				}
-			}
-		}
-		return result;
+		return READ_TIMEOUT;
 	}
 
 	protected int getSocketCloseTimeout() {
-		int result = CLOSE_TIMEOUT;
-		Map localOptions = getOptions();
-		if (localOptions != null) {
-			// See if the property is present, if so set
-			Object o = localOptions.get("org.eclipse.ecf.provider.filetransfer.retrieve.closeTimeout"); //$NON-NLS-1$
-			if (o != null) {
-				if (o instanceof Integer) {
-					result = ((Integer) o).intValue();
-				} else if (o instanceof String) {
-					result = Integer.parseInt(((String) o));
-				}
-			}
-		}
-		return result;
+		return CLOSE_TIMEOUT;
 	}
 
 	protected void setInputStream(InputStream ins) {
@@ -272,8 +218,8 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 		lastModifiedTime = timestamp;
 	}
 
-	protected Map getOptions() {
-		return options;
+	protected Map<String, String> getRequestHeaders() {
+		return requestHeaders;
 	}
 
 	protected synchronized void handleReceivedData(byte[] buf, int bytes, double factor, IProgressMonitor monitor) throws IOException {
@@ -525,17 +471,6 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer#
-	 * sendRetrieveRequest(java.net.URI,
-	 * org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener, java.util.Map)
-	 */
-	public void sendRetrieveRequest(final URI remoteFileID1, IFileTransferListener transferListener, Map options1) throws IncomingFileTransferException {
-		sendRetrieveRequest(remoteFileID1, null, transferListener, options1);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferPausable#isPaused()
 	 */
 	public boolean isPaused() {
@@ -588,9 +523,9 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	}
 
 	protected String createRangeName() {
-		if (rangeSpecification == null)
+		if (startPosition < 0)
 			return ""; //$NON-NLS-1$
-		return "[" + rangeSpecification.getStartPosition() + "," + rangeSpecification.getEndPosition() + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return "[" + startPosition + ",-1]"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	protected String createJobName() {
@@ -715,25 +650,24 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.eclipse.equinox.p2.transport.ecf.filetransfer.IIncomingFileTransfer#getFileRangeSpecification
+	 * org.eclipse.equinox.p2.transport.ecf.filetransfer.IIncomingFileTransfer#getStartPosition
 	 * ()
 	 */
-	public IFileRangeSpecification getFileRangeSpecification() {
-		return rangeSpecification;
+	public long getStartPosition() {
+		return startPosition;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer#
-	 * sendRetrieveRequest(java.net.URI,
-	 * org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification,
+	 * sendRetrieveRequest(java.net.URI, long,
 	 * org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener, java.util.Map)
 	 */
 	/**
 	 * @throws IncomingFileTransferException if some problem sending retrieve request
 	 */
-	public void sendRetrieveRequest(URI rFileID, IFileRangeSpecification rangeSpec, IFileTransferListener transferListener, Map ops) throws IncomingFileTransferException {
+	public void sendRetrieveRequest(URI rFileID, long startPos, IFileTransferListener transferListener, Map<String, String> headers) throws IncomingFileTransferException {
 		Assert.isNotNull(rFileID, Messages.AbstractRetrieveFileTransfer_RemoteFileID_Not_Null);
 		Assert.isNotNull(transferListener, Messages.AbstractRetrieveFileTransfer_TransferListener_Not_Null);
 		synchronized (jobLock) {
@@ -747,9 +681,9 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 		resetDoneAndException();
 		this.bytesReceived = 0;
 		this.fileLength = -1;
-		this.options = ops;
+		this.requestHeaders = headers;
 		this.paused = false;
-		this.rangeSpecification = rangeSpec;
+		this.startPosition = startPos;
 
 		try {
 			this.remoteFileURL = rFileID.toURL();
@@ -770,8 +704,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	/**
 	 * Setup ECF proxy. Subclasses must override this method to do appropriate
 	 * proxy setup. This method will be called from within
-	 * {@link #sendRetrieveRequest(URI, IFileTransferListener, Map)} and
-	 * {@link #sendRetrieveRequest(URI, IFileRangeSpecification, IFileTransferListener, Map)}
+	 * {@link #sendRetrieveRequest(URI, long, IFileTransferListener, Map)}
 	 * , prior to the actual call to {@link #openStreams()}.
 	 * 
 	 * @param proxy

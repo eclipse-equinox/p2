@@ -37,10 +37,7 @@ import org.eclipse.equinox.internal.p2.transport.ecf.core.security.NameCallback;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.ObjectCallback;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.UnsupportedCallbackException;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRetrieveFileTransferOptions;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.InvalidFileRangeSpecificationException;
 import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Activator;
 import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.IURLConnectionModifier;
 import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Messages;
@@ -136,31 +133,18 @@ public class UrlConnectionRetrieveFileTransfer extends AbstractRetrieveFileTrans
 	}
 
 	private void setRequestHeaderValuesFromOptions() {
-		Map localOptions = getOptions();
-		if (localOptions != null) {
-			Object o = localOptions.get(IRetrieveFileTransferOptions.REQUEST_HEADERS);
-			if (o != null && o instanceof Map) {
-				Map requestHeaders = (Map) o;
-				for (Iterator i = requestHeaders.keySet().iterator(); i.hasNext();) {
-					Object n = i.next();
-					Object v = requestHeaders.get(n);
-					if (n != null && n instanceof String && v != null && v instanceof String)
-						urlConnection.addRequestProperty((String) n, (String) v);
-				}
-			}
+		Map<String, String> headers = getRequestHeaders();
+		if (headers != null) {
+			headers.forEach((n, v) -> {
+				if (n != null && v != null)
+					urlConnection.addRequestProperty(n, v);
+			});
 		}
 	}
 
-	protected void setRequestHeaderValues() throws InvalidFileRangeSpecificationException {
-		final IFileRangeSpecification rangeSpec = getFileRangeSpecification();
-		if (rangeSpec != null && isHTTP()) {
-			final long startPosition = rangeSpec.getStartPosition();
-			final long endPosition = rangeSpec.getEndPosition();
-			if (startPosition < 0)
-				throw new InvalidFileRangeSpecificationException(Messages.UrlConnectionRetrieveFileTransfer_RESUME_START_POSITION_LESS_THAN_ZERO, rangeSpec);
-			if (endPosition != -1L && endPosition <= startPosition)
-				throw new InvalidFileRangeSpecificationException(Messages.UrlConnectionRetrieveFileTransfer_RESUME_ERROR_END_POSITION_LESS_THAN_START, rangeSpec);
-			setRangeHeader("bytes=" + startPosition + "-" + ((endPosition == -1L) ? "" : ("" + endPosition))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	protected void setRequestHeaderValues() {
+		if (startPosition >= 0 && isHTTP()) {
+			setRangeHeader("bytes=" + startPosition + "-"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		// Add http 1.1 'Connection: close' header in order to potentially avoid
 		// server issue described here
@@ -425,29 +409,7 @@ public class UrlConnectionRetrieveFileTransfer extends AbstractRetrieveFileTrans
 	}
 
 	protected String getConnectTimeout() {
-		String result = DEFAULT_CONNECT_TIMEOUT;
-		Map localOptions = getOptions();
-		if (localOptions != null) {
-			// See if the connect timeout option is present, if so set
-			Object o = localOptions.get(IRetrieveFileTransferOptions.CONNECT_TIMEOUT);
-			if (o != null) {
-				if (o instanceof Integer) {
-					result = ((Integer) o).toString();
-				} else if (o instanceof String) {
-					result = (String) o;
-				}
-				return result;
-			}
-			o = localOptions.get("org.eclipse.ecf.provider.filetransfer.httpclient.retrieve.connectTimeout"); //$NON-NLS-1$
-			if (o != null) {
-				if (o instanceof Integer) {
-					result = ((Integer) o).toString();
-				} else if (o instanceof String) {
-					result = (String) o;
-				}
-			}
-		}
-		return result;
+		return DEFAULT_CONNECT_TIMEOUT;
 	}
 
 	private void setupTimeouts() {
@@ -528,7 +490,7 @@ public class UrlConnectionRetrieveFileTransfer extends AbstractRetrieveFileTrans
 		// Set request header for possible gzip encoding, but only if
 		// 1) The file range specification is null (we want the whole file)
 		// 2) The target remote file does *not* end in .gz (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=280205)
-		if (getFileRangeSpecification() == null && !targetHasGzSuffix(super.getRemoteFileName()))
+		if (startPosition < 0 && !targetHasGzSuffix(super.getRemoteFileName()))
 			urlConnection.setRequestProperty(ACCEPT_ENCODING, CONTENT_ENCODING_ACCEPTED);
 	}
 

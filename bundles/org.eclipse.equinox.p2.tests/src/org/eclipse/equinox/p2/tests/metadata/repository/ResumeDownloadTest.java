@@ -11,7 +11,6 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IIncomingFileTransfer;
 import org.eclipse.equinox.internal.p2.transport.ecf.FileReader;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -180,8 +179,7 @@ public class ResumeDownloadTest extends AbstractProvisioningTest {
 
 		@Override
 		public void onStart(FileReader reader, IIncomingFileTransfer source, IProgressMonitor monitor) {
-			IFileRangeSpecification spec = source.getFileRangeSpecification();
-			resumeStart = spec == null ? 0L : spec.getStartPosition();
+			resumeStart = Math.max(source.getStartPosition(), 0L);
 			remainingLength = source.getFileLength();
 
 		}

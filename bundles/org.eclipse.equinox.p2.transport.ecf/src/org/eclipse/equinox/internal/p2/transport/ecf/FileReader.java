@@ -42,7 +42,7 @@ import org.osgi.framework.Version;
  * FileReader reads a remote file and reports transfer events.
  */
 public final class FileReader implements IFileTransferListener {
-	static Map<String, Map<String, String>> options;
+	static final Map<String, String> requestHeaders = new HashMap<>(1);
 
 	static private String getProperty(String key, String defaultValue) {
 		String value = Activator.getProperty(key);
@@ -53,7 +53,6 @@ public final class FileReader implements IFileTransferListener {
 	}
 
 	static {
-		Map<String, String> extraRequestHeaders = new HashMap<>(1);
 		String userAgent = null;
 		String javaSpec = getProperty("java.runtime.version", "unknownJava"); //$NON-NLS-1$//$NON-NLS-2$
 		String javaVendor = getProperty("java.vendor", "unknownJavaVendor");//$NON-NLS-1$//$NON-NLS-2$
@@ -73,9 +72,7 @@ public final class FileReader implements IFileTransferListener {
 		} else {
 			userAgent += userAgentProvided;
 		}
-		extraRequestHeaders.put("User-Agent", userAgent); //$NON-NLS-1$
-		options = new HashMap<>(1);
-		options.put(org.eclipse.equinox.p2.transport.ecf.filetransfer.IRetrieveFileTransferOptions.REQUEST_HEADERS, extraRequestHeaders);
+		requestHeaders.put("User-Agent", userAgent); //$NON-NLS-1$
 	}
 
 	private static IFileReaderProbe testProbe;
@@ -291,7 +288,7 @@ public final class FileReader implements IFileTransferListener {
 		}
 		RepositoryTracing.debug("Downloading {0}", url); //$NON-NLS-1$
 
-		sendRetrieveRequest(url, output, null, true, monitor);
+		sendRetrieveRequest(url, output, -1, true, monitor);
 
 		return new InputStream() {
 			@Override
@@ -380,8 +377,7 @@ public final class FileReader implements IFileTransferListener {
 			monitor = new NullProgressMonitor();
 		}
 		try {
-			sendRetrieveRequest(uri, anOutputStream, (startPos != -1 ? new DownloadRange(startPos) : null), false,
-					monitor);
+			sendRetrieveRequest(uri, anOutputStream, startPos, false, monitor);
 			awaitTransfer(monitor);
 			waitPaused(uri, anOutputStream, startPos, monitor);
 			if (monitor.isCanceled() && connectEvent != null) {
@@ -430,7 +426,7 @@ public final class FileReader implements IFileTransferListener {
 		}
 	}
 
-	protected void sendRetrieveRequest(URI uri, OutputStream outputStream, DownloadRange range,
+	protected void sendRetrieveRequest(URI uri, OutputStream outputStream, long startPos,
 			boolean closeStreamOnFinish, //
 			IProgressMonitor monitor)
 			throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
@@ -463,7 +459,7 @@ public final class FileReader implements IFileTransferListener {
 			transferEnded = new CountDownLatch(1);
 			transferActive = false;
 			try {
-				adapter.sendRetrieveRequest(uri, range, this, options);
+				adapter.sendRetrieveRequest(uri, startPos, this, requestHeaders);
 			} catch (IncomingFileTransferException e) {
 				exception = e;
 			} catch (Throwable t) {
@@ -583,26 +579,6 @@ public final class FileReader implements IFileTransferListener {
 			} catch (IOException e) { /* ignore */
 			}
 		}
-	}
-
-	private static class DownloadRange implements IFileRangeSpecification {
-
-		private final long startPosition;
-
-		public DownloadRange(long startPos) {
-			startPosition = startPos;
-		}
-
-		@Override
-		public long getEndPosition() {
-			return -1;
-		}
-
-		@Override
-		public long getStartPosition() {
-			return startPosition;
-		}
-
 	}
 
 	private void onDone(IIncomingFileTransfer source) {

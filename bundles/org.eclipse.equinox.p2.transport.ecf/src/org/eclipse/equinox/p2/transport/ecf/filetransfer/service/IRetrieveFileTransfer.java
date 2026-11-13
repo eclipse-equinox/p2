@@ -16,7 +16,6 @@ package org.eclipse.equinox.p2.transport.ecf.filetransfer.service;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
 
@@ -26,25 +25,17 @@ import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferExc
 public interface IRetrieveFileTransfer {
 
 	/**
-	 * Send request to retrieve the given remote file.
+	 * Send request to retrieve the given remote file, optionally starting at a
+	 * given position.
 	 *
 	 * @param remoteFile       the location to retrieve
+	 * @param startPosition    the position in bytes to start at, or -1 to
+	 *                         retrieve the entire file
 	 * @param transferListener the listener that receives the transfer events
-	 * @param options          request options, may be <code>null</code>
+	 * @param requestHeaders   additional request headers, may be <code>null</code>
 	 * @throws IncomingFileTransferException if the request cannot be sent
 	 */
-	public void sendRetrieveRequest(URI remoteFile, IFileTransferListener transferListener, Map options) throws IncomingFileTransferException;
-
-	/**
-	 * Send request to retrieve a range of the given remote file.
-	 *
-	 * @param remoteFile         the location to retrieve
-	 * @param rangeSpecification the range to retrieve, may be <code>null</code>
-	 * @param transferListener   the listener that receives the transfer events
-	 * @param options            request options, may be <code>null</code>
-	 * @throws IncomingFileTransferException if the request cannot be sent
-	 */
-	public void sendRetrieveRequest(URI remoteFile, IFileRangeSpecification rangeSpecification, IFileTransferListener transferListener, Map options) throws IncomingFileTransferException;
+	public void sendRetrieveRequest(URI remoteFile, long startPosition, IFileTransferListener transferListener, Map<String, String> requestHeaders) throws IncomingFileTransferException;
 
 	/**
 	 * Set the connect context used for authentication.
