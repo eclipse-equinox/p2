@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.provider.filetransfer.httpclient5;
+package org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.provider;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -50,37 +50,28 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.security.Callback;
-import org.eclipse.ecf.core.security.CallbackHandler;
-import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.core.security.NameCallback;
-import org.eclipse.ecf.core.security.ObjectCallback;
-import org.eclipse.ecf.core.security.UnsupportedCallbackException;
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.core.util.ProxyAddress;
-import org.eclipse.ecf.core.util.Trace;
-import org.eclipse.ecf.filetransfer.FileTransferJob;
-import org.eclipse.ecf.filetransfer.IFileRangeSpecification;
-import org.eclipse.ecf.filetransfer.IFileTransferPausable;
-import org.eclipse.ecf.filetransfer.IFileTransferRunnable;
-import org.eclipse.ecf.filetransfer.IRetrieveFileTransferOptions;
-import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.ecf.filetransfer.InvalidFileRangeSpecificationException;
-import org.eclipse.ecf.filetransfer.events.IFileTransferConnectStartEvent;
-import org.eclipse.ecf.filetransfer.identity.IFileID;
-import org.eclipse.ecf.internal.provider.filetransfer.DebugOptions;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.Activator;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.ECFHttpClientFactory;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.HttpClientProxyCredentialProvider;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.IHttpClientFactory;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.Messages;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.NTLMProxyDetector;
-import org.eclipse.ecf.provider.filetransfer.identity.FileTransferID;
-import org.eclipse.ecf.provider.filetransfer.retrieve.AbstractRetrieveFileTransfer;
-import org.eclipse.ecf.provider.filetransfer.retrieve.HttpHelper;
-import org.eclipse.ecf.provider.filetransfer.util.JREProxyHelper;
-import org.eclipse.ecf.provider.filetransfer.util.ProxySetupHelper;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.security.Callback;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.security.CallbackHandler;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.security.NameCallback;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.security.ObjectCallback;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.security.UnsupportedCallbackException;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.util.ProxyAddress;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Trace;
+import org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.Activator;
+import org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.ECFHttpClientFactory;
+import org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.HttpClientProxyCredentialProvider;
+import org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.IHttpClientFactory;
+import org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.Messages;
+import org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.NTLMProxyDetector;
+import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.DebugOptions;
+import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.retrieve.AbstractRetrieveFileTransfer;
+import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.retrieve.HttpHelper;
+import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.util.JREProxyHelper;
+import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.util.ProxySetupHelper;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.events.IFileTransferConnectStartEvent;
 import org.eclipse.osgi.util.NLS;
 
 @SuppressWarnings("restriction")
@@ -123,13 +114,9 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 
 	protected int httpVersion = 1;
 
-	protected IFileID fileid = null;
-
 	private ECFCredentialsProvider credentialsProvider;
 
 	protected JREProxyHelper proxyHelper = null;
-
-	private FileTransferJob connectJob;
 
 	public HttpClientRetrieveFileTransfer(CloseableHttpClient client) {
 		Assert.isNotNull(client);
@@ -156,10 +143,6 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 		}
 		setDoneCanceled(exception);
 		boolean fireDoneEvent = true;
-		if (connectJob != null) {
-			Trace.trace(Activator.PLUGIN_ID, "calling connectJob.cancel()"); //$NON-NLS-1$
-			connectJob.cancel();
-		}
 		synchronized (jobLock) {
 			if (job != null) {
 				// Its the transfer jobs responsibility to throw the event.
@@ -273,7 +256,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 
 	private synchronized RequestConfig.Builder getRequestConfigBuilder() {
 		if (requestConfigBuilder == null) {
-			requestConfigBuilder = Activator.getDefault().getHttpClientFactory().newRequestConfig(httpContext, getOptions());
+			requestConfigBuilder = Activator.getDefault().getHttpClientFactory().newRequestConfig(httpContext, null);
 		}
 		return requestConfigBuilder;
 	}
@@ -291,9 +274,8 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 		}
 	}
 
-	protected void setRequestHeaderValues() throws InvalidFileRangeSpecificationException {
-		final IFileRangeSpecification rangeSpec = getFileRangeSpecification();
-		setRangeHeader(rangeSpec, -1);
+	protected void setRequestHeaderValues() {
+		setRangeHeader(-1);
 
 		int maxAge = Integer.getInteger("org.eclipse.ecf.http.cache.max-age", 0); //$NON-NLS-1$
 		// set max-age for cache control to 0 for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=249990
@@ -306,43 +288,21 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 		setRequestHeaderValuesFromOptions();
 	}
 
-	private void setRangeHeader(final IFileRangeSpecification rangeSpec, final long resumePosition) throws InvalidFileRangeSpecificationException {
-		final long startPosition;
-		final long endPosition;
-		if (rangeSpec != null) {
-			startPosition = Math.max(resumePosition, rangeSpec.getStartPosition());
-			endPosition = rangeSpec.getEndPosition();
-			if (startPosition < 0) {
-				throw new InvalidFileRangeSpecificationException(Messages.HttpClientRetrieveFileTransfer_RESUME_START_POSITION_LESS_THAN_ZERO, rangeSpec);
-			}
-			if (endPosition != -1L && endPosition <= startPosition) {
-				throw new InvalidFileRangeSpecificationException(Messages.HttpClientRetrieveFileTransfer_RESUME_ERROR_END_POSITION_LESS_THAN_START, rangeSpec);
-			}
-		} else if (resumePosition > 0) {
-			startPosition = resumePosition;
-			endPosition = -1L;
-		} else {
+	private void setRangeHeader(final long resumePosition) {
+		final long position = Math.max(resumePosition, getStartPosition());
+		if (position <= 0) {
 			// No range header needed
 			return;
 		}
-		String rangeHeader = "bytes=" + startPosition + "-" + ((endPosition == -1L) ? "" : ("" + endPosition)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String rangeHeader = "bytes=" + position + "-"; //$NON-NLS-1$ //$NON-NLS-2$
 		Trace.trace(Activator.PLUGIN_ID, "retrieve range header=" + rangeHeader); //$NON-NLS-1$
 		setRangeHeader(rangeHeader);
 	}
 
 	private void setRequestHeaderValuesFromOptions() {
-		Map<?, ?> localOptions = getOptions();
-		if (localOptions != null) {
-			Object o = localOptions.get(IRetrieveFileTransferOptions.REQUEST_HEADERS);
-			if (o != null && o instanceof Map) {
-				Map<?, ?> requestHeaders = (Map<?, ?>) o;
-				for (Object n : requestHeaders.keySet()) {
-					Object v = requestHeaders.get(n);
-					if (n != null && n instanceof String && v != null && v instanceof String) {
-						getMethod.addHeader((String) n, (String) v);
-					}
-				}
-			}
+		Map<String, String> requestHeaders = getRequestHeaders();
+		if (requestHeaders != null) {
+			requestHeaders.forEach(getMethod::addHeader);
 		}
 	}
 
@@ -370,16 +330,6 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 		return responseCode;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.eclipse.ecf.core.identity.IIdentifiable#getID()
-	 */
-	@Override
-	public ID getID() {
-		return fileid;
-	}
-
 	private long getLastModifiedTimeFromHeader() throws IOException {
 		Header lastModifiedHeader = httpResponse.getLastHeader(LAST_MODIFIED_HEADER);
 		if (lastModifiedHeader == null)
@@ -405,7 +355,6 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 			setLastModifiedTime(getLastModifiedTimeFromHeader());
 		}
 		setFileLength(httpResponse.getEntity().getContentLength());
-		fileid = new FileTransferID(getRetrieveNamespace(), getRemoteFileURL());
 
 		// Get content disposition header and get remote file name from it if possible.
 		Header contentDispositionHeader = httpResponse.getLastHeader(HttpHelper.CONTENT_DISPOSITION_HEADER);
@@ -438,7 +387,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 
 		@Override
 		protected boolean allowNTLMAuthentication() {
-			return ECFHttpClientFactory.getNTLMProxyHandler(httpContext).allowNTLMAuthentication(getOptions());
+			return ECFHttpClientFactory.getNTLMProxyHandler(httpContext).allowNTLMAuthentication(null);
 		}
 
 	}
@@ -473,29 +422,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 
 	@Override
 	protected int getSocketReadTimeout() {
-		int result = ECFHttpClientFactory.DEFAULT_READ_TIMEOUT;
-		Map<?, ?> localOptions = getOptions();
-		if (localOptions != null) {
-			// See if the connect timeout option is present, if so set
-			Object o = localOptions.get(IRetrieveFileTransferOptions.READ_TIMEOUT);
-			if (o != null) {
-				if (o instanceof Integer) {
-					result = ((Integer) o).intValue();
-				} else if (o instanceof String) {
-					result = Integer.parseInt((String) o);
-				}
-				return result;
-			}
-			o = localOptions.get(HttpClientOptions.RETRIEVE_READ_TIMEOUT_PROP);
-			if (o != null) {
-				if (o instanceof Integer) {
-					result = ((Integer) o).intValue();
-				} else if (o instanceof String) {
-					result = Integer.parseInt((String) o);
-				}
-			}
-		}
-		return result;
+		return ECFHttpClientFactory.DEFAULT_READ_TIMEOUT;
 	}
 
 	/**
@@ -503,29 +430,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	 * @since 4.0
 	 */
 	protected int getConnectTimeout() {
-		int result = ECFHttpClientFactory.DEFAULT_CONNECTION_TIMEOUT;
-		Map<?, ?> localOptions = getOptions();
-		if (localOptions != null) {
-			// See if the connect timeout option is present, if so set
-			Object o = localOptions.get(IRetrieveFileTransferOptions.CONNECT_TIMEOUT);
-			if (o != null) {
-				if (o instanceof Integer) {
-					result = ((Integer) o).intValue();
-				} else if (o instanceof String) {
-					result = Integer.parseInt((String) o);
-				}
-				return result;
-			}
-			o = localOptions.get(HttpClientOptions.RETRIEVE_CONNECTION_TIMEOUT_PROP);
-			if (o != null) {
-				if (o instanceof Integer) {
-					result = ((Integer) o).intValue();
-				} else if (o instanceof String) {
-					result = Integer.parseInt((String) o);
-				}
-			}
-		}
-		return result;
+		return ECFHttpClientFactory.DEFAULT_CONNECTION_TIMEOUT;
 	}
 
 	/* (non-Javadoc)
@@ -553,9 +458,9 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 
 			Trace.trace(Activator.PLUGIN_ID, "retrieve=" + urlString); //$NON-NLS-1$
 			// Set request header for possible gzip encoding, but only if
-			// 1) The file range specification is null (we want the whole file)
+			// 1) The whole file is requested (no start position)
 			// 2) The target remote file does *not* end in .gz (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=280205)
-			if (getFileRangeSpecification() == null && !targetHasGzSuffix(super.getRemoteFileName())) {
+			if (getStartPosition() < 0 && !targetHasGzSuffix(super.getRemoteFileName())) {
 				// The interceptors to provide gzip are always added and are enabled by default
 				Trace.trace(Activator.PLUGIN_ID, "Accept-Encoding: gzip,deflate added to request header"); //$NON-NLS-1$
 			} else {
@@ -572,13 +477,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 
 			// Actually execute get and get response code (since redirect is set to true, then
 			// redirect response code handled internally
-			if (connectJob == null) {
-				performConnect(new NullProgressMonitor());
-			} else {
-				connectJob.schedule();
-				connectJob.join();
-				connectJob = null;
-			}
+			performConnect(new NullProgressMonitor());
 			if (checkAndHandleDone()) {
 				return;
 			}
@@ -764,7 +663,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	 */
 	@Override
 	protected boolean doPause() {
-		if (isPaused() || !isConnected() || isDone())
+		if (isPaused() || !isConnected() || isDone() || !isHTTP11())
 			return false;
 		this.paused = true;
 		return this.paused;
@@ -782,12 +681,11 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 		return openStreamsForResume();
 	}
 
-	protected void setResumeRequestHeaderValues() throws IOException, InvalidFileRangeSpecificationException {
+	protected void setResumeRequestHeaderValues() throws IOException {
 		if (this.bytesReceived <= 0 || this.fileLength <= this.bytesReceived)
 			throw new IOException(Messages.HttpClientRetrieveFileTransfer_RESUME_START_ERROR);
 		setRequestHeaderValues();
-		final IFileRangeSpecification rangeSpec = getFileRangeSpecification();
-		setRangeHeader(rangeSpec, bytesReceived);
+		setRangeHeader(bytesReceived);
 
 		int maxAge = Integer.getInteger("org.eclipse.ecf.http.cache.max-age", 0); //$NON-NLS-1$
 		// set max-age for cache control to 0 for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=249990
@@ -829,13 +727,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 
 			// Actually execute get and get response code (since redirect is set to true, then
 			// redirect response code handled internally
-			if (connectJob == null) {
-				performConnect(new NullProgressMonitor());
-			} else {
-				connectJob.schedule();
-				connectJob.join();
-				connectJob = null;
-			}
+			performConnect(new NullProgressMonitor());
 			if (checkAndHandleDone()) {
 				return false;
 			}
@@ -891,20 +783,6 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 			throw new IOException(Messages.HttpClientRetrieveFileTransfer_EXCEPTION_FILE_MODIFIED_SINCE_LAST_ACCESS);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.eclipse.ecf.provider.filetransfer.retrieve.AbstractRetrieveFileTransfer#getAdapter(java.lang.Class)
-	 */
-	@Override
-	public <T> T getAdapter(Class<T> adapter) {
-		if (adapter == null)
-			return null;
-		if (adapter.equals(IFileTransferPausable.class) && isHTTP11())
-			return adapter.cast(this);
-		return super.getAdapter(adapter);
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.ecf.provider.filetransfer.retrieve.AbstractRetrieveFileTransfer#setupProxy(org.eclipse.ecf.core.util.Proxy)
 	 */
@@ -938,65 +816,16 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 		// TODO: should the following be in super.fireReceiveStartEvent();
 		listener.handleTransferEvent(new IFileTransferConnectStartEvent() {
 			@Override
-			public IFileID getFileID() {
-				return remoteFileID;
-			}
-
-			@Override
 			public void cancel() {
 				HttpClientRetrieveFileTransfer.this.cancel();
 			}
 
 			@Override
-			public FileTransferJob prepareConnectJob(FileTransferJob j) {
-				return HttpClientRetrieveFileTransfer.this.prepareConnectJob(j);
-			}
-
-			@Override
-			public void connectUsingJob(FileTransferJob j) {
-				HttpClientRetrieveFileTransfer.this.connectUsingJob(j);
-			}
-
-			@Override
 			public String toString() {
-				final StringBuffer sb = new StringBuffer("IFileTransferConnectStartEvent["); //$NON-NLS-1$
-				sb.append(getFileID());
-				sb.append("]"); //$NON-NLS-1$
-				return sb.toString();
-			}
-
-			@Override
-			public <T> T getAdapter(Class<T> adapter) {
-				return adapter.cast(HttpClientRetrieveFileTransfer.this.getAdapter(adapter));
+				return "IFileTransferConnectStartEvent[" + getRemoteFileURL() + "]"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		});
 	}
-
-	protected String createConnectJobName() {
-		return getRemoteFileURL().toString() + createRangeName() + Messages.HttpClientRetrieveFileTransfer_CONNECTING_JOB_NAME;
-	}
-
-	protected FileTransferJob prepareConnectJob(FileTransferJob cjob) {
-		if (cjob == null) {
-			// Create our own
-			cjob = new FileTransferJob(createJobName());
-		}
-		cjob.setFileTransfer(this);
-		cjob.setFileTransferRunnable(fileConnectRunnable);
-		return cjob;
-	}
-
-	protected void connectUsingJob(FileTransferJob cjob) {
-		Assert.isNotNull(cjob);
-		this.connectJob = cjob;
-	}
-
-	private IFileTransferRunnable fileConnectRunnable = new IFileTransferRunnable() {
-		@Override
-		public IStatus performFileTransfer(IProgressMonitor monitor) {
-			return performConnect(monitor);
-		}
-	};
 
 	private IStatus performConnect(IProgressMonitor monitor) {
 		// there might be more ticks in the future perhaps for

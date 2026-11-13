@@ -14,6 +14,12 @@ Service-Component: OSGI-INF/ecfTransport.xml,
 Bundle-Activator: org.eclipse.equinox.internal.p2.transport.ecf.Activator
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.equinox.internal.p2.transport.ecf;x-friends:="org.eclipse.equinox.p2.discovery.compatibility,org.eclipse.equinox.p2.installer",
+ org.eclipse.equinox.internal.p2.transport.ecf.core.security;x-friends:="org.eclipse.equinox.p2.transport.ecf.httpclient5",
+ org.eclipse.equinox.internal.p2.transport.ecf.core.util;x-friends:="org.eclipse.equinox.p2.transport.ecf.httpclient5",
+ org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer;x-friends:="org.eclipse.equinox.p2.transport.ecf.httpclient5",
+ org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.browse;x-friends:="org.eclipse.equinox.p2.transport.ecf.httpclient5",
+ org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.retrieve;x-friends:="org.eclipse.equinox.p2.transport.ecf.httpclient5",
+ org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.util;x-friends:="org.eclipse.equinox.p2.transport.ecf.httpclient5",
  org.eclipse.equinox.p2.transport.ecf.filetransfer,
  org.eclipse.equinox.p2.transport.ecf.filetransfer.events,
  org.eclipse.equinox.p2.transport.ecf.filetransfer.service

@@ -10,14 +10,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclient5;
+package org.eclipse.equinox.internal.p2.transport.ecf.httpclient5;
 
 import java.util.Map;
 import org.apache.hc.core5.http.HttpStatus;
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
-import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.ecf.provider.filetransfer.httpclient5.HttpClientOptions;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.provider.HttpClientOptions;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.BrowseFileTransferException;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
 
 public class DefaultNTLMProxyHandler implements INTLMProxyHandler {
 	private static boolean seenNTLM;

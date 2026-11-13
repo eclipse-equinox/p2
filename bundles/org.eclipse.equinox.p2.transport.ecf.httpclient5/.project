@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.eclipse.ecf.provider.filetransfer.httpclient5</name>
+	<name>org.eclipse.equinox.p2.transport.ecf.httpclient5</name>
 	<comment></comment>
 	<projects>
 	</projects>

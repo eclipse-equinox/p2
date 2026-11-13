@@ -12,11 +12,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.provider.filetransfer.httpclient5;
+package org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.provider;
 
-import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransfer;
-import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.Activator;
+import org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.Activator;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 
 public class HttpClientRetrieveFileTransferFactory implements IRetrieveFileTransferFactory {
 

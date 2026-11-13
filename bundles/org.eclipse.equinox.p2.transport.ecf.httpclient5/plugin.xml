@@ -4,12 +4,12 @@
    <extension
          point="org.eclipse.ecf.provider.filetransfer.retrieveFileTransferProtocolFactory">
       <retrieveFileTransferProtocolFactory
-            class="org.eclipse.ecf.provider.filetransfer.httpclient5.HttpClientRetrieveFileTransferFactory"
+            class="org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.provider.HttpClientRetrieveFileTransferFactory"
             protocol="http"
             priority="43">
       </retrieveFileTransferProtocolFactory>
       <retrieveFileTransferProtocolFactory
-            class="org.eclipse.ecf.provider.filetransfer.httpclient5.HttpClientRetrieveFileTransferFactory"
+            class="org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.provider.HttpClientRetrieveFileTransferFactory"
             protocol="https"
             priority="43">
       </retrieveFileTransferProtocolFactory>
@@ -18,12 +18,12 @@
    <extension
          point="org.eclipse.ecf.provider.filetransfer.browseFileTransferProtocolFactory">
       <browseFileTransferProtocolFactory
-            class="org.eclipse.ecf.provider.filetransfer.httpclient5.HttpClientBrowseFileTransferFactory"
+            class="org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.provider.HttpClientBrowseFileTransferFactory"
             protocol="http"
             priority="43">
       </browseFileTransferProtocolFactory>
       <browseFileTransferProtocolFactory
-            class="org.eclipse.ecf.provider.filetransfer.httpclient5.HttpClientBrowseFileTransferFactory"
+            class="org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.provider.HttpClientBrowseFileTransferFactory"
             protocol="https"
             priority="43">
       </browseFileTransferProtocolFactory>

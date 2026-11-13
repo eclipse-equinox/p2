@@ -11,7 +11,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclient5;
+package org.eclipse.equinox.internal.p2.transport.ecf.httpclient5;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,13 +26,13 @@ import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ecf.core.util.ECFRuntimeException;
-import org.eclipse.ecf.core.util.LogHelper;
-import org.eclipse.ecf.core.util.Trace;
-import org.eclipse.ecf.filetransfer.service.IRemoteFileSystemBrowser;
-import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransfer;
-import org.eclipse.ecf.internal.provider.filetransfer.DebugOptions;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.ECFHttpClientFactory.ModifierRunner;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.util.ECFRuntimeException;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.util.LogHelper;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Trace;
+import org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.ECFHttpClientFactory.ModifierRunner;
+import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.DebugOptions;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRemoteFileSystemBrowser;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;

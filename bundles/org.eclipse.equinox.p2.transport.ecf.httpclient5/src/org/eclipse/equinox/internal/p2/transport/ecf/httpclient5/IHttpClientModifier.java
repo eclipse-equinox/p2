@@ -10,35 +10,21 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclient5;
+package org.eclipse.equinox.internal.p2.transport.ecf.httpclient5;
 
 import java.util.Map;
 import org.apache.hc.client5.http.auth.CredentialsProvider;
-import org.apache.hc.client5.http.config.RequestConfig.Builder;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 
 @SuppressWarnings("restriction")
-public class HttpClientModifierAdapter implements IHttpClientModifier {
+public interface IHttpClientModifier {
+	HttpClientBuilder modifyClient(HttpClientBuilder builder);
 
-	@Override
-	public HttpClientBuilder modifyClient(HttpClientBuilder builder) {
-		return builder;
-	}
+	CredentialsProvider modifyCredentialsProvider(CredentialsProvider credentialsProvider);
 
-	@Override
-	public CredentialsProvider modifyCredentialsProvider(CredentialsProvider credentialsProvider) {
-		return credentialsProvider;
-	}
+	HttpClientContext modifyContext(HttpClientContext context);
 
-	@Override
-	public HttpClientContext modifyContext(HttpClientContext context) {
-		return context;
-	}
-
-	@Override
-	public Builder modifyRequestConfig(Builder config, HttpClientContext context, Map<?, ?> options) {
-		return config;
-	}
-
+	RequestConfig.Builder modifyRequestConfig(RequestConfig.Builder config, HttpClientContext context, Map<?, ?> options);
 }

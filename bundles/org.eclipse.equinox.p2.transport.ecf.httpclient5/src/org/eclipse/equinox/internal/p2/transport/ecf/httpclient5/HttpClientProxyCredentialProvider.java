@@ -12,7 +12,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclient5;
+package org.eclipse.equinox.internal.p2.transport.ecf.httpclient5;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -23,11 +23,11 @@ import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.auth.SystemDefaultCredentialsProvider;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.core.util.ProxyAddress;
-import org.eclipse.ecf.core.util.Trace;
-import org.eclipse.ecf.internal.provider.filetransfer.DebugOptions;
-import org.eclipse.ecf.provider.filetransfer.httpclient5.HttpClientRetrieveFileTransfer;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.util.ProxyAddress;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Trace;
+import org.eclipse.equinox.internal.p2.transport.ecf.httpclient5.provider.HttpClientRetrieveFileTransfer;
+import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.DebugOptions;
 import org.osgi.framework.FrameworkUtil;
 
 @SuppressWarnings("restriction")
