@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Date;
@@ -35,9 +36,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.transport.ecf.core.identity.ID;
-import org.eclipse.equinox.internal.p2.transport.ecf.core.identity.IDFactory;
-import org.eclipse.equinox.internal.p2.transport.ecf.core.identity.Namespace;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.FileTransferJob;
@@ -54,11 +52,9 @@ import org.eclipse.equinox.p2.transport.ecf.filetransfer.events.IIncomingFileTra
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.events.IIncomingFileTransferReceivePausedEvent;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.events.IIncomingFileTransferReceiveResumedEvent;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.events.IIncomingFileTransferReceiveStartEvent;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer;
 import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Activator;
 import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Messages;
-import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.identity.FileTransferNamespace;
 import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.util.PollingInputStream;
 import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.util.ProxySetupHelper;
 import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.util.TimeoutInputStream;
@@ -92,8 +88,6 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	protected Job job;
 
 	protected URL remoteFileURL;
-
-	protected IFileID remoteFileID;
 
 	protected IFileTransferListener listener;
 
@@ -318,15 +312,6 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 
 		DecimalFormat df = new DecimalFormat(NLS.bind(Messages.AbstractRetrieveFileTransfer_TransferRateFormat, unit));
 		return df.format(convertedSize);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.internal.p2.transport.ecf.core.identity.IIdentifiable#getID()
-	 */
-	public ID getID() {
-		return remoteFileID;
 	}
 
 	protected IStatus getFinalStatus(Throwable exception1) {
@@ -570,22 +555,12 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seeorg.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#
-	 * sendRetrieveRequest(org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID,
+	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer#
+	 * sendRetrieveRequest(java.net.URI,
 	 * org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener, java.util.Map)
 	 */
-	public void sendRetrieveRequest(final IFileID remoteFileID1, IFileTransferListener transferListener, Map options1) throws IncomingFileTransferException {
+	public void sendRetrieveRequest(final URI remoteFileID1, IFileTransferListener transferListener, Map options1) throws IncomingFileTransferException {
 		sendRetrieveRequest(remoteFileID1, null, transferListener, options1);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @seeorg.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#
-	 * getRetrieveNamespace()
-	 */
-	public Namespace getRetrieveNamespace() {
-		return IDFactory.getDefault().getNamespaceByName(FileTransferNamespace.PROTOCOL);
 	}
 
 	/*
@@ -685,16 +660,6 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 			 * (non-Javadoc)
 			 * 
 			 * @seeorg.eclipse.ecf.filetransfer.events.
-			 * IIncomingFileTransferReceiveStartEvent#getFileID()
-			 */
-			public IFileID getFileID() {
-				return remoteFileID;
-			}
-
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @seeorg.eclipse.ecf.filetransfer.events.
 			 * IIncomingFileTransferReceiveStartEvent
 			 * #receive(java.io.File)
 			 */
@@ -774,10 +739,6 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 				return AbstractRetrieveFileTransfer.this;
 			}
 
-			public IFileID getFileID() {
-				return remoteFileID;
-			}
-
 			public IIncomingFileTransfer receive(File localFileToSave, boolean append) throws IOException {
 				return receive(localFileToSave, null, append);
 			}
@@ -848,22 +809,21 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seeorg.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#
-	 * sendRetrieveRequest(org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID,
+	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer#
+	 * sendRetrieveRequest(java.net.URI,
 	 * org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification,
 	 * org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener, java.util.Map)
 	 */
 	/**
 	 * @throws IncomingFileTransferException if some problem sending retrieve request
 	 */
-	public void sendRetrieveRequest(IFileID rFileID, IFileRangeSpecification rangeSpec, IFileTransferListener transferListener, Map ops) throws IncomingFileTransferException {
+	public void sendRetrieveRequest(URI rFileID, IFileRangeSpecification rangeSpec, IFileTransferListener transferListener, Map ops) throws IncomingFileTransferException {
 		Assert.isNotNull(rFileID, Messages.AbstractRetrieveFileTransfer_RemoteFileID_Not_Null);
 		Assert.isNotNull(transferListener, Messages.AbstractRetrieveFileTransfer_TransferListener_Not_Null);
 		synchronized (jobLock) {
 			this.job = null;
 		}
 		this.remoteFileURL = null;
-		this.remoteFileID = rFileID;
 		this.listener = transferListener;
 		this.remoteFileContents = null;
 		this.localFileContents = null;
@@ -876,8 +836,8 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 		this.rangeSpecification = rangeSpec;
 
 		try {
-			this.remoteFileURL = rFileID.getURL();
-		} catch (final MalformedURLException e) {
+			this.remoteFileURL = rFileID.toURL();
+		} catch (final MalformedURLException | IllegalArgumentException e) {
 			setDoneException(e);
 			fireTransferReceiveDoneEvent();
 			return;
@@ -894,8 +854,8 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	/**
 	 * Setup ECF proxy. Subclasses must override this method to do appropriate
 	 * proxy setup. This method will be called from within
-	 * {@link #sendRetrieveRequest(IFileID, IFileTransferListener, Map)} and
-	 * {@link #sendRetrieveRequest(IFileID, IFileRangeSpecification, IFileTransferListener, Map)}
+	 * {@link #sendRetrieveRequest(URI, IFileTransferListener, Map)} and
+	 * {@link #sendRetrieveRequest(URI, IFileRangeSpecification, IFileTransferListener, Map)}
 	 * , prior to the actual call to {@link #openStreams()}.
 	 * 
 	 * @param proxy

@@ -12,7 +12,6 @@
 package org.eclipse.equinox.p2.transport.ecf.filetransfer;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.equinox.internal.p2.transport.ecf.core.identity.IIdentifiable;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.events.IFileTransferEvent;
 
 /**
@@ -20,7 +19,7 @@ import org.eclipse.equinox.p2.transport.ecf.filetransfer.events.IFileTransferEve
  * transfer semantics for both {@link IOutgoingFileTransfer} and
  * {@link IIncomingFileTransfer} transfer sub interfaces.
  */
-public interface IFileTransfer extends IAdaptable, IIdentifiable {
+public interface IFileTransfer extends IAdaptable {
 	/**
 	 * Cancel this file transfer. If file transfer has already been completed,
 	 * then this method has no effect. If the file transfer has not been

@@ -14,7 +14,6 @@
 package org.eclipse.equinox.p2.transport.ecf.filetransfer;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID;
 
 /**
  * Remote file request.
@@ -31,10 +30,4 @@ public interface IRemoteFileSystemRequest extends IAdaptable {
 	 * @return IRemoteFileSystemListener associated with this request.
 	 */
 	public IRemoteFileSystemListener getRemoteFileListener();
-
-	/**
-	 * Get directoryID that represents the directory accessed.
-	 * @return IFileID for remote directory or file.  Will not return <code>null</code>.
-	 */
-	public IFileID getFileID();
 }

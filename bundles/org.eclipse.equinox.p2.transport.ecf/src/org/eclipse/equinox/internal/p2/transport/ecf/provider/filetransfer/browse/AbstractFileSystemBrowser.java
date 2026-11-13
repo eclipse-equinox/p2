@@ -14,6 +14,7 @@
 
 package org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.browse;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +33,6 @@ import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileSystemReques
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.events.IRemoteFileSystemBrowseEvent;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.events.IRemoteFileSystemEvent;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID;
 import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Activator;
 import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Messages;
 import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.util.ProxySetupHelper;
@@ -42,7 +42,7 @@ import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.util.
  */
 public abstract class AbstractFileSystemBrowser {
 
-	protected IFileID fileID = null;
+	protected URI fileID = null;
 	protected IRemoteFileSystemListener listener = null;
 
 	private Exception exception = null;
@@ -62,7 +62,7 @@ public abstract class AbstractFileSystemBrowser {
 		private IRemoteFileSystemRequest request;
 
 		public DirectoryJob() {
-			super(fileID.getName());
+			super(fileID.toString());
 		}
 
 		protected IStatus run(IProgressMonitor monitor) {
@@ -115,7 +115,7 @@ public abstract class AbstractFileSystemBrowser {
 	 */
 	protected abstract void runRequest() throws Exception;
 
-	public AbstractFileSystemBrowser(IFileID directoryOrFileID, IRemoteFileSystemListener listener, URL url, IConnectContext connectContext, Proxy proxy) {
+	public AbstractFileSystemBrowser(URI directoryOrFileID, IRemoteFileSystemListener listener, URL url, IConnectContext connectContext, Proxy proxy) {
 		Assert.isNotNull(directoryOrFileID);
 		this.fileID = directoryOrFileID;
 		Assert.isNotNull(listener);
@@ -131,10 +131,6 @@ public abstract class AbstractFileSystemBrowser {
 				if (job != null)
 					job.cancel();
 			}
-		}
-
-		public IFileID getFileID() {
-			return fileID;
 		}
 
 		public IRemoteFileSystemListener getRemoteFileListener() {
@@ -176,10 +172,6 @@ public abstract class AbstractFileSystemBrowser {
 	 */
 	protected IRemoteFileSystemEvent createRemoteFileEvent() {
 		return new IRemoteFileSystemBrowseEvent() {
-
-			public IFileID getFileID() {
-				return fileID;
-			}
 
 			public Exception getException() {
 				return exception;

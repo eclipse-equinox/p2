@@ -15,7 +15,6 @@ package org.eclipse.equinox.p2.transport.ecf.filetransfer.events;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.*;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID;
 
 /**
  * Event sent to {@link IFileTransferListener} associated with
@@ -42,8 +41,6 @@ import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID;
  * @since 3.0
  */
 public interface IFileTransferConnectStartEvent extends IAdaptable, IFileTransferEvent {
-
-	IFileID getFileID();
 
 	/**
 	 * Cancel file transfer.

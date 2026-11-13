@@ -13,24 +13,17 @@
 
 package org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.retrieve;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
+import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdapterManager;
-import org.eclipse.equinox.internal.p2.transport.ecf.core.identity.IDFactory;
-import org.eclipse.equinox.internal.p2.transport.ecf.core.identity.Namespace;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRetrieveFileTransferContainerAdapter;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer;
 import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Activator;
-import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Messages;
-import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.identity.FileTransferNamespace;
 
 /**
  * Multi protocol handler for retrieve file transfer. Multiplexes between Apache
@@ -45,16 +38,7 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#getRetrieveNamespace()
-	 */
-	public Namespace getRetrieveNamespace() {
-		return IDFactory.getDefault().getNamespaceByName(FileTransferNamespace.PROTOCOL);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#setConnectContextForAuthentication(org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext)
+	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer#setConnectContextForAuthentication(org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext)
 	 */
 	public void setConnectContextForAuthentication(IConnectContext connectContext) {
 		this.connectContext = connectContext;
@@ -63,7 +47,7 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#setProxy(org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy)
+	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer#setProxy(org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy)
 	 */
 	public void setProxy(Proxy proxy) {
 		this.proxy = proxy;
@@ -72,26 +56,17 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#sendRetrieveRequest(org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID,
+	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer#sendRetrieveRequest(java.net.URI,
 	 *      org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener, java.util.Map)
 	 */
-	public void sendRetrieveRequest(IFileID remoteFileID, IFileTransferListener transferListener, Map options) throws IncomingFileTransferException {
+	public void sendRetrieveRequest(URI remoteFileID, IFileTransferListener transferListener, Map options) throws IncomingFileTransferException {
 
 		Assert.isNotNull(remoteFileID);
 		Assert.isNotNull(transferListener);
 
-		String protocol = null;
-		try {
-			protocol = remoteFileID.getURI().getScheme();
-		} catch (URISyntaxException e) {
-			try {
-				protocol = remoteFileID.getURL().getProtocol();
-			} catch (final MalformedURLException e1) {
-				throw new IncomingFileTransferException(Messages.AbstractRetrieveFileTransfer_MalformedURLException);
-			}
-		}
+		String protocol = remoteFileID.getScheme();
 
-		IRetrieveFileTransferContainerAdapter fileTransfer = Activator.getDefault().getFileTransfer(protocol);
+		IRetrieveFileTransfer fileTransfer = Activator.getDefault().getFileTransfer(protocol);
 
 		// We will default to JRE-provided file transfer if nothing else
 		// available
@@ -112,26 +87,17 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#sendRetrieveRequest(org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID,
+	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer#sendRetrieveRequest(java.net.URI,
 	 *      org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification,
 	 *      org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener, java.util.Map)
 	 */
-	public void sendRetrieveRequest(IFileID remoteFileID, IFileRangeSpecification rangeSpecification, IFileTransferListener transferListener, Map options) throws IncomingFileTransferException {
+	public void sendRetrieveRequest(URI remoteFileID, IFileRangeSpecification rangeSpecification, IFileTransferListener transferListener, Map options) throws IncomingFileTransferException {
 		Assert.isNotNull(remoteFileID);
 		Assert.isNotNull(transferListener);
 
-		String protocol = null;
-		try {
-			protocol = remoteFileID.getURI().getScheme();
-		} catch (URISyntaxException e) {
-			try {
-				protocol = remoteFileID.getURL().getProtocol();
-			} catch (final MalformedURLException e1) {
-				throw new IncomingFileTransferException(Messages.AbstractRetrieveFileTransfer_MalformedURLException);
-			}
-		}
+		String protocol = remoteFileID.getScheme();
 
-		IRetrieveFileTransferContainerAdapter fileTransfer = Activator.getDefault().getFileTransfer(protocol);
+		IRetrieveFileTransfer fileTransfer = Activator.getDefault().getFileTransfer(protocol);
 
 		// We will default to JRE-provided file transfer if nothing else
 		// available

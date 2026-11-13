@@ -100,11 +100,6 @@ public class Activator implements BundleActivator {
 			if (providerId != null) {
 				mapper.removeRetrieveFileTransferFactory(providerId);
 			}
-			// Remove send provider
-			providerId = mapper.getSendFileTransferFactoryId(HTTP);
-			if (providerId != null) {
-				mapper.removeSendFileTransferFactory(providerId);
-			}
 			// remove https
 			// Remove browse provider
 			providerId = mapper.getBrowseFileTransferFactoryId(HTTPS);
@@ -115,11 +110,6 @@ public class Activator implements BundleActivator {
 			providerId = mapper.getRetrieveFileTransferFactoryId(HTTPS);
 			if (providerId != null) {
 				mapper.removeRetrieveFileTransferFactory(providerId);
-			}
-			// Remove send provider
-			providerId = mapper.getSendFileTransferFactoryId(HTTPS);
-			if (providerId != null) {
-				mapper.removeSendFileTransferFactory(providerId);
 			}
 		}
 	}

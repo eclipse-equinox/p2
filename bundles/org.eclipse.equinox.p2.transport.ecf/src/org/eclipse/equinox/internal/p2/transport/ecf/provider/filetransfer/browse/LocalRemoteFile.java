@@ -16,14 +16,10 @@ package org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.brow
 import java.io.File;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdapterManager;
-import org.eclipse.equinox.internal.p2.transport.ecf.core.identity.IDFactory;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFile;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileAttributes;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileInfo;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.FileIDFactory;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID;
 import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Activator;
-import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.identity.FileTransferNamespace;
 
 /**
  * Local representation of an {@link IRemoteFile}.
@@ -79,18 +75,6 @@ public class LocalRemoteFile implements IRemoteFile {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFile#getID()
-	 */
-	public IFileID getID() {
-		try {
-			return FileIDFactory.getDefault().createFileID(IDFactory.getDefault().getNamespaceByName(FileTransferNamespace.PROTOCOL), file.toURL());
-		} catch (Exception e) {
-			// Should never happen
-			return null;
-		}
-	}
-
-	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFile#getInfo()
 	 */
 	public IRemoteFileInfo getInfo() {
@@ -109,7 +93,7 @@ public class LocalRemoteFile implements IRemoteFile {
 
 	public String toString() {
 		StringBuilder buf = new StringBuilder("LocalRemoteFile["); //$NON-NLS-1$
-		buf.append("id=").append(getID()).append(";"); //$NON-NLS-1$//$NON-NLS-2$
+		buf.append("file=").append(file).append(";"); //$NON-NLS-1$//$NON-NLS-2$
 		buf.append("name=").append(getInfo().getName()).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("isDir=").append(getInfo().isDirectory()).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("length=").append(getInfo().getLength()).append(";"); //$NON-NLS-1$ //$NON-NLS-2$

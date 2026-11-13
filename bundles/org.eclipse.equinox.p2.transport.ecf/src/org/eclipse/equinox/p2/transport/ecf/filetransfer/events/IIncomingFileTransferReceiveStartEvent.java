@@ -15,7 +15,6 @@ package org.eclipse.equinox.p2.transport.ecf.filetransfer.events;
 import java.io.*;
 import java.util.Map;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.*;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID;
 
 /**
  * Event sent to {@link IFileTransferListener} associated with
@@ -23,14 +22,6 @@ import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID;
  * 
  */
 public interface IIncomingFileTransferReceiveStartEvent extends IIncomingFileTransferEvent {
-
-	/**
-	 * Get IFileID for incoming file
-	 * 
-	 * @return IFileID for this file transfer event. Will not be
-	 *         <code>null</code>.
-	 */
-	public IFileID getFileID();
 
 	/**
 	 * Get incoming file transfer object by specifying a local File instance to

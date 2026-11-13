@@ -14,13 +14,13 @@
 package org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.browse;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdapterManager;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFile;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileAttributes;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileInfo;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID;
 import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Activator;
 
 /**
@@ -28,25 +28,18 @@ import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetrans
  */
 public class URLRemoteFile implements IRemoteFile {
 
-	IFileID fileID;
+	URI fileID;
 
 	long lastModified;
 	long fileLength;
 	IRemoteFileAttributes remoteFileAttributes;
 
-	public URLRemoteFile(long lastModified, long fileLength, IFileID fileID) {
+	public URLRemoteFile(long lastModified, long fileLength, URI fileID) {
 		this.lastModified = lastModified;
 		this.fileLength = fileLength;
 		Assert.isNotNull(fileID);
 		this.fileID = fileID;
 		remoteFileAttributes = new URLRemoteFileAttributes();
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFile#getID()
-	 */
-	public IFileID getID() {
-		return fileID;
 	}
 
 	/* (non-Javadoc)
@@ -71,22 +64,22 @@ public class URLRemoteFile implements IRemoteFile {
 				URL url;
 				String result = null;
 				try {
-					url = fileID.getURL();
+					url = fileID.toURL();
 					String path = url.getPath();
 					int index = path.lastIndexOf("/"); //$NON-NLS-1$
 					if (index == -1)
 						return path;
 					result = path.substring(index + 1);
 					return result;
-				} catch (MalformedURLException e) {
-					return fileID.getName();
+				} catch (MalformedURLException | IllegalArgumentException e) {
+					return fileID.toString();
 				}
 			}
 
 			public boolean isDirectory() {
 				try {
-					return fileID.getURL().toString().endsWith("/"); //$NON-NLS-1$
-				} catch (MalformedURLException e) {
+					return fileID.toURL().toString().endsWith("/"); //$NON-NLS-1$
+				} catch (MalformedURLException | IllegalArgumentException e) {
 					return false;
 				}
 			}
@@ -124,7 +117,7 @@ public class URLRemoteFile implements IRemoteFile {
 	 */
 	public String toString() {
 		StringBuilder buf = new StringBuilder("URLRemoteFile["); //$NON-NLS-1$
-		buf.append("id=").append(getID()).append(";"); //$NON-NLS-1$//$NON-NLS-2$
+		buf.append("id=").append(fileID).append(";"); //$NON-NLS-1$//$NON-NLS-2$
 		buf.append("name=").append(getInfo().getName()).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("isDir=").append(getInfo().isDirectory()).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append("length=").append(getInfo().getLength()).append(";"); //$NON-NLS-1$ //$NON-NLS-2$

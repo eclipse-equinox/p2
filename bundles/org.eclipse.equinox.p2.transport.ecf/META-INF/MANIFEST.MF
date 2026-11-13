@@ -16,7 +16,6 @@ Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.equinox.internal.p2.transport.ecf;x-friends:="org.eclipse.equinox.p2.discovery.compatibility,org.eclipse.equinox.p2.installer",
  org.eclipse.equinox.p2.transport.ecf.filetransfer,
  org.eclipse.equinox.p2.transport.ecf.filetransfer.events,
- org.eclipse.equinox.p2.transport.ecf.filetransfer.identity,
  org.eclipse.equinox.p2.transport.ecf.filetransfer.service
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin

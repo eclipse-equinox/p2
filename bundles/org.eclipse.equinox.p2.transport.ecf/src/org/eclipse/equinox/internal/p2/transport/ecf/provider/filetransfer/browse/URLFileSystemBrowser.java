@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.Callback;
@@ -32,7 +33,6 @@ import org.eclipse.equinox.p2.transport.ecf.filetransfer.BrowseFileTransferExcep
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFile;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileSystemListener;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID;
 import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Activator;
 import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.IURLConnectionModifier;
 import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Messages;
@@ -71,7 +71,7 @@ public class URLFileSystemBrowser extends AbstractFileSystemBrowser {
 	 * @param connectContext connect context
 	 * @param proxy proxy
 	 */
-	public URLFileSystemBrowser(IFileID directoryOrFileID, IRemoteFileSystemListener listener, URL directoryOrFileURL, IConnectContext connectContext, Proxy proxy) {
+	public URLFileSystemBrowser(URI directoryOrFileID, IRemoteFileSystemListener listener, URL directoryOrFileURL, IConnectContext connectContext, Proxy proxy) {
 		super(directoryOrFileID, listener, directoryOrFileURL, connectContext, proxy);
 		proxyHelper = new JREProxyHelper();
 	}

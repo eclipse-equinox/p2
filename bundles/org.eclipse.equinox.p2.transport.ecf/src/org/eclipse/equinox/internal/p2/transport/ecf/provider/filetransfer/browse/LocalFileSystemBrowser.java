@@ -15,10 +15,10 @@ package org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.brow
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRemoteFileSystemListener;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.RemoteFileSystemException;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID;
 import org.eclipse.equinox.internal.p2.transport.ecf.internal.provider.filetransfer.Messages;
 import org.eclipse.osgi.util.NLS;
 
@@ -34,11 +34,11 @@ public class LocalFileSystemBrowser extends AbstractFileSystemBrowser {
 	 * @param directoryID2 remote directory
 	 * @throws RemoteFileSystemException if some problem 
 	 */
-	public LocalFileSystemBrowser(IFileID directoryID2, IRemoteFileSystemListener listener) throws RemoteFileSystemException {
+	public LocalFileSystemBrowser(URI directoryID2, IRemoteFileSystemListener listener) throws RemoteFileSystemException {
 		super(directoryID2, listener, null, null, null);
 		try {
-			local = new File(directoryID2.getURL().getPath());
-		} catch (MalformedURLException e) {
+			local = new File(directoryID2.toURL().getPath());
+		} catch (MalformedURLException | IllegalArgumentException e) {
 			throw new RemoteFileSystemException(e);
 		}
 		if (!local.exists())

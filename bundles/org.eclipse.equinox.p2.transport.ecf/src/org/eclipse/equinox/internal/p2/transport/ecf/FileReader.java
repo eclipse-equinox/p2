@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.*;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.events.*;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.*;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.*;
@@ -446,7 +446,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			throw RepositoryStatusHelper.fromMessage(Messages.ecf_configuration_error);
 		}
 
-		IRetrieveFileTransferContainerAdapter adapter = factory.newInstance();
+		IRetrieveFileTransfer adapter = factory.newInstance();
 		adapter.setConnectContextForAuthentication(connectContext);
 
 		this.exception = null;
@@ -466,12 +466,8 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			}
 
 			try {
-				IFileID fileID = FileIDFactory.getDefault().createFileID(adapter.getRetrieveNamespace(),
-						uri.toString());
-				adapter.sendRetrieveRequest(fileID, range, this, options);
+				adapter.sendRetrieveRequest(uri, range, this, options);
 			} catch (IncomingFileTransferException e) {
-				exception = e;
-			} catch (FileCreateException e) {
 				exception = e;
 			} catch (Throwable t) {
 				if (exception != null) {

@@ -13,15 +13,11 @@
 
 package org.eclipse.equinox.p2.transport.ecf.filetransfer.events;
 
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID;
-
 /**
  *
  */
 public interface IRemoteFileSystemEvent {
 
 	public Exception getException();
-
-	public IFileID getFileID();
 
 }

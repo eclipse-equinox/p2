@@ -41,8 +41,6 @@ import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRemoteFileSyst
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRemoteFileSystemBrowserFactory;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransfer;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransferFactory;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.ISendFileTransfer;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.ISendFileTransferFactory;
 import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.IFileTransferProtocolToFactoryMapper;
 import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.retrieve.MultiProtocolRetrieveAdapter;
 import org.eclipse.osgi.util.NLS;
@@ -63,9 +61,9 @@ import org.osgi.util.tracker.ServiceTracker;
 public class Activator implements BundleActivator, IFileTransferProtocolToFactoryMapper {
 
 	// This is the name of a system property 'org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.excludeContributors' 
-	// that allows people to defeat the priority system for the browse, send, and retrieve factory contributions.
+	// that allows people to defeat the priority system for the browse and retrieve factory contributions.
 	// If a plugin (symbolic id) is given in this property (multiples separated by comma), then
-	// that plugin's contributions will *not* be added to the browse, send, and retrieve protocol factories
+	// that plugin's contributions will *not* be added to the browse and retrieve protocol factories
 	public static final String PLUGIN_EXCLUDED_SYS_PROP_NAME = Activator.PLUGIN_ID + ".excludeContributors"; //$NON-NLS-1$
 
 	private static final String CLASS_ATTR = "class"; //$NON-NLS-1$
@@ -87,11 +85,6 @@ public class Activator implements BundleActivator, IFileTransferProtocolToFactor
 	private static final String RETRIEVE_FILETRANSFER_PROTOCOL_FACTORY_EPOINT = PLUGIN_ID + "." //$NON-NLS-1$
 			+ RETRIEVE_FILETRANSFER_PROTOCOL_FACTORY_EPOINT_NAME;
 
-	private static final String SEND_FILETRANSFER_PROTOCOL_FACTORY_EPOINT_NAME = "sendFileTransferProtocolFactory"; //$NON-NLS-1$
-
-	private static final String SEND_FILETRANSFER_PROTOCOL_FACTORY_EPOINT = PLUGIN_ID + "." //$NON-NLS-1$
-			+ SEND_FILETRANSFER_PROTOCOL_FACTORY_EPOINT_NAME;
-
 	private static final String BROWSE_FILETRANSFER_PROTOCOL_FACTORY_EPOINT_NAME = "browseFileTransferProtocolFactory"; //$NON-NLS-1$
 
 	private static final String BROWSE_FILETRANSFER_PROTOCOL_FACTORY_EPOINT = PLUGIN_ID + "." //$NON-NLS-1$
@@ -108,8 +101,6 @@ public class Activator implements BundleActivator, IFileTransferProtocolToFactor
 	private ServiceTracker extensionRegistryTracker = null;
 
 	private Map retrieveFileTransferProtocolMap;
-
-	private Map sendFileTransferProtocolMap;
 
 	private Map browseFileTransferProtocolMap;
 
@@ -134,17 +125,6 @@ public class Activator implements BundleActivator, IFileTransferProtocolToFactor
 						break;
 					case IExtensionDelta.REMOVED :
 						removeRetrieveExtensions(r.getExtension().getConfigurationElements());
-						break;
-				}
-			}
-			final IExtensionDelta sendDelta[] = event.getExtensionDeltas(PLUGIN_ID, SEND_FILETRANSFER_PROTOCOL_FACTORY_EPOINT_NAME);
-			for (IExtensionDelta s : sendDelta) {
-				switch (s.getKind()) {
-					case IExtensionDelta.ADDED :
-						addSendExtensions(s.getExtension().getConfigurationElements());
-						break;
-					case IExtensionDelta.REMOVED :
-						removeSendExtensions(s.getExtension().getConfigurationElements());
 						break;
 				}
 			}
@@ -246,7 +226,6 @@ public class Activator implements BundleActivator, IFileTransferProtocolToFactor
 		plugin = this;
 		this.context = ctxt;
 		this.retrieveFileTransferProtocolMap = new HashMap(3);
-		this.sendFileTransferProtocolMap = new HashMap(3);
 		this.browseFileTransferProtocolMap = new HashMap(3);
 
 		// initialize the default url connection modifier for ssl
@@ -321,10 +300,6 @@ public class Activator implements BundleActivator, IFileTransferProtocolToFactor
 		if (this.retrieveFileTransferProtocolMap != null) {
 			this.retrieveFileTransferProtocolMap.clear();
 			this.retrieveFileTransferProtocolMap = null;
-		}
-		if (this.sendFileTransferProtocolMap != null) {
-			this.sendFileTransferProtocolMap.clear();
-			this.sendFileTransferProtocolMap = null;
 		}
 		if (this.browseFileTransferProtocolMap != null) {
 			this.browseFileTransferProtocolMap.clear();
@@ -481,43 +456,6 @@ public class Activator implements BundleActivator, IFileTransferProtocolToFactor
 		}
 	}
 
-	void addSendExtensions(IConfigurationElement[] configElements) {
-		for (IConfigurationElement configElement : configElements) {
-			final String protocol = configElement.getAttribute(PROTOCOL_ATTR);
-			if (protocol == null || "".equals(protocol)) //$NON-NLS-1$
-				return;
-			String uriStr = configElement.getAttribute(URI_ATTR);
-			boolean uri = (uriStr == null) ? false : Boolean.valueOf(uriStr).booleanValue();
-			String CONTRIBUTION_WARNING = "File send contribution"; //$NON-NLS-1$
-			try {
-				String pluginId = configElement.getDeclaringExtension().getContributor().getName();
-				// Only add the factories if the contributor plugin has not been excluded
-				if (!pluginExcluded(pluginId)) {
-					// First create factory clazz
-					final ISendFileTransferFactory clazz = (ISendFileTransferFactory) configElement.createExecutableExtension(CLASS_ATTR);
-					// Get priority for new entry, if optional priority attribute specified
-					int priority = getPriority(configElement, CONTRIBUTION_WARNING, protocol);
-					setSendFileTransferFactory(protocol, pluginId, clazz, priority, uri);
-				} else {
-					Activator.getDefault().log(new Status(IStatus.WARNING, PLUGIN_ID, IStatus.WARNING, "Plugin " + pluginId + " excluded from contributing send factory", null)); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			} catch (final CoreException e) {
-				Activator.getDefault().log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, NLS.bind("Error loading from {0} extension point", SEND_FILETRANSFER_PROTOCOL_FACTORY_EPOINT), e)); //$NON-NLS-1$
-			}
-		}
-	}
-
-	void removeSendExtensions(IConfigurationElement[] configElements) {
-		for (IConfigurationElement configElement : configElements) {
-			final String protocol = configElement.getAttribute(PROTOCOL_ATTR);
-			if (protocol == null || "".equals(protocol)) //$NON-NLS-1$
-				return;
-			String id = getSendFileTransferFactoryId(protocol);
-			if (id != null)
-				removeSendFileTransferFactory(id);
-		}
-	}
-
 	void addBrowseExtensions(IConfigurationElement[] configElements) {
 		for (IConfigurationElement configElement : configElements) {
 			final String protocol = configElement.getAttribute(PROTOCOL_ATTR);
@@ -561,10 +499,6 @@ public class Activator implements BundleActivator, IFileTransferProtocolToFactor
 			final IExtensionPoint retrieveExtensionPoint = reg.getExtensionPoint(RETRIEVE_FILETRANSFER_PROTOCOL_FACTORY_EPOINT);
 			if (retrieveExtensionPoint != null)
 				addRetrieveExtensions(retrieveExtensionPoint.getConfigurationElements());
-			// Now do it with send
-			final IExtensionPoint sendExtensionPoint = reg.getExtensionPoint(SEND_FILETRANSFER_PROTOCOL_FACTORY_EPOINT);
-			if (sendExtensionPoint != null)
-				addSendExtensions(sendExtensionPoint.getConfigurationElements());
 			// Now for browse
 			final IExtensionPoint browseExtensionPoint = reg.getExtensionPoint(BROWSE_FILETRANSFER_PROTOCOL_FACTORY_EPOINT);
 			if (browseExtensionPoint != null)
@@ -610,19 +544,6 @@ public class Activator implements BundleActivator, IFileTransferProtocolToFactor
 		if (protocolFactory == null)
 			return null;
 		final IRetrieveFileTransferFactory factory = (IRetrieveFileTransferFactory) protocolFactory.getFactory();
-		if (factory != null)
-			return factory.newInstance();
-		return null;
-	}
-
-	public ISendFileTransfer getSendFileTransfer(String protocol) {
-		ProtocolFactory protocolFactory = null;
-		synchronized (sendFileTransferProtocolMap) {
-			protocolFactory = (ProtocolFactory) sendFileTransferProtocolMap.get(protocol);
-		}
-		if (protocolFactory == null)
-			return null;
-		final ISendFileTransferFactory factory = (ISendFileTransferFactory) protocolFactory.getFactory();
 		if (factory != null)
 			return factory.newInstance();
 		return null;
@@ -822,93 +743,6 @@ public class Activator implements BundleActivator, IFileTransferProtocolToFactor
 		synchronized (browseFileTransferProtocolMap) {
 			for (Iterator i = browseFileTransferProtocolMap.keySet().iterator(); i.hasNext();) {
 				ProtocolFactory oldProtocolFactory = (ProtocolFactory) browseFileTransferProtocolMap.get(i.next());
-				if (oldProtocolFactory == null)
-					continue;
-				if (id.equals(oldProtocolFactory.getID())) {
-					i.remove();
-					removed = true;
-				}
-			}
-			return removed;
-		}
-	}
-
-	public boolean setSendFileTransferFactory(String protocol, String id, ISendFileTransferFactory factory, int priority) {
-		return setSendFileTransferFactory(protocol, id, factory, priority, false);
-	}
-
-	public boolean setSendFileTransferFactory(String protocol, String id, ISendFileTransferFactory factory, int priority, boolean uri) {
-		if (protocol == null || "".equals(protocol)) //$NON-NLS-1$
-			return false;
-		if (id == null)
-			return false;
-		if (factory == null)
-			return false;
-		if (!pluginExcluded(id)) {
-			// Now create new ProtocolFactory
-			ProtocolFactory newProtocolFactory = new ProtocolFactory(factory, priority, id);
-			synchronized (sendFileTransferProtocolMap) {
-				ProtocolFactory oldProtocolFactory = (ProtocolFactory) sendFileTransferProtocolMap.get(protocol);
-				// If found, choose between them based upon comparing their priority
-				if (oldProtocolFactory != null) {
-					// Now, compare priorities and pick winner
-					String CONTRIBUTION_WARNING = "File send contribution"; //$NON-NLS-1$
-					int result = oldProtocolFactory.compareTo(newProtocolFactory);
-					if (result < 0) {
-						// Existing one has higher priority, so we provide warning and return (leaving existing one as the handler)
-						Activator.getDefault().log(new Status(IStatus.WARNING, PLUGIN_ID, IStatus.WARNING, NLS.bind("{0} for protocol {1} from {2} will be ignored.  Existing protocol factory has higher priority.", new Object[] {CONTRIBUTION_WARNING, protocol, id}), null)); //$NON-NLS-1$
-						return false;
-					} else if (result == 0) {
-						// Warn that we are using new one because they have the same priority.
-						Activator.getDefault().log(new Status(IStatus.WARNING, PLUGIN_ID, IStatus.WARNING, NLS.bind("{0} for protocol {1} from {2} will be used in preference to existing handler.  Both have same priority={3}.", new Object[] {CONTRIBUTION_WARNING, protocol, id, Integer.valueOf(priority)}), null)); //$NON-NLS-1$
-					} else if (result > 0) {
-						// Warn that we are using new one because it has higher priority.
-						Activator.getDefault().log(new Status(IStatus.WARNING, PLUGIN_ID, IStatus.WARNING, NLS.bind("{0} for protocol {1} from {2} will be used in preference to existing handler.  New handler has higher priority={3}<{4}.", new Object[] {CONTRIBUTION_WARNING, protocol, id, Integer.valueOf(priority), Integer.valueOf(oldProtocolFactory.priority)}), null)); //$NON-NLS-1$
-					}
-				}
-				// If !uri, then check/register protocol as URLStreamHandlerService
-				if (!uri) {
-					String[] existingSchemes = getPlatformSupportedSchemes();
-					if (!isSchemeRegistered(protocol, existingSchemes))
-						registerScheme(protocol);
-				}
-				// Finally, put protocol factory in map with protocol as key
-				sendFileTransferProtocolMap.put(protocol, newProtocolFactory);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public String getSendFileTransferFactoryId(String protocol) {
-		if (protocol == null)
-			return null;
-		synchronized (sendFileTransferProtocolMap) {
-			ProtocolFactory oldProtocolFactory = (ProtocolFactory) sendFileTransferProtocolMap.get(protocol);
-			if (oldProtocolFactory == null)
-				return null;
-			return oldProtocolFactory.getID();
-		}
-	}
-
-	public int getSendFileTransferPriority(String protocol) {
-		if (protocol == null)
-			return -1;
-		synchronized (sendFileTransferProtocolMap) {
-			ProtocolFactory oldProtocolFactory = (ProtocolFactory) sendFileTransferProtocolMap.get(protocol);
-			if (oldProtocolFactory == null)
-				return -1;
-			return oldProtocolFactory.getPriority();
-		}
-	}
-
-	public boolean removeSendFileTransferFactory(String id) {
-		if (id == null)
-			return false;
-		boolean removed = false;
-		synchronized (sendFileTransferProtocolMap) {
-			for (Iterator i = sendFileTransferProtocolMap.keySet().iterator(); i.hasNext();) {
-				ProtocolFactory oldProtocolFactory = (ProtocolFactory) sendFileTransferProtocolMap.get(i.next());
 				if (oldProtocolFactory == null)
 					continue;
 				if (id.equals(oldProtocolFactory.getID())) {

@@ -14,7 +14,6 @@
 package org.eclipse.equinox.p2.transport.ecf.filetransfer;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.IFileID;
 
 /**
  * Remote file representation.
@@ -26,12 +25,5 @@ public interface IRemoteFile extends IAdaptable {
 	 * @return file info.  Will not be <code>null</code>.
 	 */
 	public IRemoteFileInfo getInfo();
-
-	/**
-	 * Get the remote file id associated with this file.
-	 * @return the file id associated with this file.  Will not be
-	 * <code>null</code>.
-	 */
-	public IFileID getID();
 
 }

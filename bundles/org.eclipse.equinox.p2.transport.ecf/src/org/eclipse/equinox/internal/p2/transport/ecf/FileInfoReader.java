@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.*;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.events.IRemoteFileSystemBrowseEvent;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.*;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRemoteFileSystemBrowser;
 import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.browse.MultiProtocolFileSystemBrowserAdapter;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.*;
@@ -47,7 +47,7 @@ class FileInfoReader {
 	long getLastModified(URI uri, IProgressMonitor monitor)
 			throws AuthenticationFailedException, FileNotFoundException, CoreException, JREHttpClientRequiredException {
 		SubMonitor convert = SubMonitor.convert(monitor, uri.toString(), connectionRetryCount);
-		IRemoteFileSystemBrowserContainerAdapter adapter = new MultiProtocolFileSystemBrowserAdapter();
+		IRemoteFileSystemBrowser adapter = new MultiProtocolFileSystemBrowserAdapter();
 		adapter.setConnectContextForAuthentication(connectContext);
 		CoreException summary = new CoreException(Status.error("All download attempts failed")); //$NON-NLS-1$
 		for (int retryCount = 0; retryCount < connectionRetryCount; retryCount++) {
@@ -57,9 +57,8 @@ class FileInfoReader {
 			AtomicReference<IRemoteFile> remote = new AtomicReference<>();
 			AtomicReference<Exception> exception = new AtomicReference<>();
 			try {
-				IFileID fileID = FileIDFactory.getDefault().createFileID(adapter.getBrowseNamespace(), uri.toString());
 				CountDownLatch latch = new CountDownLatch(1);
-				IRemoteFileSystemRequest browseRequest = adapter.sendBrowseRequest(fileID, event -> {
+				IRemoteFileSystemRequest browseRequest = adapter.sendBrowseRequest(uri, event -> {
 					Exception e = event.getException();
 					if (e != null) {
 						exception.set(e);
@@ -78,7 +77,7 @@ class FileInfoReader {
 						throw new OperationCanceledException();
 					}
 				}
-			} catch (RemoteFileSystemException | FileCreateException e) {
+			} catch (RemoteFileSystemException e) {
 				exception.set(e);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
