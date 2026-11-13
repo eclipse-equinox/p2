@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2018 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -276,6 +276,9 @@ public class FileUtils {
 	 * @throws IOException if there is an IO issue during this operation.
 	 */
 	public static void zip(File[] inclusions, File[] exclusions, File destinationArchive, IPathComputer pathComputer) throws IOException {
+		if (inclusions == null) {
+			throw new IOException("No files given to include into " + destinationArchive); //$NON-NLS-1$
+		}
 		try (FileOutputStream fileOutput = new FileOutputStream(destinationArchive); ZipOutputStream output = new ZipOutputStream(fileOutput)) {
 			HashSet<File> exclusionSet = exclusions == null ? new HashSet<>() : new HashSet<>(Arrays.asList(exclusions));
 			HashSet<IPath> directoryEntries = new HashSet<>();
@@ -284,6 +287,25 @@ public class FileUtils {
 				zip(output, inclusion, exclusionSet, pathComputer, directoryEntries);
 			}
 		}
+	}
+
+	/**
+	 * Creates a zip archive at the given destination that contains the files and
+	 * folders of the given directory, the directory itself excluded.
+	 *
+	 * @param directory          the directory to zip
+	 * @param destinationArchive the location of the resultant archive
+	 * @param pathComputer       the path computer used to create the path of the
+	 *                           files in the result
+	 * @throws IOException if the directory does not exist or cannot be read, or if
+	 *                     there is an IO issue during this operation.
+	 */
+	public static void zipDir(File directory, File destinationArchive, IPathComputer pathComputer) throws IOException {
+		File[] files = directory.listFiles();
+		if (files == null) {
+			throw new IOException("Cannot list the files of the directory " + directory); //$NON-NLS-1$
+		}
+		zip(files, null, destinationArchive, pathComputer);
 	}
 
 	private static File[] manifestFirst(File[] inclusions) {
@@ -351,6 +373,9 @@ public class FileUtils {
 	 */
 	private static void zipDir(ZipOutputStream output, File source, Set<File> exclusions, IPathComputer pathComputer, Set<IPath> directoryEntries) throws IOException {
 		File[] files = source.listFiles();
+		if (files == null) {
+			throw new IOException("Cannot list the files of the directory " + source); //$NON-NLS-1$
+		}
 		if (files.length == 0) {
 			zipDirectoryEntry(output, pathComputer.computePath(source), source.lastModified(), directoryEntries);
 		}

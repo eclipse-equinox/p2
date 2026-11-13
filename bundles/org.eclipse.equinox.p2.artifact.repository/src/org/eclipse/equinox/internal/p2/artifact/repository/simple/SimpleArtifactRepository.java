@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -646,7 +646,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			long totalArtifactSize = 0;
 			try {
 				zipFile = File.createTempFile(artifactFolder.getName(), JAR_EXTENSION, null);
-				FileUtils.zip(artifactFolder.listFiles(), null, zipFile, FileUtils.createRootPathComputer(artifactFolder));
+				FileUtils.zipDir(artifactFolder, zipFile, FileUtils.createRootPathComputer(artifactFolder));
 				FileInputStream fis = new FileInputStream(zipFile);
 				totalArtifactSize += FileUtils.copyStream(fis, true, destination, false);
 			} catch (IOException e) {
