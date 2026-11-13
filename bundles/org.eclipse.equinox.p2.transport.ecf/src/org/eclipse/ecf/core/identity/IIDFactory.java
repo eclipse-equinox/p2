@@ -49,7 +49,7 @@ public interface IIDFactory {
 	/**
 	 * Get a list of the current Namespace instances exposed by this factory.
 	 * 
-	 * @return List<Namespace> of Namespace instances
+	 * @return List of {@link Namespace} instances
 	 * @exception SecurityException
 	 *                thrown if caller does not have appropriate
 	 *                NamespacePermission for given namespace

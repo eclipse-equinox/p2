@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.IAdaptable;
  * ID id = IDFactory.getDefault().createID(namespace, &quot;slewis&quot;);
  * </pre>
  * 
- * <p>
  * 
  * @see Namespace
  * 

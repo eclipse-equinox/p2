@@ -200,11 +200,8 @@ public abstract class Namespace implements Serializable, IAdaptable {
 	 * Make an instance of this namespace. Namespace subclasses, provided by plugins
 	 * must implement this method to construct ID instances for the given namespace.
 	 * <p>
-	 * </p>
 	 * See {@link #getSupportedParameterTypes()} to get information relevant to
 	 * deciding what parameter types are expected by this method.
-	 * <p>
-	 * </p>
 	 * 
 	 * @param parameters
 	 *            an Object[] of parameters for creating ID instances. May be null.
@@ -243,21 +240,16 @@ public abstract class Namespace implements Serializable, IAdaptable {
 	 * the available parameter types, and then create and pass in conforming Object
 	 * arrays to to {@link #createInstance(Object[])}.
 	 * <p>
-	 * </p>
 	 * An empty two-dimensional array (new Class[0][0]) is the default returned by
 	 * this abstract superclass. This means that the Object [] passed to
 	 * {@link #createInstance(Object[])} will be ignored.
 	 * <p>
-	 * </p>
 	 * Subsclasses should override this method to specify the parameters that they
 	 * will accept in calls to {@link #createInstance(Object[])}. The rows of the
 	 * returned Class array are the acceptable types for a given invocation of
 	 * createInstance.
 	 * <p>
-	 * </p>
 	 * Consider the following example:
-	 * <p>
-	 * </p>
 	 * 
 	 * <pre>
 	 * public Class[][] getSupportedParameterTypes() {
