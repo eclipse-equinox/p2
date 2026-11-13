@@ -18,7 +18,7 @@ pipeline {
 				xvnc(useXauthority: true) {
 					sh """
 					mvn clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
-						-Pbree-libs -Papi-check -Pjavadoc \
+						-Pbree-libs -Papi-check -Pjavadoc -Pupdatesite \
 						-Dcompare-version-with-baselines.skip=false \
 						-Dmaven.test.failure.ignore=true \
 						-T 1C
@@ -27,7 +27,7 @@ pipeline {
 			}
 			post {
 				always {
-					archiveArtifacts artifacts: '*.log,**/target/**/*.log', allowEmptyArchive: true
+					archiveArtifacts artifacts: '*.log,**/target/**/*.log,releng/org.eclipse.equinox.p2.updatesite.repository/target/*.zip', allowEmptyArchive: true
 					discoverGitReferenceBuild referenceJob: 'p2/master'
 					junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
 					recordIssues publishAllIssues: true, ignoreQualityGate: true, enabledForFailure: true, tools: [
