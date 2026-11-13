@@ -20,8 +20,8 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import java.io.FileNotFoundException;
 import java.net.*;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
-import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.BrowseFileTransferException;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
 import org.eclipse.osgi.util.NLS;
 
 /**

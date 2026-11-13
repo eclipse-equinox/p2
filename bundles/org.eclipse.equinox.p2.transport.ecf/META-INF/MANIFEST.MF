@@ -4,21 +4,27 @@ Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.transport.ecf
 Bundle-Version: 1.4.900.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-17
-Require-Bundle: org.eclipse.ecf;bundle-version="3.1.0",
- org.eclipse.ecf.filetransfer;bundle-version="4.0.0",
- org.eclipse.ecf.provider.filetransfer;bundle-version="3.1.0",
- org.eclipse.equinox.p2.core;bundle-version="[2.6.0,3)",
+Require-Bundle: org.eclipse.equinox.p2.core;bundle-version="[2.6.0,3)",
  org.eclipse.equinox.p2.repository;bundle-version="[2.5.200,3)",
  org.eclipse.equinox.common;bundle-version="[3.15.100,4)",
- org.eclipse.core.jobs;bundle-version="3.5.100"
+ org.eclipse.core.jobs;bundle-version="3.5.100",
+ org.eclipse.equinox.registry;bundle-version="[3.5.0,4)"
 Service-Component: OSGI-INF/ecfTransport.xml,
  OSGI-INF/org.eclipse.equinox.internal.p2.transport.ecf.P2SSLContextFactory.xml
 Bundle-Activator: org.eclipse.equinox.internal.p2.transport.ecf.Activator
 Bundle-ActivationPolicy: lazy
-Export-Package: org.eclipse.equinox.internal.p2.transport.ecf;x-friends:="org.eclipse.equinox.p2.discovery.compatibility,org.eclipse.equinox.p2.installer"
+Export-Package: org.eclipse.equinox.internal.p2.transport.ecf;x-friends:="org.eclipse.equinox.p2.discovery.compatibility,org.eclipse.equinox.p2.installer",
+ org.eclipse.equinox.p2.transport.ecf.filetransfer,
+ org.eclipse.equinox.p2.transport.ecf.filetransfer.events,
+ org.eclipse.equinox.p2.transport.ecf.filetransfer.identity,
+ org.eclipse.equinox.p2.transport.ecf.filetransfer.service
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Import-Package: org.eclipse.osgi.util;version="1.1.0",
+Import-Package: org.eclipse.core.net.proxy,
+ org.eclipse.osgi.service.debug,
+ org.eclipse.osgi.util;version="1.1.0",
  org.osgi.framework;version="1.6.0",
+ org.osgi.service.log,
+ org.osgi.service.url,
  org.osgi.util.tracker;version="1.5.0"
 Automatic-Module-Name: org.eclipse.equinox.p2.transport.ecf

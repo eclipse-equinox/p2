@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2017 Cloudsmith Inc.
+ * Copyright (c) 2006, 2026 Cloudsmith Inc.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -24,11 +24,11 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.filetransfer.*;
-import org.eclipse.ecf.filetransfer.events.*;
-import org.eclipse.ecf.filetransfer.identity.*;
-import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.*;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.events.*;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.identity.*;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.p2.repository.Messages;
@@ -94,7 +94,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		}
 		extraRequestHeaders.put("User-Agent", userAgent); //$NON-NLS-1$
 		options = new HashMap<>(1);
-		options.put(org.eclipse.ecf.filetransfer.IRetrieveFileTransferOptions.REQUEST_HEADERS, extraRequestHeaders);
+		options.put(org.eclipse.equinox.p2.transport.ecf.filetransfer.IRetrieveFileTransferOptions.REQUEST_HEADERS, extraRequestHeaders);
 	}
 
 	private static IFileReaderProbe testProbe;
