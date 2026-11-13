@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
+import static org.junit.Assert.assertThrows;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -151,6 +153,49 @@ public class FileUtilsTest extends AbstractProvisioningTest {
 		assertExists("2.3", archive, "a.txt");
 		assertExists("2.4", archive, "b/b.txt");
 		assertExists("2.5", archive, "b/");
+	}
+
+	public void testZipDir() throws IOException {
+		File data = getTestData("1.0", "testData/core/a2");
+		File archive = new File(getTempFolder(), getUniqueString() + ".zip");
+		FileUtils.zipDir(data, archive, FileUtils.createRootPathComputer(data));
+		assertExists("1.1", archive, "a.txt");
+		assertExists("1.2", archive, "b/b.txt");
+		assertExists("1.3", archive, "b/");
+	}
+
+	/**
+	 * A directory that is missing gives an IOException that names it, not a
+	 * NullPointerException.
+	 */
+	public void testZipDirMissingDirectory() {
+		File missing = new File(getTempFolder(), getUniqueString());
+		File archive = new File(getTempFolder(), getUniqueString() + ".zip");
+		IOException e = assertThrows(IOException.class, () -> FileUtils.zipDir(missing, archive, FileUtils.createRootPathComputer(missing)));
+		assertTrue(e.getMessage(), e.getMessage().contains(missing.toString()));
+		assertThrows(IOException.class, () -> FileUtils.zip(missing.listFiles(), null, archive, FileUtils.createRootPathComputer(missing)));
+	}
+
+	/**
+	 * A subdirectory that cannot be listed gives an IOException that names it, not
+	 * a NullPointerException.
+	 */
+	public void testZipDirUnreadableSubdirectory() throws IOException {
+		File data = new File(getTempFolder(), getUniqueString());
+		File subdirectory = new File(data, "b");
+		assertTrue(subdirectory.mkdirs());
+		Files.writeString(new File(subdirectory, "b.txt").toPath(), "b");
+		File archive = new File(getTempFolder(), getUniqueString() + ".zip");
+		try {
+			// nothing to test on a file system without permissions, nor when the tests run as root
+			if (!subdirectory.setReadable(false) || subdirectory.listFiles() != null) {
+				return;
+			}
+			IOException e = assertThrows(IOException.class, () -> FileUtils.zipDir(data, archive, FileUtils.createRootPathComputer(data)));
+			assertTrue(e.getMessage(), e.getMessage().contains(subdirectory.toString()));
+		} finally {
+			subdirectory.setReadable(true);
+		}
 	}
 
 	public void testZipDynamicPathComputer() throws IOException {
