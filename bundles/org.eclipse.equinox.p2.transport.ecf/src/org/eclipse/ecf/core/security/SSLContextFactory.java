@@ -26,7 +26,7 @@ public interface SSLContextFactory {
 
 	/**
 	 * See <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/javax/net/ssl/SSLContext.html#getDefault()">SSLContext.getDefault()</a><br>
-	 * NOTE: Rather than the using the {@link #SSLContext.setDefault SSLContext.setDefault(SSLContext)}
+	 * NOTE: Rather than the using the {@link SSLContext#setDefault(SSLContext) SSLContext.setDefault(SSLContext)}
 	 * to set the default SSLContext as described in the SSLContext.getDefault() javadocs, the default for the implementer is set upon construction of the service instance.
 	 */
 	SSLContext getDefault() throws NoSuchAlgorithmException, NoSuchProviderException;

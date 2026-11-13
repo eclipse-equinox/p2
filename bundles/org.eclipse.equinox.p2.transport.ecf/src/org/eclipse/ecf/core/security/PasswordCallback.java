@@ -43,11 +43,8 @@ public class PasswordCallback implements Callback, java.io.Serializable {
 	/**
 	 * Construct a <code>PasswordCallback</code> with a prompt and default password.
 	 * 
-	 * <p>
-	 * 
 	 * @param prompt
 	 *            the prompt used to request the information.
-	 *            <p>
 	 * 
 	 * @param defaultPassword
 	 *            the name to be used as the default name displayed with the
@@ -66,8 +63,6 @@ public class PasswordCallback implements Callback, java.io.Serializable {
 	/**
 	 * Get the prompt.
 	 * 
-	 * <p>
-	 * 
 	 * @return the prompt.
 	 */
 	public String getPrompt() {
@@ -76,8 +71,6 @@ public class PasswordCallback implements Callback, java.io.Serializable {
 
 	/**
 	 * Get the default password.
-	 * 
-	 * <p>
 	 * 
 	 * @return the default password, or <code>null</code> if this <code>PasswordCallback</code> was
 	 *         not instantiated with a <code>defaultPassword</code>.
@@ -88,8 +81,6 @@ public class PasswordCallback implements Callback, java.io.Serializable {
 
 	/**
 	 * Set the retrieved password.
-	 * 
-	 * <p>
 	 * 
 	 * @param pw
 	 *            the password (which may be null).
@@ -102,8 +93,6 @@ public class PasswordCallback implements Callback, java.io.Serializable {
 
 	/**
 	 * Get the retrieved password.
-	 * 
-	 * <p>
 	 * 
 	 * @return the retrieved password (which may be null)
 	 * 

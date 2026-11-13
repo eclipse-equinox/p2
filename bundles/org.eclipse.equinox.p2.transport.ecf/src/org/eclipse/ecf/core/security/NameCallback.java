@@ -43,11 +43,8 @@ public class NameCallback implements Callback, java.io.Serializable {
 	/**
 	 * Construct a <code>NameCallback</code> with a prompt and default name.
 	 * 
-	 * <p>
-	 * 
 	 * @param prompt
 	 *            the prompt used to request the information.
-	 *            <p>
 	 * 
 	 * @param defaultName
 	 *            the name to be used as the default name displayed with the
@@ -66,8 +63,6 @@ public class NameCallback implements Callback, java.io.Serializable {
 	/**
 	 * Get the prompt.
 	 * 
-	 * <p>
-	 * 
 	 * @return the prompt.
 	 */
 	public String getPrompt() {
@@ -76,8 +71,6 @@ public class NameCallback implements Callback, java.io.Serializable {
 
 	/**
 	 * Get the default name.
-	 * 
-	 * <p>
 	 * 
 	 * @return the default name, or null if this <code>NameCallback</code> was
 	 *         not instantiated with a <code>defaultName</code>.
@@ -88,8 +81,6 @@ public class NameCallback implements Callback, java.io.Serializable {
 
 	/**
 	 * Set the retrieved name.
-	 * 
-	 * <p>
 	 * 
 	 * @param name
 	 *            the retrieved name (which may be null).
@@ -102,8 +93,6 @@ public class NameCallback implements Callback, java.io.Serializable {
 
 	/**
 	 * Get the retrieved name.
-	 * 
-	 * <p>
 	 * 
 	 * @return the retrieved name (which may be null)
 	 * 

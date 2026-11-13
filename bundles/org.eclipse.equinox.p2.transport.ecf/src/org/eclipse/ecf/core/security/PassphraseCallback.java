@@ -43,11 +43,8 @@ public class PassphraseCallback implements Callback, java.io.Serializable {
 	/**
 	 * Construct a <code>PassphraseCallback</code> with a prompt and default passphrase.
 	 * 
-	 * <p>
-	 * 
 	 * @param prompt
 	 *            the prompt used to request the information.
-	 *            <p>
 	 * 
 	 * @param defaultPassphrase
 	 *            the name to be used as the default name displayed with the
@@ -66,8 +63,6 @@ public class PassphraseCallback implements Callback, java.io.Serializable {
 	/**
 	 * Get the prompt.
 	 * 
-	 * <p>
-	 * 
 	 * @return the prompt.
 	 */
 	public String getPrompt() {
@@ -76,8 +71,6 @@ public class PassphraseCallback implements Callback, java.io.Serializable {
 
 	/**
 	 * Get the default passphrase.
-	 * 
-	 * <p>
 	 * 
 	 * @return the default passphrase, or <code>null</code> if this <code>PassphraseCallback</code> was
 	 *         not instantiated with a <code>defaultPassphrase</code>.
@@ -88,8 +81,6 @@ public class PassphraseCallback implements Callback, java.io.Serializable {
 
 	/**
 	 * Set the retrieved passphrase.
-	 * 
-	 * <p>
 	 * 
 	 * @param pw
 	 *            the passphrase (which may be null).
@@ -102,8 +93,6 @@ public class PassphraseCallback implements Callback, java.io.Serializable {
 
 	/**
 	 * Get the retrieved passphrase.
-	 * 
-	 * <p>
 	 * 
 	 * @return the retrieved passphrase (which may be null)
 	 * 

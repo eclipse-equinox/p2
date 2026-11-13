@@ -21,8 +21,6 @@ public class UnsupportedCallbackException extends Exception {
 	 * Constructs a <code>UnsupportedCallbackException</code> with no detail
 	 * message.
 	 * 
-	 * <p>
-	 * 
 	 * @param callback
 	 *            the unrecognized <code>Callback</code>.
 	 */
@@ -36,11 +34,8 @@ public class UnsupportedCallbackException extends Exception {
 	 * message. A detail message is a String that describes this particular
 	 * exception.
 	 * 
-	 * <p>
-	 * 
 	 * @param callback
 	 *            the unrecognized <code>Callback</code>.
-	 *            <p>
 	 * 
 	 * @param msg
 	 *            the detail message.
@@ -52,8 +47,6 @@ public class UnsupportedCallbackException extends Exception {
 
 	/**
 	 * Get the unrecognized <code>Callback</code>.
-	 * 
-	 * <p>
 	 * 
 	 * @return the unrecognized <code>Callback</code>.
 	 */
