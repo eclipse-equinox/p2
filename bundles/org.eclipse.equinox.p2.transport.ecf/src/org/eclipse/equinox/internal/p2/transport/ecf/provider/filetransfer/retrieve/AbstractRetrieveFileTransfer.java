@@ -14,9 +14,6 @@
  *****************************************************************************/
 package org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.retrieve;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,6 +23,7 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.function.Function;
 import org.eclipse.core.net.proxy.IProxyData;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
@@ -37,11 +35,9 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.util.Proxy;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.FileTransferJob;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileRangeSpecification;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferListener;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferPausable;
-import org.eclipse.equinox.p2.transport.ecf.filetransfer.IFileTransferRunnable;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IIncomingFileTransfer;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IRetrieveFileTransferOptions;
 import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
@@ -152,8 +148,9 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 		return result;
 	}
 
-	private IFileTransferRunnable fileTransferRunnable = new IFileTransferRunnable() {
-		public IStatus performFileTransfer(IProgressMonitor monitor) {
+	private final Function<IProgressMonitor, IStatus> fileTransferRunnable = new Function<>() {
+		@Override
+		public IStatus apply(IProgressMonitor monitor) {
 			transferStartTime = System.currentTimeMillis();
 			final byte[] buf = new byte[buff_length];
 			final long totalWork = ((fileLength == -1) ? 100 : fileLength);
@@ -600,17 +597,22 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 		return getRemoteFileURL().toString() + createRangeName();
 	}
 
-	protected void setupAndScheduleJob(FileTransferJob fileTransferJob) {
-		if (fileTransferJob == null) {
-			// Create our own
-			fileTransferJob = new FileTransferJob(createJobName());
-		}
-		// Now set to our runnable
-		fileTransferJob.setFileTransferRunnable(fileTransferRunnable);
-		fileTransferJob.setFileTransfer(this);
+	protected void setupAndScheduleJob() {
 		if (isDone()) {
 			return;
 		}
+		Job fileTransferJob = new Job(createJobName()) {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				return fileTransferRunnable.apply(monitor);
+			}
+
+			@Override
+			protected void canceling() {
+				AbstractRetrieveFileTransfer.this.cancel();
+			}
+		};
+		fileTransferJob.setSystem(true);
 		synchronized (jobLock) {
 			job = fileTransferJob;
 			job.schedule();
@@ -629,31 +631,6 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 				return AbstractRetrieveFileTransfer.this;
 			}
 
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @seeorg.eclipse.ecf.filetransfer.events.
-			 * IIncomingFileTransferReceiveStartEvent
-			 * #receive(java.io.File)
-			 */
-			public IIncomingFileTransfer receive(File localFileToSave) throws IOException {
-				return receive(localFileToSave, null);
-			}
-
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @seeorg.eclipse.ecf.filetransfer.events.
-			 * IIncomingFileTransferReceiveStartEvent
-			 * #receive(java.io.File,
-			 * org.eclipse.equinox.p2.transport.ecf.filetransfer.FileTransferJob)
-			 */
-			public IIncomingFileTransfer receive(File localFileToSave, FileTransferJob fileTransferJob) throws IOException {
-				setOutputStream(new BufferedOutputStream(new FileOutputStream(localFileToSave)));
-				setupAndScheduleJob(fileTransferJob);
-				return AbstractRetrieveFileTransfer.this;
-			}
-
 			/**
 			 * @param streamToStore
 			 * @return incoming file transfer instance.
@@ -661,17 +638,9 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 			 *             not thrown in this implementation.
 			 */
 			public IIncomingFileTransfer receive(OutputStream streamToStore) throws IOException {
-				return receive(streamToStore, null);
-			}
-
-			/**
-			 * @throws IOException
-			 *             not actually thrown by this implementation.
-			 */
-			public IIncomingFileTransfer receive(OutputStream streamToStore, FileTransferJob fileTransferJob) throws IOException {
 				setOutputStream(streamToStore);
 				setCloseOutputStream(false);
-				setupAndScheduleJob(fileTransferJob);
+				setupAndScheduleJob();
 				return AbstractRetrieveFileTransfer.this;
 			}
 
@@ -698,10 +667,6 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 				return sb.toString();
 			}
 
-			public Map getResponseHeaders() {
-				return responseHeaders;
-			}
-
 		});
 	}
 
@@ -712,16 +677,6 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 				return AbstractRetrieveFileTransfer.this;
 			}
 
-			public IIncomingFileTransfer receive(File localFileToSave, boolean append) throws IOException {
-				return receive(localFileToSave, null, append);
-			}
-
-			public IIncomingFileTransfer receive(File localFileToSave, FileTransferJob fileTransferJob, boolean append) throws IOException {
-				setOutputStream(new BufferedOutputStream(new FileOutputStream(localFileToSave.getName(), append)));
-				setupAndScheduleJob(fileTransferJob);
-				return AbstractRetrieveFileTransfer.this;
-			}
-
 			/**
 			 * @param streamToStore
 			 * @return incoming file transfer instance.
@@ -729,17 +684,9 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 			 *             not thrown in this implementation.
 			 */
 			public IIncomingFileTransfer receive(OutputStream streamToStore) throws IOException {
-				return receive(streamToStore, null);
-			}
-
-			/**
-			 * @throws IOException
-			 *             not actually thrown by this implementation.
-			 */
-			public IIncomingFileTransfer receive(OutputStream streamToStore, FileTransferJob fileTransferJob) throws IOException {
 				setOutputStream(streamToStore);
 				setCloseOutputStream(false);
-				setupAndScheduleJob(fileTransferJob);
+				setupAndScheduleJob();
 				return AbstractRetrieveFileTransfer.this;
 			}
 
@@ -759,10 +706,6 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 				sb.append("bytesReceived=").append(bytesReceived) //$NON-NLS-1$
 						.append("]"); //$NON-NLS-1$
 				return sb.toString();
-			}
-
-			public Map getResponseHeaders() {
-				return responseHeaders;
 			}
 
 		});

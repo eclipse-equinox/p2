@@ -22,6 +22,8 @@ import java.io.*;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
@@ -37,30 +39,9 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
 
 /**
- * FileReader is an ECF FileTransferJob implementation.
+ * FileReader reads a remote file and reports transfer events.
  */
-public final class FileReader extends FileTransferJob implements IFileTransferListener {
-	/**
-	 * Class used to suppress warnings about a job being blocked by another job.
-	 * Since we are running a job that will always be blocked by another job that is
-	 * actually performing the transfer, these messages are unnecessary and ugly.
-	 */
-	static class SuppressBlockedMonitor extends ProgressMonitorWrapper {
-		public SuppressBlockedMonitor(IProgressMonitor monitor, int ticks) {
-			super(monitor.slice(ticks));
-		}
-
-		@Override
-		public void setBlocked(IStatus reason) {
-			// do nothing
-		}
-
-		@Override
-		public void clearBlocked() {
-			// do nothing
-		}
-	}
-
+public final class FileReader implements IFileTransferListener {
 	static Map<String, Map<String, String>> options;
 
 	static private String getProperty(String key, String defaultValue) {
@@ -100,6 +81,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	private static IFileReaderProbe testProbe;
 	private boolean closeStreamWhenFinished = false;
 	private Exception exception;
+	private volatile IStatus result;
 	private FileInfo fileInfo;
 	private long lastProgressCount;
 	private long lastStatsCount;
@@ -119,17 +101,15 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	private boolean isPause = false;
 	private boolean hasPaused = false;
 	private IFileTransferPausable pasuable = null;
+	/** Released when the current transfer segment is done or paused. */
+	private volatile CountDownLatch transferEnded = new CountDownLatch(0);
+	private volatile boolean transferActive;
 
 	/**
 	 * Create a new FileReader that will retry failed connection attempts and sleep
 	 * some amount of time between each attempt.
 	 */
 	public FileReader(IProvisioningAgent aAgent, IConnectContext aConnectContext) {
-		super(Messages.FileTransport_reader); // job label
-
-		// Hide this job.
-		setSystem(true);
-		setUser(false);
 		connectionRetryCount = RepositoryPreferences.getConnectionRetryCount();
 		connectionRetryDelay = RepositoryPreferences.getConnectionMsRetryDelay();
 		retryOnSocketTimeout = RepositoryPreferences.getRetryOnSocketTimeout();
@@ -186,7 +166,6 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		if (event instanceof IFileTransferConnectStartEvent) {
 			// keep the connect event to be able to cancel the transfer
 			connectEvent = (IFileTransferConnectStartEvent) event;
-			connectEvent.connectUsingJob(((IFileTransferConnectStartEvent) event).prepareConnectJob(null));
 			cancelJob = new CancelHandler();
 			// schedule with a delay to avoid the overhead of an extra job on a fast
 			// connection
@@ -208,9 +187,12 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 				fi.setSize(source.getFileLength());
 				fileInfo = fi;
 
-				((IIncomingFileTransferReceiveStartEvent) event).receive(theOutputStream, this);
+				transferActive = true;
+				((IIncomingFileTransferReceiveStartEvent) event).receive(theOutputStream);
 			} catch (IOException e) {
 				exception = e;
+				transferActive = false;
+				transferEnded.countDown();
 				return;
 			}
 			long fileLength = source.getFileLength();
@@ -262,18 +244,27 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 				exception = ((IIncomingFileTransferReceiveDoneEvent) event).getException();
 			}
 			onDone(((IIncomingFileTransferReceiveDoneEvent) event).getSource());
+			result = Status.OK_STATUS;
+			transferActive = false;
+			transferEnded.countDown();
 		} else if (event instanceof IIncomingFileTransferReceivePausedEvent) {
 			this.hasPaused = true;
+			transferActive = false;
+			transferEnded.countDown();
 		} else if (event instanceof IIncomingFileTransferReceiveResumedEvent) {
 			// we no longer need the cancel handler because we are about to resume the
 			// transfer job
 			if (cancelJob != null) {
 				cancelJob.cancel();
 			}
+			transferEnded = new CountDownLatch(1);
+			transferActive = true;
 			try {
-				((IIncomingFileTransferReceiveResumedEvent) event).receive(theOutputStream, this);
+				((IIncomingFileTransferReceiveResumedEvent) event).receive(theOutputStream);
 			} catch (IOException e) {
 				exception = e;
+				transferActive = false;
+				transferEnded.countDown();
 			} finally {
 				this.hasPaused = false;
 			}
@@ -383,11 +374,6 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		readInto(uri, anOutputStream, -1, monitor);
 	}
 
-	@Override
-	public boolean belongsTo(Object family) {
-		return family == this;
-	}
-
 	public void readInto(URI uri, OutputStream anOutputStream, long startPos, IProgressMonitor monitor) //
 			throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
 		if (monitor == null) {
@@ -396,7 +382,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		try {
 			sendRetrieveRequest(uri, anOutputStream, (startPos != -1 ? new DownloadRange(startPos) : null), false,
 					monitor);
-			Job.getJobManager().join(this, new SuppressBlockedMonitor(monitor, 0));
+			awaitTransfer(monitor);
 			waitPaused(uri, anOutputStream, startPos, monitor);
 			if (monitor.isCanceled() && connectEvent != null) {
 				connectEvent.cancel();
@@ -424,15 +410,23 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	protected void waitPaused(URI uri, OutputStream anOutputStream, long startPos, IProgressMonitor monitor)
 			throws AuthenticationFailedException, JREHttpClientRequiredException, FileNotFoundException, CoreException,
 			OperationCanceledException, InterruptedException {
-		if (hasPaused) {
-			while (hasPaused) {
-				Thread.sleep(1000);
-				if (monitor.isCanceled()) {
-					throw new OperationCanceledException();
-				}
+		while (hasPaused) {
+			Thread.sleep(1000);
+			if (monitor.isCanceled()) {
+				throw new OperationCanceledException();
 			}
-			Job.getJobManager().join(this, new SuppressBlockedMonitor(monitor, 0));
-			waitPaused(uri, anOutputStream, startPos, monitor);
+			if (!hasPaused) {
+				awaitTransfer(monitor);
+			}
+		}
+	}
+
+	/** Waits until the current transfer segment is done or paused. */
+	private void awaitTransfer(IProgressMonitor monitor) throws InterruptedException {
+		while (!transferEnded.await(100, TimeUnit.MILLISECONDS)) {
+			if (monitor.isCanceled()) {
+				throw new OperationCanceledException();
+			}
 		}
 	}
 
@@ -450,6 +444,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		adapter.setConnectContextForAuthentication(connectContext);
 
 		this.exception = null;
+		this.result = null;
 		this.closeStreamWhenFinished = closeStreamOnFinish;
 		this.fileInfo = null;
 		this.statistics = null;
@@ -465,6 +460,8 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 				throw new OperationCanceledException();
 			}
 
+			transferEnded = new CountDownLatch(1);
+			transferActive = false;
 			try {
 				adapter.sendRetrieveRequest(uri, range, this, options);
 			} catch (IncomingFileTransferException e) {
@@ -475,6 +472,10 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 				}
 			}
 			if (checkException(uri, retryCount)) {
+				// nothing was started, so there is no transfer to wait for
+				if (!transferActive) {
+					transferEnded.countDown();
+				}
 				break;
 			}
 		}
@@ -558,6 +559,14 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 
 	protected Exception getException() {
 		return exception;
+	}
+
+	/**
+	 * Returns the status of the last transfer, or <code>null</code> if no transfer
+	 * has completed.
+	 */
+	public IStatus getResult() {
+		return result;
 	}
 
 	/**
