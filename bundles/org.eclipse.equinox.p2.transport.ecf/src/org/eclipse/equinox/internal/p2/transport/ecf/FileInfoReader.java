@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation, and others.
+ * Copyright (c) 2009, 2026 IBM Corporation, and others.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -18,11 +18,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.eclipse.core.runtime.*;
-import org.eclipse.ecf.core.*;
 import org.eclipse.ecf.core.security.IConnectContext;
 import org.eclipse.ecf.filetransfer.*;
 import org.eclipse.ecf.filetransfer.events.IRemoteFileSystemBrowseEvent;
 import org.eclipse.ecf.filetransfer.identity.*;
+import org.eclipse.ecf.provider.filetransfer.browse.MultiProtocolFileSystemBrowserAdapter;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.p2.repository.Activator;
@@ -47,17 +47,7 @@ class FileInfoReader {
 	long getLastModified(URI uri, IProgressMonitor monitor)
 			throws AuthenticationFailedException, FileNotFoundException, CoreException, JREHttpClientRequiredException {
 		SubMonitor convert = SubMonitor.convert(monitor, uri.toString(), connectionRetryCount);
-		IContainer container;
-		try {
-			container = ContainerFactory.getDefault().createContainer();
-		} catch (ContainerCreateException e) {
-			throw RepositoryStatusHelper.fromExceptionMessage(e, Messages.ecf_configuration_error);
-		}
-		IRemoteFileSystemBrowserContainerAdapter adapter = container
-				.getAdapter(IRemoteFileSystemBrowserContainerAdapter.class);
-		if (adapter == null) {
-			throw RepositoryStatusHelper.fromMessage(Messages.ecf_configuration_error);
-		}
+		IRemoteFileSystemBrowserContainerAdapter adapter = new MultiProtocolFileSystemBrowserAdapter();
 		adapter.setConnectContextForAuthentication(connectContext);
 		CoreException summary = new CoreException(Status.error("All download attempts failed")); //$NON-NLS-1$
 		for (int retryCount = 0; retryCount < connectionRetryCount; retryCount++) {
@@ -88,7 +78,9 @@ class FileInfoReader {
 						throw new OperationCanceledException();
 					}
 				}
-			} catch (RemoteFileSystemException | FileCreateException e) {
+			} catch (RemoteFileSystemException e) {
+				exception.set(e);
+			} catch (FileCreateException e) {
 				exception.set(e);
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
