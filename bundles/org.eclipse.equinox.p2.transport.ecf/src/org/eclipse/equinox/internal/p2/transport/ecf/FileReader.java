@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2017 Cloudsmith Inc.
+ * Copyright (c) 2006, 2026 Cloudsmith Inc.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -19,9 +19,12 @@
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ecf.core.security.IConnectContext;
@@ -119,6 +122,12 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	private boolean isPause = false;
 	private boolean hasPaused = false;
 	private IFileTransferPausable pasuable = null;
+	private final TransportInterceptor interceptor;
+	private volatile TransportResponseHandler responseHandler;
+	private Map<String, Map<String, String>> requestOptions = options;
+	private CountDownLatch responseLatch = new CountDownLatch(1);
+	private volatile Map<String, List<String>> responseHeaders = Collections.emptyMap();
+	private volatile boolean notModified;
 
 	/**
 	 * Create a new FileReader that will retry failed connection attempts and sleep
@@ -135,6 +144,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		retryOnSocketTimeout = RepositoryPreferences.getRetryOnSocketTimeout();
 		connectContext = aConnectContext;
 		this.agent = aAgent;
+		this.interceptor = aAgent == null ? null : aAgent.getService(TransportInterceptor.class);
 	}
 
 	public FileInfo getLastFileInfo() {
@@ -197,6 +207,19 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			if (cancelJob != null) {
 				cancelJob.cancel();
 			}
+			TransportResponseHandler handler = responseHandler;
+			if (handler != null) {
+				IIncomingFileTransferReceiveStartEvent startEvent = (IIncomingFileTransferReceiveStartEvent) event;
+				responseHeaders = toHeaders(startEvent.getResponseHeaders());
+				if (handler.handleResponse(responseHeaders)) {
+					notModified = true;
+					startEvent.cancel();
+					hardClose(theOutputStream);
+					responseLatch.countDown();
+					return;
+				}
+				responseLatch.countDown();
+			}
 			IIncomingFileTransfer source = ((IIncomingFileTransferEvent) event).getSource();
 			try {
 				FileInfo fi = new FileInfo();
@@ -258,9 +281,10 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 				hardClose(theOutputStream);
 			}
 
-			if (exception == null) {
+			if (exception == null && !notModified) {
 				exception = ((IIncomingFileTransferReceiveDoneEvent) event).getException();
 			}
+			responseLatch.countDown();
 			onDone(((IIncomingFileTransferReceiveDoneEvent) event).getSource());
 		} else if (event instanceof IIncomingFileTransferReceivePausedEvent) {
 			this.hasPaused = true;
@@ -327,18 +351,21 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 
 			@Override
 			public int read() throws IOException {
+				awaitResponse();
 				checkException();
 				return input.read();
 			}
 
 			@Override
 			public int read(byte b[]) throws IOException {
+				awaitResponse();
 				checkException();
 				return input.read(b);
 			}
 
 			@Override
 			public int read(byte b[], int off, int len) throws IOException {
+				awaitResponse();
 				checkException();
 				return input.read(b, off, len);
 			}
@@ -355,7 +382,20 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 				return input.skip(n);
 			}
 
+			/**
+			 * Reading blocks anyway, so this is the place to wait for the interceptor to
+			 * decide whether the content is needed.
+			 */
+			private void awaitResponse() {
+				if (responseHandler != null) {
+					FileReader.this.awaitResponse(monitor);
+				}
+			}
+
 			private void checkException() throws IOException {
+				if (notModified || isNotModifiedException(getException())) {
+					throw new NotModifiedException(requestUri, responseHeaders);
+				}
 				if (getException() == null) {
 					return;
 				}
@@ -378,8 +418,43 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		};
 	}
 
+	private void awaitResponse(IProgressMonitor monitor) {
+		try {
+			while (!responseLatch.await(250, TimeUnit.MILLISECONDS)) {
+				if (monitor != null && monitor.isCanceled()) {
+					if (connectEvent != null) {
+						connectEvent.cancel();
+					}
+					throw new OperationCanceledException();
+				}
+			}
+		} catch (InterruptedException e) {
+			throw new OperationCanceledException();
+		}
+	}
+
+	private static Map<String, List<String>> toHeaders(Map<?, ?> raw) {
+		Map<String, List<String>> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		if (raw != null) {
+			for (Map.Entry<?, ?> entry : raw.entrySet()) {
+				if (entry.getKey() == null || entry.getValue() == null) {
+					continue;
+				}
+				List<String> values = new ArrayList<>();
+				if (entry.getValue() instanceof Collection<?> collection) {
+					collection.forEach(value -> values.add(String.valueOf(value)));
+				} else {
+					values.add(entry.getValue().toString());
+				}
+				result.put(entry.getKey().toString(), values);
+			}
+		}
+		return result;
+	}
+
 	public void readInto(URI uri, OutputStream anOutputStream, IProgressMonitor monitor) //
-			throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
+			throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException,
+			NotModifiedException {
 		readInto(uri, anOutputStream, -1, monitor);
 	}
 
@@ -389,7 +464,8 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	}
 
 	public void readInto(URI uri, OutputStream anOutputStream, long startPos, IProgressMonitor monitor) //
-			throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
+			throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException,
+			NotModifiedException {
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
@@ -403,6 +479,9 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			}
 			// check and throw exception if received in callback
 			checkException(uri, connectionRetryCount);
+			if (notModified) {
+				throw new NotModifiedException(uri, responseHeaders);
+			}
 		} catch (InterruptedException e) {
 			monitor.setCanceled(true);
 			throw new OperationCanceledException();
@@ -459,6 +538,16 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 		this.monitorStarted = false;
 		this.theOutputStream = outputStream;
 		this.requestUri = uri;
+		this.notModified = false;
+		this.responseLatch = new CountDownLatch(1);
+		this.requestOptions = options;
+		this.responseHandler = null;
+		if (interceptor != null) {
+			Map<String, String> headers = new HashMap<>(options.get(IRetrieveFileTransferOptions.REQUEST_HEADERS));
+			responseHandler = interceptor.intercept(uri, headers);
+			requestOptions = new HashMap<>(options);
+			requestOptions.put(IRetrieveFileTransferOptions.REQUEST_HEADERS, headers);
+		}
 
 		for (int retryCount = 0;; retryCount++) {
 			if (monitor != null && monitor.isCanceled()) {
@@ -468,7 +557,7 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			try {
 				IFileID fileID = FileIDFactory.getDefault().createFileID(adapter.getRetrieveNamespace(),
 						uri.toString());
-				adapter.sendRetrieveRequest(fileID, range, this, options);
+				adapter.sendRetrieveRequest(fileID, range, this, requestOptions);
 			} catch (IncomingFileTransferException e) {
 				exception = e;
 			} catch (FileCreateException e) {
@@ -513,6 +602,14 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 	 */
 	private boolean checkException(URI uri, int attemptCounter)
 			throws CoreException, FileNotFoundException, AuthenticationFailedException, JREHttpClientRequiredException {
+		if (isNotModifiedException(exception)) {
+			// not an error, but the server telling that nothing has to be transferred
+			exception = null;
+			notModified = true;
+		}
+		if (notModified) {
+			return true;
+		}
 		// note that 'exception' could have been captured in a callback
 		if (exception != null) {
 			// check if HTTP client needs to be changed
@@ -558,6 +655,15 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 			throw RepositoryStatusHelper.wrap(exception);
 		}
 		return true;
+	}
+
+	private static boolean isNotModifiedException(Throwable t) {
+		if (t == null) {
+			return false;
+		}
+		t = RepositoryStatusHelper.unwind(t);
+		return t instanceof IncomingFileTransferException e
+				&& e.getErrorCode() == HttpURLConnection.HTTP_NOT_MODIFIED;
 	}
 
 	protected Exception getException() {
