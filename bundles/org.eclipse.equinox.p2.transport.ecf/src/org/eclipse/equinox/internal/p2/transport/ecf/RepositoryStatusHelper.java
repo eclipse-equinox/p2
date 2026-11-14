@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 Cloudsmith Inc, and other.
+ * Copyright (c) 2009, 2026 Cloudsmith Inc, and other.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the individual
  * copyright holders listed above, as Initial Contributors under such license.
@@ -22,8 +22,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
-import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.BrowseFileTransferException;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.p2.repository.JREHttpClientRequiredException;
 import org.eclipse.equinox.p2.core.ProvisionException;

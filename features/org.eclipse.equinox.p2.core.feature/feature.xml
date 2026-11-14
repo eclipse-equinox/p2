@@ -20,7 +20,6 @@
    </license>
 
    <requires>
-      <import plugin="org.eclipse.ecf.provider.filetransfer.httpclient5" version="1.1.0" match="compatible"/>
       <import filter="(osgi.os=win32)" plugin="org.eclipse.ecf.provider.filetransfer.httpclient5.win32" version="1.1.0" match="compatible"/>
       <import plugin="org.eclipse.ecf.provider.filetransfer.httpclientjava" version="2.1.0" match="compatible"/>
    </requires>
@@ -95,6 +94,10 @@
 
    <plugin
          id="org.eclipse.equinox.p2.transport.ecf"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.transport.ecf.httpclient5"
          version="0.0.0"/>
 
    <plugin

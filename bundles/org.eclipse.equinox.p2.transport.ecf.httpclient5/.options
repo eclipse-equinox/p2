@@ -1,0 +1,5 @@
+org.eclipse.ecf.provider.filetransfer.httpclient5/debug=false
+org.eclipse.ecf.provider.filetransfer.httpclient5/debug/exceptions/catching=false
+org.eclipse.ecf.provider.filetransfer.httpclient5/debug/exceptions/throwing=false
+org.eclipse.ecf.provider.filetransfer.httpclient5/debug/methods/entering=false
+org.eclipse.ecf.provider.filetransfer.httpclient5/debug/methods/exiting=false

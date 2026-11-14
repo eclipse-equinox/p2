@@ -20,9 +20,8 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import java.io.FileNotFoundException;
 import java.net.*;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.ecf.core.identity.IDCreateException;
-import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
-import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.BrowseFileTransferException;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.IncomingFileTransferException;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -137,14 +136,6 @@ public class RepositoryStatus {
 		}
 		if (t instanceof UnknownHostException) {
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.TransportErrorTranslator_UnknownHost, toDownload), t);
-		}
-		if (t instanceof IDCreateException) {
-			IStatus status = ((IDCreateException) t).getStatus();
-			if (status != null && status.getException() != null) {
-				t = status.getException();
-			}
-
-			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.TransportErrorTranslator_MalformedRemoteFileReference, toDownload), t);
 		}
 		int code = 0;
 

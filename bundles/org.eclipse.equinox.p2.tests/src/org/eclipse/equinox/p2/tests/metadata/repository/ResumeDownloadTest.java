@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2017 Cloudsmith Inc. and others.
+ * Copyright (c) 2006, 2026 Cloudsmith Inc. and others.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -11,8 +11,7 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.ecf.filetransfer.IFileRangeSpecification;
-import org.eclipse.ecf.filetransfer.IIncomingFileTransfer;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.IIncomingFileTransfer;
 import org.eclipse.equinox.internal.p2.transport.ecf.FileReader;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -180,8 +179,7 @@ public class ResumeDownloadTest extends AbstractProvisioningTest {
 
 		@Override
 		public void onStart(FileReader reader, IIncomingFileTransfer source, IProgressMonitor monitor) {
-			IFileRangeSpecification spec = source.getFileRangeSpecification();
-			resumeStart = spec == null ? 0L : spec.getStartPosition();
+			resumeStart = Math.max(source.getStartPosition(), 0L);
 			remainingLength = source.getFileLength();
 
 		}

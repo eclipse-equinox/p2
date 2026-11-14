@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2026 Cloudsmith Inc and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -17,8 +17,8 @@
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
 import java.util.*;
-import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
-import org.eclipse.ecf.provider.filetransfer.IFileTransferProtocolToFactoryMapper;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.service.IRetrieveFileTransferFactory;
+import org.eclipse.equinox.internal.p2.transport.ecf.provider.filetransfer.IFileTransferProtocolToFactoryMapper;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -100,11 +100,6 @@ public class Activator implements BundleActivator {
 			if (providerId != null) {
 				mapper.removeRetrieveFileTransferFactory(providerId);
 			}
-			// Remove send provider
-			providerId = mapper.getSendFileTransferFactoryId(HTTP);
-			if (providerId != null) {
-				mapper.removeSendFileTransferFactory(providerId);
-			}
 			// remove https
 			// Remove browse provider
 			providerId = mapper.getBrowseFileTransferFactoryId(HTTPS);
@@ -115,11 +110,6 @@ public class Activator implements BundleActivator {
 			providerId = mapper.getRetrieveFileTransferFactoryId(HTTPS);
 			if (providerId != null) {
 				mapper.removeRetrieveFileTransferFactory(providerId);
-			}
-			// Remove send provider
-			providerId = mapper.getSendFileTransferFactoryId(HTTPS);
-			if (providerId != null) {
-				mapper.removeSendFileTransferFactory(providerId);
 			}
 		}
 	}

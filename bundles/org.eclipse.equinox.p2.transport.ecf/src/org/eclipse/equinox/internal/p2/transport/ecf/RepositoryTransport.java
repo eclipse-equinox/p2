@@ -19,10 +19,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.core.runtime.*;
-import org.eclipse.ecf.core.identity.IDCreateException;
-import org.eclipse.ecf.core.security.ConnectContextFactory;
-import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.filetransfer.*;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.security.ConnectContextFactory;
+import org.eclipse.equinox.internal.p2.transport.ecf.core.security.IConnectContext;
+import org.eclipse.equinox.p2.transport.ecf.filetransfer.*;
 import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.p2.repository.Credentials.LoginCanceledException;
 import org.eclipse.equinox.internal.p2.repository.Messages;
@@ -371,15 +370,6 @@ public class RepositoryTransport extends Transport {
 		if (t instanceof UnknownHostException) {
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION,
 					NLS.bind(Messages.TransportErrorTranslator_UnknownHost, toDownload), t);
-		}
-		if (t instanceof IDCreateException) {
-			IStatus status = ((IDCreateException) t).getStatus();
-			if (status != null && status.getException() != null) {
-				t = status.getException();
-			}
-
-			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION,
-					NLS.bind(Messages.TransportErrorTranslator_MalformedRemoteFileReference, toDownload), t);
 		}
 		int code = 0;
 
