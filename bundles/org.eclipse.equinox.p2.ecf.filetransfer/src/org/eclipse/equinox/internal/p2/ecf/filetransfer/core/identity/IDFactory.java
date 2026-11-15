@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.core.identity;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity;
 
 import java.net.URI;
 import java.util.*;
@@ -60,7 +60,7 @@ public class IDFactory implements IIDFactory {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.eclipse.ecf.core.identity.IIDFactory#addNamespace(org.eclipse.ecf
+	 * org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IIDFactory#addNamespace(org.eclipse.ecf
 	 * .core.identity.Namespace)
 	 */
 	public Namespace addNamespace(Namespace namespace) throws SecurityException {
@@ -83,7 +83,7 @@ public class IDFactory implements IIDFactory {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.eclipse.ecf.core.identity.IIDFactory#containsNamespace(org.eclipse
+	 * org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IIDFactory#containsNamespace(org.eclipse
 	 * .ecf.core.identity.Namespace)
 	 */
 	public boolean containsNamespace(Namespace namespace) throws SecurityException {
@@ -96,7 +96,7 @@ public class IDFactory implements IIDFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.core.identity.IIDFactory#getNamespaces()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IIDFactory#getNamespaces()
 	 */
 	public List<Namespace> getNamespaces() {
 		initialize();
@@ -113,7 +113,7 @@ public class IDFactory implements IIDFactory {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.eclipse.ecf.core.identity.IIDFactory#getNamespace(org.eclipse.ecf
+	 * org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IIDFactory#getNamespace(org.eclipse.ecf
 	 * .core.identity.Namespace)
 	 */
 	public Namespace getNamespace(Namespace namespace) throws SecurityException {
@@ -127,7 +127,7 @@ public class IDFactory implements IIDFactory {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.eclipse.ecf.core.identity.IIDFactory#getNamespaceByName(java.lang
+	 * org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IIDFactory#getNamespaceByName(java.lang
 	 * .String)
 	 */
 	public Namespace getNamespaceByName(String name) throws SecurityException {
@@ -150,7 +150,7 @@ public class IDFactory implements IIDFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.core.identity.IIDFactory#createGUID()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IIDFactory#createGUID()
 	 */
 	public ID createGUID() throws IDCreateException {
 		return createGUID(GUID.DEFAULT_BYTE_LENGTH);
@@ -159,7 +159,7 @@ public class IDFactory implements IIDFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.core.identity.IIDFactory#createGUID(int)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IIDFactory#createGUID(int)
 	 */
 	public ID createGUID(int length) throws IDCreateException {
 		return createID(new GUID.GUIDNamespace(), new Integer[] { Integer.valueOf(length) });
@@ -181,7 +181,7 @@ public class IDFactory implements IIDFactory {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.eclipse.ecf.core.identity.IIDFactory#createID(org.eclipse.ecf.core
+	 * org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IIDFactory#createID(org.eclipse.ecf.core
 	 * .identity.Namespace, java.lang.Object[])
 	 */
 	public ID createID(Namespace n, Object[] args) throws IDCreateException {
@@ -200,7 +200,7 @@ public class IDFactory implements IIDFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.core.identity.IIDFactory#createID(java.lang.String,
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IIDFactory#createID(java.lang.String,
 	 * java.lang.Object[])
 	 */
 	public ID createID(String namespaceName, Object[] args) throws IDCreateException {
@@ -222,7 +222,7 @@ public class IDFactory implements IIDFactory {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.eclipse.ecf.core.identity.IIDFactory#createStringID(java.lang.String)
+	 * org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IIDFactory#createStringID(java.lang.String)
 	 */
 	public ID createStringID(String idstring) throws IDCreateException {
 		if (idstring == null)
@@ -233,7 +233,7 @@ public class IDFactory implements IIDFactory {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.core.identity.IIDFactory#createLongID(long)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IIDFactory#createLongID(long)
 	 */
 	public ID createLongID(long l) throws IDCreateException {
 		return createID(new LongID.LongNamespace(), new Long[] { Long.valueOf(l) });
@@ -243,7 +243,7 @@ public class IDFactory implements IIDFactory {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.eclipse.ecf.core.identity.IIDFactory#removeNamespace(org.eclipse.
+	 * org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IIDFactory#removeNamespace(org.eclipse.
 	 * ecf.core.identity.Namespace)
 	 */
 	public Namespace removeNamespace(Namespace n) throws SecurityException {

@@ -9,9 +9,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.filetransfer.events;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.events;
 
-import org.eclipse.ecf.filetransfer.UserCancelledException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.UserCancelledException;
 
 /**
  * Event sent to IFileTransferListeners when an incoming file transfer is

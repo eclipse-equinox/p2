@@ -10,11 +10,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.filetransfer;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveStartEvent;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.events.IIncomingFileTransferReceiveStartEvent;
 
 /**
  * {@link Job} subclass for executing file transfers.  This class should
@@ -70,9 +70,9 @@ public class FileTransferJob extends Job {
 	 */
 	protected final IStatus run(IProgressMonitor mntr) {
 		if (this.fileTransferRunnable == null)
-			return new Status(IStatus.ERROR, org.eclipse.ecf.internal.filetransfer.Activator.PLUGIN_ID, IStatus.ERROR, "Runnable cannot be null", null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator.PLUGIN_ID, IStatus.ERROR, "Runnable cannot be null", null); //$NON-NLS-1$
 		if (this.fileTransfer == null)
-			return new Status(IStatus.ERROR, org.eclipse.ecf.internal.filetransfer.Activator.PLUGIN_ID, IStatus.ERROR, "File transfer member cannot be null", null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator.PLUGIN_ID, IStatus.ERROR, "File transfer member cannot be null", null); //$NON-NLS-1$
 		return this.fileTransferRunnable.performFileTransfer(mntr);
 	}
 

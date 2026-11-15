@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.core.identity;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdapterManager;
@@ -68,7 +68,7 @@ public abstract class BaseID implements ID {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.core.identity.ID#getName()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.ID#getName()
 	 */
 	public String getName() {
 		return namespace.getNameForID(this);
@@ -77,7 +77,7 @@ public abstract class BaseID implements ID {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.core.identity.ID#getNamespace()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.ID#getNamespace()
 	 */
 	public Namespace getNamespace() {
 		return namespace;
@@ -95,7 +95,7 @@ public abstract class BaseID implements ID {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.core.identity.ID#toExternalForm()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.ID#toExternalForm()
 	 */
 	public String toExternalForm() {
 		return namespace.toExternalForm(this);

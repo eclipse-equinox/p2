@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.filetransfer.service;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.service;
 
 /**
  * Remote file browser factory. This service interface is used by clients to

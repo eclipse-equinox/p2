@@ -7,19 +7,19 @@
  *
  * Contributors:
  *   Yatta Solutions - initial API and implementation
- *   Christoph Läubrich - adapt to java http client
+ *   Christoph LÃ¤ubrich - adapt to java http client
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclientjava;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl;
 
 import java.net.HttpURLConnection;
 import java.util.Map;
 
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
-import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.ecf.provider.filetransfer.httpclientjava.HttpClientOptions;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.BrowseFileTransferException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IncomingFileTransferException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.HttpClientOptions;
 
 public class DefaultNTLMProxyHandler implements INTLMProxyHandler {
 	private static boolean seenNTLM;

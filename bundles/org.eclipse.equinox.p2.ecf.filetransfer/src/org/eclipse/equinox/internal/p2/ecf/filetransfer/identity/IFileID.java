@@ -9,10 +9,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.filetransfer.identity;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.identity;
 
 import java.net.*;
-import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.ID;
 
 /**
  * ID for a remote file.

@@ -11,9 +11,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.filetransfer.service;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.service;
 
-import org.eclipse.ecf.filetransfer.IRemoteFileSystemBrowserContainerAdapter;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemBrowserContainerAdapter;
 
 /**
  * Remote file system browser service interface.  See {@link IRemoteFileSystemBrowserContainerAdapter}

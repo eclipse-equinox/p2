@@ -11,14 +11,14 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.provider.filetransfer.browse;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import org.eclipse.ecf.filetransfer.IRemoteFileAttributes;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileAttributes;
 
 /**
  * File attributes for {@link LocalRemoteFile} instances.
@@ -35,7 +35,7 @@ public class LocalRemoteFileAttributes implements IRemoteFileAttributes {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.ecf.filetransfer.IRemoteFileAttributes#getAttribute(java.lang.String)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileAttributes#getAttribute(java.lang.String)
 	 */
 	public String getAttribute(String key) {
 		if (key == null)
@@ -58,14 +58,14 @@ public class LocalRemoteFileAttributes implements IRemoteFileAttributes {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.ecf.filetransfer.IRemoteFileAttributes#getAttributeKeys()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileAttributes#getAttributeKeys()
 	 */
 	public Iterator getAttributeKeys() {
 		return attributeKeys.iterator();
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.ecf.filetransfer.IRemoteFileAttributes#setAttribute(java.lang.String, java.lang.String)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileAttributes#setAttribute(java.lang.String, java.lang.String)
 	 */
 	public void setAttribute(String key, String value) {
 		// not supported

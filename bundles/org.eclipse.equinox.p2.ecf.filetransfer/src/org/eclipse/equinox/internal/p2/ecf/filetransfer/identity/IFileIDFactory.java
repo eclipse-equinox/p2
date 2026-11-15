@@ -10,12 +10,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.filetransfer.identity;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.identity;
 
 import java.net.URI;
 import java.net.URL;
-import org.eclipse.ecf.core.identity.Namespace;
-import org.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.Namespace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter;
 
 /**
  * @since 5.0

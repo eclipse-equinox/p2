@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.core.util;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util;
 
 /**
  * Event 'tag' interface. This is a super-interface for all ECF event

@@ -9,10 +9,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.filetransfer.identity;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.identity;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.ecf.core.util.ECFException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.ECFException;
 
 /**
  * Exception class for creation of {@link IFileID} instances via

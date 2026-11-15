@@ -9,10 +9,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.filetransfer;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer;
 
 import java.util.Date;
-import org.eclipse.ecf.filetransfer.events.IIncomingFileTransferReceiveStartEvent;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.events.IIncomingFileTransferReceiveStartEvent;
 
 /**
  * Incoming file transfer request. Instance implementing this interface are

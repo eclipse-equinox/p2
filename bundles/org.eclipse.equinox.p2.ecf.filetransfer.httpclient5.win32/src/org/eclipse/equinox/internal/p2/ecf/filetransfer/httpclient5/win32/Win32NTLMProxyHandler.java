@@ -10,14 +10,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclient5.win32;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.win32;
 
 import java.util.Map;
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
-import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.DefaultNTLMProxyHandler;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.INTLMProxyHandler;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.BrowseFileTransferException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IncomingFileTransferException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.impl.DefaultNTLMProxyHandler;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.impl.INTLMProxyHandler;
 import org.osgi.service.component.annotations.Component;
 
 @Component(service = {INTLMProxyHandler.class})

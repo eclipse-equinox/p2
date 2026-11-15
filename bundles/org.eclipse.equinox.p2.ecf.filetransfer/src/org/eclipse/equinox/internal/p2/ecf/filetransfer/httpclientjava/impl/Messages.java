@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.internal.provider.filetransfer.httpclientjava;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -20,7 +20,7 @@ import org.eclipse.osgi.util.NLS;
  * 
  */
 public class Messages extends NLS {
-	private static final String BUNDLE_NAME = "org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.messages"; //$NON-NLS-1$
 	public static String FileTransferNamespace_Http_Protocol;
 	public static String FileTransferNamespace_Https_Protocol;
 	public static String HttpClientRetrieveFileTransfer_CONNECTING_JOB_NAME;

@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclient5;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.impl;
 
 import java.util.Map;
 import org.apache.hc.client5.http.auth.CredentialsProvider;

@@ -9,11 +9,11 @@
  *   EclipseSource - initial API and implementation
  *   Thomas Joiner - changed to work with HttpClient 4.1 and added SPNEGO detection
  *   Yatta Solutions - HttpClient 4.5 implementation
- *   Christoph Läubrich - adapt to http java client
+ *   Christoph LÃ¤ubrich - adapt to http java client
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclientjava;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl;
 
 public class NTLMProxyDetector {
 

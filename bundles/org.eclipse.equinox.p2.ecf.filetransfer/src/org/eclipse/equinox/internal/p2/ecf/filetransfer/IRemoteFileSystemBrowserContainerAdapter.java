@@ -11,13 +11,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.filetransfer;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.ecf.core.identity.Namespace;
-import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.filetransfer.identity.IFileID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.Namespace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
 
 /**
  * Remote file system browser adapter.  This adapter can be retrieved from a container

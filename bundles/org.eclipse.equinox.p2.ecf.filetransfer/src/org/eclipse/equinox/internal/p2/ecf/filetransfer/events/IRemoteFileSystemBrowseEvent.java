@@ -12,9 +12,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.filetransfer.events;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.events;
 
-import org.eclipse.ecf.filetransfer.IRemoteFile;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFile;
 
 /**
  * Event that indicates that a directory list is available via {@link #getRemoteFiles()}.

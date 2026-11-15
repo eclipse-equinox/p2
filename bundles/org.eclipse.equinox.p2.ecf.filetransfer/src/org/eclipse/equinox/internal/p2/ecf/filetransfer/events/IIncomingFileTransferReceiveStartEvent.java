@@ -10,12 +10,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.filetransfer.events;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.events;
 
 import java.io.*;
 import java.util.Map;
-import org.eclipse.ecf.filetransfer.*;
-import org.eclipse.ecf.filetransfer.identity.IFileID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.*;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
 
 /**
  * Event sent to {@link IFileTransferListener} associated with

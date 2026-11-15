@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.filetransfer;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer;
 
 /**
  * An object that describes a file range specification.  Object implementations of this
@@ -24,10 +24,10 @@ public interface IFileRangeSpecification {
 	 * of the file, N-1 is the last position in the file, where N is the length of the file in bytes.  
 	 * @return the position in the file (in bytes) to start from.  If the returned start position is
 	 * less than 0, or equal to or greater than N, then it is an invalid range specification and
-	 * when used in {@link IRetrieveFileTransferContainerAdapter#sendRetrieveRequest(org.eclipse.ecf.filetransfer.identity.IFileID, IFileRangeSpecification, IFileTransferListener, java.util.Map)} will result in a 
+	 * when used in {@link IRetrieveFileTransferContainerAdapter#sendRetrieveRequest(org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID, IFileRangeSpecification, IFileTransferListener, java.util.Map)} will result in a 
 	 * {@link InvalidFileRangeSpecificationException}.
 	 * 
-	 * @see IRetrieveFileTransferContainerAdapter#sendRetrieveRequest(org.eclipse.ecf.filetransfer.identity.IFileID, IFileRangeSpecification, IFileTransferListener, java.util.Map)
+	 * @see IRetrieveFileTransferContainerAdapter#sendRetrieveRequest(org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID, IFileRangeSpecification, IFileTransferListener, java.util.Map)
 	 * @see #getEndPosition()
 	 */
 	public long getStartPosition();
@@ -66,7 +66,7 @@ public interface IFileRangeSpecification {
 	 * 
 	 * </pre>
 	 * 
-	 * @see IRetrieveFileTransferContainerAdapter#sendRetrieveRequest(org.eclipse.ecf.filetransfer.identity.IFileID, IFileRangeSpecification, IFileTransferListener, java.util.Map)
+	 * @see IRetrieveFileTransferContainerAdapter#sendRetrieveRequest(org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID, IFileRangeSpecification, IFileTransferListener, java.util.Map)
 	 * @see #getStartPosition()
 	 */
 	public long getEndPosition();

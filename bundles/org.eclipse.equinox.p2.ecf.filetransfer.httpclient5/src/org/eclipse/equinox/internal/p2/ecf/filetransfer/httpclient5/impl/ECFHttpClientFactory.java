@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclient5;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.impl;
 
 import java.io.IOException;
 import java.lang.ref.Reference;
@@ -46,11 +46,11 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
-import org.eclipse.ecf.core.util.ECFRuntimeException;
-import org.eclipse.ecf.core.util.Trace;
-import org.eclipse.ecf.internal.provider.filetransfer.DebugOptions;
-import org.eclipse.ecf.provider.filetransfer.httpclient5.HttpClientOptions;
-import org.eclipse.ecf.provider.filetransfer.httpclient5.HttpClientRetrieveFileTransfer;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.ECFRuntimeException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Trace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.DebugOptions;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.HttpClientOptions;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.HttpClientRetrieveFileTransfer;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy;

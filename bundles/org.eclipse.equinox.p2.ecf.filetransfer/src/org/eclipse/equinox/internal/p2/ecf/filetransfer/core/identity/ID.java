@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.core.identity;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity;
 
 import org.eclipse.core.runtime.IAdaptable;
 

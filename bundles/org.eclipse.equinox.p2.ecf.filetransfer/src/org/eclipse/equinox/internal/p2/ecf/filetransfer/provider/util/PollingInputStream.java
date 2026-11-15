@@ -11,7 +11,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.provider.filetransfer.util;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.util;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ecf.internal.provider.filetransfer.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
 
 /**
  * Polls a progress monitor periodically and handles timeouts over extended

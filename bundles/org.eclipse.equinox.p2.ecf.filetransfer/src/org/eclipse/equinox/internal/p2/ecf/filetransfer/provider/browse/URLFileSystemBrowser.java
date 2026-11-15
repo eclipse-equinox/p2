@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.provider.filetransfer.browse;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,22 +21,22 @@ import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.net.URLConnection;
-import org.eclipse.ecf.core.security.Callback;
-import org.eclipse.ecf.core.security.CallbackHandler;
-import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.core.security.NameCallback;
-import org.eclipse.ecf.core.security.ObjectCallback;
-import org.eclipse.ecf.core.security.UnsupportedCallbackException;
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
-import org.eclipse.ecf.filetransfer.IRemoteFile;
-import org.eclipse.ecf.filetransfer.IRemoteFileSystemListener;
-import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.ecf.filetransfer.identity.IFileID;
-import org.eclipse.ecf.internal.provider.filetransfer.Activator;
-import org.eclipse.ecf.internal.provider.filetransfer.IURLConnectionModifier;
-import org.eclipse.ecf.internal.provider.filetransfer.Messages;
-import org.eclipse.ecf.provider.filetransfer.util.JREProxyHelper;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.Callback;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.CallbackHandler;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.NameCallback;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.ObjectCallback;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.UnsupportedCallbackException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.BrowseFileTransferException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFile;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemListener;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IncomingFileTransferException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.IURLConnectionModifier;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Messages;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.util.JREProxyHelper;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -48,15 +48,15 @@ public class URLFileSystemBrowser extends AbstractFileSystemBrowser {
 
 	private static final String JRE_CONNECT_TIMEOUT_PROPERTY = "sun.net.client.defaultConnectTimeout"; //$NON-NLS-1$
 
-	// 10/26/2009:  Added being able to set with system property with name org.eclipse.ecf.provider.filetransfer.browse.connectTimeout
+	// 10/26/2009:  Added being able to set with system property with name org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse.connectTimeout
 	// for https://bugs.eclipse.org/bugs/show_bug.cgi?id=292995
-	private static final String DEFAULT_CONNECT_TIMEOUT = System.getProperty("org.eclipse.ecf.provider.filetransfer.browse.connectTimeout", "30000"); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final String DEFAULT_CONNECT_TIMEOUT = System.getProperty("org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse.connectTimeout", "30000"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private static final String JRE_READ_TIMEOUT_PROPERTY = "sun.net.client.defaultReadTimeout"; //$NON-NLS-1$
 
-	// 10/26/2009:  Added being able to set with system property with name org.eclipse.ecf.provider.filetransfer.browse.readTimeout
+	// 10/26/2009:  Added being able to set with system property with name org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse.readTimeout
 	// for https://bugs.eclipse.org/bugs/show_bug.cgi?id=292995
-	private static final String DEFAULT_READ_TIMEOUT = System.getProperty("org.eclipse.ecf.provider.filetransfer.browse.readTimeout", "30000"); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final String DEFAULT_READ_TIMEOUT = System.getProperty("org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse.readTimeout", "30000"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private JREProxyHelper proxyHelper = null;
 
@@ -88,7 +88,7 @@ public class URLFileSystemBrowser extends AbstractFileSystemBrowser {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.ecf.provider.filetransfer.browse.AbstractFileSystemBrowser#runRequest()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse.AbstractFileSystemBrowser#runRequest()
 	 */
 	protected void runRequest() throws Exception {
 		int code = -1;

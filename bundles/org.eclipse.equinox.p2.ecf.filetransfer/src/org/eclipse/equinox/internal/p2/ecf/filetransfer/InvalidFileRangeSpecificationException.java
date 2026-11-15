@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.filetransfer;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer;
 
 import org.eclipse.core.runtime.IStatus;
 

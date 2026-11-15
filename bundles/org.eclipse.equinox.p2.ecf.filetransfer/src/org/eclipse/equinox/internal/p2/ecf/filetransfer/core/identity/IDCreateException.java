@@ -9,10 +9,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.core.identity;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.ecf.core.util.ECFRuntimeException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.ECFRuntimeException;
 
 public class IDCreateException extends ECFRuntimeException {
 	private static final long serialVersionUID = 3258416140119323960L;

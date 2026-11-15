@@ -11,15 +11,15 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.provider.filetransfer.browse;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.filetransfer.IRemoteFileSystemListener;
-import org.eclipse.ecf.filetransfer.RemoteFileSystemException;
-import org.eclipse.ecf.filetransfer.identity.IFileID;
-import org.eclipse.ecf.internal.provider.filetransfer.Messages;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemListener;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.RemoteFileSystemException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Messages;
 import org.eclipse.osgi.util.NLS;
 
 /**

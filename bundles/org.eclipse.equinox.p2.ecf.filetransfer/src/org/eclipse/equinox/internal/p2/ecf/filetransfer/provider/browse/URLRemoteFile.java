@@ -11,17 +11,17 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.provider.filetransfer.browse;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdapterManager;
-import org.eclipse.ecf.filetransfer.IRemoteFile;
-import org.eclipse.ecf.filetransfer.IRemoteFileAttributes;
-import org.eclipse.ecf.filetransfer.IRemoteFileInfo;
-import org.eclipse.ecf.filetransfer.identity.IFileID;
-import org.eclipse.ecf.internal.provider.filetransfer.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFile;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileAttributes;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileInfo;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
 
 /**
  *
@@ -43,14 +43,14 @@ public class URLRemoteFile implements IRemoteFile {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.ecf.filetransfer.IRemoteFile#getID()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFile#getID()
 	 */
 	public IFileID getID() {
 		return fileID;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.ecf.filetransfer.IRemoteFile#getInfo()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFile#getInfo()
 	 */
 	public IRemoteFileInfo getInfo() {
 		return new IRemoteFileInfo() {

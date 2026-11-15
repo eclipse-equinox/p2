@@ -9,10 +9,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.filetransfer;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.ecf.core.util.ECFException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.ECFException;
 
 /**
  * Exception thrown upon browse problem

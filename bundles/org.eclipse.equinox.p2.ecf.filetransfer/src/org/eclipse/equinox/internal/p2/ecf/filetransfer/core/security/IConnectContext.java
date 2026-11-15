@@ -9,14 +9,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.core.security;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security;
 
 /**
  * A connect context for passing in information to the
- * {@link org.eclipse.ecf.core.IContainer#connect(org.eclipse.ecf.core.identity.ID, IConnectContext)}
+ * {@link org.eclipse.ecf.core.IContainer#connect(org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.ID, IConnectContext)}
  * call.
  * 
- * @see org.eclipse.ecf.core.IContainer#connect(org.eclipse.ecf.core.identity.ID,
+ * @see org.eclipse.ecf.core.IContainer#connect(org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.ID,
  *      IConnectContext)
  * @see ConnectContextFactory
  */

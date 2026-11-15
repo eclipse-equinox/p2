@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclient5.win32;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.win32;
 
 import java.util.Map;
 import org.apache.hc.client5.http.auth.AuthSchemeFactory;
@@ -25,7 +25,7 @@ import org.apache.hc.client5.http.impl.win.WindowsNegotiateSchemeFactory;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.config.Lookup;
 import org.apache.hc.core5.http.config.RegistryBuilder;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.HttpClientModifierAdapter;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.impl.HttpClientModifierAdapter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -36,7 +36,7 @@ import org.osgi.service.component.annotations.Component;
 @Component
 public class Win32HttpClientConfigurationModifier extends HttpClientModifierAdapter {
 
-	public static final String ID = "org.eclipse.ecf.provider.filetransfer.httpclients5.win32"; //$NON-NLS-1$
+	public static final String ID = "org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.httpclients5.win32"; //$NON-NLS-1$
 
 	public static final String SERVICE_PRINCIPAL_NAME_ATTRIBUTE = "servicePrincipal"; //$NON-NLS-1$
 

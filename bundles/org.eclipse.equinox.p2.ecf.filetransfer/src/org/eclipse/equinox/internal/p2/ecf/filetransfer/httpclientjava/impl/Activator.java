@@ -8,11 +8,11 @@
  * Contributors:
  *    Chris Aniszczyk - initial API and implementation
  *    Yatta Solutions - HttpClient 4.5 implementation
- *    Christoph Läubrich - adapt for java http client
+ *    Christoph LÃ¤ubrich - adapt for java http client
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclientjava;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -29,14 +29,14 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ecf.core.security.SSLContextFactory;
-import org.eclipse.ecf.core.util.ECFRuntimeException;
-import org.eclipse.ecf.core.util.LogHelper;
-import org.eclipse.ecf.core.util.Trace;
-import org.eclipse.ecf.filetransfer.service.IRemoteFileSystemBrowser;
-import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransfer;
-import org.eclipse.ecf.internal.provider.filetransfer.DebugOptions;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.ECFHttpClientFactory.ModifierRunner;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.SSLContextFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.ECFRuntimeException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.LogHelper;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Trace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.IRemoteFileSystemBrowser;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.IRetrieveFileTransfer;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.DebugOptions;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.ECFHttpClientFactory.ModifierRunner;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -98,7 +98,7 @@ public class Activator implements BundleActivator {
 	}
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.ecf.provider.filetransfer.httpclientjava"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava"; //$NON-NLS-1$
 
 	public static final String USE_SHARED_CLIENT = PLUGIN_ID + ".sharedClient"; //$NON-NLS-1$
 
@@ -163,7 +163,7 @@ public class Activator implements BundleActivator {
 			}
 			Map<String, String> options = debugOptions.getOptions();
 			String ourDebugPrefix = PLUGIN_ID + "/";
-			String ecfDebugPrefix = "org.eclipse.ecf.provider.filetransfer.httpclient4/";
+			String ecfDebugPrefix = "org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.httpclient4/";
 			for (Map.Entry<String, String> entry : options.entrySet()) {
 				if (entry.getKey() != null && entry.getKey().startsWith(ourDebugPrefix)) {
 					String ecfOption = ecfDebugPrefix + entry.getKey().substring(ourDebugPrefix.length());
@@ -326,7 +326,7 @@ public class Activator implements BundleActivator {
 
 		Dictionary<String, Object> serviceProperties = new Hashtable<String, Object>();
 		serviceProperties.put(Constants.SERVICE_RANKING, Integer.MIN_VALUE);
-		serviceProperties.put("http.client.scope", "org.eclipse.ecf.filetransfer.service.*");
+		serviceProperties.put("http.client.scope", "org.eclipse.equinox.internal.p2.ecf.filetransfer.service.*");
 		context.registerService(new String[] { HttpClient.class.getName() }, client, serviceProperties);
 
 		return client;

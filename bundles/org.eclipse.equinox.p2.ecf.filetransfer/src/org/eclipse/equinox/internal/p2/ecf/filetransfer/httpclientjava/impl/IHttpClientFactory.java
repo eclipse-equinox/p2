@@ -7,11 +7,11 @@
  *
  * Contributors:
  *   Yatta Solutions - initial API and implementation
- *   Christoph Läubrich - adapt to java http client
+ *   Christoph LÃ¤ubrich - adapt to java http client
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclientjava;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl;
 
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;

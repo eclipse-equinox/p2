@@ -7,11 +7,11 @@
  *
  * Contributors:
  *   Yatta Solutions - initial API and implementation
- *   Christoph Läubrich - adapt for java http client
+ *   Christoph LÃ¤ubrich - adapt for java http client
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclientjava;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl;
 
 import java.net.Authenticator;
 import java.net.http.HttpClient;
@@ -27,11 +27,11 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ecf.core.security.SSLContextFactory;
-import org.eclipse.ecf.core.util.Trace;
-import org.eclipse.ecf.internal.provider.filetransfer.DebugOptions;
-import org.eclipse.ecf.provider.filetransfer.httpclientjava.HttpClientOptions;
-import org.eclipse.ecf.provider.filetransfer.httpclientjava.HttpClientRetrieveFileTransfer;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.SSLContextFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Trace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.DebugOptions;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.HttpClientOptions;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.HttpClientRetrieveFileTransfer;
 import org.osgi.service.component.annotations.Component;
 
 @SuppressWarnings({ "restriction" })

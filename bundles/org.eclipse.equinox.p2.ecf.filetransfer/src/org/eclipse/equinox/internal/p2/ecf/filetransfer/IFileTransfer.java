@@ -9,11 +9,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.filetransfer;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.ecf.core.identity.IIdentifiable;
-import org.eclipse.ecf.filetransfer.events.IFileTransferEvent;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IIdentifiable;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.events.IFileTransferEvent;
 
 /**
  * File transfer super interface. This interface provides the abstract file

@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.provider.filetransfer.retrieve;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve;
 
 import java.util.StringTokenizer;
 

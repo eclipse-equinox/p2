@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.provider.filetransfer.util;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.util;
 
 import java.io.FilterInputStream;
 import java.io.IOException;

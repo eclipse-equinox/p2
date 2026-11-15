@@ -10,11 +10,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclientjava;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl;
 
 import java.util.Map;
-import org.eclipse.ecf.core.util.ECFException;
-import org.eclipse.ecf.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.ECFException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
 
 public interface INTLMProxyHandler {
 	void handleNTLMProxy(Proxy proxy, int code) throws ECFException;

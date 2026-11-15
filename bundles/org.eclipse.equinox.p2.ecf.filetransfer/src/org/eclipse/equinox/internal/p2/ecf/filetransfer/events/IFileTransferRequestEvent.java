@@ -9,17 +9,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.filetransfer.events;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.events;
 
 import java.io.File;
 import java.io.OutputStream;
 
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.filetransfer.IFileTransferInfo;
-import org.eclipse.ecf.filetransfer.IFileTransferListener;
-import org.eclipse.ecf.filetransfer.IIncomingFileTransfer;
-import org.eclipse.ecf.filetransfer.IIncomingFileTransferRequestListener;
-import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.ID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IFileTransferInfo;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IFileTransferListener;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IIncomingFileTransfer;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IIncomingFileTransferRequestListener;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IncomingFileTransferException;
 
 /**
  * Event to represent remote file transfer requests. Events implementing this

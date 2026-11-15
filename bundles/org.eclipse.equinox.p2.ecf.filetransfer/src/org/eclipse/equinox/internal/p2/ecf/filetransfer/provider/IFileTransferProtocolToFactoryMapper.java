@@ -10,11 +10,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.provider.filetransfer;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider;
 
-import org.eclipse.ecf.filetransfer.service.IRemoteFileSystemBrowserFactory;
-import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
-import org.eclipse.ecf.filetransfer.service.ISendFileTransferFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.IRemoteFileSystemBrowserFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.IRetrieveFileTransferFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.ISendFileTransferFactory;
 
 /**
  * 

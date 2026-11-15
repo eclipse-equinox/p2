@@ -9,18 +9,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.provider.filetransfer.identity;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.identity;
 
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.identity.IDCreateException;
-import org.eclipse.ecf.core.identity.Namespace;
-import org.eclipse.ecf.internal.provider.filetransfer.Activator;
-import org.eclipse.ecf.internal.provider.filetransfer.Messages;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.ID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IDCreateException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.Namespace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Messages;
 
 /**
  * URL file namespace class. This defines a namespace that understands how to
@@ -50,7 +50,7 @@ public class FileTransferNamespace extends Namespace {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.core.identity.Namespace#createInstance(java.lang.Object[])
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.Namespace#createInstance(java.lang.Object[])
 	 */
 	public ID createInstance(Object[] args) throws IDCreateException {
 		try {
@@ -72,7 +72,7 @@ public class FileTransferNamespace extends Namespace {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.core.identity.Namespace#getSupportedSchemes()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.Namespace#getSupportedSchemes()
 	 */
 	public String[] getSupportedSchemes() {
 		Set result = new HashSet();
@@ -84,7 +84,7 @@ public class FileTransferNamespace extends Namespace {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.core.identity.Namespace#getScheme()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.Namespace#getScheme()
 	 */
 	public String getScheme() {
 		return PROTOCOL;
@@ -93,7 +93,7 @@ public class FileTransferNamespace extends Namespace {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.core.identity.Namespace#getSupportedParameterTypesForCreateInstance()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.Namespace#getSupportedParameterTypesForCreateInstance()
 	 */
 	public Class[][] getSupportedParameterTypes() {
 		return new Class[][] {{URL.class}, {String.class}, {URI.class}};

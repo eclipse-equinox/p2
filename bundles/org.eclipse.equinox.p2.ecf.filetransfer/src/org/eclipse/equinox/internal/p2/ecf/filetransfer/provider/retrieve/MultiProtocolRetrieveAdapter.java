@@ -11,26 +11,26 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.provider.filetransfer.retrieve;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.Map;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdapterManager;
-import org.eclipse.ecf.core.identity.IDFactory;
-import org.eclipse.ecf.core.identity.Namespace;
-import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.filetransfer.IFileRangeSpecification;
-import org.eclipse.ecf.filetransfer.IFileTransferListener;
-import org.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter;
-import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.ecf.filetransfer.identity.IFileID;
-import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransfer;
-import org.eclipse.ecf.internal.provider.filetransfer.Activator;
-import org.eclipse.ecf.internal.provider.filetransfer.Messages;
-import org.eclipse.ecf.provider.filetransfer.identity.FileTransferNamespace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IDFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.Namespace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IFileRangeSpecification;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IFileTransferListener;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IncomingFileTransferException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.IRetrieveFileTransfer;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Messages;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.identity.FileTransferNamespace;
 
 /**
  * Multi protocol handler for retrieve file transfer. Multiplexes between Apache
@@ -45,7 +45,7 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#getRetrieveNamespace()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#getRetrieveNamespace()
 	 */
 	public Namespace getRetrieveNamespace() {
 		return IDFactory.getDefault().getNamespaceByName(FileTransferNamespace.PROTOCOL);
@@ -54,7 +54,7 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#setConnectContextForAuthentication(org.eclipse.ecf.core.security.IConnectContext)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#setConnectContextForAuthentication(org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext)
 	 */
 	public void setConnectContextForAuthentication(IConnectContext connectContext) {
 		this.connectContext = connectContext;
@@ -63,7 +63,7 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#setProxy(org.eclipse.ecf.core.util.Proxy)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#setProxy(org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy)
 	 */
 	public void setProxy(Proxy proxy) {
 		this.proxy = proxy;
@@ -72,8 +72,8 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#sendRetrieveRequest(org.eclipse.ecf.filetransfer.identity.IFileID,
-	 *      org.eclipse.ecf.filetransfer.IFileTransferListener, java.util.Map)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#sendRetrieveRequest(org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID,
+	 *      org.eclipse.equinox.internal.p2.ecf.filetransfer.IFileTransferListener, java.util.Map)
 	 */
 	public void sendRetrieveRequest(IFileID remoteFileID, IFileTransferListener transferListener, Map options) throws IncomingFileTransferException {
 
@@ -112,9 +112,9 @@ public class MultiProtocolRetrieveAdapter implements IRetrieveFileTransfer {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#sendRetrieveRequest(org.eclipse.ecf.filetransfer.identity.IFileID,
-	 *      org.eclipse.ecf.filetransfer.IFileRangeSpecification,
-	 *      org.eclipse.ecf.filetransfer.IFileTransferListener, java.util.Map)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#sendRetrieveRequest(org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID,
+	 *      org.eclipse.equinox.internal.p2.ecf.filetransfer.IFileRangeSpecification,
+	 *      org.eclipse.equinox.internal.p2.ecf.filetransfer.IFileTransferListener, java.util.Map)
 	 */
 	public void sendRetrieveRequest(IFileID remoteFileID, IFileRangeSpecification rangeSpecification, IFileTransferListener transferListener, Map options) throws IncomingFileTransferException {
 		Assert.isNotNull(remoteFileID);

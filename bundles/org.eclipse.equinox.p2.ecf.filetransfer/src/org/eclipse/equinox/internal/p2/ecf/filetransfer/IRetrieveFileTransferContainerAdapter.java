@@ -9,17 +9,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.filetransfer;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer;
 
 import java.util.Map;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.ecf.core.IContainer;
-import org.eclipse.ecf.core.identity.IDFactory;
-import org.eclipse.ecf.core.identity.Namespace;
-import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.filetransfer.events.*;
-import org.eclipse.ecf.filetransfer.identity.IFileID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IDFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.Namespace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.events.*;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
 
 /**
  * Entry point retrieval file transfer adapter. This adapter interface allows

@@ -12,12 +12,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.provider.filetransfer.util;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.util;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.Properties;
-import org.eclipse.ecf.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
 
 /**
  * Helper class for setting the JRE proxy value (http and socks).

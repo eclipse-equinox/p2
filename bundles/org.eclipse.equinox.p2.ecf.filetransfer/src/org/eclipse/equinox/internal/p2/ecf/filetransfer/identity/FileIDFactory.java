@@ -9,16 +9,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.filetransfer.identity;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.identity;
 
 import java.net.URI;
 import java.net.URL;
-import org.eclipse.ecf.core.identity.IDFactory;
-import org.eclipse.ecf.core.identity.Namespace;
-import org.eclipse.ecf.core.util.Trace;
-import org.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter;
-import org.eclipse.ecf.internal.filetransfer.Activator;
-import org.eclipse.ecf.internal.filetransfer.FileTransferDebugOptions;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IDFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.Namespace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Trace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.FileTransferDebugOptions;
 
 /**
  * Factory class entry point for creating IFileID instances.

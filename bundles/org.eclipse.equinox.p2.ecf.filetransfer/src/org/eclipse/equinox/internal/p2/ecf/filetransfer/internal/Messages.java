@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.internal.provider.filetransfer;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.internal;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -19,7 +19,7 @@ import org.eclipse.osgi.util.NLS;
  * 
  */
 public class Messages extends NLS {
-	private static final String BUNDLE_NAME = "org.eclipse.ecf.internal.provider.filetransfer.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.messages"; //$NON-NLS-1$
 	public static String AbstractOutgoingFileTransfer_EXCEPTION_FILE_TRANSFER_INFO_NOT_NULL;
 	public static String AbstractOutgoingFileTransfer_EXCEPTION_IN_FINALLY;
 	public static String AbstractRetrieveFileTransfer_TransferRateFormat;

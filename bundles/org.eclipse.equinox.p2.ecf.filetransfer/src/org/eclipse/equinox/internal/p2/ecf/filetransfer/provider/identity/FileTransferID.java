@@ -10,17 +10,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.provider.filetransfer.identity;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.identity;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.ecf.core.identity.BaseID;
-import org.eclipse.ecf.core.identity.Namespace;
-import org.eclipse.ecf.filetransfer.identity.IFileID;
-import org.eclipse.ecf.internal.provider.filetransfer.Messages;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.BaseID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.Namespace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Messages;
 
 public class FileTransferID extends BaseID implements IFileID {
 

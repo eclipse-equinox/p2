@@ -12,7 +12,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer.httpclientjava;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl;
 
 import java.net.Authenticator;
 import java.net.InetAddress;
@@ -21,11 +21,11 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.core.util.ProxyAddress;
-import org.eclipse.ecf.core.util.Trace;
-import org.eclipse.ecf.internal.provider.filetransfer.DebugOptions;
-import org.eclipse.ecf.provider.filetransfer.httpclientjava.HttpClientRetrieveFileTransfer;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.ProxyAddress;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Trace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.DebugOptions;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.HttpClientRetrieveFileTransfer;
 import org.osgi.framework.FrameworkUtil;
 
 @SuppressWarnings("restriction")

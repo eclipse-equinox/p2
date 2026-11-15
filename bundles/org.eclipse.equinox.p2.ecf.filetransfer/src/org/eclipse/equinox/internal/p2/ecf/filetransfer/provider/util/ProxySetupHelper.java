@@ -10,15 +10,15 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.provider.filetransfer.util;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.util;
 
 import java.net.URI;
 import java.net.URL;
 import org.eclipse.core.net.proxy.IProxyData;
 import org.eclipse.core.net.proxy.IProxyService;
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.core.util.ProxyAddress;
-import org.eclipse.ecf.internal.provider.filetransfer.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.ProxyAddress;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
 
 /**
  * Proxy setup utilities.  

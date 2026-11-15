@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.internal.provider.filetransfer;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.internal;
 
 import java.io.IOException;
 import java.net.URL;
@@ -35,16 +35,16 @@ import org.eclipse.core.runtime.IRegistryChangeEvent;
 import org.eclipse.core.runtime.IRegistryChangeListener;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ecf.core.util.LogHelper;
-import org.eclipse.ecf.core.util.PlatformHelper;
-import org.eclipse.ecf.filetransfer.service.IRemoteFileSystemBrowser;
-import org.eclipse.ecf.filetransfer.service.IRemoteFileSystemBrowserFactory;
-import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransfer;
-import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
-import org.eclipse.ecf.filetransfer.service.ISendFileTransfer;
-import org.eclipse.ecf.filetransfer.service.ISendFileTransferFactory;
-import org.eclipse.ecf.provider.filetransfer.IFileTransferProtocolToFactoryMapper;
-import org.eclipse.ecf.provider.filetransfer.retrieve.MultiProtocolRetrieveAdapter;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.LogHelper;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.PlatformHelper;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.IRemoteFileSystemBrowser;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.IRemoteFileSystemBrowserFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.IRetrieveFileTransfer;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.IRetrieveFileTransferFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.ISendFileTransfer;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.ISendFileTransferFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.IFileTransferProtocolToFactoryMapper;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.MultiProtocolRetrieveAdapter;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
@@ -62,7 +62,7 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 public class Activator implements BundleActivator, IFileTransferProtocolToFactoryMapper {
 
-	// This is the name of a system property 'org.eclipse.ecf.provider.filetransfer.excludeContributors' 
+	// This is the name of a system property 'org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.excludeContributors' 
 	// that allows people to defeat the priority system for the browse, send, and retrieve factory contributions.
 	// If a plugin (symbolic id) is given in this property (multiples separated by comma), then
 	// that plugin's contributions will *not* be added to the browse, send, and retrieve protocol factories
@@ -80,7 +80,7 @@ public class Activator implements BundleActivator, IFileTransferProtocolToFactor
 	private static final String URLSTREAM_HANDLER_SERVICE_NAME = "org.osgi.service.url.URLStreamHandlerService"; //$NON-NLS-1$
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.ecf.provider.filetransfer"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.eclipse.equinox.internal.p2.ecf.filetransfer.provider"; //$NON-NLS-1$
 
 	private static final String RETRIEVE_FILETRANSFER_PROTOCOL_FACTORY_EPOINT_NAME = "retrieveFileTransferProtocolFactory"; //$NON-NLS-1$
 
@@ -251,7 +251,7 @@ public class Activator implements BundleActivator, IFileTransferProtocolToFactor
 
 		// initialize the default url connection modifier for ssl
 		try {
-			Class urlConnectionModifierClass = Class.forName("org.eclipse.ecf.internal.provider.filetransfer.ssl.ECFURLConnectionModifier"); //$NON-NLS-1$
+			Class urlConnectionModifierClass = Class.forName("org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.ssl.ECFURLConnectionModifier"); //$NON-NLS-1$
 			urlConnectionModifier = (IURLConnectionModifier) urlConnectionModifierClass.newInstance();
 			urlConnectionModifier.init(ctxt);
 		} catch (ClassNotFoundException e) {

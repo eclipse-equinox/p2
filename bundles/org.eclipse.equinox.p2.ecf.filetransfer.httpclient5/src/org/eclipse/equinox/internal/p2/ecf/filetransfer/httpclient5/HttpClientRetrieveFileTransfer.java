@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.provider.filetransfer.httpclient5;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -50,37 +50,37 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.security.Callback;
-import org.eclipse.ecf.core.security.CallbackHandler;
-import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.core.security.NameCallback;
-import org.eclipse.ecf.core.security.ObjectCallback;
-import org.eclipse.ecf.core.security.UnsupportedCallbackException;
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.core.util.ProxyAddress;
-import org.eclipse.ecf.core.util.Trace;
-import org.eclipse.ecf.filetransfer.FileTransferJob;
-import org.eclipse.ecf.filetransfer.IFileRangeSpecification;
-import org.eclipse.ecf.filetransfer.IFileTransferPausable;
-import org.eclipse.ecf.filetransfer.IFileTransferRunnable;
-import org.eclipse.ecf.filetransfer.IRetrieveFileTransferOptions;
-import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.ecf.filetransfer.InvalidFileRangeSpecificationException;
-import org.eclipse.ecf.filetransfer.events.IFileTransferConnectStartEvent;
-import org.eclipse.ecf.filetransfer.identity.IFileID;
-import org.eclipse.ecf.internal.provider.filetransfer.DebugOptions;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.Activator;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.ECFHttpClientFactory;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.HttpClientProxyCredentialProvider;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.IHttpClientFactory;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.Messages;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclient5.NTLMProxyDetector;
-import org.eclipse.ecf.provider.filetransfer.identity.FileTransferID;
-import org.eclipse.ecf.provider.filetransfer.retrieve.AbstractRetrieveFileTransfer;
-import org.eclipse.ecf.provider.filetransfer.retrieve.HttpHelper;
-import org.eclipse.ecf.provider.filetransfer.util.JREProxyHelper;
-import org.eclipse.ecf.provider.filetransfer.util.ProxySetupHelper;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.ID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.Callback;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.CallbackHandler;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.NameCallback;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.ObjectCallback;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.UnsupportedCallbackException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.ProxyAddress;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Trace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.FileTransferJob;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IFileRangeSpecification;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IFileTransferPausable;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IFileTransferRunnable;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferOptions;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IncomingFileTransferException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.InvalidFileRangeSpecificationException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.events.IFileTransferConnectStartEvent;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.DebugOptions;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.impl.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.impl.ECFHttpClientFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.impl.HttpClientProxyCredentialProvider;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.impl.IHttpClientFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.impl.Messages;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.impl.NTLMProxyDetector;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.identity.FileTransferID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.AbstractRetrieveFileTransfer;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.HttpHelper;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.util.JREProxyHelper;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.util.ProxySetupHelper;
 import org.eclipse.osgi.util.NLS;
 
 @SuppressWarnings("restriction")
@@ -183,7 +183,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.eclipse.ecf.provider.filetransfer.retrieve.AbstractRetrieveFileTransfer#hardClose()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.AbstractRetrieveFileTransfer#hardClose()
 	 */
 	@Override
 	protected void hardClose() {
@@ -373,7 +373,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.eclipse.ecf.core.identity.IIdentifiable#getID()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IIdentifiable#getID()
 	 */
 	@Override
 	public ID getID() {
@@ -529,7 +529,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.ecf.provider.filetransfer.retrieve.AbstractRetrieveFileTransfer#openStreams()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.AbstractRetrieveFileTransfer#openStreams()
 	 */
 	@Override
 	protected void openStreams() throws IncomingFileTransferException {
@@ -667,7 +667,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#setConnectContextForAuthentication(org.eclipse.ecf.core.security.IConnectContext)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#setConnectContextForAuthentication(org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext)
 	 */
 	@Override
 	public void setConnectContextForAuthentication(IConnectContext connectContext) {
@@ -742,7 +742,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.eclipse.ecf.internal.provider.filetransfer.AbstractRetrieveFileTransfer#supportsProtocol(java.lang.String)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.AbstractRetrieveFileTransfer#supportsProtocol(java.lang.String)
 	 */
 	public static boolean supportsProtocol(String protocolString) {
 		for (String supportedProtocol : supportedProtocols) {
@@ -760,7 +760,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.eclipse.ecf.provider.filetransfer.retrieve.AbstractRetrieveFileTransfer#doPause()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.AbstractRetrieveFileTransfer#doPause()
 	 */
 	@Override
 	protected boolean doPause() {
@@ -773,7 +773,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.eclipse.ecf.provider.filetransfer.retrieve.AbstractRetrieveFileTransfer#doResume()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.AbstractRetrieveFileTransfer#doResume()
 	 */
 	@Override
 	protected boolean doResume() {
@@ -894,7 +894,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.eclipse.ecf.provider.filetransfer.retrieve.AbstractRetrieveFileTransfer#getAdapter(java.lang.Class)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.AbstractRetrieveFileTransfer#getAdapter(java.lang.Class)
 	 */
 	@Override
 	public <T> T getAdapter(Class<T> adapter) {
@@ -906,7 +906,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.ecf.provider.filetransfer.retrieve.AbstractRetrieveFileTransfer#setupProxy(org.eclipse.ecf.core.util.Proxy)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.AbstractRetrieveFileTransfer#setupProxy(org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy)
 	 */
 	@Override
 	protected void setupProxy(Proxy proxy) {

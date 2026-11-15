@@ -10,12 +10,12 @@
  *    Henrich Kraemer - bug 263869, testHttpsReceiveFile fails using HTTP proxy
  *    Thomas Joiner - HttpClient 4 implementation
  *    Yatta Solutions - HttpClient 4.5 implementation
- *    Christoph Läubrich - Java HTTP client implementation
+ *    Christoph LÃ¤ubrich - Java HTTP client implementation
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.provider.filetransfer.httpclientjava;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava;
 
 import java.io.IOException;
 import java.net.Authenticator;
@@ -41,38 +41,38 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.ecf.core.security.Callback;
-import org.eclipse.ecf.core.security.CallbackHandler;
-import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.core.security.NameCallback;
-import org.eclipse.ecf.core.security.ObjectCallback;
-import org.eclipse.ecf.core.security.UnsupportedCallbackException;
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.core.util.ProxyAddress;
-import org.eclipse.ecf.core.util.Trace;
-import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
-import org.eclipse.ecf.filetransfer.IRemoteFile;
-import org.eclipse.ecf.filetransfer.IRemoteFileSystemListener;
-import org.eclipse.ecf.filetransfer.IRemoteFileSystemRequest;
-import org.eclipse.ecf.filetransfer.identity.IFileID;
-import org.eclipse.ecf.internal.provider.filetransfer.DebugOptions;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.Activator;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.AuthScope;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.Credentials;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.DefaultNTLMProxyHandler;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.ECFHttpClientFactory;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.HttpClientProxyCredentialProvider;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.HttpHost;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.IHttpClientContext;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.IHttpClientFactory;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.INTLMProxyHandler;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.Messages;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.NTLMProxyDetector;
-import org.eclipse.ecf.internal.provider.filetransfer.httpclientjava.UsernamePasswordCredentials;
-import org.eclipse.ecf.provider.filetransfer.browse.AbstractFileSystemBrowser;
-import org.eclipse.ecf.provider.filetransfer.browse.URLRemoteFile;
-import org.eclipse.ecf.provider.filetransfer.util.JREProxyHelper;
-import org.eclipse.ecf.provider.filetransfer.util.ProxySetupHelper;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.Callback;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.CallbackHandler;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.NameCallback;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.ObjectCallback;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.UnsupportedCallbackException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.ProxyAddress;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Trace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.BrowseFileTransferException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFile;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemListener;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemRequest;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.DebugOptions;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.AuthScope;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.Credentials;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.DefaultNTLMProxyHandler;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.ECFHttpClientFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.HttpClientProxyCredentialProvider;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.HttpHost;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.IHttpClientContext;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.IHttpClientFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.INTLMProxyHandler;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.Messages;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.NTLMProxyDetector;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.UsernamePasswordCredentials;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse.AbstractFileSystemBrowser;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse.URLRemoteFile;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.util.JREProxyHelper;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.util.ProxySetupHelper;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -226,7 +226,7 @@ public class HttpClientFileSystemBrowser extends AbstractFileSystemBrowser {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.provider.filetransfer.browse.AbstractFileSystemBrowser#
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse.AbstractFileSystemBrowser#
 	 * runRequest()
 	 */
 	@Override

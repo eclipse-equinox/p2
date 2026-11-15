@@ -11,25 +11,25 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.provider.filetransfer.browse;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdapterManager;
-import org.eclipse.ecf.core.identity.IDFactory;
-import org.eclipse.ecf.core.identity.Namespace;
-import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.filetransfer.IRemoteFileSystemBrowserContainerAdapter;
-import org.eclipse.ecf.filetransfer.IRemoteFileSystemListener;
-import org.eclipse.ecf.filetransfer.IRemoteFileSystemRequest;
-import org.eclipse.ecf.filetransfer.RemoteFileSystemException;
-import org.eclipse.ecf.filetransfer.identity.IFileID;
-import org.eclipse.ecf.filetransfer.service.IRemoteFileSystemBrowser;
-import org.eclipse.ecf.internal.provider.filetransfer.Activator;
-import org.eclipse.ecf.internal.provider.filetransfer.Messages;
-import org.eclipse.ecf.provider.filetransfer.identity.FileTransferNamespace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IDFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.Namespace;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemBrowserContainerAdapter;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemListener;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemRequest;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.RemoteFileSystemException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.IRemoteFileSystemBrowser;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Messages;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.identity.FileTransferNamespace;
 
 /**
  * Multi protocol handler for remote file system browser. 
@@ -42,7 +42,7 @@ public class MultiProtocolFileSystemBrowserAdapter implements IRemoteFileSystemB
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#setConnectContextForAuthentication(org.eclipse.ecf.core.security.IConnectContext)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#setConnectContextForAuthentication(org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext)
 	 */
 	public void setConnectContextForAuthentication(IConnectContext connectContext) {
 		this.connectContext = connectContext;
@@ -51,21 +51,21 @@ public class MultiProtocolFileSystemBrowserAdapter implements IRemoteFileSystemB
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#setProxy(org.eclipse.ecf.core.util.Proxy)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#setProxy(org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy)
 	 */
 	public void setProxy(Proxy proxy) {
 		this.proxy = proxy;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.ecf.filetransfer.IRemoteFileSystemBrowserContainerAdapter#getDirectoryNamespace()
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemBrowserContainerAdapter#getDirectoryNamespace()
 	 */
 	public Namespace getBrowseNamespace() {
 		return IDFactory.getDefault().getNamespaceByName(FileTransferNamespace.PROTOCOL);
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.ecf.filetransfer.IRemoteFileSystemBrowserContainerAdapter#sendDirectoryRequest(org.eclipse.ecf.filetransfer.identity.IFileID, org.eclipse.ecf.filetransfer.IRemoteFileSystemListener)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemBrowserContainerAdapter#sendDirectoryRequest(org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID, org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemListener)
 	 */
 	public IRemoteFileSystemRequest sendBrowseRequest(IFileID directoryOrFileID, IRemoteFileSystemListener listener) throws RemoteFileSystemException {
 		Assert.isNotNull(directoryOrFileID);

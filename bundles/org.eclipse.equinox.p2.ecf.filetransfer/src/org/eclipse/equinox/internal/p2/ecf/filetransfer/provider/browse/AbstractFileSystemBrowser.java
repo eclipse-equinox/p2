@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
 
-package org.eclipse.ecf.provider.filetransfer.browse;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -24,18 +24,18 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.core.util.Proxy;
-import org.eclipse.ecf.filetransfer.IRemoteFile;
-import org.eclipse.ecf.filetransfer.IRemoteFileSystemListener;
-import org.eclipse.ecf.filetransfer.IRemoteFileSystemRequest;
-import org.eclipse.ecf.filetransfer.UserCancelledException;
-import org.eclipse.ecf.filetransfer.events.IRemoteFileSystemBrowseEvent;
-import org.eclipse.ecf.filetransfer.events.IRemoteFileSystemEvent;
-import org.eclipse.ecf.filetransfer.identity.IFileID;
-import org.eclipse.ecf.internal.provider.filetransfer.Activator;
-import org.eclipse.ecf.internal.provider.filetransfer.Messages;
-import org.eclipse.ecf.provider.filetransfer.util.ProxySetupHelper;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Proxy;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFile;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemListener;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemRequest;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.UserCancelledException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.events.IRemoteFileSystemBrowseEvent;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.events.IRemoteFileSystemEvent;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Messages;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.util.ProxySetupHelper;
 
 /**
  * Abstract class for browsing an efs file system.

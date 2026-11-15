@@ -9,9 +9,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *****************************************************************************/
-package org.eclipse.ecf.filetransfer;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer;
 
-import org.eclipse.ecf.filetransfer.events.IFileTransferEvent;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.events.IFileTransferEvent;
 
 /**
  * Listener for handling file transfer events. Instances implementing this
