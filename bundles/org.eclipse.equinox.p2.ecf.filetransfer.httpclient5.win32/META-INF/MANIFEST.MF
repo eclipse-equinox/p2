@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: org.eclipse.equinox.p2.ecf.filetransfer.httpclient5.win32
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Bundle-ActivationPolicy: lazy
+Eclipse-PlatformFilter: (osgi.os=win32)
+Automatic-Module-Name: org.eclipse.equinox.p2.ecf.filetransfer.httpclient5.win32
