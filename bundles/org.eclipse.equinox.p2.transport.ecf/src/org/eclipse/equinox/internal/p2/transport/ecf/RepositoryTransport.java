@@ -19,10 +19,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.core.runtime.*;
-import org.eclipse.ecf.core.identity.IDCreateException;
-import org.eclipse.ecf.core.security.ConnectContextFactory;
-import org.eclipse.ecf.core.security.IConnectContext;
-import org.eclipse.ecf.filetransfer.*;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IDCreateException;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.ConnectContextFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.*;
 import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.p2.repository.Credentials.LoginCanceledException;
 import org.eclipse.equinox.internal.p2.repository.Messages;
@@ -67,16 +67,6 @@ public class RepositoryTransport extends Transport {
 	private static final Map<URI, Retry> SOCKET_EXCEPTION_RETRY = new ConcurrentHashMap<>();
 
 	private IProvisioningAgent agent = null;
-
-	/**
-	 * Returns an shared instance of Generic Transport
-	 */
-	// public static synchronized RepositoryTransport getInstance() {
-	// if (instance == null) {
-	// instance = new RepositoryTransport();
-	// }
-	// return instance;
-	// }
 
 	public RepositoryTransport() {
 		this(null);

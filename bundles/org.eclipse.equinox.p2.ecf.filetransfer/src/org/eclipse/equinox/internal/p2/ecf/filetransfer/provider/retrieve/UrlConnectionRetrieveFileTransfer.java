@@ -560,8 +560,6 @@ public class UrlConnectionRetrieveFileTransfer extends AbstractRetrieveFileTrans
 
 		if (Compression.GZIP == type) {
 			return new java.util.zip.GZIPInputStream(input);
-			// } else if (Compression.DEFLATE == type) {
-			// return new java.util.zip.InflaterInputStream(input);
 		}
 		return input;
 	}

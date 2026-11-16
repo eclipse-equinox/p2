@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2012 IBM Corporation and others.
+ *  Copyright (c) 2007, 2026 IBM Corporation and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -31,7 +31,6 @@ public class Messages extends NLS {
 
 	public static String artifact_not_found;
 	public static String io_failedRead;
-	public static String ecf_configuration_error;
 	public static String repoMan_internalError;
 	public static String repo_loading;
 

@@ -36,16 +36,6 @@ public class NTLMProxyDetector {
 	private static boolean isProxyType(IHttpClientContext context, String scheme) {
 		if (context == null)
 			return false;
-//      AuthState authState = (AuthState) context.getAttribute(HttpClientContext.PROXY_AUTH_STATE);
-//		if (authState == null)
-//			return false;
-//		AuthScheme authScheme = authState.getAuthScheme();
-//		if (authScheme == null)
-//			return false;
-//		String schemeName = authScheme.getSchemeName();
-//		if (schemeName == null)
-//			return false;
-//		return schemeName.equalsIgnoreCase(scheme);
 		return false;
 	}
 

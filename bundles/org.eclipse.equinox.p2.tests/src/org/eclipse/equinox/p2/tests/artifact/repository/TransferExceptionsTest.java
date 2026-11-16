@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2026 Cloudsmith Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -33,7 +33,7 @@ public class TransferExceptionsTest extends AbstractProvisioningTest {
 	public void testErrorMessages() throws IOException, BundleException, URISyntaxException {
 		File f = File.createTempFile("TransferTest", "dummy.txt");
 		try (OutputStream fos = Files.newOutputStream(f.toPath())) {
-			Platform.getBundle("org.eclipse.ecf.provider.filetransfer").start();
+			Platform.getBundle("org.eclipse.equinox.p2.ecf.filetransfer").start();
 			IStatus s = getTransport().download(new URI("bogus!bogus"), fos, new NullProgressMonitor());
 			assertNotOK(s);
 			printStatus("1", s);
