@@ -14,14 +14,20 @@ package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl;
 
 public class HttpHost {
 
-	@SuppressWarnings("unused")
-	private String hostName;
-	@SuppressWarnings("unused")
-	private int port;
+	private final String hostName;
+	private final int port;
 
 	public HttpHost(String hostName, int port) {
 		this.hostName = hostName;
 		this.port = port;
+	}
+
+	public String getHostName() {
+		return hostName;
+	}
+
+	public int getPort() {
+		return port;
 	}
 
 }

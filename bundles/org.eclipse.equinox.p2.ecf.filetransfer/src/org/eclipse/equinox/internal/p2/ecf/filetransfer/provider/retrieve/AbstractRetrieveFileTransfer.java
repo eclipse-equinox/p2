@@ -68,13 +68,13 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 
 	public static final int DEFAULT_BUF_LENGTH = 4096;
 
-	protected static final int POLLING_RETRY_ATTEMPTS = Integer.parseInt(System.getProperty("org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.retryAttempts", "30")); //$NON-NLS-1$ //$NON-NLS-2$;;
+	protected static final int POLLING_RETRY_ATTEMPTS = Integer.parseInt(System.getProperty("org.eclipse.ecf.provider.filetransfer.retrieve.retryAttempts", "30")); //$NON-NLS-1$ //$NON-NLS-2$;;
 
 	protected static final int TIMEOUT_INPUTSTREAM_BUFFER_SIZE = 8192;
 
-	protected static final int READ_TIMEOUT = Integer.parseInt(System.getProperty("org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.readTimeout", "1000")); //$NON-NLS-1$ //$NON-NLS-2$;
+	protected static final int READ_TIMEOUT = Integer.parseInt(System.getProperty("org.eclipse.ecf.provider.filetransfer.retrieve.readTimeout", "1000")); //$NON-NLS-1$ //$NON-NLS-2$;
 
-	protected static final int CLOSE_TIMEOUT = Integer.parseInt(System.getProperty("org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.closeTimeout", "1000")); //$NON-NLS-1$ //$NON-NLS-2$;
+	protected static final int CLOSE_TIMEOUT = Integer.parseInt(System.getProperty("org.eclipse.ecf.provider.filetransfer.retrieve.closeTimeout", "1000")); //$NON-NLS-1$ //$NON-NLS-2$;
 
 	private static final String readTimeoutMessage = "Timeout while reading input stream.\n" + //$NON-NLS-1$
 			"The following system properties can be used to adjust the readTimeout, retryAttempts, and closeTimeout\n" + //$NON-NLS-1$
@@ -147,7 +147,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 		Map localOptions = getOptions();
 		if (localOptions != null) {
 			// See if the property is present, if so set
-			Object o = localOptions.get("org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.retryAttempts"); //$NON-NLS-1$
+			Object o = localOptions.get("org.eclipse.ecf.provider.filetransfer.retrieve.retryAttempts"); //$NON-NLS-1$
 			if (o != null) {
 				if (o instanceof Integer) {
 					result = ((Integer) o).intValue();
@@ -233,7 +233,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 				}
 				return result;
 			}
-			o = localOptions.get("org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.httpclient.retrieve.readTimeout"); //$NON-NLS-1$
+			o = localOptions.get("org.eclipse.ecf.provider.filetransfer.httpclient.retrieve.readTimeout"); //$NON-NLS-1$
 			if (o != null) {
 				if (o instanceof Integer) {
 					result = ((Integer) o).intValue();
@@ -250,7 +250,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 		Map localOptions = getOptions();
 		if (localOptions != null) {
 			// See if the property is present, if so set
-			Object o = localOptions.get("org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.closeTimeout"); //$NON-NLS-1$
+			Object o = localOptions.get("org.eclipse.ecf.provider.filetransfer.retrieve.closeTimeout"); //$NON-NLS-1$
 			if (o != null) {
 				if (o instanceof Integer) {
 					result = ((Integer) o).intValue();
@@ -407,7 +407,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seeorg.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#
+	 * @seeorg.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#
 	 * setConnectContextForAuthentication
 	 * (org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext)
 	 */
@@ -570,7 +570,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seeorg.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#
+	 * @seeorg.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#
 	 * sendRetrieveRequest(org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID,
 	 * org.eclipse.equinox.internal.p2.ecf.filetransfer.IFileTransferListener, java.util.Map)
 	 */
@@ -581,7 +581,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seeorg.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#
+	 * @seeorg.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#
 	 * getRetrieveNamespace()
 	 */
 	public Namespace getRetrieveNamespace() {
@@ -674,7 +674,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 			/*
 			 * (non-Javadoc)
 			 * 
-			 * @seeorg.eclipse.ecf.filetransfer.events.
+			 * @seeorg.eclipse.equinox.internal.p2.ecf.filetransfer.events.
 			 * IIncomingFileTransferEvent#getFileID()
 			 */
 			public IIncomingFileTransfer getSource() {
@@ -684,7 +684,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 			/*
 			 * (non-Javadoc)
 			 * 
-			 * @seeorg.eclipse.ecf.filetransfer.events.
+			 * @seeorg.eclipse.equinox.internal.p2.ecf.filetransfer.events.
 			 * IIncomingFileTransferReceiveStartEvent#getFileID()
 			 */
 			public IFileID getFileID() {
@@ -694,7 +694,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 			/*
 			 * (non-Javadoc)
 			 * 
-			 * @seeorg.eclipse.ecf.filetransfer.events.
+			 * @seeorg.eclipse.equinox.internal.p2.ecf.filetransfer.events.
 			 * IIncomingFileTransferReceiveStartEvent
 			 * #receive(java.io.File)
 			 */
@@ -705,7 +705,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 			/*
 			 * (non-Javadoc)
 			 * 
-			 * @seeorg.eclipse.ecf.filetransfer.events.
+			 * @seeorg.eclipse.equinox.internal.p2.ecf.filetransfer.events.
 			 * IIncomingFileTransferReceiveStartEvent
 			 * #receive(java.io.File,
 			 * org.eclipse.equinox.internal.p2.ecf.filetransfer.FileTransferJob)
@@ -740,7 +740,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 			/*
 			 * (non-Javadoc)
 			 * 
-			 * @seeorg.eclipse.ecf.filetransfer.events.
+			 * @seeorg.eclipse.equinox.internal.p2.ecf.filetransfer.events.
 			 * IIncomingFileTransferReceiveStartEvent#cancel()
 			 */
 			public void cancel() {
@@ -812,7 +812,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 			/*
 			 * (non-Javadoc)
 			 * 
-			 * @seeorg.eclipse.ecf.filetransfer.events.
+			 * @seeorg.eclipse.equinox.internal.p2.ecf.filetransfer.events.
 			 * IIncomingFileTransferReceiveStartEvent#cancel()
 			 */
 			public void cancel() {
@@ -848,7 +848,7 @@ public abstract class AbstractRetrieveFileTransfer implements IIncomingFileTrans
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seeorg.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#
+	 * @seeorg.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#
 	 * sendRetrieveRequest(org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID,
 	 * org.eclipse.equinox.internal.p2.ecf.filetransfer.IFileRangeSpecification,
 	 * org.eclipse.equinox.internal.p2.ecf.filetransfer.IFileTransferListener, java.util.Map)

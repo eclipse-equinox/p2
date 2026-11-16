@@ -52,7 +52,7 @@ public class HttpClientProxyCredentialProvider extends Authenticator {
 
 	protected boolean allowNTLMAuthentication() {
 		DefaultNTLMProxyHandler.setSeenNTLM();
-		return Activator.getDefault().getNTLMProxyHandler().allowNTLMAuthentication(null);
+		return HttpClientJavaPlugin.getDefault().getNTLMProxyHandler().allowNTLMAuthentication(null);
 	}
 
 	protected Credentials getNTLMCredentials(Credentials credentials) {
@@ -83,7 +83,7 @@ public class HttpClientProxyCredentialProvider extends Authenticator {
 	}
 
 	public Credentials getCredentials(AuthScope authscope) {
-		Trace.entering(Activator.PLUGIN_ID, DebugOptions.METHODS_ENTERING, HttpClientProxyCredentialProvider.class, "getCredentials " + authscope); //$NON-NLS-1$
+		Trace.entering(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_ENTERING, HttpClientProxyCredentialProvider.class, "getCredentials " + authscope); //$NON-NLS-1$
 
 		// First check to see whether given authscope matches any authscope
 		// already cached.
@@ -124,9 +124,9 @@ public class HttpClientProxyCredentialProvider extends Authenticator {
 				credentials = new UsernamePasswordCredentials(proxyUsername, proxyPassword.toCharArray());
 			}
 		} else if ("negotiate".equalsIgnoreCase(authscope.getSchemeName())) { //$NON-NLS-1$
-			Trace.trace(Activator.PLUGIN_ID, "SPNEGO is not supported, if you can contribute support, please do so."); //$NON-NLS-1$
+			Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "SPNEGO is not supported, if you can contribute support, please do so."); //$NON-NLS-1$
 		} else {
-			Trace.trace(Activator.PLUGIN_ID, "Unrecognized authentication scheme."); //$NON-NLS-1$
+			Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "Unrecognized authentication scheme."); //$NON-NLS-1$
 		}
 
 		// Put found credentials in cache for next time
@@ -156,9 +156,11 @@ public class HttpClientProxyCredentialProvider extends Authenticator {
 	}
 
 	/**
-	 * @param p
-	 *              proxy to create NTCredentials for
-	 * @return NTCredentials new ntlm credentials given proxy
+	 * @param username
+	 *              the user name, possibly prefixed with the domain
+	 * @param password
+	 *              the password
+	 * @return NTCredentials new ntlm credentials given user name and password
 	 * @since 5.0
 	 */
 	protected static NTCredentials createNTLMCredentials(String username, char[] password) {
@@ -231,7 +233,7 @@ public class HttpClientProxyCredentialProvider extends Authenticator {
 				}
 			}
 		} catch (UnknownHostException e) {
-			Trace.catching(Activator.PLUGIN_ID, DebugOptions.EXCEPTIONS_CATCHING, HttpClientRetrieveFileTransfer.class, "getDnsHostName", e); //$NON-NLS-1$
+			Trace.catching(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.EXCEPTIONS_CATCHING, HttpClientRetrieveFileTransfer.class, "getDnsHostName", e); //$NON-NLS-1$
 		}
 		return null;
 	}

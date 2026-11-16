@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity;
 
 import java.io.Serializable;
 import org.eclipse.core.runtime.*;
-import org.eclipse.ecf.internal.core.identity.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
 
 /**
  * Namespace base class.

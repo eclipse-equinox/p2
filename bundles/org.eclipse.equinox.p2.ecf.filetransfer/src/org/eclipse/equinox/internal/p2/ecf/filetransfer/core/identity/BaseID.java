@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdapterManager;
-import org.eclipse.ecf.internal.core.identity.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
 
 /**
  * Base class for ID implementation classes

@@ -17,8 +17,8 @@ import org.eclipse.equinox.internal.p2.ecf.filetransfer.events.IFileTransferEven
 
 /**
  * File transfer super interface. This interface provides the abstract file
- * transfer semantics for both {@link IOutgoingFileTransfer} and
- * {@link IIncomingFileTransfer} transfer sub interfaces.
+ * transfer semantics for the {@link IIncomingFileTransfer} transfer sub
+ * interface.
  */
 public interface IFileTransfer extends IAdaptable, IIdentifiable {
 	/**

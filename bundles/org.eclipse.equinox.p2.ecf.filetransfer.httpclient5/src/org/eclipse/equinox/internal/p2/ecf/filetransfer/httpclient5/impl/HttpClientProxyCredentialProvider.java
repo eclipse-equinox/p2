@@ -162,9 +162,11 @@ public class HttpClientProxyCredentialProvider extends BasicCredentialsProvider 
 	}
 
 	/**
-	 * @param p
-	 *              proxy to create NTCredentials for
-	 * @return NTCredentials new ntlm credentials given proxy
+	 * @param username
+	 *              the user name, possibly prefixed with the domain
+	 * @param password
+	 *              the password
+	 * @return NTCredentials new ntlm credentials given user name and password
 	 * @since 5.0
 	 */
 	protected static NTCredentials createNTLMCredentials(String username, char[] password) {

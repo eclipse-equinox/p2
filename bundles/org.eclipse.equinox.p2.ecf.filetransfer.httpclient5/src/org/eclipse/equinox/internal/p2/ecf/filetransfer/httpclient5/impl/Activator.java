@@ -20,12 +20,13 @@ import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 import javax.net.ssl.SSLSocketFactory;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.DefaultSSLContextFactory;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.SSLContextFactory;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.ECFRuntimeException;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.LogHelper;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.Trace;
@@ -98,9 +99,12 @@ public class Activator implements BundleActivator {
 	}
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ecf.filetransfer.httpclient5"; //$NON-NLS-1$
 
-	public static final String USE_SHARED_CLIENT = PLUGIN_ID + ".sharedClient"; //$NON-NLS-1$
+	// Name of the ECF bundle this code originates from, used as prefix of the system properties
+	private static final String PROPERTY_PREFIX = "org.eclipse.ecf.provider.filetransfer.httpclient5"; //$NON-NLS-1$
+
+	public static final String USE_SHARED_CLIENT = PROPERTY_PREFIX + ".sharedClient"; //$NON-NLS-1$
 
 	private static final String USE_SHARED_CLIENT_DEFAULT = "true"; //$NON-NLS-1$
 
@@ -111,6 +115,8 @@ public class Activator implements BundleActivator {
 	private ServiceTracker<LogService, LogService> logServiceTracker = null;
 
 	private ServiceTracker<SSLSocketFactory, SSLSocketFactory> sslSocketFactoryTracker;
+
+	private ServiceTracker<SSLContextFactory, SSLContextFactory> sslContextFactoryTracker;
 
 	private ServiceTracker<INTLMProxyHandler, INTLMProxyHandler> ntlmProxyHandlerTracker;
 
@@ -138,40 +144,16 @@ public class Activator implements BundleActivator {
 		plugin = this;
 		this.context = ctxt;
 		useSharedClient = Boolean.parseBoolean(System.getProperty(USE_SHARED_CLIENT, USE_SHARED_CLIENT_DEFAULT));
-		applyDebugOptions(ctxt);
-	}
-
-	private void applyDebugOptions(BundleContext ctxt) {
-		ServiceReference<org.eclipse.osgi.service.debug.DebugOptions> debugRef = ctxt.getServiceReference(org.eclipse.osgi.service.debug.DebugOptions.class);
-		org.eclipse.osgi.service.debug.DebugOptions debugOptions = debugRef == null ? null : ctxt.getService(debugRef);
-		if (debugOptions == null) {
-			return;
-		}
-		try {
-			if (!debugOptions.isDebugEnabled()) {
-				return;
-			}
-			Map<String, String> options = debugOptions.getOptions();
-			String ourDebugPrefix = PLUGIN_ID + "/";
-			String ecfDebugPrefix = "org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.httpclient4/";
-			for (Map.Entry<String, String> entry : options.entrySet()) {
-				if (entry.getKey() != null && entry.getKey().startsWith(ourDebugPrefix)) {
-					String ecfOption = ecfDebugPrefix + entry.getKey().substring(ourDebugPrefix.length());
-					String ecfValue = options.get(ecfOption);
-					if (ecfValue == null) {
-						debugOptions.setOption(ecfOption, entry.getValue());
-					}
-				}
-			}
-		} finally {
-			ctxt.ungetService(debugRef);
-		}
 	}
 
 	@Override
 	public synchronized void stop(BundleContext ctxt) throws Exception {
 		if (sslSocketFactoryTracker != null) {
 			sslSocketFactoryTracker.close();
+		}
+
+		if (sslContextFactoryTracker != null) {
+			sslContextFactoryTracker.close();
 		}
 
 		if (logServiceTracker != null) {
@@ -223,6 +205,15 @@ public class Activator implements BundleActivator {
 		}
 		SSLSocketFactory service = sslSocketFactoryTracker.getService();
 		return service;
+	}
+
+	public synchronized SSLContextFactory getSSLContextFactory() {
+		if (sslContextFactoryTracker == null) {
+			sslContextFactoryTracker = new ServiceTracker<>(this.context, SSLContextFactory.class, null);
+			sslContextFactoryTracker.open();
+		}
+		SSLContextFactory service = sslContextFactoryTracker.getService();
+		return service != null ? service : DefaultSSLContextFactory.INSTANCE;
 	}
 
 	public synchronized INTLMProxyHandler getNTLMProxyHandler() {
@@ -291,7 +282,7 @@ public class Activator implements BundleActivator {
 
 		Dictionary<String, Object> serviceProperties = new Hashtable<String, Object>();
 		serviceProperties.put(Constants.SERVICE_RANKING, Integer.MIN_VALUE);
-		serviceProperties.put("http.client.scope", "org.eclipse.equinox.internal.p2.ecf.filetransfer.service.*");
+		serviceProperties.put("http.client.scope", "org.eclipse.equinox.internal.p2.ecf.filetransfer.service.*"); //$NON-NLS-1$ //$NON-NLS-2$
 		context.registerService(new String[] {HttpClient.class.getName(), CloseableHttpClient.class.getName()}, client, serviceProperties);
 
 		return client;

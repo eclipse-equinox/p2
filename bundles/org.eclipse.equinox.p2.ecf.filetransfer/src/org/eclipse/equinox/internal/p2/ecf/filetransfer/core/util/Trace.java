@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import org.eclipse.ecf.internal.core.identity.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
 import org.eclipse.osgi.service.debug.DebugOptions;
 
 /**
@@ -24,13 +24,13 @@ import org.eclipse.osgi.service.debug.DebugOptions;
 public class Trace {
 
 	private static final boolean TRACEALL = Boolean
-			.getBoolean(System.getProperty("org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.traceAll", "false"));
+			.getBoolean(System.getProperty("org.eclipse.ecf.core.util.traceAll", "false"));
 
 	private static final List<String> TRACE_BUNDLES = new ArrayList<String>();
 
 	static {
 		if (!TRACEALL) {
-			String tracePlugins = System.getProperty("org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.traceBundles");
+			String tracePlugins = System.getProperty("org.eclipse.ecf.core.util.traceBundles");
 			if (tracePlugins != null)
 				try {
 					String[] plugins = tracePlugins.split(",");

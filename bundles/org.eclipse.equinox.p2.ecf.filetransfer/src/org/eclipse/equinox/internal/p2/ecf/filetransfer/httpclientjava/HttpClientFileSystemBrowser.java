@@ -56,7 +56,7 @@ import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemListene
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemRequest;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.DebugOptions;
-import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.HttpClientJavaPlugin;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.AuthScope;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.Credentials;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.DefaultNTLMProxyHandler;
@@ -148,7 +148,7 @@ public class HttpClientFileSystemBrowser extends AbstractFileSystemBrowser {
 			}
 
 		};
-		IHttpClientFactory httpClientFactory = Activator.getDefault().getHttpClientFactory();
+		IHttpClientFactory httpClientFactory = HttpClientJavaPlugin.getDefault().getHttpClientFactory();
 		Authenticator contextCredentialsProvider = ECFHttpClientFactory.modifyCredentialsProvider(credentialsProvider);
 		httpContext = httpClientFactory.newClientContext();
 		httpContext.setCredentialsProvider(contextCredentialsProvider);
@@ -208,7 +208,7 @@ public class HttpClientFileSystemBrowser extends AbstractFileSystemBrowser {
 			} catch (NoClassDefFoundError e) {
 				// If the proxy API is not available a NoClassDefFoundError will be thrown here.
 				// If that happens then we just want to continue on.
-				Activator.logNoProxyWarning(e);
+				HttpClientJavaPlugin.logNoProxyWarning(e);
 
 			}
 		}
@@ -231,11 +231,11 @@ public class HttpClientFileSystemBrowser extends AbstractFileSystemBrowser {
 	 */
 	@Override
 	protected void runRequest() throws Exception {
-		Trace.entering(Activator.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "runRequest"); //$NON-NLS-1$
+		Trace.entering(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "runRequest"); //$NON-NLS-1$
 
 		String urlString = directoryOrFile.toString();
 
-		HttpRequest.Builder requestConfigBuilder = Activator.getDefault().getHttpClientFactory()
+		HttpRequest.Builder requestConfigBuilder = HttpClientJavaPlugin.getDefault().getHttpClientFactory()
 				.newRequestConfig(httpContext, null);
 		requestConfigBuilder.timeout(Duration.ofMillis(DEFAULT_CONNECTION_TIMEOUT));
 		requestConfigBuilder.uri(new URI(urlString));
@@ -261,13 +261,13 @@ public class HttpClientFileSystemBrowser extends AbstractFileSystemBrowser {
 
 		int code = -1;
 		try {
-			Trace.trace(Activator.PLUGIN_ID, "browse=" + urlString); //$NON-NLS-1$
+			Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "browse=" + urlString); //$NON-NLS-1$
 
 			asyncRequest = httpClient.sendAsync(request, BodyHandlers.discarding());
 			HttpResponse<Void> response = asyncRequest.join();
 			code = response.statusCode();
 
-			Trace.trace(Activator.PLUGIN_ID, "browse resp=" + code); //$NON-NLS-1$
+			Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "browse resp=" + code); //$NON-NLS-1$
 
 			// Check for NTLM proxy in response headers
 			// This check is to deal with bug
@@ -304,7 +304,7 @@ public class HttpClientFileSystemBrowser extends AbstractFileSystemBrowser {
 			if (e instanceof CompletionException) {
 				t = e.getCause();
 			}
-			Trace.throwing(Activator.PLUGIN_ID, DebugOptions.EXCEPTIONS_THROWING, this.getClass(), "runRequest", t); //$NON-NLS-1$
+			Trace.throwing(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.EXCEPTIONS_THROWING, this.getClass(), "runRequest", t); //$NON-NLS-1$
 			BrowseFileTransferException ex = (BrowseFileTransferException) ((t instanceof BrowseFileTransferException)
 					? t
 					: new BrowseFileTransferException(
@@ -326,7 +326,7 @@ public class HttpClientFileSystemBrowser extends AbstractFileSystemBrowser {
 		if (value instanceof INTLMProxyHandler) {
 			return (INTLMProxyHandler) value;
 		}
-		return Activator.getDefault().getNTLMProxyHandler();
+		return HttpClientJavaPlugin.getDefault().getNTLMProxyHandler();
 	}
 
 	public static long getLastModifiedTimeFromHeader(java.net.http.HttpHeaders httpHeaders) throws IOException {
@@ -384,7 +384,7 @@ public class HttpClientFileSystemBrowser extends AbstractFileSystemBrowser {
 		if (credentials != null && username != null) {
 			final AuthScope authScope = new AuthScope(HttpClientRetrieveFileTransfer.getHostFromURL(urlString),
 					HttpClientRetrieveFileTransfer.getPortFromURL(urlString));
-			Trace.trace(Activator.PLUGIN_ID, "browse credentials=" + credentials); //$NON-NLS-1$
+			Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "browse credentials=" + credentials); //$NON-NLS-1$
 			credentialsProvider.setCredentials(authScope, credentials);
 		}
 	}
@@ -395,7 +395,7 @@ public class HttpClientFileSystemBrowser extends AbstractFileSystemBrowser {
 			final ProxyAddress address = proxy.getAddress();
 			httpContext.setProxy(new HttpHost(address.getHostName(), address.getPort()));
 		} else if (proxy.getType().equals(Proxy.Type.SOCKS)) {
-			Trace.trace(Activator.PLUGIN_ID, "browse socksproxy=" + proxy.getAddress()); //$NON-NLS-1$
+			Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "browse socksproxy=" + proxy.getAddress()); //$NON-NLS-1$
 			httpContext.setProxy(null);
 			proxyHelper.setupProxy(proxy);
 		}

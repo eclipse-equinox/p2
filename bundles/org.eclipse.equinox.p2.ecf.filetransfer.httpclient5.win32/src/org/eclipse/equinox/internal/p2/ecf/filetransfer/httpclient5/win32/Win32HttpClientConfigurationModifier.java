@@ -36,7 +36,7 @@ import org.osgi.service.component.annotations.Component;
 @Component
 public class Win32HttpClientConfigurationModifier extends HttpClientModifierAdapter {
 
-	public static final String ID = "org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.httpclients5.win32"; //$NON-NLS-1$
+	public static final String ID = "org.eclipse.ecf.provider.filetransfer.httpclients5.win32"; //$NON-NLS-1$
 
 	public static final String SERVICE_PRINCIPAL_NAME_ATTRIBUTE = "servicePrincipal"; //$NON-NLS-1$
 

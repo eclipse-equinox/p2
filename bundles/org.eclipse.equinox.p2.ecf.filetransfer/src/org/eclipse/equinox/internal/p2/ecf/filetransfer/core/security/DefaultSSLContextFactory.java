@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025 Christoph Läubrich and others.
+ * Copyright (c) 2025, 2026 Christoph Läubrich and others.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -7,16 +7,18 @@
  * Contributors:
  * 	Christoph Läubrich - initial implementation
  ******************************************************************************/
-package org.eclipse.equinox.internal.p2.transport.ecf;
+package org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security;
 
 import java.security.*;
 import javax.net.ssl.SSLContext;
-import org.eclipse.ecf.core.security.SSLContextFactory;
-import org.osgi.framework.Constants;
-import org.osgi.service.component.annotations.Component;
 
-@Component(property = Constants.SERVICE_RANKING + ":Integer=100")
-public class P2SSLContextFactory implements SSLContextFactory {
+/**
+ * The {@link SSLContextFactory} used when no other one is registered as a
+ * service. It uses the default SSL context of the JRE.
+ */
+public class DefaultSSLContextFactory implements SSLContextFactory {
+
+	public static final SSLContextFactory INSTANCE = new DefaultSSLContextFactory();
 
 	@Override
 	public SSLContext getDefault() throws NoSuchAlgorithmException {

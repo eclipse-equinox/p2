@@ -14,7 +14,7 @@ package org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.ecf.internal.core.identity.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
 
 public class ECFException extends CoreException {
 	private static final long serialVersionUID = 3256440309134406707L;

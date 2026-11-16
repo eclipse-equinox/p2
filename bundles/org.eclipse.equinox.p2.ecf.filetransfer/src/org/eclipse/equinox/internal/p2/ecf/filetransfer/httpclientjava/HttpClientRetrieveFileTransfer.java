@@ -69,7 +69,7 @@ import org.eclipse.equinox.internal.p2.ecf.filetransfer.InvalidFileRangeSpecific
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.events.IFileTransferConnectStartEvent;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.DebugOptions;
-import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.Activator;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.HttpClientJavaPlugin;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.AuthScope;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.Credentials;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.ECFHttpClientFactory;
@@ -147,7 +147,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 		Assert.isNotNull(client);
 		this.httpClient = client;
 
-		IHttpClientFactory httpClientFactory = Activator.getDefault().getHttpClientFactory();
+		IHttpClientFactory httpClientFactory = HttpClientJavaPlugin.getDefault().getHttpClientFactory();
 		credentialsProvider = new ECFCredentialsProvider();
 		Authenticator contextCredentialsProvider = ECFHttpClientFactory.modifyCredentialsProvider(credentialsProvider);
 		httpContext = httpClientFactory.newClientContext();
@@ -162,33 +162,33 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 
 	@Override
 	public synchronized void cancel() {
-		Trace.entering(Activator.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "cancel"); //$NON-NLS-1$
+		Trace.entering(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "cancel"); //$NON-NLS-1$
 		if (isCanceled()) {
 			return; // break job cancel recursion
 		}
 		setDoneCanceled(exception);
 		boolean fireDoneEvent = true;
 		if (connectJob != null) {
-			Trace.trace(Activator.PLUGIN_ID, "calling connectJob.cancel()"); //$NON-NLS-1$
+			Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "calling connectJob.cancel()"); //$NON-NLS-1$
 			connectJob.cancel();
 		}
 		synchronized (jobLock) {
 			if (job != null) {
 				// Its the transfer jobs responsibility to throw the event.
 				fireDoneEvent = false;
-				Trace.trace(Activator.PLUGIN_ID, "calling transfer job.cancel()"); //$NON-NLS-1$
+				Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "calling transfer job.cancel()"); //$NON-NLS-1$
 				job.cancel();
 			}
 		}
 		if (httpResponse != null && !httpResponse.isCancelled()) {
-			Trace.trace(Activator.PLUGIN_ID, "calling getMethod.abort()"); //$NON-NLS-1$
+			Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "calling getMethod.abort()"); //$NON-NLS-1$
 			httpResponse.cancel(true);
 		}
 		hardClose();
 		if (fireDoneEvent) {
 			fireTransferReceiveDoneEvent();
 		}
-		Trace.exiting(Activator.PLUGIN_ID, DebugOptions.METHODS_EXITING, this.getClass(), "cancel");//$NON-NLS-1$
+		Trace.exiting(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_EXITING, this.getClass(), "cancel");//$NON-NLS-1$
 
 	}
 
@@ -211,7 +211,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 			if (localFileContents != null && closeOutputStream)
 				localFileContents.close();
 		} catch (final IOException e) {
-			Activator.getDefault().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, IStatus.ERROR, String.format("hardClose localFileContents.close() exception. url=%s",remoteFileURL), e)); //$NON-NLS-1$
+			HttpClientJavaPlugin.getDefault().log(new Status(IStatus.ERROR, HttpClientJavaPlugin.PLUGIN_ID, IStatus.ERROR, String.format("hardClose localFileContents.close() exception. url=%s",remoteFileURL), e)); //$NON-NLS-1$
 		}
 		// clear input and output streams
 		remoteFileContents = null;
@@ -258,7 +258,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 			} catch (NoClassDefFoundError e) {
 				// If the proxy API is not available a NoClassDefFoundError will be thrown here.
 				// If that happens then we just want to continue on.
-				Activator.logNoProxyWarning(e);
+				HttpClientJavaPlugin.logNoProxyWarning(e);
 			}
 		}
 		if (proxy != null)
@@ -278,7 +278,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 
 	private synchronized HttpRequest.Builder getRequestConfigBuilder() {
 		if (requestConfigBuilder == null) {
-			requestConfigBuilder = Activator.getDefault().getHttpClientFactory().newRequestConfig(httpContext, getOptions());
+			requestConfigBuilder = HttpClientJavaPlugin.getDefault().getHttpClientFactory().newRequestConfig(httpContext, getOptions());
 		}
 		return requestConfigBuilder;
 	}
@@ -291,7 +291,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 
 		if (credentials != null && username != null) {
 			final AuthScope authScope = new AuthScope(getHostFromURL(urlString), getPortFromURL(urlString));
-			Trace.trace(Activator.PLUGIN_ID, "retrieve credentials=" + credentials); //$NON-NLS-1$
+			Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "retrieve credentials=" + credentials); //$NON-NLS-1$
 			credentialsProvider.setCredentials(authScope, credentials);
 		}
 	}
@@ -334,7 +334,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 			return;
 		}
 		String rangeHeader = "bytes=" + startPosition + "-" + ((endPosition == -1L) ? "" : ("" + endPosition)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		Trace.trace(Activator.PLUGIN_ID, "retrieve range header=" + rangeHeader); //$NON-NLS-1$
+		Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "retrieve range header=" + rangeHeader); //$NON-NLS-1$
 		builder.setHeader(RANGE, rangeHeader);
 	}
 
@@ -362,7 +362,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 		if (responseCode != -1 || httpResponse == null || httpResponse.isCancelled())
 			return responseCode;
 		responseCode = httpResponse.join().statusCode();
-		Trace.trace(Activator.PLUGIN_ID, "retrieve resp=" + responseCode); //$NON-NLS-1$
+		Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "retrieve resp=" + responseCode); //$NON-NLS-1$
 		return responseCode;
 	}
 
@@ -525,7 +525,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	@Override
 	protected void openStreams() throws IncomingFileTransferException {
 
-		Trace.entering(Activator.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "openStreams"); //$NON-NLS-1$
+		Trace.entering(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "openStreams"); //$NON-NLS-1$
 		final String urlString = getRemoteFileURL().toString();
 		this.doneFired = false;
 
@@ -543,19 +543,19 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 			// Seems to be another way to select the credentials.
 			setRequestHeaderValues(rcfgBuilder);
 
-			Trace.trace(Activator.PLUGIN_ID, "retrieve=" + urlString); //$NON-NLS-1$
+			Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "retrieve=" + urlString); //$NON-NLS-1$
 			// Set request header for possible gzip encoding, but only if
 			// 1) The file range specification is null (we want the whole file)
 			// 2) The target remote file does *not* end in .gz (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=280205)
 			boolean contentCompressionEnabled;
 			if (getFileRangeSpecification() == null && !targetHasGzSuffix(super.getRemoteFileName())) {
 				// The interceptors to provide gzip are always added and are enabled by default
-				Trace.trace(Activator.PLUGIN_ID, "Accept-Encoding: gzip,deflate added to request header"); //$NON-NLS-1$
+				Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "Accept-Encoding: gzip,deflate added to request header"); //$NON-NLS-1$
 				setContentCompressionEnabled(rcfgBuilder, true);
 				contentCompressionEnabled = true;
 			} else {
 				// Disable the interceptors to provide gzip
-				Trace.trace(Activator.PLUGIN_ID, "Accept-Encoding NOT added to header"); //$NON-NLS-1$
+				Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "Accept-Encoding NOT added to header"); //$NON-NLS-1$
 				setContentCompressionEnabled(rcfgBuilder, false);
 				contentCompressionEnabled = false;
 			}
@@ -583,7 +583,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 
 			responseHeaders = getResponseHeaders();
 
-			Trace.trace(Activator.PLUGIN_ID, "retrieve resp=" + code); //$NON-NLS-1$
+			Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "retrieve resp=" + code); //$NON-NLS-1$
 
 			// Check for NTLM proxy in response headers
 			// This check is to deal with bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=252002
@@ -623,7 +623,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 				throw new IncomingFileTransferException(NLS.bind(Messages.HttpClientRetrieveFileTransfer_ERROR_GENERAL_RESPONSE_CODE, Integer.valueOf(code)), code);
 			}
 		} catch (final Exception e) {
-			Trace.throwing(Activator.PLUGIN_ID, DebugOptions.EXCEPTIONS_THROWING, this.getClass(), "openStreams", e); //$NON-NLS-1$
+			Trace.throwing(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.EXCEPTIONS_THROWING, this.getClass(), "openStreams", e); //$NON-NLS-1$
 			if (code == -1) {
 				if (!isDone()) {
 					setDoneException(e);
@@ -634,7 +634,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 				throw ex;
 			}
 		}
-		Trace.exiting(Activator.PLUGIN_ID, DebugOptions.METHODS_EXITING, this.getClass(), "openStreams"); //$NON-NLS-1$
+		Trace.exiting(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_EXITING, this.getClass(), "openStreams"); //$NON-NLS-1$
 	}
 
 	private void consume(CompletableFuture<HttpResponse<InputStream>> httpResponse) {
@@ -752,7 +752,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.AbstractRetrieveFileTransfer#supportsProtocol(java.lang.String)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.provider.AbstractRetrieveFileTransfer#supportsProtocol(java.lang.String)
 	 */
 	public static boolean supportsProtocol(String protocolString) {
 		for (String supportedProtocol : supportedProtocols) {
@@ -804,7 +804,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 
 	private boolean openStreamsForResume() {
 
-		Trace.entering(Activator.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "openStreamsForResume"); //$NON-NLS-1$
+		Trace.entering(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "openStreamsForResume"); //$NON-NLS-1$
 		final String urlString = getRemoteFileURL().toString();
 		this.doneFired = false;
 
@@ -820,7 +820,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 			// Seems to be another way to select the credentials.
 			setResumeRequestHeaderValues(builder);
 
-			Trace.trace(Activator.PLUGIN_ID, "resume=" + urlString); //$NON-NLS-1$
+			Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "resume=" + urlString); //$NON-NLS-1$
 			httpRequest = builder.build();
 
 			// Gzip encoding is not an option for resume
@@ -846,7 +846,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 
 			responseHeaders = getResponseHeaders();
 
-			Trace.trace(Activator.PLUGIN_ID, "retrieve resp=" + code); //$NON-NLS-1$
+			Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "retrieve resp=" + code); //$NON-NLS-1$
 
 			if (code == HttpURLConnection.HTTP_PARTIAL || code == HttpURLConnection.HTTP_OK) {
 				getResumeResponseHeaderValues();
@@ -873,10 +873,10 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 								Integer.valueOf(code)),
 						code);
 			}
-			Trace.exiting(Activator.PLUGIN_ID, DebugOptions.METHODS_EXITING, this.getClass(), "openStreamsForResume", Boolean.TRUE); //$NON-NLS-1$
+			Trace.exiting(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_EXITING, this.getClass(), "openStreamsForResume", Boolean.TRUE); //$NON-NLS-1$
 			return true;
 		} catch (final Exception e) {
-			Trace.catching(Activator.PLUGIN_ID, DebugOptions.EXCEPTIONS_CATCHING, this.getClass(), "openStreamsForResume", e); //$NON-NLS-1$
+			Trace.catching(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.EXCEPTIONS_CATCHING, this.getClass(), "openStreamsForResume", e); //$NON-NLS-1$
 			if (code == -1) {
 				if (!isDone()) {
 					setDoneException(e);
@@ -885,7 +885,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 				setDoneException((e instanceof IncomingFileTransferException) ? e : new IncomingFileTransferException(NLS.bind(Messages.HttpClientRetrieveFileTransfer_EXCEPTION_COULD_NOT_CONNECT, urlString), e, code, responseHeaders));
 			}
 			fireTransferReceiveDoneEvent();
-			Trace.exiting(Activator.PLUGIN_ID, DebugOptions.METHODS_EXITING, this.getClass(), "openStreamsForResume", Boolean.FALSE); //$NON-NLS-1$
+			Trace.exiting(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_EXITING, this.getClass(), "openStreamsForResume", Boolean.FALSE); //$NON-NLS-1$
 			return false;
 		}
 	}
@@ -916,12 +916,12 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	 */
 	@Override
 	protected void setupProxy(Proxy proxy) {
-		Trace.entering(Activator.PLUGIN_ID, DebugOptions.METHODS_ENTERING, HttpClientRetrieveFileTransfer.class, "setupProxy " + proxy); //$NON-NLS-1$
+		Trace.entering(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_ENTERING, HttpClientRetrieveFileTransfer.class, "setupProxy " + proxy); //$NON-NLS-1$
 		if (proxy.getType().equals(Proxy.Type.HTTP)) {
 			final ProxyAddress address = proxy.getAddress();
 			httpContext.setProxy(new HttpHost(address.getHostName(), address.getPort()));
 		} else if (proxy.getType().equals(Proxy.Type.SOCKS)) {
-			Trace.trace(Activator.PLUGIN_ID, "retrieve socksproxy=" + proxy.getAddress()); //$NON-NLS-1$
+			Trace.trace(HttpClientJavaPlugin.PLUGIN_ID, "retrieve socksproxy=" + proxy.getAddress()); //$NON-NLS-1$
 			httpContext.setProxy(null);
 			proxyHelper.setupProxy(proxy);
 		}
@@ -933,12 +933,12 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	 * @since 5.0
 	 */
 	protected void clearProxy() {
-		Trace.entering(Activator.PLUGIN_ID, DebugOptions.METHODS_ENTERING, HttpClientRetrieveFileTransfer.class, "clearProxy()"); //$NON-NLS-1$
+		Trace.entering(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_ENTERING, HttpClientRetrieveFileTransfer.class, "clearProxy()"); //$NON-NLS-1$
 		httpContext.setProxy(null);
 	}
 
 	protected void fireConnectStartEvent() {
-		Trace.entering(Activator.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "fireConnectStartEvent"); //$NON-NLS-1$
+		Trace.entering(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "fireConnectStartEvent"); //$NON-NLS-1$
 		// TODO: should the following be in super.fireReceiveStartEvent();
 		listener.handleTransferEvent(new IFileTransferConnectStartEvent() {
 			@Override
@@ -1028,7 +1028,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 					e = (Exception) cause;
 				}
 			}
-			Trace.catching(Activator.PLUGIN_ID, DebugOptions.EXCEPTIONS_CATCHING, this.getClass(), "performConnect", e); //$NON-NLS-1$
+			Trace.catching(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.EXCEPTIONS_CATCHING, this.getClass(), "performConnect", e); //$NON-NLS-1$
 			if (!isDone()) {
 				setDoneException(e);
 			}
@@ -1041,26 +1041,26 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 
 	@Override
 	protected void fireReceiveResumedEvent() {
-		Trace.entering(Activator.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "fireReceiveResumedEvent len=" + fileLength + ";rcvd=" + bytesReceived); //$NON-NLS-1$ //$NON-NLS-2$
+		Trace.entering(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "fireReceiveResumedEvent len=" + fileLength + ";rcvd=" + bytesReceived); //$NON-NLS-1$ //$NON-NLS-2$
 		super.fireReceiveResumedEvent();
 	}
 
 	@Override
 	protected void fireTransferReceiveDataEvent() {
-		Trace.entering(Activator.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "fireTransferReceiveDataEvent len=" + fileLength + ";rcvd=" + bytesReceived); //$NON-NLS-1$ //$NON-NLS-2$
+		Trace.entering(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "fireTransferReceiveDataEvent len=" + fileLength + ";rcvd=" + bytesReceived); //$NON-NLS-1$ //$NON-NLS-2$
 		super.fireTransferReceiveDataEvent();
 	}
 
 	@Override
 	protected void fireTransferReceiveDoneEvent() {
-		Trace.entering(Activator.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "fireTransferReceiveDoneEvent len=" + fileLength + ";rcvd=" + bytesReceived); //$NON-NLS-1$ //$NON-NLS-2$
+		Trace.entering(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "fireTransferReceiveDoneEvent len=" + fileLength + ";rcvd=" + bytesReceived); //$NON-NLS-1$ //$NON-NLS-2$
 		this.doneFired = true;
 		super.fireTransferReceiveDoneEvent();
 	}
 
 	@Override
 	protected void fireTransferReceivePausedEvent() {
-		Trace.entering(Activator.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "fireTransferReceivePausedEvent len=" + fileLength + ";rcvd=" + bytesReceived); //$NON-NLS-1$ //$NON-NLS-2$
+		Trace.entering(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.METHODS_ENTERING, this.getClass(), "fireTransferReceivePausedEvent len=" + fileLength + ";rcvd=" + bytesReceived); //$NON-NLS-1$ //$NON-NLS-2$
 		super.fireTransferReceivePausedEvent();
 	}
 

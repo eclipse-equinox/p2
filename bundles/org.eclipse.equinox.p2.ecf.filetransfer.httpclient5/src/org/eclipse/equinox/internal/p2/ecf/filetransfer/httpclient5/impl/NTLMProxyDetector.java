@@ -14,8 +14,6 @@
  *****************************************************************************/
 package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.impl;
 
-import org.apache.hc.client5.http.auth.AuthScheme;
-import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 @SuppressWarnings("unused")

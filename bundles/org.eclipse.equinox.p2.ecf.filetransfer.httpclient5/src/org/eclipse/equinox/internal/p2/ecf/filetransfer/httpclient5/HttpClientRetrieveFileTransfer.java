@@ -742,7 +742,7 @@ public class HttpClientRetrieveFileTransfer extends AbstractRetrieveFileTransfer
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.AbstractRetrieveFileTransfer#supportsProtocol(java.lang.String)
+	 * @see org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.provider.AbstractRetrieveFileTransfer#supportsProtocol(java.lang.String)
 	 */
 	public static boolean supportsProtocol(String protocolString) {
 		for (String supportedProtocol : supportedProtocols) {

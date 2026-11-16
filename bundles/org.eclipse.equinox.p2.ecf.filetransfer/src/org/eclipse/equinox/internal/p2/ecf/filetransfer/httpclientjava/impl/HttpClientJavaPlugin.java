@@ -25,10 +25,10 @@ import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.DefaultSSLContextFactory;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.SSLContextFactory;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.ECFRuntimeException;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.util.LogHelper;
@@ -37,7 +37,6 @@ import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.IRemoteFileSyste
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.service.IRetrieveFileTransfer;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.DebugOptions;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.ECFHttpClientFactory.ModifierRunner;
-import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -51,7 +50,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * The activator class controls the plug-in life cycle
  */
 @SuppressWarnings("restriction")
-public class Activator implements BundleActivator {
+public class HttpClientJavaPlugin {
 
 	private static final class ScopedHttpClientCustomizer implements ServiceTrackerCustomizer<HttpClient, HttpClient> {
 		private final String neededScope;
@@ -98,21 +97,24 @@ public class Activator implements BundleActivator {
 	}
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator.PLUGIN_ID;
 
-	public static final String USE_SHARED_CLIENT = PLUGIN_ID + ".sharedClient"; //$NON-NLS-1$
+	// Name of the ECF bundle this code originates from, used as prefix of the system properties
+	private static final String PROPERTY_PREFIX = "org.eclipse.ecf.provider.filetransfer.httpclientjava"; //$NON-NLS-1$
+
+	public static final String USE_SHARED_CLIENT = PROPERTY_PREFIX + ".sharedClient"; //$NON-NLS-1$
 
 	private static final String USE_SHARED_CLIENT_DEFAULT = "true"; //$NON-NLS-1$
 
 	/**
 	 * @since 2.1
 	 */
-	public static final String USE_COOKIE_STORE = PLUGIN_ID + ".cookieStore"; //$NON-NLS-1$
+	public static final String USE_COOKIE_STORE = PROPERTY_PREFIX + ".cookieStore"; //$NON-NLS-1$
 
 	private static final String USE_COOKIE_STORE_DEFAULT = "true"; //$NON-NLS-1$
 
 	// The shared instance
-	private static Activator plugin;
+	private static HttpClientJavaPlugin plugin;
 	private BundleContext context = null;
 
 	private ServiceTracker<LogService, LogService> logServiceTracker = null;
@@ -134,7 +136,7 @@ public class Activator implements BundleActivator {
 	/**
 	 * The constructor
 	 */
-	public Activator() {
+	public HttpClientJavaPlugin() {
 		//
 	}
 
@@ -142,43 +144,13 @@ public class Activator implements BundleActivator {
 		return context;
 	}
 
-	@Override
 	public void start(BundleContext ctxt) throws Exception {
 		plugin = this;
 		this.context = ctxt;
 		useSharedClient = Boolean.parseBoolean(System.getProperty(USE_SHARED_CLIENT, USE_SHARED_CLIENT_DEFAULT));
 		useCookieStore = Boolean.parseBoolean(System.getProperty(USE_COOKIE_STORE, USE_COOKIE_STORE_DEFAULT));
-		applyDebugOptions(ctxt);
 	}
 
-	private void applyDebugOptions(BundleContext ctxt) {
-		ServiceReference<org.eclipse.osgi.service.debug.DebugOptions> debugRef = ctxt.getServiceReference(org.eclipse.osgi.service.debug.DebugOptions.class);
-		org.eclipse.osgi.service.debug.DebugOptions debugOptions = debugRef == null ? null : ctxt.getService(debugRef);
-		if (debugOptions == null) {
-			return;
-		}
-		try {
-			if (!debugOptions.isDebugEnabled()) {
-				return;
-			}
-			Map<String, String> options = debugOptions.getOptions();
-			String ourDebugPrefix = PLUGIN_ID + "/";
-			String ecfDebugPrefix = "org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.httpclient4/";
-			for (Map.Entry<String, String> entry : options.entrySet()) {
-				if (entry.getKey() != null && entry.getKey().startsWith(ourDebugPrefix)) {
-					String ecfOption = ecfDebugPrefix + entry.getKey().substring(ourDebugPrefix.length());
-					String ecfValue = options.get(ecfOption);
-					if (ecfValue == null) {
-						debugOptions.setOption(ecfOption, entry.getValue());
-					}
-				}
-			}
-		} finally {
-			ctxt.ungetService(debugRef);
-		}
-	}
-
-	@Override
 	public synchronized void stop(BundleContext ctxt) throws Exception {
 		if (sslContextFactoryTracker != null) {
 			sslContextFactoryTracker.close();
@@ -200,9 +172,9 @@ public class Activator implements BundleActivator {
 	 *
 	 * @return the shared instance
 	 */
-	public synchronized static Activator getDefault() {
+	public synchronized static HttpClientJavaPlugin getDefault() {
 		if (plugin == null) {
-			plugin = new Activator();
+			plugin = new HttpClientJavaPlugin();
 		}
 		return plugin;
 	}
@@ -255,7 +227,7 @@ public class Activator implements BundleActivator {
 			sslContextFactoryTracker.open();
 		}
 		SSLContextFactory service = sslContextFactoryTracker.getService();
-		return service;
+		return service != null ? service : DefaultSSLContextFactory.INSTANCE;
 	}
 
 	public synchronized INTLMProxyHandler getNTLMProxyHandler() {
@@ -326,7 +298,7 @@ public class Activator implements BundleActivator {
 
 		Dictionary<String, Object> serviceProperties = new Hashtable<String, Object>();
 		serviceProperties.put(Constants.SERVICE_RANKING, Integer.MIN_VALUE);
-		serviceProperties.put("http.client.scope", "org.eclipse.equinox.internal.p2.ecf.filetransfer.service.*");
+		serviceProperties.put("http.client.scope", "org.eclipse.equinox.internal.p2.ecf.filetransfer.service.*"); //$NON-NLS-1$ //$NON-NLS-2$
 		context.registerService(new String[] { HttpClient.class.getName() }, client, serviceProperties);
 
 		return client;
@@ -345,9 +317,9 @@ public class Activator implements BundleActivator {
 	}
 
 	public static void logNoProxyWarning(Throwable e) {
-		Activator a = getDefault();
+		HttpClientJavaPlugin a = getDefault();
 		if (a != null) {
-			a.log(new Status(IStatus.WARNING, Activator.PLUGIN_ID, IStatus.ERROR, "Warning: Platform proxy API not available", e)); //$NON-NLS-1$
+			a.log(new Status(IStatus.WARNING, HttpClientJavaPlugin.PLUGIN_ID, IStatus.ERROR, "Warning: Platform proxy API not available", e)); //$NON-NLS-1$
 		}
 	}
 
@@ -404,7 +376,7 @@ public class Activator implements BundleActivator {
 					try {
 						return Integer.parseInt((String) rankingValue);
 					} catch (NumberFormatException e) {
-						Trace.catching(Activator.PLUGIN_ID, DebugOptions.EXCEPTIONS_CATCHING, Activator.class, "getServiceRanking", e); //$NON-NLS-1$
+						Trace.catching(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.EXCEPTIONS_CATCHING, HttpClientJavaPlugin.class, "getServiceRanking", e); //$NON-NLS-1$
 					}
 
 				}

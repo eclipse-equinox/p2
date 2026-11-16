@@ -42,8 +42,6 @@ import org.eclipse.equinox.internal.p2.ecf.filetransfer.IFileTransferPausable;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferOptions;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.IncomingFileTransferException;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.InvalidFileRangeSpecificationException;
-import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
-import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.IURLConnectionModifier;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Messages;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.util.JREProxyHelper;
 import org.eclipse.osgi.util.NLS;
@@ -60,7 +58,7 @@ public class UrlConnectionRetrieveFileTransfer extends AbstractRetrieveFileTrans
 
 	// 10/26/2009:  Added being able to set with system property with name org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.connectTimeout
 	// for https://bugs.eclipse.org/bugs/show_bug.cgi?id=292995
-	private static final String DEFAULT_CONNECT_TIMEOUT = System.getProperty("org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.retrieve.connectTimeout", "15000"); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final String DEFAULT_CONNECT_TIMEOUT = System.getProperty("org.eclipse.ecf.provider.filetransfer.retrieve.connectTimeout", "15000"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private static final String JRE_READ_TIMEOUT_PROPERTY = "sun.net.client.defaultReadTimeout"; //$NON-NLS-1$
 
@@ -110,10 +108,6 @@ public class UrlConnectionRetrieveFileTransfer extends AbstractRetrieveFileTrans
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=235933
 		if (getRemoteFileURL().getProtocol().equalsIgnoreCase("jar")) { //$NON-NLS-1$
 			urlConnection.setUseCaches(false);
-		}
-		IURLConnectionModifier connectionModifier = Activator.getDefault().getURLConnectionModifier();
-		if (connectionModifier != null) {
-			connectionModifier.setSocketFactoryForConnection(urlConnection);
 		}
 	}
 
@@ -304,7 +298,7 @@ public class UrlConnectionRetrieveFileTransfer extends AbstractRetrieveFileTrans
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @seeorg.eclipse.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#
+	 * @seeorg.eclipse.equinox.internal.p2.ecf.filetransfer.IRetrieveFileTransferContainerAdapter#
 	 * setConnectContextForAuthentication
 	 * (org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext)
 	 */
@@ -454,7 +448,7 @@ public class UrlConnectionRetrieveFileTransfer extends AbstractRetrieveFileTrans
 				}
 				return result;
 			}
-			o = localOptions.get("org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.httpclient.retrieve.connectTimeout"); //$NON-NLS-1$
+			o = localOptions.get("org.eclipse.ecf.provider.filetransfer.httpclient.retrieve.connectTimeout"); //$NON-NLS-1$
 			if (o != null) {
 				if (o instanceof Integer) {
 					result = ((Integer) o).toString();

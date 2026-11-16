@@ -12,12 +12,9 @@
 package org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security;
 
 /**
- * A connect context for passing in information to the
- * {@link org.eclipse.ecf.core.IContainer#connect(org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.ID, IConnectContext)}
- * call.
+ * A connect context for passing authentication information to a file
+ * transfer.
  * 
- * @see org.eclipse.ecf.core.IContainer#connect(org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.ID,
- *      IConnectContext)
  * @see ConnectContextFactory
  */
 public interface IConnectContext {

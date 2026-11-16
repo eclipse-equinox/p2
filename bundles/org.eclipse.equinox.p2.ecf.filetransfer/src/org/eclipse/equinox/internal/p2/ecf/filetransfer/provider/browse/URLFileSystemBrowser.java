@@ -33,8 +33,6 @@ import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFile;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.IRemoteFileSystemListener;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.IncomingFileTransferException;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
-import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Activator;
-import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.IURLConnectionModifier;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.internal.Messages;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.util.JREProxyHelper;
 import org.eclipse.osgi.util.NLS;
@@ -50,13 +48,13 @@ public class URLFileSystemBrowser extends AbstractFileSystemBrowser {
 
 	// 10/26/2009:  Added being able to set with system property with name org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse.connectTimeout
 	// for https://bugs.eclipse.org/bugs/show_bug.cgi?id=292995
-	private static final String DEFAULT_CONNECT_TIMEOUT = System.getProperty("org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse.connectTimeout", "30000"); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final String DEFAULT_CONNECT_TIMEOUT = System.getProperty("org.eclipse.ecf.provider.filetransfer.browse.connectTimeout", "30000"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private static final String JRE_READ_TIMEOUT_PROPERTY = "sun.net.client.defaultReadTimeout"; //$NON-NLS-1$
 
 	// 10/26/2009:  Added being able to set with system property with name org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse.readTimeout
 	// for https://bugs.eclipse.org/bugs/show_bug.cgi?id=292995
-	private static final String DEFAULT_READ_TIMEOUT = System.getProperty("org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.browse.readTimeout", "30000"); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final String DEFAULT_READ_TIMEOUT = System.getProperty("org.eclipse.ecf.provider.filetransfer.browse.readTimeout", "30000"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private JREProxyHelper proxyHelper = null;
 
@@ -108,10 +106,6 @@ public class URLFileSystemBrowser extends AbstractFileSystemBrowser {
 			// also see http 1.1 rfc section 14-10 in http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
 			urlConnection.setRequestProperty("Connection", "close"); //$NON-NLS-1$ //$NON-NLS-2$
 
-			IURLConnectionModifier connectionModifier = Activator.getDefault().getURLConnectionModifier();
-			if (connectionModifier != null) {
-				connectionModifier.setSocketFactoryForConnection(urlConnection);
-			}
 			if (urlConnection instanceof HttpURLConnection) {
 				HttpURLConnection httpConnection = (HttpURLConnection) urlConnection;
 				httpConnection.setRequestMethod("HEAD"); //$NON-NLS-1$

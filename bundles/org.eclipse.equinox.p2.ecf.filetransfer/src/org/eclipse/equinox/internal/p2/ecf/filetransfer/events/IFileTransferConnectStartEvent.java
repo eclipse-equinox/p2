@@ -20,7 +20,6 @@ import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
 /**
  * Event sent to {@link IFileTransferListener} associated with
  * {@link IIncomingFileTransfer} or 
- * {@link IOutgoingFileTransferEvent} or 
  * {@link IRemoteFileSystemRequest} instances.
  * <p>
  * The event is send before the first request is send to the server. 

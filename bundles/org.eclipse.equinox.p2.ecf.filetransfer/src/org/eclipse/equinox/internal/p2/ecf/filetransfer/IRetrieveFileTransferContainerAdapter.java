@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.ecf.filetransfer;
 
 import java.util.Map;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.ecf.core.IContainer;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.IDFactory;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.identity.Namespace;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.core.security.IConnectContext;
@@ -25,7 +24,7 @@ import org.eclipse.equinox.internal.p2.ecf.filetransfer.identity.IFileID;
  * Entry point retrieval file transfer adapter. This adapter interface allows
  * providers to expose file retrieval semantics to clients in a transport
  * independent manner. To be used, a non-null adapter reference must be returned
- * from a call to {@link IContainer#getAdapter(Class)}. Once a non-null
+ * from a call to <code>FileTransfers.newRetrieveAdapter()</code>. Once a non-null
  * reference is retrieved, then it may be used to send a retrieve request.
  * Events will then be asynchronously delivered to the provided listener to
  * complete file transfer.
@@ -165,11 +164,11 @@ public interface IRetrieveFileTransferContainerAdapter extends IAdaptable {
 	/**
 	 * Get namespace to be used for creation of remoteFileID for retrieve
 	 * request. Result typically used as first parameter for
-	 * {@link IDFactory#createID(Namespace, String)} to be used as first in
+	 * {@link IDFactory#createID(Namespace, Object[])} to be used as first in
 	 * {@link #sendRetrieveRequest(IFileID, IFileTransferListener, Map)}
 	 * 
 	 * @return Namespace to use for ID creation via
-	 *         {@link IDFactory#createID(Namespace, String)}. Will not be
+	 *         {@link IDFactory#createID(Namespace, Object[])}. Will not be
 	 *         <code>null</code>.
 	 */
 	public Namespace getRetrieveNamespace();

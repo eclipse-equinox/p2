@@ -13,6 +13,8 @@
 package org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclient5.impl;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -191,9 +193,9 @@ public class ECFHttpClientFactory implements IHttpClientFactory {
 		SSLSocketFactory sslSocketFactory = Activator.getDefault().getSSLSocketFactory();
 		if (sslSocketFactory == null) {
 			try {
-				sslSocketFactory = new HttpClientDefaultSSLSocketFactoryModifier().getSSLSocketFactory();
-			} catch (IOException e) {
-				Trace.catching(Activator.PLUGIN_ID, DebugOptions.EXCEPTIONS_CATCHING, HttpClientDefaultSSLSocketFactoryModifier.class, "getSSLSocketFactory()", e); //$NON-NLS-1$
+				sslSocketFactory = Activator.getDefault().getSSLContextFactory().getDefault().getSocketFactory();
+			} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+				Trace.catching(Activator.PLUGIN_ID, DebugOptions.EXCEPTIONS_CATCHING, ECFHttpClientFactory.class, "configureSSLSocketFactory()", e); //$NON-NLS-1$
 				throw new ECFRuntimeException("Unable to instantiate schemes for HttpClient.", e); //$NON-NLS-1$
 			}
 		}

@@ -105,4 +105,6 @@ Export-Package: org.eclipse.equinox.internal.p2.ecf.filetransfer;
    org.eclipse.equinox.p2.tests,
    org.eclipse.oomph.p2.core,
    org.eclipse.oomph.setup.core"
+Service-Component: OSGI-INF/org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.HttpClientFileTransferProvider.xml,
+ OSGI-INF/org.eclipse.equinox.internal.p2.ecf.filetransfer.httpclientjava.impl.ECFHttpClientFactory.xml
 Automatic-Module-Name: org.eclipse.equinox.p2.ecf.filetransfer

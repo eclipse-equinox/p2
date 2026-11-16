@@ -20,9 +20,7 @@ import java.net.http.HttpRequest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
@@ -37,10 +35,6 @@ import org.osgi.service.component.annotations.Component;
 @SuppressWarnings({ "restriction" })
 @Component
 public class ECFHttpClientFactory implements IHttpClientFactory {
-	@SuppressWarnings("unused")
-	private static final List<String> DEFAULT_PREFERRED_AUTH_SCHEMES_NO_NTLM = Arrays.asList("Basic","Digest");
-	@SuppressWarnings("unused")
-	private static final List<String> DEFAULT_PREFERRED_AUTH_SCHEMES = Arrays.asList("Basic", "Digest", "NTLM");
 	public static final int DEFAULT_CONNECTION_TIMEOUT = HttpClientOptions.RETRIEVE_DEFAULT_CONNECTION_TIMEOUT;
 	public static final int DEFAULT_CONNECTION_TTL = HttpClientOptions.RETRIEVE_DEFAULT_CONNECTION_TTL;
 	public static final int DEFAULT_READ_TIMEOUT = HttpClientOptions.RETRIEVE_DEFAULT_READ_TIMEOUT;
@@ -54,7 +48,7 @@ public class ECFHttpClientFactory implements IHttpClientFactory {
 		HttpClient.Builder builder = HttpClient.newBuilder().followRedirects(Redirect.NORMAL);
 		String sslContextProvider = HttpClientOptions.HTTPCLIENT_SSLCONTEXT_PROVIDER;
 		String sslContextProtocol = HttpClientOptions.HTTPCLIENT_SSLCONTEXT_PROTOCOL;
-		SSLContextFactory sslContextFactory = Activator.getDefault().getSSLContextFactory();
+		SSLContextFactory sslContextFactory = HttpClientJavaPlugin.getDefault().getSSLContextFactory();
 		try {
 			if (sslContextProvider == null) {
 				if (sslContextProtocol == null) {
@@ -68,10 +62,10 @@ public class ECFHttpClientFactory implements IHttpClientFactory {
 				builder.sslContext(sslContextFactory.getInstance(sslContextProtocol, sslContextProvider));
 			}
 		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-			Activator.getDefault().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+			HttpClientJavaPlugin.getDefault().log(new Status(IStatus.ERROR, HttpClientJavaPlugin.PLUGIN_ID,
 					"Could not set SSLContext when creating jre HttpClient", e));
 		}
-		builder = Activator.getDefault().runModifiers(builder, new ModifierRunner<HttpClient.Builder>() {
+		builder = HttpClientJavaPlugin.getDefault().runModifiers(builder, new ModifierRunner<HttpClient.Builder>() {
 			@Override
 			public HttpClient.Builder run(IHttpClientModifier modifier, HttpClient.Builder value) {
 				return modifier.modifyClient(value);
@@ -86,11 +80,9 @@ public class ECFHttpClientFactory implements IHttpClientFactory {
 	public IHttpClientContext newClientContext() {
 		IHttpClientContext context = new IHttpClientContext() {
 
+			// The java.net.http client takes the proxy from the default ProxySelector and
+			// the credentials are sent preemptively, so these are only kept as attributes
 			private Map<String, Object> values = new HashMap<>();
-			@SuppressWarnings("unused")
-			private Authenticator authenticator;
-			@SuppressWarnings("unused")
-			private HttpHost httpHost;
 
 			@Override
 			public void setAttribute(String key, Object value) {
@@ -99,7 +91,7 @@ public class ECFHttpClientFactory implements IHttpClientFactory {
 
 			@Override
 			public void setCredentialsProvider(Authenticator contextCredentialsProvider) {
-				this.authenticator = contextCredentialsProvider;
+				values.put(Authenticator.class.getName(), contextCredentialsProvider);
 			}
 
 			@Override
@@ -109,13 +101,13 @@ public class ECFHttpClientFactory implements IHttpClientFactory {
 
 			@Override
 			public void setProxy(HttpHost httpHost) {
-				this.httpHost = httpHost;
+				values.put(HttpHost.class.getName(), httpHost);
 			}
 		};
-		INTLMProxyHandler ntlmProxyHandler = Activator.getDefault().getNTLMProxyHandler();
+		INTLMProxyHandler ntlmProxyHandler = HttpClientJavaPlugin.getDefault().getNTLMProxyHandler();
 		context.setAttribute(NTLM_PROXY_HANDLER_ATTR, ntlmProxyHandler);
 
-		context = Activator.getDefault().runModifiers(context, new ModifierRunner<IHttpClientContext>() {
+		context = HttpClientJavaPlugin.getDefault().runModifiers(context, new ModifierRunner<IHttpClientContext>() {
 
 			@Override
 			public IHttpClientContext run(IHttpClientModifier modifier, IHttpClientContext value) {
@@ -142,7 +134,7 @@ public class ECFHttpClientFactory implements IHttpClientFactory {
 		}
 		builder.timeout(Duration.ofMillis(connectionRequestTimeout));
 
-		builder = Activator.getDefault().runModifiers(builder, new ModifierRunner<HttpRequest.Builder>() {
+		builder = HttpClientJavaPlugin.getDefault().runModifiers(builder, new ModifierRunner<HttpRequest.Builder>() {
 
 			@Override
 			public HttpRequest.Builder run(IHttpClientModifier modifier, HttpRequest.Builder value) {
@@ -163,7 +155,7 @@ public class ECFHttpClientFactory implements IHttpClientFactory {
 				try {
 					value = Integer.parseInt((String) option);
 				} catch (NumberFormatException e) {
-					Trace.catching(Activator.PLUGIN_ID, DebugOptions.EXCEPTIONS_CATCHING, HttpClientRetrieveFileTransfer.class, "getDnsHostName", e); //$NON-NLS-1$
+					Trace.catching(HttpClientJavaPlugin.PLUGIN_ID, DebugOptions.EXCEPTIONS_CATCHING, HttpClientRetrieveFileTransfer.class, "getDnsHostName", e); //$NON-NLS-1$
 				}
 			}
 			return value;
@@ -172,7 +164,7 @@ public class ECFHttpClientFactory implements IHttpClientFactory {
 	}
 
 	public static Authenticator modifyCredentialsProvider(Authenticator credentialsProvider) {
-		return Activator.getDefault().runModifiers(credentialsProvider, new ModifierRunner<Authenticator>() {
+		return HttpClientJavaPlugin.getDefault().runModifiers(credentialsProvider, new ModifierRunner<Authenticator>() {
 
 			@Override
 			public Authenticator run(IHttpClientModifier modifier, Authenticator value) {
@@ -187,7 +179,7 @@ public class ECFHttpClientFactory implements IHttpClientFactory {
 		if (value instanceof INTLMProxyHandler) {
 			return (INTLMProxyHandler) value;
 		}
-		INTLMProxyHandler handler = Activator.getDefault().getNTLMProxyHandler();
+		INTLMProxyHandler handler = HttpClientJavaPlugin.getDefault().getNTLMProxyHandler();
 		if (handler != null && httpContext != null && value == null) {
 			httpContext.setAttribute(ECFHttpClientFactory.NTLM_PROXY_HANDLER_ATTR, handler);
 		}

@@ -32,6 +32,10 @@ public class FileTransferNamespace extends Namespace {
 
 	public static final String PROTOCOL = Messages.FileTransferNamespace_Namespace_Protocol;
 
+	public FileTransferNamespace() {
+		super(PROTOCOL, "File Transfer Provider Namespace"); //$NON-NLS-1$
+	}
+
 	private String getInitFromExternalForm(Object[] args) {
 		if (args == null || args.length < 1 || args[0] == null)
 			return null;

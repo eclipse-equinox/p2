@@ -14,11 +14,7 @@ package org.eclipse.equinox.internal.p2.ecf.filetransfer;
 import org.eclipse.equinox.internal.p2.ecf.filetransfer.events.IFileTransferRequestEvent;
 
 /**
- * Listener for incoming file transfer requests. Instances implementing this
- * interface are registered via the
- * {@link ISendFileTransferContainerAdapter#addListener(IIncomingFileTransferRequestListener)}
- * 
- * @see ISendFileTransferContainerAdapter#addListener(IIncomingFileTransferRequestListener)
+ * Listener for incoming file transfer requests.
  */
 public interface IIncomingFileTransferRequestListener {
 	/**
