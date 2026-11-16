@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2018 Red Hat, Inc. and others
+ * Copyright (c) 2013, 2026 Red Hat, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -33,6 +33,11 @@ public class RequestFlexer {
 	static final String EXPLANATION_ENABLEMENT = "org.eclipse.equinox.p2.director.explain"; //$NON-NLS-1$
 
 	IPlanner planner;
+	private IProvisioningPlan lastIntermediaryPlan;
+
+	public IProvisioningPlan getIntermediaryPlan() {
+		return lastIntermediaryPlan;
+	}
 
 	private boolean allowInstalledUpdate = false;
 	private boolean allowInstalledRemoval = false;
@@ -91,6 +96,7 @@ public class RequestFlexer {
 			return null;
 		}
 		IProvisioningPlan intermediaryPlan = resolve(loosenedRequest, sub.newChild(1));
+		lastIntermediaryPlan = intermediaryPlan;
 		if (!intermediaryPlan.getStatus().isOK()) {
 			return null;
 		}
@@ -149,7 +155,7 @@ public class RequestFlexer {
 	//From the loosened request and the plan resulting from its resolution, create a new profile change request representing the delta between where the profile currently is
 	// and the plan returned.
 	//To perform this efficiently, this relies on a traversal of the requirements that are part of the loosened request.
-	private IProfileChangeRequest computeEffectiveChangeRequest(IProvisioningPlan intermediaryPlan, IProfileChangeRequest loosenedRequest, IProfileChangeRequest originalRequest) {
+	private IProfileChangeRequest computeEffectiveChangeRequest(IProvisioningPlan plan, IProfileChangeRequest loosenedRequest, IProfileChangeRequest originalRequest) {
 		IProfileChangeRequest finalChangeRequest = planner.createChangeRequest(profile);
 		// We have the following two variables because a IPCRequest can not be muted
 		Set<IInstallableUnit> iusToAdd = new HashSet<>();
@@ -157,7 +163,7 @@ public class RequestFlexer {
 
 		for (IRequirement beingInstalled : requirementsForElementsBeingInstalled) {
 			IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery(beingInstalled.getMatches());
-			IQueryResult<IInstallableUnit> matches = intermediaryPlan.getFutureState().query(QueryUtil.createLatestQuery(query), null);
+			IQueryResult<IInstallableUnit> matches = plan.getFutureState().query(QueryUtil.createLatestQuery(query), null);
 			IInstallableUnit replacementIU = null;
 			if (!matches.isEmpty()) {
 				replacementIU = matches.iterator().next();
@@ -168,7 +174,7 @@ public class RequestFlexer {
 
 		for (IRequirement alreadyInstalled : requirementsForElementsAlreadyInstalled) {
 			IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery(alreadyInstalled.getMatches());
-			IQueryResult<IInstallableUnit> matches = intermediaryPlan.getFutureState().query(QueryUtil.createLatestQuery(query), null);
+			IQueryResult<IInstallableUnit> matches = plan.getFutureState().query(QueryUtil.createLatestQuery(query), null);
 			IInstallableUnit potentialRootChange = null;
 			if (!matches.isEmpty()) {
 				potentialRootChange = matches.iterator().next();
@@ -438,7 +444,7 @@ public class RequestFlexer {
 		return futureOptionalIUs;
 	}
 
-	private boolean productContainmentOK(IProvisioningPlan intermediaryPlan) {
+	private boolean productContainmentOK(IProvisioningPlan plan) {
 		if (!ensureProductPresence) {
 			return true;
 		}
@@ -446,11 +452,11 @@ public class RequestFlexer {
 			return true;
 		}
 		//At this point we know we had a product installed and we want to make sure there is one in the resulting solution
-		if (!intermediaryPlan.getFutureState().query(QueryUtil.createIUProductQuery(), new NullProgressMonitor()).isEmpty()) {
+		if (!plan.getFutureState().query(QueryUtil.createIUProductQuery(), new NullProgressMonitor()).isEmpty()) {
 			return true;
 		}
 		//Support for legacy identification of product using the lineUp.
-		if (!intermediaryPlan.getFutureState().query(QueryUtil.createIUPropertyQuery("lineUp", "true"), new NullProgressMonitor()).isEmpty()) { //$NON-NLS-1$//$NON-NLS-2$
+		if (!plan.getFutureState().query(QueryUtil.createIUPropertyQuery("lineUp", "true"), new NullProgressMonitor()).isEmpty()) { //$NON-NLS-1$//$NON-NLS-2$
 			return true;
 		}
 		return false;

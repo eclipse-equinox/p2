@@ -16,4 +16,33 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/ui/sdk/UpdateHandler.java" type="org.eclipse.equinox.internal.p2.ui.sdk.UpdateHandler">
+        <filter comment="UpdateHandler.doExecute intentionally creates a RemediationOperation, which is @noreference for clients but is used by p2's own SDK UI" id="640708718">
+            <message_arguments>
+                <message_argument value="RemediationOperation(ProvisioningSession, IProfileChangeRequest, RemedyConfig[])"/>
+                <message_argument value="UpdateHandler"/>
+            </message_arguments>
+        </filter>
+        <filter comment="UpdateHandler's runModal intentionally calls ProfileChangeOperation.resolveModal(IProgressMonitor), which is @noreference for clients but is used by p2's own SDK UI" id="640712815">
+            <message_arguments>
+                <message_argument value="ProfileChangeOperation"/>
+                <message_argument value="UpdateHandler"/>
+                <message_argument value="resolveModal(IProgressMonitor)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="UpdateHandler's runModal intentionally calls RemedyConfig.getAllRemedyConfigs(), which is @noreference for clients but is used by p2's own SDK UI" id="640712815">
+            <message_arguments>
+                <message_argument value="RemedyConfig"/>
+                <message_argument value="UpdateHandler"/>
+                <message_argument value="getAllRemedyConfigs()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="UpdateHandler.doExecute intentionally calls RemedyConfig.getCheckForUpdateRemedyConfigs(), which is @noreference for clients but is used by p2's own SDK UI" id="640712815">
+            <message_arguments>
+                <message_argument value="RemedyConfig"/>
+                <message_argument value="UpdateHandler"/>
+                <message_argument value="getCheckForUpdateRemedyConfigs()"/>
+            </message_arguments>
+        </filter>
+    </resource>
 </component>

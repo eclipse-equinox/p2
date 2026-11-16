@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import java.util.List;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.operations.ResolutionResult;
 import org.eclipse.equinox.internal.p2.ui.*;
@@ -197,7 +198,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 				detail = resolvedOperation.getResolutionDetails();
 				if (detail != null) {
 					detailsGroup.enablePropertyLink(false);
-					detailsGroup.setDetailText(detail);
+					showOverallReport(detailsGroup, resolvedOperation, detail);
 					return;
 				}
 			}
@@ -215,7 +216,16 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		if (detail == null) {
 			detail = ""; //$NON-NLS-1$
 		}
-		detailsGroup.setDetailText(detail);
+		showOverallReport(detailsGroup, resolvedOperation, detail);
+	}
+
+	private void showOverallReport(IUDetailsGroup detailsGroup, ProfileChangeOperation resolvedOperation, String detail) {
+		List<ResolutionProblems.Group> problems = ResolutionProblems.of(resolvedOperation.getResolutionResult());
+		if (problems.isEmpty()) {
+			detailsGroup.setDetailText(detail);
+		} else {
+			detailsGroup.setProblems(problems);
+		}
 	}
 
 	private Object getSelectedElement() {

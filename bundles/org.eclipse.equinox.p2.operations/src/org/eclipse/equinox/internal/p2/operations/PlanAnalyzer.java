@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 IBM Corporation and others.
+ * Copyright (c) 2008, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -39,17 +39,17 @@ public class PlanAnalyzer {
 			case IStatusCodes.PROFILE_CHANGE_ALTERED :
 				return new MultiStatus(Constants.BUNDLE_ID, statusCode, Messages.PlanAnalyzer_RequestAltered, null);
 			case IStatusCodes.ALTERED_IMPLIED_UPDATE :
-				return new Status(IStatus.INFO, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_ImpliedUpdate, getIUString(affectedIU)), null);
+				return affectedIUStatus(IStatus.INFO, statusCode, Messages.PlanAnalyzer_ImpliedUpdate, affectedIU);
 			case IStatusCodes.ALTERED_IGNORED_IMPLIED_UPDATE :
-				return new Status(IStatus.WARNING, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_LockedImpliedUpdate0, getIUString(affectedIU)), null);
+				return affectedIUStatus(IStatus.WARNING, statusCode, Messages.PlanAnalyzer_LockedImpliedUpdate0, affectedIU);
 			case IStatusCodes.ALTERED_IGNORED_IMPLIED_DOWNGRADE :
-				return new Status(IStatus.WARNING, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_IgnoringImpliedDowngrade, getIUString(affectedIU)), null);
+				return affectedIUStatus(IStatus.WARNING, statusCode, Messages.PlanAnalyzer_IgnoringImpliedDowngrade, affectedIU);
 			case IStatusCodes.ALTERED_IGNORED_ALREADY_INSTALLED :
-				return new Status(IStatus.WARNING, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_AlreadyInstalled, getIUString(affectedIU)), null);
+				return affectedIUStatus(IStatus.WARNING, statusCode, Messages.PlanAnalyzer_AlreadyInstalled, affectedIU);
 			case IStatusCodes.ALTERED_PARTIAL_INSTALL :
-				return new Status(IStatus.INFO, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_PartialInstall, getIUString(affectedIU)), null);
+				return affectedIUStatus(IStatus.INFO, statusCode, Messages.PlanAnalyzer_PartialInstall, affectedIU);
 			case IStatusCodes.ALTERED_PARTIAL_UNINSTALL :
-				return new Status(IStatus.INFO, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_PartialUninstall, getIUString(affectedIU)), null);
+				return affectedIUStatus(IStatus.INFO, statusCode, Messages.PlanAnalyzer_PartialUninstall, affectedIU);
 			case IStatusCodes.UNEXPECTED_NOTHING_TO_DO :
 				return new Status(IStatus.ERROR, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_NothingToDo, getIUString(affectedIU)), null);
 			case IStatusCodes.OPERATION_ALREADY_IN_PROGRESS :
@@ -57,6 +57,11 @@ public class PlanAnalyzer {
 			default :
 				return new Status(IStatus.ERROR, Constants.BUNDLE_ID, statusCode, NLS.bind(Messages.PlanAnalyzer_UnexpectedError, Integer.valueOf(statusCode), getIUString(affectedIU)), null);
 		}
+	}
+
+	private static IStatus affectedIUStatus(int severity, int statusCode, String messagePattern, IInstallableUnit affectedIU) {
+		String iuName = getIUString(affectedIU);
+		return new AffectedIUStatus(severity, statusCode, NLS.bind(messagePattern, iuName), iuName);
 	}
 
 	public static MultiStatus getProfileChangeAlteredStatus() {

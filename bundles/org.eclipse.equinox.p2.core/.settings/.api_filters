@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.core" version="2">
+    <resource path="src/org/eclipse/equinox/p2/core/StrongPool.java" type="org.eclipse.equinox.p2.core.StrongPool">
+        <filter comment="StrongPool is the default implementation of IPool. IPool is intended to be used through StrongPool and WeakPool, so the leak is intentional." id="576725006">
+            <message_arguments>
+                <message_argument value="IPool&lt;T&gt;"/>
+                <message_argument value="StrongPool&lt;T&gt;"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/p2/core/WeakPool.java" type="org.eclipse.equinox.p2.core.WeakPool">
+        <filter comment="WeakPool is the default implementation of IPool. IPool is intended to be used through StrongPool and WeakPool, so the leak is intentional." id="576725006">
+            <message_arguments>
+                <message_argument value="IPool&lt;T&gt;"/>
+                <message_argument value="WeakPool&lt;T&gt;"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

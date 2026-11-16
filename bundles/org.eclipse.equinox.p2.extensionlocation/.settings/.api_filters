@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.extensionlocation" version="2">
+    <resource path="src/org/eclipse/equinox/internal/p2/extensionlocation/ExtensionLocationArtifactRepository.java" type="org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationArtifactRepository">
+        <filter comment="ExtensionLocationArtifactRepository is the internal artifact repository for extension locations and intentionally implements IFileArtifactRepository" id="574619656">
+            <message_arguments>
+                <message_argument value="IFileArtifactRepository"/>
+                <message_argument value="ExtensionLocationArtifactRepository"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

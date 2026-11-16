@@ -10,6 +10,12 @@
         </filter>
     </resource>
     <resource path="src/org/eclipse/equinox/p2/operations/RemediationOperation.java" type="org.eclipse.equinox.p2.operations.RemediationOperation">
+        <filter comment="RemediationOperation intentionally extends ProfileChangeOperation as part of the p2 operations API, so the leak is intentional" id="576778288">
+            <message_arguments>
+                <message_argument value="ProfileChangeOperation"/>
+                <message_argument value="RemediationOperation"/>
+            </message_arguments>
+        </filter>
         <filter comment="Workaround for bug 411257: .api_description files in Kepler release do not contain @noreference restrictions" id="643842064">
             <message_arguments>
                 <message_argument value="ProfileChangeRequest"/>
