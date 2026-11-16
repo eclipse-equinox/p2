@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2019 IBM Corporation and others.
+ * Copyright (c) 2009, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -31,7 +31,7 @@ public class TransferTest extends AbstractProvisioningTest {
 	public void testGZFileAreNotUnzipped() throws Exception {
 		File f = File.createTempFile("TransferTest", "pack.gz");
 		try (OutputStream fos = Files.newOutputStream(f.toPath())) {
-			Platform.getBundle("org.eclipse.ecf.provider.filetransfer").start();
+			Platform.getBundle("org.eclipse.equinox.p2.ecf.filetransfer").start();
 			final URI toDownload = new URI(
 					"https://download.eclipse.org/eclipse/updates/4.11/R-4.11-201903070500/plugins/javax.servlet.jsp_2.2.0.v201112011158.jar.pack.gz");
 			IStatus s = getTransport().download(toDownload, fos, new NullProgressMonitor());
@@ -45,15 +45,9 @@ public class TransferTest extends AbstractProvisioningTest {
 				httpSize = -1;
 			}
 			if (f != null) {
-				String[] ecfPlugins = new String[] { "org.eclipse.ecf", "org.eclipse.ecf.identity",
-						"org.eclipse.ecf.filetransfer", "org.eclipse.ecf.provider.filetransfer",
-						"org.eclipse.ecf.provider.filetransfer.httpclientjava" };
-				StringBuilder buffer = new StringBuilder();
-				for (String ecfPlugin : ecfPlugins) {
-					Bundle bundle = Platform.getBundle(ecfPlugin);
-					buffer.append(bundle.getSymbolicName()).append('-').append(bundle.getVersion()).append('\n');
-				}
-				assertTrue("4.0 - length found: " + f.length() + " using ECF bundles: " + buffer.toString(),
+				Bundle bundle = Platform.getBundle("org.eclipse.equinox.p2.ecf.filetransfer");
+				assertTrue("4.0 - length found: " + f.length() + " using " + bundle.getSymbolicName() + '-'
+						+ bundle.getVersion(),
 						f.length() < 60000);
 				assertTrue("5.0", httpSize == -1 ? true : (httpSize == f.length()));
 			}

@@ -20,8 +20,8 @@ import org.junit.platform.suite.api.Suite;
  * Performs all automated repository bundle tests.
  */
 @Suite
-@SelectClasses({ CacheManagerTest.class, RepositoryHelperTest.class, RepositoryExtensionPointTest.class,
-		FileReaderTest2.class, ChecksumHelperTest.class, DownloadStatusTest.class })
+@SelectClasses({ FileTransferProviderTest.class, CacheManagerTest.class, RepositoryHelperTest.class,
+		RepositoryExtensionPointTest.class, FileReaderTest2.class, ChecksumHelperTest.class, DownloadStatusTest.class })
 public class AllTests {
 	// test suite
 }
