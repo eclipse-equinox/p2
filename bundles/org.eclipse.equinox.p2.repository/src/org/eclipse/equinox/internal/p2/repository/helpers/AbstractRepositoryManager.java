@@ -906,10 +906,45 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		return true;
 	}
 
+	/**
+	 * Returns whether a repository equivalent to the given location is already
+	 * known, regardless of its enablement. Unlike {@link #contains(URI)} this
+	 * tolerates differences in URI encoding and trailing slashes.
+	 */
+	private boolean isKnown(URI location) {
+		synchronized (repositoryLock) {
+			// contains() also makes sure the repositories were restored from preferences
+			if (contains(location)) {
+				return true;
+			}
+			String canonical = canonicalize(location);
+			for (RepositoryInfo<T> known : repositories.values()) {
+				if (URIUtil.sameURI(location, known.location) || canonical.equals(canonicalize(known.location))) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+
+	private static String canonicalize(URI location) {
+		URI normalized = location.normalize();
+		String scheme = normalized.getScheme();
+		String canonical = (scheme == null ? "" : scheme.toLowerCase(Locale.ROOT) + ':') //$NON-NLS-1$
+				+ normalized.getSchemeSpecificPart();
+		while (canonical.endsWith("/")) { //$NON-NLS-1$
+			canonical = canonical.substring(0, canonical.length() - 1);
+		}
+		return canonical;
+	}
+
 	@Override
 	public void notify(EventObject o) {
 		if (o instanceof RepositoryEvent event) {
 			if (event.getKind() == RepositoryEvent.DISCOVERED && event.getRepositoryType() == getRepositoryType()) {
+				if (isKnown(event.getRepositoryLocation())) {
+					return;
+				}
 				RepositoryInfo<T> info = new RepositoryInfo<>();
 				info.location = event.getRepositoryLocation();
 				info.isEnabled = event.isRepositoryEnabled();
