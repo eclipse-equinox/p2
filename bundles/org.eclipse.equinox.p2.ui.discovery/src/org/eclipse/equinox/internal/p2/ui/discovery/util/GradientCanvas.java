@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -165,6 +165,10 @@ public class GradientCanvas extends Canvas {
 			return;
 		}
 		Rectangle carea = getClientArea();
+		if (carea.width <= 0 || carea.height <= 0) {
+			// not laid out yet, e.g. when painted from a nested event loop during creation
+			return;
+		}
 		Image buffer = new Image(getDisplay(), carea.width, carea.height);
 		buffer.setBackground(getBackground());
 		GC igc = new GC(buffer);
