@@ -602,4 +602,47 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		}
 		return false;
 	}
+
+	public void testDiscoveryDoesNotOverrideDisabled_1097() throws URISyntaxException {
+		URI location = new URI("http://example.org/p2/repo%7Eone/");
+		manager.addRepository(location);
+		manager.setEnabled(location, false);
+		int disabledCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED).length;
+		int allCount = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length;
+		try {
+			// exact match, no trailing slash, several trailing slashes, different encoding
+			for (String variant : new String[] { "http://example.org/p2/repo%7Eone/",
+					"http://example.org/p2/repo%7Eone", "http://example.org/p2/repo%7Eone//",
+					"http://example.org/p2/repo~one/" }) {
+				((AbstractRepositoryManager<?>) manager).notify(RepositoryEvent.newDiscoveryEvent(new URI(variant),
+						null, IRepository.TYPE_METADATA, true, false));
+				assertFalse(variant, manager.isEnabled(location));
+				assertEquals(variant, disabledCount,
+						manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED).length);
+				assertEquals(variant, allCount,
+						manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL).length);
+			}
+		} finally {
+			manager.removeRepository(location);
+		}
+	}
+
+	public void testDiscoveryAddsNewRepository_1097() throws URISyntaxException {
+		URI enabledLocation = new URI("http://example.org/p2/discovered-enabled/");
+		URI disabledLocation = new URI("http://example.org/p2/discovered-disabled/");
+		try {
+			AbstractRepositoryManager<?> repoManager = (AbstractRepositoryManager<?>) manager;
+			repoManager.notify(
+					RepositoryEvent.newDiscoveryEvent(enabledLocation, null, IRepository.TYPE_METADATA, true, false));
+			repoManager.notify(
+					RepositoryEvent.newDiscoveryEvent(disabledLocation, null, IRepository.TYPE_METADATA, false, false));
+			assertTrue(manager.contains(enabledLocation));
+			assertTrue(manager.isEnabled(enabledLocation));
+			assertTrue(manager.contains(disabledLocation));
+			assertFalse(manager.isEnabled(disabledLocation));
+		} finally {
+			manager.removeRepository(enabledLocation);
+			manager.removeRepository(disabledLocation);
+		}
+	}
 }
