@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2021 IBM Corporation and others.
+ * Copyright (c) 2010, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -58,12 +58,6 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 				"org.eclipse.core.net", //
 				"org.eclipse.core.runtime", //
 				"org.eclipse.core.runtime.compatibility.registry", //
-				"org.eclipse.ecf", //
-				"org.eclipse.ecf.filetransfer", //
-				"org.eclipse.ecf.identity", //
-				"org.eclipse.ecf.provider.filetransfer", //
-				"org.eclipse.ecf.provider.filetransfer.ssl", //
-				"org.eclipse.ecf.ssl", //
 				"org.eclipse.equinox.app", //
 				"org.eclipse.equinox.common", //
 				"org.apache.felix.scr", //
@@ -75,6 +69,7 @@ public class AbstractSharedBundleProductTest extends AbstractReconcilerTest {
 				"org.eclipse.equinox.p2.directorywatcher", //
 				"org.eclipse.equinox.p2.engine", //
 				"org.eclipse.equinox.p2.extensionlocation", //
+				"org.eclipse.equinox.p2.ecf.filetransfer", //
 				"org.eclipse.equinox.p2.garbagecollector", //
 				"org.eclipse.equinox.p2.jarprocessor", //
 				"org.eclipse.equinox.p2.metadata", //

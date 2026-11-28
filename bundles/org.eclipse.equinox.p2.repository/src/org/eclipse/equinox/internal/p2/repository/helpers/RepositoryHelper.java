@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -103,19 +103,6 @@ public class RepositoryHelper {
 		try {
 			new URL(scheme, "dummy.com", -1, "dummy.txt"); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (MalformedURLException e) {
-			// check if the scheme is probably provided to ECF but not yet loaded
-			IExtensionRegistry reg = RegistryFactory.getRegistry();
-			if (reg != null) {
-				IExtensionPoint handlersExtensionPoint = reg
-						.getExtensionPoint("org.eclipse.ecf.filetransfer.urlStreamHandlerService"); //$NON-NLS-1$
-				IConfigurationElement[] configurationElements = handlersExtensionPoint.getConfigurationElements();
-				for (IConfigurationElement configurationElement : configurationElements) {
-					String protocol = configurationElement.getAttribute("protocol"); //$NON-NLS-1$
-					if (Objects.equals(scheme, protocol)) {
-						return Status.OK_STATUS;
-					}
-				}
-			}
 			return new Status(IStatus.ERROR, Activator.ID, Messages.schemeNotSupported, e);
 		}
 		return Status.OK_STATUS;

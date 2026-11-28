@@ -19,6 +19,8 @@
 	<bundle id="org.eclipse.equinox.p2.discovery.compatibility" version="0.0.0"><category name="p2-bundles"/></bundle>
 	<bundle id="org.eclipse.equinox.p2.engine" version="0.0.0"><category name="p2-bundles"/></bundle>
 	<bundle id="org.eclipse.equinox.p2.extensionlocation" version="0.0.0"><category name="p2-bundles"/></bundle>
+	<bundle id="org.eclipse.equinox.p2.ecf.filetransfer" version="0.0.0"><category name="p2-bundles"/></bundle>
+	<bundle id="org.eclipse.equinox.p2.ecf.filetransfer.httpclient5" version="0.0.0"><category name="p2-bundles"/></bundle>
 	<bundle id="org.eclipse.equinox.p2.garbagecollector" version="0.0.0"><category name="p2-bundles"/></bundle>
 	<bundle id="org.eclipse.equinox.p2.installer" version="0.0.0"><category name="p2-bundles"/></bundle>
 	<bundle id="org.eclipse.equinox.p2.jarprocessor" version="0.0.0"><category name="p2-bundles"/></bundle>

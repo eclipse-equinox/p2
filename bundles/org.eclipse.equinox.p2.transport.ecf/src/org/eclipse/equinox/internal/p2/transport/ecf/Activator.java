@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2026 Cloudsmith Inc and others.
  *
  *  This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License 2.0
@@ -16,16 +16,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
-import java.util.*;
-import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
-import org.eclipse.ecf.provider.filetransfer.IFileTransferProtocolToFactoryMapper;
+import java.util.Optional;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.FileTransfers;
+import org.eclipse.equinox.internal.p2.ecf.filetransfer.provider.IFileTransferProtocolToFactoryMapper;
 import org.osgi.framework.*;
-import org.osgi.util.tracker.ServiceTracker;
 
 /**
- * The activator class controls the plug-in life cycle. This activator has
- * helper methods to get file transfer service tracker, and for making sure
- * required ECF bundles are started.
+ * The activator class controls the plug-in life cycle.
  */
 @SuppressWarnings("restriction")
 public class Activator implements BundleActivator {
@@ -35,11 +32,6 @@ public class Activator implements BundleActivator {
 	private static final String HTTPS = "https"; //$NON-NLS-1$
 
 	private static BundleContext context;
-	// tracker for ECF service
-	private ServiceTracker<IRetrieveFileTransferFactory, IRetrieveFileTransferFactory> retrievalFactoryTracker;
-
-	// tracker for protocolToFactoryMapperTracker
-	private ServiceTracker<IFileTransferProtocolToFactoryMapper, IFileTransferProtocolToFactoryMapper> protocolToFactoryMapperTracker = null;
 
 	// The shared instance
 	private static Activator plugin;
@@ -54,15 +46,6 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext aContext) throws Exception {
 		Activator.context = null;
 		Activator.plugin = null;
-		if (retrievalFactoryTracker != null) {
-			retrievalFactoryTracker.close();
-			retrievalFactoryTracker = null;
-		}
-		if (protocolToFactoryMapperTracker != null) {
-			protocolToFactoryMapperTracker.close();
-			protocolToFactoryMapperTracker = null;
-		}
-
 	}
 
 	/**
@@ -75,101 +58,19 @@ public class Activator implements BundleActivator {
 	}
 
 	/**
-	 * Returns a {@link IRetrieveFileTransferFactory} using a {@link ServiceTracker}
-	 * after having attempted to start the bundle
-	 * "org.eclipse.ecf.provider.filetransfer". If something is wrong with the
-	 * configuration this method returns null.
-	 *
-	 * @return a factory, or null, if configuration is incorrect
+	 * Removes the http and https providers so that the URLConnection based
+	 * transfer of the JRE is used.
 	 */
-	public IRetrieveFileTransferFactory getRetrieveFileTransferFactory() {
-		return getFileTransferServiceTracker().getService();
-	}
-
 	public synchronized void useJREHttpClient() {
-		IFileTransferProtocolToFactoryMapper mapper = getProtocolToFactoryMapper();
-		if (mapper != null) {
-			// remove http
-			// Remove browse provider
-			String providerId = mapper.getBrowseFileTransferFactoryId(HTTP);
+		IFileTransferProtocolToFactoryMapper mapper = FileTransfers.getProtocolToFactoryMapper();
+		for (String protocol : new String[] { HTTP, HTTPS }) {
+			String providerId = mapper.getBrowseFileTransferFactoryId(protocol);
 			if (providerId != null) {
 				mapper.removeBrowseFileTransferFactory(providerId);
 			}
-			// Remove retrieve provider
-			providerId = mapper.getRetrieveFileTransferFactoryId(HTTP);
+			providerId = mapper.getRetrieveFileTransferFactoryId(protocol);
 			if (providerId != null) {
 				mapper.removeRetrieveFileTransferFactory(providerId);
-			}
-			// Remove send provider
-			providerId = mapper.getSendFileTransferFactoryId(HTTP);
-			if (providerId != null) {
-				mapper.removeSendFileTransferFactory(providerId);
-			}
-			// remove https
-			// Remove browse provider
-			providerId = mapper.getBrowseFileTransferFactoryId(HTTPS);
-			if (providerId != null) {
-				mapper.removeBrowseFileTransferFactory(providerId);
-			}
-			// Remove retrieve provider
-			providerId = mapper.getRetrieveFileTransferFactoryId(HTTPS);
-			if (providerId != null) {
-				mapper.removeRetrieveFileTransferFactory(providerId);
-			}
-			// Remove send provider
-			providerId = mapper.getSendFileTransferFactoryId(HTTPS);
-			if (providerId != null) {
-				mapper.removeSendFileTransferFactory(providerId);
-			}
-		}
-	}
-
-	/**
-	 * Gets the singleton ServiceTracker for the IRetrieveFileTransferFactory and
-	 * starts the bundles "org.eclipse.ecf" and
-	 * "org.eclipse.ecf.provider.filetransfer" on first call.
-	 *
-	 * @return ServiceTracker
-	 */
-	private synchronized ServiceTracker<IRetrieveFileTransferFactory, IRetrieveFileTransferFactory> getFileTransferServiceTracker() {
-		if (retrievalFactoryTracker == null) {
-			BundleContext bundleContext = Activator.context;
-			retrievalFactoryTracker = new ServiceTracker<>(bundleContext, IRetrieveFileTransferFactory.class, null);
-			retrievalFactoryTracker.open();
-			HashSet<String> toStart = new HashSet<>();
-			toStart.add("org.eclipse.ecf"); //$NON-NLS-1$
-			toStart.add("org.eclipse.ecf.provider.filetransfer"); //$NON-NLS-1$
-			startBundle(toStart, bundleContext);
-		}
-		return retrievalFactoryTracker;
-	}
-
-	private IFileTransferProtocolToFactoryMapper getProtocolToFactoryMapper() {
-		if (protocolToFactoryMapperTracker == null) {
-			protocolToFactoryMapperTracker = new ServiceTracker<>(context, IFileTransferProtocolToFactoryMapper.class,
-					null);
-			protocolToFactoryMapperTracker.open();
-		}
-		return protocolToFactoryMapperTracker.getService();
-	}
-
-	private static void startBundle(Set<String> bundles, BundleContext bundleContext) {
-		for (Bundle bundle : bundleContext.getBundles()) {
-			String symbolicName = bundle.getSymbolicName();
-			if (bundles.contains(symbolicName)) {
-				try {
-					if ((bundle.getState() & Bundle.INSTALLED) == 0) {
-						bundle.start(Bundle.START_ACTIVATION_POLICY);
-						bundle.start(Bundle.START_TRANSIENT);
-						bundles.remove(symbolicName);
-						if (bundles.isEmpty()) {
-							// nothing more to do
-							return;
-						}
-					}
-				} catch (BundleException e) {
-					// failed, try next bundle
-				}
 			}
 		}
 	}
