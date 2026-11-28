@@ -171,6 +171,11 @@ public class RepositoryTransport extends Transport {
 				cancelStatus.setUri(secureToDownload);
 				statusOn(target, cancelStatus, reader);
 				throw e;
+			} catch (NotModifiedException e) {
+				DownloadStatus notModified = new DownloadStatus(IStatus.CANCEL, Activator.ID,
+						NotModifiedException.STATUS_CODE, e.getMessage(), null);
+				notModified.setUri(secureToDownload);
+				return statusOn(target, notModified, reader);
 			} catch (CoreException e) {
 				if (e.getStatus().getException() == null) {
 					return statusOn(target, forException(e, secureToDownload), reader);
