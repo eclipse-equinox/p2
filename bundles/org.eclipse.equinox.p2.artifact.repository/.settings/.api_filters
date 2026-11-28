@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.artifact.repository" version="2">
+    <resource path="src/org/eclipse/equinox/internal/p2/artifact/repository/ArtifactRepositoryManager.java" type="org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager">
+        <filter comment="ArtifactRepositoryManager is the internal default implementation of IArtifactRepositoryManager" id="574619656">
+            <message_arguments>
+                <message_argument value="IArtifactRepositoryManager"/>
+                <message_argument value="ArtifactRepositoryManager"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/artifact/repository/ArtifactRequest.java" type="org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest">
+        <filter comment="ArtifactRequest is the internal default implementation of IArtifactRequest" id="574619656">
+            <message_arguments>
+                <message_argument value="IArtifactRequest"/>
+                <message_argument value="ArtifactRequest"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/artifact/repository/CompositeArtifactRepository.java" type="org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository">
+        <filter comment="CompositeArtifactRepository is the internal default implementation of ICompositeRepository" id="574619656">
+            <message_arguments>
+                <message_argument value="ICompositeRepository&lt;T&gt;"/>
+                <message_argument value="CompositeArtifactRepository"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/artifact/repository/simple/SimpleArtifactRepository.java" type="org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository">
+        <filter comment="SimpleArtifactRepository is the internal default implementation of IFileArtifactRepository" id="574619656">
+            <message_arguments>
+                <message_argument value="IFileArtifactRepository"/>
+                <message_argument value="SimpleArtifactRepository"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

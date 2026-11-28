@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.director" version="2">
+    <resource path="src/org/eclipse/equinox/internal/p2/director/Projector.java" type="org.eclipse.equinox.internal.p2.director.Projector">
+        <filter comment="Projector.mergeRequirements intentionally calls IRequirementChange.applyOn(), which is @noreference for clients but is used by p2's own resolver" id="640712815">
+            <message_arguments>
+                <message_argument value="IRequirementChange"/>
+                <message_argument value="Projector"/>
+                <message_argument value="applyOn()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Projector.safeMatch intentionally calls IRequirementChange.matches(IRequiredCapability), which is @noreference for clients but is used by p2's own resolver" id="640712815">
+            <message_arguments>
+                <message_argument value="IRequirementChange"/>
+                <message_argument value="Projector"/>
+                <message_argument value="matches(IRequiredCapability)"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Projector.mergeRequirements intentionally calls IRequirementChange.newValue(), which is @noreference for clients but is used by p2's own resolver" id="640712815">
+            <message_arguments>
+                <message_argument value="IRequirementChange"/>
+                <message_argument value="Projector"/>
+                <message_argument value="newValue()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/director/SimplePlanner.java" type="org.eclipse.equinox.internal.p2.director.SimplePlanner$EverythingOptionalProfile">
+        <filter comment="EverythingOptionalProfile is an internal wrapper used by SimplePlanner and intentionally implements IProfile" id="574619656">
+            <message_arguments>
+                <message_argument value="IProfile"/>
+                <message_argument value="EverythingOptionalProfile"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/director/Slicer.java" type="org.eclipse.equinox.internal.p2.director.Slicer">
+        <filter comment="Slicer.getRequirements intentionally calls IRequirementChange.newValue(), which is @noreference for clients but is used by p2's own resolver" id="640712815">
+            <message_arguments>
+                <message_argument value="IRequirementChange"/>
+                <message_argument value="Slicer"/>
+                <message_argument value="newValue()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>
